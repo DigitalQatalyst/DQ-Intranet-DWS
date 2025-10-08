@@ -25,7 +25,10 @@ const StageCard: React.FC<StageCardProps> = ({
   setActiveIndex
 }) => {
   const isActive = index === activeIndex;
-  return <div className={`bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 min-w-[300px] flex-shrink-0 md:min-w-0 relative ${isActive ? 'shadow-lg transform scale-105 md:scale-100 border-2 border-blue-500' : 'hover:shadow-lg hover:-translate-y-1'}`} onMouseEnter={() => setActiveIndex(index)}>
+  const baseClasses = 'bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 min-w-[300px] flex flex-col flex-shrink-0 md:min-w-0 relative h-full min-h-[420px]';
+  const activeClasses = 'ring-2 ring-blue-500 shadow-lg';
+  const inactiveClasses = 'hover:shadow-lg hover:-translate-y-1';
+  return <div className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`} onMouseEnter={() => setActiveIndex(index)}>
       <div className="p-6 flex flex-col h-full">
         <div className="flex items-center mb-4">
           <div className={`p-3 rounded-full mr-4 transition-colors duration-300 ${isActive ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-600'}`}>
@@ -100,48 +103,48 @@ const EnterpriseStages: React.FC = () => {
   const stages = [{
     id: 'ideation',
     title: 'Learn',
-    description: 'Build awareness and foundational skills to get started.',
-    benefits: ['Onboarding guides & flows', 'Introductory LMS courses', 'Access to knowledge hub'],
+    description: 'Get onboarded and build foundational DQ knowledge.',
+    benefits: ['Onboarding guides & workspace flows', 'LMS starter courses', 'Access to the DQ Knowledge Hub'],
     icon: <Lightbulb size={24} className="transition-colors duration-300" />,
     ctaText: 'Start Learning',
     path: '/stages/ideation'
   }, {
     id: 'launch',
     title: 'Follow',
-    description: 'Work with guidance while practicing agile ways of working.',
-    benefits: ['Task checklists & templates', 'Mentor & buddy system', 'Workspace familiarization'],
+    description: 'Learn by doing - work with guidance and practice DQ\'s agile ways.',
+    benefits: ['Task checklists & daily templates', 'Buddy & mentorship system', 'Workspace orientation'],
     icon: <Rocket size={24} className="transition-colors duration-300" />,
     ctaText: 'Follow the Path',
     path: '/stages/launch'
   }, {
     id: 'growth',
     title: 'Assist',
-    description: 'Support your team and contribute independently.',
-    benefits: ['Agile boards & collaboration tools', 'Access to DQ Services & Requests', 'Team-based tasks'],
+    description: 'Contribute independently and collaborate across your team.',
+    benefits: ['Agile boards & teamwork tools', 'Access to DQ Services & Requests', 'Participation in team deliverables'],
     icon: <TrendingUp size={24} className="transition-colors duration-300" />,
     ctaText: 'Assist Your Team',
     path: '/stages/growth'
   }, {
     id: 'expansion',
     title: 'Apply',
-    description: 'Take ownership of your tasks and deliver outcomes.',
-    benefits: ['Productivity dashboards', 'Specialized LMS modules', 'Cross-unit work opportunities'],
+    description: 'Take ownership of outcomes and strengthen delivery discipline.',
+    benefits: ['Productivity dashboards', 'Specialized LMS modules', 'Cross-unit project opportunities'],
     icon: <BarChart3 size={24} className="transition-colors duration-300" />,
     ctaText: 'Apply Your Skills',
     path: '/stages/expansion'
   }, {
     id: 'optimization',
     title: 'Enable',
-    description: 'Support others by leading small initiatives or workflows.',
-    benefits: ['Leadership toolkits', 'Workflow automation tools', 'Team collaboration spaces'],
+    description: 'Lead small initiatives and empower others through collaboration.',
+    benefits: ['Leadership & facilitation guides', 'Workflow automation tools', 'Collaboration workspaces'],
     icon: <Award size={24} className="transition-colors duration-300" />,
     ctaText: 'Enable Others',
     path: '/stages/optimization'
   }, {
     id: 'transformation',
     title: 'Transform',
-    description: 'Drive innovation and shape new ways of working.',
-    benefits: ['Transformation playbooks', 'Strategy & innovation hubs', 'Access to DQ Communities'],
+    description: 'Innovate, coach, and shape the future of work at DQ.',
+    benefits: ['Transformation playbooks', 'Innovation & strategy hubs', 'DQ Community network access'],
     icon: <Code size={24} className="transition-colors duration-300" />,
     ctaText: 'Transform Your Work',
     path: '/stages/transformation'

@@ -310,7 +310,9 @@ const CallToAction: React.FC = () => {
       setExpandedCard(cardId);
     }
   };
-  return <div ref={ref} className="bg-[image:var(--dq-cta-gradient)] py-20 relative overflow-hidden">
+  return <section ref={ref} className="py-20 text-white relative overflow-hidden" style={{
+      background: 'linear-gradient(135deg, #FB5535 0%, #1A2E6E 50%, #030F35 100%)'
+    }}>
       {/* Animated floating shapes */}
       <div className="absolute inset-0 overflow-hidden">
         <FloatingShape size={120} color="rgba(3, 15, 53, 0.15)" delay={0} duration={15} className="top-[10%] left-[5%]" />
@@ -419,6 +421,6 @@ const CallToAction: React.FC = () => {
           animation: slide-up 0.3s ease-out forwards;
         }
       `}</style>
-    </div>;
+    </section>;
 };
 export default CallToAction;
