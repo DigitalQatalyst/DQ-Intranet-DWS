@@ -14,57 +14,57 @@ interface Marketplace {
 const marketplaces: Marketplace[] = [
   {
     id: 'non-financial',
-    name: 'Non-Financial Marketplace',
-    description: 'Business registration, legal advisory, tax, compliance, and SME support services',
+    name: 'IT & Systems Support',
+    description: 'Helpdesk, access requests, device & app support.',
     icon: BuildingIcon,
     href: '/marketplace/non-financial',
   },
   {
     id: 'finance',
-    name: 'Finance Marketplace',
-    description: 'Funding options, grants, and financial services to help SMEs manage and grow',
+    name: 'HR & Finance Services',
+    description: 'Leave, payroll, benefits, and reimbursements.',
     icon: CreditCardIcon,
     href: '/marketplace/financial',
   },
   {
     id: 'media',
-    name: 'Media Marketplace',
-    description: "News, articles, and updates on Abu Dhabi's business landscape with industry insights",
+    name: 'Facilities & Logistics',
+    description: 'Office access, seating, travel, and logistics.',
     icon: NewspaperIcon,
     href: '/marketplace/media',
   },
   {
     id: 'community',
-    name: 'Community Marketplace',
-    description: 'Industry communities for networking, collaboration, and sharing best practices',
+    name: 'Associates Directory',
+    description: 'Find people, teams, and contacts across DQ.',
     icon: UsersIcon,
     href: '/marketplace/community',
   },
   {
     id: 'course',
-    name: 'Course Marketplace',
-    description: 'Training and educational modules to build entrepreneurship skills and enhance businesses',
+    name: 'DQ LMS Courses',
+    description: '7x GHC, 6x Digital, 12x HoV, 1x Day in DQ, Key Tools.',
     icon: GraduationCapIcon,
     href: '/marketplace/courses',
   },
   {
     id: 'investment',
-    name: 'Investment Marketplace',
-    description: 'Access to venture capital, crowdfunding, and grants for SME growth',
+    name: 'Certifications & Onboarding',
+    description: 'Mandatory training and new associate onboarding.',
     icon: TrendingUpIcon,
     href: '/marketplace/investment',
   },
   {
     id: 'calendar',
-    name: 'Calendar Marketplace',
-    description: 'Event management, matchmaking, and notifications for upcoming business events',
+    name: 'Training Materials',
+    description: 'Guides, playbooks, and how-to resources.',
     icon: CalendarIcon,
     href: '/marketplace/calendar',
   },
   {
     id: 'opportunity',
-    name: 'Opportunity Marketplace',
-    description: 'Business opportunities, partnerships, and growth prospects for SMEs',
+    name: 'News & Announcements',
+    description: 'Company updates and internal notices.',
     icon: SparklesIcon,
     href: '/marketplace/opportunities',
   },
@@ -154,7 +154,7 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         ref={buttonRef}
-        className={`flex items-center text-white hover:text-gray-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 rounded-md px-2 py-1 ${
+        className={`flex items-center text-white hover:text-dq-coral transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 rounded-md px-2 py-1 ${
           isCompact ? 'text-sm' : ''
         }`}
         onClick={() => setIsOpen(!isOpen)}
@@ -171,7 +171,7 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
       </button>
       {isOpen && (
         <div
-          className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 py-2"
+          className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-dq-navy/10 z-50 py-2"
           role="menu"
           aria-orientation="vertical"
           aria-labelledby="explore-menu"
@@ -192,8 +192,8 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
                   key={marketplace.id}
                   ref={(el) => (itemRefs.current[index] = el)}
                   href={marketplace.href}
-                  className={`flex items-start px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none transition-colors duration-150 ${
-                    focusedIndex === index ? 'bg-gray-50' : ''
+                  className={`flex items-start px-4 py-3 text-left hover:bg-dq-coral/10 focus:bg-dq-coral/10 focus:outline-none transition-colors duration-150 ${
+                    focusedIndex === index ? 'bg-dq-coral/10' : ''
                   }`}
                   role="menuitem"
                   tabIndex={-1}
@@ -205,13 +205,13 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
                   onFocus={() => setFocusedIndex(index)}
                 >
                   <div className="flex-shrink-0 mt-0.5">
-                    <Icon size={20} className="text-teal-600" />
+                    <Icon size={20} className="text-dq-coral" />
                   </div>
                   <div className="ml-3 flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-dq-navy truncate">
                       {marketplace.name}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                    <p className="text-xs text-dq-navy/70 mt-1 line-clamp-2">
                       {marketplace.description}
                     </p>
                   </div>

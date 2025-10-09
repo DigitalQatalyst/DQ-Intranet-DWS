@@ -52,6 +52,18 @@ module.exports = {
           dark: "#4F2E80",
           light: "#C499FF",
         },
+        dq: {
+          navy: "#030F35",
+          coral: "#FB5535",
+          white: "#FFFFFF",
+        },
+        dqsec: {
+          indigo: "#5B8EFF",
+          teal: "#00B185",
+          aqua: "#03BAE4",
+          sky: "#57D3FF",
+          tint: "#DDE8FF",
+        },
       },
       fontFamily: {
         display: ["Palatino", "serif"],
@@ -59,6 +71,10 @@ module.exports = {
       },
       zIndex: {
         400: 400,
+      },
+      backgroundImage: {
+        "dq-header": "linear-gradient(90deg, #030F35 0%, #FB5535 55%, #FFFFFF 100%)",
+        "dq-cta": "linear-gradient(90deg, #030F35 0%, #FB5535 100%)",
       },
     },
   },

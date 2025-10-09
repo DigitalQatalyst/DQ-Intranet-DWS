@@ -189,7 +189,7 @@ export const UnifiedCard: React.FC<UnifiedCardProps> = ({
           {content.secondaryCTA && <button onClick={content.secondaryCTA.onClick} disabled={content.secondaryCTA.disabled} className="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-600 rounded-md hover:bg-blue-50 transition-colors whitespace-nowrap min-w-[120px] flex-1 disabled:opacity-50 disabled:cursor-not-allowed" aria-label={`${content.secondaryCTA.text} for ${content.title}`}>
               {content.secondaryCTA.text}
             </button>}
-          {content.primaryCTA && <button onClick={content.primaryCTA.onClick} disabled={content.primaryCTA.disabled} className={`px-4 py-2 text-sm font-bold rounded-md transition-colors whitespace-nowrap flex-1 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed ${content.primaryCTA.variant === 'secondary' ? 'text-blue-600 bg-white border border-blue-600 hover:bg-blue-50' : 'text-white bg-blue-600 hover:bg-blue-700'}`} aria-label={`${content.primaryCTA.text} for ${content.title}`}>
+          {content.primaryCTA && <button onClick={content.primaryCTA.onClick} disabled={content.primaryCTA.disabled} className={`px-4 py-2 text-sm font-bold rounded-md transition-colors whitespace-nowrap flex-1 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed ${content.primaryCTA.text === 'Read More' ? 'bg-[#030F35] text-white rounded-md px-4 py-2 w-full hover:bg-[#021028] focus:outline-none focus:ring-2 focus:ring-[#030F35]/30 transition' : content.primaryCTA.text === 'Explore Now' ? 'bg-white text-[#030F35] rounded-md px-4 py-2 w-full hover:bg-[#F7F9FF] focus:outline-none focus:ring-2 focus:ring-[#030F35]/20 transition' : (content.primaryCTA.variant === 'secondary' ? 'text-blue-600 bg-white border border-blue-600 hover:bg-blue-50' : 'text-white bg-blue-600 hover:bg-blue-700')}` } aria-label={`${content.primaryCTA.text} for ${content.title}`}>
               {content.primaryCTA.text}
               {content.primaryCTA.icon && <span className="ml-2">{content.primaryCTA.icon}</span>}
             </button>}
@@ -236,7 +236,7 @@ export const UnifiedCard: React.FC<UnifiedCardProps> = ({
       {variant.layout !== 'gradient' && renderCTAs()}
       {/* Gradient layout CTA */}
       {variant.layout === 'gradient' && content.primaryCTA && <div className="p-6 pt-0">
-          <button onClick={content.primaryCTA.onClick} disabled={content.primaryCTA.disabled || isComingSoon} className={`w-full px-4 py-2 rounded-md font-medium transition-all duration-300 flex items-center justify-center ${isComingSoon ? 'bg-white text-gray-500 cursor-not-allowed' : 'bg-white text-blue-700 hover:bg-blue-50 border border-white/20'} ${isHovered && !isComingSoon ? 'opacity-100' : 'opacity-80'}`} aria-label={`${content.primaryCTA.text} for ${content.title}`}>
+          <button onClick={content.primaryCTA.onClick} disabled={content.primaryCTA.disabled || isComingSoon} className={`w-full px-4 py-2 rounded-md font-medium transition-all duration-300 flex items-center justify-center ${isComingSoon ? 'bg-white text-gray-500 cursor-not-allowed' : 'bg-white text-[#030F35] hover:bg-[#F7F9FF] focus:outline-none focus:ring-2 focus:ring-[#030F35]/20'} ${isHovered && !isComingSoon ? 'opacity-100' : 'opacity-80'}`} aria-label={`${content.primaryCTA.text} for ${content.title}`}>
             {content.primaryCTA.text}
             {content.primaryCTA.icon && <span className="ml-2">{content.primaryCTA.icon}</span>}
           </button>

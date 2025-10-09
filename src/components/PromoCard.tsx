@@ -8,6 +8,7 @@ interface PromoCardProps {
   path: string;
   gradientFrom: string;
   gradientTo: string;
+  ctaLabel?: string;
 }
 export const PromoCard: React.FC<PromoCardProps> = ({
   title,
@@ -15,20 +16,21 @@ export const PromoCard: React.FC<PromoCardProps> = ({
   icon,
   path,
   gradientFrom = 'from-purple-600',
-  gradientTo = 'to-blue-600'
+  gradientTo = 'to-blue-600',
+  ctaLabel = 'Explore Now'
 }) => {
   const navigate = useNavigate();
   return <div className={`flex flex-col h-full rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer bg-gradient-to-br ${gradientFrom} ${gradientTo} text-white`} onClick={() => navigate(path)}>
       <div className="p-6 flex flex-col h-full">
         <div className="flex items-center mb-4">
-          <div className="bg-white bg-opacity-20 p-3 rounded-full mr-4">
+          <div className="bg-white/15 p-3 rounded-full mr-4">
             {icon}
           </div>
           <h3 className="text-xl font-bold">{title}</h3>
         </div>
         <p className="text-white text-opacity-90 mb-6">{description}</p>
         <div className="mt-auto flex items-center font-medium">
-          Explore Now
+          {ctaLabel}
           <ArrowRight className="ml-2" size={18} />
         </div>
       </div>

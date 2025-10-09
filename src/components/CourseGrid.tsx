@@ -3,7 +3,7 @@ import { CourseCard } from './CourseCard';
 import { CourseType } from '../utils/mockData';
 import { CourseQuickViewModal } from './CourseQuickViewModal';
 import { PromoCard } from './PromoCard';
-import { DollarSign, Briefcase, Users, Calendar } from 'lucide-react';
+import { Briefcase, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 interface CourseGridProps {
   courses: CourseType[];
@@ -23,37 +23,23 @@ export const CourseGrid: React.FC<CourseGridProps> = ({
   const navigate = useNavigate();
   // Promo cards to be inserted after every 6 regular cards
   const promoCards = [{
-    id: 'finance-promo',
-    title: 'Looking for funding?',
-    description: 'Explore financial opportunities and resources to grow your business.',
-    icon: <DollarSign size={24} className="text-white" />,
-    path: '/finance',
-    gradientFrom: 'from-blue-600',
-    gradientTo: 'to-indigo-700'
-  }, {
-    id: 'advisory-promo',
-    title: 'Need expert advice?',
-    description: 'Connect with industry experts and get personalized guidance.',
-    icon: <Briefcase size={24} className="text-white" />,
-    path: '/advisory',
-    gradientFrom: 'from-purple-600',
-    gradientTo: 'to-pink-500'
-  }, {
-    id: 'community-promo',
-    title: 'Join our community',
-    description: 'Network with fellow entrepreneurs and share experiences.',
-    icon: <Users size={24} className="text-white" />,
-    path: '/community',
-    gradientFrom: 'from-green-500',
-    gradientTo: 'to-teal-400'
-  }, {
-    id: 'events-promo',
-    title: 'Upcoming events',
-    description: 'Discover workshops, webinars, and networking opportunities.',
+    id: 'learning-spotlight',
+    title: 'Ready to Grow Your Skills?',
+    description: 'Explore guided learning paths and core competencies that help you excel at DQ.',
     icon: <Calendar size={24} className="text-white" />,
-    path: '/events',
-    gradientFrom: 'from-orange-500',
-    gradientTo: 'to-red-500'
+    path: '/marketplace/courses',
+    gradientFrom: 'from-[#030F35]',
+    gradientTo: 'to-[#FB5535]',
+    ctaLabel: 'Explore Now'
+  }, {
+    id: 'mentor-support',
+    title: 'Need a Coach or Mentor?',
+    description: 'Connect with DQ coaches and learning partners for personalized guidance on your development journey.',
+    icon: <Briefcase size={24} className="text-white" />,
+    path: '/marketplace/activities',
+    gradientFrom: 'from-[#FB5535]',
+    gradientTo: 'to-[#030F35]',
+    ctaLabel: 'Get Support'
   }];
   if (courses.length === 0) {
     return <div className="bg-white rounded-lg shadow p-8 text-center">
@@ -110,7 +96,7 @@ export const CourseGrid: React.FC<CourseGridProps> = ({
           return <CourseCard key={`course-${course.id}`} course={courseWithTags} onClick={() => onCourseSelect(course)} onQuickView={() => setQuickViewCourse(course)} isBookmarked={bookmarkedCourses.includes(course.id)} onToggleBookmark={() => onToggleBookmark(course.id)} onAddToComparison={() => onAddToComparison(course)} />;
         } else if (item.type === 'promo') {
           const promo = item.data;
-          return <PromoCard key={`promo-${promo.id}-${idx}`} title={promo.title} description={promo.description} icon={promo.icon} path={promo.path} gradientFrom={promo.gradientFrom} gradientTo={promo.gradientTo} />;
+          return <PromoCard key={`promo-${promo.id}-${idx}`} title={promo.title} description={promo.description} icon={promo.icon} path={promo.path} gradientFrom={promo.gradientFrom} gradientTo={promo.gradientTo} ctaLabel={promo.ctaLabel} />;
         }
         return null;
       })}

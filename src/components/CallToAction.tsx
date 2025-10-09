@@ -33,7 +33,7 @@ const FormInput = ({
       <label className="block text-sm font-medium text-gray-700 mb-1">
         {label}
       </label>
-      <input type={type} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder={placeholder} value={value} onChange={onChange} required={required} />
+      <input type={type} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dq-coral/40 focus:border-dq-coral/60 transition-all" placeholder={placeholder} value={value} onChange={onChange} required={required} />
     </div>;
 };
 
@@ -49,7 +49,7 @@ const FormSelect = ({
       <label className="block text-sm font-medium text-gray-700 mb-1">
         {label}
       </label>
-      <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" value={value} onChange={onChange} required={required}>
+      <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dq-coral/40 focus:border-dq-coral/60 transition-all" value={value} onChange={onChange} required={required}>
         <option value="">Select an option</option>
         {options.map(option => <option key={option.value} value={option.value}>
             {option.label}
@@ -70,7 +70,7 @@ const FormTextarea = ({
       <label className="block text-sm font-medium text-gray-700 mb-1">
         {label}
       </label>
-      <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder={placeholder} value={value} onChange={onChange} required={required} rows={4}></textarea>
+      <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dq-coral/40 focus:border-dq-coral/60 transition-all" placeholder={placeholder} value={value} onChange={onChange} required={required} rows={4}></textarea>
     </div>;
 };
 
@@ -161,20 +161,24 @@ const CTACard: React.FC<CTACardProps> = ({
     }
   };
 
-  return <div ref={ref} className={`bg-white rounded-xl shadow-lg transition-all duration-500 relative overflow-hidden 
+  return <div ref={ref} className={`bg-white/95 backdrop-blur rounded-xl shadow-md transition-all duration-500 relative overflow-hidden flex flex-col 
         ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'} 
         ${isHovered ? 'shadow-xl scale-[1.02]' : ''} 
-        ${isExpanded ? 'p-8 md:col-span-2 lg:col-span-1' : 'p-8'}`} style={{
+        ${isExpanded ? 'p-8 md:col-span-2 lg:col-span-1' : 'p-6'}`} style={{
     transitionDelay: `${delay}s`
   }} onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
       {/* Card content */}
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col h-full">
         {!isExpanded ? <>
-            <div className={`${buttonColor === 'blue' ? 'bg-blue-100' : buttonColor === 'green' ? 'bg-emerald-100' : 'bg-purple-100'} p-4 rounded-full inline-block mb-6 transition-transform duration-500 ${isHovered ? 'scale-110' : ''}`}>
-              {icon}
+            <div className="flex-1">
+              <div className={`${buttonColor === 'blue' ? 'bg-dq-navy/10' : buttonColor === 'green' ? 'bg-dq-coral/10' : 'bg-white/20'} p-4 rounded-full inline-block mb-6 transition-transform duration-500 ${isHovered ? 'scale-110' : ''}`}>
+                {icon}
+              </div>
+              <h3 className="text-lg font-semibold text-dq-navy mb-2">{title}</h3>
+              <p className="text-sm text-gray-600">
+                {description}
+              </p>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">{title}</h3>
-            <p className="text-gray-600 mb-6">{description}</p>
             <button onClick={(e) => {
           handleRippleEffect(e);
           if (onExpand) {
@@ -182,15 +186,8 @@ const CTACard: React.FC<CTACardProps> = ({
           } else {
             onClick();
           }
-        }} className={`relative overflow-hidden px-6 py-3 font-medium rounded-lg shadow-md transition-all duration-300 flex items-center ${buttonColor === 'blue' ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800' : buttonColor === 'green' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700' : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700'} ${isHovered ? 'shadow-lg' : ''}`}>
+        }} className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-md bg-white text-[#030F35] text-sm font-semibold px-4 py-2 shadow-sm transition-colors duration-200 hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#030F35]">
               {buttonText}
-              <ChevronRight size={16} className={`ml-2 transition-transform duration-300 ${isHovered ? 'translate-x-1' : ''}`} />
-              {/* Ripple effect */}
-              <span ref={rippleRef} className="absolute rounded-full bg-white/20 pointer-events-none transition-all duration-700" style={{
-            width: '10px',
-            height: '10px',
-            opacity: 0
-          }}></span>
             </button>
           </> : <>
             <div className="flex justify-between items-center mb-4">
@@ -212,7 +209,7 @@ const CTACard: React.FC<CTACardProps> = ({
       </div>
       {/* Background glow effect */}
       <div className={`absolute inset-0 transition-opacity duration-700 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-        <div className={`absolute -inset-1 rounded-xl blur-xl ${buttonColor === 'blue' ? 'bg-blue-600/20' : buttonColor === 'green' ? 'bg-emerald-600/20' : 'bg-purple-600/20'}`}></div>
+        <div className={`absolute -inset-1 rounded-xl blur-xl ${buttonColor === 'blue' ? 'bg-dq-coral/15' : buttonColor === 'green' ? 'bg-dq-navy/10' : 'bg-white/15'}`}></div>
       </div>
     </div>;
 };
@@ -246,20 +243,20 @@ const CallToAction: React.FC = () => {
   const [contactFormSuccess, setContactFormSuccess] = useState(false);
   // Service categories
   const serviceCategories = [{
-    value: 'financial',
-    label: 'Financial Services'
+    value: 'learning-paths',
+    label: 'Learning Paths'
   }, {
-    value: 'advisory',
-    label: 'Business Advisory'
+    value: 'marketplaces',
+    label: 'Marketplaces'
   }, {
-    value: 'technology',
-    label: 'Technology Solutions'
+    value: 'collaboration',
+    label: 'Collaboration Spaces'
   }, {
-    value: 'marketing',
-    label: 'Marketing Services'
+    value: 'resources',
+    label: 'Resources & Templates'
   }, {
-    value: 'legal',
-    label: 'Legal Services'
+    value: 'support',
+    label: 'Support & Guidance'
   }];
   // Handle form submissions
   const handlePartnerSubmit = (e: React.FormEvent) => {
@@ -313,32 +310,34 @@ const CallToAction: React.FC = () => {
       setExpandedCard(cardId);
     }
   };
-  return <div ref={ref} className="bg-gradient-to-r from-blue-700 via-indigo-800 to-teal-700 py-20 relative overflow-hidden">
+  return <section ref={ref} className="py-20 text-white relative overflow-hidden" style={{
+      background: 'linear-gradient(135deg, #FB5535 0%, #1A2E6E 50%, #030F35 100%)'
+    }}>
       {/* Animated floating shapes */}
       <div className="absolute inset-0 overflow-hidden">
-        <FloatingShape size={120} color="rgba(255, 255, 255, 0.1)" delay={0} duration={15} className="top-[10%] left-[5%]" />
-        <FloatingShape size={80} color="rgba(79, 209, 197, 0.2)" delay={2} duration={18} className="top-[30%] left-[15%]" />
-        <FloatingShape size={150} color="rgba(99, 102, 241, 0.15)" delay={1} duration={20} className="bottom-[20%] left-[10%]" />
-        <FloatingShape size={100} color="rgba(255, 255, 255, 0.1)" delay={3} duration={12} className="top-[20%] right-[15%]" />
-        <FloatingShape size={70} color="rgba(79, 209, 197, 0.2)" delay={2.5} duration={16} className="top-[60%] right-[5%]" />
-        <FloatingShape size={130} color="rgba(99, 102, 241, 0.15)" delay={1.5} duration={22} className="bottom-[10%] right-[20%]" />
+        <FloatingShape size={120} color="rgba(3, 15, 53, 0.15)" delay={0} duration={15} className="top-[10%] left-[5%]" />
+        <FloatingShape size={80} color="rgba(251, 85, 53, 0.2)" delay={2} duration={18} className="top-[30%] left-[15%]" />
+        <FloatingShape size={150} color="rgba(3, 15, 53, 0.12)" delay={1} duration={20} className="bottom-[20%] left-[10%]" />
+        <FloatingShape size={100} color="rgba(251, 85, 53, 0.18)" delay={3} duration={12} className="top-[20%] right-[15%]" />
+        <FloatingShape size={70} color="rgba(3, 15, 53, 0.12)" delay={2.5} duration={16} className="top-[60%] right-[5%]" />
+        <FloatingShape size={130} color="rgba(251, 85, 53, 0.14)" delay={1.5} duration={22} className="bottom-[10%] right-[20%]" />
       </div>
       <div className="container mx-auto px-4 text-center relative z-10">
         <FadeInUpOnScroll>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to Accelerate Your Journey?
+            Ready to Move Work Forward?
           </h2>
         </FadeInUpOnScroll>
         <FadeInUpOnScroll delay={0.2}>
           <p className="text-lg text-gray-200 mb-12 max-w-3xl mx-auto">
-            One platform. Every resource you need to grow in Abu Dhabi.
+            Get started in the Digital Workspace — your hub for requests, learning, and collaboration.
           </p>
         </FadeInUpOnScroll>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {/* Card 1: Register Your Enterprise */}
-          <CTACard icon={<Users size={28} className="text-blue-600" />} title="Register Your Enterprise" description="Get access to tailored services, funding opportunities, and resources to accelerate your business growth." buttonText="Register Now" buttonColor="blue" onClick={() => navigate('/register')} delay={0.3} />
+          <CTACard icon={<Users size={28} className="text-dq-coral" />} title="Open DQ Workspace" description="Lead — access tools, services, and dashboards that help you work smarter every day." buttonText="Open Now →" buttonColor="blue" onClick={() => navigate('/register')} delay={0.3} />
           {/* Card 2: List Your Services */}
-          <CTACard icon={<Briefcase size={28} className="text-emerald-600" />} title="List Your Services" description="Join our ecosystem of service providers and help businesses thrive while expanding your own reach and impact." buttonText="Become a Partner" buttonColor="green" isExpanded={expandedCard === 'partner'} onExpand={() => handleExpandCard('partner')} delay={0.5} isSuccess={partnerFormSuccess}>
+          <CTACard icon={<Briefcase size={28} className="text-dq-navy" />} title="Explore Learning & Marketplaces" description="Co-work — discover DQ learning paths, resources, and collaboration spaces to grow your skills and impact." buttonText="Browse Learning →" buttonColor="green" isExpanded={expandedCard === 'partner'} onExpand={() => handleExpandCard('partner')} delay={0.5} isSuccess={partnerFormSuccess}>
             <form onSubmit={handlePartnerSubmit} className="mt-2">
               <FormInput label="Name" placeholder="Your full name" value={partnerFormData.name} onChange={(e) => setPartnerFormData({
               ...partnerFormData,
@@ -348,22 +347,21 @@ const CallToAction: React.FC = () => {
               ...partnerFormData,
               email: e.target.value
             })} required />
-              <FormSelect label="Service Category" options={serviceCategories} value={partnerFormData.serviceCategory} onChange={(e) => setPartnerFormData({
+              <FormSelect label="Focus Area" options={serviceCategories} value={partnerFormData.serviceCategory} onChange={(e) => setPartnerFormData({
               ...partnerFormData,
               serviceCategory: e.target.value
             })} required />
-              <FormTextarea label="Message" placeholder="Tell us about your services..." value={partnerFormData.message} onChange={(e) => setPartnerFormData({
+              <FormTextarea label="Message" placeholder="Tell us what you’d like to explore or learn..." value={partnerFormData.message} onChange={(e) => setPartnerFormData({
               ...partnerFormData,
               message: e.target.value
             })} required />
-              <button type="submit" className="w-full px-6 py-3 mt-2 font-medium rounded-lg shadow-md bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 flex items-center justify-center relative overflow-hidden">
-                Submit Application
-                <ChevronRight size={16} className="ml-2" />
+              <button type="submit" className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-white text-[#030F35] text-sm font-semibold px-4 py-2 shadow-sm transition-colors duration-200 hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#030F35]">
+                Send Request →
               </button>
             </form>
           </CTACard>
           {/* Card 3: Contact Us */}
-          <CTACard icon={<Phone size={28} className="text-purple-600" />} title="Contact Us" description="Have questions or need assistance? Our team is ready to help you navigate your business journey." buttonText="Get in Touch" buttonColor="purple" isExpanded={expandedCard === 'contact'} onExpand={() => handleExpandCard('contact')} delay={0.7} isSuccess={contactFormSuccess}>
+          <CTACard icon={<Phone size={28} className="text-dq-coral" />} title="Get Support" description="Own — need help or guidance? Reach out to DQ support to stay unblocked and keep work moving forward." buttonText="Get in Touch →" buttonColor="purple" isExpanded={expandedCard === 'contact'} onExpand={() => handleExpandCard('contact')} delay={0.7} isSuccess={contactFormSuccess}>
             <form onSubmit={handleContactSubmit} className="mt-2">
               <FormInput label="Name" placeholder="Your full name" value={contactFormData.name} onChange={(e) => setContactFormData({
               ...contactFormData,
@@ -377,9 +375,8 @@ const CallToAction: React.FC = () => {
               ...contactFormData,
               message: e.target.value
             })} required />
-              <button type="submit" className="w-full px-6 py-3 mt-2 font-medium rounded-lg shadow-md bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center">
-                Send Message
-                <ChevronRight size={16} className="ml-2" />
+              <button type="submit" className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-white text-[#030F35] text-sm font-semibold px-4 py-2 shadow-sm transition-colors duration-200 hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#030F35]">
+                Send Message →
               </button>
             </form>
           </CTACard>
@@ -424,6 +421,6 @@ const CallToAction: React.FC = () => {
           animation: slide-up 0.3s ease-out forwards;
         }
       `}</style>
-    </div>;
+    </section>;
 };
 export default CallToAction;

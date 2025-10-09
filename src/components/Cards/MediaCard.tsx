@@ -250,7 +250,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
     text: badge,
     variant: (index === 0 ? 'primary' : 'info') as const,
   }))
-  const ctaColorClass = getCTAColorByType(type)
+  const ctaColorClass = 'bg-[#030F35] hover:bg-[#021028]'
   const isCtaDisabled = !detailsHref
   // Render media section based on type
   const renderMediaSection = () => {
@@ -572,7 +572,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
               onClick={handleCTA}
               disabled={isCtaDisabled}
               aria-disabled={isCtaDisabled}
-              className={`w-full px-4 py-3 text-sm font-bold text-white rounded-md transition-colors flex items-center justify-center gap-2 ${isCtaDisabled ? 'bg-gray-400 cursor-not-allowed' : ctaColorClass}`}
+              className={`w-full px-4 py-3 text-sm font-bold text-white rounded-md transition-colors flex items-center justify-center gap-2 ${isCtaDisabled ? 'bg-gray-400 cursor-not-allowed' : ctaColorClass} focus:outline-none focus:ring-2 focus:ring-[#030F35]/30`}
               aria-label={`${getCTAText(type)}: ${title}`}
             >
               {type === 'video' && <Play size={16} />}

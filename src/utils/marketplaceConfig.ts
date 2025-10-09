@@ -138,20 +138,20 @@ export const mockCoursesData = {
   items: mockCourses,
   filterOptions: {
     categories: [{
-      id: 'entrepreneurship',
-      name: 'Entrepreneurship'
+      id: 'ghc',
+      name: 'GHC'
     }, {
-      id: 'finance',
-      name: 'Finance'
+      id: 'digital',
+      name: 'Digital'
     }, {
-      id: 'marketing',
-      name: 'Marketing'
+      id: 'hov',
+      name: 'HoV'
     }, {
-      id: 'technology',
-      name: 'Technology'
+      id: 'keytools',
+      name: 'Key Tools'
     }, {
-      id: 'operations',
-      name: 'Operations'
+      id: 'dayindq',
+      name: 'Day in DQ'
     }],
     deliveryModes: [{
       id: 'online',
@@ -164,17 +164,17 @@ export const mockCoursesData = {
       name: 'Hybrid'
     }],
     businessStages: [{
-      id: 'conception',
-      name: 'Conception'
+      id: 'new-joiner',
+      name: 'New Joiner'
     }, {
-      id: 'growth',
-      name: 'Growth'
+      id: 'team-lead',
+      name: 'Team Lead'
     }, {
-      id: 'maturity',
-      name: 'Maturity'
+      id: 'project-delivery',
+      name: 'Project/Delivery'
     }, {
-      id: 'restructuring',
-      name: 'Restructuring'
+      id: 'ops-support',
+      name: 'Ops & Support'
     }]
   },
   providers: providers
@@ -189,13 +189,13 @@ export const mockKnowledgeHubData = {
 export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   courses: {
     id: 'courses',
-    title: 'Course Marketplace',
-    description: 'Discover and enroll in courses tailored for SMEs to help grow your business',
+    title: 'DQ LMS Course Marketplace',
+    description: 'Discover focused, practical courses to help you work smarter at DQ.',
     route: '/marketplace/courses',
     primaryCTA: 'Enroll Now',
     secondaryCTA: 'View Details',
-    itemName: 'Course',
-    itemNamePlural: 'Courses',
+    itemName: 'LMS Course',
+    itemNamePlural: 'LMS Courses',
     attributes: [{
       key: 'duration',
       label: 'Duration',
@@ -244,20 +244,20 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       id: 'category',
       title: 'Course Category',
       options: [{
-        id: 'entrepreneurship',
-        name: 'Entrepreneurship'
+        id: 'ghc',
+        name: 'GHC'
       }, {
-        id: 'finance',
-        name: 'Finance'
+        id: 'digital',
+        name: 'Digital'
       }, {
-        id: 'marketing',
-        name: 'Marketing'
+        id: 'hov',
+        name: 'HoV'
       }, {
-        id: 'technology',
-        name: 'Technology'
+        id: 'keytools',
+        name: 'Key Tools'
       }, {
-        id: 'operations',
-        name: 'Operations'
+        id: 'dayindq',
+        name: 'Day in DQ'
       }]
     }, {
       id: 'deliveryMode',
@@ -287,19 +287,19 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       }]
     }, {
       id: 'businessStage',
-      title: 'Business Stage',
+      title: 'Level',
       options: [{
-        id: 'conception',
-        name: 'Conception'
+        id: 'new-joiner',
+        name: 'New Joiner'
       }, {
-        id: 'growth',
-        name: 'Growth'
+        id: 'team-lead',
+        name: 'Team Lead'
       }, {
-        id: 'maturity',
-        name: 'Maturity'
+        id: 'project-delivery',
+        name: 'Project/Delivery'
       }, {
-        id: 'restructuring',
-        name: 'Restructuring'
+        id: 'ops-support',
+        name: 'Ops & Support'
       }]
     }],
     // Data mapping functions
@@ -341,7 +341,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         }]
       }, {
         id: 'businessStage',
-        title: 'Business Stage',
+        title: 'Level',
         options: data.businessStages || []
       }];
     },

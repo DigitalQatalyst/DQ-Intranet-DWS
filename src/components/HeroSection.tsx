@@ -41,7 +41,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     }
     return () => clearTimeout(timer);
   }, [isSearchFocused]);
-  const suggestionPills = ['How do I get funding for my business?', 'What services help with business expansion?', 'How to connect with business mentors?', 'Steps to register a company in Abu Dhabi'];
+  const suggestionPills = ['Open an IT service request', 'Where’s the HR leave policy?', 'Start "Day in DQ" onboarding', 'Show this week’s LMS courses'];
   return <div className="relative w-full bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 overflow-hidden" style={{
     backgroundImage: "linear-gradient(rgba(17, 24, 39, 0.7), rgba(17, 24, 39, 0.7)), url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1470&auto=format&fit=crop')",
     backgroundSize: 'cover',
@@ -57,15 +57,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight overflow-hidden">
             
               <AnimatedText
-                text="Your Gateway to Enterprise Growth in Abu Dhabi"
+                text="Your Digital Workspace"
                 gap="1rem"
               />
             
           </h1>
           <FadeInUpOnScroll delay={0.8}>
             <p className="text-xl text-white/90 mb-8">
-              Start and scale your business with access to funding, services,
-              and partners.
+              One trusted hub for tools, requests, learning, and collaboration—so every Qatalyst can move work forward, fast.
             </p>
           </FadeInUpOnScroll>
         </div>
@@ -76,14 +75,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               <div className="flex items-center">
                 {/* Input field */}
                 <div className="flex-grow relative">
-                  <input type="text" placeholder="Ask how to grow your business in Abu Dhabi..." className={`w-full py-3 px-4 outline-none text-gray-700 rounded-lg bg-gray-50 transition-all duration-300 ${isSearchFocused ? 'bg-white' : ''}`} value={prompt} onChange={e => setPrompt(e.target.value)} onFocus={() => setIsSearchFocused(true)} onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)} onKeyDown={e => {
+                  <input type="text" placeholder="Find tools, policies, or service requests…" className={`w-full py-3 px-4 outline-none text-gray-700 rounded-lg bg-gray-50 transition-all duration-300 ${isSearchFocused ? 'bg-white' : ''}`} value={prompt} onChange={e => setPrompt(e.target.value)} onFocus={() => setIsSearchFocused(true)} onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)} onKeyDown={e => {
                   if (e.key === 'Enter') {
                     handleSubmitPrompt();
                   }
                 }} />
                 </div>
                 {/* Submit button */}
-                <button onClick={handleSubmitPrompt} disabled={isProcessing || !prompt.trim()} className={`ml-2 p-3 rounded-lg flex items-center justify-center transition-all ${isProcessing || !prompt.trim() ? 'bg-gray-200 cursor-not-allowed text-gray-400' : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white'}`}>
+                <button onClick={handleSubmitPrompt} disabled={isProcessing || !prompt.trim()} className={`ml-2 p-3 rounded-lg flex items-center justify-center transition-all ${isProcessing || !prompt.trim() ? 'bg-gray-200 cursor-not-allowed text-gray-400' : 'bg-[image:var(--dq-cta-gradient)] hover:brightness-105 text-white'}`}>
                   <Send size={20} className={isProcessing ? 'animate-pulse' : ''} />
                 </button>
               </div>
@@ -109,16 +108,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         </FadeInUpOnScroll>
         {/* Call to Action Buttons with animations */}
         <StaggeredFadeIn staggerDelay={0.2} className="flex flex-col sm:flex-row gap-4 mt-2">
-          <a href="/register" className="px-8 py-3 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-bold rounded-lg shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl text-center flex items-center justify-center overflow-hidden group">
-            <span className="relative z-10">Start Your Growth Journey</span>
+          <a href="/register" className="px-8 py-3 bg-[image:var(--dq-cta-gradient)] hover:brightness-105 text-white font-bold rounded-lg shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl text-center flex items-center justify-center overflow-hidden group">
+            <span className="relative z-10">Start Your Digital Workspace Journey</span>
             <ArrowRight size={18} className="ml-2 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
             {/* Ripple effect on hover */}
             <span className="absolute inset-0 overflow-hidden rounded-lg">
               <span className="absolute inset-0 bg-white/20 transform scale-0 opacity-0 group-hover:scale-[2.5] group-hover:opacity-100 rounded-full transition-all duration-700 origin-center"></span>
             </span>
           </a>
-          <a href="/partners" className="px-8 py-3 bg-white text-blue-700 hover:bg-blue-50 font-bold rounded-lg shadow-lg flex items-center justify-center gap-2 transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-            Become a Partner
+          <a href="/partners" className="px-8 py-3 bg-white text-dq-navy hover:bg-white/90 font-bold rounded-lg shadow-lg flex items-center justify-center gap-2 transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+            Become a Qatalyst
             <Building size={18} />
           </a>
         </StaggeredFadeIn>
