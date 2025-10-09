@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import AssetLibraryPage from '../assetLibrary';
 import { MarketplacePage } from '../../components/marketplace/MarketplacePage';
 import MarketplaceDetailsPage from './MarketplaceDetailsPage';
 import { DollarSign, Briefcase, Users, Calendar, Newspaper, BookOpen, Video } from 'lucide-react';
@@ -113,5 +114,7 @@ export const MarketplaceRouter: React.FC = () => {
       {/* Knowledge Hub Marketplace */}
       <Route path="/knowledge-hub" element={<MarketplacePage marketplaceType="knowledge-hub" title={knowledgeHubConfig.title} description={knowledgeHubConfig.description} promoCards={knowledgeHubPromoCards} />} />
       <Route path="/knowledge-hub/:itemId" element={<MarketplaceDetailsPage marketplaceType="knowledge-hub" bookmarkedItems={bookmarkedItems['knowledge-hub']} onToggleBookmark={itemId => handleToggleBookmark('knowledge-hub', itemId)} />} />
+      {/* Asset Library */}
+      <Route path="/asset-library" element={<AssetLibraryPage />} />
     </Routes>;
 };
