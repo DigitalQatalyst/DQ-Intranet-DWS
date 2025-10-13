@@ -135,7 +135,7 @@ export function Header({
                     }`}
                     onClick={handleSignIn}
                   >
-                    Sign In to DQ Workspace
+                    Sign In
                   </button>
                 </div>
 
