@@ -6,6 +6,7 @@ import { MarketplaceRouter } from "./pages/marketplace/MarketplaceRouter";
 import { App } from './App';
 import MarketplaceDetailsPage from "./pages/marketplace/MarketplaceDetailsPage";
 import AssetLibraryPage from "./pages/assetLibrary";
+import BlueprintsPage from "./pages/blueprints";
 import DQAgileKPIsPage from "./pages/play/DQAgileKPIsPage";
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -74,6 +75,8 @@ export function AppRouter() {
               }
             />
             <Route path="/asset-library" element={<AssetLibraryPage />} />
+            <Route path="/blueprints" element={<BlueprintsPage />} />
+            <Route path="/blueprints/:projectId" element={<BlueprintsPage />} />
             <Route path="/play/dq-agile-kpis" element={<DQAgileKPIsPage />} />
             <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
             <Route path="/events" element={<DQEventsCalendar />} />
