@@ -13,6 +13,7 @@ import { DiscoverAbuDhabi } from "./pages/discoverAbuDhabi";
 import NotFound from "./pages/NotFound";
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
+import { DQEventsCalendar } from "./components/DQEventsCalendar";
 import KfBot from "./bot/KfBot";
 
 export function AppRouter() {
@@ -75,6 +76,7 @@ export function AppRouter() {
             <Route path="/asset-library" element={<AssetLibraryPage />} />
             <Route path="/play/dq-agile-kpis" element={<DQAgileKPIsPage />} />
             <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
+            <Route path="/events" element={<DQEventsCalendar />} />
             <Route path="/404" element={<NotFound />} />
 
             <Route path="*" element={<Navigate to="/404" replace />} />
