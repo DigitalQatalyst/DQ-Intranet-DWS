@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { CalendarView } from './CalendarView';
 import { ListView } from './ListView';
 import { FilterPanel } from './FilterPanel';
-import { mockEvents } from '../../utils/mockData';
+import { mockEvents } from '../../utils/mockDataEvents';
 import { CalendarIcon, ListIcon, SearchIcon, XIcon } from 'lucide-react';
 export type Event = {
   id: string;
