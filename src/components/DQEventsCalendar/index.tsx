@@ -96,13 +96,13 @@ export function DQEventsCalendar() {
       </main>
       {/* API Integration Note */}
       <div className="bg-gray-100 p-4 text-sm text-gray-600 border-t border-gray-200">
-        <div className="container mx-auto">
+        {/* <div className="container mx-auto">
           <p className="font-medium">API Integration Placeholder</p>
           <p>
             This component is ready to be connected to Google Calendar or
             internal DQ API.
           </p>
-        </div>
+        </div> */}
       </div>
     </div>;
 }
