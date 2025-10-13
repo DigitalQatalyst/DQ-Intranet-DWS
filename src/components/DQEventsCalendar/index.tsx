@@ -4,6 +4,8 @@ import { ListView } from './ListView';
 import { FilterPanel } from './FilterPanel';
 import { mockEvents } from '../../utils/mockDataEvents';
 import { CalendarIcon, ListIcon, SearchIcon, XIcon } from 'lucide-react';
+import { Header } from '../Header';
+import { Footer } from '../Footer';
 export type Event = {
   id: string;
   title: string;
@@ -56,6 +58,7 @@ export function DQEventsCalendar() {
     setIsFilterOpen(!isFilterOpen);
   };
   return <div className="flex flex-col min-h-screen w-full">
+      <Header />
       {/* Header Section */}
       <header className="bg-gradient-to-r from-[#FB5535] via-[#1A2E6E] to-[#030F35] text-white p-6 md:p-8">
         <div className="container mx-auto">
@@ -104,6 +107,7 @@ export function DQEventsCalendar() {
           </p>
         </div> */}
       </div>
+      <Footer />
     </div>;
 }
 // Helper icon component for filters
