@@ -20,6 +20,21 @@ const sb = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persi
 
 const readJson = async (p) => JSON.parse(await fs.readFile(p, 'utf-8'))
 
+const buildFallbackBody = (g) => {
+  const lines = []
+  lines.push(`# ${g.title}`)
+  if (g.summary) lines.push('', g.summary)
+  lines.push('', '## Overview')
+  if (g.domain) lines.push(`- Domain: **${g.domain}**`)
+  if (g.guide_type) lines.push(`- Type: **${g.guide_type}**`)
+  if (g.function_area) lines.push(`- Function Area: **${g.function_area}**`)
+  if (g.complexity_level) lines.push(`- Complexity: **${g.complexity_level}**`)
+  if (g.authorName || g.authorOrg) lines.push(`- Author: **${g.authorName || ''}${g.authorOrg ? ' · ' + g.authorOrg : ''}**`)
+  lines.push('', '## Details')
+  lines.push('This guide provides practical, actionable guidance. Open the document for full content if available.')
+  return lines.join('\n')
+}
+
 const mapGuideToDb = (g) => ({
   slug: g.slug,
   title: g.title,
@@ -36,6 +51,8 @@ const mapGuideToDb = (g) => ({
   guide_type: g.guide_type ?? null,
   function_area: g.function_area ?? null,
   complexity_level: g.complexity_level ?? null,
+  body: g.body ?? buildFallbackBody(g),
+  document_url: g.documentUrl ?? g.document_url ?? null,
 })
 
 async function main () {

@@ -10,6 +10,7 @@ Data Fetching
 
 - Primary: calls `/api/guides/:idOrSlug` which resolves by `id` or `slug` and returns:
   - Core fields: `slug, title, summary, hero_image_url, document_url, domain, guide_type, function_area, status, complexity_level, last_updated_at, author_name, author_org, is_editors_pick, download_count`.
+  - Content: `body` (Markdown) for inline rendering when applicable.
   - Related: `steps, attachments, templates` when available.
 - Fallback: If the API isn’t reachable, client fetches from Supabase anon with RLS enforced (returns only `Approved`).
 - Related guides: client-side Supabase query (RLS enforced). Up to 6, filter by same Domain first, then fallback to same Guide Type. Excludes current slug. Order: editor’s pick desc, downloads desc, last updated desc.
@@ -20,10 +21,10 @@ Dynamic Rendering Rules
 - Deterministic image fallback: domain → type → neutral via `getGuideImageUrl`.
 - Type-adaptive emphasis:
   - Policy: show compliance metadata (status, effective date, author, org, complexity) first.
-  - Process / SOP / Procedure: prioritize steps/flow.
-  - Template: prioritize template downloads and quick access.
-  - Checklist: render steps as checkable items (client-only state).
-  - Best Practice: emphasize recommended actions (steps shown as actions).
+  - Process / SOP / Procedure: render `body` inline and show steps/flow when present.
+  - Template: prioritize template downloads and quick access CTA; render optional short `body` below.
+  - Checklist: render `body` and steps as checkable items (client-only state).
+  - Best Practice: render `body` and emphasize recommended actions.
 - CTA: “Open Guide” uses `document_url` when present, falling back to first template or attachment URL.
 
 Interactions
@@ -61,4 +62,3 @@ Analytics Events
 - Guides.RelatedClick: `{ from, to }`
 - Guides.Share: `{ slug }`
 - Guides.Print: `{ slug }`
-

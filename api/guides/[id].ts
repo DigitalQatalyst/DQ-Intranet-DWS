@@ -65,6 +65,7 @@ export default async function handler(req: AnyRequest, res: AnyResponse) {
         functionArea: row.function_area ?? null,
         complexityLevel: row.complexity_level ?? null,
         documentUrl: row.document_url ?? row.documentUrl ?? null,
+        body: row.body ?? null,
       } as any
       // Fetch sub-content (still supported)
       const [{ data: steps }, { data: attachments }, { data: templates }] = await Promise.all([

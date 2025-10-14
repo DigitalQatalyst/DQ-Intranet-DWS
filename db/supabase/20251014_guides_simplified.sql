@@ -6,7 +6,9 @@ alter table public.guides
   add column if not exists guide_type text,
   add column if not exists function_area text,
   add column if not exists status text default 'Approved',
-  add column if not exists complexity_level text;
+  add column if not exists complexity_level text,
+  add column if not exists body text,
+  add column if not exists document_url text;
 
 -- Helpful indexes for filtering
 create index if not exists guides_domain_idx on public.guides (domain);
@@ -27,4 +29,3 @@ begin
       for select using (status = 'Approved');
   end if;
 end $$;
-

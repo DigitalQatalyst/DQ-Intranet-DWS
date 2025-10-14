@@ -7,6 +7,13 @@ import { supabaseClient } from '../../lib/supabaseClient'
 import { getGuideImageUrl } from '../../utils/guideImageMap'
 import { track } from '../../utils/analytics'
 import { useAuth } from '../../components/Header/context/AuthContext'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import remarkSlug from 'remark-slug'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypeRaw from 'rehype-raw'
+import rehypeSanitize from 'rehype-sanitize'
+import { useRef } from 'react'
 
 interface GuideRecord {
   id: string
@@ -27,6 +34,7 @@ interface GuideRecord {
   isEditorsPick?: boolean | null
   downloadCount?: number | null
   documentUrl?: string | null
+  body?: string | null
   steps?: Array<{ id?: string; position?: number; title?: string; content?: string }>
   attachments?: Array<{ id?: string; type?: string; title?: string; url?: string; size?: string }>
   templates?: Array<{ id?: string; title?: string; url?: string; size?: string }>
@@ -42,6 +50,8 @@ const GuideDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [checklistState, setChecklistState] = useState<Record<string, boolean>>({})
+  const articleRef = useRef<HTMLDivElement | null>(null)
+  const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([])
 
   const backQuery = (location?.state && location.state.fromQuery) ? String(location.state.fromQuery) : ''
   const backHref = `/marketplace/guides${backQuery ? `?${backQuery}` : ''}`
@@ -88,6 +98,7 @@ const GuideDetailPage: React.FC = () => {
             isEditorsPick: row.is_editors_pick ?? row.isEditorsPick ?? null,
             downloadCount: row.download_count ?? row.downloadCount ?? null,
             documentUrl: row.document_url ?? row.documentUrl ?? null,
+            body: row.body ?? null,
             steps: [], attachments: [], templates: [],
           }
           if (!cancelled) setGuide(mapped)
@@ -105,6 +116,32 @@ const GuideDetailPage: React.FC = () => {
   useEffect(() => {
     if (guide?.slug) track('Guides.ViewDetail', { slug: guide.slug })
   }, [guide?.slug])
+
+  // After body rendered, collect headings for optional ToC and attach link tracking
+  useEffect(() => {
+    const el = articleRef.current
+    if (!el) return
+    // Build ToC from h2/h3
+    const hs = Array.from(el.querySelectorAll('h2, h3')) as HTMLElement[]
+    const items = hs.map(h => ({ id: h.id, text: h.innerText.trim(), level: h.tagName === 'H2' ? 2 : 3 }))
+    setToc(items.filter(i => i.id && i.text))
+
+    const onClick = (e: Event) => {
+      const t = e.target as HTMLElement | null
+      if (!t) return
+      const a = t.closest('a') as HTMLAnchorElement | null
+      if (!a) return
+      const href = a.getAttribute('href') || ''
+      // Track body links and heading anchor clicks
+      if (href.startsWith('#')) {
+        track('Guides.CTA', { category: 'guide_heading_anchor', id: href.replace(/^#/, ''), slug: guide?.slug || guide?.id })
+      } else {
+        track('Guides.CTA', { category: 'guide_body_link', href, slug: guide?.slug || guide?.id })
+      }
+    }
+    el.addEventListener('click', onClick)
+    return () => { el.removeEventListener('click', onClick) }
+  }, [guide?.slug, guide?.id, guide?.body])
 
   // Fetch related guides (public-only via RLS). Domain first, fallback to guideType.
   useEffect(() => {
@@ -208,7 +245,7 @@ const GuideDetailPage: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Header toggleSidebar={() => {}} sidebarOpen={false} />
-        <main className="container mx-auto px-4 py-8 flex-grow" role="main">
+        <main className="container mx-auto px-4 py-8 flex-grow guide-detail" role="main">
           <nav className="flex mb-4" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
               <li className="inline-flex items-center"><Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center"><HomeIcon size={16} className="mr-1" /><span>Home</span></Link></li>
@@ -231,7 +268,7 @@ const GuideDetailPage: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Header toggleSidebar={() => {}} sidebarOpen={false} />
-        <main className="container mx-auto px-4 py-8 flex-grow" role="main">
+        <main className="container mx-auto px-4 py-8 flex-grow guide-detail" role="main">
           <div className="bg-white rounded shadow p-8 text-center" aria-busy="true">Loading…</div>
         </main>
         <Footer isLoggedIn={!!user} />
@@ -271,7 +308,7 @@ const GuideDetailPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header toggleSidebar={() => {}} sidebarOpen={false} />
-      <main className="container mx-auto px-4 py-8 flex-grow" role="main">
+      <main className="container mx-auto px-4 py-8 flex-grow guide-detail" role="main">
         <nav className="flex mb-4" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center"><Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center"><HomeIcon size={16} className="mr-1" /><span>Home</span></Link></li>
@@ -308,7 +345,7 @@ const GuideDetailPage: React.FC = () => {
               </div>
             </div>
             <aside className="lg:col-span-1">
-              <div className="rounded-lg border border-gray-200 p-4 sticky top-24">
+              <div className="rounded-lg border border-gray-200 p-4 sticky top-24 guide-actions">
                 <div className="flex gap-2 mb-3">
                   <button onClick={openPrimaryUrl} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
                     <ExternalLink size={16} /> {primaryCtaLabel}
@@ -330,6 +367,75 @@ const GuideDetailPage: React.FC = () => {
         {/* Dynamic layout */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
+            {/* Optional Contents box if 2+ headings */}
+            {guide.body && toc && toc.filter(i => i.level <= 3).length >= 2 && (
+              <section className="bg-white rounded-lg shadow p-4" aria-label="Contents">
+                <details className="group" open>
+                  <summary className="cursor-pointer list-none flex items-center justify-between">
+                    <span className="text-sm font-semibold text-gray-900">Contents</span>
+                    <span className="text-gray-500 text-xs">{toc.length} items</span>
+                  </summary>
+                  <nav className="mt-3 text-sm" aria-label="Table of contents">
+                    <ul className="space-y-1">
+                      {toc.map((h, idx) => (
+                        <li key={idx} className={h.level === 3 ? 'pl-3' : ''}>
+                          <a href={`#${h.id}`} className="text-blue-600 hover:underline">{h.text}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                </details>
+              </section>
+            )}
+
+            {/* Body content for non-artifact types (Policy/SOP/Process/Best Practice) */}
+            {type !== 'template' && guide.body && (
+              <article ref={articleRef} className="bg-white rounded-lg shadow p-6 markdown-body" dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm, remarkSlug]}
+                  rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeAutolinkHeadings]}
+                  components={{
+                    a: ({ href = '', children, ...props }) => {
+                      const isExternal = /^https?:\/\//i.test(href) && !href.startsWith(window.location.origin)
+                      return (
+                        <a
+                          href={href}
+                          target={isExternal ? '_blank' : undefined}
+                          rel={isExternal ? 'noopener noreferrer' : undefined}
+                          className="text-blue-600 hover:underline"
+                          {...props}
+                        >{children}</a>
+                      )
+                    },
+                    img: ({ src = '', alt = '' }) => (
+                      // eslint-disable-next-line jsx-a11y/alt-text
+                      <img src={src} alt={alt || ''} className="rounded-lg max-w-full h-auto" loading="lazy" />
+                    ),
+                    table: ({ children }) => (
+                      <div className="overflow-x-auto"><table className="w-full text-left border border-gray-200">{children}</table></div>
+                    ),
+                    th: ({ children }) => (<th className="border-b border-gray-200 px-3 py-2 font-semibold text-gray-900">{children}</th>),
+                    td: ({ children }) => (<td className="border-b border-gray-100 px-3 py-2 align-top">{children}</td>),
+                    blockquote: ({ children }) => (<blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-700">{children}</blockquote>),
+                    code: ({ children }) => (<code className="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">{children}</code>),
+                    h2: ({ children, ...props }) => (<h2 className="text-xl font-semibold mt-6 mb-2" {...props}>{children}</h2>),
+                    h3: ({ children, ...props }) => (<h3 className="text-lg font-semibold mt-5 mb-2" {...props}>{children}</h3>),
+                    h4: ({ children, ...props }) => (<h4 className="text-base font-semibold mt-4 mb-2" {...props}>{children}</h4>),
+                    ul: ({ children }) => (<ul className="list-disc pl-6 space-y-1">{children}</ul>),
+                    ol: ({ children }) => (<ol className="list-decimal pl-6 space-y-1">{children}</ol>),
+                    p: ({ children }) => (<p className="mb-3 leading-7 text-gray-800">{children}</p>),
+                  }}
+                >
+                  {guide.body}
+                </ReactMarkdown>
+              </article>
+            )}
+            {type !== 'template' && !guide.body && guide.summary && (
+              <section className="bg-white rounded-lg shadow p-6" aria-label="Overview">
+                <p className="text-gray-700 leading-7">{guide.summary}</p>
+                <p className="text-sm text-gray-500 mt-2">Open the guide for full details.</p>
+              </section>
+            )}
             {/* Policy emphasis: metadata */}
             {type === 'policy' && (
               <section aria-labelledby="policy-meta" className="bg-white rounded-lg shadow p-6" id="metadata">
@@ -372,7 +478,7 @@ const GuideDetailPage: React.FC = () => {
                       </div>
                     </li>
                   ))}
-                  {(!guide.steps || guide.steps.length === 0) && (
+                  {(!guide.steps || guide.steps.length === 0) && type !== 'template' && !guide.body && (
                     <li className="text-gray-600 text-sm">No structured steps available; open the guide for full details.</li>
                   )}
                 </ol>
@@ -401,6 +507,49 @@ const GuideDetailPage: React.FC = () => {
                   <p className="text-sm text-gray-600">No templates provided.</p>
                 )}
               </section>
+            )}
+
+            {/* Optional short body for Template types */}
+            {type === 'template' && guide.body && (
+              <article ref={articleRef} className="bg-white rounded-lg shadow p-6 markdown-body" dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm, remarkSlug]}
+                  rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeAutolinkHeadings]}
+                  components={{
+                    a: ({ href = '', children, ...props }) => {
+                      const isExternal = /^https?:\/\//i.test(href) && !href.startsWith(window.location.origin)
+                      return (
+                        <a
+                          href={href}
+                          target={isExternal ? '_blank' : undefined}
+                          rel={isExternal ? 'noopener noreferrer' : undefined}
+                          className="text-blue-600 hover:underline"
+                          {...props}
+                        >{children}</a>
+                      )
+                    },
+                    img: ({ src = '', alt = '' }) => (
+                      // eslint-disable-next-line jsx-a11y/alt-text
+                      <img src={src} alt={alt || ''} className="rounded-lg max-w-full h-auto" loading="lazy" />
+                    ),
+                    table: ({ children }) => (
+                      <div className="overflow-x-auto"><table className="w-full text-left border border-gray-200">{children}</table></div>
+                    ),
+                    th: ({ children }) => (<th className="border-b border-gray-200 px-3 py-2 font-semibold text-gray-900">{children}</th>),
+                    td: ({ children }) => (<td className="border-b border-gray-100 px-3 py-2 align-top">{children}</td>),
+                    blockquote: ({ children }) => (<blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-700">{children}</blockquote>),
+                    code: ({ children }) => (<code className="font-mono text-sm bg-gray-100 px-1 py-0.5 rounded">{children}</code>),
+                    h2: ({ children, ...props }) => (<h2 className="text-xl font-semibold mt-6 mb-2" {...props}>{children}</h2>),
+                    h3: ({ children, ...props }) => (<h3 className="text-lg font-semibold mt-5 mb-2" {...props}>{children}</h3>),
+                    h4: ({ children, ...props }) => (<h4 className="text-base font-semibold mt-4 mb-2" {...props}>{children}</h4>),
+                    ul: ({ children }) => (<ul className="list-disc pl-6 space-y-1">{children}</ul>),
+                    ol: ({ children }) => (<ol className="list-decimal pl-6 space-y-1">{children}</ol>),
+                    p: ({ children }) => (<p className="mb-3 leading-7 text-gray-800">{children}</p>),
+                  }}
+                >
+                  {guide.body}
+                </ReactMarkdown>
+              </article>
             )}
 
             {/* Attachments */}
@@ -491,4 +640,3 @@ const GuideDetailPage: React.FC = () => {
 }
 
 export default GuideDetailPage
-

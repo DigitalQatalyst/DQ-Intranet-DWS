@@ -12,11 +12,11 @@ Core Scenarios
   - As authenticated: Draft/Archived renders with a prominent non-approved banner.
 
 - Dynamic sections
-  - Policy guide: shows metadata section first; hides steps when none.
-  - Process/SOP: steps section prioritized; hides attachments/templates when none.
-  - Template: templates section prioritized; “Use Template” CTA enabled.
-  - Checklist: steps show checkboxes; toggling is keyboard accessible.
-  - Best Practice: steps show as recommended actions.
+  - Policy: inline body renders; metadata section first; hides steps when none.
+  - Process/SOP: inline body renders as primary content; steps shown when present.
+  - Template: templates section prioritized; prominent CTA; optional short body renders below.
+  - Checklist: inline body renders; steps show checkboxes; toggling is keyboard accessible.
+  - Best Practice: inline body renders with recommended actions emphasis.
   - Empty states: if no attachments/templates/related, sections are omitted without gaps.
 
 - Fallback image logic
@@ -49,4 +49,3 @@ Regression Checks
 
 - Other marketplace routes and details pages render unchanged.
 - Guides listing loads and card clicks navigate correctly.
-
