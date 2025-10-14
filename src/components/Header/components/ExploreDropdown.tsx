@@ -55,11 +55,11 @@ const marketplaces: Marketplace[] = [
     href: '/marketplace/investment',
   },
   {
-    id: 'guides',
-    name: 'Guides Marketplace',
-    description: 'Guides, playbooks, and how-to resources.',
-    icon: BookOpen,
-    href: '/marketplace/guides',
+    id: 'calendar',
+    name: 'Calendar & Events',
+    description: 'Digital platform that connects event organizers with attendees, vendors, and service providers.',
+    icon: CalendarIcon,
+    href: '/events',
   },
   {
     id: 'opportunity',
