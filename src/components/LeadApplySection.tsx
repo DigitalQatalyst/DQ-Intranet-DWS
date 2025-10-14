@@ -18,23 +18,7 @@ type CardConfig = {
   title: string;
   description: string;
   cta: string;
-  variant: "workspace" | "lead" | "support";
   onClick: () => void;
-};
-
-const gradientClasses: Record<CardConfig["variant"], string> = {
-  workspace:
-    "bg-gradient-to-r from-[#0F172A] to-[#1A2E6E] text-white hover:from-[#13203A] hover:to-[#223A8E]",
-  lead:
-    "bg-gradient-to-r from-[#FB5535] to-[#E84E32] text-white hover:from-[#F24D2F] hover:to-[#D7472F]",
-  support:
-    "bg-gradient-to-r from-[#1A2E6E] to-[#030F35] text-white hover:from-[#223A8E] hover:to-[#08164A]",
-};
-
-const iconColour: Record<CardConfig["variant"], string> = {
-  workspace: "text-[#FB5535]",
-  lead: "text-[#0F172A]",
-  support: "text-[#FB5535]",
 };
 
 const LeadApplySection = () => {
@@ -44,32 +28,29 @@ const LeadApplySection = () => {
     () => [
       {
         id: "card-1",
-        icon: <Users size={24} className={iconColour.workspace} />,
+        icon: <Users size={28} className="text-[#FB5535]" />,
         title: "Open DQ Workspace",
         description:
           "Lead — access tools, services, and dashboards that help you work smarter every day.",
         cta: "Open Now →",
-        variant: "workspace",
         onClick: () => navigate("/register"),
       },
       {
         id: "card-2",
-        icon: <Briefcase size={24} className={iconColour.lead} />,
+        icon: <Briefcase size={28} className="text-[#FB5535]" />,
         title: "Become a Lead",
         description:
           "Co-work — take the next step in your DQ journey. Apply for a Lead role, mentor associates, and help shape how our workspace grows.",
         cta: "Apply Now →",
-        variant: "lead",
         onClick: () => window.dispatchEvent(new Event("open-lead-popup")),
       },
       {
         id: "card-3",
-        icon: <Phone size={24} className={iconColour.support} />,
+        icon: <Phone size={28} className="text-[#FB5535]" />,
         title: "Get Support",
         description:
           "Own — need help or guidance? Reach out to DQ Support to stay unblocked and keep work moving forward.",
         cta: "Get in Touch →",
-        variant: "support",
         onClick: () => navigate("/support"),
       },
     ],
@@ -109,33 +90,26 @@ const LeadApplySection = () => {
           </p>
         </FadeInUpOnScroll>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-12 lg:gap-x-16 items-stretch justify-items-center">
-          {cards.map(({ id, icon, title, description, cta, variant, onClick }, idx) => (
+        <div className="flex flex-wrap justify-center gap-6 mt-8">
+          {cards.map(({ id, icon, title, description, cta, onClick }, idx) => (
             <FadeInUpOnScroll key={id} delay={0.3 + idx * 0.2} className="flex">
-              <article className="bg-white rounded-2xl shadow-lg ring-1 ring-black/5 p-10 md:p-12 flex flex-col h-full min-h-[520px] w-full max-w-[400px] mx-auto transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
-                <div className="flex w-full flex-col items-center h-full">
-                  <div className="mt-1 mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#F4F6FB]">
-                    {icon}
+              <article className="bg-white rounded-2xl shadow-md p-6 flex flex-col justify-between w-[320px] h-[350px] transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+                <div className="text-center">
+                  <div className="flex justify-center mb-2">
+                    <div className="inline-flex items-center justify-center">
+                      {icon}
+                    </div>
                   </div>
-                  <h3 className="text-[22px] md:text-[26px] font-semibold text-[#0F172A]">
-                    {title}
-                  </h3>
-                  <p className="mt-3 mb-0 text-[15px] md:text-[17px] text-gray-600 leading-relaxed max-w-[520px] mx-auto">
-                    {description}
-                  </p>
-
-                  <div className="mt-6 md:mt-8 flex-1" />
-
-                  <div className="mt-auto flex justify-center w-full">
-                    <button
-                      type="button"
-                      onClick={onClick}
-                      className={`w-[260px] px-6 py-3 rounded-xl font-semibold shadow-md flex items-center justify-center transition-all duration-300 ${gradientClasses[variant]}`}
-                    >
-                      {cta}
-                    </button>
-                  </div>
+                  <h3 className="text-[#030F35] font-semibold text-lg mb-3">{title}</h3>
+                  <p className="text-gray-600 mb-5 leading-relaxed">{description}</p>
                 </div>
+                <button
+                  type="button"
+                  onClick={onClick}
+                  className="bg-[#030F35] text-white py-2 px-4 rounded-md hover:bg-[#FB5535] transition-all mt-auto mx-auto"
+                >
+                  {cta}
+                </button>
               </article>
             </FadeInUpOnScroll>
           ))}

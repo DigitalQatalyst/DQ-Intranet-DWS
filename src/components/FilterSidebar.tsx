@@ -78,7 +78,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   }];
   return <div className="space-y-2">
       {/* Category filter */}
-      <AccordionSection title="Course Category" isOpen={openSections.category} onToggle={() => toggleSection('category')}>
+      <AccordionSection title="Onboarding Flow Category" isOpen={openSections.category} onToggle={() => toggleSection('category')}>
         <div className={spacingClass}>
           {categories.map(category => <div key={category} className="flex items-center">
               <input type="checkbox" id={`category-${category}`} checked={filters.category === category} onChange={() => onFilterChange('category', category)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />

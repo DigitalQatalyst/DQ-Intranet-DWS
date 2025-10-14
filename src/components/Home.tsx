@@ -250,7 +250,7 @@ export const HomePage: React.FC = () => {
         {
           id: 'dq-lms-courses',
           title: 'DQ LMS Courses',
-          description: "Access DQ's Learning Hub to grow skills and master courses that shape your professional journey.",
+          description: "Access DQ's Learning Hub to grow skills and master courses that shape your professional journey",
           icon: <GraduationCap />,
           path: '/marketplace/courses',
           isActive: true
@@ -260,7 +260,7 @@ export const HomePage: React.FC = () => {
           title: 'DQ Onboarding Flows',
           description: 'Navigate clear onboarding flows to connect faster and feel confident from your first day.',
           icon: <Compass />,
-          path: '#',
+          path: '/onboarding-flows',
           isActive: true
         },
         {

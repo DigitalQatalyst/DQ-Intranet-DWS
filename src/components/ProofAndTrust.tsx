@@ -24,7 +24,7 @@ const testimonials: Testimonial[] = [{
   name: 'Salem Wasike',
   position: 'Product Owner - DQ Deploys',
   company: 'Digital Qatalyst',
-  companyLogo: 'https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+  companyLogo: 'https://image2url.com/images/1760445910640-e57cc381-c8d9-4b42-b991-a53bb5c84ae0.jpg',
   avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
   quote: 'Agile Essentials and DTMF learning paths reduced blockers by 40% and sped up feature delivery.',
   fullQuote: "Through the DQ LMS, our teams completed Agile Essentials and DTMF learning paths. The shared practices cut delivery blockers by 40% and improved flow, which helped us ship features faster and with clearer ownership.",
@@ -39,7 +39,7 @@ const testimonials: Testimonial[] = [{
   name: 'Sharavi Chander',
   position: 'Head of DQ Deploys',
   company: 'Digital Qatalyst',
-  companyLogo: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?q=80&w=2073&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+  companyLogo: 'https://image2url.com/images/1760445910640-e57cc381-c8d9-4b42-b991-a53bb5c84ae0.jpg',
   avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
   quote: '80+ team certifications built a learning culture that lifted consistency across releases.',
   fullQuote: "The LMS pathways and peer sessions led to 80+ certifications across Deploys. That shared foundation in tooling and governance raised our consistency and confidence from planning through release.",
@@ -54,7 +54,7 @@ const testimonials: Testimonial[] = [{
   name: 'Mohamed Thameez',
   position: 'Product Manager',
   company: 'Digital Qatalyst',
-  companyLogo: 'https://images.unsplash.com/photo-1566125882500-87e10f726cdc?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+  companyLogo: 'https://image2url.com/images/1760445910640-e57cc381-c8d9-4b42-b991-a53bb5c84ae0.jpg',
   avatar: 'https://randomuser.me/api/portraits/men/22.jpg',
   quote: "Cross-unit learning spaces cut our feature turnaround time by 30%.",
   fullQuote: "Standard playbooks, shared boards, and course-led upskilling created tighter handoffs between Design, Build, and Deploy. As a result, our feature turnaround time improved by 30% with fewer reworks.",
@@ -466,7 +466,7 @@ const FeaturedPartnersCarousel = () => {
   return (
     <div className="relative py-8">
       <FadeInUpOnScroll className="text-center mb-6">
-        <h3 className="text-2xl font-bold text-gray-900 mb-2">Featured Units</h3>
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">Featured Sectors</h3>
         <p className="text-gray-600">Trusted core factories and streams across DQ</p>
       </FadeInUpOnScroll>
 

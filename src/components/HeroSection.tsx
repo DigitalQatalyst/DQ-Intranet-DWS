@@ -44,7 +44,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   }, [isSearchFocused]);
   const suggestionPills = ['Open an IT service request', 'Where’s the HR leave policy?', 'Start "Day in DQ" onboarding', 'Show this week’s LMS courses'];
   return <div className="relative w-full bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 overflow-hidden" style={{
-    backgroundImage: "linear-gradient(rgba(17, 24, 39, 0.7), rgba(17, 24, 39, 0.7)), url('https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1470&auto=format&fit=crop')",
+    backgroundImage: "linear-gradient(rgba(17, 24, 39, 0.7), rgba(17, 24, 39, 0.7)), url('https://image2url.com/images/1760449006765-40749d15-7d70-48a5-91c8-6e1870447ae5.jpg')",
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     height: '100vh'

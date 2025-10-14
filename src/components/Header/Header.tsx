@@ -7,7 +7,6 @@ import { NotificationCenter } from './notifications/NotificationCenter';
 import { mockNotifications } from './utils/mockNotifications';
 import { useAuth } from './context/AuthContext';
 import { Link } from 'react-router-dom';
-import { scrollToReadyMove } from '../../utils/scroll';
 
 interface HeaderProps {
   toggleSidebar?: () => void;
@@ -101,7 +100,7 @@ export function Header({
                 isSticky ? 'text-sm' : ''
               }`}
             >
-              Explore DQ
+              Discover DQ
             </Link>
           </div>
 
@@ -116,18 +115,13 @@ export function Header({
               <>
                 {/* Desktop CTAs */}
                 <div className="hidden lg:flex items-center space-x-3">
-                  <a
-                    href="#ready-move"
-                    className={`px-4 py-2 text-white border border-white/40 rounded-md hover:bg-white hover:text-[#030F35] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 ${
+                  <button
+                    className={`px-4 py-2 text-white border border-white/40 rounded-md hover:bg-white/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 ${
                       isSticky ? 'text-sm px-3 py-1.5' : ''
                     }`}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      scrollToReadyMove();
-                    }}
                   >
                     Become a Lead
-                  </a>
+                  </button>
                   <button
                     className={`px-4 py-2 bg-white text-[#030F35] font-medium rounded-md hover:bg-white/90 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 ${
                       isSticky ? 'text-sm px-3 py-1.5' : ''
