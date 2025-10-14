@@ -56,10 +56,10 @@ const marketplaces: Marketplace[] = [
   },
   {
     id: 'calendar',
-    name: 'Training Materials',
-    description: 'Guides, playbooks, and how-to resources.',
+    name: 'Calendar & Events',
+    description: 'Digital platform that connects event organizers with attendees, vendors, and service providers.',
     icon: CalendarIcon,
-    href: '/marketplace/calendar',
+    href: '/events',
   },
   {
     id: 'opportunity',
