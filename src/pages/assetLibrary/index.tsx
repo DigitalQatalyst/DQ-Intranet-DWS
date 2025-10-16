@@ -11,6 +11,8 @@ import {
   Eye,
   Download,
   X,
+  ChevronDown,
+  Filter,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SearchBar } from "../../components/SearchBar";
@@ -301,7 +303,13 @@ function useAssetFiles(category: string | null, subcategory: string | null) {
     setLoading(true);
     // Simulate loading delay
     setTimeout(() => {
-      const result = getFilesByCategory(category, subcategory);
+      let result;
+      if (category === "all") {
+        // Get all files from the mock data
+        result = getFilesByCategory(null, null);
+      } else {
+        result = getFilesByCategory(category, subcategory);
+      }
       setFiles(result);
       setLoading(false);
     }, 500);
@@ -311,40 +319,61 @@ function useAssetFiles(category: string | null, subcategory: string | null) {
 }
 
 export default function AssetLibraryPage() {
-  const [level1, setLevel1] = useState<TopLevelCategory | null>(null);
-  const [level2, setLevel2] = useState<
-    DtSubCategory | MarketingSubCategory | null
-  >(null);
-  const [level3, setLevel3] = useState<string | null>(null);
-  const [level4, setLevel4] = useState<string | null>(null);
   const [selectedAsset, setSelectedAsset] = useState<AssetFile | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const isMarketing = level1 === "MARKETING ARTEFACTS";
-  const isDeploy = level1 === "DT2.0 DEPLOY";
-
-  // Local search state for UI parity with marketplaces (visual only)
+  // Local search state
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { files, loading } = useAssetFiles(
-    level1 && level2 && level3
-      ? `${level1}-${level2}-${level3}${level4 ? `-${level4}` : ""}`
-      : null,
-    level1 && level2 && level3 ? "files" : null
-  );
+  // Hierarchical filter state
+  const [filters, setFilters] = useState({
+    categories: [] as TopLevelCategory[],
+    subcategories: [] as string[],
+    projects: [] as string[],
+  });
+  const [showFilters, setShowFilters] = useState(false);
 
-  const showTop = !level1;
-  const showSecond = !!level1 && !level2;
-  const showThird = !!level1 && !!level2 && !level3;
-  const showFourth =
-    !!level1 &&
-    !!level2 &&
-    !!level3 &&
-    !level4 &&
-    level2 === "Delivery" &&
-    level3 === "DFSA" &&
-    isDeploy;
-  const showFiles = !!level1 && !!level2 && !!level3 && (!level4 || !!level4);
+  // Get all assets by default
+  const { files, loading } = useAssetFiles("all", "files");
+
+  // Filter files based on active filters
+  const filteredFiles = React.useMemo(() => {
+    if (!files) return null;
+
+    return files.filter((file) => {
+      // Category filter
+      if (
+        filters.categories.length > 0 &&
+        !filters.categories.includes(file.category as TopLevelCategory)
+      ) {
+        return false;
+      }
+
+      // Subcategory filter
+      if (
+        filters.subcategories.length > 0 &&
+        !filters.subcategories.includes(file.subcategory)
+      ) {
+        return false;
+      }
+
+      // Projects filter (check if author contains any of the selected projects)
+      if (filters.projects.length > 0) {
+        const hasMatchingProject = filters.projects.some(
+          (project) =>
+            file.author?.includes(project) ||
+            file.name.includes(project) ||
+            file.description.includes(project)
+        );
+        if (!hasMatchingProject) return false;
+      }
+
+      return true;
+    });
+  }, [files, filters]);
+
+  // Always show files (all assets by default)
+  const showFiles = true;
 
   // simple no-op to satisfy handlers that aren't used in the asset library
   const noop = () => undefined;
@@ -381,6 +410,172 @@ export default function AssetLibraryPage() {
     };
   }, []);
 
+  // Hierarchical filter options
+  const filterOptions = {
+    categories: ["DT2.0 DESIGN", "DT2.0 DEPLOY", "MARKETING ARTEFACTS"],
+    subcategories: {
+      "DT2.0 DESIGN": ["Govern", "BD", "Delivery"],
+      "DT2.0 DEPLOY": ["Govern", "BD", "Delivery"],
+      "MARKETING ARTEFACTS": ["DT2.0", "Products"],
+    },
+    projects: {
+      Govern: ["ABB", "ADIB", "INVESTUAE", "SAIB", "DFSA"],
+      BD: ["Hail & Cotton", "Khalifa Fund", "Neom", "ATC"],
+      Delivery: ["ADIB", "SAIB", "InvestUAE", "DFSA"],
+      "DT2.0": ["Marketing Library", "Template Library"],
+      Products: ["DTMA", "DTMP", "DT40T", "TmaaS", "D2GPrcsUPtech"],
+    },
+  };
+
+  // Get available subcategories based on selected categories
+  const availableSubcategories = React.useMemo(() => {
+    if (filters.categories.length === 0) {
+      return Object.values(filterOptions.subcategories).flat();
+    }
+    return filters.categories.flatMap(
+      (cat) =>
+        filterOptions.subcategories[
+          cat as keyof typeof filterOptions.subcategories
+        ] || []
+    );
+  }, [filters.categories]);
+
+  // Get available projects based on selected subcategories
+  const availableProjects = React.useMemo(() => {
+    if (filters.subcategories.length === 0) {
+      return Object.values(filterOptions.projects).flat();
+    }
+    return filters.subcategories.flatMap(
+      (sub) =>
+        filterOptions.projects[sub as keyof typeof filterOptions.projects] || []
+    );
+  }, [filters.subcategories]);
+
+  // Filter toggle handlers
+  const toggleFilter = (filterType: keyof typeof filters, value: string) => {
+    setFilters((prev) => {
+      const newFilters = { ...prev };
+
+      if (filterType === "categories") {
+        const categoryValue = value as TopLevelCategory;
+        newFilters.categories = prev.categories.includes(categoryValue)
+          ? prev.categories.filter((item) => item !== categoryValue)
+          : [...prev.categories, categoryValue];
+        newFilters.subcategories = [];
+        newFilters.projects = [];
+      } else if (filterType === "subcategories") {
+        newFilters.subcategories = prev.subcategories.includes(value)
+          ? prev.subcategories.filter((item) => item !== value)
+          : [...prev.subcategories, value];
+        newFilters.projects = [];
+      } else if (filterType === "projects") {
+        newFilters.projects = prev.projects.includes(value)
+          ? prev.projects.filter((item) => item !== value)
+          : [...prev.projects, value];
+      }
+
+      return newFilters;
+    });
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setFilters({
+      categories: [],
+      subcategories: [],
+      projects: [],
+    });
+  };
+
+  // Filter component
+  const FilterSidebar = () => (
+    <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+          <Filter size={20} />
+          Filters
+        </h3>
+        <button
+          onClick={clearFilters}
+          className="text-sm text-blue-600 hover:text-blue-800"
+        >
+          Clear All
+        </button>
+      </div>
+
+      {/* Level 1: Categories */}
+      <div className="mb-6">
+        <h4 className="font-medium text-gray-700 mb-3 flex items-center justify-between">
+          Categories
+          <ChevronDown size={16} />
+        </h4>
+        <div className="space-y-2">
+          {filterOptions.categories.map((category) => (
+            <label key={category} className="flex items-center">
+              <input
+                type="checkbox"
+                checked={filters.categories.includes(
+                  category as TopLevelCategory
+                )}
+                onChange={() => toggleFilter("categories", category)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="ml-2 text-sm text-gray-600">{category}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Level 2: Subcategories (only show if categories are selected) */}
+      {availableSubcategories.length > 0 && (
+        <div className="mb-6">
+          <h4 className="font-medium text-gray-700 mb-3 flex items-center justify-between">
+            Subcategories
+            <ChevronDown size={16} />
+          </h4>
+          <div className="space-y-2">
+            {availableSubcategories.map((subcategory) => (
+              <label key={subcategory} className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={filters.subcategories.includes(subcategory)}
+                  onChange={() => toggleFilter("subcategories", subcategory)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-gray-600">
+                  {subcategory}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Level 3: Projects (only show if subcategories are selected) */}
+      {availableProjects.length > 0 && (
+        <div className="mb-4">
+          <h4 className="font-medium text-gray-700 mb-3 flex items-center justify-between">
+            Projects
+            <ChevronDown size={16} />
+          </h4>
+          <div className="space-y-2">
+            {availableProjects.map((project) => (
+              <label key={project} className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={filters.projects.includes(project)}
+                  onChange={() => toggleFilter("projects", project)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-gray-600">{project}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
@@ -398,108 +593,14 @@ export default function AssetLibraryPage() {
                     <span>Home</span>
                   </Link>
                 </li>
-                <li>
+                <li aria-current="page">
                   <div className="flex items-center">
                     <ChevronRightIcon size={16} className="text-gray-400" />
-                    {showTop ? (
-                      <span className="ml-1 text-gray-500 md:ml-2">
-                        Asset Library
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => {
-                          setLevel1(null);
-                          setLevel2(null);
-                          setLevel3(null);
-                          setLevel4(null);
-                        }}
-                        className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
-                      >
-                        Asset Library
-                      </button>
-                    )}
+                    <span className="ml-1 text-gray-500 md:ml-2">
+                      Asset Library
+                    </span>
                   </div>
                 </li>
-                {level1 && (
-                  <li>
-                    <div className="flex items-center">
-                      <ChevronRightIcon size={16} className="text-gray-400" />
-                      {showSecond ? (
-                        <span className="ml-1 text-gray-500 md:ml-2">
-                          {level1}
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            setLevel2(null);
-                            setLevel3(null);
-                            setLevel4(null);
-                          }}
-                          className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
-                        >
-                          {level1}
-                        </button>
-                      )}
-                    </div>
-                  </li>
-                )}
-                {level2 && (
-                  <li>
-                    <div className="flex items-center">
-                      <ChevronRightIcon size={16} className="text-gray-400" />
-                      {showThird ? (
-                        <span className="ml-1 text-gray-500 md:ml-2">
-                          {level2}
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => {
-                            setLevel3(null);
-                            setLevel4(null);
-                          }}
-                          className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
-                        >
-                          {level2}
-                        </button>
-                      )}
-                    </div>
-                  </li>
-                )}
-                {level3 && (
-                  <li>
-                    <div className="flex items-center">
-                      <ChevronRightIcon size={16} className="text-gray-400" />
-                      {showFourth || showFiles ? (
-                        showFourth ? (
-                          <span className="ml-1 text-gray-500 md:ml-2">
-                            {level3}
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => setLevel4(null)}
-                            className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
-                          >
-                            {level3}
-                          </button>
-                        )
-                      ) : (
-                        <span className="ml-1 text-gray-500 md:ml-2">
-                          {level3}
-                        </span>
-                      )}
-                    </div>
-                  </li>
-                )}
-                {level4 && (
-                  <li aria-current="page">
-                    <div className="flex items-center">
-                      <ChevronRightIcon size={16} className="text-gray-400" />
-                      <span className="ml-1 text-gray-500 md:ml-2">
-                        {level4}
-                      </span>
-                    </div>
-                  </li>
-                )}
               </ol>
             </nav>
             <h1
@@ -508,351 +609,204 @@ export default function AssetLibraryPage() {
             >
               Asset Library
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-2">
               Browse shared design, deployment and marketing artefacts. Access
               templates, guides, and resources for your projects.
             </p>
+
             <div className="mb-6">
-              <SearchBar
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-              />
+              <div className="flex gap-4 items-center">
+                <div className="flex-1">
+                  <SearchBar
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                  />
+                </div>
+                {showFiles && (
+                  <button
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="lg:hidden flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    <Filter size={16} />
+                    Filters
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
-          {(showSecond || showThird || showFourth || showFiles) && (
-            <button
-              className="mb-4 inline-flex items-center gap-2 transition-colors hover:opacity-80"
-              style={{ color: "#1A2E6E" }}
-              onClick={() => {
-                if (showFiles && level4) {
-                  setLevel4(null);
-                } else if (showFiles || showFourth) {
-                  setLevel3(null);
-                } else if (showThird) {
-                  setLevel2(null);
-                } else if (showSecond) {
-                  setLevel1(null);
-                }
-              }}
-            >
-              <ArrowLeft size={18} /> Back
-            </button>
-          )}
-
-          {showTop && (
-            <div className="mx-auto w-full max-w-5xl">
-              <ResponsiveCardGrid className="justify-center -m-2">
-                {topLevelCards.map((card) => {
-                  const item = {
-                    id: card.id,
-                    title: card.title,
-                    description: card.description,
-                    provider: {
-                      name: card.title,
-                      logoUrl:
-                        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
-                    },
-                    tags: [card.color.toUpperCase()],
-                  };
-                  return (
-                    <div key={card.id} className="asset-lib-card p-2">
-                      <style>{`.asset-lib-card button:empty{display:none}`}</style>
-                      <MarketplaceCard
-                        item={item}
-                        config={{
-                          primaryCTA: "",
-                          secondaryCTA: "View Details",
-                        }}
-                        onQuickView={noop}
-                        onViewDetails={() => setLevel1(card.id)}
-                        onToggleBookmark={noop}
-                        onAddToComparison={noop}
-                        onPrimaryAction={noop}
-                      />
-                    </div>
-                  );
-                })}
-              </ResponsiveCardGrid>
-            </div>
-          )}
-
-          {showSecond && (
-            <div className="mx-auto w-full max-w-5xl">
-              <ResponsiveCardGrid className="justify-center -m-2">
-                {(isMarketing
-                  ? marketingSecondLevelCards
-                  : dtSecondLevelCards
-                ).map((card) => {
-                  const item = {
-                    id: card.id,
-                    title: card.title,
-                    description: card.description,
-                    provider: {
-                      name: card.title,
-                      logoUrl:
-                        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
-                    },
-                    tags: [card.color.toUpperCase()],
-                  };
-                  return (
-                    <div key={card.id} className="asset-lib-card p-2">
-                      <style>{`.asset-lib-card button:empty{display:none}`}</style>
-                      <MarketplaceCard
-                        item={item}
-                        config={{
-                          primaryCTA: "",
-                          secondaryCTA: "View Details",
-                        }}
-                        onQuickView={noop}
-                        onViewDetails={() => setLevel2(card.id)}
-                        onToggleBookmark={noop}
-                        onAddToComparison={noop}
-                        onPrimaryAction={noop}
-                      />
-                    </div>
-                  );
-                })}
-              </ResponsiveCardGrid>
-            </div>
-          )}
-
-          {showThird && (
-            <div className="mx-auto w-full max-w-5xl">
-              <ResponsiveCardGrid className="justify-center -m-2">
-                {(() => {
-                  let organizations: any[] = [];
-
-                  if (level1 === "DT2.0 DESIGN") {
-                    if (level2 === "Govern")
-                      organizations = governOrganizations;
-                    else if (level2 === "BD") organizations = bdOrganizations;
-                    else if (level2 === "Delivery")
-                      organizations = deliveryOrganizations;
-                  } else if (level1 === "DT2.0 DEPLOY") {
-                    if (level2 === "Govern")
-                      organizations = deployGovernOrganizations;
-                    else if (level2 === "BD")
-                      organizations = deployBDOrganizations;
-                    else if (level2 === "Delivery")
-                      organizations = deployDeliveryOrganizations;
-                  } else if (level1 === "MARKETING ARTEFACTS") {
-                    if (level2 === "DT2.0")
-                      organizations = marketingDT20Organizations;
-                    else if (level2 === "Products")
-                      organizations = marketingProductsOrganizations;
-                  }
-
-                  return organizations.map((org) => {
-                    const item = {
-                      id: org.id,
-                      title: org.title,
-                      description: org.description,
-                      provider: {
-                        name: org.title,
-                        logoUrl:
-                          "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
-                      },
-                      tags: [org.color.toUpperCase()],
-                    };
-                    return (
-                      <div key={org.id} className="asset-lib-card p-2">
-                        <style>{`.asset-lib-card button:empty{display:none}`}</style>
-                        <MarketplaceCard
-                          item={item}
-                          config={{
-                            primaryCTA: "",
-                            secondaryCTA: "View Assets",
-                          }}
-                          onQuickView={noop}
-                          onViewDetails={() => setLevel3(org.id)}
-                          onToggleBookmark={noop}
-                          onAddToComparison={noop}
-                          onPrimaryAction={noop}
-                        />
-                      </div>
-                    );
-                  });
-                })()}
-              </ResponsiveCardGrid>
-            </div>
-          )}
-
-          {showFourth && (
-            <div className="mx-auto w-full max-w-5xl">
-              <ResponsiveCardGrid className="justify-center -m-2">
-                {dfsaDeliveryFolders.map((folder) => {
-                  const item = {
-                    id: folder.id,
-                    title: folder.title,
-                    description: folder.description,
-                    provider: {
-                      name: folder.title,
-                      logoUrl:
-                        "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",
-                    },
-                    tags: [folder.color.toUpperCase()],
-                  };
-                  return (
-                    <div key={folder.id} className="asset-lib-card p-2">
-                      <style>{`.asset-lib-card button:empty{display:none}`}</style>
-                      <MarketplaceCard
-                        item={item}
-                        config={{
-                          primaryCTA: "",
-                          secondaryCTA: "View Files",
-                        }}
-                        onQuickView={noop}
-                        onViewDetails={() => setLevel4(folder.id)}
-                        onToggleBookmark={noop}
-                        onAddToComparison={noop}
-                        onPrimaryAction={noop}
-                      />
-                    </div>
-                  );
-                })}
-              </ResponsiveCardGrid>
-            </div>
-          )}
-
-          {showFiles && (
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {level4 || level3} Assets
-                </h2>
-                <p className="text-gray-600">
-                  {level1} → {level2} → {level3}
-                  {level4 ? ` → ${level4}` : ""} files and resources
-                </p>
+          {/* Main Content with Sidebar Layout */}
+          <div className="flex gap-6">
+            {/* Filter Sidebar - Always show */}
+            {showFiles && (
+              <div
+                className={`w-80 flex-shrink-0 ${
+                  showFilters ? "block" : "hidden lg:block"
+                }`}
+              >
+                <FilterSidebar />
               </div>
+            )}
 
-              {loading && (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <div className="text-gray-500">Loading assets...</div>
-                </div>
-              )}
-
-              {!loading && files && files.length > 0 && (
-                <div className="grid gap-4 md:grid-cols-2">
-                  {files.map((asset) => (
-                    <div
-                      key={asset.id}
-                      className="border border-gray-200 rounded-xl p-6 hover:shadow-md hover:border-gray-300 transition-all duration-200"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, rgba(255, 107, 53, 0.02) 0%, rgba(26, 46, 110, 0.02) 50%, rgba(3, 15, 53, 0.03) 100%)",
-                      }}
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0">
-                          <div
-                            className="w-12 h-12 rounded-lg flex items-center justify-center"
-                            style={{ backgroundColor: "#1A2E6E" }}
-                          >
-                            <FileText size={24} className="text-white" />
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3
-                            className="text-lg font-semibold mb-2"
-                            style={{ color: "#030F35" }}
-                          >
-                            {asset.name}
-                          </h3>
-                          <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                            {asset.description}
-                          </p>
-                          <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 mb-4">
-                            {asset.author && (
-                              <span className="flex items-center gap-1">
-                                <span
-                                  className="font-medium"
-                                  style={{ color: "rgba(26, 46, 110, 0.7)" }}
-                                >
-                                  Author:
-                                </span>
-                                {asset.author}
-                              </span>
-                            )}
-                            <span className="flex items-center gap-1">
-                              <span
-                                className="font-medium"
-                                style={{ color: "rgba(26, 46, 110, 0.7)" }}
-                              >
-                                Updated:
-                              </span>
-                              {new Date(
-                                asset.lastModified
-                              ).toLocaleDateString()}
-                            </span>
-                            {asset.size && (
-                              <span className="flex items-center gap-1">
-                                <span
-                                  className="font-medium"
-                                  style={{ color: "rgba(26, 46, 110, 0.7)" }}
-                                >
-                                  Size:
-                                </span>
-                                {formatFileSize(asset.size)}
-                              </span>
-                            )}
-                            <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded uppercase font-medium">
-                              {asset.type}
-                            </span>
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => openModal(asset)}
-                              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors"
-                              style={{ backgroundColor: "#FF6B35" }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor =
-                                  "#E04A2B";
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor =
-                                  "#FF6B35";
-                              }}
-                              title="View Asset"
-                            >
-                              <Eye size={16} />
-                              View
-                            </button>
-                            <button
-                              onClick={() => handleDownload(asset)}
-                              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors"
-                              style={{ backgroundColor: "#1A2E6E" }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor =
-                                  "#15255A";
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor =
-                                  "#1A2E6E";
-                              }}
-                              title="Download Asset"
-                            >
-                              <Download size={16} />
-                              Download
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+            {/* Main Content Area */}
+            <div className="flex-1">
+              {showFiles && (
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                      All Assets
+                    </h2>
+                    <p className="text-gray-600">
+                      Browse all available assets and resources. Use filters to
+                      narrow down your search.
+                    </p>
+                    <div className="mt-4">
+                      <p className="text-sm text-gray-500">
+                        Showing {filteredFiles?.length || 0} of{" "}
+                        {files?.length || 0} assets
+                      </p>
                     </div>
-                  ))}
-                </div>
-              )}
+                  </div>
 
-              {!loading && files && files.length === 0 && (
-                <div className="text-center py-12 text-gray-500">
-                  <FileText size={48} className="mx-auto mb-4 text-gray-400" />
-                  <p>No assets available for this category yet.</p>
+                  {loading && (
+                    <div className="text-center py-12">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                      <div className="text-gray-500">Loading assets...</div>
+                    </div>
+                  )}
+
+                  {!loading && filteredFiles && filteredFiles.length > 0 && (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {filteredFiles.map((asset) => (
+                        <div
+                          key={asset.id}
+                          className="border border-gray-200 rounded-xl p-6 hover:shadow-md hover:border-gray-300 transition-all duration-200"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, rgba(255, 107, 53, 0.02) 0%, rgba(26, 46, 110, 0.02) 50%, rgba(3, 15, 53, 0.03) 100%)",
+                          }}
+                        >
+                          <div className="flex items-start gap-4">
+                            <div className="flex-shrink-0">
+                              <div
+                                className="w-12 h-12 rounded-lg flex items-center justify-center"
+                                style={{ backgroundColor: "#1A2E6E" }}
+                              >
+                                <FileText size={24} className="text-white" />
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3
+                                className="text-lg font-semibold mb-2"
+                                style={{ color: "#030F35" }}
+                              >
+                                {asset.name}
+                              </h3>
+                              <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                                {asset.description}
+                              </p>
+                              <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 mb-4">
+                                {asset.author && (
+                                  <span className="flex items-center gap-1">
+                                    <span
+                                      className="font-medium"
+                                      style={{
+                                        color: "rgba(26, 46, 110, 0.7)",
+                                      }}
+                                    >
+                                      Author:
+                                    </span>
+                                    {asset.author}
+                                  </span>
+                                )}
+                                <span className="flex items-center gap-1">
+                                  <span
+                                    className="font-medium"
+                                    style={{ color: "rgba(26, 46, 110, 0.7)" }}
+                                  >
+                                    Updated:
+                                  </span>
+                                  {new Date(
+                                    asset.lastModified
+                                  ).toLocaleDateString()}
+                                </span>
+                                {asset.size && (
+                                  <span className="flex items-center gap-1">
+                                    <span
+                                      className="font-medium"
+                                      style={{
+                                        color: "rgba(26, 46, 110, 0.7)",
+                                      }}
+                                    >
+                                      Size:
+                                    </span>
+                                    {formatFileSize(asset.size)}
+                                  </span>
+                                )}
+                                <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded uppercase font-medium">
+                                  {asset.type}
+                                </span>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => openModal(asset)}
+                                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors"
+                                  style={{ backgroundColor: "#FF6B35" }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      "#E04A2B";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      "#FF6B35";
+                                  }}
+                                  title="View Asset"
+                                >
+                                  <Eye size={16} />
+                                  View
+                                </button>
+                                <button
+                                  onClick={() => handleDownload(asset)}
+                                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white rounded-lg transition-colors"
+                                  style={{ backgroundColor: "#1A2E6E" }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      "#15255A";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      "#1A2E6E";
+                                  }}
+                                  title="Download Asset"
+                                >
+                                  <Download size={16} />
+                                  Download
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {!loading && filteredFiles && filteredFiles.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                      <FileText
+                        size={48}
+                        className="mx-auto mb-4 text-gray-400"
+                      />
+                      <p>
+                        {files && files.length > 0
+                          ? "No assets match the selected filters."
+                          : "No assets available for this category yet."}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
+          </div>
         </div>
       </main>
       <Footer />

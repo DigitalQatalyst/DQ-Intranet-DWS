@@ -283,10 +283,19 @@ export const mockAssetFiles: AssetFile[] = [
 ];
 
 export function getFilesByCategory(category: string | null, subcategory: string | null): AssetFile[] {
+  // Return all files if both parameters are null
+  if (!category && !subcategory) {
+    return mockAssetFiles;
+  }
+  
   if (!category || !subcategory) return [];
   
   // Handle the new hierarchical structure
   if (subcategory === 'files') {
+    if (category === 'all') {
+      return mockAssetFiles;
+    }
+    
     // Generate mock files based on the category path
     const pathParts = category.split('-');
     const fileCount = Math.floor(Math.random() * 6) + 3; // 3-8 files
