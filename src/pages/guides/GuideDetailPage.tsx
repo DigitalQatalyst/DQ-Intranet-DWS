@@ -390,7 +390,7 @@ const GuideDetailPage: React.FC = () => {
 
             {/* Body content for non-artifact types (Policy/SOP/Process/Best Practice) */}
             {type !== 'template' && guide.body && (
-              <article ref={articleRef} className="bg-white rounded-lg shadow p-6 markdown-body" dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}>
+              <article ref={articleRef} className="bg-white rounded-lg shadow p-6 markdown-body max-w-3xl" dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm, remarkSlug]}
                   rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeAutolinkHeadings]}
@@ -511,7 +511,7 @@ const GuideDetailPage: React.FC = () => {
 
             {/* Optional short body for Template types */}
             {type === 'template' && guide.body && (
-              <article ref={articleRef} className="bg-white rounded-lg shadow p-6 markdown-body" dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}>
+              <article ref={articleRef} className="bg-white rounded-lg shadow p-6 markdown-body max-w-3xl" dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm, remarkSlug]}
                   rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeAutolinkHeadings]}
@@ -576,20 +576,29 @@ const GuideDetailPage: React.FC = () => {
               </section>
             )}
 
-            {/* Related Guides */}
+            
+          </div>
+          {/* Sidebar: Related Guides and secondary modules */}
+          <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-24" aria-label="Secondary">
+            {/* Related Guides moved to sidebar */}
             {related && related.length > 0 && (
               <section aria-labelledby="related-title" className="bg-white rounded-lg shadow p-6" id="related">
                 <h2 id="related-title" className="text-xl font-semibold mb-4">Related Guides</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-3">
                   {related.map((r) => (
                     <Link
                       key={r.slug || r.id}
                       to={`/marketplace/guides/${encodeURIComponent(r.slug || r.id)}`}
-                      className="block border border-gray-200 rounded-lg p-4 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      className="block border border-gray-200 rounded-lg p-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                       onClick={() => track('Guides.RelatedClick', { from: guide.slug || guide.id, to: r.slug || r.id })}
                     >
                       <div className="flex gap-3">
-                        <img src={getGuideImageUrl({ heroImageUrl: r.heroImageUrl || undefined, domain: r.domain || undefined, guideType: r.guideType || undefined })} alt={r.title} className="w-20 h-20 object-cover rounded" loading="lazy" />
+                        <img
+                          src={getGuideImageUrl({ heroImageUrl: r.heroImageUrl || undefined, domain: r.domain || undefined, guideType: r.guideType || undefined })}
+                          alt={r.title}
+                          className="w-20 h-20 object-cover rounded"
+                          loading="lazy"
+                        />
                         <div className="min-w-0">
                           <div className="font-medium text-gray-900 truncate" title={r.title}>{r.title}</div>
                           {r.summary && <div className="text-sm text-gray-600 line-clamp-2">{r.summary}</div>}
@@ -600,9 +609,6 @@ const GuideDetailPage: React.FC = () => {
                 </div>
               </section>
             )}
-          </div>
-          {/* Sidebar secondary only shows if there are templates or attachments but not both already shown in main */}
-          <aside className="lg:col-span-1 space-y-6" aria-label="Secondary">
             {!showTemplates && (guide.templates && guide.templates.length > 0) && (
               <section className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-lg font-semibold mb-3">Templates</h2>
