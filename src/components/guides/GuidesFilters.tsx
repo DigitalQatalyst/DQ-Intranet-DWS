@@ -71,7 +71,12 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange }) => {
     onChange(next)
   }
   // Persist collapsed categories in URL param 'collapsed' as CSV
-  const collapsedSet = useMemo(() => new Set(parseCsv(query.get('collapsed'))), [query])
+  const collapsedSet = useMemo(() => {
+    const fromUrl = parseCsv(query.get('collapsed'))
+    if (fromUrl.length > 0) return new Set(fromUrl)
+    // Default: collapse all except Domain
+    return new Set(['guide_type', 'function_area', 'status'])
+  }, [query])
   const toggleCollapsed = (key: string) => {
     const next = new URLSearchParams(query.toString())
     const set = new Set(parseCsv(next.get('collapsed')))
@@ -81,7 +86,7 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange }) => {
     onChange(next)
   }
   return (
-    <div className="bg-white rounded-lg shadow p-4 sticky top-24" aria-label="Guides filters">
+    <div className="bg-white rounded-lg shadow p-4 sticky top-24 max-h-[70vh] overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} aria-label="Guides filters">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Filters</h2>
         <button onClick={clearAll} className="text-blue-600 text-sm font-medium">Clear all</button>

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams, Link } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
-import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Printer, ExternalLink, Download, AlertTriangle } from 'lucide-react'
+import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Download, AlertTriangle } from 'lucide-react'
 import { supabaseClient } from '../../lib/supabaseClient'
 import { getGuideImageUrl } from '../../utils/guideImageMap'
 import { track } from '../../utils/analytics'
@@ -207,11 +207,7 @@ const GuideDetailPage: React.FC = () => {
 
   const imageUrl = useMemo(() => getGuideImageUrl({ heroImageUrl: guide?.heroImageUrl || undefined, domain: guide?.domain || undefined, guideType: guide?.guideType || undefined }), [guide?.heroImageUrl, guide?.domain, guide?.guideType])
 
-  const openPrimaryUrl = () => {
-    if (!guide) return
-    const url = guide.documentUrl || guide.templates?.[0]?.url || guide.attachments?.[0]?.url
-    if (url) { track('Guides.OpenGuide', { slug: guide.slug || guide.id, url }); window.open(url, '_blank', 'noopener,noreferrer') }
-  }
+  // Open/Print removed per new design
   const handleDownload = (category: 'attachment' | 'template', item: any) => {
     if (!item?.url) return
     track('Guides.Download', { slug: guide?.slug || guide?.id, category, id: item.id || item.url, title: item.title || undefined })
@@ -223,7 +219,7 @@ const GuideDetailPage: React.FC = () => {
     try { if ((navigator as any).share) await (navigator as any).share({ title, url }); else if (navigator.clipboard) { await navigator.clipboard.writeText(url); alert('Link copied to clipboard') } }
     finally { track('Guides.Share', { slug: guide?.slug || guide?.id }) }
   }
-  const handlePrint = () => { track('Guides.Print', { slug: guide?.slug || guide?.id }); window.print() }
+  // Print removed per new design
 
   if (loading) {
     return (
@@ -289,8 +285,8 @@ const GuideDetailPage: React.FC = () => {
 
         {/* Header card */}
         <header className="bg-white rounded-lg shadow p-6 mb-6" aria-labelledby="guide-title">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2">
+          <div className="grid grid-cols-1 gap-4">
+            <div>
               {imageUrl && (
                 <img src={imageUrl} alt={guide.title} className="w-full h-60 object-cover rounded mb-4" loading="lazy" decoding="async" width={1200} height={320} />
               )}
@@ -303,24 +299,13 @@ const GuideDetailPage: React.FC = () => {
                 {guide.complexityLevel && <span className="px-2 py-0.5 bg-gray-100 rounded-full">{guide.complexityLevel}</span>}
                 {lastUpdated && <span className="px-2 py-0.5 bg-gray-100 rounded-full">Updated {lastUpdated}</span>}
               </div>
-            </div>
-            <aside className="lg:col-span-1">
-              <div className="rounded-lg border border-gray-200 p-4 sticky top-24 guide-actions">
-                <div className="flex gap-2 mb-3">
-                  <button onClick={openPrimaryUrl} className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                    <ExternalLink size={16} /> Open Guide
-                  </button>
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={handleShare} className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 focus:outline-none">
-                    <Share2 size={16} /> Share
-                  </button>
-                  <button onClick={handlePrint} className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 focus:outline-none">
-                    <Printer size={16} /> Print
-                  </button>
-                </div>
+              <div className="mt-3 flex justify-end">
+                <button onClick={handleShare} className="inline-flex items-center gap-2 px-3 py-2 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 focus:outline-none">
+                  <Share2 size={16} /> Share
+                </button>
               </div>
-            </aside>
+            </div>
+            {/* Actions column removed; title section now full width */}
           </div>
         </header>
 
@@ -328,7 +313,7 @@ const GuideDetailPage: React.FC = () => {
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             {type !== 'template' && guide.body && (
-              <article ref={articleRef} className="bg-white rounded-lg shadow p-6 markdown-body max-w-3xl" dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}>
+              <article ref={articleRef} className="bg-white rounded-lg shadow p-6 markdown-body" dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}>
                 <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
                   <Markdown body={guide.body || ''} />
                 </React.Suspense>
@@ -474,4 +459,3 @@ const GuideDetailPage: React.FC = () => {
 }
 
 export default GuideDetailPage
-
