@@ -423,26 +423,13 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'creditcard',
         name: 'Credit Card'
       }]
-    }, {
-      id: 'serviceType',
-      title: 'Service Type',
-      options: [{
-        id: 'financing',
-        name: 'Financing'
-      }, {
-        id: 'credit',
-        name: 'Credit'
-      }, {
-        id: 'riskmanagement',
-        name: 'Risk Management'
-      }]
     }],
     // Data mapping functions
     mapListResponse: data => {
       return data.map((item: any) => ({
         ...item,
         // Transform any fields if needed
-        tags: item.tags || [item.category, item.serviceType].filter(Boolean)
+        tags: item.tags || [item.category].filter(Boolean)
       }));
     },
     mapDetailResponse: data => {
@@ -457,10 +444,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'category',
         title: 'Service Category',
         options: data.categories || []
-      }, {
-        id: 'serviceType',
-        title: 'Service Type',
-        options: data.serviceTypes || []
       }];
     },
     // Mock data for fallback and schema reference
@@ -468,8 +451,8 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   },
   'non-financial': {
     id: 'non-financial',
-    title: 'Business Services Marketplace',
-    description: 'Find professional services to support and grow your business',
+    title: 'Services & Requests',
+    description: "Welcome to Digital Qatalyst's Support Services! We’re here to ensure your success by providing dedicated assistance and efficient solutions for all your needs. This platform offers comprehensive support tools, resources, and expert guidance to help you overcome challenges and maximize productivity. Whether you require technical help or operational support we’re here to empower your journey every step of the way.",
     route: '/marketplace/non-financial',
     primaryCTA: 'Request Service',
     secondaryCTA: 'View Details',
@@ -487,10 +470,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       key: 'duration',
       label: 'Duration',
       icon: React.createElement(Clock, { size: 18, className: "mr-2" })
-    }, {
-      key: 'price',
-      label: 'Cost',
-      icon: React.createElement(DollarSign, { size: 18, className: "mr-2" })
     }],
     detailSections: ['description', 'deliveryDetails', 'provider', 'related'],
     tabs: [{
@@ -529,33 +508,17 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       id: 'category',
       title: 'Service Category',
       options: [{
-        id: 'consultancy',
-        name: 'Consultancy'
+        id: 'it_support',
+        name: 'IT Support'
       }, {
-        id: 'technology',
-        name: 'Technology'
+        id: 'support_charter_template',
+        name: 'Support Charter Template'
       }, {
-        id: 'research',
-        name: 'Research'
+        id: 'it_support_walkthrough',
+        name: 'IT Support Walkthrough'
       }, {
         id: 'export',
         name: 'Export'
-      }]
-    }, {
-      id: 'serviceType',
-      title: 'Service Type',
-      options: [{
-        id: 'advisory',
-        name: 'Advisory'
-      }, {
-        id: 'implementation',
-        name: 'Implementation'
-      }, {
-        id: 'information',
-        name: 'Information'
-      }, {
-        id: 'program',
-        name: 'Program'
       }]
     }, {
       id: 'deliveryMode',
@@ -576,7 +539,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       return data.map((item: any) => ({
         ...item,
         // Transform any fields if needed
-        tags: item.tags || [item.category, item.serviceType, item.deliveryMode].filter(Boolean)
+        tags: item.tags || [item.category, item.deliveryMode].filter(Boolean)
       }));
     },
     mapDetailResponse: data => {
@@ -591,10 +554,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'category',
         title: 'Service Category',
         options: data.categories || []
-      }, {
-        id: 'serviceType',
-        title: 'Service Type',
-        options: data.serviceTypes || []
       }, {
         id: 'deliveryMode',
         title: 'Delivery Mode',

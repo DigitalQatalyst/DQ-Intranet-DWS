@@ -94,14 +94,14 @@ export const mockNonFinancialServicesData = {
   items: mockNonFinancialServices,
   filterOptions: {
     categories: [{
-      id: 'consultancy',
-      name: 'Consultancy'
+      id: 'it_support',
+      name: 'IT Support'
     }, {
-      id: 'technology',
-      name: 'Technology'
+      id: 'support_charter_template',
+      name: 'Support Charter Template'
     }, {
-      id: 'research',
-      name: 'Research'
+      id: 'it_support_walkthrough',
+      name: 'IT Support Walkthrough'
     }, {
       id: 'export',
       name: 'Export'
@@ -416,26 +416,13 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'creditcard',
         name: 'Credit Card'
       }]
-    }, {
-      id: 'serviceType',
-      title: 'Service Type',
-      options: [{
-        id: 'financing',
-        name: 'Financing'
-      }, {
-        id: 'credit',
-        name: 'Credit'
-      }, {
-        id: 'riskmanagement',
-        name: 'Risk Management'
-      }]
     }],
     // Data mapping functions
     mapListResponse: data => {
       return data.map((item: any) => ({
         ...item,
         // Transform any fields if needed
-        tags: item.tags || [item.category, item.serviceType].filter(Boolean)
+        tags: item.tags || [item.category].filter(Boolean)
       }));
     },
     mapDetailResponse: data => {
@@ -450,10 +437,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'category',
         title: 'Service Category',
         options: data.categories || []
-      }, {
-        id: 'serviceType',
-        title: 'Service Type',
-        options: data.serviceTypes || []
       }];
     },
     // Mock data for fallback and schema reference
@@ -535,22 +518,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         name: 'Export'
       }]
     }, {
-      id: 'serviceType',
-      title: 'Service Type',
-      options: [{
-        id: 'advisory',
-        name: 'Advisory'
-      }, {
-        id: 'implementation',
-        name: 'Implementation'
-      }, {
-        id: 'information',
-        name: 'Information'
-      }, {
-        id: 'program',
-        name: 'Program'
-      }]
-    }, {
       id: 'deliveryMode',
       title: 'Delivery Mode',
       options: [{
@@ -569,7 +536,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       return data.map((item: any) => ({
         ...item,
         // Transform any fields if needed
-        tags: item.tags || [item.category, item.serviceType, item.deliveryMode].filter(Boolean)
+        tags: item.tags || [item.category, item.deliveryMode].filter(Boolean)
       }));
     },
     mapDetailResponse: data => {
@@ -584,10 +551,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'category',
         title: 'Service Category',
         options: data.categories || []
-      }, {
-        id: 'serviceType',
-        title: 'Service Type',
-        options: data.serviceTypes || []
       }, {
         id: 'deliveryMode',
         title: 'Delivery Mode',

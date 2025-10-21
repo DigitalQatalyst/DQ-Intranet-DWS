@@ -19,7 +19,6 @@ export const CourseMarketplace: React.FC = () => {
   const [filters, setFilters] = useState<CourseFilters>({
     category: '',
     deliveryMode: '',
-    duration: '',
     businessStage: '',
     provider: ''
   });
@@ -80,7 +79,6 @@ export const CourseMarketplace: React.FC = () => {
     setFilters({
       category: '',
       deliveryMode: '',
-      duration: '',
       businessStage: '',
       provider: ''
     });

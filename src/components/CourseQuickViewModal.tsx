@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { CourseType } from '../utils/mockData';
-import { XIcon, Clock, Calendar, DollarSign, MapPin, BookmarkIcon, ScaleIcon, CheckCircleIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
+import { CourseType } from '../types/course';
+import { XIcon, Calendar, DollarSign, MapPin, BookmarkIcon, ScaleIcon, CheckCircleIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
 interface CourseQuickViewModalProps {
   course: CourseType;
   onClose: () => void;
@@ -110,12 +110,6 @@ export const CourseQuickViewModal: React.FC<CourseQuickViewModalProps> = ({
             </span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-            <div className="flex items-center text-gray-700">
-              <Clock className="mr-2" size={18} />
-              <span>
-                {course.duration} ({course.durationType})
-              </span>
-            </div>
             <div className="flex items-center text-gray-700">
               <Calendar className="mr-2" size={18} />
               <span>Starts {course.startDate}</span>
