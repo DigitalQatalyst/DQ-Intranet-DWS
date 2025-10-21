@@ -4,6 +4,7 @@ import { CourseType } from "./utils/mockData";
 import { AuthProvider } from "./components/Header";
 import { MarketplaceRouter } from "./pages/marketplace/MarketplaceRouter";
 import { App } from './App';
+
 import MarketplaceDetailsPage from "./pages/marketplace/MarketplaceDetailsPage";
 import AssetLibraryPage from "./pages/assetLibrary";
 import DQAgileKPIsPage from "./pages/play/DQAgileKPIsPage";
