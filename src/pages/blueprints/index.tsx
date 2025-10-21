@@ -567,10 +567,18 @@ export default function BlueprintsPage() {
             projects. Use filters to narrow down by project or category.
           </p>
 
+          {/* Search Bar */}
+          <div className="mb-6">
+            <SearchBar
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+            />
+          </div>
+
           <div className="flex gap-6">
             {/* Filter Sidebar */}
             <div className="w-80 flex-shrink-0">
-              <div className="bg-white rounded-xl shadow-lg p-6 sticky top-4">
+              <div className="bg-white rounded-xl shadow-lg p-6 sticky top-16">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                     <Filter size={20} />
@@ -582,14 +590,6 @@ export default function BlueprintsPage() {
                   >
                     Clear All
                   </button>
-                </div>
-
-                {/* Search Bar */}
-                <div className="mb-6">
-                  <SearchBar
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
-                  />
                 </div>
 
                 {/* Projects Filter Accordion */}
