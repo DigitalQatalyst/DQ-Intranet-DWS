@@ -432,8 +432,8 @@ export const HomePage: React.FC = () => {
           description:
             "Decode DQ terminology with clear definitions updated by teams across the organization.",
           icon: <BookOpen />,
-          path: "#",
-          isActive: false,
+          path: "/glossary.html",
+          isActive: true,
         },
         {
           id: "knowledge-base",
@@ -533,7 +533,14 @@ export const HomePage: React.FC = () => {
     },
   };
 
-  const handleServiceClick = (path: string) => navigate(path);
+  const handleServiceClick = (path: string, service?: any) => {
+    // Handle glossary specially - open in new tab
+    if (service?.id === "glossary") {
+      window.open("/glossary.html", "_blank");
+      return;
+    }
+    navigate(path);
+  };
 
   return (
     <div className="bg-white py-16">
@@ -572,7 +579,7 @@ export const HomePage: React.FC = () => {
                     <ServiceCard
                       service={service}
                       sectionStyle={sectionStyles["Learning & Enablement"]}
-                      onClick={() => handleServiceClick(service.path)}
+                      onClick={() => handleServiceClick(service.path, service)}
                       isComingSoon={!service.isActive}
                     />
                   </FadeInUpOnScroll>
@@ -601,7 +608,7 @@ export const HomePage: React.FC = () => {
                     <ServiceCard
                       service={service}
                       sectionStyle={sectionStyles["Services & Requests"]}
-                      onClick={() => handleServiceClick(service.path)}
+                      onClick={() => handleServiceClick(service.path, service)}
                       isComingSoon={!service.isActive}
                     />
                   </FadeInUpOnScroll>
@@ -632,7 +639,7 @@ export const HomePage: React.FC = () => {
                       sectionStyle={
                         sectionStyles["Collaboration & Communities"]
                       }
-                      onClick={() => handleServiceClick(service.path)}
+                      onClick={() => handleServiceClick(service.path, service)}
                       isComingSoon={!service.isActive}
                     />
                   </FadeInUpOnScroll>
@@ -661,7 +668,7 @@ export const HomePage: React.FC = () => {
                     <ServiceCard
                       service={service}
                       sectionStyle={sectionStyles["Resources & Libraries"]}
-                      onClick={() => handleServiceClick(service.path)}
+                      onClick={() => handleServiceClick(service.path, service)}
                       isComingSoon={!service.isActive}
                     />
                   </FadeInUpOnScroll>
