@@ -73,7 +73,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
           </h1>
           <FadeInUpOnScroll delay={0.8}>
             <p className="text-xl text-white/90 mb-8">
-              One trusted hub for tools, requests, learning, and collaboration—so every Qatalyst can move work forward, fast.
+              One trusted hub for tools, requests, learning, and collaboration so every Qatalyst can move work forward, fast.
             </p>
           </FadeInUpOnScroll>
         </div>

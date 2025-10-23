@@ -1,7 +1,7 @@
 .dwsDiscover {
-  --dws-orange: #E85A3E;
+  --dws-orange: #FB5535;
   --dws-maroon: #6B3E5C;
-  --dws-navy: #162356;
+  --dws-navy: #0E1446;
   --dws-white: #FFFFFF;
   --dws-gray: #F6F7F9;
   --dws-text: #0B1220;
@@ -181,7 +181,13 @@
 }
 
 .section {
-  padding: 5rem 0;
+  padding: 4rem 0;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: 6rem 0;
+  }
 }
 
 .sectionTitle {

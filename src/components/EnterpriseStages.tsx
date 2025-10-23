@@ -61,7 +61,7 @@ const StageCard: React.FC<StageCardProps> = ({
             }
           }}
           data-stage-trigger={stageId}
-          className={`mt-auto text-white font-medium py-2 px-4 rounded-md transition-all duration-300 flex items-center justify-center overflow-hidden group ${isActive ? 'bg-[image:var(--dq-cta-gradient)] hover:brightness-105' : 'bg-dq-navy hover:bg-dq-navy/90'}`}
+          className="mt-auto text-white font-medium py-2 px-4 rounded-md transition-all duration-300 flex items-center justify-center overflow-hidden group bg-[#030F35] hover:bg-[#030F35]/90"
         >
           {ctaText}
           <ArrowRight size={16} className="ml-2 transition-transform duration-300 group-hover:translate-x-1" />
