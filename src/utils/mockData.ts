@@ -26,6 +26,8 @@ export interface CourseType {
   journeyPhase?: string;
   time?: number;
   roles?: string[];
+  duration?: string;
+  durationType?: string;
 }
 // Categories
 export const categories = ["IT Support", "Admin Support", "Reports Support"];
