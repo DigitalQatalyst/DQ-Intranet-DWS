@@ -370,7 +370,7 @@ export const HomePage: React.FC = () => {
         },
         {
           id: 'blueprint-library',
-          title: 'DQ Reference Library (DBP Blueprints)',
+          title: 'DQ DBP Blueprints Library',
           description: 'Access blueprint structures and delivery frameworks for DBP development.',
           icon: <Compass />,
           path: '#',
@@ -378,7 +378,7 @@ export const HomePage: React.FC = () => {
         },
         {
           id: 'reference-library-products',
-          title: 'DQ Reference Library (Products)',
+          title: 'DQ Product Library',
           description: 'Find product reference materials and documentation for ongoing builds.',
           icon: <Compass />,
           path: '#',
