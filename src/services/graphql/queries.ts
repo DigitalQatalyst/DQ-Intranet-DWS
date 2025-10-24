@@ -139,8 +139,6 @@ export const MARKETPLACE_QUERIES = {
           description
           category
           deliveryMode
-          duration
-          durationType
           businessStage
           provider {
             name
@@ -163,8 +161,6 @@ export const MARKETPLACE_QUERIES = {
           description
           category
           deliveryMode
-          duration
-          durationType
           businessStage
           provider {
             name
@@ -191,8 +187,6 @@ export const MARKETPLACE_QUERIES = {
           description
           category
           deliveryMode
-          duration
-          durationType
           businessStage
           provider {
             name
@@ -252,7 +246,6 @@ export const MARKETPLACE_QUERIES = {
             description
           }
           amount
-          duration
           eligibility
           interestRate
           tags
@@ -274,7 +267,6 @@ export const MARKETPLACE_QUERIES = {
             description
           }
           amount
-          duration
           eligibility
           interestRate
           tags
@@ -300,7 +292,6 @@ export const MARKETPLACE_QUERIES = {
             description
           }
           amount
-          duration
           eligibility
           interestRate
           tags
@@ -348,7 +339,6 @@ export const MARKETPLACE_QUERIES = {
             logoUrl
             description
           }
-          duration
           price
           tags
           details
@@ -369,7 +359,6 @@ export const MARKETPLACE_QUERIES = {
             logoUrl
             description
           }
-          duration
           price
           tags
           details
@@ -395,7 +384,6 @@ export const MARKETPLACE_QUERIES = {
             logoUrl
             description
           }
-          duration
           price
           tags
         }

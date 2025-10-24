@@ -14,6 +14,7 @@ import { DiscoverDQ } from "./pages/DiscoverDQ";
 import NotFound from "./pages/NotFound";
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
+import { DQEventsCalendar } from "./components/DQEventsCalendar";
 import KfBot from "./bot/KfBot";
 import ThankYou from "./pages/ThankYou";
 
