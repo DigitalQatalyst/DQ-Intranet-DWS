@@ -73,7 +73,7 @@ const NewsPage: React.FC = () => {
     {
       id: '3',
       title: 'Summer Team Building Event',
-      description: "Get ready for our annual summer team building event! This year we'll be having a beach day with activities and food.",
+      description: "Get ready for our annual summerr team building event! This year we'll be having a beach day with activities and food.",
       date: 'June 10, 2023',
       category: 'Social',
     },
