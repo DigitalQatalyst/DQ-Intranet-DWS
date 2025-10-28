@@ -13,7 +13,8 @@
                     "db:migrate":  "node scripts/migrate.js",
                     "db:seed":  "node scripts/seed-guides.js",
                     "test":  "vitest run",
-                    "db:seed-guides":  "node scripts/seed-guides.js"
+                    "db:seed-guides":  "node scripts/seed-guides.js",
+                    "postinstall":  "npm rebuild rollup"
                 },
     "dependencies":  {
                          "@apollo/client":  "^4.0.5",
@@ -106,6 +107,7 @@
                             "eslint-plugin-react-refresh":  "^0.4.1",
                             "jsdom":  "^25.0.1",
                             "postcss":  "latest",
+                            "rollup":  "^4.28.1",
                             "sql.js":  "^1.13.0",
                             "tailwindcss":  "3.4.17",
                             "typescript":  "^5.5.4",
