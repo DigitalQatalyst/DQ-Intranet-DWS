@@ -207,7 +207,7 @@ export default function PostDetail() {
                     <Button variant="outline" onClick={fetchPost}>
                       Try Again
                     </Button>
-                    <Button as={Link} to="/feed" variant="default">
+                    <Button as={Link} to="/communities/feed" variant="default">
                       Return to Feed
                     </Button>
                   </div>

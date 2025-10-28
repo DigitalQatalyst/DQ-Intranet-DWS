@@ -44,7 +44,7 @@ export default function Home() {
   const [postsError, setPostsError] = useState<Error | null>(null);
   useEffect(() => {
     if (!authLoading && user) {
-      navigate('/feed');
+      navigate('/communities/feed');
     }
   }, [user, authLoading, navigate]);
   useEffect(() => {
@@ -269,7 +269,7 @@ export default function Home() {
                       </div>)}
                   </div>
                   <div className="mt-8 text-center">
-                    <Link to="/feed" className="inline-flex items-center text-sm font-medium text-indigo-700 hover:text-indigo-800">
+                    <Link to="/communities/feed" className="inline-flex items-center text-sm font-medium text-indigo-700 hover:text-indigo-800">
                       View All Posts
                       <ChevronRight className="ml-1 h-4 w-4" />
                     </Link>

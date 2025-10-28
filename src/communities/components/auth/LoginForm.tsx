@@ -29,7 +29,7 @@ export function LoginForm({
       setEmail('');
       setPassword('');
       onSuccess?.();
-      navigate('/feed');
+      navigate('/communities/feed');
     }
     setLoading(false);
   };

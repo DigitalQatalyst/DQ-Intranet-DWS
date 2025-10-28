@@ -201,7 +201,7 @@ export default function CreatePost() {
       setEnableRSVP(metadata.enable_rsvp !== undefined ? metadata.enable_rsvp : true);
     } else {
       toast.error('Failed to load post');
-      navigate('/feed');
+      navigate('/communities/feed');
     }
   };
   const handleAddTag = () => {
@@ -375,7 +375,7 @@ export default function CreatePost() {
       } else if (communityId) {
         navigate(`/community/${communityId}`);
       } else {
-        navigate('/feed');
+        navigate('/communities/feed');
       }
     }
   };
@@ -774,7 +774,7 @@ export default function CreatePost() {
             <Button type="button" variant="outline" onClick={() => {
             if (window.confirm('Are you sure you want to cancel? Your draft will be saved.')) {
               saveToLocalStorage();
-              navigate('/feed');
+              navigate('/communities/feed');
             }
           }} disabled={isPublishing} className="w-full sm:w-auto border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 rounded-md px-4 py-2 transition-all duration-200">
               <X className="h-4 w-4 mr-2" />

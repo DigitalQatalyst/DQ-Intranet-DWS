@@ -52,7 +52,7 @@ export default function CommunityAnalytics() {
     }
     if (!canModerate) {
       toast.error('Access denied: Analytics is only available to moderators and admins');
-      navigate('/feed');
+      navigate('/communities/feed');
       return;
     }
     fetchOwnerCommunities();
