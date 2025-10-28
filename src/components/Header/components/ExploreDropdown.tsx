@@ -83,6 +83,13 @@ const marketplaces: Marketplace[] = [
     icon: FileText,
     href: '/marketplace/asset-library',
   },
+  {
+    id: 'communities',
+    name: 'KF Communities',
+    description: 'Connect, collaborate, and engage with peers in vibrant communities.',
+    icon: UsersIcon,
+    href: '/communities',
+  },
 ];
 
 interface ExploreDropdownProps {

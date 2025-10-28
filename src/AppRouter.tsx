@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { CourseType } from "./utils/mockData";
 import { AuthProvider } from "./components/Header";
 import { MarketplaceRouter } from "./pages/marketplace/MarketplaceRouter";
+import { CommunitiesRouter } from "./communities/CommunitiesRouter";
 import { App } from './App';
 
 import MarketplaceDetailsPage from "./pages/marketplace/MarketplaceDetailsPage";
@@ -93,6 +94,7 @@ export function AppRouter() {
             <Route path="/play/dq-agile-kpis" element={<DQAgileKPIsPage />} />
             <Route path="/discover-abudhabi" element={<DiscoverAbuDhabi />} />
             <Route path="/events" element={<EventsPage />} />
+            <Route path="/communities/*" element={<CommunitiesRouter />} />
             <Route path="/404" element={<NotFound />} />
 
             <Route path="*" element={<Navigate to="/404" replace />} />
