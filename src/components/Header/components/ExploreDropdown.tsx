@@ -85,7 +85,7 @@ const marketplaces: Marketplace[] = [
   },
   {
     id: 'communities',
-    name: 'KF Communities',
+    name: 'DQ Communities',
     description: 'Connect, collaborate, and engage with peers in vibrant communities.',
     icon: UsersIcon,
     href: '/communities',
