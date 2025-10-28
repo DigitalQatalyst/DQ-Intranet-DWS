@@ -12,7 +12,11 @@ import {
   getUniqueTypes,
 } from '../api/MAPAPI';
 
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN!;
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN as string;
+
+const mapboxMajorVersion = Number((mapboxgl.version || '').split('.')[0] || '2');
+const STANDARD_STYLE =
+  mapboxMajorVersion >= 3 ? 'mapbox://styles/mapbox/standard' : 'mapbox://styles/mapbox/light-v11';
 
 type AllOption<T> = T | 'All';
 type FilterControl = {
@@ -32,7 +36,7 @@ const MARKER_COLORS: Record<LocationType | 'Default', string> = {
 };
 
 const MAPBOX_STYLES: Record<MapStyle, string> = {
-  standard: 'mapbox://styles/mapbox/light-v11',
+  standard: STANDARD_STYLE,
   satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
   hybrid: 'mapbox://styles/mapbox/satellite-v9',
 };
@@ -165,11 +169,8 @@ export const DQMap: React.FC<DQMapProps> = ({ className = '', height = 560 }) =>
     mapRef.current = map;
     map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'bottom-right'); map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-left');
 
-    const resizeOnLoad = () => {
-      map.resize();
-      forceResize(map);
-    };
-    map.on('load', resizeOnLoad);
+    const resizeHandler = () => map.resize();
+    map.on('load', resizeHandler);
     const handleStyleData = () => forceResize(map);
     map.on('styledata', handleStyleData);
 
@@ -187,7 +188,7 @@ export const DQMap: React.FC<DQMapProps> = ({ className = '', height = 560 }) =>
 
     return () => {
       if (fallbackTimer) window.clearTimeout(fallbackTimer);
-      map.off('load', resizeOnLoad);
+      map.off('load', resizeHandler);
       map.off('styledata', handleStyleData);
       map.off('error', switchToOsm);
       markersRef.current.forEach((marker) => marker.remove()); markersRef.current = [];
