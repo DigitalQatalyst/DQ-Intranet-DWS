@@ -74,7 +74,7 @@ export function CommunityFeed() {
         .select(`
           *,
           community:communities(id, name),
-          author:users_local(id, username, avatar_url),
+          author:users(id, username, avatar_url),
           reactions(reaction_type),
           comments(id)
         `)
@@ -143,7 +143,7 @@ export function CommunityFeed() {
         .select(`
           *,
           community:communities!inner(id, name, isprivate),
-          author:users_local(id, username, avatar_url),
+          author:users(id, username, avatar_url),
           reactions(reaction_type),
           comments(id)
         `)
@@ -203,7 +203,7 @@ export function CommunityFeed() {
         .select(`
           *,
           community:communities!inner(id, name, isprivate),
-          author:users_local(id, username, avatar_url),
+          author:users(id, username, avatar_url),
           reactions(reaction_type),
           comments(id)
         `)
