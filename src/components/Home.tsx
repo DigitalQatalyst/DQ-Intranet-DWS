@@ -292,7 +292,7 @@ export const HomePage: React.FC = () => {
           description:
             "Discover DQ’s core workflows, policies, and daily operational standards.",
           icon: <BookIcon />,
-          path: "#",
+          path: "/marketplace/guides",
           isActive: true,
         },
         {
@@ -301,9 +301,9 @@ export const HomePage: React.FC = () => {
           description:
             "Explore DQ’s build standards,templates, and development processes.",
           icon: <BookIcon />,
-          path: "#",
-          isActive: true,
-        },
+          path: '/marketplace/guides',
+          isActive: true
+        }
       ],
       advisory: [
         {
@@ -312,7 +312,7 @@ export const HomePage: React.FC = () => {
           description:
             "Access HR, IT, and Finance services in one place. Track requests and manage workflows easily.",
           icon: <Briefcase />,
-          path: "#",
+          path: "/marketplace/guides",
           isActive: true,
         },
         {
@@ -321,7 +321,7 @@ export const HomePage: React.FC = () => {
           description:
             "Find templates and dashboards that empower independent, efficient daily work.",
           icon: <Globe />,
-          path: "#",
+          path: "/marketplace/guides",
           isActive: true,
         },
         {
@@ -330,7 +330,7 @@ export const HomePage: React.FC = () => {
           description:
             "Use smart digital shortcuts and assistants that simplify your everyday tasks.",
           icon: <Lightbulb />,
-          path: "#",
+          path: "/marketplace/guides",
           isActive: false,
         },
         {
@@ -339,7 +339,7 @@ export const HomePage: React.FC = () => {
           description:
             "Connect your favorite DQ apps and automate workflows seamlessly.",
           icon: <TrendingUp />,
-          path: "#",
+          path: "/marketplace/guides",
           isActive: false,
         },
       ],
@@ -350,7 +350,7 @@ export const HomePage: React.FC = () => {
           description:
             "Explore people and units across DQ to connect, collaborate, and grow together.",
           icon: <Users />,
-          path: "#",
+          path: "/marketplace/guides",
           isActive: true,
         },
         {
@@ -386,7 +386,7 @@ export const HomePage: React.FC = () => {
           description:
             "See daily DQ updates, success stories, and highlights that keep every team informed and inspired.",
           icon: <Newspaper />,
-          path: "#",
+          path: "/marketplace/guides",
           isActive: true,
         },
       ],
@@ -397,8 +397,8 @@ export const HomePage: React.FC = () => {
           description:
             "Browse DQ's FAQ hub for quick answers and shared insights from across our teams.",
           icon: <MessageCircle />,
-          path: "#",
-          isActive: true,
+          path: '/marketplace/guides',
+          isActive: true
         },
         {
           id: "asset-library",
@@ -406,7 +406,7 @@ export const HomePage: React.FC = () => {
           description:
             "Decode DQ terminology with clear definitions updated by teams across the organization.",
           icon: <Building />,
-          path: "#",
+          path: "/marketplace/guides",
           isActive: true,
         },
         {
@@ -415,8 +415,8 @@ export const HomePage: React.FC = () => {
           description:
             "Access blueprint structures and delivery frameworks for DBP development.",
           icon: <Compass />,
-          path: "#",
-          isActive: true,
+          path: '/marketplace/guides',
+          isActive: true
         },
         {
           id: "reference-library-products",
@@ -433,7 +433,7 @@ export const HomePage: React.FC = () => {
           description:
             "Understand how DQ's initiatives align with its purpose, DNA, and vision.",
           icon: <BarChart />,
-          path: "#",
+          path: "/marketplace/guides",
           isActive: true,
         },
         {
@@ -442,7 +442,7 @@ export const HomePage: React.FC = () => {
           description:
             "Find roles, mobility opportunities, and career paths to grow within DQ.",
           icon: <JobIcon />,
-          path: "#",
+          path: "/marketplace/guides",
           isActive: true,
         },
         {
@@ -451,8 +451,8 @@ export const HomePage: React.FC = () => {
           description:
             "Access logos, templates, and assets for consistent DQ communication and design.",
           icon: <BookOpen />,
-          path: "#",
-          isActive: true,
+          path: '/marketplace/guides',
+          isActive: true
         },
         {
           id: "knowledge-base",
@@ -460,8 +460,8 @@ export const HomePage: React.FC = () => {
           description:
             "Follow step-by-step answers covering tools, governance, and support workflows across DQ.",
           icon: <BookIcon />,
-          path: "#",
-          isActive: true,
+          path: '/marketplace/guides',
+          isActive: true
         },
         {
           id: "research-hub",
@@ -469,7 +469,7 @@ export const HomePage: React.FC = () => {
           description:
             "Explore insights, data, and reports powering DQ's continuous transformation and decision making.",
           icon: <Lightbulb />,
-          path: "#",
+          path: "/marketplace/guides",
           isActive: false,
         },
         {
@@ -478,7 +478,7 @@ export const HomePage: React.FC = () => {
           description:
             "Download ready-to-use decks and documents to share DQ initiatives with polish and consistency.",
           icon: <Award />,
-          path: "#",
+          path: "/marketplace/guides",
           isActive: false,
         },
       ],
