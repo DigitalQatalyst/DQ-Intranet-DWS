@@ -21,6 +21,7 @@ const dnaItems = [
     route: '/strategy',
     cta: 'Explore Strategy',
     accentColor: '#2D4BFF',
+    image_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=600&fit=crop',
   },
   {
     id: 2,
@@ -31,6 +32,7 @@ const dnaItems = [
     route: '/culture',
     cta: 'Open Culture Playbook',
     accentColor: '#FF6B4A',
+    image_url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&h=600&fit=crop',
   },
   {
     id: 3,
@@ -41,6 +43,7 @@ const dnaItems = [
     route: '/personas',
     cta: 'View Personas',
     accentColor: '#7DA0FF',
+    image_url: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&h=600&fit=crop',
   },
   {
     id: 4,
@@ -51,6 +54,7 @@ const dnaItems = [
     route: '/tasks',
     cta: 'Go to Tasks',
     accentColor: '#FF7D5F',
+    image_url: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop',
   },
   {
     id: 5,
@@ -61,6 +65,7 @@ const dnaItems = [
     route: '/governance',
     cta: 'Open Governance',
     accentColor: '#2D4BFF',
+    image_url: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&h=600&fit=crop',
   },
   {
     id: 6,
@@ -71,6 +76,7 @@ const dnaItems = [
     route: '/flows',
     cta: 'View Value Streams',
     accentColor: '#FFA089',
+    image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
   },
   {
     id: 7,
@@ -81,6 +87,7 @@ const dnaItems = [
     route: '/products',
     cta: 'Explore Products',
     accentColor: '#7DA0FF',
+    image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
   },
 ];
 

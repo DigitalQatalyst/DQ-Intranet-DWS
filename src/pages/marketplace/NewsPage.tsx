@@ -1,19 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { ChevronDown, Search, Calendar, Building2, MapPin } from 'lucide-react';
-
-interface NewsItem {
-  id: string;
-  title: string;
-  description: string;
-  date?: string;
-  category?: string;
-  tags?: string[];
-  provider?: { name: string };
-  image?: string;
-}
+import { ChevronDown, Search, Calendar, Building2, MapPin, Eye, Star, Pin } from 'lucide-react';
+import { fetchNewsArticles, fetchNewsCategories, fetchNewsTags } from '../../services/newsService';
+import type { NewsArticleWithDetails, NewsCategory, NewsTag } from '../../types/news';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '';
@@ -22,31 +13,64 @@ const formatDate = (dateString?: string) => {
   return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 };
 
-const NewsCard: React.FC<{ item: NewsItem }> = ({ item }) => {
-  const primaryTag = item.tags && item.tags.length > 0 ? item.tags[0] : item.category || 'News';
-  const publishedOn = formatDate(item.date);
+const NewsCard: React.FC<{ item: NewsArticleWithDetails }> = ({ item }) => {
+  const primaryTag = item.tags && item.tags.length > 0 ? item.tags[0].name : item.category_name || 'News';
+  const publishedOn = formatDate(item.published_at);
+  const publisherDisplay = item.publisher_department 
+    ? `${item.publisher_name || 'Digital Qatalyst'} • ${item.publisher_department}`
+    : item.publisher_name || 'Digital Qatalyst';
   return (
     <article className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden">
-      {/* Image with date badge */}
+      {/* Image with badges */}
       <div className="relative h-48 bg-gray-200">
-        {item.image ? (
+        {item.featured_image_url ? (
           <img 
-            src={item.image} 
+            src={item.featured_image_url} 
             alt={item.title}
             className="w-full h-full object-cover"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-900" />
         )}
+        {/* Date Badge */}
         <div className="absolute top-3 right-3 bg-white px-3 py-1 rounded shadow-md">
           <span className="text-xs font-medium text-gray-900">{publishedOn || 'TBA'}</span>
         </div>
+        {/* Featured Badge */}
+        {item.is_featured && (
+          <div className="absolute top-3 left-3 bg-orange-500 text-white px-2 py-1 rounded shadow-md flex items-center gap-1">
+            <Star size={12} fill="currentColor" />
+            <span className="text-xs font-medium">Featured</span>
+          </div>
+        )}
+        {/* Pinned Badge */}
+        {item.is_pinned && (
+          <div className="absolute bottom-3 left-3 bg-purple-500 text-white px-2 py-1 rounded shadow-md flex items-center gap-1">
+            <Pin size={12} />
+            <span className="text-xs font-medium">Pinned</span>
+          </div>
+        )}
       </div>
       
       <div className="p-5">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
         
         <p className="text-sm text-gray-600 mb-4 line-clamp-2">{item.description}</p>
+        
+        {/* Category Badge */}
+        {item.category_name && (
+          <div className="mb-3">
+            <span 
+              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              style={{
+                backgroundColor: item.category_color ? `${item.category_color}20` : '#DBEAFE',
+                color: item.category_color || '#1E40AF'
+              }}
+            >
+              {item.category_name}
+            </span>
+          </div>
+        )}
         
         {/* Meta information */}
         <div className="space-y-2 mb-4 text-sm text-gray-600">
@@ -56,17 +80,24 @@ const NewsCard: React.FC<{ item: NewsItem }> = ({ item }) => {
           </div>
           <div className="flex items-center gap-2">
             <Building2 className="w-4 h-4" />
-            <span>{item.provider?.name || 'DQ Intranet'}</span>
+            <span>{publisherDisplay}</span>
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4" />
             <span>{primaryTag}</span>
           </div>
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4" />
+            <span>{item.views_count.toLocaleString()} views</span>
+          </div>
         </div>
         
         <Link 
           to={`/marketplace/opportunities/${item.id}`} 
-          className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2.5 rounded font-medium transition-colors"
+          className="block w-full text-white text-center py-2.5 rounded font-medium transition-colors"
+          style={{ backgroundColor: '#030F35' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#020B28'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030F35'}
         >
           Read More
         </Link>
@@ -81,30 +112,53 @@ const NewsPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [items, setItems] = useState<NewsArticleWithDetails[]>([]);
+  const [categories, setCategories] = useState<NewsCategory[]>([]);
+  const [tags, setTags] = useState<NewsTag[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Collapsible sections state
   const [categoryOpen, setCategoryOpen] = useState(true);
   const [dateOpen, setDateOpen] = useState(true);
   const [tagsOpen, setTagsOpen] = useState(true);
 
-  const items = [
-    { id: '1', title: 'Digital Qatalyst Launches AI-Powered Workspace Platform', description: "We're thrilled to announce the launch of our revolutionary AI-powered Digital Workspace Platform, designed to transform how teams collaborate and innovate in 2025.", date: 'October 28, 2025', category: 'Technology', tags: ['AI', 'Innovation'], image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop', provider: { name: 'Digital Qatalyst • Technology' } },
-    { id: '2', title: 'Q4 2025 Town Hall: Year-End Achievements & 2026 Vision', description: 'Join our leadership team on November 5th as we celebrate our accomplishments this year and unveil our strategic vision for 2026.', date: 'October 25, 2025', category: 'Company', tags: ['Town Hall', 'Leadership'], image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&h=600&fit=crop', provider: { name: 'Digital Qatalyst • HR' } },
-    { id: '3', title: 'Annual Innovation Week: November 10-14, 2025', description: "Save the date! Our annual Innovation Week returns with workshops, hackathons, and guest speakers from leading tech companies. Let's innovate together!", date: 'October 22, 2025', category: 'Events', tags: ['Innovation', 'Team Building'], image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=600&fit=crop', provider: { name: 'Digital Qatalyst • Events' } },
-    { id: '4', title: 'DQ Recognized as Top Workplace for Innovation 2025', description: "Proud moment! Digital Qatalyst has been named one of the Top 10 Most Innovative Workplaces by Tech Excellence Awards 2025.", date: 'October 20, 2025', category: 'Achievement', tags: ['Award', 'Recognition'], image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop', provider: { name: 'Digital Qatalyst • Communications' } },
-    { id: '5', title: 'New Cybersecurity Protocols: Mandatory Training by Nov 15', description: "As part of our commitment to data security, all team members must complete the updated cybersecurity training module by November 15, 2025.", date: 'October 18, 2025', category: 'Security', tags: ['Training', 'Compliance'], image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&h=600&fit=crop', provider: { name: 'Digital Qatalyst • IT Security' } },
-    { id: '6', title: 'New Abu Dhabi Office Space: Grand Opening December 2025', description: 'Exciting news! Our expanded Abu Dhabi office featuring state-of-the-art collaboration spaces, wellness areas, and innovation labs opens next month.', date: 'October 15, 2025', category: 'Facilities', tags: ['Office', 'Expansion'], image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop', provider: { name: 'Digital Qatalyst • Facilities' } },
-  ];
+  // Fetch data from Supabase
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [articlesData, categoriesData, tagsData] = await Promise.all([
+          fetchNewsArticles({ status: 'published' }, 1, 100),
+          fetchNewsCategories(),
+          fetchNewsTags()
+        ]);
+        setItems(articlesData.articles);
+        setCategories(categoriesData);
+        setTags(tagsData);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading news data:', err);
+        setError('Failed to load news articles. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
   // Filter items based on search query, category, date, and tags
   const filteredItems = items.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || item.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
-    const matchesDate = selectedDate ? new Date(item.date || '').toLocaleDateString() === selectedDate : true;
-    const matchesTags = selectedTags.length > 0 ? selectedTags.every(tag => item.tags?.includes(tag)) : true;
+    const matchesCategory = selectedCategory ? item.category_id === selectedCategory : true;
+    const matchesDate = selectedDate ? new Date(item.published_at || '').toLocaleDateString() === selectedDate : true;
+    const matchesTags = selectedTags.length > 0 ? selectedTags.every(tag => item.tags?.some(t => t.name === tag)) : true;
 
     return matchesSearch && matchesCategory && matchesDate && matchesTags;
   });
+
+  // Get unique dates from items
+  const uniqueDates = Array.from(new Set(items.map(item => item.published_at ? new Date(item.published_at).toLocaleDateString() : null).filter(Boolean)));
 
   // Handle category filter
   const handleCategoryClick = (category: string) => {
@@ -149,7 +203,26 @@ const NewsPage: React.FC = () => {
           />
         </div>
 
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+            <p className="font-medium">Error loading news</p>
+            <p className="text-sm">{error}</p>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading news articles...</p>
+            </div>
+          </div>
+        )}
+
         {/* Main Content with Sidebar */}
+        {!loading && (
         <div className="flex gap-6">
           {/* Sidebar Filters */}
           <aside className="w-64 flex-shrink-0">
@@ -167,13 +240,13 @@ const NewsPage: React.FC = () => {
               </button>
               {categoryOpen && (
                 <div className="space-y-2">
-                  {['IT', 'HR', 'Social', 'Achievement', 'Training'].map((category) => (
+                  {categories.map((category) => (
                     <button
-                      key={category}
-                      onClick={() => handleCategoryClick(category)}
-                      className={`block w-full text-left px-3 py-2 text-sm rounded ${category === selectedCategory ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50'} transition`}
+                      key={category.id}
+                      onClick={() => handleCategoryClick(category.id)}
+                      className={`block w-full text-left px-3 py-2 text-sm rounded ${category.id === selectedCategory ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50'} transition`}
                     >
-                      {category}
+                      {category.name}
                     </button>
                   ))}
                 </div>
@@ -215,13 +288,13 @@ const NewsPage: React.FC = () => {
               </button>
               {tagsOpen && (
                 <div className="space-y-2">
-                  {['Project Management', 'Team Building', 'Security', 'Award', 'Renovation'].map((tag) => (
+                  {tags.map((tag) => (
                     <button
-                      key={tag}
-                      onClick={() => handleTagClick(tag)}
-                      className={`block w-full text-left px-3 py-2 text-sm rounded ${selectedTags.includes(tag) ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50'} transition`}
+                      key={tag.id}
+                      onClick={() => handleTagClick(tag.name)}
+                      className={`block w-full text-left px-3 py-2 text-sm rounded ${selectedTags.includes(tag.name) ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50'} transition`}
                     >
-                      {tag}
+                      {tag.name}
                     </button>
                   ))}
                 </div>
@@ -244,8 +317,17 @@ const NewsPage: React.FC = () => {
                 <NewsCard key={item.id} item={item} />
               ))}
             </section>
+            
+            {/* Empty State */}
+            {filteredItems.length === 0 && !loading && (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">No news articles found</p>
+                <p className="text-gray-400 text-sm mt-2">Try adjusting your filters or search query</p>
+              </div>
+            )}
           </div>
         </div>
+        )}
       </main>
       <Footer isLoggedIn={false} />
     </div>

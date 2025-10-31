@@ -4,21 +4,13 @@ import {
   ChevronRight,
   Home,
   BookmarkIcon,
-  Share2
+  Share2,
+  Eye
 } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-
-interface NewsItem {
-  id: string;
-  title: string;
-  description: string;
-  date?: string;
-  category?: string;
-  tags?: string[];
-  provider?: { name: string };
-  image?: string;
-}
+import { fetchNewsArticle, fetchRelatedArticles } from '../../services/newsService';
+import type { NewsArticleWithDetails } from '../../types/news';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '';
@@ -30,93 +22,64 @@ const formatDate = (dateString?: string) => {
 const NewsDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [item, setItem] = useState<NewsItem | null>(null);
-  const [relatedNews, setRelatedNews] = useState<NewsItem[]>([]);
+  const [item, setItem] = useState<NewsArticleWithDetails | null>(null);
+  const [relatedNews, setRelatedNews] = useState<NewsArticleWithDetails[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data - same as NewsPage
-  const newsItems: NewsItem[] = [
-    { 
-      id: '1', 
-      title: 'Digital Qatalyst Launches AI-Powered Workspace Platform', 
-      description: "We're thrilled to announce the launch of our revolutionary AI-powered Digital Workspace Platform, designed to transform how teams collaborate and innovate in 2025.", 
-      date: 'October 28, 2025', 
-      category: 'Technology', 
-      tags: ['AI', 'Innovation'], 
-      image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=600&fit=crop',
-      provider: { name: 'Digital Qatalyst • Technology' }
-    },
-    { 
-      id: '2', 
-      title: 'Q4 2025 Town Hall: Year-End Achievements & 2026 Vision', 
-      description: 'Join our leadership team on November 5th as we celebrate our accomplishments this year and unveil our strategic vision for 2026.', 
-      date: 'October 25, 2025', 
-      category: 'Company', 
-      tags: ['Town Hall', 'Leadership'], 
-      image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&h=600&fit=crop',
-      provider: { name: 'Digital Qatalyst • HR' }
-    },
-    { 
-      id: '3', 
-      title: 'Annual Innovation Week: November 10-14, 2025', 
-      description: "Save the date! Our annual Innovation Week returns with workshops, hackathons, and guest speakers from leading tech companies. Let's innovate together!", 
-      date: 'October 22, 2025', 
-      category: 'Events', 
-      tags: ['Innovation', 'Team Building'], 
-      image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=600&fit=crop',
-      provider: { name: 'Digital Qatalyst • Events' }
-    },
-    { 
-      id: '4', 
-      title: 'DQ Recognized as Top Workplace for Innovation 2025', 
-      description: "Proud moment! Digital Qatalyst has been named one of the Top 10 Most Innovative Workplaces by Tech Excellence Awards 2025.", 
-      date: 'October 20, 2025', 
-      category: 'Achievement', 
-      tags: ['Award', 'Recognition'], 
-      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
-      provider: { name: 'Digital Qatalyst • Communications' }
-    },
-    { 
-      id: '5', 
-      title: 'New Cybersecurity Protocols: Mandatory Training by Nov 15', 
-      description: "As part of our commitment to data security, all team members must complete the updated cybersecurity training module by November 15, 2025.", 
-      date: 'October 18, 2025', 
-      category: 'Security', 
-      tags: ['Training', 'Compliance'], 
-      image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&h=600&fit=crop',
-      provider: { name: 'Digital Qatalyst • IT Security' }
-    },
-    { 
-      id: '6', 
-      title: 'New Abu Dhabi Office Space: Grand Opening December 2025', 
-      description: 'Exciting news! Our expanded Abu Dhabi office featuring state-of-the-art collaboration spaces, wellness areas, and innovation labs opens next month.', 
-      date: 'October 15, 2025', 
-      category: 'Facilities', 
-      tags: ['Office', 'Expansion'], 
-      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop',
-      provider: { name: 'Digital Qatalyst • Facilities' }
-    },
-  ];
-
+  // Fetch article data from Supabase
   useEffect(() => {
-    setLoading(true);
-    // Find the news item by id
-    const foundItem = newsItems.find(item => item.id === id);
-    if (foundItem) {
-      setItem(foundItem);
-      // Get related news (same category, different id)
-      const related = newsItems
-        .filter(item => item.id !== id && item.category === foundItem.category)
-        .slice(0, 3);
-      setRelatedNews(related);
-    }
-    setLoading(false);
+    const loadArticle = async () => {
+      if (!id) return;
+      
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch the article (by ID or slug)
+        const article = await fetchNewsArticle(id);
+        
+        if (article) {
+          setItem(article);
+          
+          // Fetch related articles
+          const related = await fetchRelatedArticles(article.id, article.category_id);
+          setRelatedNews(related);
+          
+          // Check if bookmarked (requires user ID - implement based on your auth)
+          // const userId = 'current-user-id'; // Get from auth context
+          // const bookmarked = await isArticleBookmarked(article.id, userId);
+          // setIsBookmarked(bookmarked);
+        } else {
+          setError('Article not found');
+        }
+      } catch (err) {
+        console.error('Error loading article:', err);
+        setError('Failed to load article');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadArticle();
   }, [id]);
 
-  const toggleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
+  const handleToggleBookmark = async () => {
+    if (!item) return;
+    
+    try {
+      // TODO: Get user ID from auth context
+      // const userId = 'current-user-id';
+      // const newBookmarkState = await toggleBookmark(item.id, userId);
+      // setIsBookmarked(newBookmarkState);
+      
+      // For now, just toggle locally
+      setIsBookmarked(!isBookmarked);
+    } catch (err) {
+      console.error('Error toggling bookmark:', err);
+    }
   };
 
   const handleShare = () => {
@@ -165,8 +128,10 @@ const NewsDetailPage: React.FC = () => {
     );
   }
 
-  const primaryTag = item.tags && item.tags.length > 0 ? item.tags[0] : item.category || 'News';
-  const publishedOn = formatDate(item.date);
+  const publishedOn = formatDate(item.published_at);
+  const publisherDisplay = item.publisher_department 
+    ? `${item.publisher_name || 'Digital Qatalyst'} • ${item.publisher_department}`
+    : item.publisher_name || 'Digital Qatalyst';
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -195,10 +160,10 @@ const NewsDetailPage: React.FC = () => {
         <div className="bg-white">
           <div className="max-w-7xl mx-auto px-6">
             {/* Featured Image - Consistent margins */}
-            {item.image && (
+            {item.featured_image_url && (
               <div className="w-full mb-8">
                 <img
-                  src={item.image}
+                  src={item.featured_image_url}
                   alt={item.title}
                   className="w-full h-[400px] object-cover rounded-lg"
                 />
@@ -218,35 +183,62 @@ const NewsDetailPage: React.FC = () => {
 
                 {/* Meta Information Tags */}
                 <div className="flex flex-wrap gap-2 mb-6">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {item.category || 'General'}
-                  </span>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                    {primaryTag}
-                  </span>
+                  {item.category_name && (
+                    <span 
+                      className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+                      style={{
+                        backgroundColor: item.category_color ? `${item.category_color}20` : '#DBEAFE',
+                        color: item.category_color || '#1E40AF'
+                      }}
+                    >
+                      {item.category_name}
+                    </span>
+                  )}
+                  {item.tags && item.tags.map((tag) => (
+                    <span key={tag.id} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                      {tag.name}
+                    </span>
+                  ))}
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     Updated {publishedOn || 'TBA'}
                   </span>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex gap-3 pb-6 border-b border-gray-200">
-                  <button
-                    onClick={toggleBookmark}
-                    className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
-                      isBookmarked
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    <BookmarkIcon size={16} fill={isBookmarked ? 'currentColor' : 'none'} />
-                    {isBookmarked ? 'Bookmarked' : 'Bookmark'}
-                  </button>
-                  <button
-                    onClick={handleShare}
-                    className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
-                  >
-                    <Share2 size={16} />
+                {/* Stats and Action Buttons */}
+                <div className="flex items-center justify-between pb-6 border-b border-gray-200">
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <span className="flex items-center gap-1">
+                      <Eye size={16} />
+                      {item.views_count.toLocaleString()} views
+                    </span>
+                    {item.comment_count > 0 && (
+                      <span className="flex items-center gap-1">
+                        💬 {item.comment_count} {item.comment_count === 1 ? 'comment' : 'comments'}
+                      </span>
+                    )}
+                    {Object.values(item.reaction_counts).reduce((a, b) => (a || 0) + (b || 0), 0) > 0 && (
+                      <span className="flex items-center gap-1">
+                        ❤️ {Object.values(item.reaction_counts).reduce((a, b) => (a || 0) + (b || 0), 0)} reactions
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleToggleBookmark}
+                      className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
+                        isBookmarked
+                          ? 'bg-blue-50 text-blue-600'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      <BookmarkIcon size={16} fill={isBookmarked ? 'currentColor' : 'none'} />
+                      {isBookmarked ? 'Bookmarked' : 'Bookmark'}
+                    </button>
+                    <button
+                      onClick={handleShare}
+                      className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                    >
+                      <Share2 size={16} />
                     Share
                   </button>
                 </div>
@@ -261,67 +253,11 @@ const NewsDetailPage: React.FC = () => {
             <div className="flex gap-8">
               {/* Main Content Area */}
               <div className="flex-1 max-w-3xl">
-                {/* Article Content */}
-                <div className="prose max-w-none">
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">
-                      Overview
-                    </h2>
-                    <p className="text-gray-700 mb-6 leading-relaxed">
-                      At Digital Qatalyst, we believe in keeping our team informed and engaged with the latest 
-                      developments across our organization. This announcement reflects our commitment to transparency, 
-                      innovation, and continuous improvement as we work together to deliver exceptional value to our clients 
-                      and stakeholders.
-                    </p>
-
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">
-                      Key Highlights
-                    </h2>
-                    <ul className="list-disc list-inside text-gray-700 mb-6 space-y-2">
-                      <li>Enhanced collaboration tools and processes to streamline team workflows</li>
-                      <li>New opportunities for professional development and skill enhancement</li>
-                      <li>Initiatives aligned with our core values of innovation, excellence, and integrity</li>
-                      <li>Focus on employee well-being and work-life balance</li>
-                      <li>Commitment to sustainable growth and community impact</li>
-                    </ul>
-
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">
-                      Impact on Teams
-                    </h2>
-                    <p className="text-gray-700 mb-6 leading-relaxed">
-                      This initiative will positively impact various teams across Digital Qatalyst, fostering 
-                      better communication, knowledge sharing, and cross-functional collaboration. We encourage 
-                      all team members to actively participate and contribute their insights to make this a success.
-                    </p>
-
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">
-                      Next Steps
-                    </h2>
-                    <ol className="list-decimal list-inside text-gray-700 mb-6 space-y-2">
-                      <li>Review the details and familiarize yourself with the changes</li>
-                      <li>Attend upcoming information sessions and Q&A forums</li>
-                      <li>Reach out to your team lead or HR for any questions or clarifications</li>
-                      <li>Provide feedback through our internal communication channels</li>
-                      <li>Stay tuned for follow-up announcements and updates</li>
-                    </ol>
-
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">
-                      Our Culture
-                    </h2>
-                    <p className="text-gray-700 mb-6 leading-relaxed">
-                      This announcement embodies Digital Qatalyst's culture of continuous learning, adaptability, 
-                      and excellence. We value every team member's contribution and are committed to creating an 
-                      environment where innovation thrives and everyone can reach their full potential.
-                    </p>
-
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">
-                      Get Involved
-                    </h2>
-                    <p className="text-gray-700 mb-6 leading-relaxed">
-                      We encourage you to engage with this initiative by sharing your thoughts, asking questions, 
-                      and collaborating with your colleagues. Together, we can make Digital Qatalyst an even better 
-                      place to work and grow.
-                    </p>
-                  </div>
+                {/* Article Content - Render HTML content from database */}
+                <div 
+                  className="prose max-w-none"
+                  dangerouslySetInnerHTML={{ __html: item.content }}
+                />
 
                   {/* News Info Box */}
                   <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mt-8">
@@ -330,21 +266,33 @@ const NewsDetailPage: React.FC = () => {
                     </h3>
                     <div className="grid grid-cols-2 gap-6">
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Domain</p>
-                        <p className="text-sm font-medium text-blue-600">{item.category || 'Digital Workspace'}</p>
+                        <p className="text-xs text-gray-500 mb-1">Category</p>
+                        <p className="text-sm font-medium text-blue-600">{item.category_name || 'General'}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Function Area</p>
-                        <p className="text-sm font-medium text-gray-900">{primaryTag}</p>
+                        <p className="text-xs text-gray-500 mb-1">Status</p>
+                        <p className="text-sm font-medium text-gray-900 capitalize">{item.status}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-500 mb-1">Last Updated</p>
-                        <p className="text-sm font-medium text-blue-600">{publishedOn || 'Oct 2, 2025'}</p>
+                        <p className="text-xs text-gray-500 mb-1">Published</p>
+                        <p className="text-sm font-medium text-blue-600">{publishedOn || 'TBA'}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Publisher</p>
-                        <p className="text-sm font-medium text-gray-900">{item.provider?.name || 'PMO • Digital Qatalyst'}</p>
+                        <p className="text-sm font-medium text-gray-900">{publisherDisplay}</p>
                       </div>
+                      {item.is_featured && (
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Featured</p>
+                          <p className="text-sm font-medium text-orange-600">⭐ Featured Article</p>
+                        </div>
+                      )}
+                      {item.is_pinned && (
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Pinned</p>
+                          <p className="text-sm font-medium text-purple-600">📌 Pinned</p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -374,9 +322,9 @@ const NewsDetailPage: React.FC = () => {
                             className="flex gap-3 group"
                           >
                             <div className="w-16 h-16 flex-shrink-0 bg-gray-200 rounded overflow-hidden">
-                              {relatedItem.image ? (
+                              {relatedItem.featured_image_url ? (
                                 <img
-                                  src={relatedItem.image}
+                                  src={relatedItem.featured_image_url}
                                   alt={relatedItem.title}
                                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                 />
@@ -403,6 +351,7 @@ const NewsDetailPage: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
       </main>
 
       <Footer isLoggedIn={false} />
