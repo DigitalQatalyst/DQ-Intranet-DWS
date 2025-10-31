@@ -10,13 +10,6 @@ import { getMarketplaceConfig } from '../../utils/marketplaceConfig.js';
 import { MarketplaceComparison } from './MarketplaceComparison.js';
 import { Header } from '../Header';
 import { Footer } from '../Footer';
-<<<<<<< HEAD
-import { getFallbackItems } from '../../utils/fallbackData.js';
-import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters.js';
-import GuidesGrid from '../guides/GuidesGrid.js';
-import { supabaseClient } from '../../lib/supabaseClient.js';
-import { track } from '../../utils/analytics.js';
-=======
 import { getFallbackItems } from '../../utils/fallbackData';
 import KnowledgeHubGrid from './KnowledgeHubGrid';
 import { LMS_COURSES } from '@/data/lmsCourseDetails';
@@ -32,7 +25,6 @@ import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters';
 import GuidesGrid from '../guides/GuidesGrid';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { track } from '../../utils/analytics';
->>>>>>> Develop
 
 const LEARNING_TYPE_FILTER: FilterConfig = {
   id: 'learningType',
@@ -154,7 +146,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getMarketplaceConfig(marketplaceType);
-<<<<<<< HEAD
 
   // Items & filters state
   const [items, setItems] = useState<any[]>([]);
@@ -174,26 +165,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const totalPages = Math.max(1, Math.ceil(Math.max(totalCount, 0) / pageSize));
 
   // UI state
-=======
   
   // For courses: URL-based filtering
   const courseFacets = isCourses ? parseFacets(searchParams) : undefined;
   const lmsFilteredItems = isCourses
     ? applyFilters(LMS_COURSES, courseFacets || {})
     : [];
-  
-  // For guides: queryParams state
-  const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
-  const searchStartRef = useRef<number | null>(null);
-  const inFlightController = useRef<AbortController | null>(null);
-  
-  // Shared state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [items, setItems] = useState<any[]>([]);
-  const [filteredItems, setFilteredItems] = useState<any[]>([]);
-  const [filters, setFilters] = useState<Record<string, string[] | string>>({});
-  const [filterConfig, setFilterConfig] = useState<FilterConfig[]>([]);
->>>>>>> Develop
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [bookmarkedItems, setBookmarkedItems] = useState<string[]>([]);
@@ -202,10 +179,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Guides-specific state
-  const [facets, setFacets] = useState<GuidesFacets>({});
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState<boolean>(false);
   
   // Knowledge-hub specific state
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
@@ -306,52 +279,47 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   
   // Fetch items based on marketplace type
   useEffect(() => {
-    if (!isGuidesLike(marketplaceType)) {
-      const loadItems = async () => {
-        setLoading(true);
+    const run = async () => {
+      // COURSES: items come from LMS arrays / URL filters; no fetch
+      if (isCourses) {
+        setLoading(false);
         setError(null);
-        try {
-          const itemsData = await fetchMarketplaceItems(marketplaceType, filters, searchQuery);
-          const finalItems = itemsData && itemsData.length > 0 ? itemsData : getFallbackItems(marketplaceType);
-          setItems(finalItems);
-          setFilteredItems(finalItems);
-          setTotalCount(finalItems.length);
-        } catch (err) {
-          console.error(`Error fetching ${marketplaceType} items:`, err);
-          setError(`Failed to load ${marketplaceType}`);
-          const fallbackItems = getFallbackItems(marketplaceType);
-          setItems(fallbackItems);
-          setFilteredItems(fallbackItems);
-          setTotalCount(fallbackItems.length);
-        } finally {
-          setLoading(false);
-        }
-      };
-      loadItems();
-    } else {
-      const loadGuides = async () => {
+        // optional: reflect count in state for pager/UI
+        setTotalCount(searchFilteredItems.length);
+        setItems([]);               // not used in render for courses
+        setFilteredItems([]);       // render uses searchFilteredItems when isCourses
+        return;
+      }
+
+      // KNOWLEDGE HUB: use fallback data (no API)
+      if (isKnowledgeHub) {
+        const fallbackItems = getFallbackItems(marketplaceType);
+        setItems(fallbackItems);
+        setFilteredItems(fallbackItems);
+        setTotalCount(fallbackItems.length);
+        setLoading(false);
+        return;
+      }
+
+      // GUIDES: Supabase query + facets
+      if (isGuidesLike(marketplaceType)) {
         setLoading(true);
         try {
-          // const res = await fetch(`/api/guides?${queryParams.toString()}`);
-          // const ct = res.headers.get('content-type') || '';
-          // if (res.ok && ct.includes('application/json')) {
-          //   data = await res.json();
-          // } else {
-            // Dev fallback: query Supabase anon directly when serverless API isn't running
-          let q = supabaseClient
-            .from('guides')
-            .select('*', { count: 'exact' });
+          let q = supabaseClient.from('guides').select('*', { count: 'exact' });
+
           const qStr = queryParams.get('q') || '';
-          const domains = parseFilterValues(queryParams, 'domain');
-          const rawSubDomains = parseFilterValues(queryParams, 'sub_domain');
-          const guideTypes = parseFilterValues(queryParams, 'guide_type');
-          const units = parseFilterValues(queryParams, 'unit');
-          const locations = parseFilterValues(queryParams, 'location');
-          const statuses = parseFilterValues(queryParams, 'status');
-          const allowedSubdomains = new Set<string>();
-          domains.forEach((domain) => (SUBDOMAIN_BY_DOMAIN[domain] || []).forEach((entry) => allowedSubdomains.add(entry)));
-          const subDomains = allowedSubdomains.size ? rawSubDomains.filter((value) => allowedSubdomains.has(value)) : [];
-          if (rawSubDomains.length && subDomains.length !== rawSubDomains.length) {
+          const domains     = parseFilterValues(queryParams, 'domain');
+          const rawSubs     = parseFilterValues(queryParams, 'sub_domain');
+          const guideTypes  = parseFilterValues(queryParams, 'guide_type');
+          const units       = parseFilterValues(queryParams, 'unit');
+          const locations   = parseFilterValues(queryParams, 'location');
+          const statuses    = parseFilterValues(queryParams, 'status');
+
+          const allowed = new Set<string>();
+          domains.forEach(d => (SUBDOMAIN_BY_DOMAIN[d] || []).forEach(s => allowed.add(s)));
+          const subDomains = allowed.size ? rawSubs.filter(v => allowed.has(v)) : [];
+
+          if (rawSubs.length && subDomains.length !== rawSubs.length) {
             const next = new URLSearchParams(queryParams.toString());
             if (subDomains.length) next.set('sub_domain', subDomains.join(','));
             else next.delete('sub_domain');
@@ -362,31 +330,32 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             setLoading(false);
             return;
           }
-          if (statuses.length) q = q.in('status', statuses);
-          else q = q.eq('status', 'Approved');
+
+          if (statuses.length) q = q.in('status', statuses); else q = q.eq('status', 'Approved');
           if (qStr) q = q.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
-          if (domains.length) q = q.in('domain', domains);
-          if (subDomains.length) q = q.in('sub_domain', subDomains);
-          if (guideTypes.length) q = q.in('guide_type', guideTypes);
-          if (units.length) q = q.in('unit', units);
+          if (domains.length)   q = q.in('domain', domains);
+          if (subDomains.length)q = q.in('sub_domain', subDomains);
+          if (guideTypes.length)q = q.in('guide_type', guideTypes);
+          if (units.length)     q = q.in('unit', units);
           if (locations.length) q = q.in('location', locations);
+
           const sort = queryParams.get('sort') || 'relevance';
-          if (sort === 'updated') q = q.order('last_updated_at', { ascending: false, nullsFirst: true });
-          else if (sort === 'downloads') q = q.order('download_count', { ascending: false, nullsFirst: true });
+          if (sort === 'updated')       q = q.order('last_updated_at', { ascending: false, nullsFirst: false });
+          else if (sort === 'downloads')q = q.order('download_count',   { ascending: false, nullsFirst: false });
           else if (sort === 'editorsPick') {
-            q = q
-              .order('is_editors_pick', { ascending: false })
-              .order('last_updated_at', { ascending: false, nullsFirst: true });
+            q = q.order('is_editors_pick', { ascending: false })
+                .order('last_updated_at', { ascending: false, nullsFirst: false });
           } else {
-            q = q
-              .order('is_editors_pick', { ascending: false })
-              .order('download_count', { ascending: false, nullsFirst: true })
-              .order('last_updated_at', { ascending: false, nullsFirst: true });
+            q = q.order('is_editors_pick', { ascending: false })
+                .order('download_count',   { ascending: false, nullsFirst: false })
+                .order('last_updated_at',  { ascending: false, nullsFirst: false });
           }
-          // (filter/sort is applied after mapping below)
+
           const from = (currentPage - 1) * pageSize;
-          const to = from + pageSize - 1;
-          const { data: rows, count, error } = await q.range(from, to); if (error) throw error;
+          const to   = from + pageSize - 1;
+          const { data: rows, count, error } = await q.range(from, to);
+          if (error) throw error;
+
           const mapped = (rows || []).map((r: any) => {
             const unitValue = r.unit ?? r.function_area ?? null;
             const subDomainValue = r.sub_domain ?? r.subDomain ?? null;
@@ -413,27 +382,30 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               complexityLevel: r.complexity_level ?? null,
             };
           });
-          // client-side filter/sort for fallback
+
           let out = mapped;
-          if (domains.length) out = out.filter(it => it.domain && domains.includes(it.domain));
+          if (domains.length)    out = out.filter(it => it.domain && domains.includes(it.domain));
           if (subDomains.length) out = out.filter(it => it.subDomain && subDomains.includes(it.subDomain));
           if (guideTypes.length) out = out.filter(it => it.guideType && guideTypes.includes(it.guideType));
-          if (units.length) out = out.filter(it => {
-            const value = it.unit || it.functionArea;
-            return value && units.includes(value);
-          });
-          if (locations.length) out = out.filter(it => it.location && locations.includes(it.location));
-          if (statuses.length) out = out.filter(it => it.status && statuses.includes(it.status));
-          if (sort === 'updated') out.sort((a,b) => new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
-          else if (sort === 'downloads') out.sort((a,b) => (b.downloadCount||0)-(a.downloadCount||0));
-          else if (sort === 'editorsPick') out.sort((a,b) => (Number(b.isEditorsPick)||0)-(Number(a.isEditorsPick)||0) || new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
-          else out.sort((a,b) => (Number(b.isEditorsPick)||0)-(Number(a.isEditorsPick)||0) || (b.downloadCount||0)-(a.downloadCount||0) || new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
+          if (units.length)      out = out.filter(it => (it.unit || it.functionArea) && units.includes(it.unit || it.functionArea));
+          if (locations.length)  out = out.filter(it => it.location && locations.includes(it.location));
+          if (statuses.length)   out = out.filter(it => it.status && statuses.includes(it.status));
+
+          if (sort === 'updated')       out.sort((a,b) => new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
+          else if (sort === 'downloads')out.sort((a,b) => (b.downloadCount||0)-(a.downloadCount||0));
+          else if (sort === 'editorsPick')
+            out.sort((a,b) => (Number(b.isEditorsPick)||0)-(Number(a.isEditorsPick)||0) ||
+                              new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
+          else
+            out.sort((a,b) => (Number(b.isEditorsPick)||0)-(Number(a.isEditorsPick)||0) ||
+                              (b.downloadCount||0)-(a.downloadCount||0) ||
+                              new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
+
           const total = typeof count === 'number' ? count : out.length;
           const lastPage = Math.max(1, Math.ceil(total / pageSize));
           if (currentPage > lastPage) {
             const next = new URLSearchParams(queryParams.toString());
-            if (lastPage <= 1) next.delete('page');
-            else next.set('page', String(lastPage));
+            if (lastPage <= 1) next.delete('page'); else next.set('page', String(lastPage));
             if (typeof window !== 'undefined') {
               window.history.replaceState(null, '', `${window.location.pathname}${next.toString() ? '?' + next.toString() : ''}`);
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -442,35 +414,43 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             setLoading(false);
             return;
           }
-          // Facets fallback: compute from Supabase for current filter context
+
+          // facets query (unchanged)
           let facetQ = supabaseClient
             .from('guides')
             .select('domain,sub_domain,guide_type,function_area,unit,location,status')
             .eq('status', 'Approved');
-          if (qStr) facetQ = facetQ.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
-          if (domains.length) facetQ = facetQ.in('domain', domains);
-          if (subDomains.length) facetQ = facetQ.in('sub_domain', subDomains);
-          if (guideTypes.length) facetQ = facetQ.in('guide_type', guideTypes);
-          if (units.length) facetQ = facetQ.in('unit', units);
-          if (locations.length) facetQ = facetQ.in('location', locations);
-          if (statuses.length) facetQ = facetQ.in('status', statuses);
+
+          if (qStr)               facetQ = facetQ.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
+          if (domains.length)     facetQ = facetQ.in('domain', domains);
+          if (subDomains.length)  facetQ = facetQ.in('sub_domain', subDomains);
+          if (guideTypes.length)  facetQ = facetQ.in('guide_type', guideTypes);
+          if (units.length)       facetQ = facetQ.in('unit', units);
+          if (locations.length)   facetQ = facetQ.in('location', locations);
+          if (statuses.length)    facetQ = facetQ.in('status', statuses);
+
           const { data: facetRows } = await facetQ;
+
           const countBy = (arr: any[] | null | undefined, key: string) => {
             const m = new Map<string, number>();
             for (const r of (arr || [])) { const v = (r as any)[key]; if (!v) continue; m.set(v, (m.get(v)||0)+1); }
-            return Array.from(m.entries()).map(([id, cnt]) => ({ id, name: id, count: cnt })).sort((a,b)=> a.name.localeCompare(b.name));
+            return Array.from(m.entries()).map(([id, cnt]) => ({ id, name: id, count: cnt }))
+                      .sort((a,b)=> a.name.localeCompare(b.name));
           };
-          const domainFacets = countBy(facetRows, 'domain');
-          const guideTypeFacets = countBy(facetRows, 'guide_type');
-          const subDomainFacetsRaw = countBy(facetRows, 'sub_domain');
-          const unitFacets = countBy(facetRows, 'unit');
-          const locationFacets = countBy(facetRows, 'location');
-          const statusFacets = countBy(facetRows, 'status');
-          const allowedSubdomainsForFacets = new Set<string>();
-          domains.forEach((domain) => (SUBDOMAIN_BY_DOMAIN[domain] || []).forEach((entry) => allowedSubdomainsForFacets.add(entry)));
-          const subDomainFacets = allowedSubdomainsForFacets.size
-            ? subDomainFacetsRaw.filter((opt) => allowedSubdomainsForFacets.has(opt.id))
+
+          const domainFacets      = countBy(facetRows, 'domain');
+          const guideTypeFacets   = countBy(facetRows, 'guide_type');
+          const subDomainFacetsRaw= countBy(facetRows, 'sub_domain');
+          const unitFacets        = countBy(facetRows, 'unit');
+          const locationFacets    = countBy(facetRows, 'location');
+          const statusFacets      = countBy(facetRows, 'status');
+
+          const allowedForFacets = new Set<string>();
+          domains.forEach(d => (SUBDOMAIN_BY_DOMAIN[d] || []).forEach(s => allowedForFacets.add(s)));
+          const subDomainFacets = allowedForFacets.size
+            ? subDomainFacetsRaw.filter(opt => allowedForFacets.has(opt.id))
             : subDomainFacetsRaw;
+
           setItems(out);
           setFilteredItems(out);
           setTotalCount(total);
@@ -482,7 +462,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             location: locationFacets,
             status: statusFacets,
           });
-          const start = searchStartRef.current; if (start) { const latency = Date.now() - start; track('Guides.Search', { q: qStr, latency_ms: latency }); searchStartRef.current = null; }
+
+          const start = searchStartRef.current;
+          if (start) { const latency = Date.now() - start; track('Guides.Search', { q: qStr, latency_ms: latency }); searchStartRef.current = null; }
           track('Guides.ViewList', { q: qStr, sort, page: String(currentPage) });
         } catch (e) {
           console.error('Error fetching guides:', e);
@@ -490,42 +472,38 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         } finally {
           setLoading(false);
         }
-      };
-      loadGuides();
-    } else if (isKnowledgeHub) {
-      // For knowledge-hub, directly use fallback data without API calls
-      const fallbackItems = getFallbackItems(marketplaceType);
-      setItems(fallbackItems);
-      setFilteredItems(fallbackItems);
-      setLoading(false);
-    } else {
-      // Other marketplaces (financial, non-financial, onboarding)
-      const loadItems = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-          const itemsData = await fetchMarketplaceItems(
-            marketplaceType,
-            Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v.join(',') : (v || '')])),
-            searchQuery
-          );
-          const finalItems = itemsData && itemsData.length > 0 ? itemsData : getFallbackItems(marketplaceType);
-          setItems(finalItems);
-          setFilteredItems(finalItems);
-        } catch (err) {
-          console.error(`Error fetching ${marketplaceType} items:`, err);
-          setError(`Failed to load ${marketplaceType}`);
-          const fallbackItems = getFallbackItems(marketplaceType);
-          setItems(fallbackItems);
-          setFilteredItems(fallbackItems);
-        } finally {
-          setLoading(false);
-        }
-      };
-      loadItems();
-    }
-  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isGuidesLike, isKnowledgeHub]);
-  
+        return;
+      }
+
+      // OTHER MARKETPLACES (financial, non-financial, onboarding)
+      setLoading(true);
+      setError(null);
+      try {
+        const itemsData = await fetchMarketplaceItems(
+          marketplaceType,
+          Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v.join(',') : (v || '')])),
+          searchQuery
+        );
+        const finalItems = itemsData?.length ? itemsData : getFallbackItems(marketplaceType);
+        setItems(finalItems);
+        setFilteredItems(finalItems);
+        setTotalCount(finalItems.length);
+      } catch (err) {
+        console.error(`Error fetching ${marketplaceType} items:`, err);
+        setError(`Failed to load ${marketplaceType}`);
+        const fallbackItems = getFallbackItems(marketplaceType);
+        setItems(fallbackItems);
+        setFilteredItems(fallbackItems);
+        setTotalCount(fallbackItems.length);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    run();
+    // Keep deps lean; no need to include functions like isGuidesLike
+  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isKnowledgeHub, currentPage, pageSize]);
+
   // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
     if (isCourses) {
