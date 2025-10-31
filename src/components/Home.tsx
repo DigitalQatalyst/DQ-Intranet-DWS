@@ -347,7 +347,7 @@ export const HomePage: React.FC = () => {
           description:
             "Join conversations that shape DQ's culture and share feedback that drives improvement.",
           icon: <HeartHandshake />,
-          path: "/marketplace/guides",
+          path: '/communities',
           isActive: true,
         },
         {

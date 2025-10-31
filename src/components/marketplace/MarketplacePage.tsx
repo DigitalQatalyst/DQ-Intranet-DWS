@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from './FilterSidebar.js';
 import { MarketplaceGrid } from './MarketplaceGrid.js';
 import { SearchBar } from '../SearchBar.js';
@@ -10,11 +10,109 @@ import { getMarketplaceConfig } from '../../utils/marketplaceConfig.js';
 import { MarketplaceComparison } from './MarketplaceComparison.js';
 import { Header } from '../Header';
 import { Footer } from '../Footer';
+<<<<<<< HEAD
 import { getFallbackItems } from '../../utils/fallbackData.js';
 import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters.js';
 import GuidesGrid from '../guides/GuidesGrid.js';
 import { supabaseClient } from '../../lib/supabaseClient.js';
 import { track } from '../../utils/analytics.js';
+=======
+import { getFallbackItems } from '../../utils/fallbackData';
+import KnowledgeHubGrid from './KnowledgeHubGrid';
+import { LMS_COURSES } from '@/data/lmsCourseDetails';
+import { parseFacets, applyFilters } from '@/lms/filters';
+import {
+  LOCATION_ALLOW,
+  LEVELS,
+  CATEGORY_OPTS,
+  DELIVERY_OPTS,
+  DURATION_OPTS
+} from '@/lms/config';
+import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters';
+import GuidesGrid from '../guides/GuidesGrid';
+import { supabaseClient } from '../../lib/supabaseClient';
+import { track } from '../../utils/analytics';
+>>>>>>> Develop
+
+const LEARNING_TYPE_FILTER: FilterConfig = {
+  id: 'learningType',
+  title: 'Learning Type',
+  options: [
+    { id: 'courses', name: 'Courses' },
+    { id: 'curricula', name: 'Curricula' },
+    { id: 'testimonials', name: 'Testimonials' }
+  ]
+};
+
+const prependLearningTypeFilter = (marketplaceType: string, configs: FilterConfig[]): FilterConfig[] => {
+  if (marketplaceType !== 'courses') {
+    return configs;
+  }
+  const hasLearningType = configs.some(config => config.id === 'learningType');
+  if (hasLearningType) {
+    return configs.map(config => {
+      if (config.id !== 'learningType') return config;
+      const options = config.options.length ? config.options : LEARNING_TYPE_FILTER.options;
+      return { ...config, options };
+    });
+  }
+  return [LEARNING_TYPE_FILTER, ...configs];
+};
+
+const COURSE_FILTER_CONFIG: FilterConfig[] = [
+  {
+    id: 'category',
+    title: 'Course Category',
+    options: CATEGORY_OPTS.map(value => ({ id: value, name: value }))
+  },
+  {
+    id: 'delivery',
+    title: 'Delivery Mode',
+    options: DELIVERY_OPTS.map(value => ({ id: value, name: value }))
+  },
+  {
+    id: 'duration',
+    title: 'Duration',
+    options: DURATION_OPTS.map(value => ({ id: value, name: value }))
+  },
+  {
+    id: 'department',
+    title: 'Department',
+    options: [
+      { id: 'DCO', name: 'DCO' },
+      { id: 'DBP', name: 'DBP' },
+      { id: 'HR', name: 'HR' },
+      { id: 'IT', name: 'IT' },
+      { id: 'Finance', name: 'Finance' }
+    ]
+  },
+  {
+    id: 'level',
+    title: 'Level',
+    options: LEVELS.map(level => ({ id: level.code, name: level.label }))
+  },
+  {
+    id: 'location',
+    title: 'Location/Studio',
+    options: LOCATION_ALLOW.map(value => ({ id: value, name: value }))
+  },
+  {
+    id: 'audience',
+    title: 'Audience',
+    options: [
+      { id: 'Associate', name: 'Associate' },
+      { id: 'Lead', name: 'Lead' }
+    ]
+  },
+  {
+    id: 'status',
+    title: 'Status',
+    options: [
+      { id: 'live', name: 'Live' },
+      { id: 'coming-soon', name: 'Coming Soon' }
+    ]
+  }
+];
 
 interface ComparisonItem {
   id: string;
@@ -23,7 +121,7 @@ interface ComparisonItem {
 }
 
 export interface MarketplacePageProps {
-  marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding';
+  marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding' | 'guides';
   title: string;
   description: string;
   promoCards?: any[];
@@ -45,13 +143,18 @@ const parseFilterValues = (params: URLSearchParams, key: string): string[] =>
 
 export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   marketplaceType,
-  title,
-  description,
+  title: _title,
+  description: _description,
   promoCards = []
 }) => {
-  const isGuidesLike = (type: string) => type === 'knowledge-hub' || type === 'guides';
+  const isGuidesLike = (type: string) => type === 'guides';
+  const isCourses = marketplaceType === 'courses';
+  const isKnowledgeHub = marketplaceType === 'knowledge-hub';
+  
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const config = getMarketplaceConfig(marketplaceType);
+<<<<<<< HEAD
 
   // Items & filters state
   const [items, setItems] = useState<any[]>([]);
@@ -71,6 +174,26 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const totalPages = Math.max(1, Math.ceil(Math.max(totalCount, 0) / pageSize));
 
   // UI state
+=======
+  
+  // For courses: URL-based filtering
+  const courseFacets = isCourses ? parseFacets(searchParams) : undefined;
+  const lmsFilteredItems = isCourses
+    ? applyFilters(LMS_COURSES, courseFacets || {})
+    : [];
+  
+  // For guides: queryParams state
+  const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
+  const searchStartRef = useRef<number | null>(null);
+  const inFlightController = useRef<AbortController | null>(null);
+  
+  // Shared state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [items, setItems] = useState<any[]>([]);
+  const [filteredItems, setFilteredItems] = useState<any[]>([]);
+  const [filters, setFilters] = useState<Record<string, string[] | string>>({});
+  const [filterConfig, setFilterConfig] = useState<FilterConfig[]>([]);
+>>>>>>> Develop
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [bookmarkedItems, setBookmarkedItems] = useState<string[]>([]);
@@ -78,17 +201,94 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [showComparison, setShowComparison] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Load filter configurations for non-guides marketplaces
+  
+  // Guides-specific state
+  const [facets, setFacets] = useState<GuidesFacets>({});
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+  
+  // Knowledge-hub specific state
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  
+  // Courses: URL toggle function
+  const toggleFilter = useCallback((key: string, value: string) => {
+    const curr = new Set((searchParams.get(key)?.split(",").filter(Boolean)) || []);
+    curr.has(value) ? curr.delete(value) : curr.add(value);
+    const newParams = new URLSearchParams(searchParams);
+    if (curr.size) {
+      newParams.set(key, Array.from(curr).join(","));
+    } else {
+      newParams.delete(key);
+    }
+    setSearchParams(newParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+  
+  // Apply search query to LMS items
+  const searchFilteredItems = isCourses && searchQuery
+    ? lmsFilteredItems.filter(item => {
+        const searchableText = [
+          item.title,
+          item.summary,
+          item.courseCategory,
+          item.deliveryMode,
+          item.duration,
+          item.levelCode,
+          item.levelLabel,
+          ...(item.locations || []),
+          ...(item.audience || []),
+          ...(item.department || [])
+        ].filter(Boolean).join(' ').toLowerCase();
+        return searchableText.includes(searchQuery.toLowerCase());
+      })
+    : lmsFilteredItems;
+  
+  // Compute filters from URL for courses
+  const urlBasedFilters: Record<string, string[]> = isCourses
+    ? {
+        category: courseFacets?.category || [],
+        delivery: courseFacets?.delivery || [],
+        duration: courseFacets?.duration || [],
+        level: (courseFacets?.level || []) as string[],
+        department: courseFacets?.department || [],
+        location: courseFacets?.location || [],
+        audience: courseFacets?.audience || [],
+        status: courseFacets?.status || []
+      }
+    : {};
+  
+  // Handle track parameter for newjoiner (courses)
   useEffect(() => {
+    if (isCourses) {
+      const track = searchParams.get('track');
+      if (track === 'newjoiner') {
+        const newParams = new URLSearchParams(searchParams);
+        if (!newParams.get('level')) {
+          newParams.set('level', 'L1,L2');
+        }
+        if (!newParams.get('category')) {
+          newParams.set('category', 'Day in DQ');
+        }
+        setSearchParams(newParams, { replace: true });
+      }
+    }
+  }, [isCourses, searchParams, setSearchParams]);
+  
+  // Load filter configurations
+  useEffect(() => {
+    if (isCourses) {
+      setFilterConfig(COURSE_FILTER_CONFIG);
+      setLoading(false);
+      return;
+    }
     const loadFilterOptions = async () => {
-      if (isGuidesLike(marketplaceType)) {
+      if (isGuidesLike(marketplaceType) || isKnowledgeHub) {
         setFilterConfig([]);
         setFilters({});
         return;
       }
       try {
-        const filterOptions = await fetchMarketplaceFilters(marketplaceType);
+        let filterOptions = await fetchMarketplaceFilters(marketplaceType);
+        filterOptions = prependLearningTypeFilter(marketplaceType, filterOptions);
         setFilterConfig(filterOptions);
         const initial: Record<string, string> = {};
         filterOptions.forEach(c => { initial[c.id] = ''; });
@@ -102,9 +302,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       }
     };
     loadFilterOptions();
-  }, [marketplaceType, config]);
-
-  // Fetch items
+  }, [marketplaceType, config, isCourses, isGuidesLike, isKnowledgeHub]);
+  
+  // Fetch items based on marketplace type
   useEffect(() => {
     if (!isGuidesLike(marketplaceType)) {
       const loadItems = async () => {
@@ -292,24 +492,100 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         }
       };
       loadGuides();
+    } else if (isKnowledgeHub) {
+      // For knowledge-hub, directly use fallback data without API calls
+      const fallbackItems = getFallbackItems(marketplaceType);
+      setItems(fallbackItems);
+      setFilteredItems(fallbackItems);
+      setLoading(false);
+    } else {
+      // Other marketplaces (financial, non-financial, onboarding)
+      const loadItems = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const itemsData = await fetchMarketplaceItems(
+            marketplaceType,
+            Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v.join(',') : (v || '')])),
+            searchQuery
+          );
+          const finalItems = itemsData && itemsData.length > 0 ? itemsData : getFallbackItems(marketplaceType);
+          setItems(finalItems);
+          setFilteredItems(finalItems);
+        } catch (err) {
+          console.error(`Error fetching ${marketplaceType} items:`, err);
+          setError(`Failed to load ${marketplaceType}`);
+          const fallbackItems = getFallbackItems(marketplaceType);
+          setItems(fallbackItems);
+          setFilteredItems(fallbackItems);
+        } finally {
+          setLoading(false);
+        }
+      };
+      loadItems();
     }
-  }, [marketplaceType, filters, searchQuery, queryParams]);
-
-  // Non-guides: filter handling
+  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isGuidesLike, isKnowledgeHub]);
+  
+  // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: value === prev[filterType] ? '' : value
-    }));
-  }, []);
-
+    if (isCourses) {
+      toggleFilter(filterType, value);
+      return;
+    }
+    if (isGuidesLike(marketplaceType)) {
+      // Guides filters are handled via queryParams in GuidesFilters component
+      return;
+    }
+    setFilters(prev => {
+      const current = prev[filterType];
+      if (Array.isArray(current)) {
+        const exists = current.includes(value);
+        const nextValues = exists ? current.filter(v => v !== value) : [...current, value];
+        return { ...prev, [filterType]: nextValues };
+      } else {
+        return { ...prev, [filterType]: value === prev[filterType] ? '' : value };
+      }
+    });
+  }, [isCourses, isGuidesLike, marketplaceType, toggleFilter]);
+  
+  // Reset all filters
   const resetFilters = useCallback(() => {
-    const empty: Record<string, string> = {};
-    filterConfig.forEach(c => { empty[c.id] = ''; });
-    setFilters(empty);
-    setSearchQuery('');
-  }, [filterConfig]);
-
+    if (isCourses) {
+      const newParams = new URLSearchParams();
+      setSearchParams(newParams, { replace: true });
+      setSearchQuery('');
+    } else if (isKnowledgeHub) {
+      setActiveFilters([]);
+      setSearchQuery('');
+    } else if (isGuidesLike(marketplaceType)) {
+      const newParams = new URLSearchParams();
+      const qs = newParams.toString();
+      window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+      setQueryParams(newParams);
+      setSearchQuery('');
+    } else {
+      const empty: Record<string, string> = {};
+      filterConfig.forEach(c => { empty[c.id] = ''; });
+      setFilters(empty);
+      setSearchQuery('');
+    }
+  }, [isCourses, isKnowledgeHub, isGuidesLike, marketplaceType, filterConfig, setSearchParams]);
+  
+  // Knowledge Hub filter handlers
+  const handleKnowledgeHubFilterChange = useCallback((filter: string) => {
+    setActiveFilters(prev => {
+      if (prev.includes(filter)) {
+        return prev.filter(f => f !== filter);
+      } else {
+        return [...prev, filter];
+      }
+    });
+  }, []);
+  
+  const clearKnowledgeHubFilters = useCallback(() => {
+    setActiveFilters([]);
+  }, []);
+  
   // UI helpers
   const toggleFilters = useCallback(() => setShowFilters(prev => !prev), []);
   const toggleBookmark = useCallback((itemId: string) => {
@@ -432,7 +708,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 <FilterIcon size={18} />
                 {showFilters ? 'Hide Filters' : 'Show Filters'}
               </button>
-              {!isGuidesLike(marketplaceType) && Object.values(filters).some(f => f !== '') && (
+              {(isCourses ? Object.values(urlBasedFilters).some(f => Array.isArray(f) && f.length > 0) : 
+                 isKnowledgeHub ? activeFilters.length > 0 :
+                 isGuidesLike(marketplaceType) ? false :
+                 Object.values(filters).some(f => (Array.isArray(f) ? f.length > 0 : f !== ''))) && (
                 <button onClick={resetFilters} className="ml-2 text-blue-600 text-sm font-medium whitespace-nowrap px-3 py-2">
                   Reset
                 </button>
@@ -466,7 +745,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     <GuidesFilters facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
                   ) : (
                     <FilterSidebar
-                      filters={filters}
+                      filters={isCourses ? urlBasedFilters : (Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>)}
                       filterConfig={filterConfig}
                       onFilterChange={handleFilterChange}
                       onResetFilters={resetFilters}
@@ -486,17 +765,33 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               <div className="bg-white rounded-lg shadow p-4 sticky top-24">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold">Filters</h2>
-                  {Object.values(filters).some(f => f !== '') && (
+                  {(isCourses ? Object.values(urlBasedFilters).some(f => Array.isArray(f) && f.length > 0) : 
+                     isKnowledgeHub ? activeFilters.length > 0 :
+                     Object.values(filters).some(f => (Array.isArray(f) ? f.length > 0 : f !== ''))) && (
                     <button onClick={resetFilters} className="text-blue-600 text-sm font-medium">Reset All</button>
                   )}
                 </div>
-                <FilterSidebar
-                  filters={filters}
-                  filterConfig={filterConfig}
-                  onFilterChange={handleFilterChange}
-                  onResetFilters={resetFilters}
-                  isResponsive={false}
-                />
+                {isKnowledgeHub ? (
+                  <div className="space-y-4">
+                    {filterConfig.map(category => <div key={category.id} className="border-b border-gray-100 pb-3">
+                        <h3 className="font-medium text-gray-900 mb-2">{category.title}</h3>
+                        <div className="space-y-2">
+                          {category.options.map(option => <div key={option.id} className="flex items-center">
+                              <input type="checkbox" id={`desktop-${category.id}-${option.id}`} checked={activeFilters.includes(option.name)} onChange={() => handleKnowledgeHubFilterChange(option.name)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                              <label htmlFor={`desktop-${category.id}-${option.id}`} className="ml-2 text-sm text-gray-700">{option.name}</label>
+                            </div>)}
+                        </div>
+                      </div>)}
+                  </div>
+                ) : (
+                  <FilterSidebar
+                    filters={isCourses ? urlBasedFilters : (Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>)}
+                    filterConfig={filterConfig}
+                    onFilterChange={handleFilterChange}
+                    onResetFilters={resetFilters}
+                    isResponsive={false}
+                  />
+                )}
               </div>
             )}
           </div>
@@ -507,8 +802,18 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                 {[...Array(6)].map((_, idx) => <CourseCardSkeleton key={idx} />)}
               </div>
-            ) : error && !isGuidesLike(marketplaceType) ? (
+            ) : error && !isGuidesLike(marketplaceType) && !isKnowledgeHub ? (
               <ErrorDisplay message={error} onRetry={retryFetch} />
+            ) : isKnowledgeHub ? (
+              <KnowledgeHubGrid
+                bookmarkedItems={bookmarkedItems}
+                onToggleBookmark={toggleBookmark}
+                onAddToComparison={handleAddToComparison}
+                searchQuery={searchQuery}
+                activeFilters={activeFilters}
+                onFilterChange={handleKnowledgeHubFilterChange}
+                onClearFilters={clearKnowledgeHubFilters}
+              />
             ) : isGuidesLike(marketplaceType) ? (
               <>
                 <GuidesGrid
@@ -544,7 +849,16 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               </>
             ) : (
               <MarketplaceGrid
-                items={filteredItems}
+                items={isCourses ? searchFilteredItems.map(course => {
+                  const allowedSet = new Set<string>(LOCATION_ALLOW as readonly string[]);
+                  const safeLocations = (course.locations || []).filter(loc => allowedSet.has(loc));
+                  return {
+                    ...course,
+                    locations: safeLocations.length ? safeLocations : ['Global'],
+                    provider: { name: course.provider, logoUrl: '/DWS-Logo.png' },
+                    description: course.summary
+                  };
+                }) : filteredItems}
                 marketplaceType={marketplaceType}
                 bookmarkedItems={bookmarkedItems}
                 onToggleBookmark={toggleBookmark}
