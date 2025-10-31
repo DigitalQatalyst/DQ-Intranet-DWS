@@ -68,7 +68,9 @@ const buildFallbackBody = (g, canonicalDomain) => {
   lines.push('', '## Overview')
   if (canonicalDomain) lines.push(`- Domain: **${canonicalDomain[0].toUpperCase() + canonicalDomain.slice(1)}**`)
   if (g.guide_type) lines.push(`- Type: **${g.guide_type}**`)
-  if (g.function_area) lines.push(`- Function Area: **${g.function_area}**`)
+  if (g.subDomain) lines.push(`- Sub-domain: **${g.subDomain}**`)
+  if (g.function_area || g.unit) lines.push(`- Unit: **${g.unit || g.function_area}**`)
+  if (g.location) lines.push(`- Location: **${g.location}**`)
   if (g.complexity_level) lines.push(`- Complexity: **${g.complexity_level}**`)
   if (g.authorName || g.authorOrg) lines.push(`- Author: **${g.authorName || ''}${g.authorOrg ? ' · ' + g.authorOrg : ''}**`)
   lines.push('', '## Details')
@@ -87,7 +89,6 @@ const mapGuideToDb = (g) => {
     summary: g.summary ?? null,
     hero_image_url: g.heroImageUrl ?? null,
     last_updated_at: g.lastUpdatedAt ?? nowIso,
-    published_at: g.publishedAt ?? nowIso,            // helps RLS if present
     status: g.status ?? 'Approved',                    // Draft | Approved | Archived
     author_name: g.authorName ?? null,
     author_org: g.authorOrg ?? null,
@@ -96,11 +97,11 @@ const mapGuideToDb = (g) => {
     // Simplified taxonomy columns
     domain: domainCanonical,
     guide_type: g.guide_type ?? null,
-    function_area: g.function_area ?? null,
+    sub_domain: g.subDomain ?? g.sub_domain ?? null,
+    unit: g.unit ?? g.function_area ?? null,
+    function_area: g.function_area ?? g.unit ?? null,
     complexity_level: g.complexity_level ?? null,
-    // Visibility flags (many RLS setups expect these)
-    is_public: g.is_public ?? true,                    // if column exists
-    is_published: g.is_published ?? true,              // if column exists
+    location: g.location ?? null,
     body: g.body ?? buildFallbackBody(g, domainCanonical),
     document_url: g.documentUrl ?? g.document_url ?? null,
   }
@@ -117,7 +118,7 @@ async function upsertGuides(rows) {
   console.warn('Upsert failed with extra columns; retrying with minimal shape...', error?.message || error)
   const minimal = rows.map(r => {
     const {
-      is_public, is_published, published_at, // keep published_at (often exists), drop flags if needed
+      sub_domain, unit, location,
       ...rest
     } = r
     return { ...rest }
@@ -185,7 +186,10 @@ official DQ communication channels.`,
       authorName: 'Digital Qatalyst',
       authorOrg: 'DQ Governance Office',
       guide_type: 'Policy',
-      function_area: 'Information Security',
+      subDomain: 'digital-framework',
+      unit: 'SecDevOps',
+      function_area: 'SecDevOps',
+      location: 'NBO',
       complexity_level: 'Intermediate',
       domain: 'strategy',
       documentUrl: 'https://arqitek.sharepoint.com/:b:/s/PROJNEOM2.0DigitalCity/EeoNUCEz5-VHrfZRGq6Hb60BtYoTxa75kOg_js9SQDSlcA?e=cgABJL'
@@ -202,7 +206,10 @@ channels.`,
       authorName: 'Digital Qatalyst',
       authorOrg: 'DQ Governance Office',
       guide_type: 'Policy',
-      function_area: 'Risk Management',
+      subDomain: 'initiatives',
+      unit: 'Finance',
+      function_area: 'Finance',
+      location: 'NBO',
       complexity_level: 'Intermediate',
       domain: 'strategy',
       documentUrl: 'https://arqitek.sharepoint.com/:b:/s/PROJNEOM2.0DigitalCity/EXWh6C2xj8xCj0aBtXw6aJMBviwwlGcvDfwpxhpEsr1rAg?e=CWNbsP'
@@ -220,7 +227,10 @@ effect immediately upon approval.`,
       authorName: 'Digital Qatalyst',
       authorOrg: 'DQ Governance Office',
       guide_type: 'Policy',
-      function_area: 'IT Operations',
+      subDomain: 'digital-framework',
+      unit: 'SecDevOps',
+      function_area: 'SecDevOps',
+      location: 'NBO',
       complexity_level: 'Intermediate',
       domain: 'strategy',
       documentUrl: 'https://arqitek.sharepoint.com/:b:/s/PROJNEOM2.0DigitalCity/EYauJdXx6_1AuqkwYMFNgGYBPY2oG2cPiZp7PnMqCAcFdA?e=MMgtDw'

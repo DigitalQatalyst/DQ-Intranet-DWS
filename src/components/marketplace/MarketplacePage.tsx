@@ -13,8 +13,8 @@ import { Footer } from '../Footer';
 import { getFallbackItems } from '../../utils/fallbackData.js';
 import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters.js';
 import GuidesGrid from '../guides/GuidesGrid.js';
-import { supabaseClient } from '../../lib/supabaseClient';
-import { track } from '../../utils/analytics';
+import { supabaseClient } from '../../lib/supabaseClient.js';
+import { track } from '../../utils/analytics.js';
 
 interface ComparisonItem {
   id: string;
@@ -29,6 +29,20 @@ export interface MarketplacePageProps {
   promoCards?: any[];
 }
 
+const SUBDOMAIN_BY_DOMAIN: Record<string, string[]> = {
+  strategy: ['journey', 'history', 'digital-framework', 'initiatives', 'clients'],
+  guidelines: ['resources', 'policies', 'design-systems'],
+  blueprints: ['devops', 'dbp', 'dxp', 'dws', 'products', 'projects'],
+};
+
+const DEFAULT_GUIDE_PAGE_SIZE = 9;
+
+const parseFilterValues = (params: URLSearchParams, key: string): string[] =>
+  (params.get(key) || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+
 export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   marketplaceType,
   title,
@@ -42,8 +56,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   // Items & filters state
   const [items, setItems] = useState<any[]>([]);
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [filterConfig, setFilterConfig] = useState<FilterConfig[]>([]);
@@ -52,7 +65,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [facets, setFacets] = useState<GuidesFacets>({});
   const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
   const searchStartRef = useRef<number | null>(null);
-  const inFlightController = useRef<AbortController | null>(null);
+
+  const pageSize = Math.min(50, Math.max(1, parseInt(queryParams.get('pageSize') || String(DEFAULT_GUIDE_PAGE_SIZE), 10)));
+  const currentPage = Math.max(1, parseInt(queryParams.get('page') || '1', 10));
+  const totalPages = Math.max(1, Math.ceil(Math.max(totalCount, 0) / pageSize));
 
   // UI state
   const [showFilters, setShowFilters] = useState(false);
@@ -99,12 +115,14 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           const finalItems = itemsData && itemsData.length > 0 ? itemsData : getFallbackItems(marketplaceType);
           setItems(finalItems);
           setFilteredItems(finalItems);
+          setTotalCount(finalItems.length);
         } catch (err) {
           console.error(`Error fetching ${marketplaceType} items:`, err);
           setError(`Failed to load ${marketplaceType}`);
           const fallbackItems = getFallbackItems(marketplaceType);
           setItems(fallbackItems);
           setFilteredItems(fallbackItems);
+          setTotalCount(fallbackItems.length);
         } finally {
           setLoading(false);
         }
@@ -115,7 +133,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         setLoading(true);
         try {
           // const res = await fetch(`/api/guides?${queryParams.toString()}`);
-          let data: any = null;
           // const ct = res.headers.get('content-type') || '';
           // if (res.ok && ct.includes('application/json')) {
           //   data = await res.json();
@@ -123,85 +140,153 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             // Dev fallback: query Supabase anon directly when serverless API isn't running
           let q = supabaseClient
             .from('guides')
-            .select('*', { count: 'exact' })
-            .eq('status', 'Approved');
+            .select('*', { count: 'exact' });
           const qStr = queryParams.get('q') || '';
+          const domains = parseFilterValues(queryParams, 'domain');
+          const rawSubDomains = parseFilterValues(queryParams, 'sub_domain');
+          const guideTypes = parseFilterValues(queryParams, 'guide_type');
+          const units = parseFilterValues(queryParams, 'unit');
+          const locations = parseFilterValues(queryParams, 'location');
+          const statuses = parseFilterValues(queryParams, 'status');
+          const allowedSubdomains = new Set<string>();
+          domains.forEach((domain) => (SUBDOMAIN_BY_DOMAIN[domain] || []).forEach((entry) => allowedSubdomains.add(entry)));
+          const subDomains = allowedSubdomains.size ? rawSubDomains.filter((value) => allowedSubdomains.has(value)) : [];
+          if (rawSubDomains.length && subDomains.length !== rawSubDomains.length) {
+            const next = new URLSearchParams(queryParams.toString());
+            if (subDomains.length) next.set('sub_domain', subDomains.join(','));
+            else next.delete('sub_domain');
+            if (typeof window !== 'undefined') {
+              window.history.replaceState(null, '', `${window.location.pathname}${next.toString() ? '?' + next.toString() : ''}`);
+            }
+            setQueryParams(new URLSearchParams(next.toString()));
+            setLoading(false);
+            return;
+          }
+          if (statuses.length) q = q.in('status', statuses);
+          else q = q.eq('status', 'Approved');
           if (qStr) q = q.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
+          if (domains.length) q = q.in('domain', domains);
+          if (subDomains.length) q = q.in('sub_domain', subDomains);
+          if (guideTypes.length) q = q.in('guide_type', guideTypes);
+          if (units.length) q = q.in('unit', units);
+          if (locations.length) q = q.in('location', locations);
+          const sort = queryParams.get('sort') || 'relevance';
+          if (sort === 'updated') q = q.order('last_updated_at', { ascending: false, nullsFirst: true });
+          else if (sort === 'downloads') q = q.order('download_count', { ascending: false, nullsFirst: true });
+          else if (sort === 'editorsPick') {
+            q = q
+              .order('is_editors_pick', { ascending: false })
+              .order('last_updated_at', { ascending: false, nullsFirst: true });
+          } else {
+            q = q
+              .order('is_editors_pick', { ascending: false })
+              .order('download_count', { ascending: false, nullsFirst: true })
+              .order('last_updated_at', { ascending: false, nullsFirst: true });
+          }
           // (filter/sort is applied after mapping below)
-          const page = Math.max(1, parseInt(queryParams.get('page') || '1', 10));
-          const pageSize = Math.min(50, Math.max(1, parseInt(queryParams.get('pageSize') || '12', 10)));
-          const from = (page - 1) * pageSize;
+          const from = (currentPage - 1) * pageSize;
           const to = from + pageSize - 1;
           const { data: rows, count, error } = await q.range(from, to); if (error) throw error;
-          const mapped = (rows || []).map((r: any) => ({
-            id: r.id,
-            slug: r.slug,
-            title: r.title,
-            summary: r.summary,
-            heroImageUrl: r.hero_image_url ?? r.heroImageUrl,
-            skillLevel: r.skill_level ?? r.skillLevel,
-            estimatedTimeMin: r.estimated_time_min ?? r.estimatedTimeMin,
-            lastUpdatedAt: r.last_updated_at ?? r.lastUpdatedAt,
-            authorName: r.author_name ?? r.authorName,
-            authorOrg: r.author_org ?? r.authorOrg,
-            isEditorsPick: r.is_editors_pick ?? r.isEditorsPick,
-            downloadCount: r.download_count ?? r.downloadCount,
-            guideType: r.guide_type ?? r.guideType,
-            domain: r.domain ?? null,
-            functionArea: r.function_area ?? null,
-            status: r.status ?? null,
-            complexityLevel: r.complexity_level ?? null,
-          }));
+          const mapped = (rows || []).map((r: any) => {
+            const unitValue = r.unit ?? r.function_area ?? null;
+            const subDomainValue = r.sub_domain ?? r.subDomain ?? null;
+            return {
+              id: r.id,
+              slug: r.slug,
+              title: r.title,
+              summary: r.summary,
+              heroImageUrl: r.hero_image_url ?? r.heroImageUrl,
+              skillLevel: r.skill_level ?? r.skillLevel,
+              estimatedTimeMin: r.estimated_time_min ?? r.estimatedTimeMin,
+              lastUpdatedAt: r.last_updated_at ?? r.lastUpdatedAt,
+              authorName: r.author_name ?? r.authorName,
+              authorOrg: r.author_org ?? r.authorOrg,
+              isEditorsPick: r.is_editors_pick ?? r.isEditorsPick,
+              downloadCount: r.download_count ?? r.downloadCount,
+              guideType: r.guide_type ?? r.guideType,
+              domain: r.domain ?? null,
+              functionArea: unitValue,
+              unit: unitValue,
+              subDomain: subDomainValue,
+              location: r.location ?? null,
+              status: r.status ?? null,
+              complexityLevel: r.complexity_level ?? null,
+            };
+          });
           // client-side filter/sort for fallback
-          const domains = (queryParams.get('domain') || '').split(',').filter(Boolean);
-          const types = (queryParams.get('guide_type') || '').split(',').filter(Boolean);
-          const functions = (queryParams.get('function_area') || '').split(',').filter(Boolean);
-          const statuses = (queryParams.get('status') || '').split(',').filter(Boolean);
           let out = mapped;
           if (domains.length) out = out.filter(it => it.domain && domains.includes(it.domain));
-          if (types.length) out = out.filter(it => it.guideType && types.includes(it.guideType));
-          if (functions.length) out = out.filter(it => it.functionArea && functions.includes(it.functionArea));
+          if (subDomains.length) out = out.filter(it => it.subDomain && subDomains.includes(it.subDomain));
+          if (guideTypes.length) out = out.filter(it => it.guideType && guideTypes.includes(it.guideType));
+          if (units.length) out = out.filter(it => {
+            const value = it.unit || it.functionArea;
+            return value && units.includes(value);
+          });
+          if (locations.length) out = out.filter(it => it.location && locations.includes(it.location));
           if (statuses.length) out = out.filter(it => it.status && statuses.includes(it.status));
-          const sort = queryParams.get('sort') || 'relevance';
           if (sort === 'updated') out.sort((a,b) => new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
           else if (sort === 'downloads') out.sort((a,b) => (b.downloadCount||0)-(a.downloadCount||0));
           else if (sort === 'editorsPick') out.sort((a,b) => (Number(b.isEditorsPick)||0)-(Number(a.isEditorsPick)||0) || new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
           else out.sort((a,b) => (Number(b.isEditorsPick)||0)-(Number(a.isEditorsPick)||0) || (b.downloadCount||0)-(a.downloadCount||0) || new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
+          const total = typeof count === 'number' ? count : out.length;
+          const lastPage = Math.max(1, Math.ceil(total / pageSize));
+          if (currentPage > lastPage) {
+            const next = new URLSearchParams(queryParams.toString());
+            if (lastPage <= 1) next.delete('page');
+            else next.set('page', String(lastPage));
+            if (typeof window !== 'undefined') {
+              window.history.replaceState(null, '', `${window.location.pathname}${next.toString() ? '?' + next.toString() : ''}`);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            setQueryParams(new URLSearchParams(next.toString()));
+            setLoading(false);
+            return;
+          }
           // Facets fallback: compute from Supabase for current filter context
           let facetQ = supabaseClient
             .from('guides')
-            .select('domain,guide_type,function_area,status')
+            .select('domain,sub_domain,guide_type,function_area,unit,location,status')
             .eq('status', 'Approved');
           if (qStr) facetQ = facetQ.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
           if (domains.length) facetQ = facetQ.in('domain', domains);
-          if (types.length) facetQ = facetQ.in('guide_type', types);
-          if (functions.length) facetQ = facetQ.in('function_area', functions);
+          if (subDomains.length) facetQ = facetQ.in('sub_domain', subDomains);
+          if (guideTypes.length) facetQ = facetQ.in('guide_type', guideTypes);
+          if (units.length) facetQ = facetQ.in('unit', units);
+          if (locations.length) facetQ = facetQ.in('location', locations);
           if (statuses.length) facetQ = facetQ.in('status', statuses);
           const { data: facetRows } = await facetQ;
-          const countBy = (arr: any[] | null | undefined, key: 'domain'|'guide_type'|'function_area'|'status') => {
+          const countBy = (arr: any[] | null | undefined, key: string) => {
             const m = new Map<string, number>();
             for (const r of (arr || [])) { const v = (r as any)[key]; if (!v) continue; m.set(v, (m.get(v)||0)+1); }
             return Array.from(m.entries()).map(([id, cnt]) => ({ id, name: id, count: cnt })).sort((a,b)=> a.name.localeCompare(b.name));
           };
-          const facets = {
-            domain: countBy(facetRows, 'domain'),
-            guide_type: countBy(facetRows, 'guide_type'),
-            function_area: countBy(facetRows, 'function_area'),
-            status: countBy(facetRows, 'status'),
-          } as any;
-          data = { items: out, total: count || out.length, facets };
-          console.log('Guides fetched from Supabase fallback:', data);
-          // }
-          setItems(data.items || []);
-          setFilteredItems(data.items || []);
-          setCursor((data as any).cursor || null);
-          setHasMore(!!(data as any).has_more);
-          setFacets(data.facets || {});
-          const start = searchStartRef.current; if (start) { const latency = Date.now() - start; track('Guides.Search', { q: queryParams.get('q') || '', latency_ms: latency }); searchStartRef.current = null; }
-          track('Guides.ViewList', { q: queryParams.get('q') || '', sort: queryParams.get('sort') || 'relevance', page: queryParams.get('page') || '1' });
+          const domainFacets = countBy(facetRows, 'domain');
+          const guideTypeFacets = countBy(facetRows, 'guide_type');
+          const subDomainFacetsRaw = countBy(facetRows, 'sub_domain');
+          const unitFacets = countBy(facetRows, 'unit');
+          const locationFacets = countBy(facetRows, 'location');
+          const statusFacets = countBy(facetRows, 'status');
+          const allowedSubdomainsForFacets = new Set<string>();
+          domains.forEach((domain) => (SUBDOMAIN_BY_DOMAIN[domain] || []).forEach((entry) => allowedSubdomainsForFacets.add(entry)));
+          const subDomainFacets = allowedSubdomainsForFacets.size
+            ? subDomainFacetsRaw.filter((opt) => allowedSubdomainsForFacets.has(opt.id))
+            : subDomainFacetsRaw;
+          setItems(out);
+          setFilteredItems(out);
+          setTotalCount(total);
+          setFacets({
+            domain: domainFacets,
+            sub_domain: subDomainFacets,
+            guide_type: guideTypeFacets,
+            unit: unitFacets,
+            location: locationFacets,
+            status: statusFacets,
+          });
+          const start = searchStartRef.current; if (start) { const latency = Date.now() - start; track('Guides.Search', { q: qStr, latency_ms: latency }); searchStartRef.current = null; }
+          track('Guides.ViewList', { q: qStr, sort, page: String(currentPage) });
         } catch (e) {
           console.error('Error fetching guides:', e);
-          setItems([]); setFilteredItems([]); setFacets({});
+          setItems([]); setFilteredItems([]); setFacets({}); setTotalCount(0);
         } finally {
           setLoading(false);
         }
@@ -239,6 +324,17 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     setCompareItems(prev => prev.filter(item => item.id !== itemId));
   }, []);
   const retryFetch = useCallback(() => { setError(null); setLoading(true); }, []);
+  const goToPage = useCallback((page: number) => {
+    const clamped = Math.max(1, Math.min(page, totalPages));
+    const next = new URLSearchParams(queryParams.toString());
+    if (clamped <= 1) next.delete('page');
+    else next.set('page', String(clamped));
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `${window.location.pathname}${next.toString() ? '?' + next.toString() : ''}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    setQueryParams(new URLSearchParams(next.toString()));
+  }, [queryParams, totalPages]);
 
   return (
     <div className={`min-h-screen flex flex-col bg-gray-50 ${isGuidesLike(marketplaceType) ? 'guidelines-theme' : ''}`}>
@@ -290,6 +386,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               setSearchQuery={(q: string) => {
                 if (isGuidesLike(marketplaceType)) {
                   const next = new URLSearchParams(queryParams.toString());
+                  next.delete('page');
                   if (q) next.set('q', q); else next.delete('q');
                   const qs = next.toString();
                   window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
@@ -307,6 +404,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               value={queryParams.get('sort') || 'relevance'}
               onChange={(e) => {
                 const next = new URLSearchParams(queryParams.toString());
+                next.delete('page');
                 next.set('sort', e.target.value);
                 const qs = next.toString();
                 window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
@@ -365,7 +463,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 </div>
                 <div className="p-4">
                   {isGuidesLike(marketplaceType) ? (
-                    <GuidesFilters facets={facets} query={queryParams} onChange={(next) => { const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
+                    <GuidesFilters facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
                   ) : (
                     <FilterSidebar
                       filters={filters}
@@ -383,7 +481,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           {/* Filter sidebar - desktop */}
           <div className="hidden xl:block xl:w-1/4">
             {isGuidesLike(marketplaceType) ? (
-              <GuidesFilters facets={facets} query={queryParams} onChange={(next) => { const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
+              <GuidesFilters facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
             ) : (
               <div className="bg-white rounded-lg shadow p-4 sticky top-24">
                 <div className="flex justify-between items-center mb-4">
@@ -413,40 +511,36 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               <ErrorDisplay message={error} onRetry={retryFetch} />
             ) : isGuidesLike(marketplaceType) ? (
               <>
-              <GuidesGrid
-                items={filteredItems}
-                onClickGuide={(g) => {
-                  const qs = queryParams.toString();
-                  navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, { state: { fromQuery: qs } });
-                }}
-              />
-              {hasMore && (
-                <div className="mt-4 text-center">
-                  <button
-                    onClick={async () => {
-                      if (!cursor) return;
-                      try {
-                        if (inFlightController.current) { inFlightController.current.abort(); }
-                        const controller = new AbortController(); inFlightController.current = controller;
-                        const qp = new URLSearchParams(queryParams.toString());
-                        if (!qp.get('pageSize')) qp.set('pageSize', '24');
-                        qp.set('cursor', cursor);
-                        const res = await fetch(`/api/guides?${qp.toString()}`, { signal: controller.signal });
-                        if (res.ok) {
-                          const data = await res.json();
-                          setItems(prev => [...prev, ...data.items]);
-                          setFilteredItems(prev => [...prev, ...data.items]);
-                          setCursor(data.cursor || null);
-                          setHasMore(!!data.has_more);
-                        }
-                      } catch {}
-                    }}
-                    className="px-4 py-2 rounded bg-gray-100 hover:bg-gray-200"
-                  >
-                    Load more
-                  </button>
-                </div>
-              )}
+                <GuidesGrid
+                  items={filteredItems}
+                  onClickGuide={(g) => {
+                    const qs = queryParams.toString();
+                    navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, { state: { fromQuery: qs } });
+                  }}
+                />
+                {totalPages > 1 && (
+                  <div className="mt-6 flex items-center justify-center gap-4">
+                    <button
+                      type="button"
+                      onClick={() => goToPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+                    <span className="text-sm text-gray-600">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => goToPage(currentPage + 1)}
+                      disabled={currentPage >= totalPages}
+                      className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
               </>
             ) : (
               <MarketplaceGrid

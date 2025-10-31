@@ -5,10 +5,21 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 type Facet = { id: string; name: string; count?: number }
 export interface GuidesFacets {
   domain?: Facet[]
+  sub_domain?: Facet[]
   guide_type?: Facet[]
-  function_area?: Facet[]
+  unit?: Facet[]
+  location?: Facet[]
   status?: Facet[]
 }
+
+const LABEL_OVERRIDES: Record<string, string> = {
+  'digital-framework': 'Digital Framework (6xD)',
+  'design-systems': 'Design Systems (xDS)',
+  'dbp': 'DBP',
+  'dxp': 'DXP',
+  'dws': 'DWS',
+  'devops': 'DevOps',
+};
 
 interface Props {
   facets: GuidesFacets
@@ -40,6 +51,8 @@ const Section: React.FC<{ idPrefix: string; title: string; category: string; col
 const CheckboxList: React.FC<{ idPrefix: string; name: string; options: Facet[]; query: URLSearchParams; onChange: (n: URLSearchParams)=>void }> = ({ idPrefix, name, options, query, onChange }) => {
   const selected = new Set(parseCsv(query.get(name)))
   const formatLabel = (value: string) => {
+    const override = LABEL_OVERRIDES[value.toLowerCase()] ?? LABEL_OVERRIDES[value];
+    if (override) return override;
     return value
       .replace(/[_-]+/g, ' ')
       .split(' ')
@@ -83,7 +96,7 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange }) => {
   // Persist collapsed categories in URL param 'collapsed' as CSV; also keep local state to avoid cross-instance glitches
   const initialCollapsed = useMemo(() => {
     const fromUrl = parseCsv(query.get('collapsed'))
-    return new Set(fromUrl.length > 0 ? fromUrl : ['guide_type', 'function_area', 'status'])
+    return new Set(fromUrl.length > 0 ? fromUrl : ['guide_type', 'sub_domain', 'unit', 'location', 'status'])
   }, [query])
   const [collapsedSet, setCollapsedSet] = useState<Set<string>>(initialCollapsed)
   // Keep local collapsed state in sync if URL changes from outside
@@ -113,10 +126,17 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange }) => {
       <Section idPrefix={instanceId} title="Guide Type" category="guide_type" collapsed={collapsedSet.has('guide_type')} onToggle={toggleCollapsed}>
         <CheckboxList idPrefix={instanceId} name="guide_type" options={facets.guide_type || []} query={query} onChange={onChange} />
       </Section>
-      <Section idPrefix={instanceId} title="Function Area" category="function_area" collapsed={collapsedSet.has('function_area')} onToggle={toggleCollapsed}>
-        <CheckboxList idPrefix={instanceId} name="function_area" options={facets.function_area || []} query={query} onChange={onChange} />
+      {(facets.sub_domain && facets.sub_domain.length > 0 && parseCsv(query.get('domain')).length > 0) && (
+        <Section idPrefix={instanceId} title="Sub-Domain" category="sub_domain" collapsed={collapsedSet.has('sub_domain')} onToggle={toggleCollapsed}>
+          <CheckboxList idPrefix={instanceId} name="sub_domain" options={facets.sub_domain || []} query={query} onChange={onChange} />
+        </Section>
+      )}
+      <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
+        <CheckboxList idPrefix={instanceId} name="unit" options={facets.unit || []} query={query} onChange={onChange} />
       </Section>
-      {/* Status filter intentionally hidden in Guidelines catalog */}
+      <Section idPrefix={instanceId} title="Location" category="location" collapsed={collapsedSet.has('location')} onToggle={toggleCollapsed}>
+        <CheckboxList idPrefix={instanceId} name="location" options={facets.location || []} query={query} onChange={onChange} />
+      </Section>
     </div>
   )
 }

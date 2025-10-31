@@ -11,7 +11,8 @@ export const DocumentPreview: React.FC<{
   title?: string
   onOpen?: () => void
   height?: number
-}> = ({ documentUrl, title, onOpen, height }) => {
+  onUnavailable?: () => void
+}> = ({ documentUrl, title, onOpen, height, onUnavailable }) => {
   const [visible, setVisible] = useState(false)
   const [unavailable, setUnavailable] = useState(false)
   const wrapRef = useRef<HTMLDivElement | null>(null)
@@ -32,7 +33,11 @@ export const DocumentPreview: React.FC<{
     setUnavailable(false)
   }, [documentUrl])
 
-  if (!documentUrl) return null
+  useEffect(() => {
+    if (unavailable) onUnavailable?.()
+  }, [unavailable, onUnavailable])
+
+  if (!documentUrl || unavailable) return null
 
   return (
     <section className="rounded-2xl border border-gray-200 bg-white shadow relative overflow-hidden" aria-label="Document preview">
@@ -54,12 +59,6 @@ export const DocumentPreview: React.FC<{
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white via-white/70 to-transparent" />
           </div>
         )}
-        {/* Fallback when preview not available */}
-        {(visible && unavailable) && (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-600">
-            <span className="text-sm">Preview unavailable — Open Document</span>
-          </div>
-        )}
 
         {/* Overlay action */}
         <div className="absolute inset-0 flex items-center justify-center">
@@ -77,4 +76,3 @@ export const DocumentPreview: React.FC<{
 }
 
 export default DocumentPreview
-

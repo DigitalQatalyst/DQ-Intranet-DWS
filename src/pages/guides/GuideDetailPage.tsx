@@ -10,7 +10,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams, Link } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
-import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Download, AlertTriangle } from 'lucide-react'
+import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Download, AlertTriangle, ExternalLink } from 'lucide-react'
 import { supabaseClient } from '../../lib/supabaseClient'
 import { getGuideImageUrl } from '../../utils/guideImageMap'
 import { track } from '../../utils/analytics'
@@ -56,6 +56,7 @@ const GuideDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [checklistState, setChecklistState] = useState<Record<string, boolean>>({})
+  const [previewUnavailable, setPreviewUnavailable] = useState(false)
   const articleRef = useRef<HTMLDivElement | null>(null)
   const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([])
 
@@ -252,17 +253,17 @@ const GuideDetailPage: React.FC = () => {
   }
   // CODEx: banner open/download controls for main document
   const openMainDocument = () => {
-    if (!guide?.documentUrl) return
+    if (!hasDocument) return
     track('policy_open_clicked', { policyId: guide?.slug || guide?.id, title: guide?.title })
-    window.open(guide.documentUrl, '_blank', 'noopener')
+    window.open(documentUrl, '_blank', 'noopener')
   }
   const downloadMainDocument = async () => {
-    if (!guide?.documentUrl) return
+    if (!hasDocument) return
     track('policy_download_clicked', { policyId: guide?.slug || guide?.id, title: guide?.title })
     try {
       // Prefer native download attribute; fall back to opening in new tab
       const a = document.createElement('a')
-      a.href = guide.documentUrl
+      a.href = documentUrl
       a.download = ''
       a.rel = 'noopener'
       a.target = '_blank'
@@ -280,6 +281,30 @@ const GuideDetailPage: React.FC = () => {
     finally { track('Guides.Share', { slug: guide?.slug || guide?.id }) }
   }
   // Print removed per new design
+
+  const type = (guide?.guideType || '').toLowerCase()
+  const stepsCount = guide?.steps?.length ?? 0
+  const hasSteps = stepsCount > 0
+  const showSteps = hasSteps
+  const showTemplates = (guide?.templates && guide.templates.length > 0) || type === 'template'
+  const showAttachments = (guide?.attachments && guide.attachments.length > 0)
+  const isPractitionerType = ['best practice', 'best-practice', 'process', 'sop', 'procedure'].includes(type)
+  const showFallbackModule = isPractitionerType && !showTemplates && !showAttachments
+  const lastUpdated = guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null
+  const isApproved = ((guide?.status) || 'Approved') === 'Approved'
+  const documentUrl = (guide?.documentUrl || '').trim()
+  const hasDocument = documentUrl.length > 0
+  const isPolicy = type === 'policy'
+  const showPolicyCtas = isPolicy
+  const showDocumentActions = hasDocument
+  const isPreviewableDocument = isPolicy && hasDocument && (() => {
+    const base = documentUrl.split('#')[0].split('?')[0].toLowerCase()
+    return base.endsWith('.pdf')
+  })()
+
+  useEffect(() => {
+    setPreviewUnavailable(false)
+  }, [documentUrl])
 
   if (loading) {
     return (
@@ -313,20 +338,6 @@ const GuideDetailPage: React.FC = () => {
       </div>
     )
   }
-
-  const type = (guide.guideType || '').toLowerCase()
-  const showSteps = (guide.steps && guide.steps.length > 0) || ['process', 'sop', 'procedure', 'checklist', 'best practice', 'best-practice'].includes(type)
-  const showTemplates = (guide.templates && guide.templates.length > 0) || type === 'template'
-  const showAttachments = (guide.attachments && guide.attachments.length > 0)
-  const isPractitionerType = ['best practice', 'best-practice', 'process', 'sop', 'procedure'].includes(type)
-  const showFallbackModule = isPractitionerType && !showTemplates && !showAttachments
-  const lastUpdated = guide.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null
-  const isApproved = (guide.status || 'Approved') === 'Approved'
-  // CODEx: scope new UI to policies; allow document-specific bits for any item with a documentUrl
-  const isPolicy = type === 'policy'
-  const isDocument = !!guide.documentUrl
-
-  
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
@@ -369,32 +380,34 @@ const GuideDetailPage: React.FC = () => {
                 {lastUpdated && <span className="px-2 py-0.5 bg-gray-100 rounded-full">Updated {lastUpdated}</span>}
               </div>
               {/* CODEx: Banner actions row (left: policy controls, right: share) */}
-              <div className="mt-4 flex items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  {isPolicy && isDocument && (
-                    <>
-                      <button
-                        onClick={downloadMainDocument}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-gray-200 text-gray-800 bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
-                        aria-label="Download Document"
-                      >
-                        <Download size={16} /> Download
-                      </button>
-                      <button
-                        onClick={openMainDocument}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-[var(--guidelines-primary)] text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
-                        aria-label="Open Document"
-                      >
-                        <Share2 size={16} /> Open Document
-                      </button>
-                    </>
-                  )}
-                </div>
-                <div className="flex items-center">
-                  <button onClick={handleShare} className="inline-flex items-center gap-2 px-3 py-2 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 focus:outline-none" aria-label="Share link to this guide">
-                    <Share2 size={16} /> Share
-                  </button>
-                </div>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                {showPolicyCtas && (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={hasDocument ? downloadMainDocument : undefined}
+                      disabled={!hasDocument}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-gray-200 text-gray-800 bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Download document"
+                    >
+                      <Download size={16} /> Download
+                    </button>
+                    <button
+                      onClick={hasDocument ? openMainDocument : undefined}
+                      disabled={!hasDocument}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-[var(--guidelines-primary)] text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300"
+                      aria-label="Open document"
+                    >
+                      <ExternalLink size={16} /> Open Document
+                    </button>
+                  </div>
+                )}
+                <button
+                  onClick={handleShare}
+                  className={`inline-flex items-center gap-2 px-3 py-2 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 focus:outline-none ${showPolicyCtas ? 'ml-auto' : ''}`}
+                  aria-label="Share link to this guide"
+                >
+                  <Share2 size={16} /> Share
+                </button>
               </div>
             </div>
             {/* Actions column removed; title section now full width */}
@@ -405,7 +418,7 @@ const GuideDetailPage: React.FC = () => {
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             {/* CODEx: Document preview placed before summary */}
-            {isDocument && (
+            {(isPolicy && isPreviewableDocument && !previewUnavailable && hasDocument) && (
               <DocumentPreview
                 documentUrl={guide.documentUrl}
                 title={guide.title}
@@ -413,6 +426,7 @@ const GuideDetailPage: React.FC = () => {
                   track('policy_preview_open_clicked', { policyId: guide.slug || guide.id, title: guide.title })
                   openMainDocument()
                 }}
+                onUnavailable={() => setPreviewUnavailable(true)}
               />
             )}
 
@@ -464,7 +478,7 @@ const GuideDetailPage: React.FC = () => {
             {type !== 'template' && !guide.body && !isPolicy && guide.summary && (
               <section className="bg-white rounded-lg shadow p-6" aria-label="Overview">
                 <p className="text-gray-700 leading-7">{guide.summary}</p>
-                {isDocument && <p className="text-sm text-gray-500 mt-2">Open the document for full details.</p>}
+                {hasDocument && <p className="text-sm text-gray-500 mt-2">Open the document for full details.</p>}
               </section>
             )}
 
@@ -488,9 +502,6 @@ const GuideDetailPage: React.FC = () => {
                       </div>
                     </li>
                   ))}
-                  {(!guide.steps || guide.steps.length === 0) && type !== 'template' && !guide.body && (
-                    <li className="text-gray-600 text-sm">No structured steps available; open the guide for full details.</li>
-                  )}
                 </ol>
               </section>
             )}
