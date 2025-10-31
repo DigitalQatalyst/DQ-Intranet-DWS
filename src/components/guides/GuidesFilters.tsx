@@ -39,6 +39,14 @@ const Section: React.FC<{ idPrefix: string; title: string; category: string; col
 
 const CheckboxList: React.FC<{ idPrefix: string; name: string; options: Facet[]; query: URLSearchParams; onChange: (n: URLSearchParams)=>void }> = ({ idPrefix, name, options, query, onChange }) => {
   const selected = new Set(parseCsv(query.get(name)))
+  const formatLabel = (value: string) => {
+    return value
+      .replace(/[_-]+/g, ' ')
+      .split(' ')
+      .filter(Boolean)
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ')
+  }
   const toggle = (id: string) => {
     const next = new URLSearchParams(query.toString())
     const values = new Set(parseCsv(next.get(name)))
@@ -52,11 +60,12 @@ const CheckboxList: React.FC<{ idPrefix: string; name: string; options: Facet[];
       {options.map((opt, idx) => {
         const id = `${idPrefix}-${name}-${idx}`
         const checked = selected.has(opt.id)
+        const labelText = formatLabel(opt.name)
         return (
           <div key={opt.id} className="flex items-center">
-            <input type="checkbox" id={id} checked={checked} onChange={() => toggle(opt.id)} className="h-4 w-4 rounded border-gray-300 text-[var(--guidelines-primary)] focus:ring-[var(--guidelines-primary)] accent-[var(--guidelines-primary)]" aria-label={`${name} ${opt.name}`} />
+            <input type="checkbox" id={id} checked={checked} onChange={() => toggle(opt.id)} className="h-4 w-4 rounded border-gray-300 text-[var(--guidelines-primary)] focus:ring-[var(--guidelines-primary)] accent-[var(--guidelines-primary)]" aria-label={`${name} ${labelText}`} />
             <label htmlFor={id} className="ml-2 text-sm text-gray-700">
-              {opt.name}
+              {labelText}
             </label>
           </div>
         )
