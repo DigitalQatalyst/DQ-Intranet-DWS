@@ -22,10 +22,15 @@ import {
   GraduationCap,
   BarChart,
   CircleDot,
-  ClipboardList
-} from 'lucide-react';
-import { AnimatedCounter, FadeInUpOnScroll, useInView } from './AnimationUtils';
-import ServiceCarousel from './marketplace/ServiceCarousel';
+  ClipboardList,
+  ChevronRight,
+} from "lucide-react";
+import {
+  AnimatedCounter,
+  FadeInUpOnScroll,
+  useInView,
+} from "./AnimationUtils.tsx";
+import ServiceCarousel from "./marketplace/ServiceCarousel.tsx";
 
 /* ----------------------------- AI Chatbot ----------------------------- */
 const AIChatbot = () => {
@@ -223,16 +228,10 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
   title,
   count = null,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [ref] = useInView({ threshold: 0.1 });
 
   return (
-    <div
-      className="mb-6"
-      ref={ref}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className="mb-6" ref={ref}>
       <div className="flex items-center mb-2">
         <div className={`w-10 h-10 rounded-full bg-dq-navy/10 flex items-center justify-center mr-3 text-dq-navy transition-all duration-300 ${isHovered ? 'scale-110 bg-dq-navy/15' : ''}`}>
           {icon}
@@ -356,7 +355,7 @@ export const HomePage: React.FC = () => {
           description:
             "Stay in sync with everything DQ, from weekly huddles to cultural events.",
           icon: <Calendar />,
-          path: "/marketplace/guides",
+          path: "/events",
           isActive: true,
         },
         {
