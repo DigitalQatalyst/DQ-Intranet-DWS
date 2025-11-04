@@ -1,4 +1,5 @@
 import "./index.css";
+import "./styles/theme.css";
 import { AppRouter } from "./AppRouter";
 import { createRoot } from "react-dom/client";
 import { MsalProvider } from "@azure/msal-react";
@@ -42,7 +43,9 @@ if (container) {
           window.location.replace("/dashboard/onboarding");
           return;
         }
-      } catch {}
+      } catch (error) {
+        console.warn("Error processing authentication state:", error);
+      }
       root.render(
         <ApolloProvider client={client}>
           <MsalProvider instance={msalInstance}>

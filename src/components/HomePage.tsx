@@ -6,12 +6,12 @@ import ProofAndTrust from './ProofAndTrust';
 import EnterpriseStages from './EnterpriseStages';
 import Home from './Home';
 import KnowledgeHub from './KnowledgeHub';
-import CallToAction from './CallToAction';
+import LeadApplySection from './LeadApplySection';
 
 const HomePage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Simulate page loading
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -26,10 +26,11 @@ const HomePage: React.FC = () => {
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <h2 className="text-white text-xl font-bold">
-            Loading Enterprise Journey Platform
+            Loading Digital Workspace
           </h2>
           <p className="text-blue-200 mt-2">
-            Your gateway to business growth in Abu Dhabi
+            Your trusted hub for tools, requests, learning, and collaboration at
+            DQ.
           </p>
         </div>
       </div>
@@ -38,9 +39,9 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header 
-        toggleSidebar={() => setSidebarOpen(!sidebarOpen)} 
-        sidebarOpen={sidebarOpen} 
+      <Header
+        toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        sidebarOpen={sidebarOpen}
       />
       <main className="flex-grow">
         <HeroSection />
@@ -48,7 +49,7 @@ const HomePage: React.FC = () => {
         <EnterpriseStages />
         <Home />
         <KnowledgeHub graphqlEndpoint={null} />
-        <CallToAction />
+        <LeadApplySection />
       </main>
       <Footer isLoggedIn={false} />
     </div>
@@ -56,3 +57,4 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+

@@ -6,7 +6,8 @@ import { NotificationsMenu } from './notifications/NotificationsMenu';
 import { NotificationCenter } from './notifications/NotificationCenter';
 import { mockNotifications } from './utils/mockNotifications';
 import { useAuth } from './context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { scrollToSupport } from '../../utils/scroll';
 
 interface HeaderProps {
   toggleSidebar?: () => void;
@@ -22,7 +23,9 @@ export function Header({
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showNotificationCenter, setShowNotificationCenter] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
-  const { user, login } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const onboardingPath = '/onboarding/start';
 
   // Count unread notifications
   const unreadCount = mockNotifications.filter(notif => !notif.read).length;
@@ -46,8 +49,17 @@ export function Header({
 
   const closeNotificationCenter = () => setShowNotificationCenter(false);
 
-  const handleSignIn = () => login();
+  const handleSignIn = () => {
+    if (user) {
+      navigate(onboardingPath);
+      return;
+    }
+    navigate(`/signin?redirect=${encodeURIComponent(onboardingPath)}`);
+  };
   const handleSignUp = () => console.log('Sign up clicked');
+  const handleRequestSupport = () => {
+    scrollToSupport();
+  };
 
   useEffect(() => {
     if (!user) {
@@ -74,14 +86,14 @@ export function Header({
         {/* Logo Section */}
         <Link
           to="/"
-          className={`bg-[#030F35] py-2 px-4 flex items-center transition-all duration-300 ${
+          className={`bg-[#030F3] py-2 px-4 flex items-center transition-all duration-300 ${
             isSticky ? 'h-12' : 'h-16'
           }`}
         >
           <img
-            src="/logo/dq_logo2.png"
+            src="/dq_logo8.png"
             alt="DQ"
-            className={`transition-all duration-300 ${isSticky ? 'h-8' : 'h-10'}`}
+            className={`transition-all duration-300 ${isSticky ? 'h-10' : 'h-12'}`}
           />
         </Link>
 
@@ -100,7 +112,7 @@ export function Header({
                 isSticky ? 'text-sm' : ''
               }`}
             >
-              Explore DQ
+              Discover DQ
             </Link>
           </div>
 
@@ -120,12 +132,13 @@ export function Header({
                       isSticky ? 'text-sm px-3 py-1.5' : ''
                     }`}
                   >
-                    Join a Workspace
+                    Become a Lead
                   </button>
                   <button
                     className={`px-4 py-2 bg-white text-[#030F35] font-medium rounded-md hover:bg-white/90 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 ${
                       isSticky ? 'text-sm px-3 py-1.5' : ''
                     }`}
+                    onClick={handleRequestSupport}
                   >
                     Request Support
                   </button>
@@ -145,6 +158,7 @@ export function Header({
                     className={`px-3 py-2 bg-white text-[#030F35] rounded-md hover:bg-white/90 transition-all duration-200 font-medium ${
                       isSticky ? 'text-sm px-2 py-1.5' : 'text-sm'
                     }`}
+                    onClick={handleRequestSupport}
                   >
                     Request Support
                   </button>
