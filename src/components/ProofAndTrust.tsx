@@ -369,7 +369,7 @@ const VideoTestimonialCarousel = () => {
 
       <TestimonialModal testimonial={selectedTestimonial} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: scale(0.95); }
           to { opacity: 1; transform: scale(1); }
@@ -490,7 +490,7 @@ const FeaturedPartnersCarousel = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
       `}</style>
     </div>
@@ -574,7 +574,7 @@ const ProofAndTrust: React.FC = () => {
         </div>
 
         {/* Animations + CSS vars */}
-        <style jsx>{`
+        <style>{`
           @keyframes animate-gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
           @keyframes ping-slow { 0% { transform: scale(1); opacity: 0.8; } 70%,100% { transform: scale(2); opacity: 0; } }
           @keyframes bounce-subtle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
@@ -587,7 +587,7 @@ const ProofAndTrust: React.FC = () => {
           .animate-gradient-shift { background-size: 200% 200%; animation: animate-gradient-shift 15s ease infinite; }
         `}</style>
 
-        <style jsx global>{`
+        <style>{`
           :root {
             --color-indigo-600: #4f46e5; --color-indigo-600-rgb: 79, 70, 229;
             --color-yellow-500: #eab308; --color-yellow-500-rgb: 234, 179, 8;

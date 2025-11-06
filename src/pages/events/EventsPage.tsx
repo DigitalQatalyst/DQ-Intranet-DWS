@@ -433,7 +433,7 @@ export const EventsPage: React.FC = () => {
             ) : (
               <EventsGrid
                 items={filteredItems}
-                onClickEvent={handleEventClick}
+                onClickEvent={() => {}} // No longer needed as modal is handled in EventCard
               />
             )}
           </div>

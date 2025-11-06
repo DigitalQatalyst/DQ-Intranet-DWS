@@ -1,12 +1,22 @@
+// CODEx: Changes Made
+// - Added actionable banner controls: Open Document + Download
+// - Inserted new DocumentPreview section above content summary
+// - Replaced always-on long body with concise Summary card and an "Expand full details" toggle
+// - Telemetry hooks for open/download/preview clicks
+// - Guarded for missing/invalid documentUrl (hides controls/preview)
+// - Added accessibility attributes and improved button styling per spec
+
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams, Link } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
-import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Download, AlertTriangle } from 'lucide-react'
+import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Download, AlertTriangle, ExternalLink } from 'lucide-react'
 import { supabaseClient } from '../../lib/supabaseClient'
 import { getGuideImageUrl } from '../../utils/guideImageMap'
 import { track } from '../../utils/analytics'
 import { useAuth } from '../../components/Header/context/AuthContext'
+// CODEx: import new preview component
+import { DocumentPreview } from '../../components/guides/DocumentPreview'
 
 const Markdown = React.lazy(() => import('../../components/guides/MarkdownRenderer'))
 
@@ -46,6 +56,7 @@ const GuideDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [checklistState, setChecklistState] = useState<Record<string, boolean>>({})
+  const [previewUnavailable, setPreviewUnavailable] = useState(false)
   const articleRef = useRef<HTMLDivElement | null>(null)
   const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([])
 
@@ -207,11 +218,61 @@ const GuideDetailPage: React.FC = () => {
 
   const imageUrl = useMemo(() => getGuideImageUrl({ heroImageUrl: guide?.heroImageUrl || undefined, domain: guide?.domain || undefined, guideType: guide?.guideType || undefined }), [guide?.heroImageUrl, guide?.domain, guide?.guideType])
 
+  // CODEx: build concise summary from provided summary or derived from body
+  const derivedSummary: string | null = useMemo(() => {
+    if (!guide) return null
+    if (guide.summary && guide.summary.trim().length > 0) return guide.summary.trim()
+    const src = guide.body || ''
+    if (!src) return null
+    // Strip basic Markdown/HTML for a clean snippet
+    const withoutMd = src
+      .replace(/```[\s\S]*?```/g, ' ') // code blocks
+      .replace(/`[^`]*`/g, ' ') // inline code
+      .replace(/^#+\s.*$/gm, ' ') // headings
+      .replace(/\*\*|__/g, '') // bold markers
+      .replace(/\*|_|~|>\s?/g, ' ') // other markers
+      .replace(/<[^>]+>/g, ' ') // html tags
+      .replace(/\s+/g, ' ') // collapse spaces
+      .trim()
+    if (!withoutMd) return null
+    const max = 480
+    if (withoutMd.length <= max) return withoutMd
+    const slice = withoutMd.slice(0, max)
+    const lastSpace = slice.lastIndexOf(' ')
+    return (lastSpace > 200 ? slice.slice(0, lastSpace) : slice) + '…'
+  }, [guide?.summary, guide?.body])
+
+  // CODEx: expand/collapse for full details (markdown body)
+  const [showFullDetails, setShowFullDetails] = useState(false)
+
   // Open/Print removed per new design
   const handleDownload = (category: 'attachment' | 'template', item: any) => {
     if (!item?.url) return
     track('Guides.Download', { slug: guide?.slug || guide?.id, category, id: item.id || item.url, title: item.title || undefined })
     window.open(item.url, '_blank', 'noopener,noreferrer')
+  }
+  // CODEx: banner open/download controls for main document
+  const openMainDocument = () => {
+    if (!hasDocument) return
+    track('policy_open_clicked', { policyId: guide?.slug || guide?.id, title: guide?.title })
+    window.open(documentUrl, '_blank', 'noopener')
+  }
+  const downloadMainDocument = async () => {
+    if (!hasDocument) return
+    track('policy_download_clicked', { policyId: guide?.slug || guide?.id, title: guide?.title })
+    try {
+      // Prefer native download attribute; fall back to opening in new tab
+      const a = document.createElement('a')
+      a.href = documentUrl
+      a.download = ''
+      a.rel = 'noopener'
+      a.target = '_blank'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    } catch {
+      window.open(guide.documentUrl, '_blank', 'noopener')
+    }
   }
   const handleShare = async () => {
     const url = window.location.href
@@ -221,9 +282,33 @@ const GuideDetailPage: React.FC = () => {
   }
   // Print removed per new design
 
+  const type = (guide?.guideType || '').toLowerCase()
+  const stepsCount = guide?.steps?.length ?? 0
+  const hasSteps = stepsCount > 0
+  const showSteps = hasSteps
+  const showTemplates = (guide?.templates && guide.templates.length > 0) || type === 'template'
+  const showAttachments = (guide?.attachments && guide.attachments.length > 0)
+  const isPractitionerType = ['best practice', 'best-practice', 'process', 'sop', 'procedure'].includes(type)
+  const showFallbackModule = isPractitionerType && !showTemplates && !showAttachments
+  const lastUpdated = guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null
+  const isApproved = ((guide?.status) || 'Approved') === 'Approved'
+  const documentUrl = (guide?.documentUrl || '').trim()
+  const hasDocument = documentUrl.length > 0
+  const isPolicy = type === 'policy'
+  const showPolicyCtas = isPolicy
+  const showDocumentActions = hasDocument
+  const isPreviewableDocument = isPolicy && hasDocument && (() => {
+    const base = documentUrl.split('#')[0].split('?')[0].toLowerCase()
+    return base.endsWith('.pdf')
+  })()
+
+  useEffect(() => {
+    setPreviewUnavailable(false)
+  }, [documentUrl])
+
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
         <Header toggleSidebar={() => {}} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow"><div className="bg-white rounded shadow p-8 text-center text-gray-500">Loading…</div></main>
         <Footer isLoggedIn={!!user} />
@@ -233,18 +318,20 @@ const GuideDetailPage: React.FC = () => {
 
   if (error || !guide) {
     return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
         <Header toggleSidebar={() => {}} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow">
           <nav className="flex mb-4" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
               <li className="inline-flex items-center"><Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center"><HomeIcon size={16} className="mr-1" /><span>Home</span></Link></li>
-              <li><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><span className="ml-1 text-gray-500 md:ml-2">Details</span></div></li>
+              {/* <li><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><span className="ml-1 text-gray-500 md:ml-2">Resources</span></div></li> */}
+              <li><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><Link to={`/marketplace/guides`} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">Guidelines</Link></div></li>
+              <li aria-current="page"><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><span className="ml-1 text-gray-500 md:ml-2">Details</span></div></li>
             </ol>
           </nav>
           <div className="bg-white rounded shadow p-8 text-center">
             <h2 className="text-xl font-medium text-gray-900 mb-2">{error || 'Not Found'}</h2>
-            <Link to={`/marketplace/guides`} className="text-blue-600">Back to Guides</Link>
+            <Link to={`/marketplace/guides`} className="text-[var(--guidelines-primary)]">Back to Guidelines</Link>
           </div>
         </main>
         <Footer isLoggedIn={!!user} />
@@ -252,23 +339,15 @@ const GuideDetailPage: React.FC = () => {
     )
   }
 
-  const type = (guide.guideType || '').toLowerCase()
-  const showSteps = (guide.steps && guide.steps.length > 0) || ['process', 'sop', 'procedure', 'checklist', 'best practice', 'best-practice'].includes(type)
-  const showTemplates = (guide.templates && guide.templates.length > 0) || type === 'template'
-  const showAttachments = (guide.attachments && guide.attachments.length > 0)
-  const isPractitionerType = ['best practice', 'best-practice', 'process', 'sop', 'procedure'].includes(type)
-  const showFallbackModule = isPractitionerType && !showTemplates && !showAttachments
-  const lastUpdated = guide.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null
-  const isApproved = (guide.status || 'Approved') === 'Approved'
-
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
       <Header toggleSidebar={() => {}} sidebarOpen={false} />
       <main className="container mx-auto px-4 py-8 flex-grow guide-detail" role="main">
         <nav className="flex mb-4" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center"><Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center"><HomeIcon size={16} className="mr-1" /><span>Home</span></Link></li>
-            <li><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><Link to={backHref} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">Guides</Link></div></li>
+            <li><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><span className="ml-1 text-gray-500 md:ml-2">Resources</span></div></li>
+            <li><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><Link to={backHref} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">Guidelines</Link></div></li>
             <li aria-current="page"><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><span className="ml-1 text-gray-500 md:ml-2">{guide.title}</span></div></li>
           </ol>
         </nav>
@@ -291,16 +370,42 @@ const GuideDetailPage: React.FC = () => {
                 <img src={imageUrl} alt={guide.title} className="w-full h-60 object-cover rounded mb-4" loading="lazy" decoding="async" width={1200} height={320} />
               )}
               <h1 id="guide-title" className="text-2xl font-bold mb-2">{guide.title}</h1>
-              {guide.summary && <p className="text-gray-700 mb-3">{guide.summary}</p>}
+              {/* CODEx: Only hide header summary for policy pages */}
+              {!isPolicy && guide.summary && <p className="text-gray-700 mb-3">{guide.summary}</p>}
               <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
                 {guide.domain && <span className="px-2 py-0.5 bg-gray-100 rounded-full">{guide.domain}</span>}
-                {guide.guideType && <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full">{guide.guideType}</span>}
+                {guide.guideType && <span className="px-2 py-0.5 text-[var(--guidelines-primary)] bg-[var(--guidelines-primary-surface)] rounded-full">{guide.guideType}</span>}
                 {guide.functionArea && <span className="px-2 py-0.5 bg-gray-100 rounded-full">{guide.functionArea}</span>}
                 {guide.complexityLevel && <span className="px-2 py-0.5 bg-gray-100 rounded-full">{guide.complexityLevel}</span>}
                 {lastUpdated && <span className="px-2 py-0.5 bg-gray-100 rounded-full">Updated {lastUpdated}</span>}
               </div>
-              <div className="mt-3 flex justify-end">
-                <button onClick={handleShare} className="inline-flex items-center gap-2 px-3 py-2 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 focus:outline-none">
+              {/* CODEx: Banner actions row (left: policy controls, right: share) */}
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                {showPolicyCtas && (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={hasDocument ? downloadMainDocument : undefined}
+                      disabled={!hasDocument}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-gray-200 text-gray-800 bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Download document"
+                    >
+                      <Download size={16} /> Download
+                    </button>
+                    <button
+                      onClick={hasDocument ? openMainDocument : undefined}
+                      disabled={!hasDocument}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-[var(--guidelines-primary)] text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300"
+                      aria-label="Open document"
+                    >
+                      <ExternalLink size={16} /> Open Document
+                    </button>
+                  </div>
+                )}
+                <button
+                  onClick={handleShare}
+                  className={`inline-flex items-center gap-2 px-3 py-2 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 focus:outline-none ${showPolicyCtas ? 'ml-auto' : ''}`}
+                  aria-label="Share link to this guide"
+                >
                   <Share2 size={16} /> Share
                 </button>
               </div>
@@ -312,17 +417,75 @@ const GuideDetailPage: React.FC = () => {
         {/* Dynamic layout */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
+            {/* CODEx: Document preview placed before summary */}
+            {(isPolicy && isPreviewableDocument && !previewUnavailable && hasDocument) && (
+              <DocumentPreview
+                documentUrl={guide.documentUrl}
+                title={guide.title}
+                onOpen={() => {
+                  track('policy_preview_open_clicked', { policyId: guide.slug || guide.id, title: guide.title })
+                  openMainDocument()
+                }}
+                onUnavailable={() => setPreviewUnavailable(true)}
+              />
+            )}
+
+            {/* CODEx: Concise Summary card for policy pages only */}
+            {isPolicy && (derivedSummary || guide.summary) && (
+              <section className="bg-white rounded-lg shadow p-6" aria-label="Summary">
+                <h2 className="text-xl font-semibold mb-3">Summary</h2>
+                <p className="text-gray-700 leading-7">{derivedSummary || guide.summary}</p>
+                {guide.body && (
+                  <div className="mt-4">
+                    <button
+                      onClick={() => setShowFullDetails(s => !s)}
+                      className="text-[var(--guidelines-primary)] font-medium hover:underline focus:outline-none"
+                      aria-expanded={showFullDetails}
+                      aria-controls="full-details"
+                    >
+                      {showFullDetails ? 'Hide full details' : 'Expand full details'}
+                    </button>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* CODEx: For policy pages, long body behind a toggle; for others, show as usual */}
             {type !== 'template' && guide.body && (
-              <article ref={articleRef} className="bg-white rounded-lg shadow p-6 markdown-body" dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}>
+              <article
+                id={isPolicy ? 'full-details' : undefined}
+                ref={articleRef}
+                className={`bg-white rounded-lg shadow p-6 markdown-body ${isPolicy && !showFullDetails ? 'hidden' : ''}`}
+                dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}
+              >
                 <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
                   <Markdown body={guide.body || ''} />
                 </React.Suspense>
               </article>
             )}
-            {type !== 'template' && !guide.body && guide.summary && (
-              <section className="bg-white rounded-lg shadow p-6" aria-label="Overview">
-                <p className="text-gray-700 leading-7">{guide.summary}</p>
-                <p className="text-sm text-gray-500 mt-2">Open the guide for full details.</p>
+            {type !== 'template' && !guide.body && (
+              <section className="bg-white rounded-lg shadow p-6 space-y-4" aria-label="Overview">
+                {guide.summary && (
+                  <div className="text-gray-700 leading-7 whitespace-pre-line">{guide.summary}</div>
+                )}
+                {guide.steps && guide.steps.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Key Steps</h3>
+                    <ul className="list-disc list-inside space-y-1 text-gray-700">
+                      {guide.steps.map((step, idx) => (
+                        <li key={step.id || idx}>
+                          <span className="font-medium mr-1">{step.title || `Step ${idx + 1}`}:</span>
+                          <span className="text-gray-600">{step.content}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {hasDocument && (
+                  <p className="text-sm text-gray-500">
+                    This guide links to an external document for full details.
+                  </p>
+                )}
               </section>
             )}
 
@@ -346,9 +509,6 @@ const GuideDetailPage: React.FC = () => {
                       </div>
                     </li>
                   ))}
-                  {(!guide.steps || guide.steps.length === 0) && type !== 'template' && !guide.body && (
-                    <li className="text-gray-600 text-sm">No structured steps available; open the guide for full details.</li>
-                  )}
                 </ol>
               </section>
             )}
@@ -426,7 +586,7 @@ const GuideDetailPage: React.FC = () => {
                     <Link
                       key={r.slug || r.id}
                       to={`/marketplace/guides/${encodeURIComponent(r.slug || r.id)}`}
-                      className="block border border-gray-200 rounded-lg p-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                      className="block border border-gray-200 rounded-lg p-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
                       onClick={() => track('Guides.RelatedClick', { from: guide.slug || guide.id, to: r.slug || r.id })}
                     >
                       <div className="flex gap-3">
@@ -450,7 +610,7 @@ const GuideDetailPage: React.FC = () => {
         </section>
 
         <div className="mt-6 text-right">
-          <Link to={backHref} className="text-blue-600">Back to Guides</Link>
+          <Link to={backHref} className="text-[var(--guidelines-primary)]">Back to Guidelines</Link>
         </div>
       </main>
       <Footer isLoggedIn={!!user} />
