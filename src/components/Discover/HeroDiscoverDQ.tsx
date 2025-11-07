@@ -1,9 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { AnimatedText, FadeInUpOnScroll, StaggeredFadeIn } from '../AnimationUtils';
 
 const stats = [
-  { value: '5 000+', label: 'Active Users' },
+  { value: '126+', label: 'Active Users' },
   { value: '120+', label: 'Ongoing Projects' },
   { value: '90%', label: 'Collaboration Satisfaction' },
 ];
@@ -58,17 +57,24 @@ export const HeroDiscoverDQ: React.FC = () => {
           </StaggeredFadeIn>
 
           <StaggeredFadeIn staggerDelay={0.15} className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link
-              to="/explore/work-zones"
+            <a
+              href="#growth-areas"
+              onClick={(e) => {
+                e.preventDefault();
+                const element = document.getElementById('growth-areas');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }}
               className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#0B1C3A] shadow-[0_18px_45px_rgba(9,20,45,0.35)] transition hover:-translate-y-0.5 hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#030F35]"
             >
               Explore Work Zones →
-            </Link>
+            </a>
             <a
               href="#growth-opportunities"
               className="inline-flex items-center justify-center rounded-full border border-white/55 px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(9,20,45,0.3)] transition hover:-translate-y-0.5 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#030F35]"
             >
-              View Growth Opportunities
+              Explore Strategy Center →
             </a>
           </StaggeredFadeIn>
         </div>
