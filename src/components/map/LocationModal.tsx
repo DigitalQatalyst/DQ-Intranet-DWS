@@ -9,6 +9,33 @@ interface LocationModalProps {
   onClose: () => void;
 }
 
+type InfoItem = {
+  key: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  label: string;
+  value: string;
+  href?: string;
+};
+
+const lightenColor = (hex: string, amount = 0.2) => {
+  let color = hex.replace("#", "");
+  if (color.length === 3) {
+    color = color
+      .split("")
+      .map((char) => char + char)
+      .join("");
+  }
+  const num = parseInt(color, 16);
+  const r = (num >> 16) & 255;
+  const g = (num >> 8) & 255;
+  const b = num & 255;
+
+  const mix = (channel: number) => Math.min(255, Math.round(channel + (255 - channel) * amount));
+  const toHex = (channel: number) => channel.toString(16).padStart(2, "0");
+
+  return `#${toHex(mix(r))}${toHex(mix(g))}${toHex(mix(b))}`;
+};
+
 const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose }) => {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -39,6 +66,7 @@ const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose
   if (!location) return null;
 
   const color = MARKER_COLORS[location.type] || MARKER_COLORS.Default;
+  const accentPale = lightenColor(color, 0.85);
   // Knowledge Center button only shows for Client and Bank locations (both are client types)
   const isClientLocation = (location.type === "Client" || location.type === "Bank") && location.knowledgeCenterUrl;
   const description = location.description || "";
@@ -66,114 +94,131 @@ const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose
     }
   };
 
+  const infoItems: InfoItem[] = [
+    {
+      key: "type",
+      icon: Building2,
+      label: "Type",
+      value: location.type,
+    },
+    {
+      key: "location",
+      icon: MapPin,
+      label: "Location",
+      value: `${location.city}, ${location.country}`,
+    },
+    location.contact
+      ? {
+          key: "phone",
+          icon: Phone,
+          label: "Phone",
+          value: location.contact,
+          href: `tel:${location.contact.replace(/\s/g, "")}`,
+        }
+      : null,
+    location.email
+      ? {
+          key: "email",
+          icon: Mail,
+          label: "Email",
+          value: location.email,
+          href: `mailto:${location.email}`,
+        }
+      : null,
+  ].filter((item): item is InfoItem => Boolean(item));
+
   return (
     <div
       ref={modalRef}
-      className={`absolute top-0 right-0 h-full w-full md:w-[420px] lg:w-[480px] bg-white shadow-2xl z-50 transition-transform duration-300 ease-out ${
+      className={`absolute top-0 right-0 h-full w-full md:w-[360px] lg:w-[380px] z-50 transition-transform duration-300 ease-out ${
         isOpen ? "translate-x-0" : "translate-x-full"
       }`}
       style={{
         borderRadius: "0 24px 24px 0",
         maxHeight: "100%",
-        overflowY: "auto",
       }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="location-modal-title"
     >
+      <div className="flex h-full flex-col overflow-hidden bg-white shadow-[0_25px_60px_rgba(3,15,53,0.25)] ring-1 ring-slate-100">
         {/* Header */}
-        <div className="sticky top-0 bg-white z-10 flex items-center justify-between px-6 py-4 border-b border-gray-200 shadow-sm">
+        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <button
             onClick={onClose}
-            className="flex items-center text-blue-600 hover:text-blue-700 transition-colors"
+            className="flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700"
             aria-label="Back"
           >
-            <ArrowLeft size={18} className="mr-1" />
-            <span className="text-sm font-medium">Back</span>
+            <ArrowLeft size={16} />
+            Back
           </button>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-50"
             aria-label="Close"
           >
-            <X size={20} className="text-gray-600" />
+            <X size={18} />
           </button>
         </div>
 
         {/* Content */}
-        <div className="px-6 py-5 space-y-6">
-          {/* Category Tag */}
-          {location.category && (
-            <div className="inline-flex items-center">
-              <span
-                className="px-4 py-1.5 rounded-full text-sm font-semibold text-white"
-                style={{ backgroundColor: "#FB5535" }}
-              >
-                {getCategoryDisplay()}
-              </span>
-            </div>
-          )}
-
-          {/* Title */}
-          <h2
-            id="location-modal-title"
-            className="text-3xl font-bold"
-            style={{ color: "#030F35" }}
-          >
-            {location.name}
-          </h2>
-
-          {/* Key Information */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Building2 size={18} className="text-gray-500 flex-shrink-0" />
-              <span className="text-sm text-gray-600">Type:</span>
-              <span className="text-sm font-semibold text-gray-900">{location.type}</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <MapPin size={18} className="text-gray-500 flex-shrink-0" />
-              <span className="text-sm text-gray-600">Location:</span>
-              <span className="text-sm font-semibold text-gray-900">
-                {location.city}, {location.country}
-              </span>
-            </div>
-
-            {location.contact && (
-              <div className="flex items-center gap-3">
-                <Phone size={18} className="text-gray-500 flex-shrink-0" />
-                <span className="text-sm text-gray-600">Phone:</span>
-                <a
-                  href={`tel:${location.contact.replace(/\s/g, "")}`}
-                  className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors"
-                >
-                  {location.contact}
-                </a>
-              </div>
-            )}
-
-            {location.email && (
-              <div className="flex items-center gap-3">
-                <Mail size={18} className="text-gray-500 flex-shrink-0" />
-                <span className="text-sm text-gray-600">Email:</span>
-                <a
-                  href={`mailto:${location.email}`}
-                  className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors break-all"
-                >
-                  {location.email}
-                </a>
-              </div>
-            )}
+        <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6">
+          <div className="space-y-2">
+            <span
+              className="inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-wide"
+              style={{ backgroundColor: accentPale, color }}
+            >
+              {getCategoryDisplay()}
+            </span>
+            <h2 id="location-modal-title" className="text-2xl font-semibold text-slate-900">
+              {location.name}
+            </h2>
+            <p className="text-sm font-medium text-slate-500">
+              {location.city}, {location.country}
+            </p>
           </div>
 
-          {/* Description */}
+          <div className="rounded-2xl border border-slate-100 bg-slate-50/60">
+            {infoItems.map((item, index) => {
+              const Icon = item.icon;
+              const content = (
+                <div className="flex flex-col text-left">
+                  <span className="text-[12px] font-semibold uppercase tracking-wide text-slate-500">
+                    {item.label}
+                  </span>
+                  <span className="text-base font-semibold text-slate-900">{item.value}</span>
+                </div>
+              );
+              return (
+                <div
+                  key={item.key}
+                  className={`flex items-start gap-3 px-4 py-3 ${index !== infoItems.length - 1 ? "border-b border-slate-100" : ""}`}
+                >
+                  <span
+                    className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl text-[15px]"
+                    style={{ backgroundColor: accentPale, color }}
+                  >
+                    <Icon size={16} />
+                  </span>
+                  {item.href ? (
+                    <a href={item.href} className="flex-1 transition hover:text-blue-600">
+                      {content}
+                    </a>
+                  ) : (
+                    content
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
           {description && (
-            <div>
-              <p className="text-gray-700 leading-relaxed">{displayDescription}</p>
+            <div className="rounded-2xl border border-slate-100 bg-white p-4">
+              <p className="text-sm leading-relaxed text-slate-600">{displayDescription}</p>
               {shouldTruncate && (
                 <button
                   onClick={() => setShowFullDescription(!showFullDescription)}
-                  className="mt-2 text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
+                  className="mt-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
                 >
                   {showFullDescription ? "Show less" : "Show more"}
                 </button>
@@ -181,15 +226,14 @@ const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose
             </div>
           )}
 
-          {/* Services */}
           {location.services && location.services.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Services</h3>
-              <div className="flex flex-wrap gap-2">
+              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Services</h3>
+              <div className="mt-3 flex flex-wrap gap-2">
                 {location.services.map((service, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-sm font-medium"
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-700"
                   >
                     {service}
                   </span>
@@ -198,22 +242,23 @@ const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose
             </div>
           )}
 
-          {/* Address */}
-          <div className="pt-4 border-t border-gray-200">
-            <p className="text-sm text-gray-600">
-              <strong>Address:</strong> {location.address}, {location.city}, {location.country}
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Address</p>
+            <p className="text-sm font-medium text-slate-900">{location.address}</p>
+            <p className="text-sm text-slate-600">
+              {location.city}, {location.country}
             </p>
           </div>
         </div>
 
         {/* Footer with Action Buttons */}
-        <div className="sticky bottom-0 px-6 py-5 border-t border-gray-200 bg-gray-50">
-          <div className="flex flex-col sm:flex-row gap-3">
+        <div className="border-t border-slate-100 px-5 py-4">
+          <div className="flex flex-col gap-3 sm:flex-row">
             {/* Knowledge Center Button - Only for Client locations */}
             {isClientLocation && location.knowledgeCenterUrl && (
               <a
                 href={location.knowledgeCenterUrl}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#030F35] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#060f2b]"
               >
                 <BookOpen size={20} />
                 <span>Visit Knowledge Center</span>
@@ -226,9 +271,9 @@ const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose
                 href={location.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-colors shadow-sm ${
+                className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition ${
                   isClientLocation && location.knowledgeCenterUrl
-                    ? "flex-1 bg-white text-blue-600 border-2 border-blue-600 hover:bg-blue-50"
+                    ? "flex-1 border border-slate-200 bg-white text-slate-800 hover:border-slate-300"
                     : "flex-1 bg-blue-600 text-white hover:bg-blue-700"
                 }`}
               >
@@ -238,9 +283,9 @@ const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose
             )}
           </div>
         </div>
+      </div>
     </div>
   );
 };
 
 export default LocationModal;
-

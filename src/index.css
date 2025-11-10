@@ -68,6 +68,13 @@
   overflow: hidden !important;
 }
 
+.description-clip {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 input,
 textarea {
   color: #0B1220;

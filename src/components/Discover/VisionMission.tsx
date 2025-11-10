@@ -5,6 +5,10 @@ import { ArrowRight } from 'lucide-react';
 export const VisionMission: React.FC = () => {
   const navigate = useNavigate();
 
+  const handleNavigate = (label: string) => {
+    navigate(`/coming-soon?label=${encodeURIComponent(label)}`);
+  };
+
   return (
     <section className="bg-gray-50 py-16 md:py-24" id="vision-mission" aria-labelledby="vm-heading">
       <div className="dws-container max-w-[1200px] mx-auto px-6 md:px-8">
@@ -35,20 +39,21 @@ export const VisionMission: React.FC = () => {
             >
               DQ Vision – Perfecting Life's Transactions
             </h3>
-            
+
             <div className="flex-1 mb-6">
               <p className="text-base md:text-lg leading-relaxed" style={{ color: 'var(--dws-text)' }}>
-                We empower associates to turn innovation into impact through seamless, dependable workflows that make collaboration effortless and progress meaningful.
+                We empower associates to turn innovation into impact through seamless, dependable workflows that make
+                collaboration effortless and progress meaningful.
               </p>
             </div>
 
             <div className="mt-auto">
               <button
-                onClick={() => navigate('/strategy')}
+                onClick={() => handleNavigate('Vision Brief')}
                 className="dws-btn-primary inline-flex items-center gap-2"
                 aria-label="Explore Strategy Center to learn more about DQ Vision"
               >
-                Explore Strategy Center
+                View Vision Brief
                 <ArrowRight size={16} aria-hidden="true" />
               </button>
             </div>
@@ -62,16 +67,17 @@ export const VisionMission: React.FC = () => {
             >
               DQ Mission – Building a Smarter, Connected Future
             </h3>
-            
+
             <div className="flex-1 mb-6">
               <p className="text-base md:text-lg leading-relaxed" style={{ color: 'var(--dws-text)' }}>
-                We connect people, processes, and platforms to enable smarter work—helping every Qatalyst learn faster, collaborate better, and lead with purpose.
+                We connect people, processes, and platforms to enable smarter work—helping every Qatalyst learn faster,
+                collaborate better, and lead with purpose.
               </p>
             </div>
 
             <div className="mt-auto">
               <button
-                onClick={() => navigate('/mission')}
+                onClick={() => handleNavigate('Mission Brief')}
                 className="dws-btn-primary inline-flex items-center gap-2"
                 aria-label="View Mission Brief to understand DQ Mission"
               >

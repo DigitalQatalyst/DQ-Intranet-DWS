@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AnimatedText, FadeInUpOnScroll, StaggeredFadeIn } from '../AnimationUtils';
 
 const stats = [
@@ -8,6 +9,7 @@ const stats = [
 ];
 
 export const HeroDiscoverDQ: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <section className="relative isolate grid h-[clamp(560px,70vh,740px)] min-h-[560px] place-items-center overflow-hidden bg-[#030F35] text-white">
       <div className="absolute inset-0 -z-10">
@@ -70,17 +72,18 @@ export const HeroDiscoverDQ: React.FC = () => {
             >
               Explore Work Zones →
             </a>
-            <a
-              href="#growth-opportunities"
+            <button
+              type="button"
+              onClick={() => navigate('/coming-soon?label=Strategy%20Center')}
               className="inline-flex items-center justify-center rounded-full border border-white/55 px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(9,20,45,0.3)] transition hover:-translate-y-0.5 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#030F35]"
             >
               Explore Strategy Center →
-            </a>
+            </button>
           </StaggeredFadeIn>
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes pulse-gradient {
           0% {
             opacity: 0.45;

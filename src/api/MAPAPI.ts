@@ -25,6 +25,8 @@ export type LocationItem = {
   category?: string; // e.g., "Tourism & Hospitality", "Financial Services", etc.
   website?: string;
   knowledgeCenterUrl?: string; // Only for Client locations
+  heroImageUrl?: string;
+  heroImageAlt?: string;
 };
 
 export const DQ_LOCATIONS: LocationItem[] = [
@@ -43,6 +45,26 @@ export const DQ_LOCATIONS: LocationItem[] = [
     description: 'Central hub for DQ teams coordinating strategy, delivery, and innovation programmes. The headquarters serves as the primary location for executive leadership, strategic planning, and corporate operations across the region.',
     services: ['Corporate Headquarters', 'Executive Office', 'Strategy Office', 'Transformation PMO'],
     website: 'https://digitalqatalyst.com',
+    heroImageUrl: 'https://images.unsplash.com/photo-1469475988868-6c347454e42c?auto=format&fit=crop&w=1600&q=80',
+    heroImageAlt: 'Business Bay skyline at dusk',
+  },
+  {
+    id: 'dq-nairobi-kenafric',
+    name: 'DQ Nairobi Office – Kenafric Business Park',
+    type: 'Regional Office',
+    address: 'Kenafric Business Park, Baba Dogo Road',
+    city: 'Nairobi',
+    country: 'Kenya',
+    coordinates: { lng: 36.8805221, lat: -1.245419 },
+    tags: ['office', 'regional'],
+    contact: '+254 20 000 0000',
+    email: 'nairobi@digitalqatalyst.com',
+    category: 'Regional Operations',
+    description:
+      'East Africa regional office housed at Kenafric Business Park to coordinate Nairobi delivery squads and partner engagements.',
+    services: ['Regional Delivery', 'Client Success', 'Partner Enablement'],
+    heroImageUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80',
+    heroImageAlt: 'Nairobi skyline at sunset',
   },
   {
     id: 'dewa',
@@ -59,6 +81,8 @@ export const DQ_LOCATIONS: LocationItem[] = [
     description: 'Dubai Electricity and Water Authority\'s head office, serving as the primary customer service center for utility management across Dubai. DEWA leads innovation in smart grid technology and sustainable energy solutions.',
     services: ['Customer Service', 'Utility Management', 'Smart Grid Solutions', 'Sustainability Programs'],
     website: 'https://www.dewa.gov.ae',
+    heroImageUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80',
+    heroImageAlt: 'Smart utility operations center',
   },
   {
     id: 'dfsa',
@@ -75,6 +99,8 @@ export const DQ_LOCATIONS: LocationItem[] = [
     description: 'The Dubai Financial Services Authority is the independent regulator of financial services conducted in or from the Dubai International Financial Centre. DFSA ensures the integrity and stability of financial markets while fostering innovation and growth.',
     services: ['Financial Regulation', 'Regulatory Services', 'Policy Innovation', 'RegTech Advisory'],
     website: 'https://www.dfsa.ae',
+    heroImageUrl: 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1600&q=80',
+    heroImageAlt: 'Financial district glass towers',
   },
   {
     id: 'adib',
@@ -92,6 +118,8 @@ export const DQ_LOCATIONS: LocationItem[] = [
     services: ['Islamic Banking', 'Corporate Banking', 'Digital Banking Solutions', 'Investment Services'],
     website: 'https://www.adib.ae',
     knowledgeCenterUrl: '/knowledge-center/adib',
+    heroImageUrl: 'https://images.unsplash.com/photo-1454165205744-3b78555e5572?auto=format&fit=crop&w=1600&q=80',
+    heroImageAlt: 'Modern Islamic banking workspace',
   },
   {
     id: 'saib',
@@ -109,6 +137,8 @@ export const DQ_LOCATIONS: LocationItem[] = [
     services: ['Investment Banking', 'Corporate Services', 'Digital Banking', 'Trade Finance'],
     website: 'https://www.saib.com.sa',
     knowledgeCenterUrl: '/knowledge-center/saib',
+    heroImageUrl: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1600&q=80',
+    heroImageAlt: 'Riyadh city skyline at night',
   },
   {
     id: 'neom',
@@ -126,6 +156,8 @@ export const DQ_LOCATIONS: LocationItem[] = [
     services: ['Smart City Development', 'Innovation Programs', 'Sustainability Solutions', 'Technology Research'],
     website: 'https://www.neom.com',
     knowledgeCenterUrl: '/knowledge-center/neom',
+    heroImageUrl: 'https://images.unsplash.com/photo-1476610182048-b716b8518aae?auto=format&fit=crop&w=1600&q=80',
+    heroImageAlt: 'Futuristic desert cityscape',
   },
 ];
 
@@ -154,13 +186,13 @@ const RAW_LOCATIONS: RawLocation[] = [
   },
   {
     id: 'nairobi-office',
-    name: 'Nairobi Office',
-    address: 'Nairobi, Kenya',
+    name: 'DQ Nairobi Office – Kenafric Business Park',
+    address: 'Kenafric Business Park, Baba Dogo Road, Nairobi, Kenya',
     country: 'KE',
     category: 'Regional Offices',
-    lat: -1.286389,
-    lng: 36.817223,
-    description: 'East Africa regional office anchoring DQ collaborations with local partners.',
+    lat: -1.245419,
+    lng: 36.8805221,
+    description: 'East Africa regional office anchoring DQ collaborations with local partners from Kenafric Business Park.',
     services: ['Regional Delivery', 'Client Success'],
     region: 'Kenya',
   },

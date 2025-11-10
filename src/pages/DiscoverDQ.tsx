@@ -7,7 +7,7 @@ import VisionMission from "../components/Discover/VisionMission";
 import DQDNA from "../components/Discover/DQDNA";
 import WorkspaceInsights from "../components/Discover/WorkspaceInsights";
 import DQDirectory from "../components/Discover/DQDirectory";
-import DQ6xDigitalView from "../components/Discover/DQ6xDigitalView";
+import D6CardsSection from "../components/Discover/D6CardsSection";
 import MapCard from "../components/map/MapCard";
 import {
   DQ_LOCATIONS,
@@ -152,7 +152,7 @@ const DiscoverDQ: React.FC = () => {
               </button>
             </div>
 
-            <div className="relative z-0 h-[520px] sm:h-[520px] md:h-[560px] lg:h-[560px] overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
+            <div className="relative z-0 h-[560px] sm:h-[600px] md:h-[640px] lg:h-[680px] overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
               <MapCard
                 className="h-full w-full"
                 locations={filteredLocations}
@@ -174,7 +174,7 @@ const DiscoverDQ: React.FC = () => {
         <WorkspaceInsights data={insightsData} />
 
         {/* Digital View */}
-        <DQ6xDigitalView />
+        <D6CardsSection />
 
         {/* Directory */}
         <DQDirectory />
