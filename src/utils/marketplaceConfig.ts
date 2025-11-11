@@ -891,7 +891,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     ...knowledgeHubBaseConfig,
     id: 'guides',
     route: '/marketplace/guides',
-    title: 'Guidelines',
+    title: 'DQ Knowledge Center',
     description: 'Access practical guidelines, templates, and processes to support everyday delivery and collaboration.'
   }
 };

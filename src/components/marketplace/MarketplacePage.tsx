@@ -25,7 +25,6 @@ import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters';
 import GuidesGrid from '../guides/GuidesGrid';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { track } from '../../utils/analytics';
-
 const LEARNING_TYPE_FILTER: FilterConfig = {
   id: 'learningType',
   title: 'Learning Type',
@@ -35,6 +34,13 @@ const LEARNING_TYPE_FILTER: FilterConfig = {
     { id: 'testimonials', name: 'Testimonials' }
   ]
 };
+
+const slugify = (value: string): string =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 const prependLearningTypeFilter = (marketplaceType: string, configs: FilterConfig[]): FilterConfig[] => {
   if (marketplaceType !== 'courses') {
@@ -179,6 +185,63 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [facets, setFacets] = useState<GuidesFacets>({});
   const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
   const searchStartRef = useRef<number | null>(null);
+  type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials';
+  const getTabFromParams = useCallback((params: URLSearchParams): WorkGuideTab => {
+    const tab = params.get('tab');
+    return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' ? tab : 'guidelines';
+  }, []);
+  const [activeTab, setActiveTab] = useState<WorkGuideTab>(() => getTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()));
+
+  const TAB_LABELS: Record<WorkGuideTab, string> = {
+    strategy: 'Strategy',
+    guidelines: 'Guidelines',
+    blueprints: 'Blueprints',
+    testimonials: 'Testimonials'
+  };
+
+  useEffect(() => {
+    if (!isGuides) return;
+    setActiveTab(getTabFromParams(queryParams));
+  }, [isGuides, queryParams, getTabFromParams]);
+
+  const handleGuidesTabChange = useCallback((tab: WorkGuideTab) => {
+    setActiveTab(tab);
+    const next = new URLSearchParams(queryParams.toString());
+    next.delete('page');
+    if (tab === 'guidelines') {
+      next.delete('tab');
+    } else {
+      next.set('tab', tab);
+    }
+    if (tab !== 'guidelines') {
+      ['guide_type', 'sub_domain', 'unit', 'domain', 'testimonial_category'].forEach(key => next.delete(key));
+    }
+    const qs = next.toString();
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+    }
+    setQueryParams(new URLSearchParams(next.toString()));
+    track('Guides.TabChanged', { tab });
+  }, [queryParams, setQueryParams]);
+
+  useEffect(() => {
+    if (!isGuides) return;
+    if (activeTab === 'guidelines') return;
+    const next = new URLSearchParams(queryParams.toString());
+    let changed = false;
+    ['guide_type', 'sub_domain', 'unit', 'domain'].forEach(key => {
+      if (next.has(key)) {
+        next.delete(key);
+        changed = true;
+      }
+    });
+    if (!changed) return;
+    const qs = next.toString();
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+    }
+    setQueryParams(new URLSearchParams(next.toString()));
+  }, [isGuides, activeTab, queryParams]);
 
   const pageSize = Math.min(50, Math.max(1, parseInt(queryParams.get('pageSize') || String(DEFAULT_GUIDE_PAGE_SIZE), 10)));
   const currentPage = Math.max(1, parseInt(queryParams.get('page') || '1', 10));
@@ -336,12 +399,25 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           const units       = parseFilterValues(queryParams, 'unit');
           const locations   = parseFilterValues(queryParams, 'location');
           const statuses    = parseFilterValues(queryParams, 'status');
+          const testimonialCategories = parseFilterValues(queryParams, 'testimonial_category');
+
+          const isStrategyTab = activeTab === 'strategy';
+          const isBlueprintTab = activeTab === 'blueprints';
+          const isTestimonialsTab = activeTab === 'testimonials';
+          const isSpecialTab = isStrategyTab || isBlueprintTab || isTestimonialsTab;
 
           const allowed = new Set<string>();
-          domains.forEach(d => (SUBDOMAIN_BY_DOMAIN[d] || []).forEach(s => allowed.add(s)));
-          const subDomains = allowed.size ? rawSubs.filter(v => allowed.has(v)) : [];
+          if (!isSpecialTab) {
+            domains.forEach(d => (SUBDOMAIN_BY_DOMAIN[d] || []).forEach(s => allowed.add(s)));
+          }
+          const subDomains = !isSpecialTab
+            ? (allowed.size ? rawSubs.filter(v => allowed.has(v)) : rawSubs)
+            : [];
 
-          if (rawSubs.length && subDomains.length !== rawSubs.length) {
+          const effectiveGuideTypes = isSpecialTab ? [] : guideTypes;
+          const effectiveUnits = isSpecialTab ? [] : units;
+
+          if (!isSpecialTab && rawSubs.length && subDomains.length !== rawSubs.length) {
             const next = new URLSearchParams(queryParams.toString());
             if (subDomains.length) next.set('sub_domain', subDomains.join(','));
             else next.delete('sub_domain');
@@ -355,10 +431,18 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
           if (statuses.length) q = q.in('status', statuses); else q = q.eq('status', 'Approved');
           if (qStr) q = q.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
-          if (domains.length)   q = q.in('domain', domains);
-          if (subDomains.length)q = q.in('sub_domain', subDomains);
-          if (guideTypes.length)q = q.in('guide_type', guideTypes);
-          if (units.length)     q = q.in('unit', units);
+          if (isStrategyTab) {
+            q = q.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
+          } else if (isBlueprintTab) {
+            q = q.or('domain.ilike.%Blueprint%,guide_type.ilike.%Blueprint%');
+          } else if (isTestimonialsTab) {
+            q = q.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
+          } else if (domains.length) {
+            q = q.in('domain', domains);
+          }
+          if (!isSpecialTab && subDomains.length) q = q.in('sub_domain', subDomains);
+          if (effectiveGuideTypes.length) q = q.in('guide_type', effectiveGuideTypes);
+          if (effectiveUnits.length) q = q.in('unit', effectiveUnits);
           if (locations.length) q = q.in('location', locations);
 
           const sort = queryParams.get('sort') || 'relevance';
@@ -383,10 +467,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             .eq('status', 'Approved');
 
           if (qStr)              facetQ = facetQ.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
-          if (domains.length)    facetQ = facetQ.in('domain', domains);
-          if (subDomains.length) facetQ = facetQ.in('sub_domain', subDomains);
-          if (guideTypes.length) facetQ = facetQ.in('guide_type', guideTypes);
-          if (units.length)      facetQ = facetQ.in('unit', units);
+          if (isStrategyTab)    facetQ = facetQ.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
+          else if (isBlueprintTab) facetQ = facetQ.or('domain.ilike.%Blueprint%,guide_type.ilike.%Blueprint%');
+          else if (isTestimonialsTab) facetQ = facetQ.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
+          else if (domains.length) facetQ = facetQ.in('domain', domains);
+          if (!isSpecialTab && subDomains.length) facetQ = facetQ.in('sub_domain', subDomains);
+          if (effectiveGuideTypes.length) facetQ = facetQ.in('guide_type', effectiveGuideTypes);
+          if (effectiveUnits.length)      facetQ = facetQ.in('unit', effectiveUnits);
           if (locations.length)  facetQ = facetQ.in('location', locations);
           if (statuses.length)   facetQ = facetQ.in('status', statuses);
 
@@ -425,12 +512,43 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           });
 
           let out = mapped;
+          
           if (domains.length)    out = out.filter(it => it.domain && domains.includes(it.domain));
           if (subDomains.length) out = out.filter(it => it.subDomain && subDomains.includes(it.subDomain));
-          if (guideTypes.length) out = out.filter(it => it.guideType && guideTypes.includes(it.guideType));
-          if (units.length)      out = out.filter(it => (it.unit || it.functionArea) && units.includes(it.unit || it.functionArea));
+          if (effectiveGuideTypes.length) out = out.filter(it => it.guideType && effectiveGuideTypes.includes(it.guideType));
+          if (effectiveUnits.length)      out = out.filter(it => (it.unit || it.functionArea) && effectiveUnits.includes(it.unit || it.functionArea));
           if (locations.length)  out = out.filter(it => it.location && locations.includes(it.location));
           if (statuses.length)   out = out.filter(it => it.status && statuses.includes(it.status));
+
+          if (isStrategyTab) {
+            out = out.filter(it => {
+              const domain = (it.domain || '').toLowerCase();
+              const guideType = (it.guideType || '').toLowerCase();
+              return domain.includes('strategy') || guideType.includes('strategy');
+            });
+          } else if (isBlueprintTab) {
+            out = out.filter(it => {
+              const domain = (it.domain || '').toLowerCase();
+              const guideType = (it.guideType || '').toLowerCase();
+              return domain.includes('blueprint') || guideType.includes('blueprint');
+            });
+          } else if (isTestimonialsTab) {
+            out = out.filter(it => {
+              const domain = (it.domain || '').toLowerCase();
+              const guideType = (it.guideType || '').toLowerCase();
+              return domain.includes('testimonial') || guideType.includes('testimonial');
+            });
+            const selectedTestimonials = testimonialCategories.map(slugify);
+            if (selectedTestimonials.length) {
+              out = out.filter(it => {
+            const rawTags = Array.isArray((it as any).tags) ? (it as any).tags : [];
+            const sluggedTags = rawTags
+              .map((tag: unknown) => slugify(String(tag ?? '')))
+              .filter(Boolean);
+            return selectedTestimonials.some(sel => sluggedTags.includes(sel));
+              });
+            }
+          }
 
           if (sort === 'updated')       out.sort((a,b) => new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
           else if (sort === 'downloads')out.sort((a,b) => (b.downloadCount||0)-(a.downloadCount||0));
@@ -472,7 +590,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           const statusFacets      = countBy(facetRows, 'status');
 
           const allowedForFacets = new Set<string>();
-          domains.forEach(d => (SUBDOMAIN_BY_DOMAIN[d] || []).forEach(s => allowedForFacets.add(s)));
+          if (!isSpecialTab) {
+            domains.forEach(d => (SUBDOMAIN_BY_DOMAIN[d] || []).forEach(s => allowedForFacets.add(s)));
+          }
           const subDomainFacets = allowedForFacets.size
             ? subDomainFacetsRaw.filter(opt => allowedForFacets.has(opt.id))
             : subDomainFacetsRaw;
@@ -528,7 +648,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
     run();
     // Keep deps lean; no need to include functions like isGuides
-  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isKnowledgeHub, currentPage, pageSize]);
+  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isKnowledgeHub, currentPage, pageSize, activeTab]);
 
   // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
@@ -631,16 +751,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             </li>
             {isGuides ? (
               <>
-                <li>
-                  <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-gray-400" />
-                    <span className="ml-1 text-gray-500 md:ml-2">Resources</span>
-                  </div>
-                </li>
                 <li aria-current="page">
                   <div className="flex items-center">
                     <ChevronRightIcon size={16} className="text-gray-400" />
-                    <span className="ml-1 text-gray-700 md:ml-2">Guidelines</span>
+                    <span className="ml-1 text-gray-700 md:ml-2">{config.title}</span>
                   </div>
                 </li>
               </>
@@ -657,6 +771,30 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
         <h1 className="text-3xl font-bold text-gray-800 mb-2">{config.title}</h1>
         <p className="text-gray-600 mb-6">{config.description}</p>
+
+        {isGuides && (
+          <div className="mb-6 border-b border-gray-200">
+            <nav className="flex space-x-8" aria-label="Guides navigation">
+            {(['strategy', 'guidelines', 'blueprints', 'testimonials'] as WorkGuideTab[]).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => handleGuidesTabChange(tab)}
+                  className={`
+                    py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                    ${
+                      activeTab === tab
+                        ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }
+                  `}
+                  aria-current={activeTab === tab ? 'page' : undefined}
+                >
+                  {TAB_LABELS[tab]}
+                </button>
+              ))}
+            </nav>
+          </div>
+        )}
 
         {/* Search + Sort */}
         <div className="mb-6 flex items-center gap-3">
@@ -746,7 +884,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 </div>
                 <div className="p-4">
                   {isGuides ? (
-                    <GuidesFilters facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
+                    <GuidesFilters activeTab={activeTab} facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
                   ) : (
                     <FilterSidebar
                       filters={isCourses ? urlBasedFilters : (Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>)}
@@ -764,7 +902,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           {/* Filter sidebar - desktop */}
           <div className="hidden xl:block xl:w-1/4">
             {isGuides ? (
-              <GuidesFilters facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
+              <GuidesFilters activeTab={activeTab} facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
             ) : (
               <div className="bg-white rounded-lg shadow p-4 sticky top-24">
                 <div className="flex justify-between items-center mb-4">
@@ -824,7 +962,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   items={filteredItems}
                   onClickGuide={(g) => {
                     const qs = queryParams.toString();
-                    navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, { state: { fromQuery: qs } });
+                    navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
+                      state: { fromQuery: qs, activeTab }
+                    });
                   }}
                 />
                 {totalPages > 1 && (

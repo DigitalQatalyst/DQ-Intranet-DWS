@@ -71,7 +71,7 @@ const marketplaces: Marketplace[] = [
   },
   {
     id: 'guidelines',
-    name: 'Guidelines Marketplace',
+    name: 'DQ Knowledge Center',
     description: 'Access practical guidelines, templates, and processes.',
     icon: BookOpen,
     href: '/marketplace/guides',

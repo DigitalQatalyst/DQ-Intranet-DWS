@@ -61,7 +61,28 @@ const GuideDetailPage: React.FC = () => {
   const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([])
 
   const backQuery = (location?.state && location.state.fromQuery) ? String(location.state.fromQuery) : ''
-  const backHref = `/marketplace/guides${backQuery ? `?${backQuery}` : ''}`
+  const initialBackHref = `/marketplace/guides${backQuery ? `?${backQuery}` : ''}`
+  const activeTabFromState = (location?.state && location.state.activeTab) ? String(location.state.activeTab) : undefined
+  type GuideTabKey = 'guidelines' | 'strategy' | 'blueprints'
+const TAB_LABELS: Record<GuideTabKey, string> = {
+  guidelines: 'Guidelines',
+  strategy: 'Strategy',
+  blueprints: 'Blueprints',
+  testimonials: 'Testimonials'
+}
+  const normalizedStateTab = (activeTabFromState || '').toLowerCase()
+  const stateTab: GuideTabKey | undefined =
+    normalizedStateTab === 'strategy' || normalizedStateTab === 'blueprints'
+      ? normalizedStateTab as GuideTabKey
+      : undefined
+const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
+  const domain = (g?.domain || '').toLowerCase()
+  const guideType = (g?.guideType || '').toLowerCase()
+  if (domain.includes('blueprint') || guideType.includes('blueprint')) return 'blueprints'
+  if (domain.includes('strategy') || guideType.includes('strategy')) return 'strategy'
+  if (domain.includes('testimonial') || guideType.includes('testimonial')) return 'testimonials'
+  return 'guidelines'
+}
 
   useEffect(() => {
     let cancelled = false
@@ -317,6 +338,9 @@ const GuideDetailPage: React.FC = () => {
   }
 
   if (error || !guide) {
+    const breadcrumbLabel = TAB_LABELS[stateTab || 'guidelines']
+    const fallbackHref = stateTab && stateTab !== 'guidelines' ? `/marketplace/guides?tab=${stateTab}` : '/marketplace/guides'
+    const backHref = backQuery ? initialBackHref : fallbackHref
     return (
       <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
         <Header toggleSidebar={() => {}} sidebarOpen={false} />
@@ -324,20 +348,24 @@ const GuideDetailPage: React.FC = () => {
           <nav className="flex mb-4" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
               <li className="inline-flex items-center"><Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center"><HomeIcon size={16} className="mr-1" /><span>Home</span></Link></li>
-              {/* <li><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><span className="ml-1 text-gray-500 md:ml-2">Resources</span></div></li> */}
-              <li><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><Link to={`/marketplace/guides`} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">Guidelines</Link></div></li>
+              <li><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><Link to={backHref} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">{breadcrumbLabel}</Link></div></li>
               <li aria-current="page"><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><span className="ml-1 text-gray-500 md:ml-2">Details</span></div></li>
             </ol>
           </nav>
           <div className="bg-white rounded shadow p-8 text-center">
             <h2 className="text-xl font-medium text-gray-900 mb-2">{error || 'Not Found'}</h2>
-            <Link to={`/marketplace/guides`} className="text-[var(--guidelines-primary)]">Back to Guidelines</Link>
+            <Link to={backHref} className="text-[var(--guidelines-primary)]">Back to {breadcrumbLabel}</Link>
           </div>
         </main>
         <Footer isLoggedIn={!!user} />
       </div>
     )
   }
+
+  const activeTabKey = stateTab || deriveTabKey(guide)
+  const breadcrumbLabel = TAB_LABELS[activeTabKey]
+  const fallbackHref = activeTabKey !== 'guidelines' ? `/marketplace/guides?tab=${activeTabKey}` : '/marketplace/guides'
+  const backHref = backQuery ? initialBackHref : fallbackHref
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
@@ -346,8 +374,7 @@ const GuideDetailPage: React.FC = () => {
         <nav className="flex mb-4" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center"><Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center"><HomeIcon size={16} className="mr-1" /><span>Home</span></Link></li>
-            <li><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><span className="ml-1 text-gray-500 md:ml-2">Resources</span></div></li>
-            <li><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><Link to={backHref} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">Guidelines</Link></div></li>
+            <li><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><Link to={backHref} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">{breadcrumbLabel}</Link></div></li>
             <li aria-current="page"><div className="flex items-center"><ChevronRightIcon size={16} className="text-gray-400" /><span className="ml-1 text-gray-500 md:ml-2">{guide.title}</span></div></li>
           </ol>
         </nav>
@@ -610,7 +637,7 @@ const GuideDetailPage: React.FC = () => {
         </section>
 
         <div className="mt-6 text-right">
-          <Link to={backHref} className="text-[var(--guidelines-primary)]">Back to Guidelines</Link>
+          <Link to={backHref} className="text-[var(--guidelines-primary)]">Back to {breadcrumbLabel}</Link>
         </div>
       </main>
       <Footer isLoggedIn={!!user} />
