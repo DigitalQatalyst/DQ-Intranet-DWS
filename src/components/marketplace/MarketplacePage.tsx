@@ -162,10 +162,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const isGuides = marketplaceType === 'guides';
   const isCourses = marketplaceType === 'courses';
   const isKnowledgeHub = marketplaceType === 'knowledge-hub';
+  const isServicesCenter = marketplaceType === 'non-financial';
   
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getMarketplaceConfig(marketplaceType);
+  const [activeServiceTab, setActiveServiceTab] = useState<string>('query');
 
   // Items & filters state
   const [items, setItems] = useState<any[]>([]);
@@ -657,6 +659,36 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
         <h1 className="text-3xl font-bold text-gray-800 mb-2">{config.title}</h1>
         <p className="text-gray-600 mb-6">{config.description}</p>
+
+        {/* Service Center Tabs */}
+        {isServicesCenter && (
+          <div className="mb-6 border-b border-gray-200">
+            <nav className="flex space-x-8" aria-label="Service tabs">
+              {[
+                { id: 'query', label: 'Query' },
+                { id: 'support', label: 'Support' },
+                { id: 'requisition', label: 'Requisition' },
+                { id: 'self-service', label: 'Self-Service' }
+              ].map((tab) => {
+                const isActive = activeServiceTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveServiceTab(tab.id)}
+                    className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors ${
+                      isActive
+                        ? 'text-blue-700 border-blue-700'
+                        : 'text-gray-600 border-transparent hover:text-gray-900 hover:border-gray-300'
+                    }`}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        )}
 
         {/* Search + Sort */}
         <div className="mb-6 flex items-center gap-3">

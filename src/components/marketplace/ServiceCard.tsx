@@ -37,7 +37,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
       case 'financial':
         return `/marketplace/financial/${item.id}`;
       case 'non-financial':
-        return `/marketplace/non-financial/${item.id}`;
+        return `/marketplace/services-center/${item.id}`;
       default:
         return `/${type}/${item.id}`;
     }

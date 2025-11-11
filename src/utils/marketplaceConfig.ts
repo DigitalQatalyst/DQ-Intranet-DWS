@@ -773,13 +773,13 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   },
   'non-financial': {
     id: 'non-financial',
-    title: 'Services & Requests',
-    description: "Welcome to Digital Qatalyst's Support Services! We’re here to ensure your success by providing dedicated assistance and efficient solutions for all your needs. This platform offers comprehensive support tools, resources, and expert guidance to help you overcome challenges and maximize productivity. Whether you require technical help or operational support we’re here to empower your journey every step of the way.",
-    route: '/marketplace/non-financial',
+    title: 'Services Center',
+    description: "Welcome to Digital Qatalyst's Services Center. We're here to ensure your success with dedicated assistance, efficient solutions, comprehensive tools, expert guidance, and both technical and operational support.",
+    route: '/marketplace/services-center',
     primaryCTA: 'Request Service',
     secondaryCTA: 'View Details',
     itemName: 'Business Service',
-    itemNamePlural: 'Business Services',
+    itemNamePlural: 'Services Center',
     attributes: [{
       key: 'serviceType',
       label: 'Service Type',
@@ -827,22 +827,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     }],
     summarySticky: true,
     filterCategories: [{
-      id: 'category',
-      title: 'Service Category',
-      options: [{
-        id: 'it_support',
-        name: 'IT Support'
-      }, {
-        id: 'support_charter_template',
-        name: 'Support Charter Template'
-      }, {
-        id: 'it_support_walkthrough',
-        name: 'IT Support Walkthrough'
-      }, {
-        id: 'export',
-        name: 'Export'
-      }]
-    }, {
       id: 'deliveryMode',
       title: 'Delivery Mode',
       options: [{
@@ -850,10 +834,39 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         name: 'Online'
       }, {
         id: 'inperson',
-        name: 'In-person'
+        name: 'In person'
       }, {
         id: 'hybrid',
         name: 'Hybrid'
+      }]
+    }, {
+      id: 'provider',
+      title: 'Provided by',
+      options: [{
+        id: 'it_support',
+        name: 'IT Support'
+      }, {
+        id: 'hr',
+        name: 'HR'
+      }, {
+        id: 'finance',
+        name: 'Finance'
+      }, {
+        id: 'admin',
+        name: 'Admin'
+      }]
+    }, {
+      id: 'category',
+      title: 'Service Category',
+      options: [{
+        id: 'technology',
+        name: 'Technology'
+      }, {
+        id: 'business',
+        name: 'Business'
+      }, {
+        id: 'digital_worker',
+        name: 'Digital Worker'
       }]
     }],
     // Data mapping functions
@@ -873,13 +886,17 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     },
     mapFilterResponse: data => {
       return [{
-        id: 'category',
-        title: 'Service Category',
-        options: data.categories || []
-      }, {
         id: 'deliveryMode',
         title: 'Delivery Mode',
         options: data.deliveryModes || []
+      }, {
+        id: 'provider',
+        title: 'Provided by',
+        options: data.providers || []
+      }, {
+        id: 'category',
+        title: 'Service Category',
+        options: data.categories || []
       }];
     },
     // Mock data for fallback and schema reference
