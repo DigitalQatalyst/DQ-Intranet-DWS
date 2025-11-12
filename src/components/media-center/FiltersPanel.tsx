@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import type { FacetConfig, FiltersValue } from './types';
 
 interface FiltersPanelProps {
@@ -69,11 +69,11 @@ const FiltersPanel: React.FC<FiltersPanelProps> = ({ facets, values, onChange, o
                   >
                     <span
                       className={`mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded border ${
-                        isActive ? 'bg-[#1A2E6E] border-[#1A2E6E]' : 'border-gray-300'
+                        isActive ? 'bg-gray-600 border-gray-600' : 'border-gray-300 bg-white'
                       }`}
                       aria-hidden="true"
                     >
-                      {isActive && <span className="h-2 w-2 rounded-sm bg-white" />}
+                      {isActive && <Check size={10} strokeWidth={3} className="text-white" />}
                     </span>
                     <span className="flex flex-col">
                       <span>{optionLabel}</span>
