@@ -1,7 +1,7 @@
 export const LOCATION_ALLOW = [
   'Dubai',
   'Nairobi',
-  'Global',
+  'Riyadh',
   'Remote'
 ] as const;
 

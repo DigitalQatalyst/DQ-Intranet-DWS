@@ -61,6 +61,7 @@ export const LmsCourses: React.FC = () => {
       courseType?: string;
       provider?: string;
       audience?: Array<'Associate' | 'Lead'>;
+      department?: string[];
     }> = [];
     
     LMS_COURSE_DETAILS.forEach((course) => {
@@ -74,7 +75,8 @@ export const LmsCourses: React.FC = () => {
             courseTitle: course.title,
             courseType: course.courseType,
             provider: course.provider,
-            audience: course.audience
+            audience: course.audience,
+            department: course.department
           });
         });
       }
@@ -105,6 +107,13 @@ export const LmsCourses: React.FC = () => {
     if (facets.audience && facets.audience.length > 0) {
       items = items.filter((item) => 
         item.audience && item.audience.some(aud => facets.audience?.includes(aud))
+      );
+    }
+    
+    // Filter by department if selected
+    if (facets.department && facets.department.length > 0) {
+      items = items.filter((item) => 
+        item.department && item.department.some(dept => facets.department?.includes(dept))
       );
     }
     
@@ -159,8 +168,27 @@ export const LmsCourses: React.FC = () => {
   const filterConfig: FilterConfig[] = useMemo(
     () => {
       if (activeTab === 'reviews') {
-        // For reviews: show provider, audience, and course type filters
+        // For reviews: show department, provider, audience, and course type filters
         return [
+          {
+            id: "department",
+            title: "Department",
+            options: [
+              { id: "HRA (People)", name: "HRA (People)" },
+              { id: "Finance", name: "Finance" },
+              { id: "Deals", name: "Deals" },
+              { id: "Stories", name: "Stories" },
+              { id: "Intelligence", name: "Intelligence" },
+              { id: "Solutions", name: "Solutions" },
+              { id: "SecDevOps", name: "SecDevOps" },
+              { id: "Products", name: "Products" },
+              { id: "Delivery — Deploys", name: "Delivery — Deploys" },
+              { id: "Delivery — Designs", name: "Delivery — Designs" },
+              { id: "DCO Operations", name: "DCO Operations" },
+              { id: "DBP Platform", name: "DBP Platform" },
+              { id: "DBP Delivery", name: "DBP Delivery" }
+            ]
+          },
           {
             id: "provider",
             title: "LMS Item Provider",
@@ -193,6 +221,25 @@ export const LmsCourses: React.FC = () => {
       } else {
         // For courses: show all filters except delivery mode (as per user request)
         return [
+      {
+        id: "department",
+        title: "Department",
+        options: [
+          { id: "HRA (People)", name: "HRA (People)" },
+          { id: "Finance", name: "Finance" },
+          { id: "Deals", name: "Deals" },
+          { id: "Stories", name: "Stories" },
+          { id: "Intelligence", name: "Intelligence" },
+          { id: "Solutions", name: "Solutions" },
+          { id: "SecDevOps", name: "SecDevOps" },
+          { id: "Products", name: "Products" },
+          { id: "Delivery — Deploys", name: "Delivery — Deploys" },
+          { id: "Delivery — Designs", name: "Delivery — Designs" },
+          { id: "DCO Operations", name: "DCO Operations" },
+          { id: "DBP Platform", name: "DBP Platform" },
+          { id: "DBP Delivery", name: "DBP Delivery" }
+        ]
+      },
       {
         id: "category",
         title: "Course Category",
@@ -248,7 +295,8 @@ export const LmsCourses: React.FC = () => {
         return {
           provider: facets.provider || [],
           audience: facets.audience || [],
-          courseType: facets.courseType || []
+          courseType: facets.courseType || [],
+          department: facets.department || []
         };
       } else {
         return {
@@ -257,7 +305,8 @@ export const LmsCourses: React.FC = () => {
           courseType: facets.courseType || [],
       sfiaRating: facets.sfiaRating || [],
       location: facets.location || [],
-      audience: facets.audience || []
+      audience: facets.audience || [],
+      department: facets.department || []
         };
       }
     },
@@ -312,12 +361,50 @@ export const LmsCourses: React.FC = () => {
           </ol>
         </nav>
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Learning Center</h1>
-        <p className="text-gray-600 mb-4">
-          Explore our learning management system courses and reviews
+        <p className="text-gray-600 mb-6">
+          {activeTab === 'courses' 
+            ? "Centralized platform that enables associates to access structured learning modules from GHC, 6xD, DWS, and DXP, supporting continuous upskilling and certification within the DQ ecosystem."
+            : "Explore authentic reviews and testimonials from learners across DQ. Discover how courses have transformed work practices, developed skills, and shaped professional journeys within our learning community."}
         </p>
         
+        {/* Tab Overview Container */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">CURRENT FOCUS</div>
+              <h2 className="text-2xl font-bold mb-3" style={{ color: '#030F35' }}>
+                {activeTab === 'courses' ? 'Courses & Curricula' : 'Reviews & Testimonials'}
+              </h2>
+              <p className="text-gray-600 text-sm leading-relaxed mb-2">
+                {activeTab === 'courses' 
+                  ? "Browse comprehensive learning tracks, individual courses, and structured curricula designed to enhance your skills across GHC, 6xD, DWS, and DXP frameworks."
+                  : "Read real experiences and insights from DQ associates who have completed courses. Learn how training has impacted their work, improved their skills, and advanced their careers."}
+              </p>
+              <p className="text-gray-500 text-xs mt-2">
+                {activeTab === 'courses' 
+                  ? "Sourced from DQ Learning & Development, GHC, 6xD, DWS, and DXP teams."
+                  : "Sourced from course participants and verified learners across DQ studios."}
+              </p>
+            </div>
+            <button 
+              className="px-4 py-2 text-sm font-medium rounded-lg border transition-colors whitespace-nowrap ml-4"
+              style={{ 
+                backgroundColor: '#F0F4FF',
+                borderColor: '#030F35',
+                color: '#030F35'
+              }}
+              onClick={() => {
+                // Scroll to tabs or show overview
+                document.querySelector('[data-tabs-section]')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
+              Tab overview
+            </button>
+          </div>
+        </div>
+        
         {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6">
+        <div className="border-b border-gray-200 mb-6" data-tabs-section>
           <div className="flex space-x-8">
             <button
               onClick={() => setActiveTab('courses')}

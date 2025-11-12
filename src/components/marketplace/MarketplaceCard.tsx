@@ -133,7 +133,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       chips.push({ key: 'level', label: levelLabel, iconValue: item.levelCode });
     }
     
-    // 5. location (if not Global)
+    // 5. location (if not Riyadh)
     const locations = Array.isArray(item.locations)
       ? item.locations
       : Array.isArray(item.location)
@@ -143,7 +143,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       : [];
     const allowedLocations = new Set<string>(LOCATION_ALLOW as readonly string[]);
     const specificLocation = locations.find(
-      (loc: string) => loc !== 'Global' && allowedLocations.has(loc)
+      (loc: string) => loc !== 'Riyadh' && allowedLocations.has(loc)
     );
     if (specificLocation) {
       chips.push({ key: 'location', label: specificLocation });
@@ -188,8 +188,16 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
           <div className="flex flex-wrap gap-1 max-w-[70%]">
             {chipData.map((chip, index) => {
             const Icon = resolveChipIcon(chip.key, chip.iconValue ?? chip.label);
-            return <span key={`${chip.key}-${chip.label}-${index}`} className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium truncate ${index === 0 ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-green-50 text-green-700 border border-green-100'}`}>
-                {Icon ? <Icon className="h-3.5 w-3.5 mr-1" /> : null}
+            return <span 
+              key={`${chip.key}-${chip.label}-${index}`} 
+              className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium truncate border"
+              style={{
+                backgroundColor: index === 0 ? '#F0F4FF' : '#F0F4FF',
+                borderColor: '#030F35',
+                color: '#030F35'
+              }}
+            >
+                {Icon ? <Icon className="h-3.5 w-3.5 mr-1" style={{ color: '#030F35' }} /> : null}
                 {chip.label}
               </span>;
           })}
@@ -213,7 +221,14 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       {/* Card Footer - with two buttons */}
       <div className="mt-auto border-t border-gray-100 p-4 pt-5">
         <div className="flex justify-between gap-2">
-          <button onClick={handleViewDetails} className="px-4 py-2 text-sm font-medium text-blue-600 bg-white border border-blue-600 rounded-md hover:bg-blue-50 transition-colors whitespace-nowrap min-w-[120px] flex-1">
+          <button 
+            onClick={handleViewDetails} 
+            className="px-4 py-2 text-sm font-medium bg-white border rounded-md hover:opacity-90 transition-colors whitespace-nowrap min-w-[120px] flex-1"
+            style={{ 
+              color: '#030F35',
+              borderColor: '#030F35'
+            }}
+          >
             {config.secondaryCTA}
           </button>
           <button 

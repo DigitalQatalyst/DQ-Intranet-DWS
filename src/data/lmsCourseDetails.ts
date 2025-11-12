@@ -8,7 +8,7 @@ const allowedLocations = new Set<string>(LOCATION_ALLOW as readonly string[]);
 
 const cleanLocations = (values?: string[]) => {
   const list = (values || []).filter(value => allowedLocations.has(value));
-  return list.length ? list : ['Global'];
+  return list.length ? list : ['Riyadh'];
 };
 
 const LEVEL_CODE_SET = new Set<LevelCode>(LEVELS.map(level => level.code));
@@ -114,7 +114,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
     duration: 'Short',
     levelCode: L('L1'),
     department: ['DCO'],
-    locations: ['Global'],
+    locations: ['Riyadh'],
     audience: ['Associate', 'Lead'],
     status: 'live',
     courseType: 'Course (Single Lesson)',
@@ -201,7 +201,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
     duration: 'Short',
     levelCode: L('L2'),
     department: ['DCO'],
-    locations: ['Global'],
+    locations: ['Riyadh'],
     audience: ['Associate'],
     status: 'live',
     courseType: 'Course (Multi-Lessons)',
@@ -375,7 +375,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
     duration: 'Medium',
     levelCode: L('L3'),
     department: ['DBP'],
-    locations: ['Global'],
+    locations: ['Riyadh'],
     audience: ['Associate', 'Lead'],
     status: 'live',
     courseType: 'Course (Multi-Lessons)',
@@ -693,7 +693,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
     duration: 'Medium',
     levelCode: L('L1'),
     department: ['DCO'],
-    locations: ['Global'],
+    locations: ['Riyadh'],
     audience: ['Associate'],
     status: 'live',
     courseType: 'Course (Multi-Lessons)',
@@ -831,7 +831,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
     duration: 'Short',
     levelCode: L('L2'),
     department: ['DCO', 'DBP'],
-    locations: ['Global'],
+    locations: ['Riyadh'],
     audience: ['Associate', 'Lead'],
     status: 'live',
     courseType: 'Course (Single Lesson)',
@@ -876,7 +876,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
     duration: 'Long',
     levelCode: L('L3'),
     department: ['DCO'],
-    locations: ['Global'],
+    locations: ['Riyadh'],
     audience: ['Lead'],
     status: 'live',
     courseType: 'Course (Bundles)',
@@ -1051,7 +1051,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
     duration: 'Long',
     levelCode: L('L1'),
     department: ['DCO'],
-    locations: ['Global'],
+    locations: ['Riyadh'],
     audience: ['Associate'],
     status: 'live',
     courseType: 'Course (Bundles)',

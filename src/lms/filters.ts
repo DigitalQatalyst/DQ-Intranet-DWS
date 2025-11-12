@@ -80,12 +80,12 @@ export const applyFilters = <
   items.filter(item => {
     const locations = item.locations && item.locations.length
       ? item.locations
-      : ['Global'];
+      : ['Riyadh'];
     const locationMatches =
       !facets.location?.length ||
       locations.some(location => {
-        if (location === 'Global') {
-          // Global courses should match any selected location
+        if (location === 'Riyadh') {
+          // Riyadh courses should match any selected location
           return true;
         }
         return facets.location?.includes(location);
