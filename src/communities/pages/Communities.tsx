@@ -246,7 +246,7 @@ export default function Communities() {
       subtitle="Find and join communities to connect with other associates within the organization."
       fullWidth={false}
       hidePageLayout={true}>
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-6">
+      <div className="max-w-7xl mx-auto pl-0 pr-1 sm:pl-0 sm:pr-2 lg:pl-0 lg:pr-3 pt-2 pb-6">
         {/* Breadcrumbs */}
         <nav className="flex mb-4" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">

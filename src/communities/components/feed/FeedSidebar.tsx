@@ -65,7 +65,7 @@ export function FeedSidebar({
   const fetchUpcomingEvents = async () => {
     const {
       data
-    } = await supabase.from('events').select('*').gte('event_date', new Date().toISOString().split('T')[0]).order('event_date', {
+    } = await supabase.from('events_v2').select('*').eq('status', 'published').gte('start_time', new Date().toISOString()).order('start_time', {
       ascending: true
     }).limit(3);
     if (data) {

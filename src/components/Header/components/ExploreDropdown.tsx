@@ -62,13 +62,13 @@ const marketplaces: Marketplace[] = [
     icon: TrendingUpIcon,
     href: '/marketplace/investment',
   },
-  {
-    id: 'calendar',
-    name: 'Calendar & Events',
-    description: 'Digital platform that connects event organizers with attendees, vendors, and service providers.',
-    icon: CalendarIcon,
-    href: '/events',
-  },
+  // {
+  //   id: 'calendar',
+  //   name: 'Calendar & Events',
+  //   description: 'Digital platform that connects event organizers with attendees, vendors, and service providers.',
+  //   icon: CalendarIcon,
+  //   href: '/events',
+  // },
   {
     id: 'guidelines',
     name: 'Guidelines Marketplace',

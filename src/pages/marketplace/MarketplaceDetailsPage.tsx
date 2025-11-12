@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { BookmarkIcon, ScaleIcon, Clock, Calendar, DollarSign, MapPin, ArrowLeftIcon, StarIcon, CheckCircleIcon, ExternalLinkIcon, ChevronRightIcon, HomeIcon, FileText, BuildingIcon, ChevronLeft, ChevronRight, MoreHorizontal, XIcon, Target, Award, TrendingUp, BookOpen } from 'lucide-react';
+import { BookmarkIcon, ScaleIcon, Clock, Calendar, DollarSign, MapPin, ArrowLeftIcon, StarIcon, CheckCircleIcon, ExternalLinkIcon, ChevronRightIcon, HomeIcon, FileText, BuildingIcon, ChevronLeft, ChevronRight, MoreHorizontal, XIcon, Target, Award, TrendingUp, BookOpen, Users } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
@@ -345,6 +345,20 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   value and can implement effective solutions for your specific
                   business needs.
                 </p>}
+              {marketplaceType === 'events' && <div className="space-y-4">
+                  {item.meetingLink && <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                      <h4 className="font-semibold text-blue-900 mb-2">Join Online</h4>
+                      <a href={item.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                        {item.meetingLink}
+                      </a>
+                    </div>}
+                  {item.registrationRequired && <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+                      <p className="text-amber-900">
+                        <strong>Registration Required:</strong> Please register to attend this event.
+                        {item.registrationDeadline && ` Registration deadline: ${new Date(item.registrationDeadline).toLocaleDateString()}`}
+                      </p>
+                    </div>}
+                </div>}
             </div>
             {/* Key Highlights Section - Unified layout for all marketplace types */}
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -478,6 +492,75 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             </div>
           </div>;
       case 'eligibility_terms':
+        // For events, show event details instead of eligibility/terms
+        if (marketplaceType === 'events') {
+          return <div className="space-y-6">
+              <p className="text-gray-600 text-lg mb-6">
+                Event details and important information.
+              </p>
+              {/* Event Details Section */}
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  Event Information
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-start">
+                    <Calendar className="text-blue-600 mr-3 mt-1 flex-shrink-0" size={20} />
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Date & Time</h4>
+                      <p className="text-gray-700">{item.date}</p>
+                      {item.time && <p className="text-gray-700">{item.time}</p>}
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <MapPin className="text-blue-600 mr-3 mt-1 flex-shrink-0" size={20} />
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Location</h4>
+                      <p className="text-gray-700">{item.location}</p>
+                      {item.isVirtual && item.meetingLink && <a href={item.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline text-sm mt-1 block">
+                          Join Meeting Link
+                        </a>}
+                    </div>
+                  </div>
+                  {item.capacity && <div className="flex items-start">
+                      <Users className="text-blue-600 mr-3 mt-1 flex-shrink-0" size={20} />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Capacity</h4>
+                        <p className="text-gray-700">{item.capacity}</p>
+                      </div>
+                    </div>}
+                  {item.registrationRequired && <div className="flex items-start">
+                      <CheckCircleIcon className="text-green-600 mr-3 mt-1 flex-shrink-0" size={20} />
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Registration</h4>
+                        <p className="text-gray-700">Registration is required for this event</p>
+                        {item.registrationDeadline && <p className="text-gray-600 text-sm mt-1">
+                            Deadline: {new Date(item.registrationDeadline).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit'
+                          })}
+                          </p>}
+                      </div>
+                    </div>}
+                </div>
+              </div>
+              {/* Tags Section */}
+              {item.tags && item.tags.length > 0 && <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">
+                    Event Tags
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {item.tags.map((tag: string, index: number) => <span key={index} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                        {tag}
+                      </span>)}
+                  </div>
+                </div>}
+            </div>;
+        }
+        // For other marketplace types, show eligibility/terms
         return <div className="space-y-6">
             <p className="text-gray-600 text-lg mb-6">
               Review eligibility requirements and terms & conditions for this
@@ -564,6 +647,76 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             </div>
           </div>;
       case 'application_process':
+        // For events, show registration process
+        if (marketplaceType === 'events') {
+          return <div className="space-y-6">
+              <p className="text-gray-600 text-lg mb-6">
+                How to register for this event.
+              </p>
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="space-y-3">
+                  {item.registrationRequired ? <>
+                      <div className="flex items-start gap-3">
+                        <span className="text-gray-500 font-medium">1.</span>
+                        <div>
+                          <h4 className="font-medium text-gray-900">
+                            Click Register Now
+                          </h4>
+                          <p className="text-gray-600 text-sm mt-1">
+                            Use the "Register Now" button above to begin your registration.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <span className="text-gray-500 font-medium">2.</span>
+                        <div>
+                          <h4 className="font-medium text-gray-900">
+                            Complete Registration Form
+                          </h4>
+                          <p className="text-gray-600 text-sm mt-1">
+                            Fill out your details and confirm your attendance.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <span className="text-gray-500 font-medium">3.</span>
+                        <div>
+                          <h4 className="font-medium text-gray-900">
+                            Receive Confirmation
+                          </h4>
+                          <p className="text-gray-600 text-sm mt-1">
+                            You'll receive a confirmation email with event details and {item.meetingLink ? 'meeting link' : 'location information'}.
+                          </p>
+                        </div>
+                      </div>
+                      {item.registrationDeadline && <div className="mt-4 bg-amber-50 rounded-lg p-3 border border-amber-200">
+                          <p className="text-amber-900 text-sm">
+                            <strong>Registration Deadline:</strong> {new Date(item.registrationDeadline).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit'
+                          })}
+                          </p>
+                        </div>}
+                    </> : <div className="text-center py-8">
+                      <CheckCircleIcon className="text-green-500 mx-auto mb-4" size={48} />
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        No Registration Required
+                      </h4>
+                      <p className="text-gray-600 text-sm">
+                        This event is open to all. Simply join at the scheduled time.
+                        {item.meetingLink && <a href={item.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline block mt-2">
+                            Access Meeting Link
+                          </a>}
+                      </p>
+                    </div>}
+                </div>
+              </div>
+            </div>;
+        }
+        // For other marketplace types, show application process
         return <div className="space-y-6">
             <p className="text-gray-600 text-lg mb-6">
               Follow these simple steps to complete your application.
@@ -624,6 +777,48 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             </div>
           </div>;
       case 'required_documents':
+        // For events, show "What to Bring"
+        if (marketplaceType === 'events') {
+          return <div className="space-y-6">
+              <p className="text-gray-600 text-lg mb-6">
+                What you might need to bring or prepare for this event.
+              </p>
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  What to Bring
+                </h3>
+                {item.requiredDocuments && item.requiredDocuments.length > 0 ? <div className="grid md:grid-cols-2 gap-3">
+                    {item.requiredDocuments.map((doc: string, index: number) => <div key={index} className="flex items-start">
+                        <FileText size={16} className="text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700">{doc}</span>
+                      </div>)}
+                  </div> : <div className="space-y-3">
+                    <div className="flex items-start">
+                      <CheckCircleIcon size={16} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+                      <span className="text-gray-700">
+                        {item.isVirtual ? 'A device with internet connection and the meeting link' : 'Just yourself - no special items required'}
+                      </span>
+                    </div>
+                    {item.meetingLink && <div className="flex items-start">
+                        <CheckCircleIcon size={16} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          Meeting link will be provided after registration
+                        </span>
+                      </div>}
+                    {!item.isVirtual && <div className="flex items-start">
+                        <CheckCircleIcon size={16} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+                        <span className="text-gray-700">
+                          Arrive 10-15 minutes early for check-in
+                        </span>
+                      </div>}
+                  </div>}
+                {item.registrationRequired && <div className="mt-6 text-sm text-gray-700 bg-blue-50 p-3 rounded border border-blue-100">
+                    <span className="font-medium text-blue-800">Note:</span> Make sure you've completed registration before the event. You'll receive a confirmation email with all the details.
+                  </div>}
+              </div>
+            </div>;
+        }
+        // For other marketplace types, show required documents
         return <div className="space-y-6">
             <p className="text-gray-600 text-lg mb-6">
               Prepare these documents to support your application and ensure a
@@ -671,6 +866,50 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             </div>
           </div>;
       case 'provider':
+        // For events, show organizer information
+        if (marketplaceType === 'events') {
+          return <div className="space-y-6">
+              <p className="text-gray-600 text-lg mb-6">
+                Learn more about the event organizer.
+              </p>
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
+                  <img src={provider.logoUrl} alt={provider.name} className="h-16 w-16 object-contain rounded-lg" />
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      {provider.name}
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      Event Organizer
+                    </p>
+                  </div>
+                </div>
+                <p className="text-gray-700 mb-6">
+                  {provider.description || `${provider.name} is organizing this event.`}
+                </p>
+                {item.organizerEmail && <div className="mb-4">
+                    <h4 className="text-md font-semibold text-gray-900 mb-2">
+                      Contact Information
+                    </h4>
+                    <a href={`mailto:${item.organizerEmail}`} className="text-blue-600 hover:text-blue-800 transition-colors flex items-center">
+                      {item.organizerEmail}
+                      <ExternalLinkIcon size={16} className="ml-1" />
+                    </a>
+                  </div>}
+                {item.tags && item.tags.length > 0 && <div>
+                    <h4 className="text-md font-semibold text-gray-900 mb-3">
+                      Event Categories
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {item.tags.map((tag: string, index: number) => <span key={index} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                          {tag}
+                        </span>)}
+                    </div>
+                  </div>}
+              </div>
+            </div>;
+        }
+        // For other marketplace types, show provider information
         return <div className="space-y-6">
             <p className="text-gray-600 text-lg mb-6">
               Learn more about the provider and their expertise in this field.

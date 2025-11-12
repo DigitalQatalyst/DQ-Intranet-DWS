@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from './FilterSidebar.js';
 import { MarketplaceGrid } from './MarketplaceGrid.js';
 import { SearchBar } from '../SearchBar.js';
@@ -153,6 +153,246 @@ const parseFilterValues = (params: URLSearchParams, key: string): string[] =>
     .map((value) => value.trim())
     .filter(Boolean);
 
+// Interface for Supabase event data from upcoming_events view
+interface UpcomingEventView {
+  id: string;
+  title: string;
+  description: string | null;
+  start_time: string;
+  end_time: string;
+  category: string;
+  location: string;
+  image_url: string | null;
+  meeting_link: string | null;
+  is_virtual: boolean;
+  is_all_day: boolean;
+  max_attendees: number | null;
+  registration_required: boolean;
+  registration_deadline: string | null;
+  organizer_id: string;
+  organizer_name: string | null;
+  organizer_email: string | null;
+  status: string;
+  is_featured: boolean;
+  tags: string[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Interface for Supabase events_v2 table (actual schema)
+interface EventsTableRow {
+  id: string;
+  title: string;
+  description: string | null;
+  start_time: string; // TIMESTAMPTZ format
+  end_time: string; // TIMESTAMPTZ format
+  category: string;
+  location: string;
+  image_url: string | null;
+  meeting_link: string | null;
+  is_virtual: boolean;
+  is_all_day: boolean;
+  max_attendees: number | null;
+  registration_required: boolean;
+  registration_deadline: string | null;
+  organizer_id: string | null;
+  organizer_name: string | null;
+  organizer_email: string | null;
+  status: string;
+  is_featured: boolean;
+  tags: string[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Interface for events stored in posts table
+interface PostEventRow {
+  id: string;
+  title: string;
+  content: string | null;
+  description?: string | null;
+  event_date: string | null; // TIMESTAMPTZ format
+  event_location: string | null;
+  post_type: string;
+  community_id: string | null;
+  created_by: string | null;
+  created_at: string;
+  tags?: string[] | null;
+}
+
+// Union type for all event sources
+type SupabaseEvent = UpcomingEventView | EventsTableRow | PostEventRow;
+
+// Interface for marketplace event format
+interface MarketplaceEvent {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  eventType: string;
+  businessStage: string;
+  provider: {
+    name: string;
+    logoUrl: string;
+    description?: string;
+  };
+  date: string;
+  time?: string;
+  location: string;
+  price: string;
+  capacity?: string;
+  details?: string[];
+  tags: string[];
+  imageUrl?: string;
+  isVirtual?: boolean; // Added for filtering
+  startTime?: string; // Added for duration calculation
+  endTime?: string; // Added for duration calculation
+  // Preserve original database fields for exact filtering
+  _raw?: {
+    category: string;
+    is_virtual: boolean;
+    start_time: string;
+    end_time: string;
+    location: string;
+    status: string;
+  };
+}
+
+// Transform Supabase event to marketplace event format
+const transformEventToMarketplace = (event: SupabaseEvent): MarketplaceEvent => {
+  let startDate: Date;
+  let endDate: Date;
+  let category: string;
+  let location: string;
+  let description: string;
+  let imageUrl: string | null = null;
+  let tags: string[] = [];
+  let organizerName: string | null = null;
+  let maxAttendees: number | null = null;
+  let isVirtual: boolean = false;
+
+  // Check event type and extract data accordingly
+  if ('start_time' in event && 'end_time' in event) {
+    // Event from events_v2 table or upcoming_events view (both have same structure)
+    const evt = event as UpcomingEventView | EventsTableRow;
+    startDate = new Date(evt.start_time);
+    endDate = new Date(evt.end_time);
+    category = evt.category || "General";
+    location = evt.location || "TBA";
+    description = evt.description || "";
+    imageUrl = evt.image_url;
+    tags = evt.tags || [];
+    organizerName = evt.organizer_name;
+    maxAttendees = evt.max_attendees;
+    isVirtual = evt.is_virtual;
+    
+    // If virtual and has meeting link, append it to location
+    if (isVirtual && evt.meeting_link) {
+      location = location.includes('Virtual') ? location : `Virtual - ${location}`;
+    }
+  } else if ('post_type' in event && event.post_type === 'event') {
+    // Event from posts table (legacy format)
+    const evt = event as PostEventRow;
+    if (evt.event_date) {
+      startDate = new Date(evt.event_date);
+    } else {
+      startDate = new Date(evt.created_at);
+    }
+    endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // Default 1 hour
+    category = evt.community_id ? "Community" : "General";
+    location = evt.event_location || "TBA";
+    description = evt.content || evt.description || "";
+    tags = evt.tags || [];
+  } else {
+    // Fallback - should not happen with current schema
+    console.warn("Unknown event format:", event);
+    startDate = new Date();
+    endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
+    category = "General";
+    location = "TBA";
+    description = "";
+  }
+
+  // Format date and time
+  const dateStr = startDate.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  
+  // Format time range if we have end time
+  let timeStr: string;
+  if ('start_time' in event && 'end_time' in event) {
+    const startTime = startDate.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+    const endTime = endDate.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+    timeStr = `${startTime} - ${endTime}`;
+  } else {
+    timeStr = startDate.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+  }
+
+  // Determine event type from category
+  const eventType = category || "General";
+  
+  // Default business stage
+  const businessStage = "All Stages";
+
+  // Use organizer name if available, otherwise default
+  const provider = {
+    name: organizerName || "DQ Events",
+    logoUrl: "/DWS-Logo.png",
+    description: organizerName ? `${organizerName} Events` : "Digital Qatalyst Events"
+  };
+
+  // Default price (could be enhanced to check for pricing info)
+  const price = "Free";
+
+  // Build capacity string if available
+  const capacity = maxAttendees ? `${maxAttendees} attendees` : undefined;
+
+  // Preserve original database fields for exact filtering
+  const rawFields = 'start_time' in event && 'end_time' in event ? {
+    category: (event as EventsTableRow | UpcomingEventView).category,
+    is_virtual: (event as EventsTableRow | UpcomingEventView).is_virtual,
+    start_time: (event as EventsTableRow | UpcomingEventView).start_time,
+    end_time: (event as EventsTableRow | UpcomingEventView).end_time,
+    location: (event as EventsTableRow | UpcomingEventView).location,
+    status: (event as EventsTableRow | UpcomingEventView).status,
+  } : undefined;
+
+  return {
+    id: event.id,
+    title: event.title,
+    description,
+    category,
+    eventType,
+    businessStage,
+    provider,
+    date: dateStr,
+    time: timeStr,
+    location,
+    price,
+    capacity,
+    tags,
+    imageUrl: imageUrl || undefined,
+    isVirtual: isVirtual, // Include for filtering
+    startTime: 'start_time' in event ? event.start_time : undefined, // Include for duration calculation
+    endTime: 'start_time' in event ? ('end_time' in event ? event.end_time : undefined) : undefined, // Include for duration calculation
+    _raw: rawFields, // Preserve exact database column names for filtering
+  };
+};
+
 export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   marketplaceType,
   title: _title,
@@ -165,6 +405,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const isEvents = marketplaceType === 'events';
   
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getMarketplaceConfig(marketplaceType);
 
@@ -331,13 +572,290 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         return;
       }
 
-      // EVENTS: use fallback data (no API)
+      // EVENTS: fetch from Supabase
       if (isEvents) {
-        const fallbackItems = getFallbackItems(marketplaceType);
-        setItems(fallbackItems);
-        setFilteredItems(fallbackItems);
-        setTotalCount(fallbackItems.length);
-        setLoading(false);
+        setLoading(true);
+        try {
+          let data: SupabaseEvent[] | null = null;
+          let error: any = null;
+
+          // Strategy 1: Try to fetch from events_v2 table directly (primary source)
+          // The events_v2 table has start_time and end_time columns (TIMESTAMPTZ)
+          try {
+            const now = new Date().toISOString();
+            let eventsQuery = supabaseClient
+              .from("events_v2")
+              .select("*")
+              .eq("status", "published") // Only get published events
+              .gte("start_time", now); // Only get future events
+
+            // Apply backend filters based on activeFilters
+            if (activeFilters.length > 0 && filterConfig.length > 0) {
+              // Group filters by category
+              const filtersByCategory: Record<string, string[]> = {};
+              
+              activeFilters.forEach(filterName => {
+                const category = filterConfig.find(c => 
+                  c.options.some(opt => opt.name === filterName)
+                );
+                if (category) {
+                  if (!filtersByCategory[category.id]) {
+                    filtersByCategory[category.id] = [];
+                  }
+                  filtersByCategory[category.id].push(filterName);
+                }
+              });
+
+              // Apply event-type filter (maps to category column)
+              // Use exact filter names: Webinar, Workshop, Seminar, Panel, Conference, Networking, Competition, Pitch Day
+              if (filtersByCategory['event-type'] && filtersByCategory['event-type'].length > 0) {
+                // Map exact filter names to database category values
+                const categoryMap: Record<string, string> = {
+                  'Webinar': 'Training',
+                  'Workshop': 'Training',
+                  'Seminar': 'Training',
+                  'Panel': 'Internal',
+                  'Conference': 'Launches',
+                  'Networking': 'Internal',
+                  'Competition': 'Internal',
+                  'Pitch Day': 'Launches'
+                };
+                
+                // Use exact filter names (case-sensitive)
+                const categoryValues = filtersByCategory['event-type']
+                  .map(name => {
+                    // Match exact filter name
+                    return categoryMap[name] || null;
+                  })
+                  .filter((value): value is string => value !== null);
+                
+                if (categoryValues.length > 0) {
+                  // Use exact database column name: category
+                  eventsQuery = eventsQuery.in('category', categoryValues);
+                }
+              }
+
+              // Apply delivery-mode filter (maps to is_virtual column)
+              // Use exact filter names: Onsite, Online, Hybrid
+              if (filtersByCategory['delivery-mode'] && filtersByCategory['delivery-mode'].length > 0) {
+                const deliveryModes = filtersByCategory['delivery-mode'];
+                
+                // Use exact filter names (case-sensitive)
+                const hasOnline = deliveryModes.includes('Online');
+                const hasOnsite = deliveryModes.includes('Onsite');
+
+                // If only one mode selected, apply backend filter using exact database column name: is_virtual
+                if (deliveryModes.length === 1) {
+                  if (hasOnline) {
+                    // Online = is_virtual = true
+                    eventsQuery = eventsQuery.eq('is_virtual', true);
+                  } else if (hasOnsite) {
+                    // Onsite = is_virtual = false
+                    eventsQuery = eventsQuery.eq('is_virtual', false);
+                  }
+                  // Hybrid requires client-side filtering (checking both is_virtual and location for hybrid indicators)
+                }
+                // If multiple modes selected, we'll filter client-side for OR logic
+              }
+
+              // Apply duration-band filter (calculate from start_time and end_time)
+              if (filtersByCategory['duration-band'] && filtersByCategory['duration-band'].length > 0) {
+                // Duration filtering requires calculating duration from start_time and end_time
+                // This is complex to do in Supabase, so we'll filter client-side
+                // The duration is calculated in the transformation function
+              }
+
+              // Apply time-range filter
+              // Use exact filter names: Today, This Week, Next 30 Days, Custom Date Range
+              // Use exact database column name: start_time
+              if (filtersByCategory['time-range'] && filtersByCategory['time-range'].length > 0) {
+                const timeRange = filtersByCategory['time-range'][0]; // Take first selected
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                // Use exact filter names (case-sensitive)
+                if (timeRange === 'Today') {
+                  const tomorrow = new Date(today);
+                  tomorrow.setDate(tomorrow.getDate() + 1);
+                  eventsQuery = eventsQuery
+                    .gte('start_time', today.toISOString())
+                    .lt('start_time', tomorrow.toISOString());
+                } else if (timeRange === 'This Week') {
+                  const nextWeek = new Date(today);
+                  nextWeek.setDate(nextWeek.getDate() + 7);
+                  eventsQuery = eventsQuery
+                    .gte('start_time', today.toISOString())
+                    .lt('start_time', nextWeek.toISOString());
+                } else if (timeRange === 'Next 30 Days') {
+                  const next30Days = new Date(today);
+                  next30Days.setDate(next30Days.getDate() + 30);
+                  eventsQuery = eventsQuery
+                    .gte('start_time', today.toISOString())
+                    .lte('start_time', next30Days.toISOString());
+                } else if (timeRange === 'Custom Date Range') {
+                  // Custom date range would need additional UI/state to get start and end dates
+                  // For now, apply no additional filter (shows all future events)
+                }
+              }
+            }
+
+            // Apply ordering
+            eventsQuery = eventsQuery.order("start_time", { ascending: true });
+
+            const eventsResult = await eventsQuery;
+
+            if (!eventsResult.error && eventsResult.data && eventsResult.data.length > 0) {
+              data = eventsResult.data;
+              console.log(`✅ Successfully fetched ${eventsResult.data.length} events from events_v2 table (with backend filters applied)`);
+            } else if (eventsResult.error) {
+              // If error, log detailed information
+              console.error("❌ Error fetching from events_v2 table:", {
+                message: eventsResult.error.message,
+                code: eventsResult.error.code,
+                details: eventsResult.error.details,
+                hint: eventsResult.error.hint
+              });
+              
+              // Check for specific error codes
+              if (eventsResult.error.code === '42501' || eventsResult.error.code === 'PGRST301') {
+                console.error("🔒 Permission denied - RLS policy may be blocking access. Check RLS policies on events_v2 table.");
+              } else if (eventsResult.error.code === 'PGRST116') {
+                console.warn("⚠️ No rows returned - this might be expected if no events match criteria");
+              }
+              
+              throw eventsResult.error;
+            } else {
+              console.warn("⚠️ events_v2 table returned no data (empty array)");
+              throw new Error("events_v2 table returned no data");
+            }
+          } catch (eventsError: any) {
+            // Strategy 2: Try upcoming_events view as fallback
+            console.log("events_v2 table query failed, trying upcoming_events view...");
+            
+            try {
+              const now = new Date().toISOString();
+              const viewQuery = await supabaseClient
+                .from("upcoming_events")
+                .select("*")
+                .eq("status", "published") // Only get published events
+                .gte("start_time", now) // Only get future events
+                .order("start_time", { ascending: true });
+
+              if (!viewQuery.error && viewQuery.data && viewQuery.data.length > 0) {
+                data = viewQuery.data;
+                console.log(`Fetched ${viewQuery.data.length} events from upcoming_events view`);
+              } else if (viewQuery.error) {
+                throw viewQuery.error;
+              } else {
+                throw new Error("View returned no data");
+              }
+            } catch (viewError: any) {
+              // Strategy 3: Try posts table as last resort
+              console.log("upcoming_events view failed, trying posts table...");
+              error = viewError;
+
+              // Strategy 3: Fetch from posts table where post_type = 'event' (last resort)
+              try {
+                const now = new Date().toISOString();
+                const postsQuery = await supabaseClient
+                  .from("posts")
+                  .select("id, title, content, event_date, event_location, post_type, community_id, created_by, created_at, tags, status")
+                  .eq("post_type", "event")
+                  .eq("status", "active") // Required for RLS policy
+                  .not("event_date", "is", null)
+                  .gte("event_date", now) // Only get future events
+                  .order("event_date", { ascending: true });
+
+                if (!postsQuery.error && postsQuery.data && postsQuery.data.length > 0) {
+                  // Transform posts to match our event interface
+                  data = postsQuery.data.map((post: any) => ({
+                    id: post.id,
+                    title: post.title,
+                    content: post.content,
+                    description: post.content,
+                    event_date: post.event_date,
+                    event_location: post.event_location,
+                    post_type: post.post_type,
+                    community_id: post.community_id,
+                    created_by: post.created_by,
+                    created_at: post.created_at,
+                    tags: post.tags,
+                  })) as PostEventRow[];
+                  error = null;
+                  console.log(`Fetched ${postsQuery.data.length} events from posts table`);
+                } else {
+                  if (postsQuery.error) {
+                    console.warn("Could not fetch events from posts table:", postsQuery.error.message);
+                    throw postsQuery.error;
+                  } else {
+                    console.log("No events found in posts table");
+                    throw new Error("Posts table returned no data");
+                  }
+                }
+              } catch (postsError: any) {
+                // Check if it's a permission error (42501) or other error
+                if (postsError?.code === '42501' || postsError?.code === 'PGRST301') {
+                  console.warn("Permission denied accessing posts table. Events from posts may not be available.");
+                  error = postsError;
+                } else {
+                  error = postsError;
+                  console.error("Error fetching events from posts table:", postsError);
+                }
+              }
+            }
+          }
+
+          // Handle errors gracefully
+          if (error && (!data || data.length === 0)) {
+            if (error?.code === '42501' || error?.code === 'PGRST301') {
+              console.warn("Permission denied: Events may require authentication or proper RLS policies.", error);
+            } else if (error?.code === 'PGRST116') {
+              console.warn("No rows returned from query. This might be expected if no events match the criteria.", error);
+            } else {
+              console.error("Error fetching events:", error);
+              console.error("Error details:", {
+                message: error?.message,
+                code: error?.code,
+                details: error?.details,
+                hint: error?.hint
+              });
+            }
+            // Fallback to empty state or mock data
+            const fallbackItems = getFallbackItems(marketplaceType);
+            setItems(fallbackItems);
+            setFilteredItems(fallbackItems);
+            setTotalCount(fallbackItems.length);
+            setLoading(false);
+            return;
+          }
+
+          if (!data || data.length === 0) {
+            console.log("No events found in Supabase - using fallback data");
+            // Fallback to mock data if no events found
+            const fallbackItems = getFallbackItems(marketplaceType);
+            setItems(fallbackItems);
+            setFilteredItems(fallbackItems);
+            setTotalCount(fallbackItems.length);
+            setLoading(false);
+            return;
+          }
+
+          // Transform Supabase data to marketplace format
+          const marketplaceEvents = data.map(transformEventToMarketplace);
+
+          setItems(marketplaceEvents);
+          setFilteredItems(marketplaceEvents);
+          setTotalCount(marketplaceEvents.length);
+        } catch (err) {
+          console.error("Error in fetchEvents:", err);
+          // Fallback to mock data on error
+          const fallbackItems = getFallbackItems(marketplaceType);
+          setItems(fallbackItems);
+          setFilteredItems(fallbackItems);
+          setTotalCount(fallbackItems.length);
+        } finally {
+          setLoading(false);
+        }
         return;
       }
 
@@ -546,7 +1064,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
     run();
     // Keep deps lean; no need to include functions like isGuides
-  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isKnowledgeHub, isEvents, currentPage, pageSize]);
+  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isKnowledgeHub, isEvents, currentPage, pageSize, activeFilters, filterConfig]);
 
   // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
@@ -608,54 +1126,126 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     setActiveFilters([]);
   }, []);
 
-  // Apply filters and search to events (similar to knowledge-hub)
+  // Apply search filter to events (backend filters already applied, only search remains client-side)
   useEffect(() => {
     if (!isEvents) return;
     
     let filtered = [...items];
     
-    // Apply search filter
+    // Apply search filter (client-side as it searches across multiple fields)
+    // Use exact database column names where possible: category, location
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(item => 
-        item.title?.toLowerCase().includes(query) ||
-        item.description?.toLowerCase().includes(query) ||
-        item.category?.toLowerCase().includes(query) ||
-        item.eventType?.toLowerCase().includes(query) ||
-        item.location?.toLowerCase().includes(query) ||
-        (item.tags && item.tags.some((tag: string) => tag.toLowerCase().includes(query)))
-      );
+      filtered = filtered.filter(item => {
+        // Use exact database column names: category, location
+        const category = item._raw?.category ?? item.category ?? '';
+        const location = item._raw?.location ?? item.location ?? '';
+        
+        return item.title?.toLowerCase().includes(query) ||
+          item.description?.toLowerCase().includes(query) ||
+          category.toLowerCase().includes(query) ||
+          item.eventType?.toLowerCase().includes(query) ||
+          location.toLowerCase().includes(query) ||
+          (item.tags && item.tags.some((tag: string) => tag.toLowerCase().includes(query)));
+      });
     }
     
-    // Apply active filters
+    // Note: Backend filters are now applied in the Supabase query above
+    // Only complex OR conditions (like multiple delivery modes, hybrid, duration) need client-side filtering
     if (activeFilters.length > 0 && filterConfig.length > 0) {
-      filtered = filtered.filter(item => {
-        return activeFilters.every(filterName => {
-          // Check if filter matches any item property
-          const category = filterConfig.find(c => 
-            c.options.some(opt => opt.name === filterName)
-          );
-          if (!category) return true;
-          
-          // Match based on category type
-          switch (category.id) {
-            case 'event-type':
-              return item.eventType === filterName || item.category === filterName;
-            case 'delivery-mode':
-              return item.location?.toLowerCase().includes(filterName.toLowerCase()) || 
-                     (filterName.toLowerCase() === 'online' && item.location?.toLowerCase().includes('online'));
-            case 'cost-type':
-              const price = item.price?.toLowerCase() || '';
-              if (filterName === 'Free') return price.includes('free') || price === '0';
-              if (filterName === 'Paid') return !price.includes('free') && price !== '0';
-              return true;
-            case 'business-stage':
-              return item.businessStage === filterName;
-            default:
-              return true;
+      // Group filters by category for client-side filtering
+      const filtersByCategory: Record<string, string[]> = {};
+      
+      activeFilters.forEach(filterName => {
+        const category = filterConfig.find(c => 
+          c.options.some(opt => opt.name === filterName)
+        );
+        if (category) {
+          if (!filtersByCategory[category.id]) {
+            filtersByCategory[category.id] = [];
           }
-        });
+          filtersByCategory[category.id].push(filterName);
+        }
       });
+
+      // Apply delivery-mode filter for multiple selections or hybrid
+      // Use exact filter names: Onsite, Online, Hybrid
+      // Use exact database column name: is_virtual
+      const deliveryModeCategory = filterConfig.find(c => c.id === 'delivery-mode');
+      if (deliveryModeCategory && filtersByCategory['delivery-mode']) {
+        const selectedDeliveryModes = filtersByCategory['delivery-mode'];
+        
+        // If multiple delivery modes selected or hybrid, apply OR logic client-side
+        if (selectedDeliveryModes.length > 1 || selectedDeliveryModes.includes('Hybrid')) {
+          filtered = filtered.filter(item => {
+            // Use exact database column name: is_virtual
+            const is_virtual = item._raw?.is_virtual ?? item.isVirtual ?? false;
+            const location = item._raw?.location ?? item.location ?? '';
+            const locationLower = location.toLowerCase();
+            
+            // Check for virtual indicators in location if is_virtual is not set
+            const isVirtual = is_virtual || 
+                            locationLower.includes('virtual') || 
+                            locationLower.includes('online') ||
+                            locationLower.includes('zoom') ||
+                            locationLower.includes('teams');
+            const isOnsite = !isVirtual && location && location !== 'TBA';
+            const isHybrid = isVirtual && isOnsite;
+            
+            // Use exact filter names (case-sensitive)
+            return selectedDeliveryModes.some(mode => {
+              if (mode === 'Online') {
+                return isVirtual || isHybrid;
+              }
+              if (mode === 'Onsite') {
+                return isOnsite || isHybrid;
+              }
+              if (mode === 'Hybrid') {
+                return isHybrid;
+              }
+              return false;
+            });
+          });
+        }
+      }
+
+      // Apply duration-band filter (client-side as it requires duration calculation)
+      // Use exact filter names: Short (≤ 1 hr), Medium (1 – 3 hrs), Long (> 3 hrs), Multi-Day
+      // Use exact database column names: start_time, end_time
+      if (filtersByCategory['duration-band'] && filtersByCategory['duration-band'].length > 0) {
+        filtered = filtered.filter(item => {
+          // Use exact database column names: start_time, end_time
+          const start_time = item._raw?.start_time ?? item.startTime;
+          const end_time = item._raw?.end_time ?? item.endTime;
+          
+          if (!start_time || !end_time) {
+            return false; // Skip items without time information
+          }
+          
+          const start = new Date(start_time);
+          const end = new Date(end_time);
+          const durationMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+          const durationHours = durationMinutes / 60;
+          const durationDays = durationHours / 24;
+          
+          // Use exact filter names (case-sensitive)
+          return filtersByCategory['duration-band'].some(band => {
+            if (band === 'Short (≤ 1 hr)') {
+              return durationHours <= 1;
+            }
+            if (band === 'Medium (1 – 3 hrs)') {
+              return durationHours > 1 && durationHours <= 3;
+            }
+            if (band === 'Long (> 3 hrs)') {
+              return durationHours > 3 && durationDays < 1;
+            }
+            if (band === 'Multi-Day') {
+              return durationDays >= 1;
+            }
+            return false;
+          });
+        });
+      }
     }
     
     setFilteredItems(filtered);
@@ -729,6 +1319,51 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
         <h1 className="text-3xl font-bold text-gray-800 mb-2">{config.title}</h1>
         <p className="text-gray-600 mb-6">{config.description}</p>
+
+        {/* Navigation Tabs - Only for Events */}
+        {isEvents && (
+          <div className="mb-6 border-b border-gray-200">
+            <nav className="flex space-x-8" aria-label="Tabs">
+              <button
+                onClick={() => {
+                  // Discussion tab - routes to Communities Marketplace
+                  navigate('/communities');
+                }}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  location.pathname === '/communities' || location.pathname.startsWith('/community/')
+                    ? 'border-brand-blue text-brand-blue'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Discussion
+              </button>
+              <button
+                onClick={() => {
+                  // Pulse tab - placeholder (no routing yet)
+                  // Could show a message or do nothing for now
+                }}
+                className="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm transition-colors cursor-not-allowed opacity-60"
+                disabled
+                title="Coming soon"
+              >
+                Pulse
+              </button>
+              <button
+                onClick={() => {
+                  // Events tab - stays on current page (Events Marketplace)
+                  navigate('/marketplace/events');
+                }}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  location.pathname === '/marketplace/events' || location.pathname.startsWith('/marketplace/events/')
+                    ? 'border-brand-blue text-brand-blue'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Events
+              </button>
+            </nav>
+          </div>
+        )}
 
         {/* Search + Sort */}
         <div className="mb-6 flex items-center gap-3">

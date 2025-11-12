@@ -37,16 +37,30 @@ interface UpcomingEventView {
   updated_at: string;
 }
 
-// Interface for Supabase events table (actual database schema)
+// Interface for Supabase events_v2 table (actual database schema)
 interface EventsTableRow {
   id: string;
   title: string;
   description: string | null;
-  event_date: string; // DATE format: YYYY-MM-DD
-  event_time: string | null; // TIME format: HH:MM:SS
-  community_id: string | null;
-  created_by: string | null;
+  start_time: string; // TIMESTAMPTZ format
+  end_time: string; // TIMESTAMPTZ format
+  category: string;
+  location: string;
+  image_url: string | null;
+  meeting_link: string | null;
+  is_virtual: boolean;
+  is_all_day: boolean;
+  max_attendees: number | null;
+  registration_required: boolean;
+  registration_deadline: string | null;
+  organizer_id: string | null;
+  organizer_name: string | null;
+  organizer_email: string | null;
+  status: string;
+  is_featured: boolean;
+  tags: string[] | null;
   created_at: string;
+  updated_at: string;
 }
 
 // Interface for events stored in posts table
@@ -136,23 +150,15 @@ export const EventsPage: React.FC = () => {
       location = event.event_location || "TBA";
       description = event.content || event.description || "";
     } else {
-      // Event from events table - combine event_date and event_time
-      const eventDate = (event as EventsTableRow).event_date; // YYYY-MM-DD format
-      const eventTime = (event as EventsTableRow).event_time || "00:00:00"; // HH:MM:SS format
-      
-      // Combine date and time into a datetime string
-      const dateTimeString = `${eventDate}T${eventTime}`;
-      startDate = new Date(dateTimeString);
-      
-      // Default end time to 1 hour after start if no end time is provided
-      endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // Add 1 hour
-      
-      // Derive category from community or use default
-      category = event.community_id ? "Community" : "General";
-      
-      // Location not available in events table, use default
-      location = "TBA";
-      description = event.description || "";
+      // Event from events_v2 table (matches UpcomingEventView structure)
+      const evt = event as EventsTableRow;
+      startDate = new Date(evt.start_time);
+      endDate = new Date(evt.end_time);
+      category = evt.category || "General";
+      location = evt.location || "TBA";
+      description = evt.description || "";
+      imageUrl = evt.image_url;
+      tags = evt.tags || [];
     }
 
     return {
@@ -190,28 +196,28 @@ export const EventsPage: React.FC = () => {
             throw new Error("View not available or empty");
           }
         } catch (viewError) {
-          // View doesn't exist or error, try events table
-          console.log("upcoming_events view not available, trying events table...");
+          // View doesn't exist or error, try events_v2 table
+          console.log("upcoming_events view not available, trying events_v2 table...");
           
-          // Strategy 2: Try events table
+          // Strategy 2: Try events_v2 table
           try {
-            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+            const now = new Date().toISOString();
             const tableQuery = await supabaseClient
-              .from("events")
+              .from("events_v2")
               .select("*")
-              .gte("event_date", today) // Only get events from today onwards
-              .order("event_date", { ascending: true })
-              .order("event_time", { ascending: true });
+              .eq("status", "published") // Only get published events
+              .gte("start_time", now) // Only get future events
+              .order("start_time", { ascending: true });
 
             if (!tableQuery.error && tableQuery.data) {
               data = tableQuery.data;
-              console.log("Fetched events from events table");
+              console.log("Fetched events from events_v2 table");
             } else {
-              throw tableQuery.error || new Error("Events table query failed");
+              throw tableQuery.error || new Error("events_v2 table query failed");
             }
           } catch (tableError) {
-            // Events table doesn't exist or has errors, try posts table
-            console.log("events table not available, trying posts table with event type...");
+            // events_v2 table doesn't exist or has errors, try posts table
+            console.log("events_v2 table not available, trying posts table with event type...");
             error = tableError;
 
             // Strategy 3: Fetch from posts table where post_type = 'event'

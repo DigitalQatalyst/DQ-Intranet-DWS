@@ -893,8 +893,8 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   },
   events: {
     id: 'events',
-    title: 'Events Marketplace',
-    description: 'Discover and register for business events, workshops, and networking opportunities',
+    title: 'DQ Work Events',
+    description: 'Find and join events to connect with other associates within the organization.',
     route: '/marketplace/events',
     primaryCTA: 'Register Now',
     secondaryCTA: 'View Details',
@@ -985,9 +985,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'conference',
         name: 'Conference'
       }, {
-        id: 'expo-trade-show',
-        name: 'Expo / Trade Show'
-      }, {
         id: 'networking',
         name: 'Networking'
       }, {
@@ -1011,16 +1008,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         name: 'Hybrid'
       }]
     }, {
-      id: 'cost-type',
-      title: 'Cost Type',
-      options: [{
-        id: 'free',
-        name: 'Free'
-      }, {
-        id: 'paid',
-        name: 'Paid'
-      }]
-    }, {
       id: 'duration-band',
       title: 'Duration Band',
       options: [{
@@ -1035,98 +1022,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       }, {
         id: 'multi-day',
         name: 'Multi-Day'
-      }]
-    }, {
-      id: 'language',
-      title: 'Language',
-      options: [{
-        id: 'english',
-        name: 'English'
-      }, {
-        id: 'arabic',
-        name: 'Arabic'
-      }]
-    }, {
-      id: 'capability',
-      title: 'Capability',
-      options: [{
-        id: 'leadership',
-        name: 'Leadership'
-      }, {
-        id: 'innovation',
-        name: 'Innovation'
-      }, {
-        id: 'digital-transformation',
-        name: 'Digital Transformation'
-      }, {
-        id: 'financial-management',
-        name: 'Financial Management'
-      }, {
-        id: 'marketing',
-        name: 'Marketing'
-      }, {
-        id: 'operations',
-        name: 'Operations'
-      }]
-    }, {
-      id: 'business-stage',
-      title: 'Business Stage',
-      options: [{
-        id: 'ideation',
-        name: 'Ideation'
-      }, {
-        id: 'launch',
-        name: 'Launch'
-      }, {
-        id: 'growth',
-        name: 'Growth'
-      }, {
-        id: 'expansion',
-        name: 'Expansion'
-      }, {
-        id: 'optimization',
-        name: 'Optimization'
-      }, {
-        id: 'transformation',
-        name: 'Transformation'
-      }]
-    }, {
-      id: 'industry',
-      title: 'Industry',
-      options: [{
-        id: 'technology',
-        name: 'Technology'
-      }, {
-        id: 'healthcare',
-        name: 'Healthcare'
-      }, {
-        id: 'finance',
-        name: 'Finance'
-      }, {
-        id: 'retail',
-        name: 'Retail'
-      }, {
-        id: 'manufacturing',
-        name: 'Manufacturing'
-      }, {
-        id: 'education',
-        name: 'Education'
-      }, {
-        id: 'hospitality',
-        name: 'Hospitality'
-      }, {
-        id: 'real-estate',
-        name: 'Real Estate'
-      }]
-    }, {
-      id: 'organizer',
-      title: 'Organizer',
-      options: [{
-        id: 'khalifa-fund',
-        name: 'Khalifa Fund'
-      }, {
-        id: 'partner',
-        name: 'Partner'
       }]
     }],
     // Data mapping functions

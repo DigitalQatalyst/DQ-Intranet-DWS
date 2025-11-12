@@ -122,7 +122,7 @@ export function AppRouter() {
             <Route path="/thank-you" element={<ThankYou />} />
             {/* Redirect encoded leading-space path to canonical route */}
             <Route path="/%20marketplace/news" element={<Navigate to="/marketplace/news" replace />} />
-            <Route path="/events" element={<EventsPage />} />
+            {/* <Route path="/events" element={<EventsPage />} /> */}
             {/* Community Routes */}
             <Route path="/community" element={<Home />} />
             <Route path="/communities" element={<Communities />} />
