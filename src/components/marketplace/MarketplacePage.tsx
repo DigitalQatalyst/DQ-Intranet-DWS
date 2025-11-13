@@ -234,10 +234,30 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     }
     if (tab !== 'guidelines') {
       // For Strategy and Blueprints, keep 'unit' filter; only delete incompatible filters
-      const keysToDelete = (tab === 'strategy' || tab === 'blueprints')
-        ? ['guide_type', 'sub_domain', 'domain', 'testimonial_category']  // Keep 'unit' for Strategy and Blueprints
-        : ['guide_type', 'sub_domain', 'unit', 'domain', 'testimonial_category'];
+      if (tab === 'strategy') {
+        // Keep 'unit' and 'location' for Strategy; delete incompatible filters
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category'];
+        keysToDelete.forEach(key => next.delete(key));
+      } else if (tab === 'blueprints') {
+        // Keep 'unit' and 'location' for Blueprints; delete incompatible filters
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category'];
+        keysToDelete.forEach(key => next.delete(key));
+      } else {
+        // For other tabs (testimonials), delete all incompatible filters
+        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework'];
+        keysToDelete.forEach(key => next.delete(key));
+      }
+    } else {
+      // Switching to Guidelines - clear Strategy and Blueprint-specific filters
+      const keysToDelete = ['strategy_type', 'strategy_framework', 'blueprint_framework'];
       keysToDelete.forEach(key => next.delete(key));
+    }
+    // Clear tab-specific filters when switching away from their respective tabs
+    if (tab !== 'guidelines') {
+      next.delete('guidelines_category');
+    }
+    if (tab !== 'blueprints') {
+      next.delete('blueprint_framework');
     }
     const qs = next.toString();
     if (typeof window !== 'undefined') {
@@ -259,9 +279,33 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     const next = new URLSearchParams(queryParams.toString());
     let changed = false;
     // For Strategy and Blueprints, keep 'unit' filter; only delete incompatible filters
-    const keysToDelete = (activeTab === 'strategy' || activeTab === 'blueprints')
-      ? ['guide_type', 'sub_domain', 'domain']  // Keep 'unit' for Strategy and Blueprints
-      : ['guide_type', 'sub_domain', 'unit', 'domain'];
+    let keysToDelete: string[] = [];
+    if (activeTab === 'strategy') {
+      // Keep 'unit' and 'location' for Strategy; delete incompatible filters
+      keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category'];
+    } else if (activeTab === 'blueprints') {
+      // Keep 'unit' and 'location' for Blueprints; delete incompatible filters
+      keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category'];
+    } else if (activeTab === 'testimonials') {
+      // For Testimonials, delete all incompatible filters
+      keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework'];
+    } else {
+      // For Guidelines, delete Strategy and Blueprint-specific filters
+      keysToDelete = ['strategy_type', 'strategy_framework', 'blueprint_framework'];
+    }
+    // Clear tab-specific filters when switching away from their respective tabs
+    if (activeTab !== 'guidelines') {
+      if (next.has('guidelines_category')) {
+        next.delete('guidelines_category');
+        changed = true;
+      }
+    }
+    if (activeTab !== 'blueprints') {
+      if (next.has('blueprint_framework')) {
+        next.delete('blueprint_framework');
+        changed = true;
+      }
+    }
     keysToDelete.forEach(key => {
       if (next.has(key)) {
         next.delete(key);
@@ -433,6 +477,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           const locations   = parseFilterValues(queryParams, 'location');
           const statuses    = parseFilterValues(queryParams, 'status');
           const testimonialCategories = parseFilterValues(queryParams, 'testimonial_category');
+          const strategyTypes = parseFilterValues(queryParams, 'strategy_type');
+          const strategyFrameworks = parseFilterValues(queryParams, 'strategy_framework');
+          const guidelinesCategories = parseFilterValues(queryParams, 'guidelines_category');
+          const blueprintFrameworks = parseFilterValues(queryParams, 'blueprint_framework');
 
           // Get activeTab from state - ensure it's current
           const currentActiveTab = activeTab;
@@ -506,16 +554,20 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 .order('last_updated_at',  { ascending: false, nullsFirst: false });
           }
 
-          // If unit filtering is needed client-side, fetch ALL results first, then filter and paginate
+          // If unit filtering or framework filtering is needed client-side, fetch ALL results first, then filter and paginate
           // Otherwise, use server-side pagination
           const needsClientSideUnitFilter = effectiveUnits.length > 0;
+          const needsClientSideFrameworkFilter = (isStrategyTab && strategyFrameworks.length > 0) || 
+                                                 (isBlueprintTab && blueprintFrameworks.length > 0) ||
+                                                 (isGuidelinesTab && guidelinesCategories.length > 0);
+          const needsClientSideFiltering = needsClientSideUnitFilter || needsClientSideFrameworkFilter;
           
           const from = (currentPage - 1) * pageSize;
           const to   = from + pageSize - 1;
 
-          // Fetch all results if client-side unit filtering is needed, otherwise use pagination
+          // Fetch all results if client-side filtering is needed, otherwise use pagination
           // When fetching all, we need to set a high limit (Supabase default is 1000)
-          const listPromise = needsClientSideUnitFilter ? q.limit(10000) : q.range(from, to);
+          const listPromise = needsClientSideFiltering ? q.limit(10000) : q.range(from, to);
           
           let facetQ = supabaseClient
             .from('guides')
@@ -671,6 +723,80 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               return matches;
             });
           }
+          // Strategy-specific filters: Strategy Type and Framework/Program
+          // These filters check sub_domain field (which stores these categories)
+          if (isStrategyTab && strategyTypes.length) {
+            out = out.filter(it => {
+              const subDomain = (it.subDomain || '').toLowerCase();
+              return strategyTypes.some(selectedType => {
+                const normalizedSelected = slugify(selectedType);
+                const normalizedSubDomain = slugify(subDomain);
+                return normalizedSubDomain === normalizedSelected || 
+                       subDomain.includes(selectedType.toLowerCase()) ||
+                       selectedType.toLowerCase().includes(subDomain);
+              });
+            });
+          }
+          if (isStrategyTab && strategyFrameworks.length) {
+            out = out.filter(it => {
+              const subDomain = (it.subDomain || '').toLowerCase();
+              const domain = (it.domain || '').toLowerCase();
+              const guideType = (it.guideType || '').toLowerCase();
+              const allText = `${subDomain} ${domain} ${guideType}`.toLowerCase();
+              return strategyFrameworks.some(selectedFramework => {
+                const normalizedSelected = slugify(selectedFramework);
+                // Check various fields for framework matches
+                return allText.includes(selectedFramework.toLowerCase()) ||
+                       allText.includes(normalizedSelected) ||
+                       (selectedFramework === '6xd' && (allText.includes('6xd') || allText.includes('digital-framework'))) ||
+                       (selectedFramework === 'ghc' && allText.includes('ghc')) ||
+                       (selectedFramework === 'clients' && allText.includes('client')) ||
+                       (selectedFramework === 'ghc-leader' && allText.includes('ghc-leader')) ||
+                       (selectedFramework === 'testimonials-insights' && (allText.includes('testimonial') || allText.includes('insight')));
+              });
+            });
+          }
+          // Guidelines-specific filter: Category (Resources, Policies, xDS)
+          if (isGuidelinesTab && guidelinesCategories.length) {
+            out = out.filter(it => {
+              const subDomain = (it.subDomain || '').toLowerCase();
+              const domain = (it.domain || '').toLowerCase();
+              const guideType = (it.guideType || '').toLowerCase();
+              const title = (it.title || '').toLowerCase();
+              const allText = `${subDomain} ${domain} ${guideType} ${title}`.toLowerCase();
+              return guidelinesCategories.some(selectedCategory => {
+                const normalizedSelected = slugify(selectedCategory);
+                // Check various fields for category matches
+                return allText.includes(selectedCategory.toLowerCase()) ||
+                       allText.includes(normalizedSelected) ||
+                       (selectedCategory === 'resources' && (allText.includes('resource') || allText.includes('guideline'))) ||
+                       (selectedCategory === 'policies' && (allText.includes('policy') || allText.includes('policies'))) ||
+                       (selectedCategory === 'xds' && (allText.includes('xds') || allText.includes('design-system') || allText.includes('design systems')));
+              });
+            });
+          }
+          // Blueprints-specific filter: Framework (DevOps, DBP, DXP, DWS, Products, Projects)
+          if (isBlueprintTab && blueprintFrameworks.length) {
+            out = out.filter(it => {
+              const subDomain = (it.subDomain || '').toLowerCase();
+              const domain = (it.domain || '').toLowerCase();
+              const guideType = (it.guideType || '').toLowerCase();
+              const title = (it.title || '').toLowerCase();
+              const allText = `${subDomain} ${domain} ${guideType} ${title}`.toLowerCase();
+              return blueprintFrameworks.some(selectedFramework => {
+                const normalizedSelected = slugify(selectedFramework);
+                // Check various fields for framework matches
+                return allText.includes(selectedFramework.toLowerCase()) ||
+                       allText.includes(normalizedSelected) ||
+                       (selectedFramework === 'devops' && allText.includes('devops')) ||
+                       (selectedFramework === 'dbp' && allText.includes('dbp')) ||
+                       (selectedFramework === 'dxp' && allText.includes('dxp')) ||
+                       (selectedFramework === 'dws' && allText.includes('dws')) ||
+                       (selectedFramework === 'products' && allText.includes('product')) ||
+                       (selectedFramework === 'projects' && allText.includes('project'));
+              });
+            });
+          }
           if (locations.length)  out = out.filter(it => it.location && locations.includes(it.location));
           if (statuses.length)   out = out.filter(it => it.status && statuses.includes(it.status));
 
@@ -684,17 +810,18 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                               (b.downloadCount||0)-(a.downloadCount||0) ||
                               new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
 
-          // If client-side unit filtering was used, paginate after filtering
+          // If client-side filtering was used, paginate after filtering
           const totalFiltered = out.length;
-          if (needsClientSideUnitFilter) {
+          if (needsClientSideFiltering) {
             out = out.slice(from, from + pageSize);
           }
 
-          const total = needsClientSideUnitFilter ? totalFiltered : (typeof count === 'number' ? count : out.length);
+          const total = needsClientSideFiltering ? totalFiltered : (typeof count === 'number' ? count : out.length);
           const lastPage = Math.max(1, Math.ceil(total / pageSize));
+          // If current page exceeds last page (e.g., after filtering), reset to page 1
           if (currentPage > lastPage) {
             const next = new URLSearchParams(queryParams.toString());
-            if (lastPage <= 1) next.delete('page'); else next.set('page', String(lastPage));
+            if (lastPage <= 1) next.delete('page'); else next.set('page', '1'); // Always reset to page 1 if invalid
             if (typeof window !== 'undefined') {
               window.history.replaceState(null, '', `${window.location.pathname}${next.toString() ? '?' + next.toString() : ''}`);
               window.scrollTo({ top: 0, behavior: 'smooth' });
