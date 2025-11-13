@@ -3,7 +3,6 @@ import { MARKETPLACE_QUERIES } from "./graphql/queries";
 import { FilterConfig } from "../components/marketplace/FilterSidebar";
 import { MarketplaceItem } from "../components/marketplace/MarketplaceGrid";
 import { getMarketplaceConfig } from "../utils/marketplaceConfiguration";
-import { supabaseClient } from "../lib/supabaseClient";
 
 /**
  * Fetches marketplace items based on marketplace type, filters, and search query
@@ -101,72 +100,6 @@ export const fetchMarketplaceFilters = async (
 };
 
 /**
- * Transform Supabase event to marketplace event format
- * This matches the transformation used in MarketplacePage.tsx
- */
-const transformEventToMarketplace = (event: any): any => {
-  const startDate = new Date(event.start_time);
-  const endDate = new Date(event.end_time);
-  
-  // Format date
-  const dateStr = startDate.toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  });
-  
-  // Format time range
-  const startTime = startDate.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
-    minute: '2-digit',
-    hour12: true 
-  });
-  const endTime = endDate.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
-    minute: '2-digit',
-    hour12: true 
-  });
-  const timeStr = `${startTime} - ${endTime}`;
-
-  // Handle location for virtual events
-  let location = event.location || "TBA";
-  if (event.is_virtual && event.meeting_link) {
-    location = location.includes('Virtual') ? location : `Virtual - ${location}`;
-  }
-
-  return {
-    id: event.id,
-    title: event.title,
-    description: event.description || "",
-    category: event.category || "General",
-    eventType: event.category || "General",
-    businessStage: "All Stages",
-    provider: {
-      name: event.organizer_name || "DQ Events",
-      logoUrl: "/DWS-Logo.png",
-      description: event.organizer_name ? `${event.organizer_name} Events` : "Digital Qatalyst Events"
-    },
-    date: dateStr,
-    time: timeStr,
-    location: location,
-    price: "Free",
-    capacity: event.max_attendees ? `${event.max_attendees} attendees` : undefined,
-    tags: event.tags || [],
-    imageUrl: event.image_url || undefined,
-    isVirtual: event.is_virtual || false,
-    startTime: event.start_time,
-    endTime: event.end_time,
-    // Additional fields for details page
-    meetingLink: event.meeting_link,
-    registrationRequired: event.registration_required || false,
-    registrationDeadline: event.registration_deadline,
-    isFeatured: event.is_featured || false,
-    organizerEmail: event.organizer_email,
-    organizerId: event.organizer_id,
-  };
-};
-
-/**
  * Fetches details for a specific marketplace item
  */
 export const fetchMarketplaceItemDetails = async (
@@ -174,48 +107,9 @@ export const fetchMarketplaceItemDetails = async (
   itemId: string
 ): Promise<any> => {
   try {
-    // Handle events separately - fetch from Supabase
-    if (marketplaceType === 'events') {
-      // Try events_v2 table first
-      let eventData = null;
-      
-      try {
-        const { data, error } = await supabaseClient
-          .from('events_v2')
-          .select('*')
-          .eq('id', itemId)
-          .eq('status', 'published')
-          .single();
-
-        if (error) {
-          console.warn('Error fetching from events_v2:', error);
-          // Try upcoming_events view as fallback
-          const { data: viewData, error: viewError } = await supabaseClient
-            .from('upcoming_events')
-            .select('*')
-            .eq('id', itemId)
-            .eq('status', 'published')
-            .single();
-
-          if (viewError) {
-            throw viewError;
-          }
-          eventData = viewData;
-        } else {
-          eventData = data;
-        }
-
-        if (eventData) {
-          return transformEventToMarketplace(eventData);
-        }
-      } catch (supabaseError) {
-        console.error('Error fetching event from Supabase:', supabaseError);
-        throw new Error(`Failed to load event details from database.`);
-      }
-    }
-
-    // For other marketplace types, use GraphQL
+    // Get the marketplace config
     const config = getMarketplaceConfig(marketplaceType);
+    // Get the appropriate query for this marketplace type
     const query =
       MARKETPLACE_QUERIES[marketplaceType as keyof typeof MARKETPLACE_QUERIES]
         ?.getItemDetails;
@@ -256,47 +150,9 @@ export const fetchRelatedMarketplaceItems = async (
   provider: string
 ): Promise<any[]> => {
   try {
-    // Handle events separately - fetch from Supabase
-    if (marketplaceType === 'events') {
-      const now = new Date().toISOString();
-      
-      // Fetch related events (same category, different ID, future events)
-      const { data, error } = await supabaseClient
-        .from('events_v2')
-        .select('*')
-        .eq('status', 'published')
-        .eq('category', category)
-        .neq('id', itemId)
-        .gte('start_time', now)
-        .order('start_time', { ascending: true })
-        .limit(6);
-
-      if (error) {
-        console.warn('Error fetching related events:', error);
-        // Try upcoming_events view as fallback
-        const { data: viewData, error: viewError } = await supabaseClient
-          .from('upcoming_events')
-          .select('*')
-          .eq('status', 'published')
-          .eq('category', category)
-          .neq('id', itemId)
-          .gte('start_time', now)
-          .order('start_time', { ascending: true })
-          .limit(6);
-
-        if (viewError) {
-          console.error('Error fetching related events from view:', viewError);
-          return [];
-        }
-
-        return (viewData || []).map(transformEventToMarketplace);
-      }
-
-      return (data || []).map(transformEventToMarketplace);
-    }
-
-    // For other marketplace types, use GraphQL
+    // Get the marketplace config
     const config = getMarketplaceConfig(marketplaceType);
+    // Get the appropriate query for this marketplace type
     const query =
       MARKETPLACE_QUERIES[marketplaceType as keyof typeof MARKETPLACE_QUERIES]
         ?.getRelatedItems;

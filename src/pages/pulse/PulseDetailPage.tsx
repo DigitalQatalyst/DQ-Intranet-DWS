@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import { supabase } from "../../lib/supabaseClient";
-import { ArrowLeft, BarChart3, MessageSquare, MessageCircle, Heart, Share2, Clock, User, MapPin, Building } from "lucide-react";
+import { ArrowLeft, BarChart3, MessageSquare, MessageCircle, Heart, Share2, Clock, User, MapPin, Building, HomeIcon, ChevronRightIcon, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PulseItem {
   id: string;
@@ -44,7 +44,8 @@ interface PulseItem {
 }
 
 export const PulseDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get('id');
   const navigate = useNavigate();
   const [item, setItem] = useState<PulseItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,6 +53,11 @@ export const PulseDetailPage: React.FC = () => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [hasResponded, setHasResponded] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [surveyAnswers, setSurveyAnswers] = useState<Record<string, any>>({});
+  const [feedbackAnswers, setFeedbackAnswers] = useState<Record<string, any>>({});
+  const [submitted, setSubmitted] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
     const fetchPulseItem = async () => {
@@ -61,6 +67,7 @@ export const PulseDetailPage: React.FC = () => {
       setError(null);
 
       try {
+        // Try to fetch from database first
         const { data, error: queryError } = await supabase
           .from("pulse_items_with_stats")
           .select("*")
@@ -69,36 +76,160 @@ export const PulseDetailPage: React.FC = () => {
           .single();
 
         if (queryError) {
-          throw queryError;
-        }
+          // Fallback to mock data for development
+          const mockItems = [
+            {
+              id: 'pulse-1',
+              title: 'Employee Satisfaction Survey',
+              description: "We'd love to hear your thoughts on your workplace experience. Help us improve by sharing your feedback in this quick survey.",
+              type: 'survey' as const,
+              status: 'published',
+              department: 'HRA (People)',
+              location_filter: 'Remote',
+              question: null,
+              options: null,
+              allow_multiple: false,
+              anonymous: false,
+              questions: [
+                { id: 'q1', question: 'How satisfied are you with your current role?', type: 'scale', scale_min: 1, scale_max: 5 },
+                { id: 'q2', question: 'What aspects of your job do you enjoy most?', type: 'text' },
+                { id: 'q3', question: 'How likely are you to recommend this company to a friend?', type: 'scale', scale_min: 1, scale_max: 10 }
+              ],
+              survey_type: 'Employee Feedback',
+              feedback_type: null,
+              category: null,
+              total_responses: 320,
+              total_views: 500,
+              total_likes: 45,
+              tags: ['Employee', 'Feedback'],
+              image_url: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+              created_by: null,
+              created_by_name: 'HR Team',
+              created_by_email: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              published_at: new Date().toISOString(),
+              closes_at: null,
+              is_featured: false,
+              is_pinned: false,
+              allow_comments: true,
+              visibility: 'public',
+              response_count: 320,
+              like_count: 45,
+              comment_count: 12
+            },
+            {
+              id: 'pulse-2',
+              title: 'Product Feedback Poll',
+              description: "Your feedback helps us shape the next version of our product. Please take a few moments to share your thoughts!",
+              type: 'poll' as const,
+              status: 'published',
+              department: 'Products',
+              location_filter: 'Dubai',
+              question: 'Which feature would you like to see in the next product update?',
+              options: [
+                { id: 'opt1', text: 'Enhanced Security Features', votes: 85 },
+                { id: 'opt2', text: 'Improved User Interface', votes: 120 },
+                { id: 'opt3', text: 'Mobile App Support', votes: 110 }
+              ],
+              allow_multiple: false,
+              anonymous: false,
+              questions: null,
+              survey_type: null,
+              feedback_type: null,
+              category: null,
+              total_responses: 315,
+              total_views: 450,
+              total_likes: 67,
+              tags: ['Product', 'Feedback'],
+              image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+              created_by: null,
+              created_by_name: 'Product Team',
+              created_by_email: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              published_at: new Date().toISOString(),
+              closes_at: null,
+              is_featured: true,
+              is_pinned: false,
+              allow_comments: true,
+              visibility: 'public',
+              response_count: 315,
+              like_count: 67,
+              comment_count: 23
+            },
+            {
+              id: 'pulse-3',
+              title: 'Event Feedback: Digital Qatalyst Town Hall',
+              description: "We'd love to hear your thoughts on the Digital Qatalyst Town Hall. Your feedback helps us improve future events!",
+              type: 'feedback' as const,
+              status: 'published',
+              department: 'Stories',
+              location_filter: 'Nairobi',
+              question: null,
+              options: null,
+              allow_multiple: false,
+              anonymous: false,
+              questions: [
+                { id: 'f1', question: 'What did you like most about the event?', type: 'text' },
+                { id: 'f2', question: 'What could be improved?', type: 'text' },
+                { id: 'f3', question: 'Rate your overall experience (1-5)', type: 'scale', scale_min: 1, scale_max: 5 }
+              ],
+              survey_type: null,
+              feedback_type: 'general',
+              category: null,
+              total_responses: 450,
+              total_views: 600,
+              total_likes: 89,
+              tags: ['Event', 'Feedback'],
+              image_url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80',
+              created_by: null,
+              created_by_name: 'Events Team',
+              created_by_email: null,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              published_at: new Date().toISOString(),
+              closes_at: null,
+              is_featured: false,
+              is_pinned: false,
+              allow_comments: true,
+              visibility: 'public',
+              response_count: 450,
+              like_count: 89,
+              comment_count: 34
+            }
+          ];
 
-        if (!data) {
-          throw new Error("Pulse item not found");
+          const mockItem = mockItems.find(i => i.id === id);
+          if (mockItem) {
+            setItem(mockItem as PulseItem);
+          } else {
+            throw new Error("Pulse item not found");
+          }
+        } else {
+          setItem(data);
         }
-
-        setItem(data);
 
         // Check if user has already responded (if authenticated)
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           const { data: response } = await supabase
             .from("pulse_responses")
-            .select("id")
+            .select("id, response_data")
             .eq("pulse_item_id", id)
             .eq("user_id", user.id)
             .single();
 
           if (response) {
             setHasResponded(true);
-            // Load previous response
-            const { data: responseData } = await supabase
-              .from("pulse_responses")
-              .select("response_data")
-              .eq("id", response.id)
-              .single();
-
-            if (responseData?.response_data?.selected_options) {
-              setSelectedOptions(responseData.response_data.selected_options);
+            if (response.response_data?.selected_options) {
+              setSelectedOptions(response.response_data.selected_options);
+            }
+            if (response.response_data?.answers) {
+              setSurveyAnswers(response.response_data.answers);
+            }
+            if (response.response_data?.feedback) {
+              setFeedbackAnswers(response.response_data.feedback);
             }
           }
 
@@ -116,10 +247,12 @@ export const PulseDetailPage: React.FC = () => {
         }
 
         // Increment view count
-        await supabase
-          .from("pulse_items")
-          .update({ total_views: (data.total_views || 0) + 1 })
-          .eq("id", id);
+        if (data) {
+          await supabase
+            .from("pulse_items")
+            .update({ total_views: (data.total_views || 0) + 1 })
+            .eq("id", id);
+        }
       } catch (err: any) {
         console.error('Error fetching pulse item:', err);
         setError(err.message || 'Failed to load pulse item');
@@ -132,7 +265,7 @@ export const PulseDetailPage: React.FC = () => {
   }, [id]);
 
   const handleOptionToggle = (optionId: string) => {
-    if (!item) return;
+    if (!item || hasResponded) return;
 
     if (item.allow_multiple) {
       setSelectedOptions(prev =>
@@ -145,8 +278,22 @@ export const PulseDetailPage: React.FC = () => {
     }
   };
 
+  const handleSurveyAnswer = (questionId: string, answer: any) => {
+    setSurveyAnswers(prev => ({
+      ...prev,
+      [questionId]: answer
+    }));
+  };
+
+  const handleFeedbackAnswer = (questionId: string, answer: any) => {
+    setFeedbackAnswers(prev => ({
+      ...prev,
+      [questionId]: answer
+    }));
+  };
+
   const handleSubmitResponse = async () => {
-    if (!item || !id || selectedOptions.length === 0) return;
+    if (!item || !id) return;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -155,9 +302,29 @@ export const PulseDetailPage: React.FC = () => {
         return;
       }
 
-      const responseData = {
-        selected_options: selectedOptions
-      };
+      let responseData: any = {};
+
+      if (item.type === 'poll') {
+        if (selectedOptions.length === 0) {
+          alert("Please select an option");
+          return;
+        }
+        responseData = { selected_options: selectedOptions };
+      } else if (item.type === 'survey') {
+        const allQuestionsAnswered = item.questions?.every(q => surveyAnswers[q.id]);
+        if (!allQuestionsAnswered) {
+          alert("Please answer all questions");
+          return;
+        }
+        responseData = { answers: surveyAnswers };
+      } else if (item.type === 'feedback') {
+        const allQuestionsAnswered = item.questions?.every(q => feedbackAnswers[q.id]);
+        if (!allQuestionsAnswered) {
+          alert("Please answer all questions");
+          return;
+        }
+        responseData = { feedback: feedbackAnswers };
+      }
 
       if (hasResponded) {
         // Update existing response
@@ -184,17 +351,19 @@ export const PulseDetailPage: React.FC = () => {
       }
 
       setHasResponded(true);
-      alert("Response submitted successfully!");
+      setSubmitted(true);
       
-      // Refresh item to update response count
-      const { data } = await supabase
-        .from("pulse_items_with_stats")
-        .select("*")
-        .eq("id", id)
-        .single();
+      if (item.type === 'poll') {
+        // Refresh to show results
+        const { data } = await supabase
+          .from("pulse_items_with_stats")
+          .select("*")
+          .eq("id", id)
+          .single();
 
-      if (data) {
-        setItem(data);
+        if (data) {
+          setItem(data);
+        }
       }
     } catch (err: any) {
       console.error('Error submitting response:', err);
@@ -257,6 +426,25 @@ export const PulseDetailPage: React.FC = () => {
     }
   };
 
+  const getTypeLabel = (type: string) => {
+    switch (type) {
+      case 'poll':
+        return 'Poll';
+      case 'survey':
+        return 'Survey';
+      case 'feedback':
+        return 'Feedback';
+      default:
+        return 'Pulse Item';
+    }
+  };
+
+  const calculateSurveyProgress = () => {
+    if (!item || item.type !== 'survey' || !item.questions) return 0;
+    const answered = item.questions.filter(q => surveyAnswers[q.id]).length;
+    return (answered / item.questions.length) * 100;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -303,10 +491,44 @@ export const PulseDetailPage: React.FC = () => {
       <Header />
       
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Breadcrumb Navigation */}
+        <nav className="flex mb-6" aria-label="Breadcrumb">
+          <ol className="inline-flex items-center space-x-1 md:space-x-2">
+            <li className="inline-flex items-center">
+              <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
+                <HomeIcon size={16} className="mr-1" />
+                <span>Home</span>
+              </Link>
+            </li>
+            <li>
+              <div className="flex items-center">
+                <ChevronRightIcon size={16} className="text-gray-400 mx-1" />
+                <Link to="/communities" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
+                  Communities
+                </Link>
+              </div>
+            </li>
+            <li>
+              <div className="flex items-center">
+                <ChevronRightIcon size={16} className="text-gray-400 mx-1" />
+                <Link to="/marketplace/pulse" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
+                  Pulse
+                </Link>
+              </div>
+            </li>
+            <li aria-current="page">
+              <div className="flex items-center">
+                <ChevronRightIcon size={16} className="text-gray-400 mx-1" />
+                <span className="text-gray-500 text-sm font-medium">{getTypeLabel(item.type)}</span>
+              </div>
+            </li>
+          </ol>
+        </nav>
+
         {/* Back Button */}
         <button
           onClick={() => navigate('/marketplace/pulse')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
         >
           <ArrowLeft size={20} />
           Back to Pulse
@@ -373,7 +595,170 @@ export const PulseDetailPage: React.FC = () => {
               </div>
             )}
 
-            {/* Poll Options */}
+            {/* Survey Section */}
+            {item.type === 'survey' && item.questions && (
+              <div className="mb-6">
+                {/* Progress Bar */}
+                {!submitted && (
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                      <span>Progress</span>
+                      <span className="font-semibold">{Math.round(calculateSurveyProgress())}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div
+                        className="bg-green-600 h-3 rounded-full transition-all"
+                        style={{ width: `${calculateSurveyProgress()}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Survey Questions */}
+                {!submitted ? (
+                  <div className="space-y-6">
+                    {item.questions.map((q: any, index: number) => (
+                      <div key={q.id} className="border border-gray-200 rounded-lg p-4">
+                        <label className="block text-lg font-semibold text-gray-900 mb-3">
+                          {index + 1}. {q.question}
+                        </label>
+                        {q.type === 'scale' && (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                              <span>{q.scale_min || 1}</span>
+                              <span>{q.scale_max || 5}</span>
+                            </div>
+                            <div className="flex gap-2">
+                              {Array.from({ length: (q.scale_max || 5) - (q.scale_min || 1) + 1 }, (_, i) => {
+                                const value = (q.scale_min || 1) + i;
+                                return (
+                                  <button
+                                    key={value}
+                                    onClick={() => handleSurveyAnswer(q.id, value)}
+                                    className={`flex-1 py-2 px-4 rounded-lg border-2 transition-all ${
+                                      surveyAnswers[q.id] === value
+                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                        : 'border-gray-200 hover:border-gray-300'
+                                    }`}
+                                  >
+                                    {value}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        {q.type === 'text' && (
+                          <textarea
+                            value={surveyAnswers[q.id] || ''}
+                            onChange={(e) => handleSurveyAnswer(q.id, e.target.value)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            rows={4}
+                            placeholder="Type your answer here..."
+                          />
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      onClick={handleSubmitResponse}
+                      className="w-full mt-6 px-6 py-3 bg-dq-navy text-white rounded-lg hover:bg-[#13285A] transition-colors font-semibold"
+                    >
+                      Submit Survey
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <CheckCircle size={48} className="text-green-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Survey Submitted Successfully!</h3>
+                    <p className="text-gray-600 mb-4">Thank you for your feedback.</p>
+                    <button
+                      onClick={() => setShowResults(!showResults)}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                    >
+                      {showResults ? 'Hide Results' : 'View Survey Results'}
+                    </button>
+                    {showResults && (
+                      <div className="mt-6 text-left">
+                        <p className="text-sm text-gray-600 mb-2">Total Responses: {item.response_count || item.total_responses || 0}</p>
+                        <p className="text-sm text-gray-600">Your responses have been recorded.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Feedback Form Section */}
+            {item.type === 'feedback' && item.questions && (
+              <div className="mb-6">
+                {!submitted ? (
+                  <div className="space-y-6">
+                    {item.questions.map((q: any, index: number) => (
+                      <div key={q.id} className="border border-gray-200 rounded-lg p-4">
+                        <label className="block text-lg font-semibold text-gray-900 mb-3">
+                          {index + 1}. {q.question}
+                        </label>
+                        {q.type === 'scale' && (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                              <span>{q.scale_min || 1}</span>
+                              <span>{q.scale_max || 5}</span>
+                            </div>
+                            <div className="flex gap-2">
+                              {Array.from({ length: (q.scale_max || 5) - (q.scale_min || 1) + 1 }, (_, i) => {
+                                const value = (q.scale_min || 1) + i;
+                                return (
+                                  <button
+                                    key={value}
+                                    onClick={() => handleFeedbackAnswer(q.id, value)}
+                                    className={`flex-1 py-2 px-4 rounded-lg border-2 transition-all ${
+                                      feedbackAnswers[q.id] === value
+                                        ? 'border-purple-500 bg-purple-50 text-purple-700'
+                                        : 'border-gray-200 hover:border-gray-300'
+                                    }`}
+                                  >
+                                    {value}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        {q.type === 'text' && (
+                          <textarea
+                            value={feedbackAnswers[q.id] || ''}
+                            onChange={(e) => handleFeedbackAnswer(q.id, e.target.value)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                            rows={4}
+                            placeholder="Type your feedback here..."
+                          />
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      onClick={handleSubmitResponse}
+                      className="w-full mt-6 px-6 py-3 bg-dq-navy text-white rounded-lg hover:bg-[#13285A] transition-colors font-semibold"
+                    >
+                      Submit Feedback
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <CheckCircle size={48} className="text-green-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Feedback Submitted Successfully!</h3>
+                    <p className="text-gray-600 mb-4">Thank you for taking the time to provide your feedback. We appreciate your input!</p>
+                    <button
+                      onClick={() => navigate('/marketplace/pulse')}
+                      className="px-6 py-2 bg-dq-navy text-white rounded-lg hover:bg-[#13285A] transition-colors"
+                    >
+                      Return to Pulse
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Poll Section */}
             {item.type === 'poll' && item.question && item.options && (
               <div className="mb-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
@@ -391,25 +776,27 @@ export const PulseDetailPage: React.FC = () => {
                     return (
                       <div
                         key={optionId}
-                        className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                          isSelected
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                        className={`border-2 rounded-lg p-4 transition-all ${
+                          hasResponded
+                            ? 'border-gray-200'
+                            : isSelected
+                            ? 'border-blue-500 bg-blue-50 cursor-pointer'
+                            : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                         }`}
-                        onClick={() => handleOptionToggle(optionId)}
+                        onClick={() => !hasResponded && handleOptionToggle(optionId)}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span className="font-medium text-gray-900">{optionText}</span>
-                          {hasResponded && (
+                          {(hasResponded || showResults) && (
                             <span className="text-sm text-gray-600">
                               {voteCount} votes ({percentage.toFixed(1)}%)
                             </span>
                           )}
                         </div>
-                        {hasResponded && (
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                        {(hasResponded || showResults) && (
+                          <div className="w-full bg-gray-200 rounded-full h-3">
                             <div
-                              className="bg-blue-600 h-2 rounded-full transition-all"
+                              className="bg-blue-600 h-3 rounded-full transition-all"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
@@ -418,19 +805,26 @@ export const PulseDetailPage: React.FC = () => {
                     );
                   })}
                 </div>
-                {!hasResponded && (
+                {!hasResponded ? (
                   <button
                     onClick={handleSubmitResponse}
                     disabled={selectedOptions.length === 0}
-                    className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    className="mt-4 px-6 py-2 bg-dq-navy text-white rounded-lg hover:bg-[#13285A] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-semibold"
                   >
-                    Submit {item.allow_multiple ? 'Responses' : 'Response'}
+                    Vote
                   </button>
-                )}
-                {hasResponded && (
-                  <p className="mt-4 text-sm text-green-600">
-                    ✓ You have already responded to this poll
-                  </p>
+                ) : (
+                  <div className="mt-4">
+                    <p className="text-sm text-green-600 mb-2">
+                      ✓ You have already voted. Thank you for your participation!
+                    </p>
+                    <button
+                      onClick={() => setShowResults(!showResults)}
+                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      {showResults ? 'Hide Results' : 'Show Real-time Results'}
+                    </button>
+                  </div>
                 )}
               </div>
             )}
@@ -450,7 +844,7 @@ export const PulseDetailPage: React.FC = () => {
             )}
 
             {/* Engagement Stats */}
-            <div className="flex items-center gap-6 pt-6 border-t border-gray-200">
+            <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-gray-200">
               <button
                 onClick={handleToggleLike}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
@@ -470,7 +864,7 @@ export const PulseDetailPage: React.FC = () => {
                 <MessageSquare size={18} />
                 <span>{item.comment_count || 0} comments</span>
               </div>
-              <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+              <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
                 <Share2 size={18} />
                 <span>Share</span>
               </button>
@@ -483,4 +877,3 @@ export const PulseDetailPage: React.FC = () => {
     </div>
   );
 };
-

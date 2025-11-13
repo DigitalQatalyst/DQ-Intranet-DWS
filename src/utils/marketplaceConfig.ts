@@ -1023,6 +1023,65 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'multi-day',
         name: 'Multi-Day'
       }]
+    }, {
+      id: 'department',
+      title: 'Department',
+      options: [{
+        id: 'hra-people',
+        name: 'HRA (People)'
+      }, {
+        id: 'finance',
+        name: 'Finance'
+      }, {
+        id: 'deals',
+        name: 'Deals'
+      }, {
+        id: 'stories',
+        name: 'Stories'
+      }, {
+        id: 'intelligence',
+        name: 'Intelligence'
+      }, {
+        id: 'solutions',
+        name: 'Solutions'
+      }, {
+        id: 'secdevops',
+        name: 'SecDevOps'
+      }, {
+        id: 'products',
+        name: 'Products'
+      }, {
+        id: 'delivery-deploys',
+        name: 'Delivery — Deploys'
+      }, {
+        id: 'delivery-designs',
+        name: 'Delivery — Designs'
+      }, {
+        id: 'dco-operations',
+        name: 'DCO Operations'
+      }, {
+        id: 'dbp-platform',
+        name: 'DBP Platform'
+      }, {
+        id: 'dbp-delivery',
+        name: 'DBP Delivery'
+      }]
+    }, {
+      id: 'location',
+      title: 'Location',
+      options: [{
+        id: 'dubai',
+        name: 'Dubai'
+      }, {
+        id: 'nairobi',
+        name: 'Nairobi'
+      }, {
+        id: 'riyadh',
+        name: 'Riyadh'
+      }, {
+        id: 'remote',
+        name: 'Remote'
+      }]
     }],
     // Data mapping functions
     mapListResponse: data => {

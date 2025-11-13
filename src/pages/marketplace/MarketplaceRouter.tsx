@@ -153,6 +153,7 @@ export const MarketplaceRouter: React.FC = () => {
       <Route path="/events/:itemId" element={<MarketplaceDetailsPage marketplaceType="events" bookmarkedItems={bookmarkedItems.events} onToggleBookmark={itemId => handleToggleBookmark('events', itemId)} />} />
       {/* Pulse Marketplace */}
       <Route path="/pulse" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><PulsePage /></React.Suspense>} />
+      <Route path="/pulse/detailsPage" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><PulseDetailPage /></React.Suspense>} />
       <Route path="/pulse/:id" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><PulseDetailPage /></React.Suspense>} />
       {/* News & Opportunities Marketplace */}
       <Route path="/news" element={<NewsPage />} />

@@ -241,29 +241,29 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       </div>;
   }
   if (error) {
-    return <div className="min-h-screen flex flex-col bg-gray-50">
+    return <div className="min-h-screen flex flex-col bg-[#030F35]/5">
         <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
         <div className="container mx-auto px-4 py-8 flex-grow">
           <nav className="flex mb-4" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
               <li className="inline-flex items-center">
-                <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
+                <Link to="/" className="text-[#030F35]/70 hover:text-[#030F35] inline-flex items-center transition-colors">
                   <HomeIcon size={16} className="mr-1" />
                   <span>Home</span>
                 </Link>
               </li>
               <li>
                 <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-gray-400" />
-                  <Link to={config.route} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">
+                  <ChevronRightIcon size={16} className="text-[#030F35]/40" />
+                  <Link to={config.route} className="ml-1 text-[#030F35]/70 hover:text-[#030F35] md:ml-2 transition-colors">
                     {config.itemNamePlural}
                   </Link>
                 </div>
               </li>
               <li aria-current="page">
                 <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2">Details</span>
+                  <ChevronRightIcon size={16} className="text-[#030F35]/40" />
+                  <span className="ml-1 text-[#030F35]/60 md:ml-2">Details</span>
                 </div>
               </li>
             </ol>
@@ -274,18 +274,18 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       </div>;
   }
   if (!item) {
-    return <div className="min-h-screen flex flex-col bg-gray-50">
+    return <div className="min-h-screen flex flex-col bg-[#030F35]/5">
         <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
         <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[300px] flex-grow">
           <div className="text-center">
-            <h2 className="text-xl font-medium text-gray-900 mb-2">
+            <h2 className="text-xl font-medium text-[#030F35] mb-2">
               {config.itemName} Not Found
             </h2>
-            <p className="text-gray-500 mb-4">
+            <p className="text-[#030F35]/70 mb-4">
               The {config.itemName.toLowerCase()} you're looking for doesn't
               exist or has been removed.
             </p>
-            <Link to={config.route} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors inline-block">
+            <Link to={config.route} className="px-4 py-2 bg-gradient-to-r from-[#030F35] via-[#1A2E6E] to-[#030F35] text-white rounded-md hover:from-[#13285A] hover:via-[#1A2E6E] hover:to-[#13285A] transition-colors inline-block shadow-md">
               Back to {config.itemNamePlural}
             </Link>
           </div>
@@ -300,7 +300,10 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const primaryAction = config.primaryCTA;
   const secondaryAction = config.secondaryCTA;
   // Extract tags based on marketplace type
-  const displayTags = item.tags || [item.category, marketplaceType === 'courses' ? item.deliveryMode : item.serviceType, item.businessStage].filter(Boolean);
+  // For events, use item.tags directly; for others, use fallback logic
+  const displayTags = marketplaceType === 'events' 
+    ? (item.tags || []) 
+    : (item.tags || [item.category, marketplaceType === 'courses' ? item.deliveryMode : item.serviceType, item.businessStage].filter(Boolean));
   // Extract details for the sidebar
   const detailItems = config.attributes.map(attr => ({
     label: attr.label,
@@ -316,20 +319,20 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     switch (tabId) {
       case 'about':
         return <div className="space-y-6">
-            <p className="text-gray-600 text-lg mb-6">
+            <p className="text-[#030F35]/70 text-lg mb-6">
               Learn more about this {config.itemName.toLowerCase()} and what it
               offers for your business.
             </p>
             <div className="prose max-w-none">
-              <p className="text-gray-700 mb-5">{itemDescription}</p>
-              {marketplaceType === 'courses' && <p className="text-gray-700">
+              <p className="text-[#030F35]/80 mb-5">{itemDescription}</p>
+              {marketplaceType === 'courses' && <p className="text-[#030F35]/80">
                   This course is designed to accommodate {item.businessStage}{' '}
                   businesses, with a focus on practical applications that you
                   can implement immediately. Our experienced instructors bring
                   real-world expertise to help you navigate the challenges of
                   modern business environments.
                 </p>}
-              {marketplaceType === 'financial' && <p className="text-gray-700">
+              {marketplaceType === 'financial' && <p className="text-[#030F35]/80">
                   This financial service is tailored for businesses at the{' '}
                   {item.businessStage || 'growth'} stage, providing the
                   financial resources needed to achieve your business
@@ -337,7 +340,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   application process, you can access the funding you need
                   quickly and efficiently.
                 </p>}
-              {marketplaceType === 'non-financial' && <p className="text-gray-700">
+              {marketplaceType === 'non-financial' && <p className="text-[#030F35]/80">
                   This service is designed to support businesses at all stages,
                   with particular benefits for those in the{' '}
                   {item.businessStage || 'growth'} phase. Our team of experts
@@ -346,30 +349,76 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   business needs.
                 </p>}
               {marketplaceType === 'events' && <div className="space-y-4">
-                  {item.meetingLink && <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <h4 className="font-semibold text-blue-900 mb-2">Join Online</h4>
-                      <a href={item.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
-                        {item.meetingLink}
-                      </a>
-                    </div>}
-                  {item.registrationRequired && <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-                      <p className="text-amber-900">
-                        <strong>Registration Required:</strong> Please register to attend this event.
+                  {/* Event Information */}
+                  <div className="bg-[#030F35]/5 rounded-lg p-4 border border-[#030F35]/20">
+                    <h3 className="text-lg font-semibold text-[#030F35] mb-4">Event Information</h3>
+                    <div className="space-y-3">
+                      {item.date && <div className="flex items-start">
+                          <Calendar className="text-[#1A2E6E] mr-3 mt-1 flex-shrink-0" size={20} />
+                          <div>
+                            <h4 className="font-semibold text-[#030F35]">Date</h4>
+                            <p className="text-[#030F35]/80">{item.date}</p>
+                          </div>
+                        </div>}
+                      {item.time && <div className="flex items-start">
+                          <Clock className="text-[#1A2E6E] mr-3 mt-1 flex-shrink-0" size={20} />
+                          <div>
+                            <h4 className="font-semibold text-[#030F35]">Time</h4>
+                            <p className="text-[#030F35]/80">{item.time}</p>
+                          </div>
+                        </div>}
+                      {item.location && <div className="flex items-start">
+                          <MapPin className="text-[#1A2E6E] mr-3 mt-1 flex-shrink-0" size={20} />
+                          <div>
+                            <h4 className="font-semibold text-[#030F35]">Location</h4>
+                            <p className="text-[#030F35]/80">{item.location}</p>
+                          </div>
+                        </div>}
+                    </div>
+                  </div>
+                  {/* Registration Notice */}
+                  {item.registrationRequired && <div className="bg-[#FB5535]/10 rounded-lg p-4 border border-[#FB5535]/30">
+                      <p className="text-[#030F35] mb-3">
+                        <strong className="text-[#FB5535]">Registration Required:</strong> Please register to attend this event.
                         {item.registrationDeadline && ` Registration deadline: ${new Date(item.registrationDeadline).toLocaleDateString()}`}
                       </p>
+                      {item.register_button && <div className="mt-3">
+                          {typeof item.register_button === 'string' && item.register_button.startsWith('http') ? (
+                            <a href={item.register_button} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#030F35] via-[#1A2E6E] to-[#030F35] text-white rounded-md hover:from-[#13285A] hover:via-[#1A2E6E] hover:to-[#13285A] transition-all shadow-md">
+                              Register Now
+                              <ExternalLinkIcon size={16} className="ml-2" />
+                            </a>
+                          ) : (
+                            <button onClick={() => {
+                              // Handle registration button click - could open a modal or navigate
+                              const actionSection = document.getElementById('action-section');
+                              if (actionSection) {
+                                actionSection.scrollIntoView({ behavior: 'smooth' });
+                              }
+                            }} className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#030F35] via-[#1A2E6E] to-[#030F35] text-white rounded-md hover:from-[#13285A] hover:via-[#1A2E6E] hover:to-[#13285A] transition-all shadow-md">
+                              {item.register_button || 'Register Now'}
+                            </button>
+                          )}
+                        </div>}
+                    </div>}
+                  {item.meetingLink && <div className="bg-[#030F35]/5 rounded-lg p-4 border border-[#030F35]/20">
+                      <h4 className="font-semibold text-[#030F35] mb-2">Join Online</h4>
+                      <a href={item.meetingLink} target="_blank" rel="noopener noreferrer" className="text-[#030F35] hover:text-[#13285A] underline">
+                        {item.meetingLink}
+                      </a>
                     </div>}
                 </div>}
             </div>
             {/* Key Highlights Section - Unified layout for all marketplace types */}
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
+            <div className="bg-[#030F35]/5 rounded-lg p-4 border border-[#030F35]/20">
+              <h3 className="text-xl font-bold text-[#030F35] mb-4">
                 Key Highlights
               </h3>
               {/* Features/Highlights list - Consistent for all types */}
               <ul className="space-y-2">
                 {highlights.map((highlight, index) => <li key={index} className="flex items-start">
-                    <CheckCircleIcon size={16} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
-                    <span className="text-gray-700">{highlight}</span>
+                    <CheckCircleIcon size={16} className="text-[#FB5535] mr-3 mt-1 flex-shrink-0" />
+                    <span className="text-[#030F35]/80">{highlight}</span>
                   </li>)}
               </ul>
             </div>
@@ -380,13 +429,13 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               Here's the complete schedule and timeline for this course.
             </p>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="flex flex-col md:flex-row md:items-center mb-6 bg-blue-50 p-3 rounded-lg">
+              <div className="flex flex-col md:flex-row md:items-center mb-6 bg-[#030F35]/5 p-3 rounded-lg">
                 <div className="flex-grow flex items-center">
-                  <Calendar className="text-blue-600 mr-3" size={18} />
+                  <Calendar className="text-[#030F35] mr-3" size={18} />
                   <div>
                     <p className="font-medium text-gray-800">
                       Start Date:{' '}
-                      <span className="text-blue-700">{item.startDate}</span>
+                      <span className="text-[#030F35]">{item.startDate}</span>
                     </p>
                     <p className="text-sm text-gray-600">
                       Duration: {item.duration}
@@ -394,7 +443,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   </div>
                 </div>
                 <div className="mt-2 md:mt-0 md:ml-auto">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-100">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[#FB5535]/10 text-[#FB5535] border border-[#FB5535]/20">
                     {item.deliveryMode}
                   </span>
                 </div>
@@ -403,29 +452,29 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                 Course Timeline
               </h3>
               <div className="space-y-4">
-                <div className="relative pl-8 pb-4 border-l-2 border-blue-200">
-                  <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-blue-500"></div>
+                <div className="relative pl-8 pb-4 border-l-2 border-[#030F35]/30">
+                  <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-[#030F35]"></div>
                   <h4 className="font-semibold text-gray-900">Week 1</h4>
                   <p className="text-gray-700">
                     Introduction and foundation concepts
                   </p>
                 </div>
-                <div className="relative pl-8 pb-4 border-l-2 border-blue-200">
-                  <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-blue-500"></div>
+                <div className="relative pl-8 pb-4 border-l-2 border-[#030F35]/30">
+                  <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-[#030F35]"></div>
                   <h4 className="font-semibold text-gray-900">Week 2</h4>
                   <p className="text-gray-700">
                     Core principles and practical exercises
                   </p>
                 </div>
-                <div className="relative pl-8 pb-4 border-l-2 border-blue-200">
-                  <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-blue-500"></div>
+                <div className="relative pl-8 pb-4 border-l-2 border-[#030F35]/30">
+                  <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-[#030F35]"></div>
                   <h4 className="font-semibold text-gray-900">Week 3-4</h4>
                   <p className="text-gray-700">
                     Advanced techniques and final projects
                   </p>
                 </div>
                 <div className="relative pl-8">
-                  <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-blue-500"></div>
+                  <div className="absolute left-[-8px] top-0 w-4 h-4 rounded-full bg-[#030F35]"></div>
                   <h4 className="font-semibold text-gray-900">Final Week</h4>
                   <p className="text-gray-700">
                     Project presentations and certification
@@ -435,7 +484,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               {/* Location if applicable */}
               {item.location && <div className="mt-6 pt-4 border-t border-gray-100">
                   <h4 className="font-semibold text-gray-900 mb-2 flex items-center">
-                    <MapPin className="text-blue-600 mr-2" size={16} />
+                    <MapPin className="text-[#030F35] mr-2" size={16} />
                     Location Details
                   </h4>
                   <p className="text-gray-700 ml-6">{item.location}</p>
@@ -470,7 +519,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               </h3>
               <div className="grid md:grid-cols-2 gap-2">
                 {['Strategic thinking and planning', 'Problem-solving techniques', 'Implementation best practices', 'Performance measurement', 'Risk assessment and mitigation', 'Communication and presentation'].map((skill, index) => <div key={index} className="flex items-center">
-                    <CheckCircleIcon size={16} className="text-green-600 mr-2 flex-shrink-0" />
+                    <CheckCircleIcon size={16} className="text-[#1A2E6E] mr-2 flex-shrink-0" />
                     <span className="text-gray-700">{skill}</span>
                   </div>)}
               </div>
@@ -485,7 +534,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                 immediate implementation, and join our network of alumni and
                 industry professionals.
               </p>
-              <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded border border-blue-100">
+              <div className="text-sm text-gray-600 bg-[#030F35]/5 p-3 rounded border border-[#030F35]/20">
                 Businesses report an average of 40% improvement in relevant
                 metrics within 6 months of course completion.
               </div>
@@ -505,7 +554,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-start">
-                    <Calendar className="text-blue-600 mr-3 mt-1 flex-shrink-0" size={20} />
+                    <Calendar className="text-[#030F35] mr-3 mt-1 flex-shrink-0" size={20} />
                     <div>
                       <h4 className="font-semibold text-gray-900">Date & Time</h4>
                       <p className="text-gray-700">{item.date}</p>
@@ -513,24 +562,24 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     </div>
                   </div>
                   <div className="flex items-start">
-                    <MapPin className="text-blue-600 mr-3 mt-1 flex-shrink-0" size={20} />
+                    <MapPin className="text-[#030F35] mr-3 mt-1 flex-shrink-0" size={20} />
                     <div>
                       <h4 className="font-semibold text-gray-900">Location</h4>
                       <p className="text-gray-700">{item.location}</p>
-                      {item.isVirtual && item.meetingLink && <a href={item.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline text-sm mt-1 block">
+                      {item.isVirtual && item.meetingLink && <a href={item.meetingLink} target="_blank" rel="noopener noreferrer" className="text-[#030F35] hover:text-[#13285A] underline text-sm mt-1 block">
                           Join Meeting Link
                         </a>}
                     </div>
                   </div>
                   {item.capacity && <div className="flex items-start">
-                      <Users className="text-blue-600 mr-3 mt-1 flex-shrink-0" size={20} />
+                      <Users className="text-[#030F35] mr-3 mt-1 flex-shrink-0" size={20} />
                       <div>
                         <h4 className="font-semibold text-gray-900">Capacity</h4>
                         <p className="text-gray-700">{item.capacity}</p>
                       </div>
                     </div>}
                   {item.registrationRequired && <div className="flex items-start">
-                      <CheckCircleIcon className="text-green-600 mr-3 mt-1 flex-shrink-0" size={20} />
+                      <CheckCircleIcon className="text-[#1A2E6E] mr-3 mt-1 flex-shrink-0" size={20} />
                       <div>
                         <h4 className="font-semibold text-gray-900">Registration</h4>
                         <p className="text-gray-700">Registration is required for this event</p>
@@ -553,7 +602,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     Event Tags
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {item.tags.map((tag: string, index: number) => <span key={index} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                    {item.tags.map((tag: string, index: number) => <span key={index} className="px-3 py-1 bg-[#030F35]/10 text-[#030F35] rounded-full text-sm font-medium">
                         {tag}
                       </span>)}
                   </div>
@@ -573,24 +622,24 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               </h3>
               <ul className="space-y-2">
                 {item.eligibilityCriteria ? item.eligibilityCriteria.map((criteria, index) => <li key={index} className="flex items-start">
-                      <CheckCircleIcon size={16} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+                      <CheckCircleIcon size={16} className="text-[#1A2E6E] mr-3 mt-1 flex-shrink-0" />
                       <span className="text-gray-700">{criteria}</span>
                     </li>) : <li className="flex items-start">
-                    <CheckCircleIcon size={16} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+                    <CheckCircleIcon size={16} className="text-[#1A2E6E] mr-3 mt-1 flex-shrink-0" />
                     <span className="text-gray-700">
                       {item.eligibility || `Businesses at the ${item.businessStage || 'growth'} stage`}
                     </span>
                   </li>}
               </ul>
-              <div className="mt-6 bg-blue-50 rounded-lg p-3">
-                <h4 className="text-md font-medium text-blue-800 mb-2">
+              <div className="mt-6 bg-[#030F35]/5 rounded-lg p-3">
+                <h4 className="text-md font-medium text-[#030F35] mb-2">
                   Not sure if you qualify?
                 </h4>
                 <p className="text-gray-700 mb-3 text-sm">
                   Contact {item.provider.name} for a preliminary eligibility
                   assessment before submitting your full application.
                 </p>
-                <button className="text-blue-600 text-sm font-medium hover:text-blue-800 transition-colors flex items-center">
+                <button className="text-[#030F35] text-sm font-medium hover:text-[#13285A] transition-colors flex items-center">
                   Contact Provider
                   <ChevronRight size={14} className="ml-1" />
                 </button>
@@ -701,13 +750,13 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                           </p>
                         </div>}
                     </> : <div className="text-center py-8">
-                      <CheckCircleIcon className="text-green-500 mx-auto mb-4" size={48} />
+                      <CheckCircleIcon className="text-[#1A2E6E] mx-auto mb-4" size={48} />
                       <h4 className="font-medium text-gray-900 mb-2">
                         No Registration Required
                       </h4>
                       <p className="text-gray-600 text-sm">
                         This event is open to all. Simply join at the scheduled time.
-                        {item.meetingLink && <a href={item.meetingLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline block mt-2">
+                        {item.meetingLink && <a href={item.meetingLink} target="_blank" rel="noopener noreferrer" className="text-[#030F35] hover:text-[#13285A] underline block mt-2">
                             Access Meeting Link
                           </a>}
                       </p>
@@ -789,31 +838,31 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                 </h3>
                 {item.requiredDocuments && item.requiredDocuments.length > 0 ? <div className="grid md:grid-cols-2 gap-3">
                     {item.requiredDocuments.map((doc: string, index: number) => <div key={index} className="flex items-start">
-                        <FileText size={16} className="text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                        <FileText size={16} className="text-[#030F35] mr-3 mt-0.5 flex-shrink-0" />
                         <span className="text-gray-700">{doc}</span>
                       </div>)}
                   </div> : <div className="space-y-3">
                     <div className="flex items-start">
-                      <CheckCircleIcon size={16} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+                      <CheckCircleIcon size={16} className="text-[#1A2E6E] mr-3 mt-1 flex-shrink-0" />
                       <span className="text-gray-700">
                         {item.isVirtual ? 'A device with internet connection and the meeting link' : 'Just yourself - no special items required'}
                       </span>
                     </div>
                     {item.meetingLink && <div className="flex items-start">
-                        <CheckCircleIcon size={16} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+                        <CheckCircleIcon size={16} className="text-[#1A2E6E] mr-3 mt-1 flex-shrink-0" />
                         <span className="text-gray-700">
                           Meeting link will be provided after registration
                         </span>
                       </div>}
                     {!item.isVirtual && <div className="flex items-start">
-                        <CheckCircleIcon size={16} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+                        <CheckCircleIcon size={16} className="text-[#1A2E6E] mr-3 mt-1 flex-shrink-0" />
                         <span className="text-gray-700">
                           Arrive 10-15 minutes early for check-in
                         </span>
                       </div>}
                   </div>}
-                {item.registrationRequired && <div className="mt-6 text-sm text-gray-700 bg-blue-50 p-3 rounded border border-blue-100">
-                    <span className="font-medium text-blue-800">Note:</span> Make sure you've completed registration before the event. You'll receive a confirmation email with all the details.
+                {item.registrationRequired && <div className="mt-6 text-sm text-gray-700 bg-[#030F35]/5 p-3 rounded border border-[#030F35]/20">
+                    <span className="font-medium text-[#030F35]">Note:</span> Make sure you've completed registration before the event. You'll receive a confirmation email with all the details.
                   </div>}
               </div>
             </div>;
@@ -1006,7 +1055,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const SummaryCard = ({
     isFloating = false
   }) => <div ref={isFloating ? null : summaryCardRef} className={`
-        bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden
+        bg-white rounded-lg shadow-md border border-[#030F35]/20 overflow-hidden
         ${isFloating ? 'fixed z-[1000]' : ''}
       `} style={isFloating ? {
     top: `${headerHeight + 20}px`,
@@ -1015,12 +1064,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     maxHeight: 'calc(100vh - 120px)',
     overflowY: 'auto'
   } : {}}>
-      <div className="bg-gray-50 p-4 border-b border-gray-200">
+      <div className="bg-[#030F35]/5 p-4 border-b border-[#030F35]/20">
         <div className="flex items-center justify-between">
-          <h3 className="font-medium text-lg text-gray-900">
+          <h3 className="font-medium text-lg text-[#030F35]">
             {config.itemName} Details
           </h3>
-          {isFloating && <button onClick={() => setIsFloatingCardVisible(false)} className="p-1 hover:bg-gray-200 rounded transition-colors text-gray-600" aria-label="Hide card">
+          {isFloating && <button onClick={() => setIsFloatingCardVisible(false)} className="p-1 hover:bg-[#030F35]/10 rounded transition-colors text-[#030F35]/70" aria-label="Hide card">
               <XIcon size={16} />
             </button>}
         </div>
@@ -1028,27 +1077,27 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       <div className="p-4">
         <div className="space-y-2 mb-4">
           {detailItems.map((detail, index) => <div key={index} className="flex justify-between items-center">
-              <span className="text-sm text-gray-500">{detail.label}:</span>
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm text-[#030F35]/60">{detail.label}:</span>
+              <span className="text-sm font-medium text-[#030F35]">
                 {detail.value || 'N/A'}
               </span>
             </div>)}
         </div>
-        <div className="border-t border-gray-200 pt-4 mb-4">
-          <h4 className="text-sm font-medium text-gray-800 mb-3">
+        <div className="border-t border-[#030F35]/20 pt-4 mb-4">
+          <h4 className="text-sm font-medium text-[#030F35] mb-3">
             {marketplaceType === 'courses' ? 'This course includes:' : marketplaceType === 'financial' ? 'This service includes:' : 'This service includes:'}
           </h4>
           <ul className="space-y-2">
             {highlights.slice(0, 4).map((highlight, index) => <li key={index} className="flex items-start">
-                <CheckCircleIcon size={14} className="text-green-500 mr-2 mt-1 flex-shrink-0" />
-                <span className="text-sm text-gray-700">{highlight}</span>
+                <CheckCircleIcon size={14} className="text-[#FB5535] mr-2 mt-1 flex-shrink-0" />
+                <span className="text-sm text-[#030F35]/80">{highlight}</span>
               </li>)}
           </ul>
         </div>
-        <button id="action-section" className="w-full px-4 py-3 text-white font-bold rounded-md bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 hover:from-teal-600 hover:via-blue-600 hover:to-purple-700 transition-colors shadow-md mb-3">
+        <button id="action-section" className="w-full px-4 py-3 text-white font-bold rounded-md bg-gradient-to-r from-[#030F35] via-[#1A2E6E] to-[#030F35] hover:from-[#13285A] hover:via-[#1A2E6E] hover:to-[#13285A] transition-colors shadow-md mb-3">
           {primaryAction}
         </button>
-        <button onClick={handleAddToComparison} className="w-full px-4 py-2.5 text-blue-600 font-medium bg-white border border-blue-600 rounded-md hover:bg-blue-50 transition-colors flex items-center justify-center">
+        <button onClick={handleAddToComparison} className="w-full px-4 py-2.5 text-[#030F35] font-medium bg-white border border-[#030F35]/30 rounded-md hover:bg-[#030F35]/10 transition-colors flex items-center justify-center">
           <ScaleIcon size={16} className="mr-2" />
           Add to Comparison
         </button>
@@ -1058,29 +1107,29 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
       <main className="flex-grow">
         {/* Hero Banner - consistent header layout */}
-        <div ref={heroRef} className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
+        <div ref={heroRef} className="w-full bg-gradient-to-r from-[#FB5535]/10 via-[#1A2E6E]/10 to-[#030F35]/10 border-b border-[#030F35]/20">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             {/* Breadcrumbs */}
             <nav className="flex pt-4" aria-label="Breadcrumb">
               <ol className="inline-flex items-center space-x-1 md:space-x-2">
                 <li className="inline-flex items-center">
-                  <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
+                  <Link to="/" className="text-[#030F35]/70 hover:text-[#030F35] inline-flex items-center transition-colors">
                     <HomeIcon size={16} className="mr-1" />
                     <span>Home</span>
                   </Link>
                 </li>
                 <li>
                   <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-gray-400" />
-                    <Link to={config.route} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">
+                    <ChevronRightIcon size={16} className="text-[#030F35]/40" />
+                    <Link to={config.route} className="ml-1 text-[#030F35]/70 hover:text-[#030F35] md:ml-2 transition-colors">
                       {config.itemNamePlural}
                     </Link>
                   </div>
                 </li>
                 <li aria-current="page">
                   <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-gray-400" />
-                    <span className="ml-1 text-gray-500 md:ml-2">
+                    <ChevronRightIcon size={16} className="text-[#030F35]/40" />
+                    <span className="ml-1 text-[#030F35]/60 md:ml-2">
                       {itemTitle}
                     </span>
                   </div>
@@ -1091,17 +1140,17 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               {/* Provider */}
               <div className="flex items-center mb-3">
                 <img src={provider.logoUrl} alt={`${provider.name} logo`} className="h-10 w-10 object-contain mr-3 rounded-md" />
-                <span className="text-gray-600 font-medium">
+                <span className="text-[#030F35]/80 font-medium">
                   {provider.name}
                 </span>
               </div>
               {/* Title */}
-              <h1 className="text-3xl font-bold text-gray-900 mb-2 leading-tight">
+              <h1 className="text-3xl font-bold text-[#030F35] mb-2 leading-tight">
                 {itemTitle}
               </h1>
               {/* Tags row - Separated from ratings */}
               <div className="flex flex-wrap gap-2 mb-3">
-                {displayTags.map((tag, index) => <span key={index} className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${index === 0 ? 'bg-blue-50 text-blue-700 border border-blue-100' : index === 1 ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-purple-50 text-purple-700 border border-purple-100'}`}>
+                {displayTags.map((tag, index) => <span key={index} className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${index === 0 ? 'bg-[#030F35]/10 text-[#030F35] border border-[#030F35]/20' : index === 1 ? 'bg-[#FB5535]/10 text-[#FB5535] border border-[#FB5535]/20' : 'bg-[#1A2E6E]/10 text-[#1A2E6E] border border-[#1A2E6E]/20'}`}>
                     {tag}
                   </span>)}
               </div>
@@ -1126,38 +1175,53 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                 </button>
               </div>
               {/* Description */}
-              <p className="text-gray-700 mb-6 max-w-2xl">{itemDescription}</p>
+              <p className="text-[#030F35]/80 mb-6 max-w-2xl">{itemDescription}</p>
+              {/* Event Information in Header - for events only */}
+              {marketplaceType === 'events' && (item.date || item.time || item.location) && <div className="flex flex-wrap items-center gap-4 text-sm text-[#030F35]/70 mb-4">
+                  {item.date && <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2 text-[#1A2E6E]" />
+                      <span>{item.date}</span>
+                    </div>}
+                  {item.time && <div className="flex items-center">
+                      <Clock className="h-4 w-4 mr-2 text-[#1A2E6E]" />
+                      <span>{item.time}</span>
+                    </div>}
+                  {item.location && <div className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-2 text-[#1A2E6E]" />
+                      <span>{item.location}</span>
+                    </div>}
+                </div>}
             </div>
           </div>
         </div>
         {/* Tabs Navigation */}
-        <div className="border-b border-gray-200 w-full bg-white">
+        <div className="border-b border-[#030F35]/20 w-full bg-white">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <div ref={containerRef} className="flex items-center w-full relative">
-              {showNavigation && <button className="absolute left-0 p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md transition-colors bg-white z-10" onClick={scrollLeft} aria-label="Scroll tabs left">
+              {showNavigation && <button className="absolute left-0 p-2 text-[#030F35]/60 hover:text-[#030F35] focus:outline-none focus:ring-2 focus:ring-[#030F35] focus:ring-offset-2 rounded-md transition-colors bg-white z-10" onClick={scrollLeft} aria-label="Scroll tabs left">
                   <ChevronLeft size={16} />
                 </button>}
               <div ref={tabsRef} className="flex overflow-x-auto scrollbar-hide w-full" style={{
               scrollbarWidth: 'none',
               msOverflowStyle: 'none'
             }}>
-                {config.tabs.map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200 border-b-2 ${activeTab === tab.id ? 'text-blue-600 border-blue-600' : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'}`} aria-selected={activeTab === tab.id} aria-controls={`tabpanel-${tab.id}`} role="tab">
+                {config.tabs.map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200 border-b-2 ${activeTab === tab.id ? 'text-[#030F35] border-[#030F35]' : 'text-[#030F35]/60 border-transparent hover:text-[#030F35] hover:border-[#030F35]/30'}`} aria-selected={activeTab === tab.id} aria-controls={`tabpanel-${tab.id}`} role="tab">
                     {tab.label}
                   </button>)}
               </div>
               {showNavigation && <>
-                  <button className="absolute right-8 p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md transition-colors bg-white z-10" onClick={scrollRight} aria-label="Scroll tabs right">
+                  <button className="absolute right-8 p-2 text-[#030F35]/60 hover:text-[#030F35] focus:outline-none focus:ring-2 focus:ring-[#030F35] focus:ring-offset-2 rounded-md transition-colors bg-white z-10" onClick={scrollRight} aria-label="Scroll tabs right">
                     <ChevronRight size={16} />
                   </button>
                   <div className="absolute right-0">
-                    <button className="p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-md transition-colors bg-white z-10" onClick={() => setShowTabsMenu(!showTabsMenu)} aria-label="Show all tabs menu" aria-expanded={showTabsMenu}>
+                    <button className="p-2 text-[#030F35]/60 hover:text-[#030F35] focus:outline-none focus:ring-2 focus:ring-[#030F35] focus:ring-offset-2 rounded-md transition-colors bg-white z-10" onClick={() => setShowTabsMenu(!showTabsMenu)} aria-label="Show all tabs menu" aria-expanded={showTabsMenu}>
                       <MoreHorizontal size={16} />
                     </button>
                     {showTabsMenu && <>
                         <div className="fixed inset-0 z-10" onClick={() => setShowTabsMenu(false)} aria-hidden="true" />
-                        <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-20 border border-gray-200">
+                        <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-20 border border-[#030F35]/20">
                           <div className="py-1 max-h-64 overflow-y-auto">
-                            {config.tabs.map(tab => <button key={tab.id} className={`w-full text-left px-4 py-2 text-sm transition-colors ${activeTab === tab.id ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-100'}`} onClick={() => {
+                            {config.tabs.map(tab => <button key={tab.id} className={`w-full text-left px-4 py-2 text-sm transition-colors ${activeTab === tab.id ? 'bg-[#030F35]/10 text-[#030F35]' : 'text-[#030F35]/80 hover:bg-[#030F35]/5'}`} onClick={() => {
                         setActiveTab(tab.id);
                         setShowTabsMenu(false);
                       }} role="menuitem">
@@ -1198,58 +1262,79 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         {/* Floating card - visible when scrolled past hero section */}
         {isVisible && isFloatingCardVisible && <SummaryCard isFloating={true} />}
         {/* Related Items */}
-        <section className="bg-gray-50 py-10 border-t border-gray-200">
+        <section className="bg-[#030F35]/5 py-10 border-t border-[#030F35]/20">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-[#030F35]">
                 Related {config.itemNamePlural}
               </h2>
-              <a href={config.route} className="text-blue-600 font-medium hover:text-blue-800 flex items-center">
+              <a href={config.route} className="text-[#030F35] font-medium hover:text-[#13285A] flex items-center transition-colors">
                 See All {config.itemNamePlural}
                 <ChevronRightIcon size={16} className="ml-1" />
               </a>
             </div>
-            {relatedItems.length > 0 ? <div>
+            {/* For events, check if item.related_events exists, otherwise use relatedItems */}
+            {(marketplaceType === 'events' && item.related_events && item.related_events.length > 0) ? <div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {relatedItems.map(relatedItem => <div key={relatedItem.id} className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/marketplace/${marketplaceType}/${relatedItem.id}`)}>
+                  {item.related_events.map((relatedEvent: any, index: number) => <div key={relatedEvent.id || index} className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow border border-[#030F35]/10" onClick={() => {
+                      if (relatedEvent.id) {
+                        navigate(`/marketplace/${marketplaceType}/${relatedEvent.id}`);
+                      }
+                    }}>
+                      <h3 className="font-semibold text-[#030F35] mb-2">
+                        {relatedEvent.event_title || relatedEvent.title || 'Related Event'}
+                      </h3>
+                      <p className="text-sm text-[#030F35]/70 line-clamp-2 mb-3">
+                        {relatedEvent.event_description || relatedEvent.description || ''}
+                      </p>
+                      {relatedEvent.tags && relatedEvent.tags.length > 0 && <div className="flex flex-wrap gap-1">
+                          {relatedEvent.tags.slice(0, 2).map((tag: string, idx: number) => <span key={idx} className="px-2 py-0.5 bg-[#030F35]/10 text-[#030F35] text-xs rounded-full">
+                                {tag}
+                              </span>)}
+                        </div>}
+                    </div>)}
+                </div>
+              </div> : relatedItems.length > 0 ? <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {relatedItems.map(relatedItem => <div key={relatedItem.id} className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow border border-[#030F35]/10" onClick={() => navigate(`/marketplace/${marketplaceType}/${relatedItem.id}`)}>
                       <div className="flex items-center mb-3">
                         <img src={relatedItem.provider.logoUrl} alt={relatedItem.provider.name} className="h-8 w-8 object-contain mr-2 rounded" />
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-[#030F35]/70">
                           {relatedItem.provider.name}
                         </span>
                       </div>
-                      <h3 className="font-semibold text-gray-900 mb-2">
+                      <h3 className="font-semibold text-[#030F35] mb-2">
                         {relatedItem.title}
                       </h3>
-                      <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                      <p className="text-sm text-[#030F35]/70 line-clamp-2 mb-3">
                         {relatedItem.description}
                       </p>
                       <div className="flex flex-wrap gap-1">
-                        {(relatedItem.tags || []).slice(0, 2).map((tag, idx) => <span key={idx} className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">
+                        {(relatedItem.tags || []).slice(0, 2).map((tag, idx) => <span key={idx} className="px-2 py-0.5 bg-[#030F35]/10 text-[#030F35] text-xs rounded-full">
                               {tag}
                             </span>)}
                       </div>
                     </div>)}
                 </div>
-              </div> : <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-gray-200">
-                <p className="text-gray-500">
+              </div> : <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-[#030F35]/20">
+                <p className="text-[#030F35]/60">
                   No related {config.itemNamePlural.toLowerCase()} found
                 </p>
               </div>}
           </div>
         </section>
         {/* Sticky mobile CTA */}
-        {showStickyBottomCTA && <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 lg:hidden z-30 transform transition-transform duration-300 ease-in-out">
+        {showStickyBottomCTA && <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#030F35]/20 p-3 lg:hidden z-30 transform transition-transform duration-300 ease-in-out">
             <div className="flex items-center justify-between max-w-sm mx-auto">
               <div className="mr-3">
-                <div className="text-gray-900 font-bold">
+                <div className="text-[#030F35] font-bold">
                   {marketplaceType === 'courses' ? item.price || 'Free' : marketplaceType === 'financial' ? item.amount || 'Apply Now' : 'Request Now'}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-[#030F35]/70">
                   {item.duration || item.serviceType || ''}
                 </div>
               </div>
-              <button className="flex-1 px-4 py-3 text-white font-bold rounded-md bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 hover:from-teal-600 hover:via-blue-600 hover:to-purple-700 transition-colors shadow-md">
+              <button className="flex-1 px-4 py-3 text-white font-bold rounded-md bg-gradient-to-r from-[#030F35] via-[#1A2E6E] to-[#030F35] hover:from-[#13285A] hover:via-[#1A2E6E] hover:to-[#13285A] transition-colors shadow-md">
                 {primaryAction}
               </button>
             </div>

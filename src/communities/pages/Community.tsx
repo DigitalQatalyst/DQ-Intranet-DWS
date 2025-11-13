@@ -34,6 +34,8 @@ interface Community {
   created_at: string;
   imageurl?: string | null;
   category?: string | null;
+  department?: string | null;
+  location_filter?: string | null;
   isprivate?: boolean;
 }
 interface Post {
@@ -85,63 +87,169 @@ export default function Community() {
       checkMembership();
     }
   }, [id, user]);
+
+  // Refresh membership status when component mounts or when coming from join action
+  useEffect(() => {
+    if (id) {
+      checkMembership();
+    }
+  }, [id]);
   useEffect(() => {
     if (id) {
       fetchPosts();
     }
   }, [refreshKey]);
   const fetchCommunity = async () => {
-    setLoading(true);
-    setError(null);
-    const query = supabase
-      .from("communities_with_counts")
-      .select("*")
-      .eq("id", id)
-      .single();
-    const [data, err] = await safeFetch(query);
-    if (err) {
-      setError("Failed to load community");
+    if (!id) {
+      setError("Community ID is missing");
       setLoading(false);
       return;
     }
-    if (data) {
-      setCommunity({
-        id: data.id,
-        name: data.name,
-        description: data.description,
-        created_at: data.created_at,
-        imageurl: data.imageurl || null,
-        category: data.category || "Community",
-        isprivate: data.isprivate || false,
-      });
-      setMemberCount(data.member_count || 0);
-      // Fetch the community's creator to check ownership
-      if (user) {
-        const ownerQuery = supabase
+
+    setLoading(true);
+    setError(null);
+    
+    try {
+      console.log('Fetching community:', id);
+      
+      // Try communities_with_counts view first
+      let query = supabase
+        .from("communities_with_counts")
+        .select("*")
+        .eq("id", id)
+        .single();
+      
+      let [data, err] = await safeFetch(query);
+      
+      // If permission denied or view doesn't exist, fallback to base communities table
+      if (err && (err.message?.includes('permission denied') || err.message?.includes('does not exist'))) {
+        console.warn('View not accessible, falling back to base communities table:', err.message);
+        
+        // Fallback: Query base communities table with member count
+        query = supabase
           .from("communities")
-          .select("created_by")
+          .select(`
+            *,
+            memberships(count)
+          `)
           .eq("id", id)
-          .maybeSingle();
-        const [ownerData] = await safeFetch(ownerQuery);
-        const isUserOwner = ownerData?.created_by === user.id;
-        setIsOwner(isUserOwner);
-        // Check if user is admin
-        if (!isUserOwner && user.role === "admin") {
-          setIsAdmin(true);
-        } else if (!isUserOwner) {
-          const roleQuery = supabase
-            .from("community_roles")
-            .select("role")
-            .eq("community_id", id)
-            .eq("user_id", user.id)
-            .maybeSingle();
-          const [roleData] = await safeFetch(roleQuery);
-          console.log("user", user, "community", community);
-          setIsAdmin(roleData?.role === "admin");
+          .single();
+        
+        [data, err] = await safeFetch(query);
+        
+        // Transform data to match expected format
+        if (data && !err) {
+          const transformedData = {
+            ...data,
+            member_count: Array.isArray(data.memberships) 
+              ? data.memberships[0]?.count || 0 
+              : (typeof data.member_count === 'number' ? data.member_count : 0)
+          };
+          
+          setCommunity({
+            id: transformedData.id,
+            name: transformedData.name,
+            description: transformedData.description,
+            created_at: transformedData.created_at,
+            imageurl: transformedData.imageurl || null,
+            category: transformedData.category || "Community",
+            department: transformedData.department || null,
+            location_filter: transformedData.location_filter || null,
+            isprivate: transformedData.isprivate || false,
+          });
+          setMemberCount(transformedData.member_count || 0);
+          
+          // Fetch the community's creator to check ownership
+          if (user) {
+            const ownerQuery = supabase
+              .from("communities")
+              .select("created_by")
+              .eq("id", id)
+              .maybeSingle();
+            const [ownerData] = await safeFetch(ownerQuery);
+            const isUserOwner = ownerData?.created_by === user.id;
+            setIsOwner(isUserOwner);
+            // Check if user is admin
+            if (!isUserOwner && user.role === "admin") {
+              setIsAdmin(true);
+            } else if (!isUserOwner) {
+              const roleQuery = supabase
+                .from("community_roles")
+                .select("role")
+                .eq("community_id", id)
+                .eq("user_id", user.id)
+                .maybeSingle();
+              const [roleData] = await safeFetch(roleQuery);
+              setIsAdmin(roleData?.role === "admin");
+            }
+          }
+          
+          setLoading(false);
+          return;
         }
       }
+      
+      if (err) {
+        console.error('Error fetching community:', err);
+        console.error('Error details:', {
+          message: err.message,
+          code: err.code,
+          details: err.details,
+          hint: err.hint
+        });
+        setError(`Failed to load community: ${err.message || 'Unknown error'}`);
+        setLoading(false);
+        return;
+      }
+      
+      if (data) {
+        setCommunity({
+          id: data.id,
+          name: data.name,
+          description: data.description,
+          created_at: data.created_at,
+          imageurl: data.imageurl || null,
+          category: data.category || "Community",
+          department: data.department || null,
+          location_filter: data.location_filter || null,
+          isprivate: data.isprivate || false,
+        });
+        setMemberCount(data.member_count || 0);
+        
+        // Fetch the community's creator to check ownership
+        if (user) {
+          const ownerQuery = supabase
+            .from("communities")
+            .select("created_by")
+            .eq("id", id)
+            .maybeSingle();
+          const [ownerData] = await safeFetch(ownerQuery);
+          const isUserOwner = ownerData?.created_by === user.id;
+          setIsOwner(isUserOwner);
+          // Check if user is admin
+          if (!isUserOwner && user.role === "admin") {
+            setIsAdmin(true);
+          } else if (!isUserOwner) {
+            const roleQuery = supabase
+              .from("community_roles")
+              .select("role")
+              .eq("community_id", id)
+              .eq("user_id", user.id)
+              .maybeSingle();
+            const [roleData] = await safeFetch(roleQuery);
+            setIsAdmin(roleData?.role === "admin");
+          }
+        }
+      } else {
+        setError("Community not found");
+      }
+    } catch (exception) {
+      console.error('Exception fetching community:', exception);
+      const errorMessage = exception instanceof Error ? exception.message : 'Unknown error occurred';
+      setError(`Failed to load community: ${errorMessage}`);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
   const checkMembership = async () => {
     if (!id) return;
@@ -219,6 +327,8 @@ export default function Community() {
         toast.success(user ? 'Joined community!' : 'Joined community as guest!');
         setIsMember(true);
         setMemberCount(prev => prev + 1);
+        // Refresh posts to show member-only content
+        fetchPosts();
       }
     }
     setJoinLoading(false);

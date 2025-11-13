@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate, Link, useLocation } from 'react-router-do
 import { FilterSidebar, FilterConfig } from './FilterSidebar.js';
 import { MarketplaceGrid } from './MarketplaceGrid.js';
 import { SearchBar } from '../SearchBar.js';
-import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
+import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon, ChevronDown } from 'lucide-react';
 import { ErrorDisplay, CourseCardSkeleton } from '../SkeletonLoader.js';
 import { fetchMarketplaceItems, fetchMarketplaceFilters } from '../../services/marketplace.js';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig.js';
@@ -375,6 +375,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   
   // Knowledge-hub specific state
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  // Events filter accordion state - track which filter is expanded
+  const [expandedFilter, setExpandedFilter] = useState<string | null>(null);
   
   // Courses: URL toggle function
   const toggleFilter = useCallback((key: string, value: string) => {
@@ -1285,51 +1287,70 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         <h1 className="text-3xl font-bold text-gray-800 mb-2">{config.title}</h1>
         <p className="text-gray-600 mb-6">{config.description}</p>
 
-        {/* Navigation Tabs - Only for Events */}
+        {/* Current Focus Section and Navigation Tabs - Only for Events */}
         {isEvents && (
-          <div className="mb-6">
-            <nav className="flex" aria-label="Tabs">
-              <button
-                onClick={() => {
-                  // Discussion tab - routes to Communities Marketplace
-                  navigate('/communities');
-                }}
-                className={`py-4 px-4 text-sm transition-colors border-b ${
-                  location.pathname === '/communities' || location.pathname.startsWith('/community/')
-                    ? 'border-gray-300 text-gray-900 font-normal'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
-                }`}
-              >
-                Discussion
-              </button>
-              <button
-                onClick={() => {
-                  // Pulse tab - routes to Pulse Marketplace
-                  navigate('/marketplace/pulse');
-                }}
-                className={`py-4 px-4 text-sm transition-colors border-b ${
-                  location.pathname === '/marketplace/pulse' || location.pathname.startsWith('/marketplace/pulse/')
-                    ? 'border-gray-300 text-gray-900 font-normal'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
-                }`}
-              >
-                Pulse
-              </button>
-              <button
-                onClick={() => {
-                  // Events tab - stays on current page (Events Marketplace)
-                  navigate('/marketplace/events');
-                }}
-                className={`py-4 px-4 text-sm transition-colors border-b ${
-                  location.pathname === '/marketplace/events' || location.pathname.startsWith('/marketplace/events/')
-                    ? 'border-gray-300 text-gray-900 font-normal'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
-                }`}
-              >
-                Events
-              </button>
-            </nav>
-          </div>
+          <>
+            {/* Current Focus Section - Commented out */}
+            {/* <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="text-xs uppercase text-gray-500 font-medium mb-2">CURRENT FOCUS</div>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-3">Events</h2>
+                  <p className="text-gray-700 leading-relaxed mb-2">
+                    Stay up to date with upcoming events, workshops, and team gatherings. Explore activities within DQ that encourage collaboration, growth, and innovation.
+                  </p>
+                </div>
+                <button className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors whitespace-nowrap">
+                  Tab overview
+                </button>
+              </div>
+            </div> */}
+
+            {/* Navigation Tabs */}
+            <div className="mb-6">
+              <nav className="flex" aria-label="Tabs">
+                <button
+                  onClick={() => {
+                    // Discussion tab - routes to Communities Marketplace
+                    navigate('/communities');
+                  }}
+                  className={`py-4 px-4 text-sm transition-colors border-b ${
+                    location.pathname === '/communities' || location.pathname.startsWith('/community/')
+                      ? 'border-blue-600 text-gray-900 font-medium'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
+                  }`}
+                >
+                  Discussion
+                </button>
+                <button
+                  onClick={() => {
+                    // Pulse tab - routes to Pulse Marketplace
+                    navigate('/marketplace/pulse');
+                  }}
+                  className={`py-4 px-4 text-sm transition-colors border-b ${
+                    location.pathname === '/marketplace/pulse' || location.pathname.startsWith('/marketplace/pulse/')
+                      ? 'border-blue-600 text-gray-900 font-medium'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
+                  }`}
+                >
+                  Pulse
+                </button>
+                <button
+                  onClick={() => {
+                    // Events tab - stays on current page (Events Marketplace)
+                    navigate('/marketplace/events');
+                  }}
+                  className={`py-4 px-4 text-sm transition-colors border-b ${
+                    location.pathname === '/marketplace/events' || location.pathname.startsWith('/marketplace/events/')
+                      ? 'border-blue-600 text-gray-900 font-medium'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
+                  }`}
+                >
+                  Events
+                </button>
+              </nav>
+            </div>
+          </>
         )}
 
         {/* Search + Sort */}
@@ -1422,16 +1443,53 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   {isGuides ? (
                     <GuidesFilters facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
                   ) : isKnowledgeHub || isEvents ? (
-                    <div className="space-y-4">
-                      {filterConfig.map(category => <div key={category.id} className="border-b border-gray-100 pb-3">
-                          <h3 className="font-medium text-gray-900 mb-2">{category.title}</h3>
-                          <div className="space-y-2">
-                            {category.options.map(option => <div key={option.id} className="flex items-center">
-                                <input type="checkbox" id={`mobile-${category.id}-${option.id}`} checked={activeFilters.includes(option.name)} onChange={() => handleKnowledgeHubFilterChange(option.name)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                                <label htmlFor={`mobile-${category.id}-${option.id}`} className="ml-2 text-sm text-gray-700">{option.name}</label>
-                              </div>)}
+                    <div className="space-y-0">
+                      {filterConfig.map(category => {
+                        const isExpanded = expandedFilter === category.id;
+                        return (
+                          <div key={category.id} className="border-b border-gray-100">
+                            <button
+                              className="flex w-full justify-between items-center text-left font-medium text-gray-900 py-3 hover:text-gray-700 transition-colors"
+                              onClick={() => setExpandedFilter(isExpanded ? null : category.id)}
+                              type="button"
+                              aria-expanded={isExpanded}
+                            >
+                              <span>{category.title}</span>
+                              <ChevronDown
+                                size={16}
+                                className={`text-gray-500 flex-shrink-0 transition-transform duration-300 ease-in-out ${
+                                  isExpanded ? 'rotate-180' : ''
+                                }`}
+                              />
+                            </button>
+                            <div
+                              className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                              }`}
+                            >
+                              <div className="pb-3 space-y-2">
+                                {category.options.map(option => (
+                                  <div key={option.id} className="flex items-center">
+                                    <input
+                                      type="checkbox"
+                                      id={`mobile-${category.id}-${option.id}`}
+                                      checked={activeFilters.includes(option.name)}
+                                      onChange={() => handleKnowledgeHubFilterChange(option.name)}
+                                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    />
+                                    <label
+                                      htmlFor={`mobile-${category.id}-${option.id}`}
+                                      className="ml-2 text-sm text-gray-700 cursor-pointer"
+                                    >
+                                      {option.name}
+                                    </label>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                        </div>)}
+                        );
+                      })}
                     </div>
                   ) : (
                     <FilterSidebar
@@ -1462,16 +1520,53 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   )}
                 </div>
                 {isKnowledgeHub || isEvents ? (
-                  <div className="space-y-4">
-                    {filterConfig.map(category => <div key={category.id} className="border-b border-gray-100 pb-3">
-                        <h3 className="font-medium text-gray-900 mb-2">{category.title}</h3>
-                        <div className="space-y-2">
-                          {category.options.map(option => <div key={option.id} className="flex items-center">
-                              <input type="checkbox" id={`desktop-${category.id}-${option.id}`} checked={activeFilters.includes(option.name)} onChange={() => handleKnowledgeHubFilterChange(option.name)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                              <label htmlFor={`desktop-${category.id}-${option.id}`} className="ml-2 text-sm text-gray-700">{option.name}</label>
-                            </div>)}
+                  <div className="space-y-0">
+                    {filterConfig.map(category => {
+                      const isExpanded = expandedFilter === category.id;
+                      return (
+                        <div key={category.id} className="border-b border-gray-100">
+                          <button
+                            className="flex w-full justify-between items-center text-left font-medium text-gray-900 py-3 hover:text-gray-700 transition-colors"
+                            onClick={() => setExpandedFilter(isExpanded ? null : category.id)}
+                            type="button"
+                            aria-expanded={isExpanded}
+                          >
+                            <span>{category.title}</span>
+                            <ChevronDown
+                              size={16}
+                              className={`text-gray-500 flex-shrink-0 transition-transform duration-300 ease-in-out ${
+                                isExpanded ? 'rotate-180' : ''
+                              }`}
+                            />
+                          </button>
+                          <div
+                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                              isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                            }`}
+                          >
+                            <div className="pb-3 space-y-2">
+                              {category.options.map(option => (
+                                <div key={option.id} className="flex items-center">
+                                  <input
+                                    type="checkbox"
+                                    id={`desktop-${category.id}-${option.id}`}
+                                    checked={activeFilters.includes(option.name)}
+                                    onChange={() => handleKnowledgeHubFilterChange(option.name)}
+                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                  />
+                                  <label
+                                    htmlFor={`desktop-${category.id}-${option.id}`}
+                                    className="ml-2 text-sm text-gray-700 cursor-pointer"
+                                  >
+                                    {option.name}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
-                      </div>)}
+                      );
+                    })}
                   </div>
                 ) : (
                   <FilterSidebar

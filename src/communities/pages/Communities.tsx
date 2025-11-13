@@ -50,7 +50,53 @@ export default function Communities() {
   
   // Fetch filter options from backend
   useEffect(() => {
-    fetchFilterOptions();
+    // Don't let filter fetching errors block the page
+    fetchFilterOptions().catch(err => {
+      console.error('Filter options fetch failed, but continuing:', err);
+      // Set minimal filter config so page can still load
+      setFilterConfig([
+        {
+          id: 'department',
+          title: 'Department',
+          options: [
+            { id: 'hra-people', name: 'HRA (People)' },
+            { id: 'finance', name: 'Finance' },
+            { id: 'deals', name: 'Deals' },
+            { id: 'stories', name: 'Stories' },
+            { id: 'intelligence', name: 'Intelligence' },
+            { id: 'solutions', name: 'Solutions' },
+            { id: 'secdevops', name: 'SecDevOps' },
+            { id: 'products', name: 'Products' },
+            { id: 'delivery-deploys', name: 'Delivery — Deploys' },
+            { id: 'delivery-designs', name: 'Delivery — Designs' },
+            { id: 'dco-operations', name: 'DCO Operations' },
+            { id: 'dbp-platform', name: 'DBP Platform' },
+            { id: 'dbp-delivery', name: 'DBP Delivery' }
+          ]
+        },
+        {
+          id: 'location',
+          title: 'Location',
+          options: [
+            { id: 'dubai', name: 'Dubai' },
+            { id: 'nairobi', name: 'Nairobi' },
+            { id: 'riyadh', name: 'Riyadh' }
+          ]
+        },
+        {
+          id: 'category',
+          title: 'Category',
+          options: [
+            { id: 'dq-agile', name: 'DQ Agile' },
+            { id: 'dq-culture', name: 'DQ Culture' },
+            { id: 'dq-dtmf', name: 'DQ DTMF' },
+            { id: 'dq-persona', name: 'DQ Persona' },
+            { id: 'dq-tech', name: 'DQ Tech' },
+            { id: 'dq-vision', name: 'DQ Vision' }
+          ]
+        }
+      ]);
+    });
   }, []);
 
   useEffect(() => {
@@ -93,11 +139,21 @@ export default function Communities() {
         const { data: filterOptionsData, error: filterOptionsError } = await supabase
           .rpc('get_filter_options', { p_filter_type: 'department', p_filter_category: 'communities' });
         
-        if (!filterOptionsError && filterOptionsData) {
+        console.log('Department filter RPC call result:', { 
+          hasData: !!filterOptionsData, 
+          dataLength: filterOptionsData?.length || 0,
+          error: filterOptionsError,
+          data: filterOptionsData 
+        });
+        
+        if (!filterOptionsError && filterOptionsData && filterOptionsData.length > 0) {
           departmentOptions = filterOptionsData.map((opt: any) => ({
             id: opt.id.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, ''),
             name: opt.id // Use option_value (opt.id) for exact database value matching
           }));
+          console.log('Department options loaded from DB:', departmentOptions.length, 'options');
+        } else {
+          console.warn('Department filter RPC returned no data or had error:', filterOptionsError);
         }
       } catch (err) {
         console.warn('Could not fetch department options from filter_options table, using database values:', err);
@@ -107,11 +163,21 @@ export default function Communities() {
         const { data: locationOptionsData, error: locationOptionsError } = await supabase
           .rpc('get_filter_options', { p_filter_type: 'location', p_filter_category: 'communities' });
         
-        if (!locationOptionsError && locationOptionsData) {
+        console.log('Location filter RPC call result:', { 
+          hasData: !!locationOptionsData, 
+          dataLength: locationOptionsData?.length || 0,
+          error: locationOptionsError,
+          data: locationOptionsData 
+        });
+        
+        if (!locationOptionsError && locationOptionsData && locationOptionsData.length > 0) {
           locationOptions = locationOptionsData.map((opt: any) => ({
             id: opt.id.toLowerCase().replace(/\s+/g, '-'),
             name: opt.id // Use option_value (opt.id) for exact database value matching
           }));
+          console.log('Location options loaded from DB:', locationOptions.length, 'options');
+        } else {
+          console.warn('Location filter RPC returned no data or had error:', locationOptionsError);
         }
       } catch (err) {
         console.warn('Could not fetch location options from filter_options table, using database values:', err);
@@ -159,14 +225,22 @@ export default function Communities() {
       // If still empty, try fetching from 'both' category as fallback
       if (departmentOptions.length === 0) {
         try {
+          console.log('Trying fallback: fetching department from "both" category');
           const { data: fallbackData, error: fallbackError } = await supabase
             .rpc('get_filter_options', { p_filter_type: 'department', p_filter_category: 'both' });
+          
+          console.log('Department fallback RPC result:', { 
+            hasData: !!fallbackData, 
+            dataLength: fallbackData?.length || 0,
+            error: fallbackError 
+          });
           
           if (!fallbackError && fallbackData && fallbackData.length > 0) {
             departmentOptions = fallbackData.map((opt: any) => ({
               id: opt.id.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, ''),
               name: opt.id // Use option_value (opt.id) for exact database value matching
             }));
+            console.log('Department options loaded from fallback DB:', departmentOptions.length, 'options');
           }
         } catch (err) {
           console.warn('Could not fetch department options from database:', err);
@@ -182,31 +256,82 @@ export default function Communities() {
       // If still empty, try fetching from 'both' category as fallback
       if (locationOptions.length === 0) {
         try {
+          console.log('Trying fallback: fetching location from "both" category');
           const { data: fallbackData, error: fallbackError } = await supabase
             .rpc('get_filter_options', { p_filter_type: 'location', p_filter_category: 'both' });
+          
+          console.log('Location fallback RPC result:', { 
+            hasData: !!fallbackData, 
+            dataLength: fallbackData?.length || 0,
+            error: fallbackError 
+          });
           
           if (!fallbackError && fallbackData && fallbackData.length > 0) {
             locationOptions = fallbackData.map((opt: any) => ({
               id: opt.id.toLowerCase().replace(/\s+/g, '-'),
               name: opt.id // Use option_value (opt.id) for exact database value matching
             }));
+            console.log('Location options loaded from fallback DB:', locationOptions.length, 'options');
           }
         } catch (err) {
           console.warn('Could not fetch location options from database:', err);
         }
       }
 
-      // Build filter configuration dynamically
+      // Hardcoded fallback Department options if database fetch fails
+      const fallbackDepartmentOptions = [
+        { id: 'hra-people', name: 'HRA (People)' },
+        { id: 'finance', name: 'Finance' },
+        { id: 'deals', name: 'Deals' },
+        { id: 'stories', name: 'Stories' },
+        { id: 'intelligence', name: 'Intelligence' },
+        { id: 'solutions', name: 'Solutions' },
+        { id: 'secdevops', name: 'SecDevOps' },
+        { id: 'products', name: 'Products' },
+        { id: 'delivery-deploys', name: 'Delivery — Deploys' },
+        { id: 'delivery-designs', name: 'Delivery — Designs' },
+        { id: 'dco-operations', name: 'DCO Operations' },
+        { id: 'dbp-platform', name: 'DBP Platform' },
+        { id: 'dbp-delivery', name: 'DBP Delivery' }
+      ];
+
+      // Hardcoded fallback Location options if database fetch fails
+      const fallbackLocationOptions = [
+        { id: 'dubai', name: 'Dubai' },
+        { id: 'nairobi', name: 'Nairobi' },
+        { id: 'riyadh', name: 'Riyadh' }
+      ];
+
+      // Use database values if available, otherwise use fallback
+      const finalDepartmentOptions = departmentOptions.length > 0 ? departmentOptions : fallbackDepartmentOptions;
+      const finalLocationOptions = locationOptions.length > 0 ? locationOptions : fallbackLocationOptions;
+
+      // Hardcoded Category options
+      const categoryOptions = [
+        { id: 'dq-agile', name: 'DQ Agile' },
+        { id: 'dq-culture', name: 'DQ Culture' },
+        { id: 'dq-dtmf', name: 'DQ DTMF' },
+        { id: 'dq-persona', name: 'DQ Persona' },
+        { id: 'dq-tech', name: 'DQ Tech' },
+        { id: 'dq-vision', name: 'DQ Vision' }
+      ];
+
+      // Build filter configuration dynamically - Department first, then Location, then Category
       const config: FilterConfig[] = [
         {
           id: 'department',
           title: 'Department',
-          options: departmentOptions
+          options: finalDepartmentOptions
         },
         {
           id: 'location',
           title: 'Location',
-          options: locationOptions
+          options: finalLocationOptions
+        },
+        {
+          id: 'category',
+          title: 'Category',
+          options: categoryOptions
         },
         {
           id: 'memberCount',
@@ -224,17 +349,16 @@ export default function Communities() {
             id: level.toLowerCase().replace(/\s+/g, '-'),
             name: level
           }))
-        },
-        {
-          id: 'category',
-          title: 'Category',
-          options: uniqueCategories.map((cat) => ({
-            id: cat.toLowerCase().replace(/\s+/g, '-'),
-            name: cat
-          }))
         }
       ];
 
+      console.log('=== Filter Configuration Summary ===');
+      console.log('Total filter categories:', config.length);
+      console.log('Department options:', finalDepartmentOptions.length, finalDepartmentOptions.length > 0 ? '(from DB)' : '(using fallback)');
+      console.log('Location options:', finalLocationOptions.length, finalLocationOptions.length > 0 ? '(from DB)' : '(using fallback)');
+      console.log('Department source:', departmentOptions.length > 0 ? 'Database RPC' : 'Hardcoded fallback');
+      console.log('Location source:', locationOptions.length > 0 ? 'Database RPC' : 'Hardcoded fallback');
+      console.log('=====================================');
       setFilterConfig(config);
     } catch (err) {
       console.error('Error fetching filter options:', err);
@@ -255,16 +379,53 @@ export default function Communities() {
           name: opt.id // Use option_value (opt.id) for exact database value matching
         })) || [];
 
+        // Hardcoded fallback options
+        const hardcodedDeptOptions = [
+          { id: 'hra-people', name: 'HRA (People)' },
+          { id: 'finance', name: 'Finance' },
+          { id: 'deals', name: 'Deals' },
+          { id: 'stories', name: 'Stories' },
+          { id: 'intelligence', name: 'Intelligence' },
+          { id: 'solutions', name: 'Solutions' },
+          { id: 'secdevops', name: 'SecDevOps' },
+          { id: 'products', name: 'Products' },
+          { id: 'delivery-deploys', name: 'Delivery — Deploys' },
+          { id: 'delivery-designs', name: 'Delivery — Designs' },
+          { id: 'dco-operations', name: 'DCO Operations' },
+          { id: 'dbp-platform', name: 'DBP Platform' },
+          { id: 'dbp-delivery', name: 'DBP Delivery' }
+        ];
+
+        const hardcodedLocOptions = [
+          { id: 'dubai', name: 'Dubai' },
+          { id: 'nairobi', name: 'Nairobi' },
+          { id: 'riyadh', name: 'Riyadh' }
+        ];
+
+        const hardcodedCategoryOptions = [
+          { id: 'dq-agile', name: 'DQ Agile' },
+          { id: 'dq-culture', name: 'DQ Culture' },
+          { id: 'dq-dtmf', name: 'DQ DTMF' },
+          { id: 'dq-persona', name: 'DQ Persona' },
+          { id: 'dq-tech', name: 'DQ Tech' },
+          { id: 'dq-vision', name: 'DQ Vision' }
+        ];
+
         setFilterConfig([
           {
             id: 'department',
             title: 'Department',
-            options: fallbackDeptOptions.length > 0 ? fallbackDeptOptions : []
+            options: fallbackDeptOptions.length > 0 ? fallbackDeptOptions : hardcodedDeptOptions
           },
           {
             id: 'location',
             title: 'Location',
-            options: fallbackLocOptions.length > 0 ? fallbackLocOptions : []
+            options: fallbackLocOptions.length > 0 ? fallbackLocOptions : hardcodedLocOptions
+          },
+          {
+            id: 'category',
+            title: 'Category',
+            options: hardcodedCategoryOptions
           },
           {
             id: 'memberCount',
@@ -278,17 +439,53 @@ export default function Communities() {
         ]);
       } catch (fallbackErr) {
         console.error('Error in fallback filter fetch:', fallbackErr);
-        // Last resort: empty filters (user will see no options)
+        // Last resort: use hardcoded options
+        const hardcodedDeptOptions = [
+          { id: 'hra-people', name: 'HRA (People)' },
+          { id: 'finance', name: 'Finance' },
+          { id: 'deals', name: 'Deals' },
+          { id: 'stories', name: 'Stories' },
+          { id: 'intelligence', name: 'Intelligence' },
+          { id: 'solutions', name: 'Solutions' },
+          { id: 'secdevops', name: 'SecDevOps' },
+          { id: 'products', name: 'Products' },
+          { id: 'delivery-deploys', name: 'Delivery — Deploys' },
+          { id: 'delivery-designs', name: 'Delivery — Designs' },
+          { id: 'dco-operations', name: 'DCO Operations' },
+          { id: 'dbp-platform', name: 'DBP Platform' },
+          { id: 'dbp-delivery', name: 'DBP Delivery' }
+        ];
+
+        const hardcodedLocOptions = [
+          { id: 'dubai', name: 'Dubai' },
+          { id: 'nairobi', name: 'Nairobi' },
+          { id: 'riyadh', name: 'Riyadh' }
+        ];
+
+        const hardcodedCategoryOptions = [
+          { id: 'dq-agile', name: 'DQ Agile' },
+          { id: 'dq-culture', name: 'DQ Culture' },
+          { id: 'dq-dtmf', name: 'DQ DTMF' },
+          { id: 'dq-persona', name: 'DQ Persona' },
+          { id: 'dq-tech', name: 'DQ Tech' },
+          { id: 'dq-vision', name: 'DQ Vision' }
+        ];
+
         setFilterConfig([
           {
             id: 'department',
             title: 'Department',
-            options: []
+            options: hardcodedDeptOptions
           },
           {
             id: 'location',
             title: 'Location',
-            options: []
+            options: hardcodedLocOptions
+          },
+          {
+            id: 'category',
+            title: 'Category',
+            options: hardcodedCategoryOptions
           },
           {
             id: 'memberCount',
@@ -314,6 +511,9 @@ export default function Communities() {
     setError(null);
     
     try {
+      console.log('Fetching communities with filters:', { searchQuery, filters });
+      
+      // Try communities_with_counts view first
       let query = supabase.from('communities_with_counts').select('*');
 
       // Apply search filter (backend) - search in name or description
@@ -358,18 +558,101 @@ export default function Communities() {
       // Order by member count (descending)
       query = query.order('member_count', { ascending: false });
 
-      const [data, error] = await safeFetch<Community[]>(query);
+      let [data, error] = await safeFetch<Community[]>(query);
+      
+      // If permission denied or view doesn't exist, fallback to base communities table
+      if (error && (error.message?.includes('permission denied') || error.message?.includes('does not exist'))) {
+        console.warn('View not accessible, falling back to base communities table:', error.message);
+        
+        // Fallback: Query base communities table with member count
+        query = supabase
+          .from('communities')
+          .select(`
+            *,
+            memberships(count)
+          `);
+
+        // Apply search filter
+        if (searchQuery.trim()) {
+          const searchTerm = searchQuery.trim();
+          query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
+        }
+
+        // Apply activity level filter
+        if (filters.activityLevel) {
+          query = query.ilike('activitylevel', filters.activityLevel);
+        }
+
+        // Apply category filter
+        if (filters.category) {
+          query = (query as any).eq('category', filters.category);
+        }
+
+        // Apply department filter
+        if (filters.department) {
+          query = (query as any).eq('department', filters.department);
+        }
+
+        // Apply location filter
+        if (filters.location) {
+          query = (query as any).eq('location_filter', filters.location);
+        }
+
+        // Fetch data
+        [data, error] = await safeFetch<any[]>(query);
+        
+        // Transform data to match expected format
+        if (data && !error) {
+          const transformedData = data.map((community: any) => ({
+            ...community,
+            member_count: Array.isArray(community.memberships) 
+              ? community.memberships[0]?.count || 0 
+              : (typeof community.member_count === 'number' ? community.member_count : 0)
+          }));
+
+          // Apply member count filter client-side if needed
+          let filteredData = transformedData;
+          if (filters.memberCount) {
+            filteredData = transformedData.filter(community => {
+              const count = community.member_count || 0;
+              if (filters.memberCount === '0-10 members') return count < 11;
+              if (filters.memberCount === '11-50 members') return count >= 11 && count <= 50;
+              if (filters.memberCount === '51+ members') return count > 50;
+              return true;
+            });
+          }
+
+          // Sort by member count
+          filteredData.sort((a, b) => (b.member_count || 0) - (a.member_count || 0));
+
+          console.log('Successfully fetched communities from base table:', filteredData.length);
+          setFilteredCommunities(filteredData as Community[]);
+          return;
+        }
+      }
       
       if (error) {
         console.error('Error fetching communities:', error);
-        setError(new Error('Failed to load communities'));
+        console.error('Error details:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
+        setError(new Error(`Failed to load communities: ${error.message || 'Unknown error'}`));
         setFilteredCommunities([]);
       } else if (data) {
+        console.log('Successfully fetched communities:', data.length);
         setFilteredCommunities(data);
+      } else {
+        console.warn('No data returned from communities query');
+        setFilteredCommunities([]);
       }
     } catch (err) {
       console.error('Exception fetching communities:', err);
-      setError(err instanceof Error ? err : new Error('Failed to load communities'));
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      console.error('Exception details:', err);
+      setError(new Error(`Failed to load communities: ${errorMessage}`));
       setFilteredCommunities([]);
     } finally {
       setLoading(false);
@@ -485,6 +768,39 @@ export default function Communities() {
             Find and join communities to connect with other associates within the organization.
           </p>
           
+          {/* Current Focus Section */}
+          {(() => {
+            const isPulseTab = location.pathname === '/marketplace/pulse' || location.pathname.startsWith('/marketplace/pulse/');
+            const isEventsTab = location.pathname === '/marketplace/events' || location.pathname.startsWith('/marketplace/events/');
+            const isDiscussionsTab = location.pathname === '/communities' || location.pathname.startsWith('/community/');
+
+            let focusTitle = 'Discussion';
+            let focusText = 'Engage in thoughtful conversations, share ideas, and discuss topics that matter most to DQ. Collaborate with colleagues across the company to drive innovation and foster a vibrant, connected community.';
+
+            if (isPulseTab) {
+              focusTitle = 'Pulse';
+              focusText = 'Share your thoughts and feedback through surveys, polls, and quick feedback sessions. Pulse is your platform for participating in organizational insights and shaping the future of DQ through direct engagement.';
+            } else if (isEventsTab) {
+              focusTitle = 'Events';
+              focusText = 'Stay up to date with upcoming events, workshops, and team gatherings. Explore activities within DQ that encourage collaboration, growth, and innovation.';
+            }
+
+            return (
+              <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <div className="text-xs uppercase text-gray-500 font-medium mb-2">CURRENT FOCUS</div>
+                    <h2 className="text-xl font-semibold text-gray-900 mb-3">{focusTitle}</h2>
+                    <p className="text-gray-700 leading-relaxed mb-2">{focusText}</p>
+                  </div>
+                  <button className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors whitespace-nowrap">
+                    Tab overview
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Navigation Tabs */}
           <div className="mb-6">
             <nav className="flex" aria-label="Tabs">
@@ -495,7 +811,7 @@ export default function Communities() {
                 }}
                 className={`py-4 px-4 text-sm transition-colors border-b ${
                   location.pathname === '/communities' || location.pathname.startsWith('/community/')
-                    ? 'border-gray-300 text-gray-900 font-normal'
+                    ? 'border-blue-600 text-gray-900 font-medium'
                     : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
                 }`}
               >
@@ -508,7 +824,7 @@ export default function Communities() {
                 }}
                 className={`py-4 px-4 text-sm transition-colors border-b ${
                   location.pathname === '/marketplace/pulse' || location.pathname.startsWith('/marketplace/pulse/')
-                    ? 'border-gray-300 text-gray-900 font-normal'
+                    ? 'border-blue-600 text-gray-900 font-medium'
                     : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
                 }`}
               >
@@ -521,7 +837,7 @@ export default function Communities() {
                 }}
                 className={`py-4 px-4 text-sm transition-colors border-b ${
                   location.pathname === '/marketplace/events' || location.pathname.startsWith('/marketplace/events/')
-                    ? 'border-gray-300 text-gray-900 font-normal'
+                    ? 'border-blue-600 text-gray-900 font-medium'
                     : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
                 }`}
               >
@@ -819,3 +1135,4 @@ export default function Communities() {
       </div>
     </MainLayout>;
 }
+

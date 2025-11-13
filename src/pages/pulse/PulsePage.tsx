@@ -366,6 +366,22 @@ export const PulsePage: React.FC = () => {
           </p>
         </div>
 
+        {/* Current Focus Section */}
+        <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <div className="text-xs uppercase text-gray-500 font-medium mb-2">CURRENT FOCUS</div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-3">Pulse</h2>
+              <p className="text-gray-700 leading-relaxed mb-2">
+                Share your thoughts and feedback through surveys, polls, and quick feedback sessions. Pulse is your platform for participating in organizational insights and shaping the future of DQ through direct engagement.
+              </p>
+            </div>
+            <button className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors whitespace-nowrap">
+              Tab overview
+            </button>
+          </div>
+        </div>
+
         {/* Tabs Navigation */}
         <div className="mb-6">
           <nav className="flex" aria-label="Tabs">
@@ -373,7 +389,7 @@ export const PulsePage: React.FC = () => {
               onClick={() => navigate('/communities')}
               className={`py-4 px-4 text-sm transition-colors border-b ${
                 location.pathname === '/communities' || location.pathname.startsWith('/community/')
-                  ? 'border-gray-300 text-gray-900 font-normal'
+                  ? 'border-blue-600 text-gray-900 font-medium'
                   : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
               }`}
             >
@@ -383,7 +399,7 @@ export const PulsePage: React.FC = () => {
               onClick={() => navigate('/marketplace/pulse')}
               className={`py-4 px-4 text-sm transition-colors border-b ${
                 location.pathname === '/marketplace/pulse' || location.pathname.startsWith('/marketplace/pulse/')
-                  ? 'border-gray-300 text-gray-900 font-normal'
+                  ? 'border-blue-600 text-gray-900 font-medium'
                   : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
               }`}
             >
@@ -393,7 +409,7 @@ export const PulsePage: React.FC = () => {
               onClick={() => navigate('/marketplace/events')}
               className={`py-4 px-4 text-sm transition-colors border-b ${
                 location.pathname === '/marketplace/events' || location.pathname.startsWith('/marketplace/events/')
-                  ? 'border-gray-300 text-gray-900 font-normal'
+                  ? 'border-blue-600 text-gray-900 font-medium'
                   : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
               }`}
             >
@@ -539,7 +555,7 @@ export const PulsePage: React.FC = () => {
                   <div
                     key={item.id}
                     className="flex flex-col bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
-                    onClick={() => navigate(`/marketplace/pulse/${item.id}`)}
+                    onClick={() => navigate(`/marketplace/pulse/detailsPage?id=${item.id}`)}
                   >
                     {/* Image Banner */}
                     <div className="relative h-48 overflow-hidden bg-gray-200">
@@ -626,7 +642,7 @@ export const PulsePage: React.FC = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/marketplace/pulse/${item.id}`);
+                          navigate(`/marketplace/pulse/detailsPage?id=${item.id}`);
                         }}
                         className="w-full mt-auto px-4 py-2.5 text-sm font-semibold text-white bg-dq-navy hover:bg-[#13285A] rounded-md transition-colors"
                       >
