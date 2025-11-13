@@ -199,6 +199,25 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     testimonials: 'Testimonials'
   };
 
+  const TAB_DESCRIPTIONS: Record<WorkGuideTab, { description: string; author?: string }> = {
+    strategy: {
+      description: 'Strategic frameworks, transformation journeys, and organizational initiatives that guide decision-making and long-term planning across Digital Qatalyst.',
+      author: 'Authored by DQ Leadership and Strategy Teams'
+    },
+    guidelines: {
+      description: 'Practical guidelines, best practices, and operational procedures that support everyday delivery, collaboration, and excellence across all teams and units.',
+      author: 'Authored by DQ Associates, Leads, and Subject Matter Experts'
+    },
+    blueprints: {
+      description: 'Standardized blueprints, templates, and proven methodologies that enable consistent execution, reduce rework, and accelerate delivery across projects and initiatives.',
+      author: 'Authored by DQ Delivery Teams and Practice Leads'
+    },
+    testimonials: {
+      description: 'Success stories, case studies, and reflections that capture lessons learned, celebrate achievements, and share insights from real-world experiences and transformations.',
+      author: 'Authored by DQ Teams, Clients, and Partners'
+    }
+  };
+
   useEffect(() => {
     if (!isGuides) return;
     setActiveTab(getTabFromParams(queryParams));
@@ -214,7 +233,11 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       next.set('tab', tab);
     }
     if (tab !== 'guidelines') {
-      ['guide_type', 'sub_domain', 'unit', 'domain', 'testimonial_category'].forEach(key => next.delete(key));
+      // For Strategy and Blueprints, keep 'unit' filter; only delete incompatible filters
+      const keysToDelete = (tab === 'strategy' || tab === 'blueprints')
+        ? ['guide_type', 'sub_domain', 'domain', 'testimonial_category']  // Keep 'unit' for Strategy and Blueprints
+        : ['guide_type', 'sub_domain', 'unit', 'domain', 'testimonial_category'];
+      keysToDelete.forEach(key => next.delete(key));
     }
     const qs = next.toString();
     if (typeof window !== 'undefined') {
@@ -224,12 +247,22 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     track('Guides.TabChanged', { tab });
   }, [queryParams, setQueryParams]);
 
+  // Clean up incompatible filters when tab changes (not on every query change)
+  const prevTabRef = useRef<WorkGuideTab>(activeTab);
   useEffect(() => {
     if (!isGuides) return;
     if (activeTab === 'guidelines') return;
+    // Only run if tab actually changed
+    if (prevTabRef.current === activeTab) return;
+    prevTabRef.current = activeTab;
+    
     const next = new URLSearchParams(queryParams.toString());
     let changed = false;
-    ['guide_type', 'sub_domain', 'unit', 'domain'].forEach(key => {
+    // For Strategy and Blueprints, keep 'unit' filter; only delete incompatible filters
+    const keysToDelete = (activeTab === 'strategy' || activeTab === 'blueprints')
+      ? ['guide_type', 'sub_domain', 'domain']  // Keep 'unit' for Strategy and Blueprints
+      : ['guide_type', 'sub_domain', 'unit', 'domain'];
+    keysToDelete.forEach(key => {
       if (next.has(key)) {
         next.delete(key);
         changed = true;
@@ -241,7 +274,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
     }
     setQueryParams(new URLSearchParams(next.toString()));
-  }, [isGuides, activeTab, queryParams]);
+  }, [isGuides, activeTab]);
 
   const pageSize = Math.min(50, Math.max(1, parseInt(queryParams.get('pageSize') || String(DEFAULT_GUIDE_PAGE_SIZE), 10)));
   const currentPage = Math.max(1, parseInt(queryParams.get('page') || '1', 10));
@@ -401,9 +434,12 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           const statuses    = parseFilterValues(queryParams, 'status');
           const testimonialCategories = parseFilterValues(queryParams, 'testimonial_category');
 
-          const isStrategyTab = activeTab === 'strategy';
-          const isBlueprintTab = activeTab === 'blueprints';
-          const isTestimonialsTab = activeTab === 'testimonials';
+          // Get activeTab from state - ensure it's current
+          const currentActiveTab = activeTab;
+          const isStrategyTab = currentActiveTab === 'strategy';
+          const isBlueprintTab = currentActiveTab === 'blueprints';
+          const isTestimonialsTab = currentActiveTab === 'testimonials';
+          const isGuidelinesTab = currentActiveTab === 'guidelines';
           const isSpecialTab = isStrategyTab || isBlueprintTab || isTestimonialsTab;
 
           const allowed = new Set<string>();
@@ -415,7 +451,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             : [];
 
           const effectiveGuideTypes = isSpecialTab ? [] : guideTypes;
-          const effectiveUnits = isSpecialTab ? [] : units;
+          // Enable unit filtering for all tabs (Strategy, Blueprints, and Guidelines)
+          const effectiveUnits = (isStrategyTab || isBlueprintTab || !isSpecialTab) ? units : [];
 
           if (!isSpecialTab && rawSubs.length && subDomains.length !== rawSubs.length) {
             const next = new URLSearchParams(queryParams.toString());
@@ -437,12 +474,24 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             q = q.or('domain.ilike.%Blueprint%,guide_type.ilike.%Blueprint%');
           } else if (isTestimonialsTab) {
             q = q.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
+          } else if (isGuidelinesTab) {
+            // For Guidelines tab: if domain filter is set, use it; otherwise fetch all and filter client-side
+            // Client-side filtering will exclude Strategy/Blueprint/Testimonial guides
+            if (domains.length) {
+              q = q.in('domain', domains);
+            }
+            // If no domain filter, fetch all guides - client-side will filter out Strategy/Blueprint/Testimonial
           } else if (domains.length) {
             q = q.in('domain', domains);
           }
+          // Note: For Guidelines tab, we also do client-side filtering to be extra safe
           if (!isSpecialTab && subDomains.length) q = q.in('sub_domain', subDomains);
-          if (effectiveGuideTypes.length) q = q.in('guide_type', effectiveGuideTypes);
-          if (effectiveUnits.length) q = q.in('unit', effectiveUnits);
+          // For Guidelines, guide_type filtering is done client-side because filter IDs are slugified ('best-practice')
+          // but database values are like 'Best Practice', so Supabase .in() won't match
+          // For other tabs, use Supabase filter if guide types are provided
+          if (effectiveGuideTypes.length && !isGuidelinesTab) q = q.in('guide_type', effectiveGuideTypes);
+          // Note: Unit filtering is done client-side after fetching to handle normalization
+          // (filter IDs are slugified like 'deals', but DB may have 'Deals' or 'DQ Delivery (Accounts)')
           if (locations.length) q = q.in('location', locations);
 
           const sort = queryParams.get('sort') || 'relevance';
@@ -457,24 +506,31 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 .order('last_updated_at',  { ascending: false, nullsFirst: false });
           }
 
+          // If unit filtering is needed client-side, fetch ALL results first, then filter and paginate
+          // Otherwise, use server-side pagination
+          const needsClientSideUnitFilter = effectiveUnits.length > 0;
+          
           const from = (currentPage - 1) * pageSize;
           const to   = from + pageSize - 1;
 
-          const listPromise = q.range(from, to);
+          // Fetch all results if client-side unit filtering is needed, otherwise use pagination
+          // When fetching all, we need to set a high limit (Supabase default is 1000)
+          const listPromise = needsClientSideUnitFilter ? q.limit(10000) : q.range(from, to);
+          
           let facetQ = supabaseClient
             .from('guides')
             .select('domain,sub_domain,guide_type,function_area,unit,location,status')
             .eq('status', 'Approved');
 
+          // Facets should show ALL available options for the current tab, not filtered by selected filters
+          // This ensures filter options don't disappear when other filters are selected
           if (qStr)              facetQ = facetQ.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
           if (isStrategyTab)    facetQ = facetQ.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
           else if (isBlueprintTab) facetQ = facetQ.or('domain.ilike.%Blueprint%,guide_type.ilike.%Blueprint%');
           else if (isTestimonialsTab) facetQ = facetQ.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
-          else if (domains.length) facetQ = facetQ.in('domain', domains);
-          if (!isSpecialTab && subDomains.length) facetQ = facetQ.in('sub_domain', subDomains);
-          if (effectiveGuideTypes.length) facetQ = facetQ.in('guide_type', effectiveGuideTypes);
-          if (effectiveUnits.length)      facetQ = facetQ.in('unit', effectiveUnits);
-          if (locations.length)  facetQ = facetQ.in('location', locations);
+          // For Guidelines tab: facets should only include Guidelines guides (exclude Strategy/Blueprint/Testimonial)
+          // But don't filter by selected guide_type, units, locations - show all available options for Guidelines
+          // Only filter by status if needed
           if (statuses.length)   facetQ = facetQ.in('status', statuses);
 
           const [{ data: rows, count, error }, { data: facetRows, error: facetError }] = await Promise.all([
@@ -513,13 +569,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
           let out = mapped;
           
-          if (domains.length)    out = out.filter(it => it.domain && domains.includes(it.domain));
-          if (subDomains.length) out = out.filter(it => it.subDomain && subDomains.includes(it.subDomain));
-          if (effectiveGuideTypes.length) out = out.filter(it => it.guideType && effectiveGuideTypes.includes(it.guideType));
-          if (effectiveUnits.length)      out = out.filter(it => (it.unit || it.functionArea) && effectiveUnits.includes(it.unit || it.functionArea));
-          if (locations.length)  out = out.filter(it => it.location && locations.includes(it.location));
-          if (statuses.length)   out = out.filter(it => it.status && statuses.includes(it.status));
-
+          // Apply tab filtering FIRST to get only guides for the current tab
+          // This ensures unit filtering only applies to the correct tab's guides
+          // CRITICAL: This must happen before any other filtering to prevent cross-tab contamination
           if (isStrategyTab) {
             out = out.filter(it => {
               const domain = (it.domain || '').toLowerCase();
@@ -541,14 +593,86 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             const selectedTestimonials = testimonialCategories.map(slugify);
             if (selectedTestimonials.length) {
               out = out.filter(it => {
-            const rawTags = Array.isArray((it as any).tags) ? (it as any).tags : [];
-            const sluggedTags = rawTags
-              .map((tag: unknown) => slugify(String(tag ?? '')))
-              .filter(Boolean);
-            return selectedTestimonials.some(sel => sluggedTags.includes(sel));
+                // Testimonial categories are stored in guide_type field
+                const guideType = (it.guideType || '').toLowerCase();
+                if (!guideType) return false;
+                // Check if guide_type matches any selected category (normalize both for comparison)
+                const normalizedGuideType = slugify(guideType);
+                return selectedTestimonials.some(sel => {
+                  // Compare slugified values
+                  return normalizedGuideType === sel || 
+                         guideType.includes(sel) ||
+                         sel.includes(normalizedGuideType);
+                });
               });
             }
+          } else if (isGuidelinesTab) {
+            // Guidelines tab: explicitly exclude Strategy, Blueprint, and Testimonial guides
+            // Must be strict - guides should NOT have Strategy/Blueprint/Testimonial in domain OR guide_type
+            // This is CRITICAL to prevent Strategy guides from showing in Guidelines tab
+            out = out.filter(it => {
+              const domain = (it.domain || '').toLowerCase().trim();
+              const guideType = (it.guideType || '').toLowerCase().trim();
+              // Exclude if domain or guide_type contains strategy, blueprint, or testimonial
+              const hasStrategy = domain.includes('strategy') || guideType.includes('strategy');
+              const hasBlueprint = domain.includes('blueprint') || guideType.includes('blueprint');
+              const hasTestimonial = domain.includes('testimonial') || guideType.includes('testimonial');
+              // Only include if it doesn't have any of these - be very strict
+              if (hasStrategy || hasBlueprint || hasTestimonial) {
+                return false; // Explicitly exclude
+              }
+              return true; // Include only if it's definitely not Strategy/Blueprint/Testimonial
+            });
+          } else {
+            // Fallback: if somehow we don't have a recognized tab, show nothing to be safe
+            out = [];
           }
+          // If no tab is active (shouldn't happen), show all guides
+          
+          // Now apply other filters to the tab-filtered results
+          if (domains.length)    out = out.filter(it => it.domain && domains.includes(it.domain));
+          if (subDomains.length) out = out.filter(it => it.subDomain && subDomains.includes(it.subDomain));
+          if (effectiveGuideTypes.length) {
+            // Normalize guide type values for comparison
+            // Filter IDs come from facets which are the actual database values (like "Best Practice", "SOP")
+            // Use OR logic: show guides that match ANY selected guide type
+            // IMPORTANT: Only show guides that have a guide type assigned (don't show guides without guide types when filters are active)
+            out = out.filter(it => {
+              const guideTypeValue = it.guideType;
+              // If guide has no guide type, exclude it when guide type filters are active
+              if (!guideTypeValue) return false;
+              // Compare both normalized (slugified) values for case-insensitive matching
+              const normalizedDbValue = slugify(guideTypeValue);
+              // Check if any selected guide type matches (normalize both sides for comparison)
+              return effectiveGuideTypes.some(selectedType => {
+                const normalizedSelected = slugify(selectedType);
+                // Match if slugified values are equal, or if the actual values match (case-insensitive)
+                return normalizedDbValue === normalizedSelected || 
+                       guideTypeValue.toLowerCase().trim() === selectedType.toLowerCase().trim();
+              });
+            });
+          }
+          if (effectiveUnits.length) {
+            // Normalize unit values for comparison (filter IDs are slugified like 'deals', DB values may be 'Deals' or 'DQ Delivery (Accounts)')
+            // Use OR logic: show guides that match ANY selected unit
+            // IMPORTANT: Only show guides that have a unit assigned (don't show guides without units when filters are active)
+            out = out.filter(it => {
+              const unitValue = it.unit || it.functionArea;
+              // If guide has no unit, exclude it when unit filters are active
+              if (!unitValue) return false;
+              // Slugify the database value to match the filter ID format
+              const normalizedDbValue = slugify(unitValue);
+              // Filter IDs are already slugified, so compare directly - show if it matches ANY selected unit
+              const matches = effectiveUnits.some(selectedUnit => {
+                // Normalize both sides for comparison (in case selectedUnit isn't already slugified)
+                const normalizedSelected = slugify(selectedUnit);
+                return normalizedDbValue === normalizedSelected;
+              });
+              return matches;
+            });
+          }
+          if (locations.length)  out = out.filter(it => it.location && locations.includes(it.location));
+          if (statuses.length)   out = out.filter(it => it.status && statuses.includes(it.status));
 
           if (sort === 'updated')       out.sort((a,b) => new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
           else if (sort === 'downloads')out.sort((a,b) => (b.downloadCount||0)-(a.downloadCount||0));
@@ -560,7 +684,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                               (b.downloadCount||0)-(a.downloadCount||0) ||
                               new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
 
-          const total = typeof count === 'number' ? count : out.length;
+          // If client-side unit filtering was used, paginate after filtering
+          const totalFiltered = out.length;
+          if (needsClientSideUnitFilter) {
+            out = out.slice(from, from + pageSize);
+          }
+
+          const total = needsClientSideUnitFilter ? totalFiltered : (typeof count === 'number' ? count : out.length);
           const lastPage = Math.max(1, Math.ceil(total / pageSize));
           if (currentPage > lastPage) {
             const next = new URLSearchParams(queryParams.toString());
@@ -582,12 +712,25 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                       .sort((a,b)=> a.name.localeCompare(b.name));
           };
 
-          const domainFacets      = countBy(facetRows, 'domain');
-          const guideTypeFacets   = countBy(facetRows, 'guide_type');
-          const subDomainFacetsRaw= countBy(facetRows, 'sub_domain');
-          const unitFacets        = countBy(facetRows, 'unit');
-          const locationFacets    = countBy(facetRows, 'location');
-          const statusFacets      = countBy(facetRows, 'status');
+          // Filter facet rows for Guidelines tab to exclude Strategy/Blueprint/Testimonial
+          let filteredFacetRows = facetRows;
+          if (isGuidelinesTab) {
+            filteredFacetRows = (facetRows || []).filter((r: any) => {
+              const domain = ((r.domain || '').toLowerCase().trim());
+              const guideType = ((r.guide_type || '').toLowerCase().trim());
+              const hasStrategy = domain.includes('strategy') || guideType.includes('strategy');
+              const hasBlueprint = domain.includes('blueprint') || guideType.includes('blueprint');
+              const hasTestimonial = domain.includes('testimonial') || guideType.includes('testimonial');
+              return !hasStrategy && !hasBlueprint && !hasTestimonial;
+            });
+          }
+          
+          const domainFacets      = countBy(filteredFacetRows, 'domain');
+          const guideTypeFacets   = countBy(filteredFacetRows, 'guide_type');
+          const subDomainFacetsRaw= countBy(filteredFacetRows, 'sub_domain');
+          const unitFacets        = countBy(filteredFacetRows, 'unit');
+          const locationFacets    = countBy(filteredFacetRows, 'location');
+          const statusFacets      = countBy(filteredFacetRows, 'status');
 
           const allowedForFacets = new Set<string>();
           if (!isSpecialTab) {
@@ -773,27 +916,40 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         <p className="text-gray-600 mb-6">{config.description}</p>
 
         {isGuides && (
-          <div className="mb-6 border-b border-gray-200">
-            <nav className="flex space-x-8" aria-label="Guides navigation">
-            {(['strategy', 'guidelines', 'blueprints', 'testimonials'] as WorkGuideTab[]).map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => handleGuidesTabChange(tab)}
-                  className={`
-                    py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                    ${
-                      activeTab === tab
-                        ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }
-                  `}
-                  aria-current={activeTab === tab ? 'page' : undefined}
-                >
-                  {TAB_LABELS[tab]}
-                </button>
-              ))}
-            </nav>
-          </div>
+          <>
+            {/* Tab Description - Above Navigation */}
+            {activeTab && TAB_DESCRIPTIONS[activeTab] && (
+              <div className="mb-4 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h2 className="text-xl font-bold text-gray-800 mb-2">{TAB_LABELS[activeTab]}</h2>
+                <p className="text-gray-700 mb-2">{TAB_DESCRIPTIONS[activeTab].description}</p>
+                {TAB_DESCRIPTIONS[activeTab].author && (
+                  <p className="text-sm text-gray-500">{TAB_DESCRIPTIONS[activeTab].author}</p>
+                )}
+              </div>
+            )}
+            
+            <div className="mb-6 border-b border-gray-200">
+              <nav className="flex space-x-8" aria-label="Guides navigation">
+              {(['strategy', 'guidelines', 'blueprints', 'testimonials'] as WorkGuideTab[]).map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => handleGuidesTabChange(tab)}
+                    className={`
+                      py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                      ${
+                        activeTab === tab
+                          ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }
+                    `}
+                    aria-current={activeTab === tab ? 'page' : undefined}
+                  >
+                    {TAB_LABELS[tab]}
+                  </button>
+                ))}
+              </nav>
+            </div>
+          </>
         )}
 
         {/* Search + Sort */}

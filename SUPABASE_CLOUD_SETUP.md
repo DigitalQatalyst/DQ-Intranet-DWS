@@ -9,7 +9,7 @@ You've provided login credentials, but we need the **API keys** from your Supaba
 1. **Log in to Supabase Dashboard**
    - Go to: https://app.supabase.com
    - Use your credentials:
-     - Email: `donna.nyacuru@digitalqatalyst.com`
+     - Email: `donna.nyacuru@digitalqatalyst.com` 
      - Password: `Dws.clouddb123`
 
 2. **Select Your Project**

@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useMemo, useState } from 'react'
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { parseCsv, toCsv } from '../../utils/guides'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 
@@ -37,6 +37,33 @@ const TESTIMONIAL_CATEGORIES: Facet[] = [
   { id: 'milestone-achievement', name: 'Milestone / Achievement' }
 ]
 
+const GUIDELINES_GUIDE_TYPES: Facet[] = [
+  { id: 'best-practice', name: 'Best Practice' },
+  { id: 'policy', name: 'Policy' },
+  { id: 'process', name: 'Process' },
+  { id: 'sop', name: 'SOP' }
+]
+
+const GUIDELINES_UNITS: Facet[] = [
+  { id: 'deals', name: 'Deals' },
+  { id: 'dq-delivery-accounts', name: 'DQ Delivery (Accounts)' },
+  { id: 'dq-delivery-deploys', name: 'DQ Delivery (Deploys)' },
+  { id: 'dq-delivery-designs', name: 'DQ Delivery (Designs)' },
+  { id: 'finance', name: 'Finance' },
+  { id: 'hra', name: 'HRA' },
+  { id: 'intelligence', name: 'Intelligence' },
+  { id: 'products', name: 'Products' },
+  { id: 'secdevops', name: 'SecDevOps' },
+  { id: 'solutions', name: 'Solutions' },
+  { id: 'stories', name: 'Stories' }
+]
+
+const GUIDELINES_LOCATIONS: Facet[] = [
+  { id: 'DXB', name: 'DXB' },
+  { id: 'KSA', name: 'KSA' },
+  { id: 'NBO', name: 'NBO' }
+]
+
 const BLUEPRINT_GUIDE_TYPES: Facet[] = [
   { id: 'best-practice', name: 'Best Practice' },
   { id: 'policy', name: 'Policy' },
@@ -68,6 +95,20 @@ const STRATEGY_LOCATIONS: Facet[] = [
   { id: 'DXB', name: 'DXB' },
   { id: 'KSA', name: 'KSA' },
   { id: 'NBO', name: 'NBO' }
+]
+
+const STRATEGY_UNITS: Facet[] = [
+  { id: 'deals', name: 'Deals' },
+  { id: 'dq-delivery-accounts', name: 'DQ Delivery (Accounts)' },
+  { id: 'dq-delivery-deploys', name: 'DQ Delivery (Deploys)' },
+  { id: 'dq-delivery-designs', name: 'DQ Delivery (Designs)' },
+  { id: 'finance', name: 'Finance' },
+  { id: 'hra', name: 'HRA' },
+  { id: 'intelligence', name: 'Intelligence' },
+  { id: 'products', name: 'Products' },
+  { id: 'secdevops', name: 'SecDevOps' },
+  { id: 'solutions', name: 'Solutions' },
+  { id: 'stories', name: 'Stories' }
 ]
 
 const Section: React.FC<{ idPrefix: string; title: string; category: string; collapsed: boolean; onToggle: (category: string) => void }> = ({ idPrefix, title, category, collapsed, onToggle, children }) => {
@@ -111,6 +152,10 @@ const CheckboxList: React.FC<{ idPrefix: string; name: string; options: Facet[];
     if (next.get(name) === '') next.delete(name)
     onChange(next)
   }
+  const handleCheckboxChange = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation()
+    toggle(id)
+  }
   return (
     <div className="space-y-1">
       {options.map((opt, idx) => {
@@ -119,7 +164,7 @@ const CheckboxList: React.FC<{ idPrefix: string; name: string; options: Facet[];
         const labelText = formatLabel(opt.name)
         return (
           <div key={opt.id} className="flex items-center">
-            <input type="checkbox" id={id} checked={checked} onChange={() => toggle(opt.id)} className="h-4 w-4 rounded border-gray-300 text-[var(--guidelines-primary)] focus:ring-[var(--guidelines-primary)] accent-[var(--guidelines-primary)]" aria-label={`${name} ${labelText}`} />
+            <input type="checkbox" id={id} checked={checked} onChange={(e) => handleCheckboxChange(opt.id, e)} className="h-4 w-4 rounded border-gray-300 text-[var(--guidelines-primary)] focus:ring-[var(--guidelines-primary)] accent-[var(--guidelines-primary)] cursor-pointer" aria-label={`${name} ${labelText}`} />
             <label htmlFor={id} className="ml-2 text-sm text-gray-700">
               {labelText}
             </label>
@@ -136,6 +181,7 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
   const isBlueprintSelected = activeTab === 'blueprints'
   const isTestimonialsSelected = activeTab === 'testimonials'
   const isGuidelinesSelected = activeTab === 'guidelines'
+  const prevTabRef = useRef<typeof activeTab>(activeTab)
   const clearAll = () => {
     const next = new URLSearchParams()
     onChange(next)
@@ -151,11 +197,19 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
     const next = new Set(parseCsv(query.get('collapsed')))
     if (next.size > 0) setCollapsedSet(next)
   }, [query])
+  // Clean up incompatible filters when switching tabs (only run on actual tab change, not on query changes)
   useEffect(() => {
+    // Only run if tab actually changed
+    if (prevTabRef.current === activeTab) return
+    prevTabRef.current = activeTab
+    
     if (!(isStrategySelected || isBlueprintSelected || isTestimonialsSelected)) return
     const next = new URLSearchParams(query.toString())
     let changed = false
-    ;['guide_type', 'sub_domain', 'unit', 'domain'].forEach(key => {
+    const keysToDelete = isStrategySelected 
+      ? ['guide_type', 'sub_domain', 'domain']
+      : ['guide_type', 'sub_domain', 'unit', 'domain']
+    keysToDelete.forEach(key => {
       if (next.has(key)) {
         next.delete(key)
         changed = true
@@ -177,7 +231,7 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
     }
     if (!changed) return
     onChange(next)
-  }, [isStrategySelected, isBlueprintSelected, isTestimonialsSelected, query, onChange])
+  }, [activeTab, isStrategySelected, isBlueprintSelected, isTestimonialsSelected, query, onChange])
   const toggleCollapsed = (key: string) => {
     const nextSet = new Set(collapsedSet)
     if (nextSet.has(key)) nextSet.delete(key); else nextSet.add(key)
@@ -198,6 +252,10 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
         <Section idPrefix={instanceId} title="Guide Type" category="guide_type" collapsed={collapsedSet.has('guide_type')} onToggle={toggleCollapsed}>
           <CheckboxList idPrefix={instanceId} name="guide_type" options={BLUEPRINT_GUIDE_TYPES} query={query} onChange={onChange} />
         </Section>
+      ) : isGuidelinesSelected ? (
+        <Section idPrefix={instanceId} title="Guide Type" category="guide_type" collapsed={collapsedSet.has('guide_type')} onToggle={toggleCollapsed}>
+          <CheckboxList idPrefix={instanceId} name="guide_type" options={GUIDELINES_GUIDE_TYPES} query={query} onChange={onChange} />
+        </Section>
       ) : !(isStrategySelected || isBlueprintSelected || isTestimonialsSelected) && (
         <Section idPrefix={instanceId} title="Guide Type" category="guide_type" collapsed={collapsedSet.has('guide_type')} onToggle={toggleCollapsed}>
           <CheckboxList idPrefix={instanceId} name="guide_type" options={facets.guide_type || []} query={query} onChange={onChange} />
@@ -212,7 +270,15 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
         <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
           <CheckboxList idPrefix={instanceId} name="unit" options={BLUEPRINT_UNITS} query={query} onChange={onChange} />
         </Section>
-      ) : !(isStrategySelected || isTestimonialsSelected) && (
+      ) : isStrategySelected ? (
+        <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
+          <CheckboxList idPrefix={instanceId} name="unit" options={STRATEGY_UNITS} query={query} onChange={onChange} />
+        </Section>
+      ) : isGuidelinesSelected ? (
+        <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
+          <CheckboxList idPrefix={instanceId} name="unit" options={GUIDELINES_UNITS} query={query} onChange={onChange} />
+        </Section>
+      ) : !isTestimonialsSelected && (
         <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
           <CheckboxList idPrefix={instanceId} name="unit" options={facets.unit || []} query={query} onChange={onChange} />
         </Section>
@@ -229,6 +295,10 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
       ) : isStrategySelected ? (
         <Section idPrefix={instanceId} title="Location" category="location" collapsed={collapsedSet.has('location')} onToggle={toggleCollapsed}>
           <CheckboxList idPrefix={instanceId} name="location" options={STRATEGY_LOCATIONS} query={query} onChange={onChange} />
+        </Section>
+      ) : isGuidelinesSelected ? (
+        <Section idPrefix={instanceId} title="Location" category="location" collapsed={collapsedSet.has('location')} onToggle={toggleCollapsed}>
+          <CheckboxList idPrefix={instanceId} name="location" options={GUIDELINES_LOCATIONS} query={query} onChange={onChange} />
         </Section>
       ) : !isTestimonialsSelected ? (
         <Section idPrefix={instanceId} title="Location" category="location" collapsed={collapsedSet.has('location')} onToggle={toggleCollapsed}>
