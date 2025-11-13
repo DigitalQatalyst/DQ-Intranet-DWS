@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { FilterIcon, HomeIcon, XIcon, ChevronRightIcon } from 'lucide-react';
+import { FilterIcon, HomeIcon, XIcon, ChevronRightIcon, Search } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import FiltersPanel from '@/components/media-center/FiltersPanel';
@@ -321,12 +321,15 @@ const NewsPage: React.FC = () => {
           </div>
 
           <div className="mt-4 mb-4 flex flex-col gap-3 md:mb-6 md:flex-row md:items-center md:justify-between">
-            <Input
-              value={queryText}
-              onChange={(e) => setQueryText(e.target.value)}
-              placeholder={searchPlaceholder}
-              className="h-11"
-            />
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Input
+                value={queryText}
+                onChange={(e) => setQueryText(e.target.value)}
+                placeholder={searchPlaceholder}
+                className="h-11 pl-10 w-full"
+              />
+            </div>
             <div className="flex items-center gap-3 md:hidden">
               <button
                 type="button"

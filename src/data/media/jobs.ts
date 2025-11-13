@@ -56,7 +56,7 @@ export const JOBS: JobItem[] = [
       'Hybrid work model (Dubai studio + remote)',
       'Learning stipend for certifications'
     ],
-    postedOn: '2024-08-15',
+    postedOn: '2025-11-13',
     applyUrl: 'https://dq.example.com/jobs/senior-delivery-lead',
     image: 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80'
   },
@@ -87,7 +87,7 @@ export const JOBS: JobItem[] = [
       'Remote-first with travel stipends',
       'Embedded with multi-disciplinary squads'
     ],
-    postedOn: '2024-08-10',
+    postedOn: '2025-11-13',
     applyUrl: 'https://dq.example.com/jobs/product-designer-mobility',
     image: 'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=1200&q=80'
   },
@@ -118,7 +118,7 @@ export const JOBS: JobItem[] = [
       'Healthcare and wellness coverage',
       'Annual growth stipend'
     ],
-    postedOn: '2024-08-05',
+    postedOn: '2025-11-13',
     applyUrl: 'https://dq.example.com/jobs/people-operations-generalist',
     image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80'
   },
@@ -149,7 +149,7 @@ export const JOBS: JobItem[] = [
       'Dedicated learning days each quarter',
       'Access to global platform guild'
     ],
-    postedOn: '2024-08-03',
+    postedOn: '2025-11-13',
     applyUrl: 'https://dq.example.com/jobs/secdevops-engineer',
     image: 'https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?auto=format&fit=crop&w=1200&q=80'
   },
@@ -180,7 +180,7 @@ export const JOBS: JobItem[] = [
       'Priority coaching support from DCO Ops guild',
       'Option to rotate back to previous craft after 12 months'
     ],
-    postedOn: '2024-08-09',
+    postedOn: '2025-11-13',
     applyUrl: 'https://dq.example.com/jobs/studio-ops-lead',
     image: 'https://images.unsplash.com/photo-1454165205744-3b78555e5572?auto=format&fit=crop&w=1200&q=80'
   },
@@ -211,7 +211,7 @@ export const JOBS: JobItem[] = [
       'Access to HRA research library and coaching squad',
       'Option to extend to full-time after pilot period'
     ],
-    postedOn: '2024-08-06',
+    postedOn: '2025-11-13',
     applyUrl: 'https://dq.example.com/jobs/experience-strategist-internal',
     image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80'
   },
@@ -242,7 +242,7 @@ export const JOBS: JobItem[] = [
       'Structured learning path to level up SFIA behaviours',
       'Access to DBP community events and guilds'
     ],
-    postedOn: '2024-08-02',
+    postedOn: '2025-11-13',
     applyUrl: 'https://dq.example.com/jobs/platform-analyst-internal',
     image: 'https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1200&q=80'
   },
@@ -273,7 +273,7 @@ export const JOBS: JobItem[] = [
       'Dedicated sponsor inside Riyadh leadership circle',
       'Return-to-studio reintegration plan after the rotation'
     ],
-    postedOn: '2024-08-11',
+    postedOn: '2025-11-13',
     applyUrl: 'https://dq.example.com/jobs/riyadh-customer-journey-lead',
     image: 'https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80'
   }

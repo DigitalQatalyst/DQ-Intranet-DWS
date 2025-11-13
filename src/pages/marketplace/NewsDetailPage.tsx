@@ -11,7 +11,12 @@ const formatDate = (input: string) =>
 const fallbackHero =
   'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1600&q=80';
 
-const buildBody = (article: NewsItem) => {
+const buildBody = (article: NewsItem & { content?: string }) => {
+  // Use content field if available, otherwise fall back to default paragraphs
+  if (article.content) {
+    return article.content.split('\n\n').filter(p => p.trim());
+  }
+  
   return [
     article.excerpt,
     'Since launching, DQ teams continue to connect dots across studios, squads, and journeys. Every announcement is an opportunity to reinforce a shared language, codify repeatable wins, and inspire new experiments.',
@@ -20,11 +25,61 @@ const buildBody = (article: NewsItem) => {
   ];
 };
 
+const formatContent = (content: string) => {
+  // Handle markdown-style formatting for professional display
+  if (content.startsWith('#')) {
+    const level = content.match(/^#+/)?.[0].length || 1;
+    const text = content.replace(/^#+\s*/, '').replace(/[🎯💪❤️⚡🌱📖🔗📚🔄📞]/g, '').trim();
+    const className = level === 1 ? 'text-2xl font-bold mb-4 text-gray-900' :
+                     level === 2 ? 'text-xl font-bold mb-3 text-gray-800 mt-6' :
+                     'text-lg font-bold mb-2 text-gray-700 mt-4';
+    return <h2 className={className}>{text}</h2>;
+  }
+  
+  if (content.startsWith('- ') || content.startsWith('* ')) {
+    const items = content.split('\n').filter(line => line.trim().startsWith('- ') || line.trim().startsWith('* '));
+    return (
+      <ul className="list-disc list-inside space-y-2 mb-4 ml-4">
+        {items.map((item, idx) => (
+          <li key={idx} className="text-gray-700">{item.replace(/^[-*]\s*/, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>
+        ))}
+      </ul>
+    );
+  }
+  
+  if (content.match(/^\d+\./)) {
+    const items = content.split('\n').filter(line => line.trim().match(/^\d+\./));
+    return (
+      <ol className="list-decimal list-inside space-y-2 mb-4 ml-4">
+        {items.map((item, idx) => (
+          <li key={idx} className="text-gray-700" dangerouslySetInnerHTML={{ 
+            __html: item.replace(/^\d+\.\s*/, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
+          }} />
+        ))}
+      </ol>
+    );
+  }
+  
+  if (content.startsWith('---')) {
+    return <hr className="my-6 border-gray-200" />;
+  }
+  
+  // Handle bold text and remove emojis
+  const formattedContent = content
+    .replace(/[🎯💪❤️⚡🌱📖🔗📚🔄📞]/g, '')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .trim();
+  
+  return <p className="mb-4 text-gray-700" dangerouslySetInnerHTML={{ __html: formattedContent }} />;
+};
+
 const NewsDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const article = NEWS.find((item) => item.id === id);
   const related = NEWS.filter((item) => item.id !== id).slice(0, 3);
+
   const body = article ? buildBody(article) : [];
 
   if (!article) {
@@ -34,7 +89,7 @@ const NewsDetailPage: React.FC = () => {
         <main className="flex flex-1 flex-col items-center justify-center text-center px-4">
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">Article not found</h1>
           <p className="text-gray-600 mb-6 max-w-md">
-            The article you’re trying to view is unavailable or has been archived. Please browse the latest announcements.
+            The article you're trying to view is unavailable or has been archived. Please browse the latest announcements.
           </p>
           <button
             onClick={() => navigate('/marketplace/news')}
@@ -108,7 +163,7 @@ const NewsDetailPage: React.FC = () => {
             </div>
             <article className="prose prose-lg max-w-none text-gray-700">
               {body.map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
+                <div key={index}>{formatContent(paragraph)}</div>
               ))}
             </article>
           </div>

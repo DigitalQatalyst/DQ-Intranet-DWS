@@ -54,7 +54,7 @@ export default function BlogsGrid({ query }: GridProps) {
     <section className="space-y-3">
       <div className="flex items-center justify-between text-sm text-gray-600">
         <h3 className="font-medium text-gray-800">Available Items ({items.length})</h3>
-        <span>Editors’ picks refreshed weekly</span>
+        <span>Editors' picks refreshed weekly</span>
       </div>
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {items.map((item: NewsItem) => (
