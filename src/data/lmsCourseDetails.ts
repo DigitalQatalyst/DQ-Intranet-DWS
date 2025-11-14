@@ -108,7 +108,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
     id: 'dq-essentials',
     slug: 'dq-essentials',
     title: 'DQ Essentials: How DQ Works',
-    provider: 'DQ HRA',
+    provider: 'DQ DTMA',
     courseCategory: 'Day in DQ',
     deliveryMode: 'Video',
     duration: 'Short',
@@ -687,7 +687,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
     id: 'first-7-days',
     slug: 'first-7-days',
     title: 'Your First 7 Days at DQ',
-    provider: 'DQ HRA',
+    provider: 'DQ DTMA',
     courseCategory: 'Day in DQ',
     deliveryMode: 'Guide',
     duration: 'Medium',
@@ -870,7 +870,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
     id: 'leadership-track',
     slug: 'leadership-track',
     title: 'Leadership Track',
-    provider: 'DQ HRA',
+    provider: 'DQ DTMA',
     courseCategory: 'GHC',
     deliveryMode: 'Hybrid',
     duration: 'Long',
@@ -1027,7 +1027,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
     id: 'onboarding-track',
     slug: 'onboarding-track',
     title: 'Onboarding',
-    provider: 'DQ HRA',
+    provider: 'DQ DTMA',
     courseCategory: 'Day in DQ',
     deliveryMode: 'Hybrid',
     duration: 'Long',
@@ -1073,7 +1073,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
       },
       {
         question: 'What support is available during onboarding?',
-        answer: 'You will be assigned an onboarding buddy or mentor who can help answer questions and provide guidance. Additionally, each course includes support resources, and you can reach out to the DQ HRA team for assistance at any time.'
+        answer: 'You will be assigned an onboarding buddy or mentor who can help answer questions and provide guidance. Additionally, each course includes support resources, and you can reach out to the DQ DTMA team for assistance at any time.'
       },
       {
         question: 'What happens after I complete the onboarding track?',
@@ -1169,6 +1169,217 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
       }
     ]
   },
+
+  // --- START OF NEW MS PLANNER LEARNING TRACK COURSES ---
+
+// 1. The main MS Planner Track (Bundle)
+{
+  id: 'ms-planner-learning-track',
+  slug: 'ms-planner-learning-track',
+  title: 'Microsoft Planner help & Learning',
+  provider: 'Tech (Microsoft)',
+  courseCategory: 'DWS',
+  deliveryMode: 'Guide',
+  duration: 'Medium',
+  levelCode: L('L2'),
+  department: ['DBP', 'DCO'],
+  locations: ['Remote'],
+  audience: ['Associate', 'Lead'],
+  status: 'live',
+  courseType: 'Course (Bundles)',
+  track: 'Microsoft Planner help & Learning',
+  summary: 'A structured guide to using Microsoft Planner for team collaboration, project management, task creation, and progress tracking.',
+  highlights: [
+      'Learn to create and manage basic and premium plans',
+      'Master task assignment, scheduling, and prioritization',
+      'Effective use of charts and calendar views to track progress',
+      'Tips for collaboration and notification management'
+  ],
+  outcomes: [
+      'Set up a new plan and customize task buckets',
+      'Efficiently manage team workload and task status',
+      'Use visual tools for clear project oversight',
+      'Collaborate securely using guest access and comments'
+  ],
+  curriculum: [
+      {
+          id: 'course-planner-get-started-track',
+          title: 'Ms Planner (Getting Started)',
+          description: 'Introduction to Planner on the web and in Teams.',
+          courseSlug: 'ms-planner-getting-started',
+          order: 1,
+          isLocked: false,
+      },
+      {
+          id: 'course-planner-build-plan-track',
+          title: 'Ms Planner (Build your plan)',
+          description: 'Creating plans, managing membership, and setting up tasks.',
+          courseSlug: 'ms-planner-build-your-plan',
+          order: 2,
+          isLocked: false,
+      },
+      {
+          id: 'course-planner-stay-on-track-track',
+          title: 'Ms Planner (Stay on track)',
+          description: 'Monitoring progress through views and enabling team collaboration.',
+          courseSlug: 'ms-planner-stay-on-track',
+          order: 3,
+          isLocked: false,
+      }
+  ]
+},
+
+// 2. Ms Planner (Getting Started) - Course
+{
+  id: 'ms-planner-getting-started',
+  slug: 'ms-planner-getting-started',
+  title: 'Ms Planner (Getting Started)',
+  provider: 'Tech (Microsoft)',
+  courseCategory: 'DWS',
+  deliveryMode: 'Guide',
+  duration: 'Bite-size',
+  levelCode: L('L1'),
+  department: ['DBP'],
+  locations: ['Remote'],
+  audience: ['Associate'],
+  status: 'live',
+  courseType: 'Course (Multi-Lessons)',
+  track: 'Microsoft Planner help & Learning',
+  summary: 'A quick introduction to accessing Microsoft Planner on different platforms to begin task management.',
+  highlights: ['Access Planner via web browser', 'Integrate Planner directly into Teams'],
+  outcomes: ['Locate and launch Planner successfully on any device', 'Understand the basic interface for both platforms'],
+  curriculum: [
+      {
+          id: 'module-planner-access',
+          title: 'Getting Started',
+          order: 1,
+          topics: [
+              {
+                  id: 'topic-planner-access',
+                  title: 'Getting Started',
+                  order: 1,
+                  lessons: [
+                      { id: 'lesson-pln-web', title: 'Planner for the web', type: 'guide', order: 1, isLocked: false },
+                      { id: 'lesson-pln-teams', title: 'Planner in Teams', type: 'guide', order: 2, isLocked: false },
+                  ]
+              }
+          ]
+      }
+  ]
+},
+
+// 3. Ms Planner (Build your plan) - Course
+{
+  id: 'ms-planner-build-your-plan',
+  slug: 'ms-planner-build-your-plan',
+  title: 'Ms Planner (Build your plan)',
+  provider: 'Tech (Microsoft)',
+  courseCategory: 'DWS',
+  deliveryMode: 'Guide',
+  duration: 'Medium',
+  levelCode: L('L2'),
+  department: ['DBP', 'DCO'],
+  locations: ['Remote'],
+  audience: ['Associate', 'Lead'],
+  status: 'live',
+  courseType: 'Course (Multi-Lessons)',
+  track: 'Microsoft Planner help & Learning',
+  summary: 'Detailed instructions on creating, configuring, and populating your plan with tasks, assignments, and key metadata.',
+  highlights: ['Create new plans and manage plan settings', 'Assign priority and due dates to tasks', 'Use advanced features like labels and checklists'],
+  outcomes: ['Structure a complex project plan effectively', 'Manage plan access and compare subscription features', 'Use task metadata to ensure clear execution'],
+  curriculum: [
+      {
+          id: 'module-planner-plans',
+          title: 'Plan Management',
+          order: 1,
+          topics: [
+              {
+                  id: 'topic-planner-plans',
+                  title: 'Plans',
+                  order: 1,
+                  lessons: [
+                      { id: 'lesson-pln-sign-in', title: 'Sign in to Microsoft Planner', type: 'guide', order: 1, isLocked: false },
+                      { id: 'lesson-pln-create-plan', title: 'Create a plan in Microsoft Planner', type: 'guide', order: 2, isLocked: false },
+                      { id: 'lesson-pln-create-buckets', title: 'Create buckets to sort your tasks', type: 'guide', order: 3, isLocked: false },
+                      { id: 'lesson-pln-add-people', title: 'Add people to your plan', type: 'guide', order: 4, isLocked: false },
+                      { id: 'lesson-pln-copy-plan', title: 'Copy a plan', type: 'guide', order: 5, isLocked: false },
+                      { id: 'lesson-pln-pin-plans', title: 'Pin selected plans', type: 'guide', order: 6, isLocked: false },
+                      { id: 'lesson-pln-portfolios', title: 'Manage multiple plans with portfolios', type: 'guide', order: 7, isLocked: false },
+                      { id: 'lesson-pln-delete', title: 'Delete a task or plan', type: 'guide', order: 8, isLocked: false },
+                      { id: 'lesson-pln-compare-plans', title: 'Compare Basic vs Premium Plans', type: 'guide', order: 9, isLocked: false },
+                  ]
+              },
+              {
+                  id: 'topic-planner-tasks',
+                  title: 'Tasks',
+                  order: 2,
+                  lessons: [
+                      { id: 'lesson-pln-add-tasks', title: 'Add tasks to a plan', type: 'guide', order: 1, isLocked: false },
+                      { id: 'lesson-pln-add-dates', title: 'Add task start and due dates', type: 'guide', order: 2, isLocked: false },
+                      { id: 'lesson-pln-priority', title: 'Assign task priority', type: 'guide', order: 3, isLocked: false },
+                      { id: 'lesson-pln-assign-people', title: 'Assign people to tasks', type: 'guide', order: 4, isLocked: false },
+                      { id: 'lesson-pln-attach-files', title: 'Attach files, photos, or links to a task', type: 'guide', order: 5, isLocked: false },
+                      { id: 'lesson-pln-preview-picture', title: 'Set a preview picture for a task', type: 'guide', order: 6, isLocked: false },
+                      { id: 'lesson-pln-labels', title: 'Flag your tasks with labels', type: 'guide', order: 7, isLocked: false },
+                      { id: 'lesson-pln-copy-tasks', title: 'Copy Planner tasks', type: 'guide', order: 8, isLocked: false },
+                      { id: 'lesson-pln-checklist', title: 'Add a checklist to a task', type: 'guide', order: 9, isLocked: false },
+                  ]
+              }
+          ]
+      }
+  ]
+},
+
+// 4. Ms Planner (Stay on track) - Course
+{
+  id: 'ms-planner-stay-on-track',
+  slug: 'ms-planner-stay-on-track',
+  title: 'Ms Planner (Stay on track)',
+  provider: 'Tech (Microsoft)',
+  courseCategory: 'DWS',
+  deliveryMode: 'Guide',
+  duration: 'Short',
+  levelCode: L('L2'),
+  department: ['DBP', 'DCO'],
+  locations: ['Remote'],
+  audience: ['Associate', 'Lead'],
+  status: 'live',
+  courseType: 'Course (Multi-Lessons)',
+  track: 'Microsoft Planner help & Learning',
+  summary: 'Techniques for tracking team progress, visualizing workload, and maintaining smooth communication within your plans.',
+  highlights: ['Visualize project status using Charts view', 'Manage notifications to stay informed without distraction', 'Enable and secure guest access for external collaborators'],
+  outcomes: ['Accurately report on task completion and timelines', 'Use calendar view for scheduling visibility', 'Facilitate clear and immediate collaboration via task comments'],
+  curriculum: [
+      {
+          id: 'module-planner-progress',
+          title: 'Tracking and Collaboration',
+          order: 1,
+          topics: [
+              {
+                  id: 'topic-planner-view-progress',
+                  title: 'View progress',
+                  order: 1,
+                  lessons: [
+                      { id: 'lesson-pln-update-progress', title: 'Set and update task progress', type: 'guide', order: 1, isLocked: false },
+                      { id: 'lesson-pln-view-charts', title: "View charts of your plan's progress", type: 'guide', order: 2, isLocked: false },
+                      { id: 'lesson-pln-view-calendar', title: "View your tasks on a calendar", type: 'guide', order: 3, isLocked: false },
+                  ]
+              },
+              {
+                  id: 'topic-planner-collaborate',
+                  title: 'Collaborate',
+                  order: 2,
+                  lessons: [
+                      { id: 'lesson-pln-comment', title: 'Comment on tasks in Microsoft Planner', type: 'guide', order: 1, isLocked: false },
+                      { id: 'lesson-pln-notifications', title: 'Manage Planner notifications', type: 'guide', order: 2, isLocked: false },
+                      { id: 'lesson-pln-guest-access', title: 'Guest access in Microsoft Planner', type: 'guide', order: 3, isLocked: false },
+                  ]
+              }
+          ]
+      }
+  ]
+  },
+  // --- END OF NEW MS PLANNER LEARNING TRACK COURSES ---
   // --- START OF NEW MICROSOFT TEAMS LEARNING TRACK COURSES ---
   
   // 1. The main MS Learning Track (Bundle)
