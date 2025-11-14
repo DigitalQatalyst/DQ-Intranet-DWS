@@ -990,24 +990,6 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
                 isLocked: false
               }
             ]
-          },
-          {
-            id: 'topic-dq-products-lead',
-            title: 'DQ Products for Leaders',
-            description: 'Understanding DQ product ecosystem from a leadership perspective',
-            order: 2,
-            isLocked: false,
-            lessons: [
-              {
-                id: 'lesson-dq-prod-lead-1',
-                title: '7S Framework for Leaders',
-                description: 'Applying 7S framework in leadership',
-                duration: '25 min',
-                type: 'video',
-                order: 1,
-                isLocked: false
-              }
-            ]
           }
         ]
       },
@@ -1154,24 +1136,6 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
                 isLocked: false
               }
             ]
-          },
-          {
-            id: 'topic-day-4-7',
-            title: 'Days 4-7: First Tasks',
-            description: 'Complete first tasks and establish workflows',
-            order: 2,
-            isLocked: false,
-            lessons: [
-              {
-                id: 'lesson-day-4',
-                title: 'Day 4: First Task',
-                description: 'Complete your first assigned task',
-                duration: '3 hours',
-                type: 'assignment',
-                order: 1,
-                isLocked: false
-              }
-            ]
           }
         ]
       },
@@ -1205,2236 +1169,896 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
       }
     ]
   },
-  // Microsoft Teams Courses - Individual Courses
+  // --- START OF NEW MICROSOFT TEAMS LEARNING TRACK COURSES ---
+  
+  // 1. The main MS Learning Track (Bundle)
   {
-    id: 'ms-teams-meetings',
-    slug: 'ms-teams-meetings',
-    title: 'Ms Teams (Meetings)',
-    provider: 'Tech (Microsoft)',
-    courseCategory: 'Key Tools',
-    deliveryMode: 'Video',
-    duration: 'Long',
-    levelCode: L('L2'),
-    department: ['DBP Platform'],
-    locations: ['Riyadh'],
-    audience: ['Associate', 'Lead'],
-    status: 'live',
-    courseType: 'Course (Multi-Lessons)',
-    rating: 4.6,
-    reviewCount: 28,
-    summary:
-      'Master Microsoft Teams meetings from joining and scheduling to advanced features like webinars, live events, and immersive experiences.',
-    highlights: [
-      'Join and schedule meetings with ease',
-      'Advanced meeting controls and collaboration tools',
-      'Live events, webinars, and town halls',
-      'Immersive experiences and Teams Premium features'
-    ],
-    outcomes: [
-      'Join and schedule Teams meetings effectively',
-      'Use meeting controls and collaboration features',
-      'Organize and host large-scale events',
-      'Troubleshoot common meeting issues'
-    ],
-    testimonials: [
-      {
-        author: 'Mohammed Al-Rashid',
-        role: 'Project Manager',
-        text: 'This course transformed how I conduct meetings in Teams. The scheduling and collaboration features have made my team more productive.',
-        rating: 5
-      },
-      {
-        author: 'Sara Ahmed',
-        role: 'Team Lead',
-        text: 'Excellent coverage of Teams meeting features. The webinar and live event sections were particularly helpful for our organization.',
-        rating: 4
-      }
-    ],
-    curriculum: [
-      {
-        id: 'section-teams-login',
-        title: 'Teams login',
-        description: 'Learn how to access and use Microsoft Teams',
-        order: 1,
-        isLocked: false,
-        topics: [
+      id: 'ms-learning-track',
+      slug: 'ms-learning-track',
+      title: 'Microsoft Teams help & Learning',
+      provider: 'Tech (Microsoft)',
+      courseCategory: 'DWS',
+      deliveryMode: 'Hybrid',
+      duration: 'Long',
+      levelCode: L('L2'),
+      department: ['DBP', 'DCO'],
+      locations: ['Remote'], 
+      audience: ['Associate', 'Lead'],
+      status: 'live',
+      courseType: 'Course (Bundles)',
+      track: 'Microsoft Teams help & Learning',
+      summary: 'A comprehensive learning track covering essential Microsoft Teams features, from chat and meetings to team management and device integration.',
+      highlights: [
+          'Master chat, meetings, and team configuration',
+          'Optimize notifications and status for focus',
+          'Learn advanced calling and device management for hybrid work',
+          'Efficient file collaboration techniques'
+      ],
+      outcomes: [
+          'Utilize Teams for effective communication and collaboration',
+          'Run efficient meetings and events (Webinars, Town Halls)',
+          'Manage team membership and channel structure correctly',
+          'Configure personal settings for optimal DWS workflow'
+      ],
+      curriculum: [
           {
-            id: 'topic-teams-login',
-            title: 'Teams login',
-            description: 'Learn how to access and use Microsoft Teams',
-            order: 1,
-            isLocked: false,
-            lessons: [
-              {
-                id: 'lesson-login-1',
-                title: 'How to Login',
-                description: 'Step-by-step guide to logging into Microsoft Teams',
-                duration: '5 min',
-                type: 'video',
-                order: 1,
-                isLocked: false
-              },
-              {
-                id: 'lesson-login-2',
-                title: 'Use Teams on the web',
-                description: 'Access Teams through web browser',
-                duration: '3 min',
-                type: 'guide',
-                order: 2,
-                isLocked: false
-              }
-            ]
+              id: 'course-teams-meetings-track',
+              title: 'MS Teams (Meetings)',
+              description: 'Everything you need to know about joining, scheduling, and running effective meetings and live events.',
+              courseSlug: 'ms-teams-meetings',
+              order: 1,
+              isLocked: false,
+          },
+          {
+              id: 'course-teams-chat-track',
+              title: 'MS Teams (Chat)',
+              description: 'Master one-on-one and group messaging, formatting, and file sharing in chat.',
+              courseSlug: 'ms-teams-chat',
+              order: 2,
+              isLocked: false,
+          },
+          {
+              id: 'course-teams-notifications-track',
+              title: 'MS Teams (Notification & Setting)',
+              description: 'Focus on personal configuration for productivity.',
+              courseSlug: 'ms-teams-notifications-settings',
+              order: 3,
+              isLocked: false,
+          },
+          {
+              id: 'course-teams-channels-track',
+              title: 'Ms Teams (Teams & Channels)',
+              description: 'Manage collaborative spaces and channel structure.',
+              courseSlug: 'ms-teams-teams-channels',
+              order: 4,
+              isLocked: false,
+          },
+          {
+              id: 'course-teams-calls-track',
+              title: 'MS Teams (Calls & Devices)',
+              description: 'Making calls, managing devices, and advanced calling features.',
+              courseSlug: 'ms-teams-calls-devices',
+              order: 5,
+              isLocked: false,
+          },
+          {
+              id: 'course-teams-files-track',
+              title: 'Ms Teams (Files)',
+              description: 'Efficiently work with, share, and manage files in Teams.',
+              courseSlug: 'ms-teams-files',
+              order: 6,
+              isLocked: false,
           }
-        ]
-      },
-      {
-        id: 'section-join-meeting',
-        title: 'Join a meeting',
-        description: 'Various ways to join Teams meetings',
-        order: 2,
-        isLocked: false,
-        topics: [
-          {
-            id: 'topic-join-meeting',
-            title: 'Join a meeting',
-            description: 'Various ways to join Teams meetings',
-            order: 1,
-            isLocked: false,
-            lessons: [
-              {
-                id: 'lesson-join-1',
-                title: 'Join a meeting in Teams',
-                description: 'Join meetings from within Teams app',
-                duration: '5 min',
-                type: 'video',
-                order: 1,
-                isLocked: false
-              },
-              {
-                id: 'lesson-join-2',
-                title: 'Join without a Teams account',
-                description: 'Join as a guest without Teams account',
-                duration: '4 min',
-                type: 'video',
-                order: 2,
-                isLocked: false
-              },
-              {
-                id: 'lesson-join-3',
-                title: 'Join a meeting outside your org',
-                description: 'Participate in external organization meetings',
-                duration: '5 min',
-                type: 'guide',
-                order: 3,
-                isLocked: false
-              },
-              {
-                id: 'lesson-join-4',
-                title: 'Join on a second device',
-                description: 'Join same meeting from multiple devices',
-                duration: '4 min',
-                type: 'video',
-                order: 4,
-                isLocked: false
-              },
-              {
-                id: 'lesson-join-5',
-                title: 'Join as a view-only attendee',
-                description: 'Attend meetings in view-only mode',
-                duration: '3 min',
-                type: 'guide',
-                order: 5,
-                isLocked: false
-              },
-              {
-                id: 'lesson-join-6',
-                title: 'Join from Google',
-                description: 'Join Teams meetings from Google Calendar',
-                duration: '4 min',
-                type: 'video',
-                order: 6,
-                isLocked: false
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 'section-schedule-meeting',
-        title: 'Schedule a meeting',
-        description: 'Create and manage Teams meetings',
-        order: 3,
-        isLocked: false,
-        topics: [
-          {
-            id: 'topic-schedule-meeting',
-            title: 'Schedule a meeting',
-            description: 'Create and manage Teams meetings',
-            order: 1,
-            isLocked: false,
-            lessons: [
-              {
-                id: 'lesson-schedule-1',
-                title: 'Schedule a meeting in Teams',
-                description: 'Basic meeting scheduling in Teams',
-                duration: '5 min',
-                type: 'video',
-                order: 1,
-                isLocked: false
-              },
-              {
-                id: 'lesson-schedule-2',
-                title: 'Schedule from Outlook',
-                description: 'Create Teams meetings from Outlook',
-                duration: '4 min',
-                type: 'video',
-                order: 2,
-                isLocked: false
-              },
-              {
-                id: 'lesson-schedule-3',
-                title: 'Schedule from Google',
-                description: 'Schedule Teams meetings via Google Calendar',
-                duration: '4 min',
-                type: 'guide',
-                order: 3,
-                isLocked: false
-              },
-              {
-                id: 'lesson-schedule-4',
-                title: 'Instant meeting',
-                description: 'Start an immediate meeting',
-                duration: '3 min',
-                type: 'video',
-                order: 4,
-                isLocked: false
-              },
-              {
-                id: 'lesson-schedule-5',
-                title: 'Personal meeting templates',
-                description: 'Create and use meeting templates',
-                duration: '5 min',
-                type: 'guide',
-                order: 5,
-                isLocked: false
-              },
-              {
-                id: 'lesson-schedule-6',
-                title: 'Add a dial-in number',
-                description: 'Include phone dial-in options',
-                duration: '3 min',
-                type: 'guide',
-                order: 6,
-                isLocked: false
-              },
-              {
-                id: 'lesson-schedule-7',
-                title: 'Invite people',
-                description: 'Add participants to meetings',
-                duration: '3 min',
-                type: 'video',
-                order: 7,
-                isLocked: false
-              },
-              {
-                id: 'lesson-schedule-8',
-                title: 'Meeting roles',
-                description: 'Understand organizer, presenter, and attendee roles',
-                duration: '4 min',
-                type: 'guide',
-                order: 8,
-                isLocked: false
-              },
-              {
-                id: 'lesson-schedule-9',
-                title: 'Add co-organizers',
-                description: 'Share meeting organization responsibilities',
-                duration: '4 min',
-                type: 'video',
-                order: 9,
-                isLocked: false
-              },
-              {
-                id: 'lesson-schedule-10',
-                title: 'Hide attendee names',
-                description: 'Privacy settings for meeting participants',
-                duration: '3 min',
-                type: 'guide',
-                order: 10,
-                isLocked: false
-              },
-              {
-                id: 'lesson-schedule-11',
-                title: 'Lock a meeting',
-                description: 'Secure meetings by locking access',
-                duration: '3 min',
-                type: 'guide',
-                order: 11,
-                isLocked: false
-              },
-              {
-                id: 'lesson-schedule-12',
-                title: 'End a meeting',
-                description: 'Properly conclude Teams meetings',
-                duration: '2 min',
-                type: 'video',
-                order: 12,
-                isLocked: false
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 'topic-manage-calendar',
-        title: 'Manage your calendar',
-        description: 'Calendar management in Teams',
-        order: 4,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-calendar-1',
-            title: 'Manage your calendar',
-            description: 'Overview of calendar management',
-            duration: '5 min',
-            type: 'video',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-calendar-2',
-            title: 'See all your meetings',
-            description: 'View your complete meeting schedule',
-            duration: '3 min',
-            type: 'video',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-calendar-3',
-            title: 'Get started in new calendar',
-            description: 'Introduction to new calendar interface',
-            duration: '4 min',
-            type: 'guide',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-calendar-4',
-            title: 'Customize your calendar',
-            description: 'Personalize calendar settings and views',
-            duration: '5 min',
-            type: 'guide',
-            order: 4,
-            isLocked: false
-          },
-          {
-            id: 'lesson-calendar-5',
-            title: 'View multiple calendars',
-            description: 'Manage multiple calendar views',
-            duration: '4 min',
-            type: 'video',
-            order: 5,
-            isLocked: false
-          },
-          {
-            id: 'lesson-calendar-6',
-            title: 'Work plans',
-            description: 'Create and manage work plans',
-            duration: '4 min',
-            type: 'guide',
-            order: 6,
-            isLocked: false
-          },
-          {
-            id: 'lesson-calendar-7',
-            title: 'Share your calendar',
-            description: 'Share calendar with colleagues',
-            duration: '4 min',
-            type: 'video',
-            order: 7,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-participate-meetings',
-        title: 'Participate in meetings',
-        description: 'Active participation and collaboration in meetings',
-        order: 5,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-participate-1',
-            title: 'Meeting controls',
-            description: 'Essential meeting controls and features',
-            duration: '6 min',
-            type: 'video',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-2',
-            title: 'Chat',
-            description: 'Use chat during meetings',
-            duration: '4 min',
-            type: 'video',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-3',
-            title: 'Present content',
-            description: 'Share your screen and content',
-            duration: '5 min',
-            type: 'video',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-4',
-            title: 'Presenter modes',
-            description: 'Different presentation modes available',
-            duration: '5 min',
-            type: 'video',
-            order: 4,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-5',
-            title: 'Share slides',
-            description: 'Present PowerPoint slides in meetings',
-            duration: '4 min',
-            type: 'video',
-            order: 5,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-6',
-            title: 'Share sound',
-            description: 'Share computer audio during presentations',
-            duration: '4 min',
-            type: 'guide',
-            order: 6,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-7',
-            title: 'Use video',
-            description: 'Manage video settings and controls',
-            duration: '4 min',
-            type: 'video',
-            order: 7,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-8',
-            title: 'Apply video filters',
-            description: 'Use video filters and effects',
-            duration: '4 min',
-            type: 'video',
-            order: 8,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-9',
-            title: 'Mute and unmute',
-            description: 'Audio controls in meetings',
-            duration: '3 min',
-            type: 'video',
-            order: 9,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-10',
-            title: 'Spotlight a video',
-            description: 'Highlight specific participants',
-            duration: '3 min',
-            type: 'guide',
-            order: 10,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-11',
-            title: 'Multitasking',
-            description: 'Work on multiple tasks during meetings',
-            duration: '4 min',
-            type: 'guide',
-            order: 11,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-12',
-            title: 'Raise your hand',
-            description: 'Use hand raise feature to participate',
-            duration: '2 min',
-            type: 'video',
-            order: 12,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-13',
-            title: 'Live reactions',
-            description: 'Express reactions during meetings',
-            duration: '3 min',
-            type: 'video',
-            order: 13,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-14',
-            title: 'Take meeting notes',
-            description: 'Collaborate on meeting notes',
-            duration: '5 min',
-            type: 'guide',
-            order: 14,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-15',
-            title: 'Join a breakout room',
-            description: 'Participate in breakout sessions',
-            duration: '5 min',
-            type: 'video',
-            order: 15,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-16',
-            title: 'Customize your view',
-            description: 'Adjust meeting view settings',
-            duration: '4 min',
-            type: 'guide',
-            order: 16,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-17',
-            title: 'Laser pointer',
-            description: 'Use laser pointer during presentations',
-            duration: '3 min',
-            type: 'video',
-            order: 17,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-18',
-            title: 'Cast from a desktop',
-            description: 'Cast content from desktop to Teams',
-            duration: '4 min',
-            type: 'guide',
-            order: 18,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-19',
-            title: 'Share physical resources',
-            description: 'Share physical whiteboards and resources',
-            duration: '4 min',
-            type: 'video',
-            order: 19,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-20',
-            title: 'Use a green screen',
-            description: 'Virtual background with green screen',
-            duration: '5 min',
-            type: 'guide',
-            order: 20,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-21',
-            title: 'Join as an avatar',
-            description: 'Participate using personalized avatars',
-            duration: '4 min',
-            type: 'video',
-            order: 21,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-22',
-            title: 'Customize your avatar',
-            description: 'Create and customize your Teams avatar',
-            duration: '5 min',
-            type: 'guide',
-            order: 22,
-            isLocked: false
-          },
-          {
-            id: 'lesson-participate-23',
-            title: 'Use emotes, gestures, and more',
-            description: 'Express yourself with avatars',
-            duration: '4 min',
-            type: 'video',
-            order: 23,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-immersive-experiences',
-        title: 'Immersive experiences',
-        description: 'Advanced immersive meeting features',
-        order: 6,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-immersive-1',
-            title: 'Get started with immersive events',
-            description: 'Introduction to immersive events',
-            duration: '5 min',
-            type: 'video',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-immersive-2',
-            title: 'Schedule an immersive event',
-            description: 'Plan and schedule immersive experiences',
-            duration: '5 min',
-            type: 'guide',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-immersive-3',
-            title: 'Customize an immersive event',
-            description: 'Personalize immersive event settings',
-            duration: '6 min',
-            type: 'guide',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-immersive-4',
-            title: 'Host an immersive event',
-            description: 'Lead immersive events effectively',
-            duration: '6 min',
-            type: 'video',
-            order: 4,
-            isLocked: false
-          },
-          {
-            id: 'lesson-immersive-5',
-            title: 'Attend an immersive event',
-            description: 'Participate in immersive experiences',
-            duration: '5 min',
-            type: 'video',
-            order: 5,
-            isLocked: false
-          },
-          {
-            id: 'lesson-immersive-6',
-            title: 'Get started with immersive spaces',
-            description: 'Introduction to immersive spaces',
-            duration: '5 min',
-            type: 'guide',
-            order: 6,
-            isLocked: false
-          },
-          {
-            id: 'lesson-immersive-7',
-            title: 'Use in-meeting controls',
-            description: 'Control features during immersive meetings',
-            duration: '5 min',
-            type: 'video',
-            order: 7,
-            isLocked: false
-          },
-          {
-            id: 'lesson-immersive-8',
-            title: 'Spatial audio',
-            description: 'Enhanced audio in immersive spaces',
-            duration: '4 min',
-            type: 'guide',
-            order: 8,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-teams-premium',
-        title: 'Teams Premium',
-        description: 'Advanced Teams Premium features',
-        order: 7,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-premium-1',
-            title: 'Overview of Microsoft Teams Premium',
-            description: 'Introduction to Teams Premium capabilities',
-            duration: '6 min',
-            type: 'video',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-premium-2',
-            title: 'Intelligent productivity',
-            description: 'AI-powered productivity features',
-            duration: '5 min',
-            type: 'video',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-premium-3',
-            title: 'Advanced meeting protection',
-            description: 'Enhanced security and protection',
-            duration: '5 min',
-            type: 'guide',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-premium-4',
-            title: 'Engaging event experiences',
-            description: 'Premium features for large events',
-            duration: '5 min',
-            type: 'video',
-            order: 4,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-meeting-options',
-        title: 'Meeting options',
-        description: 'Advanced meeting configuration and settings',
-        order: 8,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-options-1',
-            title: 'Change your background',
-            description: 'Customize virtual backgrounds',
-            duration: '4 min',
-            type: 'video',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-2',
-            title: 'Meeting themes',
-            description: 'Apply visual themes to meetings',
-            duration: '4 min',
-            type: 'guide',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-3',
-            title: 'Audio settings',
-            description: 'Configure audio preferences',
-            duration: '5 min',
-            type: 'video',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-4',
-            title: 'Manage attendee audio and video',
-            description: 'Control participant audio/video settings',
-            duration: '5 min',
-            type: 'guide',
-            order: 4,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-5',
-            title: 'Manage what attendees see',
-            description: 'Control attendee view permissions',
-            duration: '4 min',
-            type: 'guide',
-            order: 5,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-6',
-            title: 'Use the green room',
-            description: 'Prepare before joining main meeting',
-            duration: '4 min',
-            type: 'video',
-            order: 6,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-7',
-            title: 'Use RTMP-In',
-            description: 'Stream into Teams using RTMP',
-            duration: '5 min',
-            type: 'guide',
-            order: 7,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-8',
-            title: 'Reduce background noise',
-            description: 'Noise suppression features',
-            duration: '4 min',
-            type: 'video',
-            order: 8,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-9',
-            title: 'Voice isolation in Teams',
-            description: 'Advanced audio isolation',
-            duration: '4 min',
-            type: 'guide',
-            order: 9,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-10',
-            title: 'Mute notifications',
-            description: 'Manage notifications during meetings',
-            duration: '3 min',
-            type: 'guide',
-            order: 10,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-11',
-            title: 'Manage breakout rooms',
-            description: 'Create and manage breakout sessions',
-            duration: '6 min',
-            type: 'video',
-            order: 11,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-12',
-            title: 'Live transcription',
-            description: 'Enable and use live captions',
-            duration: '4 min',
-            type: 'video',
-            order: 12,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-13',
-            title: 'Language interpretation',
-            description: 'Multi-language meeting support',
-            duration: '5 min',
-            type: 'guide',
-            order: 13,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-14',
-            title: 'Multilingual speech recognition',
-            description: 'Speech recognition for multiple languages',
-            duration: '5 min',
-            type: 'guide',
-            order: 14,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-15',
-            title: 'Q&A',
-            description: 'Manage questions and answers',
-            duration: '4 min',
-            type: 'video',
-            order: 15,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-16',
-            title: 'Live captions',
-            description: 'Real-time captioning features',
-            duration: '4 min',
-            type: 'video',
-            order: 16,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-17',
-            title: 'Real-Time Text',
-            description: 'Real-time text transcription',
-            duration: '4 min',
-            type: 'guide',
-            order: 17,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-18',
-            title: 'End-to-end encryption',
-            description: 'Secure encrypted meetings',
-            duration: '5 min',
-            type: 'guide',
-            order: 18,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-19',
-            title: 'Watermark',
-            description: 'Add watermarks to protect content',
-            duration: '4 min',
-            type: 'guide',
-            order: 19,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-20',
-            title: 'Sensitive content detection',
-            description: 'Protect sensitive information',
-            duration: '5 min',
-            type: 'guide',
-            order: 20,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-21',
-            title: 'Meeting attendance reports',
-            description: 'Track and review meeting attendance',
-            duration: '5 min',
-            type: 'video',
-            order: 21,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-22',
-            title: 'Using the lobby',
-            description: 'Manage waiting room features',
-            duration: '4 min',
-            type: 'guide',
-            order: 22,
-            isLocked: false
-          },
-          {
-            id: 'lesson-options-23',
-            title: 'Meeting options',
-            description: 'Complete overview of meeting settings',
-            duration: '6 min',
-            type: 'video',
-            order: 23,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-recording-options',
-        title: 'Recording options',
-        description: 'Record and manage meeting recordings',
-        order: 9,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-recording-1',
-            title: 'Record a meeting',
-            description: 'Start and stop meeting recordings',
-            duration: '5 min',
-            type: 'video',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-recording-2',
-            title: 'Recap',
-            description: 'AI-generated meeting summaries',
-            duration: '4 min',
-            type: 'video',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-recording-3',
-            title: 'Play and share a meeting recording',
-            description: 'Access and distribute recordings',
-            duration: '5 min',
-            type: 'guide',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-recording-4',
-            title: 'Delete a recording',
-            description: 'Remove meeting recordings',
-            duration: '3 min',
-            type: 'guide',
-            order: 4,
-            isLocked: false
-          },
-          {
-            id: 'lesson-recording-5',
-            title: 'Edit or delete a transcript',
-            description: 'Manage meeting transcripts',
-            duration: '4 min',
-            type: 'guide',
-            order: 5,
-            isLocked: false
-          },
-          {
-            id: 'lesson-recording-6',
-            title: 'Customize access to recordings or transcripts',
-            description: 'Control who can access recordings',
-            duration: '5 min',
-            type: 'guide',
-            order: 6,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-live-events',
-        title: 'Live events',
-        description: 'Organize and produce live events',
-        order: 10,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-live-1',
-            title: 'Switch to town halls',
-            description: 'Migrate from live events to town halls',
-            duration: '5 min',
-            type: 'guide',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-2',
-            title: 'Get started',
-            description: 'Introduction to live events',
-            duration: '5 min',
-            type: 'video',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-3',
-            title: 'Schedule a live event',
-            description: 'Plan and schedule live events',
-            duration: '6 min',
-            type: 'guide',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-4',
-            title: 'Invite attendees',
-            description: 'Manage live event invitations',
-            duration: '4 min',
-            type: 'video',
-            order: 4,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-5',
-            title: 'organizer checklist',
-            description: 'Checklist for event organizers',
-            duration: '5 min',
-            type: 'guide',
-            order: 5,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-6',
-            title: 'For tier 1 events',
-            description: 'Best practices for large-scale events',
-            duration: '6 min',
-            type: 'guide',
-            order: 6,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-7',
-            title: 'Produce a live event',
-            description: 'Production workflow for live events',
-            duration: '7 min',
-            type: 'video',
-            order: 7,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-8',
-            title: 'Produce a live event with Teams Encoder',
-            description: 'Advanced production with encoder',
-            duration: '8 min',
-            type: 'guide',
-            order: 8,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-9',
-            title: 'Best practices',
-            description: 'Tips for successful live events',
-            duration: '5 min',
-            type: 'guide',
-            order: 9,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-10',
-            title: 'Present',
-            description: 'Presentation tips for live events',
-            duration: '5 min',
-            type: 'video',
-            order: 10,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-11',
-            title: 'Moderate a Q&A',
-            description: 'Manage Q&A during live events',
-            duration: '5 min',
-            type: 'guide',
-            order: 11,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-12',
-            title: 'Allow anonymous presenters',
-            description: 'Enable anonymous participation',
-            duration: '4 min',
-            type: 'guide',
-            order: 12,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-13',
-            title: 'Attendee engagement report',
-            description: 'Analyze event engagement metrics',
-            duration: '5 min',
-            type: 'video',
-            order: 13,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-14',
-            title: 'Recording and reports',
-            description: 'Access recordings and analytics',
-            duration: '5 min',
-            type: 'guide',
-            order: 14,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-15',
-            title: 'Attend a live event in Teams',
-            description: 'Participant guide for live events',
-            duration: '4 min',
-            type: 'video',
-            order: 15,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-16',
-            title: 'Participate in a Q&A',
-            description: 'Submit questions during events',
-            duration: '3 min',
-            type: 'guide',
-            order: 16,
-            isLocked: false
-          },
-          {
-            id: 'lesson-live-17',
-            title: 'Use live captions',
-            description: 'Access captions during live events',
-            duration: '3 min',
-            type: 'video',
-            order: 17,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-webinars',
-        title: 'Webinars',
-        description: 'Create and manage Teams webinars',
-        order: 11,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-webinar-1',
-            title: 'Get started',
-            description: 'Introduction to Teams webinars',
-            duration: '5 min',
-            type: 'video',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-webinar-2',
-            title: 'Schedule a webinar',
-            description: 'Plan and schedule webinars',
-            duration: '6 min',
-            type: 'guide',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-webinar-3',
-            title: 'Customize a webinar',
-            description: 'Personalize webinar settings',
-            duration: '5 min',
-            type: 'guide',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-webinar-4',
-            title: 'Publicize a webinar',
-            description: 'Promote and share webinars',
-            duration: '4 min',
-            type: 'video',
-            order: 4,
-            isLocked: false
-          },
-          {
-            id: 'lesson-webinar-5',
-            title: 'Manage webinar registration',
-            description: 'Handle attendee registration',
-            duration: '5 min',
-            type: 'guide',
-            order: 5,
-            isLocked: false
-          },
-          {
-            id: 'lesson-webinar-6',
-            title: 'Change webinar details',
-            description: 'Update webinar information',
-            duration: '4 min',
-            type: 'guide',
-            order: 6,
-            isLocked: false
-          },
-          {
-            id: 'lesson-webinar-7',
-            title: 'Manage webinar emails',
-            description: 'Configure email notifications',
-            duration: '4 min',
-            type: 'guide',
-            order: 7,
-            isLocked: false
-          },
-          {
-            id: 'lesson-webinar-8',
-            title: 'Cancel a webinar',
-            description: 'Cancel scheduled webinars',
-            duration: '3 min',
-            type: 'guide',
-            order: 8,
-            isLocked: false
-          },
-          {
-            id: 'lesson-webinar-9',
-            title: 'Manage webinar recordings',
-            description: 'Access and manage webinar recordings',
-            duration: '4 min',
-            type: 'video',
-            order: 9,
-            isLocked: false
-          },
-          {
-            id: 'lesson-webinar-10',
-            title: 'Webinar attendance report',
-            description: 'Review webinar participation data',
-            duration: '4 min',
-            type: 'guide',
-            order: 10,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-town-halls',
-        title: 'Town halls',
-        description: 'Organize and host town hall meetings',
-        order: 12,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-townhall-1',
-            title: 'Get started with town hall',
-            description: 'Introduction to town halls',
-            duration: '5 min',
-            type: 'video',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-townhall-2',
-            title: 'Schedule a town hall',
-            description: 'Plan and schedule town halls',
-            duration: '6 min',
-            type: 'guide',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-townhall-3',
-            title: 'Manage town hall emails',
-            description: 'Configure email communications',
-            duration: '4 min',
-            type: 'guide',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-townhall-4',
-            title: 'Customize a town hall',
-            description: 'Personalize town hall settings',
-            duration: '5 min',
-            type: 'guide',
-            order: 4,
-            isLocked: false
-          },
-          {
-            id: 'lesson-townhall-5',
-            title: 'Host a town hall',
-            description: 'Best practices for hosting',
-            duration: '6 min',
-            type: 'video',
-            order: 5,
-            isLocked: false
-          },
-          {
-            id: 'lesson-townhall-6',
-            title: 'Control production tools',
-            description: 'Use production features',
-            duration: '5 min',
-            type: 'guide',
-            order: 6,
-            isLocked: false
-          },
-          {
-            id: 'lesson-townhall-7',
-            title: 'Attend a town hall',
-            description: 'Participant guide for town halls',
-            duration: '4 min',
-            type: 'video',
-            order: 7,
-            isLocked: false
-          },
-          {
-            id: 'lesson-townhall-8',
-            title: 'Chat in a town hall',
-            description: 'Use chat features during town halls',
-            duration: '4 min',
-            type: 'guide',
-            order: 8,
-            isLocked: false
-          },
-          {
-            id: 'lesson-townhall-9',
-            title: 'Town hall insights',
-            description: 'Analyze town hall engagement',
-            duration: '5 min',
-            type: 'video',
-            order: 9,
-            isLocked: false
-          },
-          {
-            id: 'lesson-townhall-10',
-            title: 'Manage town hall recordings',
-            description: 'Access and manage recordings',
-            duration: '4 min',
-            type: 'guide',
-            order: 10,
-            isLocked: false
-          },
-          {
-            id: 'lesson-townhall-11',
-            title: 'Cancel a town hall',
-            description: 'Cancel scheduled town halls',
-            duration: '3 min',
-            type: 'guide',
-            order: 11,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-best-practices-meetings',
-        title: 'Best practices',
-        description: 'Best practices for Teams meetings',
-        order: 13,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-best-1',
-            title: 'Setting up large meetings and events',
-            description: 'Best practices for large-scale meetings',
-            duration: '6 min',
-            type: 'guide',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-best-2',
-            title: 'Presenting in large meetings and events',
-            description: 'Presentation tips for large audiences',
-            duration: '6 min',
-            type: 'video',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-best-3',
-            title: 'Producing large meetings and events',
-            description: 'Production workflow best practices',
-            duration: '7 min',
-            type: 'guide',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-best-4',
-            title: 'Hosting hybrid meetings and events in Microsoft Teams Rooms',
-            description: 'Best practices for hybrid setups',
-            duration: '7 min',
-            type: 'video',
-            order: 4,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-troubleshooting-meetings',
-        title: 'Troubleshooting',
-        description: 'Common issues and solutions for Teams meetings',
-        order: 14,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-trouble-1',
-            title: 'Can\'t join a meeting',
-            description: 'Troubleshoot meeting join issues',
-            duration: '5 min',
-            type: 'guide',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-trouble-2',
-            title: 'Camera isn\'t working',
-            description: 'Fix camera issues in Teams',
-            duration: '5 min',
-            type: 'guide',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-trouble-3',
-            title: 'Microphone isn\'t working',
-            description: 'Resolve microphone problems',
-            duration: '5 min',
-            type: 'guide',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-trouble-4',
-            title: 'My speaker isn\'t working',
-            description: 'Fix audio output issues',
-            duration: '4 min',
-            type: 'guide',
-            order: 4,
-            isLocked: false
-          },
-          {
-            id: 'lesson-trouble-5',
-            title: 'Can\'t record a meeting',
-            description: 'Troubleshoot recording problems',
-            duration: '5 min',
-            type: 'guide',
-            order: 5,
-            isLocked: false
-          },
-          {
-            id: 'lesson-trouble-6',
-            title: 'Can\'t transcribe a meeting',
-            description: 'Fix transcription issues',
-            duration: '4 min',
-            type: 'guide',
-            order: 6,
-            isLocked: false
-          },
-          {
-            id: 'lesson-trouble-7',
-            title: 'Meeting chat access',
-            description: 'Resolve chat access problems',
-            duration: '4 min',
-            type: 'guide',
-            order: 7,
-            isLocked: false
-          },
-          {
-            id: 'lesson-trouble-8',
-            title: 'Breakout rooms issues',
-            description: 'Fix breakout room problems',
-            duration: '5 min',
-            type: 'guide',
-            order: 8,
-            isLocked: false
-          },
-          {
-            id: 'lesson-trouble-9',
-            title: 'Immersive spaces issues',
-            description: 'Troubleshoot immersive space problems',
-            duration: '5 min',
-            type: 'guide',
-            order: 9,
-            isLocked: false
-          },
-          {
-            id: 'lesson-trouble-10',
-            title: 'Meetings keep dropping',
-            description: 'Resolve connection stability issues',
-            duration: '5 min',
-            type: 'guide',
-            order: 10,
-            isLocked: false
-          },
-          {
-            id: 'lesson-trouble-11',
-            title: 'Call and meeting quality',
-            description: 'Improve audio and video quality',
-            duration: '6 min',
-            type: 'guide',
-            order: 11,
-            isLocked: false
-          }
-        ]
-      }
-    ]
+      ]
   },
+  
+  // 2. MS Teams (Meetings) - Course
   {
-    id: 'ms-teams-chat',
-    slug: 'ms-teams-chat',
-    title: 'Ms Teams (Chat)',
-    provider: 'Tech (Microsoft)',
-    courseCategory: 'Key Tools',
-    deliveryMode: 'Guide',
-    duration: 'Medium',
-    levelCode: L('L2'),
-    department: ['DBP Platform'],
-    locations: ['Riyadh'],
-    audience: ['Associate', 'Lead'],
-    status: 'live',
-    courseType: 'Course (Multi-Lessons)',
-    rating: 4.5,
-    reviewCount: 22,
-    summary:
-      'Master Microsoft Teams chat features including messaging, file sharing, group chats, and advanced collaboration tools.',
-    highlights: [
-      'Send and manage messages effectively',
-      'Share files, pictures, and links',
-      'Organize group chats and conversations',
-      'Use advanced chat features and commands'
-    ],
-    outcomes: [
-      'Communicate effectively using Teams chat',
-      'Share files and collaborate in conversations',
-      'Manage chat threads and organize conversations',
-      'Use productivity features and slash commands'
-    ],
-    testimonials: [
-      {
-        author: 'Fatima Al-Zahra',
-        role: 'Communication Specialist',
-        text: 'This course made me much more efficient with Teams chat. The file sharing and group chat features are now second nature.',
-        rating: 5
-      },
-      {
-        author: 'Khalid Hassan',
-        role: 'Team Coordinator',
-        text: 'Great overview of Teams chat capabilities. The advanced features and commands section was particularly useful.',
-        rating: 4
-      }
-    ],
-    curriculum: [
-      {
-        id: 'topic-send-messages',
-        title: 'Send messages',
-        description: 'Master messaging in Teams',
-        order: 1,
-        isLocked: false,
-        lessons: [
+      id: 'ms-teams-meetings',
+      slug: 'ms-teams-meetings',
+      title: 'MS Teams (Meetings)',
+      provider: 'Tech (Microsoft)',
+      courseCategory: 'DWS',
+      deliveryMode: 'Guide',
+      duration: 'Medium',
+      levelCode: L('L2'),
+      department: ['DBP', 'DCO'],
+      locations: ['Remote'], // Location set to Remote
+      audience: ['Associate', 'Lead'],
+      status: 'live',
+      courseType: 'Course (Multi-Lessons)',
+      track: 'Microsoft Teams help & Learning',
+      summary: 'A deep dive into joining, scheduling, and running effective meetings, including advanced features like immersive experiences, live events, and premium options.',
+      highlights: ['Master meeting controls, sharing, and multitasking', 'Schedule and manage live events, webinars, and town halls', 'Utilize recording, transcription, and language interpretation options'],
+      outcomes: ['Run professional and engaging virtual events', 'Troubleshoot common audio/video issues', 'Leverage Teams Premium features for security and intelligence'],
+      curriculum: [
           {
-            id: 'lesson-send-1',
-            title: 'Start a chat with others',
-            description: 'Initiate conversations in Teams',
-            duration: '4 min',
-            type: 'video',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-2',
-            title: 'Send and read',
-            description: 'Basic message sending and reading',
-            duration: '3 min',
-            type: 'video',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-3',
-            title: 'Send a file, picture, or link',
-            description: 'Share files and media in chats',
-            duration: '5 min',
-            type: 'video',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-4',
-            title: 'Send an emoji, GIF, or sticker',
-            description: 'Add emojis and media to messages',
-            duration: '4 min',
-            type: 'video',
-            order: 4,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-5',
-            title: 'Select your emoji skin tone',
-            description: 'Customize emoji appearance',
-            duration: '2 min',
-            type: 'guide',
-            order: 5,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-6',
-            title: 'Use custom emoji',
-            description: 'Create and use custom emojis',
-            duration: '4 min',
-            type: 'guide',
-            order: 6,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-7',
-            title: 'Read receipts',
-            description: 'Understand message read status',
-            duration: '3 min',
-            type: 'guide',
-            order: 7,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-8',
-            title: 'Format a message',
-            description: 'Apply formatting to messages',
-            duration: '4 min',
-            type: 'guide',
-            order: 8,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-9',
-            title: 'Check your spelling in multiple languages',
-            description: 'Use spell check for different languages',
-            duration: '4 min',
-            type: 'guide',
-            order: 9,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-10',
-            title: 'Use suggested replies',
-            description: 'Quick reply suggestions',
-            duration: '3 min',
-            type: 'video',
-            order: 10,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-11',
-            title: 'Like or react to messages',
-            description: 'React to messages with emojis',
-            duration: '3 min',
-            type: 'video',
-            order: 11,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-12',
-            title: 'Copy and paste',
-            description: 'Copy and paste content in Teams',
-            duration: '2 min',
-            type: 'guide',
-            order: 12,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-13',
-            title: 'Mark a message as important or urgent',
-            description: 'Highlight important messages',
-            duration: '3 min',
-            type: 'guide',
-            order: 13,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-14',
-            title: 'Share your screen in a chat',
-            description: 'Screen sharing in chat windows',
-            duration: '4 min',
-            type: 'video',
-            order: 14,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-15',
-            title: 'Share a contact',
-            description: 'Share contact information',
-            duration: '3 min',
-            type: 'guide',
-            order: 15,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-16',
-            title: 'Forward a message',
-            description: 'Forward messages to others',
-            duration: '3 min',
-            type: 'guide',
-            order: 16,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-17',
-            title: 'Report messages',
-            description: 'Report inappropriate content',
-            duration: '3 min',
-            type: 'guide',
-            order: 17,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-18',
-            title: 'Use file suggestions',
-            description: 'AI-powered file recommendations',
-            duration: '4 min',
-            type: 'video',
-            order: 18,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-19',
-            title: 'Record a video clip',
-            description: 'Send video messages',
-            duration: '5 min',
-            type: 'video',
-            order: 19,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-20',
-            title: 'Use text predictions',
-            description: 'AI text completion suggestions',
-            duration: '4 min',
-            type: 'video',
-            order: 20,
-            isLocked: false
-          },
-          {
-            id: 'lesson-send-21',
-            title: 'Schedule chat messages',
-            description: 'Schedule messages for later',
-            duration: '4 min',
-            type: 'guide',
-            order: 21,
-            isLocked: false
+              id: 'module-meetings',
+              title: 'Meetings and Events',
+              order: 1,
+              topics: [
+                  {
+                      id: 'topic-teams-login',
+                      title: 'Teams login',
+                      order: 1,
+                      lessons: [
+                          { id: 'lesson-meet-login', title: 'How to Login', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-meet-web', title: 'Use Teams on the web', type: 'guide', order: 2, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-join-meeting',
+                      title: 'Join a meeting',
+                      order: 2,
+                      lessons: [
+                          { id: 'lesson-meet-join-teams', title: 'Join a meeting in Teams', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-meet-join-no-account', title: 'Join without a Teams account', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-meet-join-outside-org', title: 'Join a meeting outside your org', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-meet-join-second-device', title: 'Join on a second device', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-meet-join-view-only', title: 'Join as a view-only attendee', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-meet-join-google', title: 'Join from Google', type: 'guide', order: 6, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-schedule-meeting',
+                      title: 'Schedule a meeting',
+                      order: 3,
+                      lessons: [
+                          { id: 'lesson-meet-schedule-teams', title: 'Schedule a meeting in Teams', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-meet-schedule-outlook', title: 'Schedule from Outlook', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-meet-schedule-google', title: 'Schedule from Google', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-meet-instant', title: 'Instant meeting', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-meet-templates', title: 'Personal meeting templates', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-meet-dial-in', title: 'Add a dial-in number', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-meet-invite', title: 'Invite people', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-meet-roles', title: 'Meeting roles', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-meet-co-organizers', title: 'Add co-organizers', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-meet-hide-names', title: 'Hide attendee names', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-meet-lock', title: 'Lock a meeting', type: 'guide', order: 11, isLocked: false },
+                          { id: 'lesson-meet-end', title: 'End a meeting', type: 'guide', order: 12, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-manage-calendar',
+                      title: 'Manage your calendar',
+                      order: 4,
+                      lessons: [
+                          { id: 'lesson-cal-manage', title: 'Manage your calendar', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-cal-see-all', title: 'See all your meetings', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-cal-new-calendar', title: 'Get started in new calendar', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-cal-customize', title: 'Customize your calendar', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-cal-multiple', title: 'View multiple calendars', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-cal-work-plans', title: 'Work plans', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-cal-share', title: 'Share your calendar', type: 'guide', order: 7, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-participate-meetings',
+                      title: 'Participate in meetings',
+                      order: 5,
+                      lessons: [
+                          { id: 'lesson-part-controls', title: 'Meeting controls', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-part-chat', title: 'Chat', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-part-present-content', title: 'Present content', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-part-presenter-modes', title: 'Presenter modes', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-part-share-slides', title: 'Share slides', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-part-share-sound', title: 'Share sound', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-part-use-video', title: 'Use video', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-part-video-filters', title: 'Apply video filters', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-part-mute', title: 'Mute and unmute', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-part-spotlight', title: 'Spotlight a video', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-part-multitasking', title: 'Multitasking', type: 'guide', order: 11, isLocked: false },
+                          { id: 'lesson-part-raise-hand', title: 'Raise your hand', type: 'guide', order: 12, isLocked: false },
+                          { id: 'lesson-part-reactions', title: 'Live reactions', type: 'guide', order: 13, isLocked: false },
+                          { id: 'lesson-part-notes', title: 'Take meeting notes', type: 'guide', order: 14, isLocked: false },
+                          { id: 'lesson-part-breakout', title: 'Join a breakout room', type: 'guide', order: 15, isLocked: false },
+                          { id: 'lesson-part-customize-view', title: 'Customize your view', type: 'guide', order: 16, isLocked: false },
+                          { id: 'lesson-part-laser-pointer', title: 'Laser pointer', type: 'guide', order: 17, isLocked: false },
+                          { id: 'lesson-part-cast', title: 'Cast from a desktop', type: 'guide', order: 18, isLocked: false },
+                          { id: 'lesson-part-share-resources', title: 'Share physical resources', type: 'guide', order: 19, isLocked: false },
+                          { id: 'lesson-part-green-screen', title: 'Use a green screen', type: 'guide', order: 20, isLocked: false },
+                          { id: 'lesson-part-avatar-join', title: 'Join as an avatar', type: 'guide', order: 21, isLocked: false },
+                          { id: 'lesson-part-avatar-customize', title: 'Customize your avatar', type: 'guide', order: 22, isLocked: false },
+                          { id: 'lesson-part-emotes', title: 'Use emotes, gestures, and more', type: 'guide', order: 23, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-immersive-experiences',
+                      title: 'Immersive experiences',
+                      order: 6,
+                      lessons: [
+                          { id: 'lesson-imm-get-started', title: 'Get started with immersive events', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-imm-schedule-event', title: 'Schedule an immersive event', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-imm-customize-event', title: 'Customize an immersive event', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-imm-host-event', title: 'Host an immersive event', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-imm-attend-event', title: 'Attend an immersive event', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-imm-spaces-start', title: 'Get started with immersive spaces', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-imm-in-meeting-controls', title: 'Use in-meeting controls', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-imm-spatial-audio', title: 'Spatial audio', type: 'guide', order: 8, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-teams-premium',
+                      title: 'Teams Premium',
+                      order: 7,
+                      lessons: [
+                          { id: 'lesson-premium-overview', title: 'Overview of Microsoft Teams Premium', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-premium-productivity', title: 'Intelligent productivity', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-premium-protection', title: 'Advanced meeting protection', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-premium-engaging-events', title: 'Engaging event experiences', type: 'guide', order: 4, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-meeting-options',
+                      title: 'Meeting options',
+                      order: 8,
+                      lessons: [
+                          { id: 'lesson-opt-background', title: 'Change your background', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-opt-themes', title: 'Meeting themes', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-opt-audio-settings', title: 'Audio settings', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-opt-manage-av', title: 'Manage attendee audio and video', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-opt-attendee-view', title: 'Manage what attendees see', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-opt-green-room', title: 'Use the green room', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-opt-rtmp', title: 'Use RTMP-In', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-opt-noise-reduce', title: 'Reduce background noise', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-opt-voice-isolation', title: 'Voice isolation in Teams', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-opt-mute-notifications', title: 'Mute notifications', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-opt-breakout-manage', title: 'Manage breakout rooms', type: 'guide', order: 11, isLocked: false },
+                          { id: 'lesson-opt-live-transcription', title: 'Live transcription', type: 'guide', order: 12, isLocked: false },
+                          { id: 'lesson-opt-language-interpret', title: 'Language interpretation', type: 'guide', order: 13, isLocked: false },
+                          { id: 'lesson-opt-multilingual', title: 'Multilingual speech recognition', type: 'guide', order: 14, isLocked: false },
+                          { id: 'lesson-opt-qna', title: 'Q&A', type: 'guide', order: 15, isLocked: false },
+                          { id: 'lesson-opt-live-captions', title: 'Live captions', type: 'guide', order: 16, isLocked: false },
+                          { id: 'lesson-opt-rtt', title: 'Real-Time Text', type: 'guide', order: 17, isLocked: false },
+                          { id: 'lesson-opt-e2e', title: 'End-to-end encryption', type: 'guide', order: 18, isLocked: false },
+                          { id: 'lesson-opt-watermark', title: 'Watermark', type: 'guide', order: 19, isLocked: false },
+                          { id: 'lesson-opt-sensitive-content', title: 'Sensitive content detection', type: 'guide', order: 20, isLocked: false },
+                          { id: 'lesson-opt-attendance-report', title: 'Meeting attendance reports', type: 'guide', order: 21, isLocked: false },
+                          { id: 'lesson-opt-lobby', title: 'Using the lobby', type: 'guide', order: 22, isLocked: false },
+                          { id: 'lesson-opt-meeting-options', title: 'Meeting options', type: 'guide', order: 23, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-recording-options',
+                      title: 'Recording options',
+                      order: 9,
+                      lessons: [
+                          { id: 'lesson-rec-record', title: 'Record a meeting', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-rec-recap', title: 'Recap', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-rec-play-share', title: 'Play and share a meeting recording', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-rec-delete', title: 'Delete a recording', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-rec-edit-transcript', title: 'Edit or delete a transcript', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-rec-customize-access', title: 'Customize access to recordings or transcripts', type: 'guide', order: 6, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-live-events',
+                      title: 'Live events',
+                      order: 10,
+                      lessons: [
+                          { id: 'lesson-live-town-halls', title: 'Switch to town halls', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-live-get-started', title: 'Get started', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-live-schedule', title: 'Schedule a live event', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-live-invite', title: 'Invite attendees', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-live-checklist', title: 'organizer checklist', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-live-tier1', title: 'For tier 1 events', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-live-produce', title: 'Produce a live event', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-live-encoder', title: 'Produce a live event with Teams Encoder', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-live-best-practices', title: 'Best practices', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-live-present', title: 'Present', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-live-moderate-qna', title: 'Moderate a Q&A', type: 'guide', order: 11, isLocked: false },
+                          { id: 'lesson-live-anonymous', title: 'Allow anonymous presenters', type: 'guide', order: 12, isLocked: false },
+                          { id: 'lesson-live-engagement', title: 'Attendee engagement report', type: 'guide', order: 13, isLocked: false },
+                          { id: 'lesson-live-reports', title: 'Recording and reports', type: 'guide', order: 14, isLocked: false },
+                          { id: 'lesson-live-attend', title: 'Attend a live event in Teams', type: 'guide', order: 15, isLocked: false },
+                          { id: 'lesson-live-participate-qna', title: 'Participate in a Q&A', type: 'guide', order: 16, isLocked: false },
+                          { id: 'lesson-live-captions', title: 'Use live captions', type: 'guide', order: 17, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-webinars',
+                      title: 'Webinars',
+                      order: 11,
+                      lessons: [
+                          { id: 'lesson-web-get-started', title: 'Get started', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-web-schedule', title: 'Schedule a webinar', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-web-customize', title: 'Customize a webinar', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-web-publicize', title: 'Publicize a webinar', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-web-manage-registration', title: 'Manage webinar registration', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-web-change-details', title: 'Change webinar details', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-web-manage-emails', title: 'Manage webinar emails', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-web-cancel', title: 'Cancel a webinar', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-web-manage-recordings', title: 'Manage webinar recordings', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-web-attendance-report', title: 'Webinar attendance report', type: 'guide', order: 10, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-town-halls',
+                      title: 'Town halls',
+                      order: 12,
+                      lessons: [
+                          { id: 'lesson-hall-get-started', title: 'Get started with town hall', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-hall-schedule', title: 'Schedule a town hall', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-hall-manage-emails', title: 'Manage town hall emails', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-hall-customize', title: 'Customize a town hall', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-hall-host', title: 'Host a town hall', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-hall-control-production', title: 'Control production tools', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-hall-attend', title: 'Attend a town hall', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-hall-chat', title: 'Chat in a town hall', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-hall-insights', title: 'Town hall insights', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-hall-manage-recordings', title: 'Manage town hall recordings', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-hall-cancel', title: 'Cancel a town hall', type: 'guide', order: 11, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-best-practices',
+                      title: 'Best practices',
+                      order: 13,
+                      lessons: [
+                          { id: 'lesson-bp-setting-up-large', title: 'Setting up large meetings and events', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-bp-presenting-large', title: 'Presenting in large meetings and events', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-bp-producing-large', title: 'Producing large meetings and events', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-bp-hybrid', title: 'Hosting hybrid meetings and events in Microsoft Teams Rooms', type: 'guide', order: 4, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-troubleshooting',
+                      title: 'Troubleshooting',
+                      order: 14,
+                      lessons: [
+                          { id: 'lesson-ts-cant-join', title: "Can't join a meeting", type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-ts-camera', title: "Camera isn't working", type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-ts-mic', title: "Microphone isn't working", type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-ts-speaker', title: 'My speaker isn’t working', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-ts-cant-record', title: "Can't record a meeting", type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-ts-cant-transcribe', title: "Can't transcribe a meeting", type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-ts-chat-access', title: 'Meeting chat access', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-ts-breakout', title: 'Breakout rooms issues', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-ts-immersive', title: 'Immersive spaces issues', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-ts-dropping', title: 'Meetings keep dropping', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-ts-quality', title: 'Call and meeting quality', type: 'guide', order: 11, isLocked: false },
+                      ]
+                  },
+              ]
           }
-        ]
-      },
-      {
-        id: 'topic-chat-outside-team',
-        title: 'Chat outside a team',
-        description: 'External communication features',
-        order: 2,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-external-1',
-            title: 'Add or invite people outside your org to a chat',
-            description: 'Include external participants',
-            duration: '5 min',
-            type: 'guide',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-external-2',
-            title: 'Accept people outside your org',
-            description: 'Approve external participant requests',
-            duration: '4 min',
-            type: 'guide',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-external-3',
-            title: 'Block or unblock people outside your org',
-            description: 'Manage external contacts',
-            duration: '4 min',
-            type: 'guide',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-external-4',
-            title: 'Send messages to Skype for Business users',
-            description: 'Interoperability with Skype',
-            duration: '4 min',
-            type: 'guide',
-            order: 4,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-manage-messages',
-        title: 'Manage messages',
-        description: 'Organize and manage your messages',
-        order: 3,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-manage-1',
-            title: 'Edit or delete a message',
-            description: 'Modify sent messages',
-            duration: '4 min',
-            type: 'video',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-2',
-            title: 'Save a message',
-            description: 'Bookmark important messages',
-            duration: '3 min',
-            type: 'guide',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-3',
-            title: 'Hide a chat or leave a chat thread',
-            description: 'Organize your chat list',
-            duration: '4 min',
-            type: 'video',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-4',
-            title: 'Pin a chat message',
-            description: 'Pin important messages',
-            duration: '3 min',
-            type: 'guide',
-            order: 4,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-5',
-            title: 'Hide, unhide, mute, add a chat to Favorites, or mark a chat as unread',
-            description: 'Chat organization options',
-            duration: '5 min',
-            type: 'guide',
-            order: 5,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-6',
-            title: 'Accept or block chat requests from people inside your org',
-            description: 'Manage internal chat requests',
-            duration: '4 min',
-            type: 'guide',
-            order: 6,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-7',
-            title: 'Open a chat in a new window',
-            description: 'Multi-window chat management',
-            duration: '3 min',
-            type: 'guide',
-            order: 7,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-8',
-            title: 'Prevent spam or phishing attempts from external chats',
-            description: 'Security and spam prevention',
-            duration: '5 min',
-            type: 'guide',
-            order: 8,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-9',
-            title: 'Search for messages',
-            description: 'Find messages using search',
-            duration: '4 min',
-            type: 'video',
-            order: 9,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-10',
-            title: 'Translate a message',
-            description: 'Translate messages to your language',
-            duration: '4 min',
-            type: 'video',
-            order: 10,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-11',
-            title: 'Change the spacing',
-            description: 'Adjust message spacing',
-            duration: '2 min',
-            type: 'guide',
-            order: 11,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-12',
-            title: 'Preview messages',
-            description: 'Message preview features',
-            duration: '3 min',
-            type: 'guide',
-            order: 12,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-13',
-            title: 'Show chat info',
-            description: 'View chat details and settings',
-            duration: '3 min',
-            type: 'guide',
-            order: 13,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-14',
-            title: 'Manage chats with the Teams mobile app',
-            description: 'Mobile chat management',
-            duration: '4 min',
-            type: 'video',
-            order: 14,
-            isLocked: false
-          },
-          {
-            id: 'lesson-manage-15',
-            title: 'Share to Outlook from Teams',
-            description: 'Integration with Outlook',
-            duration: '4 min',
-            type: 'guide',
-            order: 15,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-group-chat',
-        title: 'Group chat',
-        description: 'Manage group conversations',
-        order: 4,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-group-1',
-            title: 'Leave or remove someone from a group chat',
-            description: 'Manage group membership',
-            duration: '4 min',
-            type: 'guide',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-group-2',
-            title: 'Personalize your group chat image',
-            description: 'Customize group appearance',
-            duration: '3 min',
-            type: 'guide',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-group-3',
-            title: 'Chat with members from distribution list or M365 group',
-            description: 'Create chats from groups',
-            duration: '4 min',
-            type: 'guide',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-group-4',
-            title: 'Share a link to a specific message',
-            description: 'Link to specific messages',
-            duration: '3 min',
-            type: 'guide',
-            order: 4,
-            isLocked: false
-          }
-        ]
-      },
-      {
-        id: 'topic-learn-more-chat',
-        title: 'Learn more',
-        description: 'Advanced chat features and tips',
-        order: 5,
-        isLocked: false,
-        lessons: [
-          {
-            id: 'lesson-learn-1',
-            title: 'Use slash commands',
-            description: 'Productivity commands in Teams',
-            duration: '5 min',
-            type: 'guide',
-            order: 1,
-            isLocked: false
-          },
-          {
-            id: 'lesson-learn-2',
-            title: 'Send Praise to people',
-            description: 'Recognize team members',
-            duration: '3 min',
-            type: 'video',
-            order: 2,
-            isLocked: false
-          },
-          {
-            id: 'lesson-learn-3',
-            title: 'Use code blocks',
-            description: 'Format code in messages',
-            duration: '4 min',
-            type: 'guide',
-            order: 3,
-            isLocked: false
-          },
-          {
-            id: 'lesson-learn-4',
-            title: 'Send code snippets in a message',
-            description: 'Share code snippets',
-            duration: '4 min',
-            type: 'guide',
-            order: 4,
-            isLocked: false
-          },
-          {
-            id: 'lesson-learn-5',
-            title: 'Use Markdown formatting',
-            description: 'Apply Markdown in messages',
-            duration: '5 min',
-            type: 'guide',
-            order: 5,
-            isLocked: false
-          },
-          {
-            id: 'lesson-learn-6',
-            title: 'Use Immersive Reader',
-            description: 'Accessibility reading features',
-            duration: '4 min',
-            type: 'guide',
-            order: 6,
-            isLocked: false
-          },
-          {
-            id: 'lesson-learn-7',
-            title: 'Do your one-on-ones with Teams chat',
-            description: 'Conduct one-on-one meetings',
-            duration: '5 min',
-            type: 'video',
-            order: 7,
-            isLocked: false
-          },
-          {
-            id: 'lesson-learn-8',
-            title: 'Get started with storyline',
-            description: 'Introduction to storyline features',
-            duration: '5 min',
-            type: 'guide',
-            order: 8,
-            isLocked: false
-          }
-        ]
-      }
-    ]
+      ]
   },
-  // Microsoft Teams Bundle
+
+  // 3. MS Teams (Chat) - Course
   {
-    id: 'microsoft-teams-help-learning',
-    slug: 'microsoft-teams-help-learning',
-    title: 'Microsoft Teams help & Learning',
-    provider: 'Tech (Microsoft)',
-    courseCategory: 'Key Tools',
-    deliveryMode: 'Hybrid',
-    duration: 'Long',
-    levelCode: L('L2'),
-    department: ['DBP Platform'],
-    locations: ['Riyadh'],
-    audience: ['Associate', 'Lead'],
-    status: 'live',
-    courseType: 'Course (Bundles)',
-    track: 'Microsoft Teams help & Learning',
-    rating: 4.6,
-    reviewCount: 35,
-    summary:
-      'Comprehensive learning track for Microsoft Teams covering meetings, chat, collaboration, and advanced features to help you master Teams for effective communication and teamwork.',
-    highlights: [
-      'Master Teams meetings from basics to advanced events',
-      'Learn chat, messaging, and collaboration features',
-      'Organize webinars, live events, and town halls',
-      'Troubleshoot common issues and optimize productivity'
-    ],
-    outcomes: [
-      'Join, schedule, and manage Teams meetings effectively',
-      'Communicate efficiently using Teams chat features',
-      'Organize and host large-scale events and webinars',
-      'Resolve common issues and use advanced features'
-    ],
-    faq: [
-      {
-        question: 'What are the requirements for taking this track?',
-        answer: 'This track is designed for all team members who use Microsoft Teams. No prior experience is required, but having access to Microsoft Teams and a basic understanding of collaboration tools will be helpful. You should have access to Teams within your organization.'
-      },
-      {
-        question: 'How long does it take to complete the Microsoft Teams help & Learning track?',
-        answer: 'The Microsoft Teams track can be completed at your own pace. Most participants finish the core content within 4-6 weeks when dedicating 3-5 hours per week. The track includes comprehensive coverage of meetings and chat features.'
-      },
-      {
-        question: 'Can I take individual courses from this track?',
-        answer: 'Yes, all courses within the Microsoft Teams track can be taken individually. The "Ms Teams (Meetings)" and "Ms Teams (Chat)" courses are available as standalone courses, though we recommend taking the full track for complete Teams mastery.'
-      },
-      {
-        question: 'What topics are covered in this track?',
-        answer: 'The track covers Teams meetings (joining, scheduling, managing, webinars, live events), Teams chat (messaging, file sharing, group chats), collaboration features, and troubleshooting. It includes both beginner and advanced topics.'
-      },
-      {
-        question: 'Do I need Teams Premium for all features?',
-        answer: 'Many features work with standard Teams. Some advanced features like immersive experiences, advanced meeting protection, and certain event features require Teams Premium. The course clearly indicates which features require Premium.'
-      },
-      {
-        question: 'What support is available if I encounter issues?',
-        answer: 'Each course includes troubleshooting lessons and resources. You can also reach out to your IT support team or the Microsoft Teams administrator for assistance with technical issues or access problems.'
-      }
-    ],
-    testimonials: [
-      {
-        author: 'Ahmad Al-Mansoori',
-        role: 'Project Lead',
-        text: 'This comprehensive track transformed how our team uses Microsoft Teams. The meetings and chat courses are both excellent, and we\'re now much more productive.',
-        rating: 5
-      },
-      {
-        author: 'Layla Al-Rashid',
-        role: 'Operations Manager',
-        text: 'The Microsoft Teams track is incredibly thorough. I especially appreciated the troubleshooting section and advanced features coverage.',
-        rating: 4
-      },
-      {
-        author: 'Omar Hassan',
-        role: 'Team Coordinator',
-        text: 'As someone new to Teams, this track was perfect. The step-by-step approach and comprehensive coverage helped me become proficient quickly.',
-        rating: 5
-      }
-    ],
-    // Track (Bundles) - contains courses with topics and lessons
-    curriculum: [
-      {
-        id: 'course-ms-teams-meetings',
-        title: 'Ms Teams (Meetings)',
-        description: 'Master Microsoft Teams meetings from joining and scheduling to advanced features like webinars, live events, and immersive experiences.',
-        courseSlug: 'ms-teams-meetings',
-        order: 1,
-        isLocked: false,
-        topics: [
+      id: 'ms-teams-chat',
+      slug: 'ms-teams-chat',
+      title: 'Ms Teams (Chat)',
+      provider: 'Tech (Microsoft)',
+      courseCategory: 'DWS',
+      deliveryMode: 'Guide',
+      duration: 'Short',
+      levelCode: L('L2'),
+      department: ['DBP'],
+      locations: ['Remote'], // Location set to Remote
+      audience: ['Associate'],
+      status: 'live',
+      courseType: 'Course (Multi-Lessons)',
+      track: 'Microsoft Teams help & Learning',
+      summary: 'Learn the essentials of effective one-on-one and group messaging, formatting, file sharing, and chat management features in Teams.',
+      highlights: ['Format messages using markdown and code blocks', 'Manage chat requests, hide, pin, and mute conversations', 'Collaborate with external users securely'],
+      outcomes: ['Communicate clearly and professionally in chat', 'Use advanced features like scheduled messages and video clips', 'Keep your chat list organized and focused'],
+      curriculum: [
           {
-            id: 'track-topic-meetings-overview',
-            title: 'Meeting Fundamentals',
-            description: 'Core meeting features and controls',
-            order: 1,
-            isLocked: false,
-            lessons: [
-              {
-                id: 'track-lesson-join-basics',
-                title: 'Joining and Scheduling Basics',
-                description: 'Essential skills for participating in Teams meetings',
-                duration: '10 min',
-                type: 'video',
-                order: 1,
-                isLocked: false
-              }
-            ]
-          },
-          {
-            id: 'track-topic-meetings-advanced',
-            title: 'Advanced Meeting Features',
-            description: 'Webinars, live events, and premium features',
-            order: 2,
-            isLocked: false,
-            lessons: [
-              {
-                id: 'track-lesson-events',
-                title: 'Large-Scale Events',
-                description: 'Organizing webinars and town halls',
-                duration: '15 min',
-                type: 'video',
-                order: 1,
-                isLocked: false
-              }
-            ]
+              id: 'module-chat',
+              title: 'Messaging and Chat Management',
+              order: 1,
+              topics: [
+                  {
+                      id: 'topic-send-messages',
+                      title: 'Send messages',
+                      order: 1,
+                      lessons: [
+                          { id: 'lesson-chat-start', title: 'Start a chat with others', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-chat-send-read', title: 'Send and read', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-chat-send-file', title: 'Send a file, picture, or link', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-chat-send-emoji', title: 'Send an emoji, GIF, or sticker', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-chat-emoji-skin', title: 'Select your emoji skin tone', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-chat-custom-emoji', title: 'Use custom emoji', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-chat-read-receipts', title: 'Read receipts', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-chat-format', title: 'Format a message', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-chat-spelling', title: 'Check your spelling in multiple languages', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-chat-suggested-replies', title: 'Use suggested replies', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-chat-react', title: 'Like or react to messages', type: 'guide', order: 11, isLocked: false },
+                          { id: 'lesson-chat-copy-paste', title: 'Copy and paste', type: 'guide', order: 12, isLocked: false },
+                          { id: 'lesson-chat-important', title: 'Mark a message as important or urgent', type: 'guide', order: 13, isLocked: false },
+                          { id: 'lesson-chat-share-screen', title: 'Share your screen in a chat', type: 'guide', order: 14, isLocked: false },
+                          { id: 'lesson-chat-share-contact', title: 'Share a contact', type: 'guide', order: 15, isLocked: false },
+                          { id: 'lesson-chat-forward', title: 'Forward a message', type: 'guide', order: 16, isLocked: false },
+                          { id: 'lesson-chat-report', title: 'Report messages', type: 'guide', order: 17, isLocked: false },
+                          { id: 'lesson-chat-file-suggest', title: 'Use file suggestions', type: 'guide', order: 18, isLocked: false },
+                          { id: 'lesson-chat-video-clip', title: 'Record a video clip', type: 'guide', order: 19, isLocked: false },
+                          { id: 'lesson-chat-text-predict', title: 'Use text predictions', type: 'guide', order: 20, isLocked: false },
+                          { id: 'lesson-chat-schedule', title: 'Schedule chat messages', type: 'guide', order: 21, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-chat-outside-team',
+                      title: 'Chat outside a team',
+                      order: 2,
+                      lessons: [
+                          { id: 'lesson-chat-ext-invite', title: 'Add or invite people outside your org to a chat', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-chat-ext-accept', title: 'Accept people outside your org', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-chat-ext-block', title: 'Block or unblock people outside your org', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-chat-ext-skype', title: 'Send messages to Skype for Business users', type: 'guide', order: 4, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-manage-messages',
+                      title: 'Manage messages',
+                      order: 3,
+                      lessons: [
+                          { id: 'lesson-mng-edit-delete', title: 'Edit or delete a message', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-mng-save', title: 'Save a message', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-mng-hide-leave', title: 'Hide a chat or leave a chat thread', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-mng-pin', title: 'Pin a chat message', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-mng-favorites', title: 'Hide, unhide, mute, add a chat to Favorites, or mark a chat as unread', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-mng-accept-block', title: 'Accept or block chat requests from people inside your org', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-mng-new-window', title: 'Open a chat in a new window', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-mng-spam', title: 'Prevent spam or phishing attempts from external chats', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-mng-search', title: 'Search for messages', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-mng-translate', title: 'Translate a message', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-mng-spacing', title: 'Change the spacing', type: 'guide', order: 11, isLocked: false },
+                          { id: 'lesson-mng-preview', title: 'Preview messages', type: 'guide', order: 12, isLocked: false },
+                          { id: 'lesson-mng-show-info', title: 'Show chat info', type: 'guide', order: 13, isLocked: false },
+                          { id: 'lesson-mng-mobile', title: 'Manage chats with the Teams mobile app', type: 'guide', order: 14, isLocked: false },
+                          { id: 'lesson-mng-share-outlook', title: 'Share to Outlook from Teams', type: 'guide', order: 15, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-group-chat',
+                      title: 'Group chat',
+                      order: 4,
+                      lessons: [
+                          { id: 'lesson-group-leave-remove', title: 'Leave or remove someone from a group chat', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-group-personalize-image', title: 'Personalize your group chat image', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-group-dl-m365', title: 'Chat with members from distribution list or M365 group', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-group-share-link', title: 'Share a link to a specific message', type: 'guide', order: 4, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-chat-learn-more',
+                      title: 'Learn more',
+                      order: 5,
+                      lessons: [
+                          { id: 'lesson-lm-slash', title: 'Use slash commands', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-lm-praise', title: 'Send Praise to people', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-lm-code-blocks', title: 'Use code blocks', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-lm-code-snippets', title: 'Send code snippets in a message', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-lm-markdown', title: 'Use Markdown formatting', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-lm-reader', title: 'Use Immersive Reader', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-lm-one-on-ones', title: 'Do your one-on-ones with Teams chat', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-lm-storyline', title: 'Get started with storyline', type: 'guide', order: 8, isLocked: false },
+                      ]
+                  },
+              ]
           }
-        ]
-      },
-      {
-        id: 'course-ms-teams-chat',
-        title: 'Ms Teams (Chat)',
-        description: 'Master Microsoft Teams chat features including messaging, file sharing, group chats, and advanced collaboration tools.',
-        courseSlug: 'ms-teams-chat',
-        order: 2,
-        isLocked: false,
-        topics: [
+      ]
+  },
+  
+  // 4. MS Teams (Notification & Setting) - Course
+  {
+      id: 'ms-teams-notifications-settings',
+      slug: 'ms-teams-notifications-settings',
+      title: 'MS Teams (Notification & Setting)',
+      provider: 'Tech (Microsoft)',
+      courseCategory: 'DWS',
+      deliveryMode: 'Guide',
+      duration: 'Short',
+      levelCode: L('L2'),
+      department: ['DBP'],
+      locations: ['Remote'], // Location set to Remote
+      audience: ['Associate'],
+      status: 'live',
+      courseType: 'Course (Multi-Lessons)',
+      track: 'Microsoft Teams help & Learning',
+      summary: 'Master your personal Teams configuration for maximum focus and productivity by managing notifications, status, and accessibility features.',
+      highlights: ['Fine-tune mobile and desktop notifications', 'Customize profile and general app settings', 'Set and manage your status effectively'],
+      outcomes: ['Reduce digital distraction', 'Optimize Teams for personal workflow', 'Use Teams with screen readers and keyboard shortcuts'],
+      curriculum: [
           {
-            id: 'track-topic-chat-basics',
-            title: 'Chat Fundamentals',
-            description: 'Core messaging and communication features',
-            order: 1,
-            isLocked: false,
-            lessons: [
-              {
-                id: 'track-lesson-messaging',
-                title: 'Effective Messaging',
-                description: 'Send and manage messages in Teams',
-                duration: '8 min',
-                type: 'video',
-                order: 1,
-                isLocked: false
-              }
-            ]
-          },
-          {
-            id: 'track-topic-chat-advanced',
-            title: 'Advanced Chat Features',
-            description: 'Group chats, commands, and productivity tools',
-            order: 2,
-            isLocked: false,
-            lessons: [
-              {
-                id: 'track-lesson-productivity',
-                title: 'Productivity Features',
-                description: 'Slash commands and advanced collaboration',
-                duration: '10 min',
-                type: 'guide',
-                order: 1,
-                isLocked: false
-              }
-            ]
+              id: 'module-notification-settings',
+              title: 'Teams Configuration',
+              order: 1,
+              topics: [
+                  {
+                      id: 'topic-notifications',
+                      title: 'Notifications',
+                      order: 1,
+                      lessons: [
+                          { id: 'lesson-ntf-manage', title: 'Manage notifications', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-ntf-troubleshoot', title: 'Troubleshoot mobile notifications', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-ntf-activity-feed', title: 'Explore the Activity feed', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-ntf-badge-count', title: 'Catch up with and manage badge count activity', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-ntf-missed-emails', title: 'Change how often you receive missed activity emails', type: 'guide', order: 5, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-settings',
+                      title: 'Settings',
+                      order: 2,
+                      lessons: [
+                          { id: 'lesson-set-profile-pic', title: 'Change your profile picture', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-set-name-pronunciation', title: 'Add name pronunciation to your profile', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-set-accounts', title: 'Manage accounts and organizations', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-set-location', title: 'Enable location sharing', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-set-update-app', title: 'Update Microsoft Teams', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-set-app-settings', title: 'Change app settings', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-set-device', title: 'Manage your device settings', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-set-music-mode', title: 'Use high fidelity music mode to play music in Teams', type: 'guide', order: 8, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-status',
+                      title: 'Status',
+                      order: 3,
+                      lessons: [
+                          { id: 'lesson-stat-change', title: 'Change your status', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-stat-message', title: 'Set your status message', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-stat-ooo', title: 'Schedule an out of office status', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-stat-notify-change', title: "Get notified when someone's status changes", type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-stat-work-location', title: 'Set your work location', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-stat-view-location', title: "View other people's work location", type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-stat-outlook-hours', title: 'Set your work hours and location in Outlook', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-stat-quick-actions', title: 'Take quick actions in Microsoft Teams', type: 'guide', order: 8, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-accessibility',
+                      title: 'Accessibility',
+                      order: 4,
+                      lessons: [
+                          { id: 'lesson-acc-screen-reader-support', title: 'Screen reader support for Microsoft Teams', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-acc-use-screen-reader', title: 'Use a screen reader', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-acc-shortcuts', title: 'Keyboard shortcuts', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-acc-answer-call', title: 'Answer a call with the keyboard', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-acc-navigate-convos', title: 'Navigate conversations with the keyboard', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-acc-zoom', title: 'Zoom in and out', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-acc-font-size', title: 'Change message font size', type: 'guide', order: 7, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-support-videos',
+                      title: 'Support Videos',
+                      order: 5,
+                      lessons: [
+                          { id: 'lesson-vid-notifications', title: 'Video: Manage notification settings', type: 'video', order: 1, isLocked: false },
+                      ]
+                  }
+              ]
           }
-        ]
-      }
-    ]
+      ]
+  },
+  
+  // 5. MS Teams (Teams & Channels) - Course
+  {
+      id: 'ms-teams-teams-channels',
+      slug: 'ms-teams-teams-channels',
+      title: 'Ms Teams (Teams & Channels)',
+      provider: 'Tech (Microsoft)',
+      courseCategory: 'DWS',
+      deliveryMode: 'Guide',
+      duration: 'Medium',
+      levelCode: L('L2'),
+      department: ['DBP', 'DCO'],
+      locations: ['Remote'], // Location set to Remote
+      audience: ['Associate', 'Lead'],
+      status: 'live',
+      courseType: 'Course (Multi-Lessons)',
+      track: 'Microsoft Teams help & Learning',
+      summary: 'A deep dive into creating, managing, and collaborating within Teams, channels, and shared channels.',
+      highlights: ['Team creation from scratch or template', 'Manage team membership, roles, and permissions', 'Channel types: Standard, Private, and Shared'],
+      outcomes: ['Structure collaboration spaces effectively', 'Govern team access and maintain cleanliness (archive/delete)', 'Use shared channels for external collaboration'],
+      curriculum: [
+          {
+              id: 'module-teams-management',
+              title: 'Teams and Channels Management',
+              order: 1,
+              topics: [
+                  {
+                      id: 'topic-team-create',
+                      title: 'Create a team',
+                      order: 1,
+                      lessons: [
+                          { id: 'lesson-team-create-scratch', title: 'From scratch', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-team-create-existing', title: 'From an existing team or group', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-team-create-template', title: 'From a template', type: 'guide', order: 3, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-team-manage',
+                      title: 'Manage a team',
+                      order: 2,
+                      lessons: [
+                          { id: 'lesson-team-mng-settings', title: 'Manage team settings and permissions', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-team-mng-roles', title: 'Team member roles', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-team-mng-add-members', title: 'Add members to a team', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-team-mng-make-owner', title: 'Make someone a team owner', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-team-mng-remove-members', title: 'Remove members from a team', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-team-mng-add-guests', title: 'Add guests to a team', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-team-mng-change-picture', title: 'Change your team picture', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-team-mng-make-private', title: 'Make a team private', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-team-mng-delete', title: 'Delete a team', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-team-mng-archive', title: 'Archive or restore a team', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-team-mng-renew', title: 'Renew a team', type: 'guide', order: 11, isLocked: false },
+                          { id: 'lesson-team-mng-requests', title: 'Manage requests to join', type: 'guide', order: 12, isLocked: false },
+                          { id: 'lesson-team-mng-analytics', title: 'View team analytics', type: 'guide', order: 13, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-team-join',
+                      title: 'Join a team',
+                      order: 3,
+                      lessons: [
+                          { id: 'lesson-team-join-find', title: 'Find a team to join', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-team-join-link-code', title: 'Use a link or code to join', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-team-join-invite', title: 'Invite people to join', type: 'guide', order: 3, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-team-learn-more',
+                      title: 'Learn more about teams',
+                      order: 4,
+                      lessons: [
+                          { id: 'lesson-team-lm-tags', title: 'Use tags', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-team-lm-content-notes', title: 'Add content and notes', type: 'guide', order: 2, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-channel-create',
+                      title: 'Create a channel',
+                      order: 5,
+                      lessons: [
+                          { id: 'lesson-channel-create-types', title: 'Create a standard, private, or shared channel', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-channel-create-layout', title: 'Choose your channel layout', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-channel-create-types-overview', title: 'Types of channels', type: 'guide', order: 3, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-channel-manage',
+                      title: 'Manage a channel',
+                      order: 6,
+                      lessons: [
+                          { id: 'lesson-channel-mng-info', title: 'Channel info', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-channel-mng-share-people', title: 'Share a channel with people', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-channel-mng-share-team', title: 'Share a channel with a team', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-channel-mng-shared-roles', title: 'Shared channel roles', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-channel-mng-shared-manage', title: 'Manage shared channels', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-channel-mng-archive', title: 'Archive or restore a channel', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-channel-mng-edit', title: 'Edit channel details', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-channel-mng-notifications', title: 'Manage channel notifications', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-channel-mng-delete', title: 'Delete a channel', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-channel-mng-rename-list', title: 'Rename or remove a list', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-channel-mng-guest-permissions', title: 'Guest permissions', type: 'guide', order: 11, isLocked: false },
+                          { id: 'lesson-channel-mng-moderator', title: 'Moderator roles and settings', type: 'guide', order: 12, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-channel-participate-1', 
+                      title: 'Participate in a channel',
+                      order: 7,
+                      lessons: [
+                          { id: 'lesson-channel-part-meetings', title: 'Channel meetings', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-channel-part-message', title: 'Send a message', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-channel-part-announcement', title: 'Send an announcement', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-channel-part-email', title: 'Send an email', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-channel-part-pages-loop', title: 'Manage pages and loop components', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-channel-part-schedule', title: 'Schedule channel messages', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-channel-part-follow', title: 'Follow threads', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-channel-part-cross-post', title: 'Cross-post', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-channel-part-share-outlook', title: 'Share to Outlook', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-channel-part-share-teams', title: 'Share to Teams', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-channel-part-reply-outlook', title: 'Reply from Outlook', type: 'guide', order: 11, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-channel-participate-2', 
+                      title: 'Participate in a channel (Advanced)',
+                      order: 8,
+                      lessons: [
+                          { id: 'lesson-channel-part2-meetings', title: 'Channel meetings', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-channel-part2-message', title: 'Send a message', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-channel-part2-announcement', title: 'Send an announcement', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-channel-part2-email', title: 'Send an email', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-channel-part2-pages-loop', title: 'Manage pages and loop components', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-channel-part2-schedule', title: 'Schedule channel messages', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-channel-part2-follow', title: 'Follow threads', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-channel-part2-cross-post', title: 'Cross-post', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-channel-part2-share-outlook', title: 'Share to Outlook', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-channel-part2-share-teams', title: 'Share to Teams', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-channel-part2-reply-outlook', title: 'Reply from Outlook', type: 'guide', order: 11, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-channel-learn-more',
+                      title: 'Learn more about channels',
+                      order: 9,
+                      lessons: [
+                          { id: 'lesson-channel-lm-new-chat', title: 'New chat and channels experience', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-channel-lm-discover-feed', title: 'First things to know about Teams Discover Feed', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-channel-lm-guests', title: 'Guests', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-channel-lm-shortcuts', title: 'Keyboard shortcuts', type: 'guide', order: 4, isLocked: false },
+                      ]
+                  },
+              ]
+          }
+      ]
+  },
+  
+  // 6. MS Teams (Calls & Devices) - Course
+  {
+      id: 'ms-teams-calls-devices',
+      slug: 'ms-teams-calls-devices',
+      title: 'MS Teams (Calls & Devices)',
+      provider: 'Tech (Microsoft)',
+      courseCategory: 'DWS',
+      deliveryMode: 'Guide',
+      duration: 'Medium',
+      levelCode: L('L3'),
+      department: ['DBP'],
+      locations: ['Remote'], // Location set to Remote
+      audience: ['Lead'],
+      status: 'live',
+      courseType: 'Course (Multi-Lessons)',
+      track: 'Microsoft Teams help & Learning',
+      summary: 'Everything about initiating, managing, and optimizing calls, including advanced features like intelligent speakers and Teams Rooms.',
+      highlights: ['Standard and advanced calling features (transfer, merge, hold)', 'Teams Phone Mobile and data optimization', 'Configuration of Microsoft Teams Rooms and devices'],
+      outcomes: ['Handle complex call scenarios efficiently', 'Set up and troubleshoot Teams Rooms', 'Utilize devices for high-quality audio/video broadcasting'],
+      curriculum: [
+          {
+              id: 'module-calls-devices',
+              title: 'Calling and Device Management',
+              order: 1,
+              topics: [
+                  {
+                      id: 'topic-calls-make',
+                      title: 'Make calls',
+                      order: 1,
+                      lessons: [
+                          { id: 'lesson-call-make-basics', title: 'First things to know about calls', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-call-make-experience', title: 'Get to know the calling experience', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-call-make-from-chat', title: 'Start a call from a chat', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-call-make-dial-pad', title: 'Use the dial pad to make a call', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-call-make-answer', title: 'Answer a call', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-call-make-phone-mobile', title: 'Getting started with Teams Phone Mobile', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-call-make-optimize-data', title: 'Optimize mobile data usage', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-call-make-add-someone', title: 'Add someone to a call', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-call-make-multiple', title: 'Make multiple calls at the same time', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-call-make-hold', title: 'Put a call on hold', type: 'guide', order: 10, isLocked: false },
+                          { id: 'lesson-call-make-transfer', title: 'Transfer a call', type: 'guide', order: 11, isLocked: false },
+                          { id: 'lesson-call-make-second-device', title: 'Join a call on a second device', type: 'guide', order: 12, isLocked: false },
+                          { id: 'lesson-call-make-queues', title: 'Use the Queues app', type: 'guide', order: 13, isLocked: false },
+                          { id: 'lesson-call-make-queues-monitor', title: 'Monitor and assist team members in the Queues app', type: 'guide', order: 14, isLocked: false },
+                          { id: 'lesson-call-make-sms', title: 'Send and receive SMS', type: 'guide', order: 15, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-calls-manage-1', 
+                      title: 'Manage calls',
+                      order: 2,
+                      lessons: [
+                          { id: 'lesson-call-mng-queues-greetings', title: 'Manage call queue and greetings', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-call-mng-manage-calls', title: 'Manage calls', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-call-mng-forwarding', title: 'Call forwarding, call groups, and simultaneous ring', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-call-mng-merge', title: 'Merge calls', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-call-mng-share-line', title: 'Share a phone line with a delegate', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-call-mng-voicemail', title: 'Check your voicemail', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-call-mng-contacts', title: 'Manage your contacts with the People app', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-call-mng-history', title: 'View your call history', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-call-mng-support-queue', title: 'Manage your support call queue', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-call-mng-e2e', title: 'Use end-to-end encryption', type: 'guide', order: 10, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-calls-manage-2', 
+                      title: 'Manage calls (Advanced)',
+                      order: 3,
+                      lessons: [
+                          { id: 'lesson-call-mng2-queues-greetings', title: 'Manage call queue and greetings', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-call-mng2-manage-calls', title: 'Manage calls', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-call-mng2-forwarding', title: 'Call forwarding, call groups, and simultaneous ring', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-call-mng2-merge', title: 'Merge calls', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-call-mng2-share-line', title: 'Share a phone line with a delegate', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-call-mng2-voicemail', title: 'Check your voicemail', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-call-mng2-contacts', title: 'Manage your contacts with the People app', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-call-mng2-history', title: 'View your call history', type: 'guide', order: 8, isLocked: false },
+                          { id: 'lesson-call-mng2-support-queue', title: 'Manage your support call queue', type: 'guide', order: 9, isLocked: false },
+                          { id: 'lesson-call-mng2-e2e', title: 'Use end-to-end encryption', type: 'guide', order: 10, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-teams-rooms',
+                      title: 'Microsoft Teams Rooms',
+                      order: 4,
+                      lessons: [
+                          { id: 'lesson-rooms-windows', title: 'Teams Rooms (Windows)', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-rooms-android', title: 'Teams Rooms (Android)', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-rooms-host-event', title: 'Host an event from a Teams Room', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-rooms-intelli-frame', title: 'IntelliFrame for Teams Rooms', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-rooms-recognition-profiles', title: 'Create recognition profiles', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-rooms-multiple-camera', title: 'Use multiple camera view', type: 'guide', order: 6, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-devices-learn-more',
+                      title: 'Learn more about devices',
+                      order: 5,
+                      lessons: [
+                          { id: 'lesson-dev-ndi', title: 'Broadcasting audio and video from Teams with NDI', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-dev-intelligent-speakers', title: 'Identify in-room participants with Teams Intelligent Speakers', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-dev-macbook-touch-bar', title: 'Use the MacBook Pro Touch Bar', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-dev-connect-third-party', title: 'Connect third-party devices to Teams', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-dev-room-remote', title: 'Use a room remote to control a Teams Room device', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-dev-connect-display-phone', title: 'Connect a Teams display or desk phone to Teams Windows desktop', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-dev-surface-hub', title: 'Use Surface Hub for a call', type: 'guide', order: 7, isLocked: false },
+                          { id: 'lesson-dev-carplay', title: 'Use Apple CarPlay to make calls', type: 'guide', order: 8, isLocked: false },
+                      ]
+                  },
+              ]
+          }
+      ]
+  },
+  
+  // 7. Ms Teams (Files) - Course
+  {
+      id: 'ms-teams-files',
+      slug: 'ms-teams-files',
+      title: 'Ms Teams (Files)',
+      provider: 'Tech (Microsoft)',
+      courseCategory: 'DWS',
+      deliveryMode: 'Guide',
+      duration: 'Short',
+      levelCode: L('L2'),
+      department: ['DBP'],
+      locations: ['Remote'], // Location set to Remote
+      audience: ['Associate'],
+      status: 'live',
+      courseType: 'Course (Multi-Lessons)',
+      track: 'Microsoft Teams help & Learning',
+      summary: 'Learn how to manage, collaborate on, and share files effectively within Microsoft Teams and its connected cloud storage.',
+      highlights: ['File management: move, copy, delete, recover', 'Collaborate on Office files in real-time', 'Sharing files and managing file storage options'],
+      outcomes: ['Maintain a clean and organized file system in Teams', 'Use collaboration features to co-author documents', 'Integrate third-party cloud services for file access'],
+      curriculum: [
+          {
+              id: 'module-file-management',
+              title: 'File Management and Sharing',
+              order: 1,
+              topics: [
+                  {
+                      id: 'topic-files-work-with',
+                      title: 'Work With Files',
+                      order: 1,
+                      lessons: [
+                          { id: 'lesson-files-explore', title: 'Explore the Files list', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-files-edit-office', title: 'Edit an Office file', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-files-download', title: 'Download a file', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-files-move-copy', title: 'Move or copy files', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-files-collaborate', title: 'Collaborate on files', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-files-delete-recover', title: 'Delete and recover files', type: 'guide', order: 6, isLocked: false },
+                          { id: 'lesson-files-print', title: 'Print files', type: 'guide', order: 7, isLocked: false },
+                      ]
+                  },
+                  {
+                      id: 'topic-files-share',
+                      title: 'Share files',
+                      order: 2,
+                      lessons: [
+                          { id: 'lesson-files-share-basics', title: 'Share files', type: 'guide', order: 1, isLocked: false },
+                          { id: 'lesson-files-share-link', title: 'Get a link to a file in Teams', type: 'guide', order: 2, isLocked: false },
+                          { id: 'lesson-files-share-cloud', title: 'Share a file from cloud storage', type: 'guide', order: 3, isLocked: false },
+                          { id: 'lesson-files-storage-teams', title: 'File storage in Teams', type: 'guide', order: 4, isLocked: false },
+                          { id: 'lesson-files-add-cloud-service', title: 'Add a cloud storage service', type: 'guide', order: 5, isLocked: false },
+                          { id: 'lesson-files-add-third-party', title: 'Add third-party apps to the Files app on iOS', type: 'guide', order: 6, isLocked: false },
+                      ]
+                  }
+              ]
+          }
+      ]
   }
 ];
 
