@@ -956,14 +956,15 @@ export const getTabSpecificFilters = (tabId?: string): FilterCategoryConfig[] =>
       ]
     },
     {
-      id: 'aiTools',
-      title: 'AI Tools',
+      id: 'aiProducts',
+      title: 'AI Products',
       options: [
         { id: 'ai_ides', name: 'AI IDEs' },
         { id: 'chatbots', name: 'Chatbots' },
         { id: 'nlp', name: 'NLP (Text processing)' },
         { id: 'voice_speech', name: 'Voice/Speech Generators' },
-        { id: 'generative_ai', name: 'Generative AI Content' }
+        { id: 'generative_ai', name: 'Generative AI Content' },
+        { id: 'low_code_tools', name: 'Low-Code Tools' }
       ]
     },
     {

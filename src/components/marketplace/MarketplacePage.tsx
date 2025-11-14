@@ -684,17 +684,17 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             }
           }
           
-          // Filter by aiTools (Digital Worker-specific)
-          const aiToolsFilter = filters.aiTools;
-          if (aiToolsFilter) {
-            const aiTools = Array.isArray(aiToolsFilter) ? aiToolsFilter : [aiToolsFilter];
-            if (aiTools.length > 0) {
+          // Filter by aiProducts (Digital Worker-specific)
+          const aiProductsFilter = filters.aiProducts;
+          if (aiProductsFilter) {
+            const aiProducts = Array.isArray(aiProductsFilter) ? aiProductsFilter : [aiProductsFilter];
+            if (aiProducts.length > 0) {
               filtered = filtered.filter(item => {
-                const itemAiTools = item.aiTools || [];
-                const itemAiToolsArray = Array.isArray(itemAiTools) ? itemAiTools : [itemAiTools];
-                return aiTools.some(filterTool => 
-                  itemAiToolsArray.some(itemTool => 
-                    itemTool.toLowerCase().replace(/[\s_\-()\/]/g, '') === filterTool.toLowerCase().replace(/[\s_\-()\/]/g, '')
+                const itemAiProducts = item.aiProducts || [];
+                const itemAiProductsArray = Array.isArray(itemAiProducts) ? itemAiProducts : [itemAiProducts];
+                return aiProducts.some(filterProduct => 
+                  itemAiProductsArray.some(itemProduct => 
+                    itemProduct.toLowerCase().replace(/[\s_\-()\/]/g, '') === filterProduct.toLowerCase().replace(/[\s_\-()\/]/g, '')
                   )
                 );
               });

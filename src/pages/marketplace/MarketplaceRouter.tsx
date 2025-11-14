@@ -50,14 +50,6 @@ const financialPromoCards = [{
 }];
 // Promo cards for non-financial services marketplace
 const nonFinancialPromoCards = [{
-  id: 'courses-promo',
-  title: 'Improve your skills',
-  description: 'Discover courses to enhance your business knowledge.',
-  icon: <Calendar size={24} className="text-white" />,
-  path: '/marketplace/courses',
-  gradientFrom: 'from-green-500',
-  gradientTo: 'to-teal-400'
-}, {
   id: 'finance-promo',
   title: 'Looking for funding?',
   description: 'Explore financial opportunities and resources to grow your business.',
@@ -118,7 +110,7 @@ export const MarketplaceRouter: React.FC = () => {
       <Route path="/financial" element={<MarketplacePage marketplaceType="financial" title={financialConfig.title} description={financialConfig.description} promoCards={financialPromoCards} />} />
       <Route path="/financial/:itemId" element={<MarketplaceDetailsPage marketplaceType="financial" bookmarkedItems={bookmarkedItems.financial} onToggleBookmark={itemId => handleToggleBookmark('financial', itemId)} />} />
       {/* Non-Financial Services Marketplace */}
-      <Route path="/services-center" element={<MarketplacePage marketplaceType="non-financial" title={nonFinancialConfig.title} description={nonFinancialConfig.description} promoCards={nonFinancialPromoCards} />} />
+      <Route path="/services-center" element={<MarketplacePage marketplaceType="non-financial" title={nonFinancialConfig.title} description={nonFinancialConfig.description} promoCards={[]} />} />
       <Route path="/services-center/:itemId" element={<MarketplaceDetailsPage marketplaceType="non-financial" bookmarkedItems={bookmarkedItems['non-financial']} onToggleBookmark={itemId => handleToggleBookmark('non-financial', itemId)} />} />
       {/* Guides Marketplace (canonical) */}
       <Route path="/guides" element={<MarketplacePage marketplaceType="guides" title={guidesConfig.title} description={guidesConfig.description} promoCards={knowledgeHubPromoCards} />} />
