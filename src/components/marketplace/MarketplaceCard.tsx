@@ -207,11 +207,11 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
               key={`${chip.key}-${chip.label}-${index}`} 
               className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium truncate"
               style={{
-                backgroundColor: '#565D6A',
-                color: '#FFFFFF'
+                backgroundColor: '#F3F4F6',
+                color: '#000000'
               }}
             >
-                {Icon ? <Icon className="h-3.5 w-3.5 mr-1" style={{ color: '#FFFFFF' }} /> : null}
+                {Icon ? <Icon className="h-3.5 w-3.5 mr-1" style={{ color: '#000000' }} /> : null}
                 {chip.label}
               </span>;
           })}

@@ -634,141 +634,93 @@ export const LmsCourses: React.FC = () => {
                     {filteredItems.length} Learning Tracks
                   </h2>
                 </div>
-                <div className="space-y-6">
+                {/* Compact Grid Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {filteredItems.map((track) => {
                     const trackDetail = LMS_COURSE_DETAILS.find(c => c.id === track.id);
                     if (!trackDetail || !trackDetail.curriculum) return null;
                     
+                    // Calculate stats
+                    const totalCourses = trackDetail.curriculum.length;
+                    const totalTopics = trackDetail.curriculum.reduce((acc, course) => {
+                      if (course.topics) return acc + course.topics.length;
+                      return acc;
+                    }, 0);
+                    const totalLessons = trackDetail.curriculum.reduce((acc, course) => {
+                      if (course.topics) {
+                        return acc + course.topics.reduce((topicAcc, topic) => {
+                          return topicAcc + (topic.lessons?.length || 0);
+                        }, 0);
+                      }
+                      if (course.lessons) return acc + course.lessons.length;
+                      return acc;
+                    }, 0);
+                    
                     return (
-                      <div
+                      <Link
                         key={track.id}
-                        className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+                        to={`/lms/${track.slug}`}
+                        className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-200 flex flex-col"
                       >
-                        <div className="mb-6">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <h3 className="text-2xl font-bold text-gray-900 mb-2">{track.title}</h3>
-                              <p className="text-gray-600 mb-4">{track.summary}</p>
-                              <div className="flex flex-wrap gap-2">
-                                <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#565D6A', color: '#FFFFFF' }}>
-                                  {track.provider}
-                                </span>
-                                <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#565D6A', color: '#FFFFFF' }}>
-                                  {track.courseCategory}
-                                </span>
-                                {track.rating && (
-                                  <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#565D6A', color: '#FFFFFF' }}>
-                                    ⭐ {track.rating} ({track.reviewCount} reviews)
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{track.title}</h3>
+                          <p className="text-sm text-gray-600 mb-4 line-clamp-3">{track.summary}</p>
+                          
+                          {/* Stats */}
+                          <div className="flex flex-wrap gap-3 mb-4 text-sm text-gray-600">
+                            <span>{totalCourses} {totalCourses === 1 ? 'Course' : 'Courses'}</span>
+                            {totalTopics > 0 && <span>• {totalTopics} {totalTopics === 1 ? 'Topic' : 'Topics'}</span>}
+                            {totalLessons > 0 && <span>• {totalLessons} {totalLessons === 1 ? 'Lesson' : 'Lessons'}</span>}
+                          </div>
+                          
+                          {/* Tags */}
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3F4F6', color: '#000000' }}>
+                              {track.provider}
+                            </span>
+                            <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3F4F6', color: '#000000' }}>
+                              {track.courseCategory}
+                            </span>
+                            {track.rating && (
+                              <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3F4F6', color: '#000000' }}>
+                                ⭐ {track.rating} ({track.reviewCount})
+                              </span>
+                            )}
+                          </div>
+                          
+                          {/* Course List Preview */}
+                          <div className="mt-4 pt-4 border-t border-gray-100">
+                            <div className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Courses in Track</div>
+                            <div className="space-y-2">
+                              {trackDetail.curriculum.slice(0, 3).map((course, idx) => (
+                                <div key={course.id} className="flex items-center gap-2 text-sm text-gray-600">
+                                  <span className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-xs font-medium text-blue-700 flex-shrink-0">
+                                    {idx + 1}
                                   </span>
-                                )}
-                              </div>
+                                  <span className="line-clamp-1">{course.title}</span>
+                                </div>
+                              ))}
+                              {trackDetail.curriculum.length > 3 && (
+                                <div className="text-xs text-gray-500 italic">
+                                  +{trackDetail.curriculum.length - 3} more courses
+                                </div>
+                              )}
                             </div>
-                            <Link
-                              to={`/lms/${track.slug}`}
-                              className="px-4 py-2 text-sm font-medium rounded-md border transition-colors whitespace-nowrap ml-4"
-                              style={{ 
-                                color: '#030F35',
-                                borderColor: '#030F35'
-                              }}
-                            >
-                              View Track
-                            </Link>
                           </div>
                         </div>
                         
-                        {/* Track Structure Visualization */}
-                        <div className="border-t border-gray-200 pt-6">
-                          <h4 className="text-lg font-semibold text-gray-900 mb-4">Track Structure</h4>
-                          <div className="space-y-4">
-                            {trackDetail.curriculum.map((course, courseIndex) => (
-                              <div key={course.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                                <div className="flex items-center justify-between mb-3">
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center font-semibold text-sm" style={{ backgroundColor: '#F0F4FF', color: '#030F35' }}>
-                                      {courseIndex + 1}
-                                    </div>
-                                    <div>
-                                      <h5 className="font-semibold text-gray-900">{course.title}</h5>
-                                      {course.description && (
-                                        <p className="text-sm text-gray-600">{course.description}</p>
-                                      )}
-                                    </div>
-                                  </div>
-                                  {course.courseSlug && (
-                                    <Link
-                                      to={`/lms/${course.courseSlug}`}
-                                      className="text-sm font-medium hover:underline"
-                                      style={{ color: '#030F35' }}
-                                    >
-                                      View Course →
-                                    </Link>
-                                  )}
-                                </div>
-                                
-                                {/* Topics within course */}
-                                {course.topics && course.topics.length > 0 && (
-                                  <div className="ml-10 space-y-3 mt-3">
-                                    {course.topics.map((topic, topicIndex) => (
-                                      <div key={topic.id} className="border-l-2 border-gray-300 pl-4">
-                                        <div className="flex items-center gap-2 mb-2">
-                                          <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium text-gray-700">
-                                            {topicIndex + 1}
-                                          </div>
-                                          <h6 className="font-medium text-gray-800">{topic.title}</h6>
-                                        </div>
-                                        
-                                        {/* Lessons within topic */}
-                                        {topic.lessons && topic.lessons.length > 0 && (
-                                          <div className="ml-8 space-y-2">
-                                            {topic.lessons.map((lesson, lessonIndex) => (
-                                              <div key={lesson.id} className="flex items-center gap-2 text-sm text-gray-600">
-                                                <span className="w-4 h-4 rounded bg-gray-300 flex items-center justify-center text-xs">
-                                                  {lessonIndex + 1}
-                                                </span>
-                                                <span>{lesson.title}</span>
-                                                {lesson.duration && (
-                                                  <span className="text-xs text-gray-500">({lesson.duration})</span>
-                                                )}
-                                                <span className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: '#565D6A', color: '#FFFFFF' }}>
-                                                  {lesson.type}
-                                                </span>
-                                              </div>
-                                            ))}
-                                          </div>
-                                        )}
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                                
-                                {/* Direct lessons (if no topics) */}
-                                {course.lessons && course.lessons.length > 0 && !course.topics && (
-                                  <div className="ml-10 space-y-2 mt-3">
-                                    {course.lessons.map((lesson, lessonIndex) => (
-                                      <div key={lesson.id} className="flex items-center gap-2 text-sm text-gray-600">
-                                        <span className="w-4 h-4 rounded bg-gray-300 flex items-center justify-center text-xs">
-                                          {lessonIndex + 1}
-                                        </span>
-                                        <span>{lesson.title}</span>
-                                        {lesson.duration && (
-                                          <span className="text-xs text-gray-500">({lesson.duration})</span>
-                                        )}
-                                        <span className="px-2 py-0.5 rounded text-xs" style={{ backgroundColor: '#565D6A', color: '#FFFFFF' }}>
-                                          {lesson.type}
-                                        </span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            ))}
+                        {/* View Button */}
+                        <div className="mt-6 pt-4 border-t border-gray-100">
+                          <div className="flex items-center justify-between text-sm font-medium" style={{ color: '#030F35' }}>
+                            <span>View Track Details</span>
+                            <span>→</span>
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     );
                   })}
                   {filteredItems.length === 0 && (
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+                    <div className="col-span-full bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
                       <p className="text-gray-600">
                         No learning tracks found matching your filters.
                       </p>
