@@ -471,63 +471,65 @@ export const LmsCourseDetailPage: React.FC = () => {
                           const isCourse = course.courseType === 'Course (Multi-Lessons)';
                           const isSingleLesson = course.courseType === 'Course (Single Lesson)';
 
-                          // Track (Bundles): Show courses with topics and lessons
-                          if (isTrack && item.topics) {
-                            const isExpanded = expandedCourses.has(item.id);
-                            const toggleCourse = () => {
-                              setExpandedCourses(prev => {
-                                const next = new Set(prev);
-                                if (next.has(item.id)) {
-                                  next.delete(item.id);
-                                } else {
-                                  next.add(item.id);
-                                }
-                                return next;
-                              });
-                            };
+                          // Track (Bundles): Show courses with topics and lessons, or just course links if no topics
+                          if (isTrack) {
+                            // If it has topics, show expandable section
+                            if (item.topics && item.topics.length > 0) {
+                              const isExpanded = expandedCourses.has(item.id);
+                              const toggleCourse = () => {
+                                setExpandedCourses(prev => {
+                                  const next = new Set(prev);
+                                  if (next.has(item.id)) {
+                                    next.delete(item.id);
+                                  } else {
+                                    next.add(item.id);
+                                  }
+                                  return next;
+                                });
+                              };
 
-                            return (
-                              <div key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                {/* Course Header */}
-                                <div
-                                  className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                                    item.isLocked ? 'opacity-60' : ''
-                                  }`}
-                                  onClick={toggleCourse}
-                                >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3 flex-1">
-                                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-                                        <BookOpen size={20} />
-                                      </div>
-                                      <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-1">
-                                          <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-                                          {item.courseSlug && (
-                                            <Link
-                                              to={`/lms/${item.courseSlug}`}
-                                              onClick={(e) => e.stopPropagation()}
-                                              className="text-sm font-medium flex items-center hover:underline"
-                                              style={{ color: '#030F35' }}
-                                            >
-                                              View Course
-                                              <ChevronRightIcon size={14} className="ml-1" />
-                                            </Link>
+                              return (
+                                <div key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                  {/* Course Header */}
+                                  <div
+                                    className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
+                                      item.isLocked ? 'opacity-60' : ''
+                                    }`}
+                                    onClick={toggleCourse}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-3 flex-1">
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                                          <BookOpen size={20} />
+                                        </div>
+                                        <div className="flex-1">
+                                          <div className="flex items-center gap-2 mb-1">
+                                            <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+                                            {item.courseSlug && (
+                                              <Link
+                                                to={`/lms/${item.courseSlug}`}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="text-sm font-medium flex items-center hover:underline"
+                                                style={{ color: '#030F35' }}
+                                              >
+                                                View Course
+                                                <ChevronRightIcon size={14} className="ml-1" />
+                                              </Link>
+                                            )}
+                                          </div>
+                                          {item.description && (
+                                            <p className="text-sm text-gray-600">{item.description}</p>
                                           )}
                                         </div>
-                                        {item.description && (
-                                          <p className="text-sm text-gray-600">{item.description}</p>
-                                        )}
                                       </div>
+                                      <button className="ml-4 text-gray-400 hover:text-gray-600">
+                                        {isExpanded ? <ChevronUpIcon size={20} /> : <ChevronDownIcon size={20} />}
+                                      </button>
                                     </div>
-                                    <button className="ml-4 text-gray-400 hover:text-gray-600">
-                                      {isExpanded ? <ChevronUpIcon size={20} /> : <ChevronDownIcon size={20} />}
-                                    </button>
                                   </div>
-                                </div>
 
-                                {/* Topics and Lessons (Expandable) */}
-                                {isExpanded && item.topics && (
+                                  {/* Topics and Lessons (Expandable) */}
+                                  {isExpanded && (
                                   <div className="border-t border-gray-200 bg-gray-50">
                                     {item.topics
                                       .sort((a, b) => a.order - b.order)
@@ -645,6 +647,45 @@ export const LmsCourseDetailPage: React.FC = () => {
                                 )}
                               </div>
                             );
+                            }
+                            
+                            // Track (Bundles): Show course link only (no topics preview)
+                            if (item.courseSlug && (!item.topics || item.topics.length === 0)) {
+                              return (
+                                <div key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                  <div className="p-4">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-3 flex-1">
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                                          <BookOpen size={20} />
+                                        </div>
+                                        <div className="flex-1">
+                                          <div className="flex items-center gap-2 mb-1">
+                                            <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+                                          </div>
+                                          {item.description && (
+                                            <p className="text-sm text-gray-600">{item.description}</p>
+                                          )}
+                                        </div>
+                                      </div>
+                                      {item.courseSlug && (
+                                        <Link
+                                          to={`/lms/${item.courseSlug}`}
+                                          className="px-4 py-2 text-sm font-medium rounded-md border transition-colors whitespace-nowrap ml-4"
+                                          style={{ 
+                                            color: '#030F35',
+                                            borderColor: '#030F35'
+                                          }}
+                                        >
+                                          View Course
+                                          <ChevronRightIcon size={14} className="inline ml-1" />
+                                        </Link>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            }
                           }
 
                           // Course (Multi-Lessons): Show topics with lessons
