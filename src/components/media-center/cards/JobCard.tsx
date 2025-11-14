@@ -57,7 +57,14 @@ export function JobCard({ job, href }: JobCardProps) {
             View Details
           </button>
         )}
-        {job.applyUrl ? (
+        {href ? (
+          <Link
+            to={`${href}/apply`}
+            className="h-9 rounded-xl bg-[#1A2E6E] text-center text-sm font-semibold text-white leading-9 transition hover:bg-[#132456]"
+          >
+            Apply
+          </Link>
+        ) : job.applyUrl ? (
           <a
             href={job.applyUrl}
             target="_blank"
@@ -66,13 +73,6 @@ export function JobCard({ job, href }: JobCardProps) {
           >
             Apply
           </a>
-        ) : href ? (
-          <Link
-            to={href}
-            className="h-9 rounded-xl bg-[#1A2E6E] text-center text-sm font-semibold text-white leading-9 transition hover:bg-[#132456]"
-          >
-            Apply
-          </Link>
         ) : (
           <button className="h-9 rounded-xl bg-[#1A2E6E] text-sm font-semibold text-white transition hover:bg-[#132456]">
             Apply

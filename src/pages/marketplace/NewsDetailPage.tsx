@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -10,6 +10,31 @@ const formatDate = (input: string) =>
 
 const fallbackHero =
   'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1600&q=80';
+
+const MEDIA_SEEN_STORAGE_KEY = 'dq-media-center-seen-items';
+
+const markMediaItemSeen = (kind: 'news' | 'job', id: string) => {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = window.localStorage.getItem(MEDIA_SEEN_STORAGE_KEY);
+    let seen: { news: string[]; jobs: string[] } = { news: [], jobs: [] };
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<{ news: string[]; jobs: string[] }>;
+      seen = {
+        news: parsed.news ?? [],
+        jobs: parsed.jobs ?? []
+      };
+    }
+
+    const key = kind === 'news' ? 'news' : 'jobs';
+    if (!seen[key].includes(id)) {
+      seen[key] = [...seen[key], id];
+      window.localStorage.setItem(MEDIA_SEEN_STORAGE_KEY, JSON.stringify(seen));
+    }
+  } catch {
+    // Ignore storage errors
+  }
+};
 
 const buildBody = (article: NewsItem & { content?: string }) => {
   // Use content field if available, otherwise fall back to default paragraphs
@@ -26,52 +51,39 @@ const buildBody = (article: NewsItem & { content?: string }) => {
 };
 
 const formatContent = (content: string) => {
-  // Handle markdown-style formatting for professional display
-  if (content.startsWith('#')) {
-    const level = content.match(/^#+/)?.[0].length || 1;
-    const text = content.replace(/^#+\s*/, '').replace(/[🎯💪❤️⚡🌱📖🔗📚🔄📞]/g, '').trim();
-    const className = level === 1 ? 'text-2xl font-bold mb-4 text-gray-900' :
-                     level === 2 ? 'text-xl font-bold mb-3 text-gray-800 mt-6' :
-                     'text-lg font-bold mb-2 text-gray-700 mt-4';
-    return <h2 className={className}>{text}</h2>;
-  }
-  
-  if (content.startsWith('- ') || content.startsWith('* ')) {
-    const items = content.split('\n').filter(line => line.trim().startsWith('- ') || line.trim().startsWith('* '));
-    return (
-      <ul className="list-disc list-inside space-y-2 mb-4 ml-4">
-        {items.map((item, idx) => (
-          <li key={idx} className="text-gray-700">{item.replace(/^[-*]\s*/, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}</li>
-        ))}
-      </ul>
-    );
-  }
-  
-  if (content.match(/^\d+\./)) {
-    const items = content.split('\n').filter(line => line.trim().match(/^\d+\./));
-    return (
-      <ol className="list-decimal list-inside space-y-2 mb-4 ml-4">
-        {items.map((item, idx) => (
-          <li key={idx} className="text-gray-700" dangerouslySetInnerHTML={{ 
-            __html: item.replace(/^\d+\.\s*/, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-          }} />
-        ))}
-      </ol>
-    );
-  }
-  
-  if (content.startsWith('---')) {
-    return <hr className="my-6 border-gray-200" />;
-  }
-  
-  // Handle bold text and remove emojis
-  const formattedContent = content
-    .replace(/[🎯💪❤️⚡🌱📖🔗📚🔄📞]/g, '')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+  // Clean up content and handle headings
+  let cleanContent = content
+    .replace(/[#*]/g, '') // Remove hashtags and asterisks
+    .replace(/\s+/g, ' ') // Normalize whitespace
     .trim();
   
-  return <p className="mb-4 text-gray-700" dangerouslySetInnerHTML={{ __html: formattedContent }} />;
+  // Check if this looks like a heading (short line, likely a title)
+  const isHeading = cleanContent.length < 100 && 
+    (cleanContent.includes('Overview') || 
+     cleanContent.includes('Details') || 
+     cleanContent.includes('Guidelines') || 
+     cleanContent.includes('Benefits') || 
+     cleanContent.includes('Questions') ||
+     cleanContent.includes('Introduction') ||
+     cleanContent.includes('Access') ||
+     cleanContent.includes('Links') ||
+     cleanContent.includes('Resources') ||
+     cleanContent.includes('Maintenance') ||
+     cleanContent.includes('Support') ||
+     cleanContent.includes('Framework') ||
+     cleanContent.includes('Superpowers') ||
+     cleanContent.includes('Leadership') ||
+     cleanContent.includes('Development') ||
+     cleanContent.includes('Implementation') ||
+     cleanContent.includes('Program') ||
+     cleanContent.includes('Phase') ||
+     cleanContent.includes('SFIA'));
+  
+  if (isHeading) {
+    return <h3 className="text-lg font-bold mb-3 text-gray-900 mt-6">{cleanContent}</h3>;
+  }
+  
+  return <p className="mb-4 text-gray-700">{cleanContent}</p>;
 };
 
 const NewsDetailPage: React.FC = () => {
@@ -81,6 +93,12 @@ const NewsDetailPage: React.FC = () => {
   const related = NEWS.filter((item) => item.id !== id).slice(0, 3);
 
   const body = article ? buildBody(article) : [];
+
+  useEffect(() => {
+    if (article) {
+      markMediaItemSeen('news', article.id);
+    }
+  }, [article]);
 
   if (!article) {
     return (

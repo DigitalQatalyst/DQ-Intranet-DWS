@@ -9,6 +9,7 @@ import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 import NewsPage from './NewsPage';
 import NewsDetailPage from './NewsDetailPage';
 import JobDetailPage from './JobDetailPage';
+import JobApplicationPage from './JobApplicationPage';
 const GuideDetailPage = React.lazy(() => import('../guides/GuideDetailPage'));
 // Promo cards for courses marketplace
 const coursePromoCards = [{
@@ -132,6 +133,7 @@ export const MarketplaceRouter: React.FC = () => {
       <Route path="/news/:id" element={<NewsDetailPage />} />
       <Route path="/opportunities" element={<NewsPage />} />
       <Route path="/opportunities/:id" element={<JobDetailPage />} />
+      <Route path="/opportunities/:id/apply" element={<JobApplicationPage />} />
       {/* Asset Library */}
       <Route path="/asset-library" element={<AssetLibraryPage />} />
       <Route path="/marketplace/activities" element={<ActivitiesPage />} />

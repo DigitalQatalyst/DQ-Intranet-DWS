@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { HomeIcon, ChevronRightIcon, MapPin, Briefcase, Clock, Share2, ArrowUpRight } from 'lucide-react';
 import { Header } from '../../components/Header';
@@ -11,11 +11,42 @@ const formatDate = (input: string) =>
 const fallbackHero =
   'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1600&q=80';
 
+const MEDIA_SEEN_STORAGE_KEY = 'dq-media-center-seen-items';
+
+const markMediaItemSeen = (kind: 'news' | 'job', id: string) => {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = window.localStorage.getItem(MEDIA_SEEN_STORAGE_KEY);
+    let seen: { news: string[]; jobs: string[] } = { news: [], jobs: [] };
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<{ news: string[]; jobs: string[] }>;
+      seen = {
+        news: parsed.news ?? [],
+        jobs: parsed.jobs ?? []
+      };
+    }
+
+    const key = kind === 'news' ? 'news' : 'jobs';
+    if (!seen[key].includes(id)) {
+      seen[key] = [...seen[key], id];
+      window.localStorage.setItem(MEDIA_SEEN_STORAGE_KEY, JSON.stringify(seen));
+    }
+  } catch {
+    // Ignore storage errors
+  }
+};
+
 const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const job = JOBS.find((item) => item.id === id);
   const related = JOBS.filter((item) => item.id !== id).slice(0, 3);
+
+  useEffect(() => {
+    if (job) {
+      markMediaItemSeen('job', job.id);
+    }
+  }, [job]);
 
   if (!job) {
     return (
@@ -76,21 +107,17 @@ const JobDetailPage: React.FC = () => {
               <span className="text-gray-900 line-clamp-1">{job.title}</span>
             </nav>
             <div className="flex gap-2 text-sm text-gray-500">
-              <button className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 hover:text-[#1A2E6E]">
+              <button className="inline-flex items_center gap-1 rounded-lg border border-gray-200 px-3 py-2 hover:text-[#1A2E6E]">
                 <Share2 size={16} />
                 Share
               </button>
-              {job.applyUrl && (
-                <a
-                  href={job.applyUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 rounded-lg bg-[#1A2E6E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#132456]"
-                >
-                  Apply Now
-                  <ArrowUpRight size={16} />
-                </a>
-              )}
+              <Link
+                to={`/marketplace/opportunities/${job.id}/apply`}
+                className="inline-flex items-center gap-1 rounded-lg bg-[#1A2E6E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#132456]"
+              >
+                Apply Now
+                <ArrowUpRight size={16} />
+              </Link>
             </div>
           </div>
         </section>
@@ -131,30 +158,38 @@ const JobDetailPage: React.FC = () => {
                   </div>
                 </div>
 
-                <article className="prose prose-gray mt-10 max-w-none">
-                  <h2>About the role</h2>
-                  <p>{job.description}</p>
+                <article className="mt-10 space-y-8">
+                  <section>
+                    <h2 className="mb-2 text-lg font-semibold text-gray-900">About the role</h2>
+                    <p className="text-sm text-gray-700 leading-relaxed">{job.description}</p>
+                  </section>
 
-                  <h3>Responsibilities</h3>
-                  <ul>
-                    {job.responsibilities.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
+                  <section>
+                    <h3 className="mb-2 text-base font-semibold text-gray-900">Responsibilities</h3>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+                      {job.responsibilities.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </section>
 
-                  <h3>Requirements</h3>
-                  <ul>
-                    {job.requirements.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
+                  <section>
+                    <h3 className="mb-2 text-base font-semibold text-gray-900">Requirements</h3>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+                      {job.requirements.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </section>
 
-                  <h3>What you get</h3>
-                  <ul>
-                    {job.benefits.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
+                  <section>
+                    <h3 className="mb-2 text-base font-semibold text-gray-900">What you get</h3>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+                      {job.benefits.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </section>
                 </article>
               </div>
 

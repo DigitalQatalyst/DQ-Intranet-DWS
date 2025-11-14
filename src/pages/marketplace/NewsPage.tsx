@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { FilterIcon, HomeIcon, XIcon, ChevronRightIcon, Search } from 'lucide-react';
@@ -9,6 +10,8 @@ import AnnouncementsGrid from '@/components/media-center/AnnouncementsGrid';
 import BlogsGrid from '@/components/media-center/BlogsGrid';
 import JobsGrid from '@/components/media-center/JobsGrid';
 import type { FacetConfig, FiltersValue, MediaCenterTabKey } from '@/components/media-center/types';
+import { NEWS, type NewsItem } from '@/data/media/news';
+import { JOBS, type JobItem } from '@/data/media/jobs';
 
 const PINNED_FACETS: FacetConfig[] = [
   {
@@ -103,29 +106,19 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
     },
     { key: 'location', label: 'Location', options: ['Dubai', 'Nairobi', 'Riyadh', 'Remote'] },
     {
-      key: 'newsType',
-      label: 'News Type',
-      options: ['Corporate Announcements', 'Product / Project Updates', 'Events & Campaigns', 'Digital Tech News']
+      key: 'domain',
+      label: 'Domain',
+      options: ['Technology', 'Business', 'People', 'Operations']
     },
     {
-      key: 'newsSource',
-      label: 'News Source',
-      options: ['DQ Leadership', 'DQ Operations', 'DQ Communications']
-    },
-    {
-      key: 'focusArea',
-      label: 'Topic / Focus Area',
-      options: ['GHC', 'DWS', 'Culture & People']
-    },
-    {
-      key: 'format',
-      label: 'Format',
-      options: ['Tutorial', 'Case Study', 'Opinion', 'How-to']
+      key: 'theme',
+      label: 'Theme',
+      options: ['Leadership', 'Delivery', 'Culture', 'DTMF']
     },
     {
       key: 'readingTime',
       label: 'Reading Time',
-      options: ['< 3 min', '3–5 min', '5–10 min', '> 10 min']
+      options: ['<5', '5–10', '10–20', '20+']
     }
   ],
   opportunities: [
@@ -170,6 +163,97 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
   ]
 };
 
+const MEDIA_SEEN_STORAGE_KEY = 'dq-media-center-seen-items';
+
+type MediaKind = 'news' | 'job';
+
+interface MediaNotification {
+  id: string;
+  kind: MediaKind;
+  title: string;
+  href: string;
+  meta: string;
+}
+
+const markMediaItemSeen = (kind: MediaKind, id: string) => {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = window.localStorage.getItem(MEDIA_SEEN_STORAGE_KEY);
+    let seen: { news: string[]; jobs: string[] } = { news: [], jobs: [] };
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<{ news: string[]; jobs: string[] }>;
+      seen = {
+        news: parsed.news ?? [],
+        jobs: parsed.jobs ?? []
+      };
+    }
+
+    const key = kind === 'news' ? 'news' : 'jobs';
+    if (!seen[key].includes(id)) {
+      seen[key] = [...seen[key], id];
+      window.localStorage.setItem(MEDIA_SEEN_STORAGE_KEY, JSON.stringify(seen));
+    }
+  } catch {
+    // Ignore storage errors
+  }
+};
+
+const buildNewsNotification = (item: NewsItem): MediaNotification => {
+  const isBlog = item.type === 'Thought Leadership';
+  const author = item.byline || item.author;
+  return {
+    id: item.id,
+    kind: 'news',
+    title: item.title,
+    href: `/marketplace/news/${item.id}`,
+    meta: isBlog ? `New blog from ${author}` : `New update from ${author}`
+  };
+};
+
+const buildJobNotification = (job: JobItem): MediaNotification => {
+  return {
+    id: job.id,
+    kind: 'job',
+    title: job.title,
+    href: `/marketplace/opportunities/${job.id}`,
+    meta: `${job.location} · ${job.type} · ${job.roleType} role`
+  };
+};
+
+const getLatestUnseenMediaItem = (): MediaNotification | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem(MEDIA_SEEN_STORAGE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Partial<{ news: string[]; jobs: string[] }>) : {};
+    const seenNews = new Set(parsed.news ?? []);
+    const seenJobs = new Set(parsed.jobs ?? []);
+
+    const latestUnseenNews = [...NEWS]
+      .sort((a, b) => (a.date < b.date ? 1 : -1))
+      .find((item) => !seenNews.has(item.id));
+
+    const latestUnseenJob = [...JOBS]
+      .sort((a, b) => (a.postedOn < b.postedOn ? 1 : -1))
+      .find((job) => !seenJobs.has(job.id));
+
+    if (!latestUnseenNews && !latestUnseenJob) return null;
+    if (latestUnseenNews && !latestUnseenJob) return buildNewsNotification(latestUnseenNews);
+    if (!latestUnseenNews && latestUnseenJob) return buildJobNotification(latestUnseenJob);
+
+    if (latestUnseenNews && latestUnseenJob) {
+      const newsTime = new Date(latestUnseenNews.date).getTime();
+      const jobTime = new Date(latestUnseenJob.postedOn).getTime();
+      return newsTime >= jobTime
+        ? buildNewsNotification(latestUnseenNews)
+        : buildJobNotification(latestUnseenJob);
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+};
+
 const TAB_SUMMARIES: Record<
   MediaCenterTabKey,
   { title: string; description: string; meta?: string }
@@ -187,7 +271,7 @@ const TAB_SUMMARIES: Record<
     meta: 'Authored by DQ Associates, Leads, and Partners.'
   },
   opportunities: {
-    title: 'Jobs opening',
+    title: 'Job Openings',
     description:
       'Internal mobility postings for current DQ teammates looking to rotate into a new role, studio, or craft without leaving the company.',
     meta: 'Use Department, Location, Role Type, and SFIA to find the right internal match.'
@@ -195,12 +279,14 @@ const TAB_SUMMARIES: Record<
 };
 
 const NewsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tab, setTab] = useState<MediaCenterTabKey>('announcements');
   const [queryText, setQueryText] = useState('');
   const [filters, setFilters] = useState<FiltersValue>({});
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [newItem, setNewItem] = useState<MediaNotification | null>(null);
 
   useEffect(() => {
     setFilters({});
@@ -217,6 +303,11 @@ const NewsPage: React.FC = () => {
       setFilters({ ...rest, department: units });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const item = getLatestUnseenMediaItem();
+    setNewItem(item);
   }, []);
 
   const facets = useMemo(() => [...SECONDARY_FACETS[tab]], [tab]);
@@ -251,9 +342,52 @@ const NewsPage: React.FC = () => {
   const toggleFilters = () => setShowFilters((prev) => !prev);
   const clearFilters = () => setFilters({});
 
+  const handleViewNewItem = () => {
+    if (!newItem) return;
+    markMediaItemSeen(newItem.kind === 'job' ? 'job' : 'news', newItem.id);
+    const target = newItem.href;
+    setNewItem(null);
+    navigate(target);
+  };
+
+  const handleDismissNewItem = () => {
+    if (!newItem) return;
+    markMediaItemSeen(newItem.kind === 'job' ? 'job' : 'news', newItem.id);
+    setNewItem(null);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header toggleSidebar={() => setSidebarOpen((prev) => !prev)} sidebarOpen={sidebarOpen} />
+
+      {newItem && (
+        <div className="fixed right-4 top-20 z-40 max-w-sm">
+          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-lg flex gap-3">
+            <div className="flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[#1A2E6E]">
+                {newItem.kind === 'job' ? 'New job opening' : 'New story'}
+              </p>
+              <p className="mt-1 text-sm font-semibold text-gray-900 line-clamp-2">{newItem.title}</p>
+              <p className="mt-1 text-xs text-gray-600 line-clamp-2">{newItem.meta}</p>
+              <button
+                type="button"
+                onClick={handleViewNewItem}
+                className="mt-3 inline-flex items-center rounded-lg bg-[#1A2E6E] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#132456]"
+              >
+                View now
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={handleDismissNewItem}
+              className="ml-1 mt-1 text-gray-400 hover:text-gray-600"
+              aria-label="Dismiss new item notification"
+            >
+              <XIcon size={16} />
+            </button>
+          </div>
+        </div>
+      )}
       <main className="container mx-auto px-4 py-8 flex-grow">
         <nav className="flex mb-4 text-sm text-gray-600" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
@@ -315,7 +449,7 @@ const NewsPage: React.FC = () => {
                 value="opportunities"
                 className="rounded-none border-b-2 border-transparent px-0 py-2 justify-start text-left text-gray-700 transition-colors duration-200 data-[state=active]:border-[#1A2E6E] data-[state=active]:font-medium data-[state=active]:text-[#1A2E6E]"
               >
-                Jobs opening
+                Job Openings
               </TabsTrigger>
             </TabsList>
           </div>

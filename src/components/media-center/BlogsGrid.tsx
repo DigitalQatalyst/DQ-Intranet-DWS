@@ -30,17 +30,17 @@ export default function BlogsGrid({ query }: GridProps) {
       .filter((item) => {
         const department = query.filters?.department;
         const location = query.filters?.location;
-        const newsType = query.filters?.newsType;
-        const newsSource = query.filters?.newsSource;
-        const focusArea = query.filters?.focusArea;
+        const domain = query.filters?.domain;
+        const theme = query.filters?.theme;
+        const readingTime = query.filters?.readingTime;
 
         const matches = (val?: string, sel?: string[]) => !sel?.length || (val && sel.includes(val));
         return (
           matches(item.department, department) &&
           matches(item.location, location) &&
-          matches(item.newsType, newsType) &&
-          matches(item.newsSource, newsSource) &&
-          matches(item.focusArea, focusArea)
+          matches(item.domain, domain) &&
+          matches(item.theme, theme) &&
+          matches(item.readingTime, readingTime)
         );
       })
       .sort((a, b) => (a.date < b.date ? 1 : -1));
