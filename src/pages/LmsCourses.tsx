@@ -42,6 +42,7 @@ export const LmsCourses: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [desktopFiltersVisible, setDesktopFiltersVisible] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('courses');
 
@@ -403,8 +404,20 @@ export const LmsCourses: React.FC = () => {
     setSearchQuery("");
   }, [setSearchParams]);
 
+  const hasActiveFilters = useMemo(
+    () =>
+      Object.values(urlBasedFilters).some(
+        (f) => Array.isArray(f) && f.length > 0
+      ),
+    [urlBasedFilters]
+  );
+
   const toggleFilters = useCallback(() => {
     setShowFilters((prev) => !prev);
+  }, []);
+
+  const toggleDesktopFilters = useCallback(() => {
+    setDesktopFiltersVisible((prev) => !prev);
   }, []);
 
   const handleViewDetails = useCallback((item: typeof LMS_COURSES[number]) => {
@@ -523,6 +536,29 @@ export const LmsCourses: React.FC = () => {
           <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         </div>
 
+        {/* Desktop filter toggle */}
+        <div className="hidden xl:flex justify-end mb-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleDesktopFilters}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:text-gray-900"
+              aria-expanded={desktopFiltersVisible}
+            >
+              <FilterIcon size={18} />
+              {desktopFiltersVisible ? "Hide Filters" : "Show Filters"}
+            </button>
+            {hasActiveFilters && (
+              <button
+                onClick={resetFilters}
+                className="text-sm font-medium"
+                style={{ color: '#030F35' }}
+              >
+                Reset All
+              </button>
+            )}
+          </div>
+        </div>
+
         <div className="flex flex-col xl:flex-row gap-6">
           {/* Mobile filter toggle */}
           <div className="xl:hidden sticky top-16 z-20 bg-gray-50 py-2 shadow-sm">
@@ -536,9 +572,7 @@ export const LmsCourses: React.FC = () => {
                 <FilterIcon size={18} />
                 {showFilters ? "Hide Filters" : "Show Filters"}
               </button>
-              {Object.values(urlBasedFilters).some(
-                (f) => Array.isArray(f) && f.length > 0
-              ) && (
+              {hasActiveFilters && (
                 <button
                   onClick={resetFilters}
                   className="ml-2 text-sm font-medium whitespace-nowrap px-3 py-2"
@@ -593,34 +627,34 @@ export const LmsCourses: React.FC = () => {
           </div>
 
           {/* Filter sidebar - desktop */}
-          <div className="hidden xl:block xl:w-1/4">
-            <div className="bg-white rounded-lg shadow p-4 sticky top-24">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold">Filters</h2>
-                {Object.values(urlBasedFilters).some(
-                  (f) => Array.isArray(f) && f.length > 0
-                ) && (
-                  <button
-                    onClick={resetFilters}
-                    className="text-sm font-medium"
-                    style={{ color: '#030F35' }}
-                  >
-                    Reset All
-                  </button>
-                )}
+          {desktopFiltersVisible && (
+            <div className="hidden xl:block xl:w-1/4">
+              <div className="bg-white rounded-lg shadow p-4 sticky top-24">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold">Filters</h2>
+                  {hasActiveFilters && (
+                    <button
+                      onClick={resetFilters}
+                      className="text-sm font-medium"
+                      style={{ color: '#030F35' }}
+                    >
+                      Reset All
+                    </button>
+                  )}
+                </div>
+                <FilterSidebar
+                  filters={urlBasedFilters}
+                  filterConfig={filterConfig}
+                  onFilterChange={handleFilterChange}
+                  onResetFilters={resetFilters}
+                  isResponsive={false}
+                />
               </div>
-              <FilterSidebar
-                filters={urlBasedFilters}
-                filterConfig={filterConfig}
-                onFilterChange={handleFilterChange}
-                onResetFilters={resetFilters}
-                isResponsive={false}
-              />
             </div>
-          </div>
+          )}
 
           {/* Main content */}
-          <div className="xl:w-3/4">
+          <div className={desktopFiltersVisible ? "xl:w-3/4" : "xl:w-full"}>
             {activeTab === 'tracks' ? (
               <>
                 <div className="flex justify-between items-center mb-4">
