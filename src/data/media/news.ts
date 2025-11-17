@@ -398,7 +398,7 @@ When you develop your leadership superpowers, you don't just improve your own ef
     views: 0,
     excerpt:
       'Unified lunch break for all associates: 2:00 PM – 3:00 PM DXB Time. Please avoid meetings within this window (except emergencies).',
-    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=800&q=80',
     location: 'Dubai',
     tags: ['policy', 'schedule', 'collaboration'],
     readingTime: '5–10',
@@ -449,7 +449,7 @@ Thank you for your cooperation in helping us build a more synchronized and effic
     views: 0,
     excerpt:
       'Launch of the DQ Associate Grade Review Program to align associates to the SFIA-based grading scale; initial focus group led by Araba and Mercy Kyuma.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80',
     tags: ['SFIA', 'grading', 'capability'],
     readingTime: '10–20',
     newsType: 'Corporate Announcements',

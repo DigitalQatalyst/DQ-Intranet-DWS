@@ -361,30 +361,32 @@ const NewsPage: React.FC = () => {
       <Header toggleSidebar={() => setSidebarOpen((prev) => !prev)} sidebarOpen={sidebarOpen} />
 
       {newItem && (
-        <div className="fixed right-4 top-20 z-40 max-w-sm">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-lg flex gap-3">
-            <div className="flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wide text-[#1A2E6E]">
+        <div className="fixed right-4 top-18 z-50 w-full max-w-xs p-2 sm:right-4 sm:top-20">
+          <div className="group flex items-stretch overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-[0_15px_60px_rgba(15,23,42,0.15)] transition-all duration-200 hover:shadow-[0_20px_40px_rgba(15,23,42,0.25)]">
+            <div className="flex flex-1 flex-col gap-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#1A2E6E]">
                 {newItem.kind === 'job' ? 'New job opening' : 'New story'}
               </p>
-              <p className="mt-1 text-sm font-semibold text-gray-900 line-clamp-2">{newItem.title}</p>
-              <p className="mt-1 text-xs text-gray-600 line-clamp-2">{newItem.meta}</p>
-              <button
-                type="button"
-                onClick={handleViewNewItem}
-                className="mt-3 inline-flex items-center rounded-lg bg-[#1A2E6E] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#132456]"
-              >
-                View now
-              </button>
+              <p className="text-sm font-semibold leading-5 text-gray-900 line-clamp-2">{newItem.title}</p>
+              <p className="text-xs leading-snug text-gray-600 line-clamp-2">{newItem.meta}</p>
+              <div className="flex flex-wrap gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleViewNewItem}
+                  className="inline-flex min-w-[120px] items-center justify-center rounded-xl bg-[#1A2E6E] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-white transition-colors duration-200 hover:bg-[#132456] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1A2E6E]"
+                >
+                  View now
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDismissNewItem}
+                  className="inline-flex items-center justify-center rounded-xl border border-gray-200 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500 transition-colors duration-200 hover:border-gray-300 hover:text-gray-700"
+                  aria-label="Dismiss new item notification"
+                >
+                  Dismiss
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={handleDismissNewItem}
-              className="ml-1 mt-1 text-gray-400 hover:text-gray-600"
-              aria-label="Dismiss new item notification"
-            >
-              <XIcon size={16} />
-            </button>
           </div>
         </div>
       )}
