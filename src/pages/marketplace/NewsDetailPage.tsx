@@ -93,7 +93,6 @@ const NewsDetailPage: React.FC = () => {
   const related = NEWS.filter((item) => item.id !== id).slice(0, 3);
 
   const body = article ? buildBody(article) : [];
-
   useEffect(() => {
     if (article) {
       markMediaItemSeen('news', article.id);
@@ -148,23 +147,6 @@ const NewsDetailPage: React.FC = () => {
                 <BookmarkIcon size={16} />
                 Save
               </button>
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-white">
-          <div className="mx-auto max-w-5xl px-6 py-10">
-            <span className="text-xs font-semibold uppercase tracking-wide text-[#1A2E6E]">
-              {article.type}
-            </span>
-            <h1 className="mt-3 text-3xl font-bold text-gray-900">{article.title}</h1>
-            <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-gray-500">
-              <span>{article.byline || article.author}</span>
-              <span>{formatDate(article.date)}</span>
-              <span>{article.views} views</span>
-              {article.location && <span>{article.location}</span>}
-              {article.newsSource && <span>{article.newsSource}</span>}
-              {article.focusArea && <span>{article.focusArea}</span>}
             </div>
           </div>
         </section>
