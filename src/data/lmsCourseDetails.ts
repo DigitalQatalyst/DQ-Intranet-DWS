@@ -237,7 +237,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
         rating: 5
       }
     ],
-    imageUrl: 'https://images.pexels.com/photos/732103/pexels-photo-732103.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2', // Abstract business/collaboration
+    imageUrl: 'https://th.bing.com/th/id/R.b04dae7f1cac514b4915c162a3edc334?rik=muPeTtsO40qSDw&pid=ImgRaw&r=0', // Abstract business/collaboration
     // Course (Multi-Lessons) - has topics with lessons
     curriculum: [
       {
@@ -638,7 +638,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
         rating: 4
       }
     ],
-    imageUrl: 'https://images.pexels.com/photos/1775985/pexels-photo-1775985.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2', // Code/deployment pipeline
+    imageUrl: 'https://tse4.mm.bing.net/th/id/OIP.sQFushVeOouroIbdae8mfgHaDH?rs=1&pid=ImgDetMain&o=7&rm=3', // Code/deployment pipeline
   },
   {
     id: 'cursor-ai',
@@ -1213,7 +1213,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
       'Use visual tools for clear project oversight',
       'Collaborate securely using guest access and comments'
   ],
-  imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/Microsoft_Planner_2019.png', // Microsoft Planner logo/screenshot
+  imageUrl: 'https://xtrm-dev.com/wp-content/uploads/2024/03/nieuwe-ms-planner.jpg', // Microsoft Planner logo/screenshot
   curriculum: [
       {
           id: 'course-planner-get-started-track',
@@ -1427,7 +1427,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
           'Manage team membership and channel structure correctly',
           'Configure personal settings for optimal DWS workflow'
       ],
-      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Microsoft_Teams_logo.svg/800px-Microsoft_Teams_logo.svg.png', // Microsoft Teams Logo
+      imageUrl: 'https://www.windowsblogitalia.com/wp-content/uploads/2022/02/microsoft-teams-prestazioni.jpg', // Microsoft Teams Logo
       curriculum: [
           {
               id: 'course-teams-meetings-track',
@@ -1499,7 +1499,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
       summary: 'A deep dive into joining, scheduling, and running effective meetings, including advanced features like immersive experiences, live events, and premium options.',
       highlights: ['Master meeting controls, sharing, and multitasking', 'Schedule and manage live events, webinars, and town halls', 'Utilize recording, transcription, and language interpretation options'],
       outcomes: ['Run professional and engaging virtual events', 'Troubleshoot common audio/video issues', 'Leverage Teams Premium features for security and intelligence'],
-      imageUrl: 'https://images.pexels.com/photos/7161048/pexels-photo-7161048.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2', // Virtual meeting
+      imageUrl: 'https://th.bing.com/th/id/R.de74bda67b59319c96a0a5379f5f299c?rik=zIWrqn6tGf2bQw&pid=ImgRaw&r=0', // Virtual meeting
       curriculum: [
           {
               id: 'module-meetings',
@@ -2141,7 +2141,7 @@ const details: Omit<LmsDetail, 'locations'> & { locations: string[] }[] = [
       summary: 'Everything about initiating, managing, and optimizing calls, including advanced features like intelligent speakers and Teams Rooms.',
       highlights: ['Standard and advanced calling features (transfer, merge, hold)', 'Teams Phone Mobile and data optimization', 'Configuration of Microsoft Teams Rooms and devices'],
       outcomes: ['Handle complex call scenarios efficiently', 'Set up and troubleshoot Teams Rooms', 'Utilize devices for high-quality audio/video broadcasting'],
-      imageUrl: 'https://images.pexels.com/photos/7161073/pexels-photo-7161073.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2', // Calling screen/device focus
+      imageUrl: 'https://nuwave.com/hs-fs/hubfs/MSTeamsImage.jpg?width=2000&name=MSTeamsImage.jpg', // Calling screen/device focus
       curriculum: [
           {
               id: 'module-calls-devices',
