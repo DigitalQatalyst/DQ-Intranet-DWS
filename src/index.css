@@ -203,7 +203,7 @@ textarea:-webkit-autofill {
 /* Custom scrollbar styling for filters sidebar */
 .filter-sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #1A2E72 transparent;
+  scrollbar-color: #cbcbcc transparent;
 }
 
 /* Webkit browsers (Chrome, Safari, Edge) */
