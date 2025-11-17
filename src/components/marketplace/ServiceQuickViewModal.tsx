@@ -116,8 +116,8 @@ export const ServiceQuickViewModal: React.FC<ServiceQuickViewModalProps> = ({
               </li>
             </ol>
           </nav>
+          {/* Provider Section - Logo removed */}
           <div className="flex items-center mb-4">
-            <img src={service.provider.logoUrl} alt={`${service.provider.name} logo`} className="h-12 w-12 object-contain mr-4" />
             <div>
               <span className="text-sm text-gray-500">Department</span>
               <h3 className="text-lg font-medium text-gray-900">

@@ -183,8 +183,8 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
             <div className="flex flex-col lg:flex-row items-start gap-8">
               {/* Left side - Course info */}
               <div className="lg:w-2/3">
+                {/* Provider Section - Logo removed */}
                 <div className="flex items-center mb-3">
-                  <img src={course.provider.logoUrl} alt={`${course.provider.name} logo`} className="h-12 w-12 object-contain mr-3 rounded-md shadow-sm" />
                   <span className="text-gray-600 font-medium">
                     {course.provider.name}
                   </span>
@@ -480,10 +480,6 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
                   </div>
                   <button id="enroll-section" className="w-full px-4 py-3 text-white font-bold rounded-md bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 hover:from-teal-600 hover:via-blue-600 hover:to-purple-700 transition-colors shadow-md mb-3">
                     Enroll Now
-                  </button>
-                  <button onClick={handleAddToComparison} className="w-full px-4 py-3 text-blue-600 font-medium bg-white border border-blue-600 rounded-md hover:bg-blue-50 transition-colors flex items-center justify-center">
-                    <ScaleIcon size={16} className="mr-2" />
-                    Add to Comparison
                   </button>
                 </div>
               </div>

@@ -870,10 +870,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         <button id="action-section" className="w-full px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md mb-3" style={{ backgroundColor: '#1A2E6E' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1A2E6E'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1A2E6E'}>
           {primaryAction}
         </button>
-        <button onClick={handleAddToComparison} className="w-full px-4 py-2.5 text-blue-600 font-medium bg-white border border-blue-600 rounded-md hover:bg-blue-50 transition-colors flex items-center justify-center">
-          <ScaleIcon size={16} className="mr-2" />
-          Add to Comparison
-        </button>
       </div>
     </div>;
   return <div className="bg-white min-h-screen flex flex-col">
