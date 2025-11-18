@@ -650,8 +650,8 @@ The **Work From Home (WFH) Guidelines** provide a clear framework for how remote
     views: 0,
     excerpt:
       'Dress code guideline balancing professionalism and comfort across the work week, with clear expectations, exceptions, and consequences.',
-    // Uses the same image as the DQ WFH Guidelines card for visual consistency
-    image: 'https://images.unsplash.com/photo-1587614382346-4ec70e388b28?auto=format&fit=crop&w=800&q=80',
+    // Image shows a professional man in a crisp white shirt to emphasize smart dress
+    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1200&q=80',
     department: 'HRA (People)',
     location: 'Dubai',
     domain: 'People',
