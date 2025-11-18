@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams, useNavigate, Outlet } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from '../../components/marketplace/FilterSidebar';
 import { FilterIcon, XIcon, ExternalLink, MessageCircle, FileText, Calendar as CalendarIcon, ArrowLeft } from 'lucide-react';
 import { TrackerDetailPage } from './components/TrackerDetailPage';
@@ -110,44 +110,29 @@ function generateDepartmentTrackers(): DepartmentTracker[] {
   return trackers;
 }
 
-const dummyTrackers = generateDepartmentTrackers();
+export const dummyTrackers = generateDepartmentTrackers();
 
 interface TrackersPageProps {
   searchQuery: string;
 }
 
 export const TrackersPage: React.FC<TrackersPageProps> = ({ searchQuery }) => {
+  const { trackerId } = useParams<{ trackerId?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [showFilters, setShowFilters] = useState(false);
 
-  const selectedTrackerId = searchParams.get('tracker');
-
-  // If tracker is selected, show tracker detail page
+  const selectedTrackerId = trackerId;
+  
+  // If tracker is selected, render outlet for nested route
   if (selectedTrackerId) {
-    const tracker = dummyTrackers.find(t => t.id === selectedTrackerId);
-    if (tracker) {
-      return (
-        <TrackerDetailPage
-          tracker={tracker}
-          onBack={() => {
-            const newParams = new URLSearchParams(searchParams);
-            newParams.delete('tracker');
-            setSearchParams(newParams, { replace: true });
-          }}
-        />
-      );
-    }
+    return <Outlet />;
   }
 
-  // Parse filters from URL
+  // Parse filters from URL - ALL HOOKS MUST BE CALLED FIRST
   const departmentFilters = useMemo(() => {
     const dept = searchParams.get('department');
     return dept ? dept.split(',').filter(Boolean) : [];
-  }, [searchParams]);
-
-  const locationFilters = useMemo(() => {
-    const loc = searchParams.get('location');
-    return loc ? loc.split(',').filter(Boolean) : [];
   }, [searchParams]);
 
   // Filter trackers
@@ -157,12 +142,6 @@ export const TrackersPage: React.FC<TrackersPageProps> = ({ searchQuery }) => {
     if (departmentFilters.length > 0) {
       filtered = filtered.filter(tracker =>
         departmentFilters.includes(tracker.department)
-      );
-    }
-
-    if (locationFilters.length > 0) {
-      filtered = filtered.filter(tracker =>
-        tracker.location.some(loc => locationFilters.includes(loc))
       );
     }
 
@@ -178,7 +157,7 @@ export const TrackersPage: React.FC<TrackersPageProps> = ({ searchQuery }) => {
     }
 
     return filtered;
-  }, [departmentFilters, locationFilters, searchQuery]);
+  }, [departmentFilters, searchQuery]);
 
   const handleFilterChange = useCallback((filterType: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -204,27 +183,16 @@ export const TrackersPage: React.FC<TrackersPageProps> = ({ searchQuery }) => {
   }, [setSearchParams]);
 
   const filterConfig: FilterConfig[] = useMemo(() => [
-    {
-      id: 'department',
-      title: 'Department',
-      options: departments.map(dept => ({ id: dept, name: dept })),
-    },
-    {
-      id: 'location',
-      title: 'Location/Studio',
-      options: [
-        { id: 'Dubai', name: 'Dubai' },
-        { id: 'Nairobi', name: 'Nairobi' },
-        { id: 'Riyadh', name: 'Riyadh' },
-        { id: 'Remote', name: 'Remote' },
-      ],
-    },
-  ], []);
+      {
+        id: 'department',
+        title: 'Department',
+        options: departments.map(dept => ({ id: dept, name: dept })),
+      },
+    ], []);
 
   const urlBasedFilters: Record<string, string[]> = useMemo(() => ({
     department: departmentFilters,
-    location: locationFilters,
-  }), [departmentFilters, locationFilters]);
+  }), [departmentFilters]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -255,6 +223,7 @@ export const TrackersPage: React.FC<TrackersPageProps> = ({ searchQuery }) => {
         return status;
     }
   };
+
 
   return (
     <div className="flex flex-col xl:flex-row gap-6">
@@ -354,11 +323,7 @@ export const TrackersPage: React.FC<TrackersPageProps> = ({ searchQuery }) => {
               <div
                 key={tracker.id}
                 className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => {
-                  const newParams = new URLSearchParams(searchParams);
-                  newParams.set('tracker', tracker.id);
-                  setSearchParams(newParams, { replace: true });
-                }}
+                onClick={() => navigate(`/work-center/trackers/${tracker.id}`)}
               >
                 <h3 className="text-xl font-semibold text-gray-800 mb-3">{tracker.department}</h3>
                 <div className="text-sm text-gray-600 space-y-2">

@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowLeft, User, Calendar, Tag, CheckCircle2, Circle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { HomeIcon, ChevronRightIcon, User, Calendar, Tag, CheckCircle2, Circle } from 'lucide-react';
 
 interface WorkItem {
   id: string;
@@ -7,6 +8,7 @@ interface WorkItem {
   assignedTo: string;
   state: 'new' | 'active' | 'resolved' | 'closed';
   priority: 'low' | 'medium' | 'high';
+  workItemType: 'bug' | 'build' | 'develop' | 'RAID' | 'test case';
   activityDate: Date;
   tags: string[];
   projectId: string;
@@ -63,14 +65,37 @@ export const TaskDetailPage: React.FC<TaskDetailPageProps> = ({ task, project, o
 
   return (
     <div>
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-6"
-      >
-        <ArrowLeft size={20} />
-        Back to {project.name}
-      </button>
+      {/* Breadcrumbs */}
+      <nav className="flex mb-6" aria-label="Breadcrumb">
+        <ol className="inline-flex items-center space-x-1 md:space-x-2">
+          <li className="inline-flex items-center">
+              <Link
+                to="/work-center/projects"
+                className="text-gray-600 hover:text-gray-900 inline-flex items-center"
+              >
+                <HomeIcon size={16} className="mr-1" />
+                <span>Work Center</span>
+              </Link>
+            </li>
+            <li>
+              <div className="flex items-center">
+                <ChevronRightIcon size={16} className="text-gray-400" />
+                <Link
+                  to={`/work-center/projects/${project.id}`}
+                  className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
+                >
+                  {project.name}
+                </Link>
+              </div>
+            </li>
+          <li aria-current="page">
+            <div className="flex items-center">
+              <ChevronRightIcon size={16} className="text-gray-400" />
+              <span className="ml-1 text-gray-500 md:ml-2">{task.title}</span>
+            </div>
+          </li>
+        </ol>
+      </nav>
 
       <div className="bg-white rounded-lg shadow">
         {/* Header */}
@@ -118,6 +143,14 @@ export const TaskDetailPage: React.FC<TaskDetailPageProps> = ({ task, project, o
                 </p>
               </div>
             </div>
+          </div>
+
+          {/* Work Item Type */}
+          <div>
+            <p className="font-medium text-gray-800 mb-2">Work Item Type</p>
+            <span className="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded capitalize">
+              {task.workItemType}
+            </span>
           </div>
 
           {/* Tags */}
@@ -213,12 +246,12 @@ export const TaskDetailPage: React.FC<TaskDetailPageProps> = ({ task, project, o
 
         {/* Footer Actions */}
         <div className="border-t border-gray-200 px-6 py-4 bg-gray-50 flex justify-end gap-3">
-          <button
-            onClick={onBack}
+          <Link
+            to={`/work-center/projects/${project.id}`}
             className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
           >
             Back
-          </button>
+          </Link>
           <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
             Edit Task
           </button>
@@ -227,4 +260,3 @@ export const TaskDetailPage: React.FC<TaskDetailPageProps> = ({ task, project, o
     </div>
   );
 };
-

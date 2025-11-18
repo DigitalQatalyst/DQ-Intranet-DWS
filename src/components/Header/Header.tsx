@@ -114,6 +114,14 @@ export function Header({
             >
               Discover DQ
             </Link>
+            <Link
+              to={'/work-center'}
+              className={`hover:text-[#FB5535] transition-colors duration-200 cursor-pointer ${
+                isSticky ? 'text-sm' : ''
+              }`}
+            >
+              Work Center
+            </Link>
           </div>
 
           {/* Right Navigation */}

@@ -78,82 +78,83 @@ function generateRecurringSessions(): Session[] {
     weekStart.setDate(today.getDate() + (weekOffset * 7));
     
     departments.forEach((dept, deptIndex) => {
-      locations.forEach((location) => {
-        const baseHour = 9 + (deptIndex % 4); // Different start times for each department
-        const moderator = moderators[deptIndex % moderators.length];
-        
-        // CWS - Co-working session (Monday)
-        const cwsDate = new Date(weekStart);
-        cwsDate.setDate(weekStart.getDate() + (weekStart.getDay() === 0 ? 1 : (8 - weekStart.getDay()))); // Next Monday
-        sessions.push({
-          id: `cws-${dept}-${location}-${weekOffset}`,
-          title: `CWS - ${dept}`,
-          start: new Date(cwsDate.setHours(baseHour, 0, 0, 0)),
-          end: new Date(cwsDate.setHours(baseHour + 2, 0, 0, 0)),
-          type: 'cws',
-          department: dept,
-          location: location,
-          attendees: ['Team Members'],
-          agenda: ['Collaboration', 'Discussion', 'Planning'],
-          description: `Weekly co-working session for ${dept}`,
-          moderator: moderator,
-        });
-        
-        // Retro - Sprint retrospective (Friday, after CWS)
-        const retroDate = new Date(weekStart);
-        retroDate.setDate(weekStart.getDate() + (weekStart.getDay() === 0 ? 5 : (12 - weekStart.getDay()))); // Next Friday
-        sessions.push({
-          id: `retro-${dept}-${location}-${weekOffset}`,
-          title: `Retro - ${dept}`,
-          start: new Date(retroDate.setHours(baseHour + 1, 0, 0, 0)),
-          end: new Date(retroDate.setHours(baseHour + 2, 0, 0, 0)),
-          type: 'retro',
-          department: dept,
-          location: location,
-          attendees: ['Team Members'],
-          agenda: ['What went well', 'What to improve', 'Action items'],
-          description: `Weekly sprint retrospective for ${dept}`,
-          moderator: moderator,
-        });
-        
-        // Daily Scrum (Tuesday, Wednesday, Thursday)
-        for (let day = 1; day <= 3; day++) {
-          const scrumDate = new Date(weekStart);
-          scrumDate.setDate(weekStart.getDate() + (weekStart.getDay() === 0 ? day + 1 : (8 - weekStart.getDay() + day)));
-          sessions.push({
-            id: `scrum-${dept}-${location}-${weekOffset}-${day}`,
-            title: `Daily Scrum - ${dept}`,
-            start: new Date(scrumDate.setHours(9, 30, 0, 0)),
-            end: new Date(scrumDate.setHours(10, 0, 0, 0)),
-            type: 'scrum',
-            department: dept,
-            location: location,
-            attendees: ['Dev Team', 'Product Owner'],
-            agenda: ['What did you do?', 'What will you do?', 'Any blockers?'],
-            description: `Daily standup meeting for ${dept}`,
-            moderator: moderator,
-          });
-        }
-        
-        // Onboarding (Every 2 weeks on Wednesday)
-        if (weekOffset % 2 === 0) {
-          const onboardingDate = new Date(weekStart);
-          onboardingDate.setDate(weekStart.getDate() + (weekStart.getDay() === 0 ? 3 : (10 - weekStart.getDay())));
-          sessions.push({
-            id: `onboarding-${dept}-${location}-${weekOffset}`,
-            title: `Onboarding - ${dept}`,
-            start: new Date(onboardingDate.setHours(10, 0, 0, 0)),
-            end: new Date(onboardingDate.setHours(12, 0, 0, 0)),
-            type: 'onboarding',
-            department: dept,
-            location: location,
-            attendees: ['HR Team', 'Manager', 'New Hires'],
-            agenda: ['Welcome session', 'Company overview', 'Tools introduction'],
-            description: `Onboarding session for new team members in ${dept}`,
-            moderator: moderator,
-          });
-        }
+      // Each department has one session per type, attended by all locations
+      const baseHour = 9 + (deptIndex % 4); // Different start times for each department
+      const moderator = moderators[deptIndex % moderators.length];
+      // Use first location as primary location, but all locations attend
+      const primaryLocation = locations[deptIndex % locations.length];
+      
+      // CWS - Co-working session (Monday)
+      const cwsDate = new Date(weekStart);
+      cwsDate.setDate(weekStart.getDate() + (weekStart.getDay() === 0 ? 1 : (8 - weekStart.getDay()))); // Next Monday
+      sessions.push({
+        id: `cws-${dept}-${weekOffset}`,
+        title: `CWS - ${dept}`,
+        start: new Date(cwsDate.setHours(baseHour, 0, 0, 0)),
+        end: new Date(cwsDate.setHours(baseHour + 2, 0, 0, 0)),
+        type: 'cws',
+        department: dept,
+        location: primaryLocation,
+        attendees: ['All Locations - Team Members'],
+        agenda: ['Collaboration', 'Discussion', 'Planning'],
+        description: `Weekly co-working session for ${dept} (attended by all locations)`,
+        moderator: moderator,
       });
+      
+      // Retro - Sprint retrospective (Friday, after CWS)
+      const retroDate = new Date(weekStart);
+      retroDate.setDate(weekStart.getDate() + (weekStart.getDay() === 0 ? 5 : (12 - weekStart.getDay()))); // Next Friday
+      sessions.push({
+        id: `retro-${dept}-${weekOffset}`,
+        title: `Retro - ${dept}`,
+        start: new Date(retroDate.setHours(baseHour + 1, 0, 0, 0)),
+        end: new Date(retroDate.setHours(baseHour + 2, 0, 0, 0)),
+        type: 'retro',
+        department: dept,
+        location: primaryLocation,
+        attendees: ['All Locations - Team Members'],
+        agenda: ['What went well', 'What to improve', 'Action items'],
+        description: `Weekly sprint retrospective for ${dept} (attended by all locations)`,
+        moderator: moderator,
+      });
+      
+      // Daily Scrum (Tuesday, Wednesday, Thursday) - attended by all locations
+      for (let day = 1; day <= 3; day++) {
+        const scrumDate = new Date(weekStart);
+        scrumDate.setDate(weekStart.getDate() + (weekStart.getDay() === 0 ? day + 1 : (8 - weekStart.getDay() + day)));
+        sessions.push({
+          id: `scrum-${dept}-${weekOffset}-${day}`,
+          title: `Daily Scrum - ${dept}`,
+          start: new Date(scrumDate.setHours(9, 30, 0, 0)),
+          end: new Date(scrumDate.setHours(10, 0, 0, 0)),
+          type: 'scrum',
+          department: dept,
+          location: primaryLocation,
+          attendees: ['All Locations - Dev Team', 'Product Owner'],
+          agenda: ['What did you do?', 'What will you do?', 'Any blockers?'],
+          description: `Daily standup meeting for ${dept} (attended by all locations)`,
+          moderator: moderator,
+        });
+      }
+      
+      // Onboarding (Every 2 weeks on Wednesday)
+      if (weekOffset % 2 === 0) {
+        const onboardingDate = new Date(weekStart);
+        onboardingDate.setDate(weekStart.getDate() + (weekStart.getDay() === 0 ? 3 : (10 - weekStart.getDay())));
+        sessions.push({
+          id: `onboarding-${dept}-${weekOffset}`,
+          title: `Onboarding - ${dept}`,
+          start: new Date(onboardingDate.setHours(10, 0, 0, 0)),
+          end: new Date(onboardingDate.setHours(12, 0, 0, 0)),
+          type: 'onboarding',
+          department: dept,
+          location: primaryLocation,
+          attendees: ['All Locations - HR Team', 'Manager', 'New Hires'],
+          agenda: ['Welcome session', 'Company overview', 'Tools introduction'],
+          description: `Onboarding session for new team members in ${dept} (attended by all locations)`,
+          moderator: moderator,
+        });
+      }
     });
   }
   
@@ -178,11 +179,6 @@ export const SessionsPage: React.FC<SessionsPageProps> = ({ searchQuery }) => {
     return dept ? dept.split(',').filter(Boolean) : [];
   }, [searchParams]);
 
-  const locationFilters = useMemo(() => {
-    const loc = searchParams.get('location');
-    return loc ? loc.split(',').filter(Boolean) : [];
-  }, [searchParams]);
-
   const sessionTypeFilters = useMemo(() => {
     const type = searchParams.get('sessionType');
     return type ? type.split(',').filter(Boolean) : [];
@@ -201,13 +197,6 @@ export const SessionsPage: React.FC<SessionsPageProps> = ({ searchQuery }) => {
     if (departmentFilters.length > 0) {
       filtered = filtered.filter(session =>
         departmentFilters.includes(session.department)
-      );
-    }
-
-    // Filter by location
-    if (locationFilters.length > 0) {
-      filtered = filtered.filter(session =>
-        locationFilters.includes(session.location)
       );
     }
 
@@ -236,8 +225,11 @@ export const SessionsPage: React.FC<SessionsPageProps> = ({ searchQuery }) => {
       );
     }
 
+    // Sort by date (nearest to latest)
+    filtered.sort((a, b) => a.start.getTime() - b.start.getTime());
+
     return filtered;
-  }, [departmentFilters, locationFilters, sessionTypeFilters, moderatorFilters, searchQuery]);
+  }, [departmentFilters, sessionTypeFilters, moderatorFilters, searchQuery]);
 
   const handleFilterChange = useCallback((filterType: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -263,18 +255,13 @@ export const SessionsPage: React.FC<SessionsPageProps> = ({ searchQuery }) => {
   }, [setSearchParams]);
 
   const filterConfig: FilterConfig[] = useMemo(() => [
-    {
-      id: 'department',
-      title: 'Department',
-      options: departments.map(dept => ({ id: dept, name: dept })),
-    },
-    {
-      id: 'location',
-      title: 'Location/Studio',
-      options: locations.map(loc => ({ id: loc, name: loc })),
-    },
-    {
-      id: 'sessionType',
+      {
+        id: 'department',
+        title: 'Department',
+        options: departments.map(dept => ({ id: dept, name: dept })),
+      },
+      {
+        id: 'sessionType',
       title: 'Session Type',
       options: [
         { id: 'retro', name: 'Retro' },
@@ -292,10 +279,9 @@ export const SessionsPage: React.FC<SessionsPageProps> = ({ searchQuery }) => {
 
   const urlBasedFilters: Record<string, string[]> = useMemo(() => ({
     department: departmentFilters,
-    location: locationFilters,
     sessionType: sessionTypeFilters,
     moderator: moderatorFilters,
-  }), [departmentFilters, locationFilters, sessionTypeFilters, moderatorFilters]);
+  }), [departmentFilters, sessionTypeFilters, moderatorFilters]);
 
   // Format events for FullCalendar with department colors
   const formattedEvents = filteredSessions.map(session => {

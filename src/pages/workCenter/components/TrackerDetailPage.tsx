@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowLeft, ExternalLink, MessageCircle, FileText, Calendar as CalendarIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { HomeIcon, ChevronRightIcon, ExternalLink, MessageCircle, FileText, Calendar as CalendarIcon } from 'lucide-react';
 
 interface TrackerItem {
   id: string;
@@ -63,16 +64,26 @@ export const TrackerDetailPage: React.FC<TrackerDetailPageProps> = ({ tracker, o
 
   return (
     <div>
-      {/* Back button and header */}
-      <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
-        >
-          <ArrowLeft size={20} />
-          Back to Trackers
-        </button>
-      </div>
+      {/* Breadcrumbs */}
+      <nav className="flex mb-6" aria-label="Breadcrumb">
+        <ol className="inline-flex items-center space-x-1 md:space-x-2">
+          <li className="inline-flex items-center">
+            <Link
+              to="/work-center/trackers"
+              className="text-gray-600 hover:text-gray-900 inline-flex items-center"
+            >
+              <HomeIcon size={16} className="mr-1" />
+              <span>Work Center</span>
+            </Link>
+          </li>
+          <li aria-current="page">
+            <div className="flex items-center">
+              <ChevronRightIcon size={16} className="text-gray-400" />
+              <span className="ml-1 text-gray-500 md:ml-2">{tracker.department} Tracker</span>
+            </div>
+          </li>
+        </ol>
+      </nav>
 
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">{tracker.department} Tracker</h2>

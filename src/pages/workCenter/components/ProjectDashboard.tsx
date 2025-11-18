@@ -7,6 +7,7 @@ interface WorkItem {
   assignedTo: string;
   state: 'new' | 'active' | 'resolved' | 'closed';
   priority: 'low' | 'medium' | 'high';
+  workItemType: 'bug' | 'build' | 'develop' | 'RAID' | 'test case';
   activityDate: Date;
   tags: string[];
   projectId: string;
@@ -40,15 +41,23 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ project }) =
       medium: project.workItems.filter(item => item.priority === 'medium').length,
       low: project.workItems.filter(item => item.priority === 'low').length,
     };
+    const byWorkItemType = {
+      bug: project.workItems.filter(item => item.workItemType === 'bug').length,
+      build: project.workItems.filter(item => item.workItemType === 'build').length,
+      develop: project.workItems.filter(item => item.workItemType === 'develop').length,
+      RAID: project.workItems.filter(item => item.workItemType === 'RAID').length,
+      'test case': project.workItems.filter(item => item.workItemType === 'test case').length,
+    };
     const completionRate = total > 0 ? ((byState.closed + byState.resolved) / total * 100).toFixed(0) : 0;
 
-    return { total, byState, byPriority, completionRate };
+    return { total, byState, byPriority, byWorkItemType, completionRate };
   }, [project.workItems]);
 
   // Prepare data for bar chart
   const maxValue = Math.max(
     ...Object.values(stats.byState),
-    ...Object.values(stats.byPriority)
+    ...Object.values(stats.byPriority),
+    ...Object.values(stats.byWorkItemType)
   );
 
   return (
@@ -167,6 +176,44 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ project }) =
             })}
           </div>
         </div>
+
+        {/* Work Item Type Distribution */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Work Item Type Distribution</h3>
+          <div className="space-y-4">
+            {Object.entries(stats.byWorkItemType).map(([type, count]) => {
+              const percentage = stats.total > 0 ? (count / stats.total * 100) : 0;
+              const barWidth = maxValue > 0 ? (count / maxValue * 100) : 0;
+              
+              const typeColors: Record<string, string> = {
+                bug: 'bg-red-500',
+                build: 'bg-blue-500',
+                develop: 'bg-green-500',
+                RAID: 'bg-purple-500',
+                'test case': 'bg-orange-500',
+              };
+
+              return (
+                <div key={type}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-medium text-gray-700 capitalize">
+                      {type}
+                    </span>
+                    <span className="text-sm text-gray-600">
+                      {count} ({percentage.toFixed(0)}%)
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                    <div
+                      className={`h-full ${typeColors[type] || 'bg-gray-400'} transition-all duration-300`}
+                      style={{ width: `${barWidth}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Recent Activity */}
@@ -181,7 +228,7 @@ export const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ project }) =
                 <div className="flex-1">
                   <p className="font-medium text-gray-800">{item.title}</p>
                   <p className="text-sm text-gray-600">
-                    {item.assignedTo} • {item.activityDate.toLocaleDateString()}
+                    {item.assignedTo} • {item.activityDate.toLocaleDateString()} • {item.workItemType}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
