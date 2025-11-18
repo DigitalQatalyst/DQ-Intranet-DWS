@@ -525,6 +525,242 @@ We are committed to maintaining transparent, fair, and consistent grading standa
 *More details will follow as we progress through the program phases. Stay tuned for updates!*`
   },
   {
+    id: 'dq-wfh-guidelines',
+    title: 'DQ WFH Guidelines',
+    type: 'Guidelines',
+    date: '2025-11-18',
+    author: 'DQ Communications',
+    byline: 'HRA (People)',
+    views: 0,
+    excerpt:
+      'Work From Home (WFH) guidelines outlining purpose, roles, processes, tools, KPIs, and compliance for remote work across DQ.',
+    image: 'https://images.unsplash.com/photo-1587614382346-4ec70e388b28?auto=format&fit=crop&w=800&q=80',
+    department: 'HRA (People)',
+    location: 'Remote',
+    domain: 'People',
+    tags: ['WFH', 'guidelines', 'policy'],
+    readingTime: '10–20',
+    newsType: 'Corporate Announcements',
+    newsSource: 'DQ Operations',
+    focusArea: 'Culture & People',
+    content: `# DQ Work From Home (WFH) Guidelines
+
+## WFH Guideline Overview
+The **Work From Home (WFH) Guidelines** provide a clear framework for how remote work is requested, approved, executed, and monitored across DQ. Each section below is designed to keep productivity, accountability, and culture intact while associates are working remotely.
+
+## 1. Purpose and Scope
+
+### Purpose
+- Provide structured, standardized processes for WFH implementation, approval, and management.
+- Promote accountability, productivity, and collaboration.
+- Maintain operational efficiency, cultural alignment, and compliance with company standards.
+
+### Scope
+- Applies to **all DQ Associates**.
+- Covers the end-to-end process of requesting, approving, monitoring, and reporting WFH arrangements.
+
+## 2. Roles and Responsibilities
+
+### Associate
+- Submit WFH requests at least **24 hours in advance** via the HR Channel, with reason and date(s).
+- Post daily action updates and relevant channel engagement links in the HR Channel.
+- Remain active and visible on **DQ Live24** during working hours.
+
+### Line Manager
+- Review and provide **pre-approval** for WFH requests based on operational needs.
+- Monitor deliverables and ensure accountability for remote work.
+- Provide feedback and flag repeated non-compliance to HR.
+
+### Human Resources (HR)
+- Provide **final approval** for all WFH requests once Line Manager pre-approval is confirmed.
+- Ensure requests align with policy and are consistent across departments.
+
+### HR & Administration (HRA)
+- Oversee overall compliance and adherence to the WFH guidelines.
+
+## 3. Guiding Principles and Controls
+
+- **Transparency** – All WFH activities, updates, and deliverables are visible to key stakeholders.
+- **Accountability** – Associates remain responsible for deliverables, timelines, and communication.
+- **Equity and Fairness** – Approvals are objective and based on role, performance, and continuity.
+- **Compliance and Discipline** – Adhere to WFH policies, timelines, and workflows.
+- **Collaboration and Communication** – Use approved tools and maintain active engagement.
+- **Data Security and Confidentiality** – Protect company data when working remotely.
+
+## 4. WFH Processes
+
+1. **Submit request** – Associate submits WFH request at least 24 hours in advance via the HR Channel, including reason, dates, and expected working hours.
+2. **Line Manager pre-approval** – Line Manager reviews impact on workload and coverage, then pre-approves or requests changes.
+3. **HR final approval** – HR verifies compliance, records the decision, and notifies Associate and Line Manager.
+4. **Post the day plan** – On the WFH day, Associate creates a thread in the HR Channel before work starts with actions for the day and engagement links.
+5. **Clock-in & presence** – Associate clocks in on **DQ Shifts** and stays active on **DQ Live24**.
+6. **Work execution & communication** – Follow the day plan, provide regular updates, respond promptly, and attend all calls.
+7. **Record deliverables** – At end of day, Associate posts completed tasks, outstanding items, and blockers in the HR thread.
+8. **Monitoring & compliance** – HRA and Line Manager monitor adherence; repeated non-compliance triggers formal review.
+9. **Escalation & follow-up** – Failure to post updates or remain active on DQ Live24 may be treated as an unpaid workday and can lead to revocation of WFH privileges or performance review.
+
+## 5. Tools and Resources
+
+- **DQ Live24** – Visibility and communication.
+- **DQ Logistics Channel** – Sharing approved WFH schedules.
+- **HR Portal** – Submitting requests and tracking WFH history.
+
+## 6. Key Performance Indicators (KPIs)
+
+- **Timely Submission** – 100% of WFH requests submitted at least 24 hours in advance.
+- **Approval Compliance** – 100% adherence to the approval workflow.
+- **Visibility Compliance** – 100% of approved WFH associates post daily actions and engagement links.
+- **Attendance Accuracy** – 100% of WFH attendance tracked via DQ Shifts and DQ Live24.
+- **Policy Adherence** – Zero unapproved or non-compliant WFH cases per review cycle.
+- **Performance Consistency** – Productivity maintained at in-office levels.
+
+## 7. Compliance and Governance
+
+- All WFH requests must follow the 24-hour advance notice rule with Line Manager pre-approval and HR final approval.
+- Associates must post daily actions and engagement links; failure to do so may result in the day being treated as unpaid.
+- WFH attendance must be logged through DQ Live24 for verification.
+- HRA monitors adherence, consistency, and reports non-compliance cases.
+
+## 8. Review and Update Schedule
+
+- **Quarterly Review** – HR and Admin review guidelines every three months.
+- **Ad-hoc Updates** – Additional updates may be made when gaps or improvements are identified.
+
+## 9. Appendix and References
+
+- Appendix A – WFH Request Template.
+- Appendix B – DQ Shifts Attendance Guide.
+- Appendix C – Remote Work Security Checklist.
+
+## Need Help? Contact the Team
+
+**Key Contacts**
+- **Pelagie Njiki** – CoE Lead
+- **Mauline Wangui** – TechOps Coordinator
+- **Martin Wambugu** – Content & Marketing Analyst
+`,
+  },
+  {
+    id: 'dq-dress-code-guideline',
+    title: 'DQ Dress Code Guideline',
+    type: 'Guidelines',
+    date: '2025-11-18',
+    author: 'DQ Communications',
+    byline: 'HRA (People)',
+    views: 0,
+    excerpt:
+      'Dress code guideline balancing professionalism and comfort across the work week, with clear expectations, exceptions, and consequences.',
+    image: 'https://images.unsplash.com/photo-1531891437562-43025a2f99e1?auto=format&fit=crop&w=800&q=80',
+    department: 'HRA (People)',
+    location: 'Dubai',
+    domain: 'People',
+    tags: ['dress code', 'guidelines', 'policy'],
+    readingTime: '10–20',
+    newsType: 'Corporate Announcements',
+    newsSource: 'DQ Operations',
+    focusArea: 'Culture & People',
+    content: `# DQ Dress Code Guideline (Version 1.0)
+
+## Context
+At **DigitalQatalyst (DQ)**, professional appearance shapes how our brand is perceived, supports personal confidence, and creates an environment where associates feel comfortable and productive. This guideline sets expectations for attire so we strike the right balance between professionalism and comfort.
+
+## Purpose
+These dress code guidelines ensure associates align with DQ's culture of professionalism while allowing flexibility for creativity and comfort. The standard is **business casual Monday–Thursday** with a more relaxed **Casual Friday**, adapted for the diverse nature of work at DQ.
+
+## Key Characteristics
+
+- **Professional Appearance** – Associates dress in a professional, decent, and clean manner; clothing should enhance DQ's image.
+- **Cultural Sensitivity** – Outfits should be respectful of cultural and religious norms.
+- **Personal Grooming** – Hair, nails, and hygiene are kept to a high standard. Fragrances, jewellery, and accessories should not distract from the professional setting.
+
+## Dress Code Details
+
+### Monday to Thursday – Business Casual
+
+- **Men**
+  - Well-fitted button-down shirt or polo.
+  - Tailored trousers, khakis, or chinos.
+  - Closed-toe shoes such as loafers or formal shoes.
+
+- **Women**
+  - Blouse or sweater with tailored pants or skirt.
+  - Knee-length professional skirt or dress.
+  - Closed-toe shoes (flats or heels).
+
+### Friday – Casual
+
+- **Men**
+  - Polo shirts or casual button-down shirts.
+  - Clean, well-fitted jeans.
+  - Casual shoes, sneakers, or loafers.
+
+- **Women**
+  - Casual blouses or t‑shirts with jeans or casual skirt/dress.
+  - Comfortable, casual closed shoes or sneakers.
+
+## Preparation Before Implementation
+
+Before rolling out the dress code:
+
+- **Communicate Dress Code** – Send formal communication via Teams explaining the guideline and effective date.
+- **Provide Visuals** – Share example images of acceptable business casual and Casual Friday outfits for men and women.
+- **Clarify Exceptions** – Highlight how medical or other special cases will be handled.
+
+## Guidelines During Workdays
+
+- Associates are expected to follow the dress code **every working day** (business casual Monday–Thursday, casual on Friday).
+- **Team Leads** oversee compliance within their teams and address non-compliance promptly.
+- **HRA** holds overall responsibility for monitoring and enforcing these guidelines.
+
+### Non-Compliance and Escalation
+
+Failure to comply with the dress code may result in:
+
+1. **Verbal warning** – Direct message to the associate.
+2. **Written warning** – Formal note placed on the associate's HR channel.
+3. **Further disciplinary action** – May include suspension or other actions as deemed appropriate.
+
+Associates and leaders are jointly responsible for ensuring the guideline is understood and consistently applied.
+
+## Special Considerations
+
+- **Client-Facing Meetings** – More formal business attire may be required; guidance will be communicated in advance.
+- **Company Events or Presentations** – Formal business attire is required.
+- **Extreme Weather** – Attire may be adjusted for comfort while staying within professional bounds.
+- **Medical Exceptions** – Reasonable adjustments can be made for medical reasons; these should be discussed confidentially with HR.
+
+## Prohibited Attire
+
+The following are **strictly prohibited** during working days:
+
+- Ripped jeans.
+- Graphic t‑shirts or overly casual tops.
+- Beachwear, sweatpants, gym wear, or shorts.
+- Flip flops, sandals, or other overly casual footwear.
+
+## Post-Implementation Review
+
+### Monitor Compliance
+- Conduct occasional reviews to ensure the dress code is being followed across teams and locations.
+
+### Recognition and Rewards
+- **Best Dressed Award** – Recognise associates who consistently model the dress code.
+- **Most Improved Award** – Appreciate associates who show clear improvement in adherence.
+
+These recognitions help reinforce the guideline in a positive, motivating way.
+
+### Adjust Guidelines as Needed
+- Collect feedback and update the guideline where aspects prove unclear, impractical, or misaligned with DQ culture.
+
+## Visuals and Examples
+
+- **Business Casual** – Button-up shirt, slacks, blazer (men); blouse and pencil skirt or knee-length dress with flats or heels (women).
+- **Casual Fridays** – Polo shirt and jeans with casual shoes (men); casual top with jeans and flats/sneakers (women). Always maintain neat, non-revealing, and culturally respectful outfits.
+
+Where in doubt, associates should choose the more professional option and consult HR or their Line Manager for clarification.
+`,
+  },
+  {
     id: 'dq-storybook-latest-links',
     title: 'DQ Storybook — Latest Version and Links',
     type: 'Announcement',

@@ -27,23 +27,25 @@ export function JobCard({ job, href }: JobCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col p-4">
-        <div className="mb-2 text-xs text-gray-500">
-          {job.type} · {job.location} · {job.roleType}
-        </div>
-        {sfia && (
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-[#1A2E6E]">
-            {sfia.label}
-            <span className="text-[11px] text-[#4C5A86]">{sfia.detail}</span>
+        <div className="flex flex-1 flex-col">
+          <div className="mb-2 text-xs text-gray-500">
+            {job.type} · {job.location} · {job.roleType}
           </div>
-        )}
-        <h3 className="font-semibold text-lg text-gray-900">{job.title}</h3>
-        <p className="mt-2 text-sm text-gray-700 line-clamp-3">{job.summary}</p>
-        <div className="mt-4 flex gap-2">
-          <span className="rounded bg-gray-100 px-2 py-1 text-xs">{job.department}</span>
-          <span className="rounded bg-gray-100 px-2 py-1 text-xs">{job.location}</span>
+          {sfia && (
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-[#1A2E6E]">
+              {sfia.label}
+              <span className="text-[11px] text-[#4C5A86]">{sfia.detail}</span>
+            </div>
+          )}
+          <h3 className="font-semibold text-lg text-gray-900">{job.title}</h3>
+          <p className="mt-2 text-sm text-gray-700 line-clamp-3">{job.summary}</p>
+          <div className="mt-4 flex gap-2">
+            <span className="rounded bg-gray-100 px-2 py-1 text-xs">{job.department}</span>
+            <span className="rounded bg-gray-100 px-2 py-1 text-xs">{job.location}</span>
+          </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-auto pt-4 grid grid-cols-2 gap-3">
           {href ? (
             <Link
               to={href}

@@ -32,18 +32,20 @@ export function BlogCard({ item, href }: BlogCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col p-4">
-        <div className="mb-1 text-xs text-gray-500">
-          {(item.byline || item.author) ?? 'DQ Media Team'} · {item.views} views · {formatDate(item.date)}
-        </div>
-        <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-        <p className="mt-2 text-sm text-gray-700 line-clamp-3">{item.excerpt}</p>
-        <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-gray-600">
-          {item.newsType && <span className="rounded-full bg-gray-100 px-2 py-1">{item.newsType}</span>}
-          {item.newsSource && <span className="rounded-full bg-gray-100 px-2 py-1">{item.newsSource}</span>}
-          {item.focusArea && <span className="rounded-full bg-gray-100 px-2 py-1">{item.focusArea}</span>}
+        <div className="flex flex-1 flex-col">
+          <div className="mb-1 text-xs text-gray-500">
+            {(item.byline || item.author) ?? 'DQ Media Team'} · {item.views} views · {formatDate(item.date)}
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+          <p className="mt-2 text-sm text-gray-700 line-clamp-3">{item.excerpt}</p>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-gray-600">
+            {item.newsType && <span className="rounded-full bg-gray-100 px-2 py-1">{item.newsType}</span>}
+            {item.newsSource && <span className="rounded-full bg-gray-100 px-2 py-1">{item.newsSource}</span>}
+            {item.focusArea && <span className="rounded-full bg-gray-100 px-2 py-1">{item.focusArea}</span>}
+          </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-auto pt-4">
           {href ? (
             <Link
               to={href}
