@@ -13,13 +13,14 @@ interface Session {
   title: string;
   start: Date;
   end: Date;
-  type: 'retro' | 'cws' | 'onboarding' | 'scrum';
+  type: 'retro' | 'cws' | 'onboarding' | 'scrum' | 'townhall';
   department: string;
   location: string;
   attendees: string[];
   agenda: string[];
   description?: string;
   moderator: string;
+  frequency: 'daily' | 'weekly' | 'bi-weekly' | 'monthly' | 'quarterly';
 }
 
 // Department colors
@@ -66,6 +67,26 @@ const departments = [
 
 const locations = ['Dubai', 'Nairobi', 'Riyadh', 'Remote'];
 
+// Helper function to get last Friday of a month
+function getLastFridayOfMonth(year: number, month: number): Date {
+  const lastDay = new Date(year, month + 1, 0); // Last day of month
+  const dayOfWeek = lastDay.getDay(); // 0 = Sunday, 5 = Friday
+  const lastFriday = new Date(lastDay);
+  
+  if (dayOfWeek === 5) {
+    // Last day is Friday, use it
+    return lastFriday;
+  } else if (dayOfWeek < 5) {
+    // Last day is before Friday, go back
+    lastFriday.setDate(lastDay.getDate() - (dayOfWeek + 2));
+  } else {
+    // Last day is Saturday, go back 1 day
+    lastFriday.setDate(lastDay.getDate() - 1);
+  }
+  
+  return lastFriday;
+}
+
 // Generate recurring sessions for each department
 function generateRecurringSessions(): Session[] {
   const sessions: Session[] = [];
@@ -84,7 +105,7 @@ function generateRecurringSessions(): Session[] {
       // Use first location as primary location, but all locations attend
       const primaryLocation = locations[deptIndex % locations.length];
       
-      // CWS - Co-working session (Monday)
+      // CWS - Co-working session (Monday) - Weekly
       const cwsDate = new Date(weekStart);
       cwsDate.setDate(weekStart.getDate() + (weekStart.getDay() === 0 ? 1 : (8 - weekStart.getDay()))); // Next Monday
       sessions.push({
@@ -99,9 +120,10 @@ function generateRecurringSessions(): Session[] {
         agenda: ['Collaboration', 'Discussion', 'Planning'],
         description: `Weekly co-working session for ${dept} (attended by all locations)`,
         moderator: moderator,
+        frequency: 'weekly',
       });
       
-      // Retro - Sprint retrospective (Friday, after CWS)
+      // Retro - Sprint retrospective (Friday, after CWS) - Weekly
       const retroDate = new Date(weekStart);
       retroDate.setDate(weekStart.getDate() + (weekStart.getDay() === 0 ? 5 : (12 - weekStart.getDay()))); // Next Friday
       sessions.push({
@@ -116,9 +138,10 @@ function generateRecurringSessions(): Session[] {
         agenda: ['What went well', 'What to improve', 'Action items'],
         description: `Weekly sprint retrospective for ${dept} (attended by all locations)`,
         moderator: moderator,
+        frequency: 'weekly',
       });
       
-      // Daily Scrum (Tuesday, Wednesday, Thursday) - attended by all locations
+      // Daily Scrum (Tuesday, Wednesday, Thursday) - Daily
       for (let day = 1; day <= 3; day++) {
         const scrumDate = new Date(weekStart);
         scrumDate.setDate(weekStart.getDate() + (weekStart.getDay() === 0 ? day + 1 : (8 - weekStart.getDay() + day)));
@@ -134,10 +157,11 @@ function generateRecurringSessions(): Session[] {
           agenda: ['What did you do?', 'What will you do?', 'Any blockers?'],
           description: `Daily standup meeting for ${dept} (attended by all locations)`,
           moderator: moderator,
+          frequency: 'daily',
         });
       }
       
-      // Onboarding (Every 2 weeks on Wednesday)
+      // Onboarding (Every 2 weeks on Wednesday) - Bi-Weekly
       if (weekOffset % 2 === 0) {
         const onboardingDate = new Date(weekStart);
         onboardingDate.setDate(weekStart.getDate() + (weekStart.getDay() === 0 ? 3 : (10 - weekStart.getDay())));
@@ -153,9 +177,36 @@ function generateRecurringSessions(): Session[] {
           agenda: ['Welcome session', 'Company overview', 'Tools introduction'],
           description: `Onboarding session for new team members in ${dept} (attended by all locations)`,
           moderator: moderator,
+          frequency: 'bi-weekly',
         });
       }
     });
+  }
+  
+  // Generate Townhall sessions - Monthly on last Friday
+  // Generate for the next 12 months
+  for (let monthOffset = 0; monthOffset < 12; monthOffset++) {
+    const currentDate = new Date(today);
+    currentDate.setMonth(today.getMonth() + monthOffset);
+    const lastFriday = getLastFridayOfMonth(currentDate.getFullYear(), currentDate.getMonth());
+    
+    // Only add if the last Friday is in the future or today
+    if (lastFriday >= today) {
+      sessions.push({
+        id: `townhall-${monthOffset}`,
+        title: 'Townhall',
+        start: new Date(lastFriday.setHours(14, 0, 0, 0)),
+        end: new Date(lastFriday.setHours(16, 0, 0, 0)),
+        type: 'townhall',
+        department: 'All Departments',
+        location: 'All Locations',
+        attendees: ['All Locations - All Team Members', 'Leadership Team'],
+        agenda: ['Company updates', 'Q&A session', 'Team announcements'],
+        description: 'Monthly townhall meeting on the last Friday of the month',
+        moderator: moderators[0], // Use first moderator for townhall
+        frequency: 'monthly',
+      });
+    }
   }
   
   return sessions;
@@ -189,6 +240,11 @@ export const SessionsPage: React.FC<SessionsPageProps> = ({ searchQuery }) => {
     return mod ? mod.split(',').filter(Boolean) : [];
   }, [searchParams]);
 
+  const frequencyFilters = useMemo(() => {
+    const freq = searchParams.get('frequency');
+    return freq ? freq.split(',').filter(Boolean) : [];
+  }, [searchParams]);
+
   // Filter sessions
   const filteredSessions = useMemo(() => {
     let filtered = dummySessions;
@@ -214,6 +270,13 @@ export const SessionsPage: React.FC<SessionsPageProps> = ({ searchQuery }) => {
       );
     }
 
+    // Filter by frequency
+    if (frequencyFilters.length > 0) {
+      filtered = filtered.filter(session =>
+        frequencyFilters.includes(session.frequency)
+      );
+    }
+
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -229,7 +292,7 @@ export const SessionsPage: React.FC<SessionsPageProps> = ({ searchQuery }) => {
     filtered.sort((a, b) => a.start.getTime() - b.start.getTime());
 
     return filtered;
-  }, [departmentFilters, sessionTypeFilters, moderatorFilters, searchQuery]);
+  }, [departmentFilters, sessionTypeFilters, moderatorFilters, frequencyFilters, searchQuery]);
 
   const handleFilterChange = useCallback((filterType: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -262,26 +325,39 @@ export const SessionsPage: React.FC<SessionsPageProps> = ({ searchQuery }) => {
       },
       {
         id: 'sessionType',
-      title: 'Session Type',
-      options: [
-        { id: 'retro', name: 'Retro' },
-        { id: 'cws', name: 'CWS' },
-        { id: 'onboarding', name: 'Onboarding' },
-        { id: 'scrum', name: 'Scrum' },
-      ],
-    },
-    {
-      id: 'moderator',
-      title: 'Moderator',
-      options: moderators.map(mod => ({ id: mod, name: mod })),
-    },
-  ], []);
+        title: 'Session Type',
+        options: [
+          { id: 'retro', name: 'Retro' },
+          { id: 'cws', name: 'CWS' },
+          { id: 'onboarding', name: 'Onboarding' },
+          { id: 'scrum', name: 'Scrum' },
+          { id: 'townhall', name: 'Townhall' },
+        ],
+      },
+      {
+        id: 'frequency',
+        title: 'Session Frequency',
+        options: [
+          { id: 'daily', name: 'Daily' },
+          { id: 'weekly', name: 'Weekly' },
+          { id: 'bi-weekly', name: 'Bi-Weekly' },
+          { id: 'monthly', name: 'Monthly' },
+          { id: 'quarterly', name: 'Quarterly' },
+        ],
+      },
+      {
+        id: 'moderator',
+        title: 'Moderator',
+        options: moderators.map(mod => ({ id: mod, name: mod })),
+      },
+    ], []);
 
   const urlBasedFilters: Record<string, string[]> = useMemo(() => ({
     department: departmentFilters,
     sessionType: sessionTypeFilters,
+    frequency: frequencyFilters,
     moderator: moderatorFilters,
-  }), [departmentFilters, sessionTypeFilters, moderatorFilters]);
+  }), [departmentFilters, sessionTypeFilters, frequencyFilters, moderatorFilters]);
 
   // Format events for FullCalendar with department colors
   const formattedEvents = filteredSessions.map(session => {
@@ -315,6 +391,7 @@ export const SessionsPage: React.FC<SessionsPageProps> = ({ searchQuery }) => {
       cws: 'CWS',
       onboarding: 'Onboarding',
       scrum: 'Scrum',
+      townhall: 'Townhall',
     };
     return labels[type] || type;
   };
@@ -443,9 +520,9 @@ export const SessionsPage: React.FC<SessionsPageProps> = ({ searchQuery }) => {
 
         <div className="bg-white rounded-lg shadow p-4 mb-6">
           <FullCalendar
+            key={calendarView}
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView={calendarView}
-            view={calendarView}
             headerToolbar={{
               left: 'prev,next today',
               center: 'title',

@@ -6,13 +6,14 @@ interface Session {
   title: string;
   start: Date;
   end: Date;
-  type: 'retro' | 'cws' | 'onboarding' | 'scrum';
+  type: 'retro' | 'cws' | 'onboarding' | 'scrum' | 'townhall';
   department: string;
   location: string;
   attendees: string[];
   agenda: string[];
   description?: string;
   moderator: string;
+  frequency: 'daily' | 'weekly' | 'bi-weekly' | 'monthly' | 'quarterly';
 }
 
 interface SessionDetailsModalProps {
@@ -34,8 +35,20 @@ export const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
       cws: 'CWS',
       onboarding: 'Onboarding',
       scrum: 'Scrum',
+      townhall: 'Townhall',
     };
     return labels[type] || type;
+  };
+
+  const getFrequencyLabel = (frequency: string) => {
+    const labels: Record<string, string> = {
+      daily: 'Daily',
+      weekly: 'Weekly',
+      'bi-weekly': 'Bi-Weekly',
+      monthly: 'Monthly',
+      quarterly: 'Quarterly',
+    };
+    return labels[frequency] || frequency;
   };
 
   const formatDate = (date: Date) => {
@@ -111,6 +124,14 @@ export const SessionDetailsModal: React.FC<SessionDetailsModalProps> = ({
               <p className="font-medium text-gray-800">Moderator</p>
               <p className="text-gray-600">{session.moderator}</p>
             </div>
+          </div>
+
+          {/* Frequency */}
+          <div>
+            <p className="font-medium text-gray-800 mb-2">Frequency</p>
+            <span className="px-2 py-1 bg-purple-100 text-purple-800 text-sm rounded">
+              {getFrequencyLabel(session.frequency)}
+            </span>
           </div>
 
           {/* Description */}
