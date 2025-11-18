@@ -21,6 +21,7 @@ export interface FilterSidebarProps {
   onFilterChange: (filterType: string, value: string) => void;
   onResetFilters: () => void;
   isResponsive?: boolean;
+  defaultOpen?: boolean;
 }
 const AccordionSection: React.FC<AccordionSectionProps> = ({
   title,
@@ -43,9 +44,10 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   filterConfig,
   onFilterChange,
   onResetFilters,
-  isResponsive = false
+  isResponsive = false,
+  defaultOpen = true
 }) => {
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>(Object.fromEntries(filterConfig.map(config => [config.id, true])));
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>(Object.fromEntries(filterConfig.map(config => [config.id, defaultOpen])));
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({
       ...prev,
@@ -55,7 +57,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   const textSizeClass = isResponsive ? 'text-xs' : 'text-sm';
   const spacingClass = isResponsive ? 'space-y-1' : 'space-y-2';
   return <div className="space-y-2">
-      {filterConfig.map(config => <AccordionSection key={config.id} title={config.title} isOpen={openSections[config.id] ?? true} onToggle={() => toggleSection(config.id)}>
+      {filterConfig.map(config => <AccordionSection key={config.id} title={config.title} isOpen={openSections[config.id] ?? defaultOpen} onToggle={() => toggleSection(config.id)}>
           <div className={spacingClass}>
             {config.options.map(option => {
             const optionValue = option.id;

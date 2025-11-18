@@ -350,7 +350,7 @@ export const HomePage: React.FC = () => {
           description:
             "Explore people and units across DQ to connect, collaborate, and grow together.",
           icon: <Users />,
-          path: "/marketplace/guides",
+          path: "/marketplace/work-directory",
           isActive: true,
         },
         {
