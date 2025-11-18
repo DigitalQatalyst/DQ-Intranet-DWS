@@ -41,7 +41,7 @@ const departmentColors: Record<string, { bg: string; border: string }> = {
 
 const moderators = [
   'Sreya Lakshmi',
-  'Vishnu Chandarana',
+  'Vishnu Chandran',
   'Fadil Alli',
   'Pelagie Njiki',
   'Agnes Sadera',
