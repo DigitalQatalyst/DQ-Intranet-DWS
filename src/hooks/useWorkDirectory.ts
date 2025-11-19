@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import type { Associate, WorkUnit, WorkPosition } from "@/data/workDirectoryTypes";
+import type { Associate, WorkUnitRow, WorkUnit, WorkPosition, WorkPositionRow } from "@/data/workDirectoryTypes";
+import { WORK_POSITION_COLUMNS, mapWorkPositionRow } from "@/api/workDirectory";
 
 // Helper function to derive department from unit_name
 function deriveDepartmentFromUnitName(unitName: string): string {
@@ -26,9 +27,14 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)+/g, "");
 
+const UNIT_COLUMNS =
+  "id, slug, sector, unit_name, unit_type, mandate, location, focus_tags, priority_level, priority_scope, performance_status, wi_areas, banner_image_url";
+
 // Mapper functions to convert snake_case DB fields to camelCase for UI
-function mapWorkUnit(dbUnit: WorkUnit) {
+function mapWorkUnit(dbUnit: WorkUnitRow): WorkUnit {
   const fallbackSlug = slugify(dbUnit.unit_name);
+  const focusTags = Array.isArray(dbUnit.focus_tags) ? dbUnit.focus_tags : [];
+  const wiAreas = Array.isArray(dbUnit.wi_areas) ? dbUnit.wi_areas : [];
   return {
     id: dbUnit.id,
     slug: dbUnit.slug || fallbackSlug,
@@ -37,25 +43,13 @@ function mapWorkUnit(dbUnit: WorkUnit) {
     unitType: dbUnit.unit_type,
     mandate: dbUnit.mandate,
     location: dbUnit.location,
-    focusTags: dbUnit.focus_tags || [],
+    focusTags,
+    priorityLevel: dbUnit.priority_level,
+    priorityScope: dbUnit.priority_scope,
+    performanceStatus: dbUnit.performance_status,
+    wiAreas,
     bannerImageUrl: dbUnit.banner_image_url ?? null,
     department: deriveDepartmentFromUnitName(dbUnit.unit_name),
-  };
-}
-
-function mapWorkPosition(dbPosition: WorkPosition) {
-  return {
-    id: dbPosition.id,
-    unitSlug: dbPosition.unit_slug || "",
-    title: dbPosition.title,
-    category: dbPosition.category || "",
-    level: dbPosition.level || "",
-    summary: dbPosition.summary || "",
-    responsibilities: dbPosition.responsibilities || [],
-    reportsTo: dbPosition.reports_to || "",
-    status: dbPosition.status || "",
-    createdAt: dbPosition.created_at,
-    updatedAt: dbPosition.updated_at,
   };
 }
 
@@ -119,7 +113,7 @@ export function useWorkUnits() {
       setError(null);
       const { data, error: fetchError } = await supabase
         .from("work_units")
-        .select("*")
+        .select(UNIT_COLUMNS)
         .order("unit_name", { ascending: true });
 
       if (fetchError) {
@@ -139,7 +133,7 @@ export function useWorkUnits() {
 }
 
 export function useWorkPositions() {
-  const [positions, setPositions] = useState<ReturnType<typeof mapWorkPosition>[]>([]);
+  const [positions, setPositions] = useState<WorkPosition[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -147,19 +141,41 @@ export function useWorkPositions() {
     const fetchPositions = async () => {
       setLoading(true);
       setError(null);
-      const { data, error: fetchError } = await supabase
-        .from("work_directory_positions")
-        .select("*")
-        .order("title", { ascending: true });
+      
+      try {
+        const { data, error: fetchError } = await supabase
+          .from("work_positions")
+          .select(WORK_POSITION_COLUMNS)
+          .order("position_name", { ascending: true });
 
-      if (fetchError) {
-        console.error("Error fetching work positions:", fetchError);
-        setError(fetchError.message);
+        if (fetchError) {
+          console.error("Error fetching work positions:", fetchError);
+          setError(fetchError.message);
+          setPositions([]);
+        } else {
+          // Defensive: handle null/empty data
+          if (!data || data.length === 0) {
+            if (import.meta.env.DEV) {
+              console.warn("[WorkPositions] No positions returned from Supabase");
+            }
+            setPositions([]);
+          } else {
+            // Map with null-safe handling
+            const mapped = (data || [])
+              .filter((row) => row != null) // Filter out null rows
+              .map((row) => mapWorkPositionRow(row as WorkPositionRow))
+              .filter((pos) => pos.id && pos.positionName); // Filter out invalid positions
+            
+            setPositions(mapped);
+          }
+        }
+      } catch (err) {
+        console.error("Unexpected error in useWorkPositions:", err);
+        setError("Failed to load positions");
         setPositions([]);
-      } else {
-        setPositions((data || []).map(mapWorkPosition));
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchPositions();

@@ -28,6 +28,8 @@ import KfBot from "./bot/KfBot";
 import ThankYou from "./pages/ThankYou";
 import WomenEntrepreneursLeadPage from "./pages/WomenEntrepreneursLeadPage";
 import DQWorkDirectoryPage from "./pages/DQWorkDirectoryPage";
+import UnitProfilePage from "./pages/UnitProfilePage";
+import WorkPositionProfilePage from "./pages/WorkPositionProfilePage";
 
 export function AppRouter() {
   const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
@@ -110,6 +112,8 @@ export function AppRouter() {
               element={<BlueprintsPage />}
             />
             <Route path="/marketplace/work-directory" element={<DQWorkDirectoryPage />} />
+            <Route path="/work-directory/units/:slug" element={<UnitProfilePage />} />
+            <Route path="/work-directory/positions/:slug" element={<WorkPositionProfilePage />} />
             <Route path="/play/dq-agile-kpis" element={<DQAgileKPIsPage />} />
             <Route path="/discover-dq" element={<DiscoverDQ />} />
             <Route path="/thank-you" element={<ThankYou />} />

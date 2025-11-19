@@ -7,8 +7,10 @@ import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { FilterSidebar, FilterConfig } from '../components/marketplace/FilterSidebar';
 import { SearchBar } from '../components/SearchBar';
-import { getUnitIconForName } from '../components/work-directory/getUnitIcon';
+import { getPerformanceStatusClasses, getPriorityLevelClasses } from '@/components/work-directory/unitStyles';
 import { useAssociates, useWorkUnits, useWorkPositions } from '@/hooks/useWorkDirectory';
+import { AssociateCard, type Associate } from '../components/associates/AssociateCard';
+import { AssociateModal } from '../components/associates/AssociateModal';
 
 type TabKey = 'units' | 'positions' | 'associates';
 
@@ -38,26 +40,6 @@ const LOCATION_OPTIONS = ['Dubai', 'Nairobi', 'Riyadh', 'Remote'];
 const globalFilterConfig: FilterConfig[] = [
   { id: 'department', title: 'Department', options: DEPARTMENT_OPTIONS.map((d) => ({ id: d, name: d })) },
   { id: 'location', title: 'Location', options: LOCATION_OPTIONS.map((l) => ({ id: l, name: l })) },
-];
-
-const POSITION_CATEGORY_OPTIONS: FilterConfig['options'] = [
-  { id: 'Leadership', name: 'Leadership' },
-  { id: 'Delivery', name: 'Delivery' },
-  { id: 'Enablement', name: 'Enablement' },
-  { id: 'Platform', name: 'Platform' },
-];
-
-const POSITION_LEVEL_OPTIONS: FilterConfig['options'] = [
-  { id: 'Lead', name: 'Lead' },
-  { id: 'Manager', name: 'Manager' },
-  { id: 'Specialist', name: 'Specialist' },
-  { id: 'Associate', name: 'Associate' },
-];
-
-const POSITION_STATUS_OPTIONS: FilterConfig['options'] = [
-  { id: 'Filled', name: 'Filled' },
-  { id: 'Vacant', name: 'Vacant' },
-  { id: 'Coming soon', name: 'Coming soon' },
 ];
 
 const toOptions = (values: Array<string | undefined | null>): FilterConfig['options'] => {
@@ -125,6 +107,8 @@ const DQWorkDirectoryPage: React.FC = () => {
     positions: PAGE_SIZE,
     associates: PAGE_SIZE,
   });
+  const [selectedAssociate, setSelectedAssociate] = useState<Associate | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Fetch data from Supabase
   const { units: allUnits, loading: unitsLoading, error: unitsError } = useWorkUnits();
@@ -145,12 +129,12 @@ const DQWorkDirectoryPage: React.FC = () => {
       const unitOptions = allUnits.map((u) => ({ id: u.slug, name: u.unitName }));
       return [
         { id: 'unitSlug', title: 'Unit', options: unitOptions },
-        { id: 'category', title: 'Category', options: POSITION_CATEGORY_OPTIONS },
-        { id: 'level', title: 'Level', options: POSITION_LEVEL_OPTIONS },
-        { id: 'status', title: 'Status', options: POSITION_STATUS_OPTIONS },
+        { id: 'category', title: 'Role Family', options: toOptions(allPositions.map((p) => p.roleFamily)) },
+        { id: 'level', title: 'SFIA Level', options: toOptions(allPositions.map((p) => p.sfiaLevel)) },
+        { id: 'status', title: 'Status', options: toOptions(allPositions.map((p) => p.status)) },
       ];
     },
-    [allUnits]
+    [allUnits, allPositions]
   );
 
   const associateFilterConfig = useMemo<FilterConfig[]>(
@@ -289,44 +273,46 @@ const DQWorkDirectoryPage: React.FC = () => {
   }, [query, unitFilters, sort, allUnits]);
   const visibleUnits = filteredUnits.slice(0, visibleCounts.units);
 
-  const unitSlugToName = useMemo(
-    () => Object.fromEntries(allUnits.map((unit) => [unit.slug, unit.unitName])),
-    [allUnits]
-  );
-
   const filteredPositions = useMemo(() => {
     const base = allPositions
       .filter((position) => {
-        if (!query) return true;
+        if (!query || !position) return true;
         const haystack = [
-          position.title,
-          position.summary,
-          position.category,
-          position.level,
-          position.status,
-          unitSlugToName[position.unitSlug] || position.unitSlug,
-          ...(position.responsibilities || []),
+          position?.positionName,
+          position?.roleFamily,
+          position?.unit,
+          position?.summary,
+          position?.description,
+          position?.status,
+          position?.location,
+          position?.sfiaLevel,
+          position?.sfiaRating,
+          ...(Array.isArray(position?.responsibilities) ? position.responsibilities : []),
+          ...(Array.isArray(position?.expectations) ? position.expectations : []),
         ]
           .filter(Boolean)
           .join(' ')
           .toLowerCase();
-        return haystack.includes(query);
+        return haystack.includes(query.toLowerCase());
       })
       .filter((position) => {
         const { unitSlug = [], category = [], level = [], status = [] } = positionFilters;
-        const matchesUnit = unitSlug.length === 0 || unitSlug.includes(position.unitSlug);
-        const matchesCategory = category.length === 0 || category.includes(position.category);
-        const matchesLevel = level.length === 0 || level.includes(position.level);
-        const matchesStatus = status.length === 0 || status.includes(position.status);
+        const matchesUnit =
+          unitSlug.length === 0 || (position.unitSlug ? unitSlug.includes(position.unitSlug) : false);
+        const matchesCategory =
+          category.length === 0 || (position.roleFamily ? category.includes(position.roleFamily) : false);
+        const matchesLevel =
+          level.length === 0 || (position.sfiaLevel ? level.includes(position.sfiaLevel) : false);
+        const matchesStatus = status.length === 0 || (position.status ? status.includes(position.status) : false);
         return matchesUnit && matchesCategory && matchesLevel && matchesStatus;
-      })
-      .map((position) => ({
-        ...position,
-        unitName: unitSlugToName[position.unitSlug] || position.unitSlug,
-      }));
+      });
 
     if (sort === 'az') {
-      return applySort(base, (a, b) => a.title.localeCompare(b.title));
+      return applySort(base, (a, b) => {
+        const nameA = a?.positionName || '';
+        const nameB = b?.positionName || '';
+        return nameA.localeCompare(nameB);
+      });
     }
     // Note: 'recent' sort removed as updated_at is not in schema
     // Default to relevance (no sort) when 'recent' is selected
@@ -490,26 +476,34 @@ const DQWorkDirectoryPage: React.FC = () => {
   // Type aliases for mapped data from hooks (camelCase for UI)
   type MappedWorkUnit = {
     id: string;
+    slug: string;
     sector: string;
     unitName: string;
     unitType: string;
     mandate: string;
     location: string;
     focusTags: string[];
+    priorityLevel?: string | null;
+    priorityScope?: string | null;
+    performanceStatus?: string | null;
+    wiAreas?: string[];
     bannerImageUrl: string | null;
     department: string;
   };
   type MappedWorkPosition = {
     id: string;
-    title: string;
-    category: string;
-    level: string;
-    unitSlug: string;
-    unitName: string;
-    summary: string;
+    slug: string;
+    positionName: string;
+    roleFamily?: string | null;
+    unit?: string | null;
+    unitSlug?: string | null;
+    location?: string | null;
+    sfiaLevel?: string | null;
+    summary?: string | null;
     responsibilities: string[];
-    reportsTo: string;
-    status: string;
+    expectations: string[];
+    reportsTo?: string | null;
+    status?: string | null;
   };
   type MappedAssociate = {
     id: string;
@@ -529,66 +523,163 @@ const DQWorkDirectoryPage: React.FC = () => {
     avatarUrl: string | null;
   };
 
+  // Helper to map MappedAssociate to Associate type for new card component
+  const mapToAssociate = (mapped: MappedAssociate): Associate => ({
+    id: mapped.id,
+    name: mapped.name,
+    current_role: mapped.currentRole,
+    department: mapped.department,
+    unit: mapped.unit,
+    location: mapped.location,
+    sfia_rating: mapped.sfiaRating,
+    status: mapped.status,
+    email: mapped.email,
+    phone: mapped.phone ?? null,
+    teams_link: mapped.teamsLink,
+    avatar_url: mapped.avatarUrl,
+    key_skills: mapped.keySkills,
+    summary: null, // Not available in current data, will use bio truncation
+    bio: mapped.bio,
+  });
+
+  const handleViewProfile = (associate: Associate) => {
+    setSelectedAssociate(associate);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedAssociate(null);
+  };
+
   const UnitCard: React.FC<{ unit: MappedWorkUnit }> = ({ unit }) => {
-    const meta = `${unit.sector} · ${unit.unitType}`;
-    const tags = [...(unit.focusTags || []), unit.location];
-    const IconComponent = getUnitIconForName(unit.unitName);
+    const focusTags = unit.focusTags?.slice(0, 3) ?? [];
+    const extraTags = (unit.focusTags?.length || 0) - focusTags.length;
+    const priorityClasses = getPriorityLevelClasses(unit.priorityLevel);
+    const performanceClasses = getPerformanceStatusClasses(unit.performanceStatus);
     return (
-      <CardShell
-        variant="unit"
-        badge="Unit"
-        meta={meta}
-        avatarText={unit.unitType === 'Sector' ? 'SEC' : unit.unitName.split(' ')[0].slice(0, 2).toUpperCase()}
-        imageUrl={unit.bannerImageUrl || undefined}
-        imageAlt={unit.unitName}
-        IconComponent={IconComponent}
-      >
-        <h3 className="text-lg font-semibold text-gray-900">{unit.unitName}</h3>
-        <p className="text-sm text-gray-700 mt-1 line-clamp-3">{unit.mandate}</p>
-        <div className="flex flex-wrap gap-2 mt-3">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700"
-            >
-              {tag}
+      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 p-5 flex flex-col h-full">
+        <div className="flex items-start justify-between mb-3">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+            {unit.unitType}
+          </span>
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-50 text-slate-600 max-w-[60%] truncate">
+            {unit.sector}
+          </span>
+        </div>
+        <h3 className="text-xl font-semibold text-gray-900">{unit.unitName}</h3>
+        <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-gray-600">
+          <span className="inline-flex items-center gap-1 text-xs text-gray-600">
+            <MapPin size={14} className="text-gray-500" />
+            {locationLabel(unit.location)}
+          </span>
+          {unit.priorityLevel && (
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${priorityClasses}`}>
+              {unit.priorityLevel}
             </span>
-          ))}
+          )}
+          {unit.performanceStatus && (
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${performanceClasses}`}>
+              {unit.performanceStatus}
+            </span>
+          )}
         </div>
-        <div className="mt-auto pt-4 flex justify-end">
-          <button className="px-4 py-2 text-sm font-semibold text-white bg-[#030F35] hover:bg-[#021028] rounded-md transition-colors">
+        <p className="text-sm text-gray-700 mt-3 line-clamp-3">{unit.mandate}</p>
+        {focusTags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-4">
+            {focusTags.map((tag) => (
+              <span key={tag} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                {tag}
+              </span>
+            ))}
+            {extraTags > 0 && <span className="text-xs text-gray-500">+{extraTags} more</span>}
+          </div>
+        )}
+        <div className="mt-auto pt-4">
+          <Link
+            to={`/work-directory/units/${unit.slug}`}
+            className="inline-flex items-center justify-center rounded-lg bg-[#030F35] px-4 py-2 text-sm font-semibold text-white hover:bg-[#051040] transition-colors"
+          >
             View Unit Profile
-          </button>
+          </Link>
         </div>
-      </CardShell>
+      </div>
     );
   };
 
   const PositionCard: React.FC<{ position: MappedWorkPosition }> = ({ position }) => {
-    const meta = `${position.unitName} · ${position.status || 'Status pending'}`;
-    const responsibilities = position.responsibilities.slice(0, 3);
+    // Null-safe access with fallbacks
+    if (!position) {
+      if (import.meta.env.DEV) {
+        console.warn("[PositionCard] Received null/undefined position");
+      }
+      return null;
+    }
+
+    const positionName = position?.positionName || 'TBC';
+    const slug = position?.slug || '';
+    const roleFamily = position?.roleFamily || null;
+    const unit = position?.unit || null;
+    const location = position?.location || null;
+    const sfiaLevel = position?.sfiaLevel || position?.sfiaRating || null;
+    const reportsTo = position?.reportsTo || 'TBC';
+    const summary = position?.summary || position?.description || 'No description available yet';
+    const responsibilities = Array.isArray(position?.responsibilities) 
+      ? position.responsibilities.slice(0, 3) 
+      : [];
+
+    // Debug logging in dev
+    if (import.meta.env.DEV && !slug) {
+      console.warn("[PositionCard] Position missing slug:", positionName, position);
+    }
+
     return (
-      <CardShell variant="position" badge="Position" meta={meta} avatarText={position.title.slice(0, 2).toUpperCase()}>
-        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">{position.title}</h3>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {position.category && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">
-              {position.category}
+      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 p-5 flex flex-col h-full">
+        {/* Image banner if available */}
+        {position?.imageUrl && (
+          <div className="mb-4 -m-5 -mt-5 rounded-t-2xl overflow-hidden">
+            <img
+              src={position.imageUrl}
+              alt={positionName}
+              className="w-full h-32 object-cover"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+        
+        <div className="flex flex-wrap items-center gap-2 mb-3 text-xs font-medium text-slate-600">
+          {roleFamily && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700">
+              {roleFamily}
             </span>
           )}
-          {position.level && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700">
-              {position.level}
+          {unit && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700">
+              {unit}
+            </span>
+          )}
+          {location && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+              {location}
+            </span>
+          )}
+          {sfiaLevel && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+              {sfiaLevel}
             </span>
           )}
         </div>
-        <p className="text-sm text-gray-700 mt-2 line-clamp-3">{position.summary}</p>
+        <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">{positionName}</h3>
+        <p className="text-sm text-gray-500 mt-1">Reports to: {reportsTo}</p>
+        <p className="text-sm text-gray-700 mt-2 line-clamp-3">{summary}</p>
         {responsibilities.length > 0 && (
           <div className="mt-3">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Key responsibilities</p>
             <ul className="mt-1 space-y-1 text-sm text-gray-600">
-              {responsibilities.map((item) => (
-                <li key={item} className="flex gap-2">
+              {responsibilities.map((item, idx) => (
+                <li key={idx} className="flex gap-2">
                   <span className="mt-[6px] h-[6px] w-[6px] rounded-full bg-indigo-500 flex-shrink-0" />
                   <span className="line-clamp-2">{item}</span>
                 </li>
@@ -596,65 +687,24 @@ const DQWorkDirectoryPage: React.FC = () => {
             </ul>
           </div>
         )}
-        <div className="mt-auto pt-4 text-sm text-gray-600">
-          <span className="font-semibold text-gray-800">Reports to:</span> {position.reportsTo || '—'}
+        <div className="mt-auto pt-4">
+          {slug ? (
+            <Link
+              to={`/work-directory/positions/${slug}`}
+              className="inline-flex items-center justify-center rounded-lg bg-[#030F35] px-4 py-2 text-sm font-semibold text-white hover:bg-[#051040] transition-colors"
+            >
+              View role profile
+            </Link>
+          ) : (
+            <div className="inline-flex items-center justify-center rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-500 cursor-not-allowed">
+              Profile unavailable
+            </div>
+          )}
         </div>
-      </CardShell>
+      </div>
     );
   };
 
-  const AssociateCard: React.FC<{ associate: MappedAssociate }> = ({ associate }) => {
-    const initials = associate.name
-      .split(' ')
-      .map((part) => part[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase();
-    const meta = `${associate.currentRole} • ${associate.department} | ${associate.unit}`;
-    const rating = associate.sfiaRating || associate.level;
-    return (
-      <CardShell 
-        variant="associate" 
-        badge="Associate" 
-        meta={meta} 
-        avatarText={initials}
-        avatarUrl={associate.avatarUrl}
-      >
-        <h3 className="text-lg font-semibold text-gray-900">{associate.name}</h3>
-        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1 line-clamp-1">
-          <MapPin size={14} />
-          <span>{associate.locationLabel || associate.location}</span>
-          <span>•</span>
-          <span>{rating || 'N/A'}</span>
-          <span>•</span>
-          <span>{associate.status}</span>
-        </div>
-        <p className="text-sm text-gray-700 mt-2 line-clamp-3">{associate.bio}</p>
-        <div className="flex flex-wrap gap-2 mt-3">
-          {associate.keySkills.map((skill) => (
-            <span
-              key={skill}
-              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700"
-            >
-              {skill}
-            </span>
-          ))}
-        </div>
-        <div className="mt-auto pt-4 text-sm text-gray-700 space-y-1">
-          <div>
-            <span className="font-semibold text-gray-800">Email:</span>{' '}
-            <a href={`mailto:${associate.email}`} className="text-indigo-700 hover:underline">
-              {associate.email}
-            </a>
-          </div>
-          <div>
-            <span className="font-semibold text-gray-800">Phone:</span>{' '}
-            <span>{associate.phone || '—'}</span>
-          </div>
-        </div>
-      </CardShell>
-    );
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -784,7 +834,11 @@ const DQWorkDirectoryPage: React.FC = () => {
                   visiblePositions.map((position) => <PositionCard key={position.id} position={position} />)}
                 {activeTab === 'associates' &&
                   visibleAssociates.map((associate) => (
-                    <AssociateCard key={associate.id} associate={associate} />
+                    <AssociateCard
+                      key={associate.id}
+                      associate={mapToAssociate(associate)}
+                      onViewProfile={handleViewProfile}
+                    />
                   ))}
               </div>
             )}
@@ -860,6 +914,11 @@ const DQWorkDirectoryPage: React.FC = () => {
         </div>
       </main>
       <Footer isLoggedIn={false} />
+      <AssociateModal
+        associate={selectedAssociate}
+        isOpen={showModal}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };

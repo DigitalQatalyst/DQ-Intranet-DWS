@@ -1,29 +1,84 @@
-// TypeScript types matching Supabase schema (snake_case column names)
-export type WorkUnit = {
-  id: string; // uuid
-  sector: string; // text
-  unit_name: string; // text
-  unit_type: string; // text
-  mandate: string; // text
-  location: string; // text
-  focus_tags: string[]; // jsonb
-  banner_image_url?: string | null; // text
+// TypeScript types matching Supabase schema rows
+export type WorkUnitRow = {
+  id: string;
+  slug: string;
+  sector: string;
+  unit_name: string;
+  unit_type: string;
+  mandate: string;
+  location: string;
+  focus_tags: string[] | null;
+  priority_level?: string | null;
+  priority_scope?: string | null;
+  performance_status?: string | null;
+  wi_areas?: string[] | null;
+  banner_image_url?: string | null;
+  created_at?: string;
+  updated_at?: string;
 };
 
-export type WorkPosition = {
-  id: string; // uuid
-  position_name: string; // text
-  role_family: string; // text
-  department: string; // text
-  unit: string; // text
-  location: string; // text
-  sfia_rating: string; // text
-  contract_type: string; // text
-  status: string; // text
-  description: string; // text
-  responsibilities: string[]; // jsonb
-  image_url?: string | null; // text
+export interface WorkUnit {
+  id: string;
+  slug: string;
+  sector: string;
+  unitName: string;
+  unitType: string;
+  mandate: string;
+  location: string;
+  focusTags: string[];
+  priorityLevel?: string | null;
+  priorityScope?: string | null;
+  performanceStatus?: string | null;
+  wiAreas?: string[];
+  department?: string;
+  bannerImageUrl?: string | null;
+}
+
+export type WorkPositionRow = {
+  id: string;
+  slug: string;
+  position_name: string;
+  role_family: string | null;
+  department: string | null;
+  unit: string | null;
+  unit_slug: string | null;
+  location: string | null;
+  sfia_rating: string | null;
+  sfia_level: string | null;
+  contract_type: string | null;
+  summary: string | null;
+  description: string | null;
+  responsibilities: string[] | null;
+  expectations: string[] | null;
+  image_url: string | null;
+  status?: string | null;
+  reports_to?: string | null;
+  created_at?: string;
+  updated_at?: string;
 };
+
+export interface WorkPosition {
+  id: string;
+  slug: string;
+  positionName: string;
+  roleFamily?: string | null;
+  department?: string | null;
+  unit?: string | null;
+  unitSlug?: string | null;
+  location?: string | null;
+  sfiaRating?: string | null;
+  sfiaLevel?: string | null;
+  contractType?: string | null;
+  summary?: string | null;
+  description?: string | null;
+  responsibilities: string[];
+  expectations: string[];
+  imageUrl?: string | null;
+  status?: string | null;
+  reportsTo?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 export type Associate = {
   id: string; // uuid
@@ -35,9 +90,9 @@ export type Associate = {
   sfia_rating: string; // text
   status: string; // text
   email: string; // text
+  phone?: string | null; // text
   teams_link: string; // text
   key_skills: string[]; // jsonb
   bio: string; // text
   avatar_url?: string | null; // text
 };
-
