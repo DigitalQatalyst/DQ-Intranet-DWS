@@ -294,14 +294,27 @@ export default function Community() {
     }
     
     // Check if already a member (check both tables for compatibility)
-    const { data: existingMembership } = await supabase
+    const membershipQuery1 = supabase
       .from('community_members')
       .select('id')
       .eq('user_id', userId)
       .eq('community_id', id)
       .maybeSingle();
+    const [existingMembership1] = await safeFetch(membershipQuery1);
     
-    if (isMember || existingMembership) {
+    let alreadyMember = !!existingMembership1;
+    if (!alreadyMember) {
+      const membershipQuery2 = supabase
+        .from('memberships')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('community_id', id)
+        .maybeSingle();
+      const [existingMembership2] = await safeFetch(membershipQuery2);
+      alreadyMember = !!existingMembership2;
+    }
+    
+    if (isMember || alreadyMember) {
       // Leave community - delete from both tables for compatibility
       const query1 = supabase.from('community_members').delete().match({
         user_id: userId,
@@ -347,7 +360,8 @@ export default function Community() {
         }
       } else {
         toast.success(user ? 'Joined community!' : 'Joined community as guest!');
-        setIsMember(true);
+        // Re-check membership immediately to ensure state is synced
+        await checkMembership();
         setMemberCount(prev => prev + 1);
         // Refresh posts to show member-only content
         fetchPosts();
@@ -360,83 +374,120 @@ export default function Community() {
     setPostsLoading(true);
     setPostsError(null);
 
-    // For moderators/admins, query community_posts table directly to see all statuses
-    // For regular users, use the view which only shows active posts
-    const isModerator =
-      user && (user.role === "admin" || user.role === "moderator");
+    try {
+      // For moderators/admins, query community_posts table directly to see all statuses
+      // For regular users, only show active posts
+      const isModerator =
+        user && (user.role === "admin" || user.role === "moderator");
 
-    // Query community_posts table directly for all users
-    let query = supabase
-      .from("community_posts")
-      .select(
-        `
-        *,
-        communities!inner(name),
-        users_local!community_posts_user_id_fkey(username, avatar_url)
-      `
-      )
-      .eq("community_id", id);
+      // Query community_posts table - fetch posts first, then user details separately
+      // This avoids join ordering issues that cause 400 errors
+      let query = supabase
+        .from("community_posts")
+        .select("*")
+        .eq("community_id", id)
+        .order("created_at", {
+          ascending: false,
+        });
 
-    // Regular users only see active posts
-    if (!isModerator) {
-      query = query.eq("status", "active");
-    }
+      // Regular users only see active posts
+      if (!isModerator) {
+        query = query.eq("status", "active");
+      }
 
-    query = query.order("created_at", {
-      ascending: false,
-    });
+      const [data, err] = await safeFetch(query);
+      
+      if (err) {
+        console.error('Error fetching posts:', err);
+        setPostsError("Failed to load posts");
+        setPostsLoading(false);
+        return;
+      }
 
-    const [data, err] = await safeFetch(query);
-    if (err) {
-      setPostsError("Failed to load posts");
+      if (data && data.length > 0) {
+        // Get unique user IDs from posts (check both user_id and created_by columns)
+        const userIds = [...new Set(
+          data
+            .map((p: any) => p.user_id || p.created_by)
+            .filter(Boolean)
+        )];
+        
+        // Fetch user details for all authors
+        let userDetails: Record<string, { username: string; avatar_url: string | null }> = {};
+        if (userIds.length > 0) {
+          const { data: users } = await supabase
+            .from("users_local")
+            .select("id, username, avatar_url")
+            .in("id", userIds);
+          
+          if (users) {
+            users.forEach((user: any) => {
+              userDetails[user.id] = {
+                username: user.username || 'Unknown',
+                avatar_url: user.avatar_url || null
+              };
+            });
+          }
+        }
+
+        // Fetch reaction and comment counts separately for all users
+        const postIds = data.map((p: any) => p.id);
+
+        const { data: reactions } = await supabase
+          .from("community_reactions")
+          .select("post_id, reaction_type")
+          .in("post_id", postIds);
+
+        const { data: comments } = await supabase
+          .from("community_comments")
+          .select("post_id")
+          .in("post_id", postIds)
+          .eq("status", "active");
+
+        // Count reactions and comments
+        const reactionCounts =
+          reactions?.reduce((acc: any, r: any) => {
+            if (!acc[r.post_id]) acc[r.post_id] = { like: 0, helpful: 0, insightful: 0 };
+            if (r.reaction_type === "like") acc[r.post_id].like++;
+            if (r.reaction_type === "helpful") acc[r.post_id].helpful++;
+            if (r.reaction_type === "insightful") acc[r.post_id].insightful++;
+            return acc;
+          }, {}) || {};
+
+        const commentCounts =
+          comments?.reduce((acc: any, c: any) => {
+            acc[c.post_id] = (acc[c.post_id] || 0) + 1;
+            return acc;
+          }, {}) || {};
+
+        // Map posts similar to how members are mapped in MemberList
+        const posts = data.map((p: any) => {
+          const userId = p.user_id || p.created_by;
+          const userInfo = userDetails[userId] || { username: 'Unknown', avatar_url: null };
+          return {
+            ...p,
+            community_name: community?.name || '',
+            author_username: userInfo.username,
+            author_avatar: userInfo.avatar_url,
+            helpful_count: reactionCounts[p.id]?.helpful || 0,
+            insightful_count: reactionCounts[p.id]?.insightful || 0,
+            comment_count: commentCounts[p.id] || 0,
+          };
+        });
+
+        setPosts(posts);
+      } else {
+        // No posts found - set empty array
+        setPosts([]);
+      }
+    } catch (exception) {
+      console.error('Exception fetching posts:', exception);
+      const errorMessage = exception instanceof Error ? exception.message : 'Unknown error occurred';
+      setPostsError(`Failed to load posts: ${errorMessage}`);
+      setPosts([]);
+    } finally {
       setPostsLoading(false);
-      return;
     }
-
-    if (data) {
-      // Fetch reaction and comment counts separately for all users
-      const postIds = data.map((p: any) => p.id);
-
-      const { data: reactions } = await supabase
-        .from("community_reactions")
-        .select("post_id, reaction_type")
-        .in("post_id", postIds);
-
-      const { data: comments } = await supabase
-        .from("community_comments")
-        .select("post_id")
-        .in("post_id", postIds)
-        .eq("status", "active");
-
-      // Count reactions and comments
-      const reactionCounts =
-        reactions?.reduce((acc: any, r: any) => {
-          if (!acc[r.post_id]) acc[r.post_id] = { like: 0, helpful: 0, insightful: 0 };
-          if (r.reaction_type === "like") acc[r.post_id].like++;
-          if (r.reaction_type === "helpful") acc[r.post_id].helpful++;
-          if (r.reaction_type === "insightful") acc[r.post_id].insightful++;
-          return acc;
-        }, {}) || {};
-
-      const commentCounts =
-        comments?.reduce((acc: any, c: any) => {
-          acc[c.post_id] = (acc[c.post_id] || 0) + 1;
-          return acc;
-        }, {}) || {};
-
-      const posts = data.map((p: any) => ({
-        ...p,
-        community_name: p.communities?.name,
-        author_username: p.users_local?.username,
-        author_avatar: p.users_local?.avatar_url,
-        helpful_count: reactionCounts[p.id]?.helpful || 0,
-        insightful_count: reactionCounts[p.id]?.insightful || 0,
-        comment_count: commentCounts[p.id] || 0,
-      }));
-
-      setPosts(posts);
-    }
-    setPostsLoading(false);
   };
   const handlePostCreated = () => {
     setRefreshKey((prev) => prev + 1);
@@ -481,7 +532,7 @@ export default function Community() {
           icon: Home,
         },
         {
-          label: "Communities",
+          label: "DQ Work Communities",
           href: "/communities",
         },
         {
@@ -562,7 +613,7 @@ export default function Community() {
                     to="/communities"
                     className="ml-1 text-sm text-gray-600 hover:text-gray-900 md:ml-2"
                   >
-                    Communities
+                    DQ Work Communities
                   </Link>
                 </div>
               </li>
@@ -704,17 +755,16 @@ export default function Community() {
                   title="Activity Feed"
                   description="Posts, comments, polls, surveys, and events"
                 />
-                {/* Inline Composer - Only for members */}
-                {user && isMember && (
-                  <SectionContent className="pb-0 border-b border-gray-200">
-                    <InlineComposer
-                      communityId={id}
-                      onPostCreated={handlePostCreated}
-                    />
-                  </SectionContent>
-                )}
+                {/* Inline Composer - Available to everyone */}
+                <SectionContent className="pb-0 border-b border-gray-200">
+                  <InlineComposer
+                    communityId={id}
+                    isMember={isMember}
+                    onPostCreated={handlePostCreated}
+                  />
+                </SectionContent>
                 {/* Activity Feed */}
-                <SectionContent className={user && isMember ? "pt-4" : ""}>
+                <SectionContent className="pt-4">
                   {postsLoading ? (
                     <div className="space-y-4">
                       {[1, 2, 3].map((i) => (
@@ -749,22 +799,15 @@ export default function Community() {
                         <p className="text-gray-500 mb-4">
                           Be the first to start a conversation in this community
                         </p>
-                        {user && isMember && (
-                          <Button
-                            onClick={() =>
-                              navigate(`/create-post?communityId=${id}`)
-                            }
-                            className="bg-dq-navy text-white hover:bg-[#13285A]"
-                          >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Create Post
-                          </Button>
-                        )}
-                        {!user && (
-                          <p className="text-gray-400 text-sm">
-                            Join this community to start posting
-                          </p>
-                        )}
+                        <Button
+                          onClick={() =>
+                            navigate(`/create-post?communityId=${id}`)
+                          }
+                          className="bg-dq-navy text-white hover:bg-[#13285A]"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create Post
+                        </Button>
                       </div>
                     </div>
                   ) : (
@@ -822,16 +865,14 @@ export default function Community() {
             </div>
           </div>
         </PageLayout>
-        {/* Floating Create Post Button */}
-        {user && isMember && (
-          <Button
-            onClick={() => navigate(`/create-post?communityId=${id}`)}
-            className="fixed bottom-5 right-5 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all bg-dq-navy hover:bg-[#13285A] text-white"
-            size="icon"
-          >
-            <Plus className="h-6 w-6" />
-          </Button>
-        )}
+        {/* Floating Create Post Button - Available to everyone */}
+        <Button
+          onClick={() => navigate(`/create-post?communityId=${id}`)}
+          className="fixed bottom-5 right-5 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all bg-dq-navy hover:bg-[#13285A] text-white"
+          size="icon"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
         {/* Image Update Dialog */}
         <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
           <DialogContent className="sm:max-w-md">

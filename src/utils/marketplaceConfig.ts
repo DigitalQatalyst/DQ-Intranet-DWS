@@ -896,7 +896,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     title: 'DQ Work Communities',
     description: 'Find and join communities to connect with other associates within the organization.',
     route: '/marketplace/events',
-    primaryCTA: 'Register Now',
+    primaryCTA: 'View Event',
     secondaryCTA: 'View Details',
     itemName: 'Event',
     itemNamePlural: 'Events',
@@ -912,10 +912,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       key: 'location',
       label: 'Location',
       icon: React.createElement(MapPin, { size: 18, className: "mr-2" })
-    }, {
-      key: 'price',
-      label: 'Price',
-      icon: React.createElement(DollarSign, { size: 18, className: "mr-2" })
     }],
     detailSections: ['description', 'details', 'provider', 'related'],
     tabs: [{

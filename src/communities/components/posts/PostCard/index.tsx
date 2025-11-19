@@ -11,6 +11,7 @@ import { PostCardAnnouncement } from './PostCardAnnouncement';
 import { BasePost } from '../types';
 import { usePermissions } from '@/communities/hooks/usePermissions';
 import { AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 interface PostCardProps {
   post: BasePost;
   onActionComplete?: () => void;
@@ -41,8 +42,13 @@ export function PostCard({
   const checkUserReactions = async () => {
     if (!user) return;
     const {
-      data
-    } = await supabase.from('reactions').select('reaction_type').eq('post_id', post.id).eq('user_id', user.id);
+      data,
+      error
+    } = await supabase.from('community_reactions').select('reaction_type').eq('post_id', post.id).eq('user_id', user.id);
+    if (error) {
+      console.error('Error checking reactions:', error);
+      return;
+    }
     if (data) {
       setHasReactedHelpful(data.some(r => r.reaction_type === 'helpful'));
       setHasReactedInsightful(data.some(r => r.reaction_type === 'insightful'));
@@ -50,32 +56,75 @@ export function PostCard({
   };
   const handleReaction = async (type: 'helpful' | 'insightful') => {
     if (!user) {
+      toast.error('Please sign in to react');
       navigate('/');
       return;
     }
+    
     const hasReacted = type === 'helpful' ? hasReactedHelpful : hasReactedInsightful;
-    if (hasReacted) {
-      await supabase.from('reactions').delete().eq('post_id', post.id).eq('user_id', user.id).eq('reaction_type', type);
-      if (type === 'helpful') {
-        setHelpfulCount(prev => prev - 1);
-        setHasReactedHelpful(false);
+    
+    try {
+      if (hasReacted) {
+        const { error } = await supabase
+          .from('community_reactions')
+          .delete()
+          .eq('post_id', post.id)
+          .eq('user_id', user.id)
+          .eq('reaction_type', type);
+        
+        if (error) {
+          console.error('Error removing reaction:', error);
+          console.error('Error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+          });
+          toast.error('Failed to remove reaction: ' + (error.message || 'Unknown error'));
+          return;
+        }
+        
+        // Update local state optimistically
+        if (type === 'helpful') {
+          setHelpfulCount(prev => Math.max(0, prev - 1));
+          setHasReactedHelpful(false);
+        } else {
+          setInsightfulCount(prev => Math.max(0, prev - 1));
+          setHasReactedInsightful(false);
+        }
       } else {
-        setInsightfulCount(prev => prev - 1);
-        setHasReactedInsightful(false);
+        const { error } = await supabase
+          .from('community_reactions')
+          .insert({
+            post_id: post.id,
+            user_id: user.id,
+            reaction_type: type
+          });
+        
+        if (error) {
+          console.error('Error adding reaction:', error);
+          console.error('Error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+          });
+          toast.error('Failed to add reaction: ' + (error.message || 'Unknown error'));
+          return;
+        }
+        
+        // Update local state optimistically
+        if (type === 'helpful') {
+          setHelpfulCount(prev => prev + 1);
+          setHasReactedHelpful(true);
+        } else {
+          setInsightfulCount(prev => prev + 1);
+          setHasReactedInsightful(true);
+        }
       }
-    } else {
-      await supabase.from('reactions').insert({
-        post_id: post.id,
-        user_id: user.id,
-        reaction_type: type
-      });
-      if (type === 'helpful') {
-        setHelpfulCount(prev => prev + 1);
-        setHasReactedHelpful(true);
-      } else {
-        setInsightfulCount(prev => prev + 1);
-        setHasReactedInsightful(true);
-      }
+    } catch (err) {
+      console.error('Unexpected error in handleReaction:', err);
+      toast.error('An unexpected error occurred. Please try again.');
     }
   };
   const renderPostContent = () => {

@@ -123,6 +123,7 @@ export function PostCard({ post, onActionComplete, isMember = false }: PostCardP
           <div className="flex items-center space-x-6">
             <CommunityReactions
               postId={post.id}
+              communityId={post.community_id}
               onReactionChange={onActionComplete}
             />
             <button

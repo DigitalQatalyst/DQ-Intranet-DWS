@@ -76,17 +76,27 @@ export function NewPostModal({
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      toast.error('Please sign in to create a post');
+      return;
+    }
+    if (!title.trim() || !content.trim() || !communityId) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
     setSubmitting(true);
-    const query = supabase.from('posts').insert({
-      title,
-      content,
+    const query = supabase.from('community_posts').insert({
+      title: title.trim(),
+      content: content.trim(),
       community_id: communityId,
-      created_by: user.id
-    });
-    const [, error] = await safeFetch(query);
+      user_id: user.id, // Set user_id (trigger will sync to created_by)
+      created_by: user.id, // Also set created_by explicitly for compatibility
+      status: 'active'
+    }).select().single();
+    const [data, error] = await safeFetch(query);
     if (error) {
-      toast.error('Failed to create post');
+      console.error('Post creation error:', error);
+      toast.error('Failed to create post: ' + (error.message || 'Unknown error'));
     } else {
       toast.success('Post created successfully!');
       setTitle('');

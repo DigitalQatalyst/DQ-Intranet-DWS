@@ -202,7 +202,7 @@ export function ConversationList({
                 <div className="relative">
                   <Avatar className="h-12 w-12">
                     <AvatarImage src={conv.other_user?.avatar_url || undefined} />
-                    <AvatarFallback className="bg-primary text-primary-foreground">
+                    <AvatarFallback className="bg-dq-navy text-white">
                       {conv.type === 'direct' ? conv.other_user?.username?.[0]?.toUpperCase() || <User className="h-5 w-5" /> : <Users className="h-5 w-5" />}
                     </AvatarFallback>
                   </Avatar>

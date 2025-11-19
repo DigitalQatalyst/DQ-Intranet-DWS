@@ -21,3 +21,4 @@ CROSS JOIN (
 ) AS u(user_id)
 ON CONFLICT (community_id, user_id) DO NOTHING;
 
+

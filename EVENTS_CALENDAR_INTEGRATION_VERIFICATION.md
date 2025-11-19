@@ -187,3 +187,4 @@ async function getAccessToken(): Promise<string> {
 - [x] Identified missing token configuration
 - [x] Documented old vs new integration differences
 
+

@@ -111,15 +111,7 @@ export const CommunityInfoPanel: React.FC<CommunityInfoPanelProps> = ({
 
         {/* Join/Leave Button */}
         <div className="pt-4 border-t border-[#030F35]/20">
-          {!user ? (
-            <Button
-              as={Link}
-              to="/login"
-              className="w-full bg-gradient-to-r from-[#030F35] via-[#1A2E6E] to-[#030F35] text-white hover:opacity-90 transition-opacity"
-            >
-              Sign In to Join
-            </Button>
-          ) : isMember ? (
+          {isMember ? (
             <Button
               onClick={onJoinLeave}
               disabled={joinLoading}

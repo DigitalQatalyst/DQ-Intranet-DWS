@@ -7,6 +7,8 @@ import { FilterSidebar, FilterConfig } from "../components/communities/FilterSid
 import { CreateCommunityModal } from "../components/communities/CreateCommunityModal";
 import { supabase } from "@/lib/supabaseClient";
 import { safeFetch } from "../utils/safeFetch";
+import { getAnonymousUserId } from "../utils/anonymousUser";
+import { toast } from "sonner";
 import { Button } from "../components/ui/button";
 import { PlusCircle, Filter, X, HomeIcon, ChevronRightIcon } from 'lucide-react';
 import { CommunityCard } from "../components/Cards/CommunityCard";
@@ -87,12 +89,12 @@ export default function Communities() {
           id: 'category',
           title: 'Category',
           options: [
-            { id: 'dq-agile', name: 'DQ Agile' },
-            { id: 'dq-culture', name: 'DQ Culture' },
-            { id: 'dq-dtmf', name: 'DQ DTMF' },
-            { id: 'dq-persona', name: 'DQ Persona' },
-            { id: 'dq-tech', name: 'DQ Tech' },
-            { id: 'dq-vision', name: 'DQ Vision' }
+            { id: 'dq-agile', name: 'GHC - DQ Agile' },
+            { id: 'dq-culture', name: 'GHC - DQ Culture' },
+            { id: 'dq-dtmf', name: 'GHC - DQ DTMF' },
+            { id: 'dq-persona', name: 'GHC - DQ Persona' },
+            { id: 'dq-tech', name: 'GHC - DQ Tech' },
+            { id: 'dq-vision', name: 'GHC - DQ Vision' }
           ]
         }
       ]);
@@ -314,12 +316,12 @@ export default function Communities() {
 
       // Hardcoded Category options
       const categoryOptions = [
-        { id: 'dq-agile', name: 'DQ Agile' },
-        { id: 'dq-culture', name: 'DQ Culture' },
-        { id: 'dq-dtmf', name: 'DQ DTMF' },
-        { id: 'dq-persona', name: 'DQ Persona' },
-        { id: 'dq-tech', name: 'DQ Tech' },
-        { id: 'dq-vision', name: 'DQ Vision' }
+        { id: 'dq-agile', name: 'GHC - DQ Agile' },
+        { id: 'dq-culture', name: 'GHC - DQ Culture' },
+        { id: 'dq-dtmf', name: 'GHC - DQ DTMF' },
+        { id: 'dq-persona', name: 'GHC - DQ Persona' },
+        { id: 'dq-tech', name: 'GHC - DQ Tech' },
+        { id: 'dq-vision', name: 'GHC - DQ Vision' }
       ];
 
       // Build filter configuration dynamically - Department first, then Location, then Category
@@ -411,12 +413,12 @@ export default function Communities() {
         ];
 
         const hardcodedCategoryOptions = [
-          { id: 'dq-agile', name: 'DQ Agile' },
-          { id: 'dq-culture', name: 'DQ Culture' },
-          { id: 'dq-dtmf', name: 'DQ DTMF' },
-          { id: 'dq-persona', name: 'DQ Persona' },
-          { id: 'dq-tech', name: 'DQ Tech' },
-          { id: 'dq-vision', name: 'DQ Vision' }
+          { id: 'dq-agile', name: 'GHC - DQ Agile' },
+          { id: 'dq-culture', name: 'GHC - DQ Culture' },
+          { id: 'dq-dtmf', name: 'GHC - DQ DTMF' },
+          { id: 'dq-persona', name: 'GHC - DQ Persona' },
+          { id: 'dq-tech', name: 'GHC - DQ Tech' },
+          { id: 'dq-vision', name: 'GHC - DQ Vision' }
         ];
 
         setFilterConfig([
@@ -471,12 +473,12 @@ export default function Communities() {
         ];
 
         const hardcodedCategoryOptions = [
-          { id: 'dq-agile', name: 'DQ Agile' },
-          { id: 'dq-culture', name: 'DQ Culture' },
-          { id: 'dq-dtmf', name: 'DQ DTMF' },
-          { id: 'dq-persona', name: 'DQ Persona' },
-          { id: 'dq-tech', name: 'DQ Tech' },
-          { id: 'dq-vision', name: 'DQ Vision' }
+          { id: 'dq-agile', name: 'GHC - DQ Agile' },
+          { id: 'dq-culture', name: 'GHC - DQ Culture' },
+          { id: 'dq-dtmf', name: 'GHC - DQ DTMF' },
+          { id: 'dq-persona', name: 'GHC - DQ Persona' },
+          { id: 'dq-tech', name: 'GHC - DQ Tech' },
+          { id: 'dq-vision', name: 'GHC - DQ Vision' }
         ];
 
         setFilterConfig([
@@ -749,11 +751,58 @@ export default function Communities() {
   const handleViewCommunity = useCallback((communityId: string) => {
     navigate(`/community/${communityId}`);
   }, [navigate]);
-  const handleJoinCommunity = useCallback((communityId: string) => {
-    // Allow both authenticated and anonymous users to navigate to community detail page
-    // The join action will happen on the detail page
-    navigate(`/community/${communityId}`);
-  }, [navigate]);
+  const handleJoinCommunity = useCallback(async (communityId: string) => {
+    // Get user ID (authenticated user or anonymous user)
+    const userId = user?.id || getAnonymousUserId();
+    
+    // Check if already a member
+    const { data: existingMembership } = await supabase
+      .from('community_members')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('community_id', communityId)
+      .maybeSingle();
+    
+    if (existingMembership) {
+      // Already a member, just navigate to the community page
+      navigate(`/community/${communityId}`);
+      return;
+    }
+    
+    // Join community - insert into both tables for compatibility
+    const memberData = {
+      user_id: userId,
+      community_id: communityId,
+      role: 'member'
+    };
+    const query1 = supabase.from('community_members').insert(memberData);
+    const query2 = supabase.from('memberships').insert({
+      user_id: userId,
+      community_id: communityId
+    });
+    const [, error1] = await safeFetch(query1);
+    const [, error2] = await safeFetch(query2);
+    
+    if (error1 && error2) {
+      if (error1.code === '23505' || error2.code === '23505') {
+        // Duplicate key error - user is already a member
+        toast.error('You are already a member of this community');
+      } else if (error1.code === '23503' || error2.code === '23503') {
+        // Foreign key violation
+        toast.error('Invalid community or user');
+      } else {
+        toast.error('Failed to join community');
+      }
+      // Still navigate to the community page even if there's an error
+      navigate(`/community/${communityId}`);
+    } else {
+      toast.success(user ? 'Joined community!' : 'Joined community as guest!');
+      // Update local membership state
+      setUserMemberships(prev => new Set(prev).add(communityId));
+      // Navigate to community detail page after successful join
+      navigate(`/community/${communityId}`);
+    }
+  }, [navigate, user]);
   if (authLoading) {
     return <div className="flex min-h-screen items-center justify-center bg-[var(--gradient-subtle)]">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
@@ -784,7 +833,7 @@ export default function Communities() {
           }
           
           return (
-            <nav className="flex mb-4" aria-label="Breadcrumb">
+            <nav className="flex mb-4 min-h-[24px]" aria-label="Breadcrumb">
               <ol className="inline-flex items-center space-x-1 md:space-x-2">
                 <li className="inline-flex items-center">
                   <Link 
@@ -798,7 +847,7 @@ export default function Communities() {
                 </li>
                 <li>
                   <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-gray-400 mx-1" aria-hidden="true" />
+                    <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
                     <Link 
                       to="/communities" 
                       className="text-gray-600 hover:text-gray-900 text-sm md:text-base font-medium transition-colors"
@@ -809,9 +858,9 @@ export default function Communities() {
                   </div>
                 </li>
                 <li aria-current="page">
-                  <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-gray-400 mx-1" aria-hidden="true" />
-                    <span className="text-gray-500 text-sm md:text-base font-medium">{currentPageLabel}</span>
+                  <div className="flex items-center min-w-[80px]">
+                    <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                    <span className="text-gray-500 text-sm md:text-base font-medium whitespace-nowrap">{currentPageLabel}</span>
                   </div>
                 </li>
               </ol>
@@ -846,14 +895,14 @@ export default function Communities() {
             }
 
             return (
-              <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200">
+              <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200 min-h-[140px]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="text-xs uppercase text-gray-500 font-medium mb-2">CURRENT FOCUS</div>
                     <h2 className="text-xl font-semibold text-gray-900 mb-1">{focusTitle}</h2>
                     <p className="text-gray-700 leading-relaxed mb-2">{focusText}</p>
                   </div>
-                  <button className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors whitespace-nowrap">
+                  <button className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors whitespace-nowrap flex-shrink-0">
                     Tab overview
                   </button>
                 </div>

@@ -6,6 +6,7 @@ import { Input } from '@/communities/components/ui/input';
 import { Label } from '@/communities/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/communities/components/ui/select';
 import { supabase } from "@/lib/supabaseClient";
+import { safeFetch } from '@/communities/utils/safeFetch';
 import { toast } from 'sonner';
 import { Send, Maximize2, Image, BarChart3, Calendar, Clock } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/communities/components/ui/tabs';
@@ -13,8 +14,11 @@ import { RichTextEditor } from './RichTextEditor';
 import { InlineMediaUpload } from './InlineMediaUpload';
 import { PollOptionsInput } from './PollOptionsInput';
 import { LinkPreview } from './LinkPreview';
+import { useCommunityMembership } from '@/communities/hooks/useCommunityMembership';
+import { getAnonymousUserId } from '@/communities/utils/anonymousUser';
 interface InlineComposerProps {
   communityId?: string;
+  isMember?: boolean;
   onPostCreated?: () => void;
 }
 type PostType = 'text' | 'media' | 'poll' | 'event';
@@ -30,12 +34,16 @@ interface UploadedFile {
 }
 export const InlineComposer: React.FC<InlineComposerProps> = ({
   communityId,
+  isMember: isMemberProp,
   onPostCreated
 }) => {
   const {
     user
   } = useAuth();
   const navigate = useNavigate();
+  const { isMember: isMemberFromHook } = useCommunityMembership(communityId);
+  // Use prop if provided, otherwise fall back to hook
+  const isMember = isMemberProp !== undefined ? isMemberProp : isMemberFromHook;
   const [postType, setPostType] = useState<PostType>('text');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -60,10 +68,11 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
   const [detectedLink, setDetectedLink] = useState<string | null>(null);
   const [showLinkPreview, setShowLinkPreview] = useState(true);
   useEffect(() => {
-    if (!communityId && user) {
+    if (!communityId) {
+      // Fetch communities for both authenticated and anonymous users
       fetchCommunities();
     }
-  }, [communityId, user]);
+  }, [communityId]);
 
   // Autosave draft
   useEffect(() => {
@@ -125,27 +134,42 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
     }
   }, [content, postType]);
   const fetchCommunities = async () => {
-    if (!user) return;
-    const {
-      data,
-      error
-    } = await supabase.from('memberships').select('community_id, communities(id, name)').eq('user_id', user.id);
-    if (!error && data) {
-      const communityList = data.map((m: any) => m.communities).filter(Boolean);
-      setCommunities(communityList);
-    }
+    // Get user ID (authenticated user or anonymous user)
+    const userId = user?.id || getAnonymousUserId();
+    
+    // Check both membership tables
+    const query1 = supabase
+      .from('memberships')
+      .select('community_id, communities(id, name)')
+      .eq('user_id', userId);
+    const [data1] = await safeFetch(query1);
+    
+    const query2 = supabase
+      .from('community_members')
+      .select('community_id, communities(id, name)')
+      .eq('user_id', userId);
+    const [data2] = await safeFetch(query2);
+    
+    // Combine and deduplicate communities
+    const allMemberships = [...(data1 || []), ...(data2 || [])];
+    const communityMap = new Map();
+    allMemberships.forEach((m: any) => {
+      if (m.communities) {
+        communityMap.set(m.communities.id, m.communities);
+      }
+    });
+    setCommunities(Array.from(communityMap.values()));
   };
   const handleQuickSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast.error('Please sign in to create a post');
-      return;
-    }
     const targetCommunityId = communityId || selectedCommunityId;
     if (!targetCommunityId) {
       toast.error('Please select a community');
       return;
     }
+    
+    // No membership check required - anyone can create posts
+    const userId = user?.id || getAnonymousUserId();
 
     // Type-specific validation
     if (!title.trim()) {
@@ -188,11 +212,15 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
       const hashtagRegex = /#(\w+)/g;
       const tags = [...(content.match(hashtagRegex) || [])].map(tag => tag.slice(1));
 
+      // Get user ID (authenticated user or anonymous user)
+      const userId = user?.id || getAnonymousUserId();
+      
       // Prepare post data
       const postData: any = {
         title: title.trim(),
         community_id: targetCommunityId,
-        created_by: user.id,
+        user_id: userId, // Set user_id (trigger will sync to created_by)
+        created_by: userId, // Also set created_by explicitly for compatibility
         post_type: postType,
         status: 'active',
         tags: tags.length > 0 ? tags : null
@@ -221,7 +249,7 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
         // Use community_assets table for media files
         await supabase.from('community_assets').insert({
           post_id: post.id,
-          user_id: user.id,
+          user_id: userId,
           community_id: targetCommunityId,
           asset_type: mediaFile.type.startsWith('image/') ? 'image' : 
                      mediaFile.type.startsWith('video/') ? 'video' : 'document',
@@ -350,13 +378,12 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
         return 'Post';
     }
   };
-  if (!user) {
-    return null;
-  }
+  // Show composer to everyone - no membership required
+  
   return <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
       <div className="flex items-center gap-3 mb-4">
-        <div className="h-10 w-10 rounded-full bg-[#3b82f6] flex items-center justify-center text-white font-semibold">
-          {user.email?.charAt(0).toUpperCase() || 'U'}
+        <div className="h-10 w-10 rounded-full bg-dq-navy flex items-center justify-center text-white font-semibold">
+          {user?.email?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || 'U'}
         </div>
         <h3 className="text-lg font-semibold text-gray-900">Create a Post</h3>
       </div>
@@ -432,7 +459,7 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
               <Label className="text-sm font-medium text-gray-700 mb-1 block">
                 Upload File <span className="text-red-500">*</span>
               </Label>
-              <InlineMediaUpload file={mediaFile} onFileChange={setMediaFile} userId={user.id} />
+              <InlineMediaUpload file={mediaFile} onFileChange={setMediaFile} userId={user?.id || getAnonymousUserId()} />
               <p className="text-xs text-gray-500 mt-1">
                 Use full editor for multiple uploads
               </p>

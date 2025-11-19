@@ -9,6 +9,7 @@ import { GradientAvatar } from '@/communities/components/ui/gradient-avatar';
 import { ChevronDown, ChevronUp, Send, Reply } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
+import { getAnonymousUserId } from '@/communities/utils/anonymousUser';
 
 interface Comment {
   id: string;
@@ -144,16 +145,7 @@ export const CommunityComments: React.FC<CommunityCommentsProps> = ({
   };
 
   const handleSubmitReply = async (parentId: string | null = null) => {
-    if (!user) {
-      toast.error('Please sign in to comment');
-      return;
-    }
-
-    if (!isMember) {
-      toast.error('You must be a member to comment');
-      return;
-    }
-
+    // No membership check required - anyone can comment
     if (!replyContent.trim()) {
       toast.error('Comment cannot be empty');
       return;
@@ -161,9 +153,10 @@ export const CommunityComments: React.FC<CommunityCommentsProps> = ({
 
     setSubmitting(true);
     try {
+      const userId = user?.id || getAnonymousUserId();
       const commentData = {
         post_id: postId,
-        user_id: user.id,
+        user_id: userId,
         parent_id: parentId,
         content: replyContent.trim(),
         status: 'active'
@@ -230,15 +223,13 @@ export const CommunityComments: React.FC<CommunityCommentsProps> = ({
                 <p>{comment.content}</p>
               )}
             </div>
-            {isMember && (
-              <button
-                onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
-                className="text-xs text-[#030F35]/60 hover:text-[#030F35] transition-colors flex items-center gap-1"
-              >
-                <Reply className="h-3 w-3" />
-                Reply
-              </button>
-            )}
+            <button
+              onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+              className="text-xs text-[#030F35]/60 hover:text-[#030F35] transition-colors flex items-center gap-1"
+            >
+              <Reply className="h-3 w-3" />
+              Reply
+            </button>
             {replyingTo === comment.id && (
               <div className="mt-3 space-y-2">
                 <Textarea
@@ -294,46 +285,44 @@ export const CommunityComments: React.FC<CommunityCommentsProps> = ({
 
       {expanded && (
         <div className="space-y-2">
-          {/* Add Comment Form */}
-          {isMember && (
-            <div className="bg-[#030F35]/5 rounded-lg p-4 mb-4 border border-[#030F35]/20">
-              <div className="flex gap-3">
-                <Avatar className="h-8 w-8 flex-shrink-0">
-                  <AvatarFallback className="relative overflow-hidden">
-                    <GradientAvatar seed={user?.id || 'anonymous'} className="absolute inset-0" />
-                    <span className="relative z-10 text-white font-semibold text-xs">
-                      {user?.email?.charAt(0).toUpperCase() || 'U'}
-                    </span>
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <Textarea
-                    value={replyContent}
-                    onChange={(e) => setReplyContent(e.target.value)}
-                    placeholder="Write a comment..."
-                    className="min-h-[100px] text-sm mb-2"
-                    rows={4}
-                  />
-                  <Button
-                    size="sm"
-                    onClick={() => handleSubmitReply(null)}
-                    disabled={submitting || !replyContent.trim()}
-                    className="bg-dq-navy hover:bg-[#13285A] text-white"
-                  >
-                    <Send className="h-4 w-4 mr-1" />
-                    {submitting ? 'Posting...' : 'Post Comment'}
-                  </Button>
-                </div>
+          {/* Add Comment Form - Available to everyone */}
+          <div className="bg-[#030F35]/5 rounded-lg p-4 mb-4 border border-[#030F35]/20">
+            <div className="flex gap-3">
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarFallback className="relative overflow-hidden">
+                  <GradientAvatar seed={user?.id || 'anonymous'} className="absolute inset-0" />
+                  <span className="relative z-10 text-white font-semibold text-xs">
+                    {user?.email?.charAt(0).toUpperCase() || 'U'}
+                  </span>
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <Textarea
+                  value={replyContent}
+                  onChange={(e) => setReplyContent(e.target.value)}
+                  placeholder="Write a comment..."
+                  className="min-h-[100px] text-sm mb-2"
+                  rows={4}
+                />
+                <Button
+                  size="sm"
+                  onClick={() => handleSubmitReply(null)}
+                  disabled={submitting || !replyContent.trim()}
+                  className="bg-dq-navy hover:bg-[#13285A] text-white"
+                >
+                  <Send className="h-4 w-4 mr-1" />
+                  {submitting ? 'Posting...' : 'Post Comment'}
+                </Button>
               </div>
             </div>
-          )}
+          </div>
 
           {/* Comments List */}
           {loading ? (
             <div className="text-center py-8 text-[#030F35]/60 text-sm">Loading comments...</div>
           ) : comments.length === 0 ? (
             <div className="text-center py-8 text-[#030F35]/60 text-sm">
-              {isMember ? 'No comments yet. Be the first to comment!' : 'Sign in and join to comment'}
+              No comments yet. Be the first to comment!
             </div>
           ) : (
             <div className="space-y-0">
@@ -345,4 +334,5 @@ export const CommunityComments: React.FC<CommunityCommentsProps> = ({
     </div>
   );
 };
+
 

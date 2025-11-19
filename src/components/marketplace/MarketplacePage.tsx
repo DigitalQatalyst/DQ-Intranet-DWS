@@ -465,14 +465,15 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         }
         return;
       }
-      // Initialize filter config for events - fetch Department and Location from database
+      // Initialize filter config for events - fetch Department, Location, and Event Type from database
       if (isEvents) {
         const loadEventsFilters = async () => {
           try {
-            // Fetch Department and Location options from database
-            const [departmentResult, locationResult] = await Promise.all([
+            // Fetch Department, Location, and Event Type options from database
+            const [departmentResult, locationResult, eventTypeResult] = await Promise.all([
               supabase.rpc('get_filter_options', { p_filter_type: 'department', p_filter_category: 'events' }),
-              supabase.rpc('get_filter_options', { p_filter_type: 'location', p_filter_category: 'events' })
+              supabase.rpc('get_filter_options', { p_filter_type: 'location', p_filter_category: 'events' }),
+              supabase.rpc('get_filter_options', { p_filter_type: 'event-type', p_filter_category: 'events' })
             ]);
 
             // Build filter config with database values
@@ -512,14 +513,30 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               if (locConfig) updatedFilterConfig.push(locConfig);
             }
 
-            // Add other filters from config (Time Range, Event Type, Delivery Mode, Duration Band)
+            // Add Event Type filter (third) - from database
+            if (eventTypeResult.data && eventTypeResult.data.length > 0) {
+              updatedFilterConfig.push({
+                id: 'event-type',
+                title: 'Event Type',
+                options: eventTypeResult.data.map((opt: any) => ({
+                  id: opt.id.toLowerCase().replace(/\s+/g, '-'),
+                  name: opt.id // Use option_value (opt.id) for exact database value matching
+                }))
+              });
+            } else {
+              // Fallback: use config if database is empty
+              const eventTypeConfig = config.filterCategories?.find(c => c.id === 'event-type');
+              if (eventTypeConfig) updatedFilterConfig.push(eventTypeConfig);
+            }
+
+            // Add other filters from config (Time Range, Delivery Mode, Duration Band)
             const otherFilters = config.filterCategories?.filter(c => 
-              c.id !== 'department' && c.id !== 'location'
+              c.id !== 'department' && c.id !== 'location' && c.id !== 'event-type'
             ) || [];
             updatedFilterConfig.push(...otherFilters);
 
             setFilterConfig(updatedFilterConfig);
-            console.log('Events filter config loaded:', updatedFilterConfig.length, 'categories (Department and Location from database)');
+            console.log('Events filter config loaded:', updatedFilterConfig.length, 'categories (Department, Location, and Event Type from database)');
           } catch (error) {
             console.error('Error loading filter options from database, using config fallback:', error);
             // Fallback to config if database fetch fails
@@ -584,11 +601,51 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           // Strategy 1: Try to fetch from events_v2 table (primary source)
           try {
             const now = new Date().toISOString();
+            console.log("Fetching events with filters:", {
+              status: "published",
+              start_time_gte: now,
+              current_time: new Date().toISOString()
+            });
+            
+            // First, let's check total count and status breakdown to debug
+            const { count: totalCount } = await supabaseClient
+              .from("events_v2")
+              .select("*", { count: 'exact', head: true });
+            console.log("Total events in events_v2 table:", totalCount);
+            
+            // Check events by status
+            const { data: statusBreakdown } = await supabaseClient
+              .from("events_v2")
+              .select("status, start_time")
+              .limit(100);
+            if (statusBreakdown) {
+              const statusCounts = statusBreakdown.reduce((acc: any, e: any) => {
+                acc[e.status] = (acc[e.status] || 0) + 1;
+                return acc;
+              }, {});
+              const futureCount = statusBreakdown.filter((e: any) => new Date(e.start_time) >= new Date()).length;
+              console.log("Events by status:", statusCounts);
+              console.log("Future events (start_time >= now):", futureCount);
+              console.log("Published + future events:", statusBreakdown.filter((e: any) => 
+                e.status === 'published' && new Date(e.start_time) >= new Date()
+              ).length);
+            }
+            
             let eventsQuery = supabaseClient
               .from("events_v2")
               .select("*")
               .eq("status", "published") // Only get published events
               .gte("start_time", now); // Only get future events
+
+            // Apply search query if provided
+            if (searchQuery && searchQuery.trim()) {
+              const searchTerm = `%${searchQuery.trim()}%`;
+              // Search across title, description, category, location, and location_filter
+              // Supabase .or() syntax: "column1.ilike.value1,column2.ilike.value2"
+              eventsQuery = eventsQuery.or(
+                `title.ilike.${searchTerm},description.ilike.${searchTerm},category.ilike.${searchTerm},location.ilike.${searchTerm},location_filter.ilike.${searchTerm}`
+              );
+            }
 
             // Apply backend filters based on activeFilters
             if (activeFilters.length > 0 && filterConfig.length > 0) {
@@ -608,7 +665,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               });
 
               // Apply event-type filter (maps to category column)
-              // Use exact filter names: Webinar, Workshop, Seminar, Panel, Conference, Networking, Competition, Pitch Day
+              // Use exact filter names: Webinar, Workshop, Seminar, Panel, Conference, Networking, Competition, Pitch Day, Townhall
               if (filtersByCategory['event-type'] && filtersByCategory['event-type'].length > 0) {
                 // Map exact filter names to database category values
                 const categoryMap: Record<string, string> = {
@@ -619,7 +676,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   'Conference': 'Launches',
                   'Networking': 'Internal',
                   'Competition': 'Internal',
-                  'Pitch Day': 'Launches'
+                  'Pitch Day': 'Launches',
+                  'Townhall': 'Internal'
                 };
                 
                 // Use exact filter names (case-sensitive)
@@ -723,12 +781,23 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
             // Apply ordering
             eventsQuery = eventsQuery.order("start_time", { ascending: true });
+            
+            // Explicitly set a high limit to ensure we get all events (Supabase default is 1000, but let's be explicit)
+            // Note: If you have more than 1000 events, you'll need pagination
+            eventsQuery = eventsQuery.limit(1000);
 
             const queryResult = await eventsQuery;
 
             if (!queryResult.error && queryResult.data) {
               data = queryResult.data;
-              console.log("Fetched events from events_v2 table");
+              console.log("Fetched events from events_v2 table:", data.length, "events");
+              console.log("Event details:", data.map((e: any) => ({ 
+                id: e.id, 
+                title: e.title, 
+                status: e.status, 
+                start_time: e.start_time,
+                is_future: new Date(e.start_time) >= new Date()
+              })));
             } else {
               throw queryResult.error || new Error("Events_v2 table query failed");
             }
@@ -1137,26 +1206,16 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     setActiveFilters([]);
   }, []);
 
-  // Apply filters and search to events (similar to knowledge-hub)
+  // Apply client-side filters to events (search is now handled server-side)
   useEffect(() => {
     if (!isEvents) return;
     
     let filtered = [...items];
     
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(item => 
-        item.title?.toLowerCase().includes(query) ||
-        item.description?.toLowerCase().includes(query) ||
-        item.category?.toLowerCase().includes(query) ||
-        item.eventType?.toLowerCase().includes(query) ||
-        item.location?.toLowerCase().includes(query) ||
-        (item.tags && item.tags.some((tag: string) => tag.toLowerCase().includes(query)))
-      );
-    }
+    // Note: Search is now handled server-side in the Supabase query
+    // Only apply client-side filters that can't be done server-side
     
-    // Apply active filters
+    // Apply active filters that require client-side processing
     if (activeFilters.length > 0 && filterConfig.length > 0) {
       filtered = filtered.filter(item => {
         return activeFilters.every(filterName => {
@@ -1167,22 +1226,17 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           if (!category) return true;
           
           // Match based on category type
+          // Note: Most filters are handled server-side, this is for filters that need client-side logic
           switch (category.id) {
-            case 'event-type':
-              return item.eventType === filterName || item.category === filterName;
             case 'delivery-mode':
+              // Handle hybrid mode or multiple delivery modes (requires client-side logic)
               return item.location?.toLowerCase().includes(filterName.toLowerCase()) || 
                      (filterName.toLowerCase() === 'online' && item.location?.toLowerCase().includes('online'));
-            case 'department':
-              // Department filtering is handled by backend query, but include client-side fallback
-              // Check if item has department property that matches the filter
-              return item.department === filterName || 
-                     (item.department && item.department.toLowerCase() === filterName.toLowerCase());
-            case 'location':
-              // Location filtering is handled by backend query, but include client-side fallback
-              return item.location === filterName || 
-                     (item.location && item.location.toLowerCase() === filterName.toLowerCase());
+            case 'duration-band':
+              // Duration filtering is done client-side since it requires calculation
+              return true; // This would need duration calculation logic
             case 'cost-type':
+              // Price filter (if still needed)
               const price = item.price?.toLowerCase() || '';
               if (filterName === 'Free') return price.includes('free') || price === '0';
               if (filterName === 'Paid') return !price.includes('free') && price !== '0';
@@ -1190,6 +1244,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             case 'business-stage':
               return item.businessStage === filterName;
             default:
+              // Most filters (event-type, department, location) are handled server-side
               return true;
           }
         });
@@ -1198,7 +1253,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     
     setFilteredItems(filtered);
     setTotalCount(filtered.length);
-  }, [isEvents, items, searchQuery, activeFilters, filterConfig]);
+  }, [isEvents, items, activeFilters, filterConfig]);
   
   // UI helpers
   const toggleFilters = useCallback(() => setShowFilters(prev => !prev), []);
@@ -1229,9 +1284,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   return (
     <div className={`min-h-screen flex flex-col bg-gray-50 ${isGuides ? 'guidelines-theme' : ''}`}>
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
-      <div className="container mx-auto px-4 py-8 flex-grow">
+      <div className={`${isEvents ? 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8' : 'container mx-auto px-4'} py-8 flex-grow`}>
         {/* Breadcrumbs */}
-        <nav className="flex mb-4" aria-label="Breadcrumb">
+        <nav className="flex mb-4 min-h-[24px]" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center">
               <Link 
@@ -1261,7 +1316,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 <>
                   <li>
                     <div className="flex items-center">
-                      <ChevronRightIcon size={16} className="text-gray-400 mx-1" aria-hidden="true" />
+                      <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
                       <Link 
                         to="/communities" 
                         className="text-gray-600 hover:text-gray-900 text-sm md:text-base font-medium transition-colors"
@@ -1272,9 +1327,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     </div>
                   </li>
                   <li aria-current="page">
-                    <div className="flex items-center">
-                      <ChevronRightIcon size={16} className="text-gray-400 mx-1" aria-hidden="true" />
-                      <span className="text-gray-500 text-sm md:text-base font-medium">{currentPageLabel}</span>
+                    <div className="flex items-center min-w-[80px]">
+                      <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                      <span className="text-gray-500 text-sm md:text-base font-medium whitespace-nowrap">{currentPageLabel}</span>
                     </div>
                   </li>
                 </>
@@ -1312,7 +1367,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         {isEvents && (
           <>
             {/* Current Focus Section */}
-            <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200">
+            <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200 min-h-[140px]">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="text-xs uppercase text-gray-500 font-medium mb-2">CURRENT FOCUS</div>
@@ -1321,7 +1376,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     Stay up to date with upcoming events, workshops, and team gatherings. Explore activities within DQ that encourage collaboration, growth, and innovation.
                   </p>
                 </div>
-                <button className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors whitespace-nowrap">
+                <button className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors whitespace-nowrap flex-shrink-0">
                   Tab overview
                 </button>
               </div>
@@ -1391,6 +1446,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   setSearchQuery(q);
                 }
               }}
+              placeholder={
+                isEvents 
+                  ? "Search events by title, description, category, or location..." 
+                  : isGuides
+                  ? "Search guides..."
+                  : "Search..."
+              }
             />
           </div>
           {isGuides && (

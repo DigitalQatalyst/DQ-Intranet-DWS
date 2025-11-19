@@ -6,14 +6,17 @@ import { Button } from '@/communities/components/ui/button';
 import { Textarea } from '@/communities/components/ui/textarea';
 import { Loader2, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
-import { LoginForm } from '@/communities/components/auth/LoginForm';
-import { Dialog, DialogContent } from '@/communities/components/ui/dialog';
+import { getAnonymousUserId } from '@/communities/utils/anonymousUser';
 interface AddCommentFormProps {
   postId: string;
+  communityId?: string;
+  isMember?: boolean;
   onCommentAdded: () => void;
 }
 export function AddCommentForm({
   postId,
+  communityId,
+  isMember = false,
   onCommentAdded
 }: AddCommentFormProps) {
   const {
@@ -21,15 +24,21 @@ export function AddCommentForm({
   } = useAuth();
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !content.trim()) return;
+    if (!content.trim()) return;
+    
+    if (!isMember) {
+      toast.error('You must be a member of this community to comment');
+      return;
+    }
+    
     setSubmitting(true);
+    const userId = user?.id || getAnonymousUserId();
     const query = supabase.from('comments').insert({
       post_id: postId,
       content: content.trim(),
-      created_by: user.id
+      created_by: userId
     });
     const [, error] = await safeFetch(query);
     if (error) {
@@ -48,7 +57,8 @@ export function AddCommentForm({
     }
     setSubmitting(false);
   };
-  if (!user) {
+  
+  if (!isMember) {
     return <>
         <div className="text-center">
           <MessageSquare className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
@@ -56,17 +66,9 @@ export function AddCommentForm({
             Join the conversation
           </h3>
           <p className="text-sm text-muted-foreground mb-6">
-            Sign in to share your thoughts and connect with the community
+            Join this community to share your thoughts and connect with others
           </p>
-          <Button onClick={() => setShowLoginModal(true)}>
-            Sign In
-          </Button>
         </div>
-        <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
-          <DialogContent>
-            <LoginForm />
-          </DialogContent>
-        </Dialog>
       </>;
   }
   return <form onSubmit={handleSubmit} className="space-y-4">

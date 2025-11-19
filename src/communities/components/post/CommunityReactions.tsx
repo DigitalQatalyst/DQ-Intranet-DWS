@@ -5,10 +5,12 @@ import { safeFetch } from '@/communities/utils/safeFetch';
 import { Button } from '@/communities/components/ui/button';
 import { Heart, ThumbsUp, Lightbulb } from 'lucide-react';
 import { toast } from 'sonner';
+import { getAnonymousUserId } from '@/communities/utils/anonymousUser';
 
 interface CommunityReactionsProps {
   postId?: string;
   commentId?: string;
+  communityId?: string;
   onReactionChange?: () => void;
 }
 
@@ -17,6 +19,7 @@ type ReactionType = 'like' | 'helpful' | 'insightful';
 export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
   postId,
   commentId,
+  communityId,
   onReactionChange
 }) => {
   const { user } = useAuth();
@@ -30,7 +33,7 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
 
   useEffect(() => {
     fetchReactions();
-  }, [postId, commentId, user]);
+  }, [postId, commentId]);
 
   const fetchReactions = async () => {
     if (!postId && !commentId) return;
@@ -58,11 +61,12 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
         };
         const userReactionSet = new Set<ReactionType>();
 
+        const userId = user?.id || getAnonymousUserId();
         data.forEach((reaction: any) => {
           if (reaction.reaction_type in counts) {
             counts[reaction.reaction_type as ReactionType]++;
           }
-          if (user && reaction.user_id === user.id) {
+          if (reaction.user_id === userId) {
             userReactionSet.add(reaction.reaction_type as ReactionType);
           }
         });
@@ -78,12 +82,10 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
   };
 
   const handleReaction = async (type: ReactionType) => {
-    if (!user) {
-      toast.error('Please sign in to react');
-      return;
-    }
-
     if (!postId && !commentId) return;
+
+    // No membership check required - anyone can react
+    const userId = user?.id || getAnonymousUserId();
 
     const hasReacted = userReactions.has(type);
 
@@ -93,7 +95,7 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
         const query = supabase
           .from('community_reactions')
           .delete()
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .eq(postId ? 'post_id' : 'comment_id', postId || commentId)
           .eq('reaction_type', type);
 
@@ -113,7 +115,7 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
       } else {
         // Add reaction
         const reactionData: any = {
-          user_id: user.id,
+          user_id: userId,
           reaction_type: type
         };
 
@@ -225,4 +227,5 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
     </div>
   );
 };
+
 

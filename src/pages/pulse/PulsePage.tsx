@@ -172,11 +172,23 @@ export const PulsePage: React.FC = () => {
       setError(null);
 
       try {
-        // Fetch published pulse items from database
-        const { data, error: queryError } = await supabase
+        // Build query with optional search
+        let pulseQuery = supabase
           .from("pulse_items_with_stats")
           .select("*")
-          .eq("status", "published")
+          .eq("status", "published");
+
+        // Apply search query if provided (server-side search)
+        if (searchQuery && searchQuery.trim()) {
+          const searchTerm = `%${searchQuery.trim()}%`;
+          // Search across title, description, department, location_filter, and tags
+          pulseQuery = pulseQuery.or(
+            `title.ilike.${searchTerm},description.ilike.${searchTerm},department.ilike.${searchTerm},location_filter.ilike.${searchTerm}`
+          );
+        }
+
+        // Execute query
+        const { data, error: queryError } = await pulseQuery
           .order("published_at", { ascending: false });
 
         if (queryError) {
@@ -260,25 +272,13 @@ export const PulsePage: React.FC = () => {
     };
 
     fetchPulseItems();
-  }, []);
+  }, [searchQuery]); // Re-fetch when search query changes
 
-  // Apply search and filter (client-side)
+  // Apply filters (search is now handled server-side)
   useEffect(() => {
     let filtered = [...items];
 
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(item => {
-        const titleMatch = item.title.toLowerCase().includes(query);
-        const descMatch = item.description.toLowerCase().includes(query);
-        const deptMatch = item.department.toLowerCase().includes(query);
-        const locMatch = item.location.toLowerCase().includes(query);
-        const typeMatch = item.surveyType.toLowerCase().includes(query);
-        
-        return titleMatch || descMatch || deptMatch || locMatch || typeMatch;
-      });
-    }
+    // Note: Search is now handled server-side in the Supabase query
 
     // Apply active filters (client-side)
     if (activeFilters.length > 0 && filterConfig.length > 0) {
@@ -468,33 +468,33 @@ export const PulsePage: React.FC = () => {
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumbs */}
-        <nav className="flex mb-4" aria-label="Breadcrumb">
+        <nav className="flex mb-4 min-h-[24px]" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center">
-              <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
-                <HomeIcon size={16} className="mr-1" />
+              <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center text-sm md:text-base transition-colors" aria-label="Navigate to Home">
+                <HomeIcon size={16} className="mr-1" aria-hidden="true" />
                 <span>Home</span>
               </Link>
             </li>
             <li>
               <div className="flex items-center">
-                <ChevronRightIcon size={16} className="text-gray-400 mx-1" />
-                <Link to="/communities" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
-                  Communities
+                <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                <Link to="/communities" className="text-gray-600 hover:text-gray-900 text-sm md:text-base font-medium transition-colors" aria-label="Navigate to DQ Work Communities">
+                  DQ Work Communities
                 </Link>
               </div>
             </li>
             <li aria-current="page">
-              <div className="flex items-center">
-                <ChevronRightIcon size={16} className="text-gray-400 mx-1" />
-                <span className="text-gray-500 text-sm font-medium">Pulse</span>
+              <div className="flex items-center min-w-[80px]">
+                <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                <span className="text-gray-500 text-sm md:text-base font-medium whitespace-nowrap">Pulse</span>
               </div>
             </li>
           </ol>
         </nav>
 
         {/* Header Section */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">DQ Work Communities</h1>
           <p className="text-gray-600 mb-6">
             Find and join communities to connect with other associates within the organization.
@@ -502,7 +502,7 @@ export const PulsePage: React.FC = () => {
         </div>
 
         {/* Current Focus Section */}
-        <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200">
+        <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200 min-h-[140px]">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="text-xs uppercase text-gray-500 font-medium mb-2">CURRENT FOCUS</div>
@@ -511,7 +511,7 @@ export const PulsePage: React.FC = () => {
                 Share your thoughts and feedback through surveys, polls, and quick feedback sessions. Pulse is your platform for participating in organizational insights and shaping the future of DQ through direct engagement.
               </p>
             </div>
-            <button className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors whitespace-nowrap">
+            <button className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors whitespace-nowrap flex-shrink-0">
               Tab overview
             </button>
           </div>
@@ -557,8 +557,8 @@ export const PulsePage: React.FC = () => {
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
               placeholder="Search polls, surveys, and feedback..."
             />
           </div>

@@ -28,8 +28,13 @@ export function LoginForm({
     if (success) {
       setEmail('');
       setPassword('');
-      onSuccess?.();
-      navigate('/communities/feed');
+      // If onSuccess callback is provided, use it (for modals)
+      // Otherwise, navigate to default location
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate('/communities/feed');
+      }
     }
     setLoading(false);
   };

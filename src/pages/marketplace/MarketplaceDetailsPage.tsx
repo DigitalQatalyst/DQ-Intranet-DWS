@@ -10,8 +10,6 @@ import { Link } from 'react-router-dom';
 import { getFallbackItemDetails, getFallbackItems } from '../../utils/fallbackData';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { toast } from 'sonner';
-import { EventRegistrationForm } from '../../components/events/EventRegistrationForm';
-import { EventRegistrationConfirmation } from '../../components/events/EventRegistrationConfirmation';
 interface MarketplaceDetailsPageProps {
   marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding' | 'events';
   bookmarkedItems?: string[];
@@ -32,7 +30,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const shouldTakeAction = searchParams.get('action') === 'true';
-  const shouldOpenRegistration = searchParams.get('register') === 'true';
   const config = getMarketplaceConfig(marketplaceType);
   const [item, setItem] = useState<any | null>(null);
   const [relatedItems, setRelatedItems] = useState<any[]>([]);
@@ -48,18 +45,13 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const [showStickyBottomCTA, setShowStickyBottomCTA] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(80);
   const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout | null>(null);
-  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
-  const [showRegistrationConfirmation, setShowRegistrationConfirmation] = useState(false);
-  const [registrationData, setRegistrationData] = useState<{
-    fullName: string;
-    email: string;
-    phoneNumber: string;
-  } | null>(null);
   const mainContentRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const summaryCardRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLElement | null>(null);
+  const contentColumnRef = useRef<HTMLDivElement>(null);
   // Check if tabs overflow and need navigation controls
   const checkOverflow = () => {
     if (tabsRef.current && containerRef.current) {
@@ -83,11 +75,28 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       const header = document.querySelector('header');
       const headerHeight = header ? header.offsetHeight : 80;
       setHeaderHeight(headerHeight);
-      if (heroRef.current && mainContentRef.current) {
+      
+      if (heroRef.current && contentColumnRef.current) {
         const heroRect = heroRef.current.getBoundingClientRect();
         const heroBottom = heroRect.bottom;
-        // Show floating card when hero section is scrolled past the header
-        setIsVisible(heroBottom <= headerHeight + 16); // Add small margin
+        const contentColumnRect = contentColumnRef.current.getBoundingClientRect();
+        
+        // Card height estimate (approximately 400px including padding)
+        const cardHeight = 400;
+        const cardBottomPosition = headerHeight + cardHeight + 20;
+        
+        // Check if we're within the content column bounds
+        // Card should be sticky only when:
+        // 1. Hero section is scrolled past the header
+        // 2. Content column is still visible
+        // 3. Card bottom position hasn't reached the bottom of the content column
+        const isHeroScrolledPast = heroBottom <= headerHeight + 16;
+        const isContentColumnVisible = contentColumnRect.top < window.innerHeight;
+        const isWithinContentBounds = contentColumnRect.bottom > cardBottomPosition;
+        
+        // Show floating card only when within content column bounds
+        setIsVisible(isHeroScrolledPast && isContentColumnVisible && isWithinContentBounds);
+        
         // For mobile, we'll handle this differently with the sticky bottom CTA
         if (window.innerWidth < 1024) {
           const summaryCardBottom = summaryCardRef.current?.getBoundingClientRect().bottom || 0;
@@ -285,15 +294,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     fetchItemDetails();
   }, [itemId, marketplaceType, bookmarkedItems, shouldTakeAction, navigate, config]);
 
-  // Auto-open registration form when register query parameter is present
-  useEffect(() => {
-    if (shouldOpenRegistration && marketplaceType === 'events' && item && itemId && !showRegistrationForm && !showRegistrationConfirmation) {
-      // Small delay to ensure page is fully loaded
-      setTimeout(() => {
-        setShowRegistrationForm(true);
-      }, 300);
-    }
-  }, [shouldOpenRegistration, marketplaceType, item, itemId, showRegistrationForm, showRegistrationConfirmation]);
 
   const handleToggleBookmark = () => {
     if (item) {
@@ -307,35 +307,17 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     }
   };
 
-  // Handle event registration for events marketplace
+  // Handle event registration for events marketplace - redirect to meeting link
   const handleEventRegistration = () => {
-    if (marketplaceType !== 'events' || !item || !itemId) {
+    if (marketplaceType !== 'events' || !item) {
       return;
     }
-    // Open registration form
-    setShowRegistrationForm(true);
-  };
-
-  // Handle registration form success
-  const handleRegistrationSuccess = (data: {
-    fullName: string;
-    email: string;
-    phoneNumber: string;
-  }) => {
-    setRegistrationData(data);
-    setShowRegistrationForm(false);
-    setShowRegistrationConfirmation(true);
-  };
-
-  // Handle registration form close
-  const handleRegistrationFormClose = () => {
-    setShowRegistrationForm(false);
-  };
-
-  // Handle confirmation close
-  const handleConfirmationClose = () => {
-    setShowRegistrationConfirmation(false);
-    setRegistrationData(null);
+    // Redirect to meeting link if available
+    if (item.meetingLink) {
+      window.open(item.meetingLink, '_blank', 'noopener,noreferrer');
+    } else {
+      toast.error('Meeting link not available for this event');
+    }
   };
 
   // Legacy function (keeping for compatibility)
@@ -457,7 +439,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const itemTitle = item.title;
   const itemDescription = item.description;
   const provider = item.provider;
-  const primaryAction = config.primaryCTA;
+  const primaryAction = marketplaceType === 'events' ? 'Join' : config.primaryCTA;
   const secondaryAction = config.secondaryCTA;
   // Extract tags based on marketplace type
   // For events, use item.tags directly; for others, use fallback logic
@@ -537,24 +519,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     </div>
                   </div>
                   {/* Registration Notice */}
-                  {item.registrationRequired && <div className="bg-[#FB5535]/10 rounded-lg p-4 border border-[#FB5535]/30">
-                      <p className="text-[#030F35] mb-3">
-                        <strong className="text-[#FB5535]">Registration Required:</strong> Please register to attend this event.
-                        {item.registrationDeadline && ` Registration deadline: ${new Date(item.registrationDeadline).toLocaleDateString()}`}
-                      </p>
-                      {item.register_button && <div className="mt-3">
-                          {typeof item.register_button === 'string' && item.register_button.startsWith('http') ? (
-                            <a href={item.register_button} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-4 py-2 bg-[#030F35] text-white rounded-md hover:bg-[#13285A] active:bg-[#0A1F2E] transition-all shadow-md">
-                              Register Now
-                              <ExternalLinkIcon size={16} className="ml-2" />
-                            </a>
-                          ) : (
-                            <button onClick={handleEventRegistration} className="inline-flex items-center px-4 py-2 bg-[#030F35] text-white rounded-md hover:bg-[#13285A] active:bg-[#0A1F2E] transition-all shadow-md">
-                              {item.register_button || 'Register Now'}
-                            </button>
-                          )}
-                        </div>}
-                    </div>}
                   {item.meetingLink && <div className="bg-[#030F35]/5 rounded-lg p-4 border border-[#030F35]/20">
                       <h4 className="font-semibold text-[#030F35] mb-2">Join Online</h4>
                       <a href={item.meetingLink} target="_blank" rel="noopener noreferrer" className="text-[#030F35] hover:text-[#13285A] underline">
@@ -854,19 +818,20 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         if (marketplaceType === 'events') {
           return <div className="space-y-6">
               <p className="text-gray-600 text-lg mb-6">
-                How to register for this event.
+                How to join this event.
               </p>
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <div className="space-y-3">
-                  {item.registrationRequired ? <>
+                  {item.meetingLink ? (
+                    <>
                       <div className="flex items-start gap-3">
                         <span className="text-gray-500 font-medium">1.</span>
                         <div>
                           <h4 className="font-medium text-gray-900">
-                            Click Register Now
+                            Click Join
                           </h4>
                           <p className="text-gray-600 text-sm mt-1">
-                            Use the "Register Now" button above to begin your registration.
+                            Use the "Join" button above to join the event.
                           </p>
                         </div>
                       </div>
@@ -874,47 +839,25 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                         <span className="text-gray-500 font-medium">2.</span>
                         <div>
                           <h4 className="font-medium text-gray-900">
-                            Complete Registration Form
+                            Join the Meeting
                           </h4>
                           <p className="text-gray-600 text-sm mt-1">
-                            Fill out your details and confirm your attendance.
+                            You'll be redirected to the meeting link to join the event.
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <span className="text-gray-500 font-medium">3.</span>
-                        <div>
-                          <h4 className="font-medium text-gray-900">
-                            Receive Confirmation
-                          </h4>
-                          <p className="text-gray-600 text-sm mt-1">
-                            You'll receive a confirmation email with event details and {item.meetingLink ? 'meeting link' : 'location information'}.
-                          </p>
-                        </div>
-                      </div>
-                      {item.registrationDeadline && <div className="mt-4 bg-amber-50 rounded-lg p-3 border border-amber-200">
-                          <p className="text-amber-900 text-sm">
-                            <strong>Registration Deadline:</strong> {new Date(item.registrationDeadline).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: '2-digit'
-                          })}
-                          </p>
-                        </div>}
-                    </> : <div className="text-center py-8">
+                    </>
+                  ) : (
+                    <div className="text-center py-8">
                       <CheckCircleIcon className="text-[#1A2E6E] mx-auto mb-4" size={48} />
                       <h4 className="font-medium text-gray-900 mb-2">
-                        No Registration Required
+                        Join at Scheduled Time
                       </h4>
                       <p className="text-gray-600 text-sm">
-                        This event is open to all. Simply join at the scheduled time.
-                        {item.meetingLink && <a href={item.meetingLink} target="_blank" rel="noopener noreferrer" className="text-[#030F35] hover:text-[#13285A] underline block mt-2">
-                            Access Meeting Link
-                          </a>}
+                        This event is open to all. Simply join at the scheduled time and location.
                       </p>
-                    </div>}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>;
@@ -1210,7 +1153,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     isFloating = false
   }) => <div ref={isFloating ? null : summaryCardRef} className={`
         bg-white rounded-lg shadow-md border border-[#030F35]/20 overflow-hidden
-        ${isFloating ? 'fixed z-[1000]' : ''}
+        ${isFloating ? 'fixed z-[100]' : ''}
       `} style={isFloating ? {
     top: `${headerHeight + 20}px`,
     right: '2rem',
@@ -1251,7 +1194,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         <button 
           id="action-section" 
           onClick={marketplaceType === 'events' ? handleEventRegistration : undefined}
-          className={`w-full px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md mb-3 ${
+          className={`w-full px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md ${marketplaceType === 'events' ? '' : 'mb-3'} ${
             marketplaceType === 'events' 
               ? 'bg-[#030F35] hover:bg-[#13285A] active:bg-[#0A1F2E]' 
               : 'bg-gradient-to-r from-[#030F35] via-[#1A2E6E] to-[#030F35] hover:from-[#13285A] hover:via-[#1A2E6E] hover:to-[#13285A]'
@@ -1259,10 +1202,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         >
           {primaryAction}
         </button>
-        <button onClick={handleAddToComparison} className="w-full px-4 py-2.5 text-[#030F35] font-medium bg-white border border-[#030F35]/30 rounded-md hover:bg-[#030F35]/10 transition-colors flex items-center justify-center">
-          <ScaleIcon size={16} className="mr-2" />
-          Add to Comparison
-        </button>
+        {marketplaceType !== 'events' && (
+          <button onClick={handleAddToComparison} className="w-full px-4 py-2.5 text-[#030F35] font-medium bg-white border border-[#030F35]/30 rounded-md hover:bg-[#030F35]/10 transition-colors flex items-center justify-center">
+            <ScaleIcon size={16} className="mr-2" />
+            Add to Comparison
+          </button>
+        )}
       </div>
     </div>;
   return <div className="bg-white min-h-screen flex flex-col">
@@ -1326,43 +1271,30 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     {tag}
                   </span>)}
               </div>
-              {/* Ratings and bookmark row - Now in a single row with proper alignment */}
-              <div className="flex items-center justify-between w-full mb-4">
-                <div className="flex items-center">
-                  {marketplaceType === 'courses' && <div className="flex items-center">
-                      <div className="flex items-center">
-                        {[1, 2, 3, 4, 5].map(star => <StarIcon key={star} size={16} className={`${parseFloat(rating) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />)}
-                      </div>
-                      <span className="ml-2 text-sm font-medium text-gray-700">
-                        {rating}
-                      </span>
-                      <span className="mx-1.5 text-gray-500">·</span>
-                      <span className="text-sm text-gray-500">
-                        {reviewCount} reviews
-                      </span>
-                    </div>}
+              {/* Ratings row - Bookmark removed for events */}
+              {marketplaceType === 'courses' && (
+                <div className="flex items-center w-full mb-4">
+                  <div className="flex items-center">
+                    <div className="flex items-center">
+                      {[1, 2, 3, 4, 5].map(star => <StarIcon key={star} size={16} className={`${parseFloat(rating) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />)}
+                    </div>
+                    <span className="ml-2 text-sm font-medium text-gray-700">
+                      {rating}
+                    </span>
+                    <span className="mx-1.5 text-gray-500">·</span>
+                    <span className="text-sm text-gray-500">
+                      {reviewCount} reviews
+                    </span>
+                  </div>
+                  <button onClick={handleToggleBookmark} className={`p-1.5 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} ml-2`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'} title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
+                    <BookmarkIcon size={18} className={isBookmarked ? 'fill-yellow-600' : ''} />
+                  </button>
                 </div>
-                <button onClick={handleToggleBookmark} className={`p-1.5 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} ml-2`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'} title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
-                  <BookmarkIcon size={18} className={isBookmarked ? 'fill-yellow-600' : ''} />
-                </button>
-              </div>
-              {/* Description */}
-              <p className="text-[#030F35]/80 mb-6 max-w-2xl">{itemDescription}</p>
-              {/* Event Information in Header - for events only */}
-              {marketplaceType === 'events' && (item.date || item.time || item.location) && <div className="flex flex-wrap items-center gap-4 text-sm text-[#030F35]/70 mb-4">
-                  {item.date && <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 text-[#1A2E6E]" />
-                      <span>{item.date}</span>
-                    </div>}
-                  {item.time && <div className="flex items-center">
-                      <Clock className="h-4 w-4 mr-2 text-[#1A2E6E]" />
-                      <span>{item.time}</span>
-                    </div>}
-                  {item.location && <div className="flex items-center">
-                      <MapPin className="h-4 w-4 mr-2 text-[#1A2E6E]" />
-                      <span>{item.location}</span>
-                    </div>}
-                </div>}
+              )}
+              {/* Description - for non-events only */}
+              {marketplaceType !== 'events' && (
+                <p className="text-[#030F35]/80 mb-6 max-w-2xl">{itemDescription}</p>
+              )}
             </div>
           </div>
         </div>
@@ -1411,7 +1343,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         <div ref={mainContentRef} className="container mx-auto px-4 md:px-6 max-w-7xl py-8">
           <div className="grid grid-cols-12 gap-8">
             {/* Content column (~8 columns) */}
-            <div className="col-span-12 lg:col-span-8">
+            <div ref={contentColumnRef} className="col-span-12 lg:col-span-8">
               {/* Tab Content */}
               <div className="mb-8">
                 {config.tabs.map(tab => <div key={tab.id} className={activeTab === tab.id ? 'block' : 'hidden'} id={`tabpanel-${tab.id}`} role="tabpanel" aria-labelledby={`tab-${tab.id}`}>
@@ -1529,7 +1461,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             <div className="flex items-center justify-between max-w-sm mx-auto">
               <div className="mr-3">
                 <div className="text-[#030F35] font-bold">
-                  {marketplaceType === 'courses' ? item.price || 'Free' : marketplaceType === 'financial' ? item.amount || 'Apply Now' : 'Request Now'}
+                  {marketplaceType === 'courses' ? item.price || 'Free' : marketplaceType === 'financial' ? item.amount || 'Apply Now' : marketplaceType === 'events' ? '' : 'Request Now'}
                 </div>
                 <div className="text-sm text-[#030F35]/70">
                   {item.duration || item.serviceType || ''}
@@ -1545,29 +1477,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           </div>}
       </main>
       <Footer isLoggedIn={false} />
-
-      {/* Event Registration Form */}
-      {showRegistrationForm && marketplaceType === 'events' && itemId && item && (
-        <EventRegistrationForm
-          eventId={itemId}
-          eventTitle={item.title || 'Event'}
-          onClose={handleRegistrationFormClose}
-          onSuccess={handleRegistrationSuccess}
-        />
-      )}
-
-      {/* Event Registration Confirmation */}
-      {showRegistrationConfirmation && marketplaceType === 'events' && itemId && item && registrationData && (
-        <EventRegistrationConfirmation
-          eventId={itemId}
-          eventTitle={item.title || 'Event'}
-          eventDate={item.date || item.start_time}
-          eventTime={item.time || item.start_time}
-          eventLocation={item.location}
-          registrationData={registrationData}
-          onClose={handleConfirmationClose}
-        />
-      )}
     </div>;
 };
 export default MarketplaceDetailsPage;

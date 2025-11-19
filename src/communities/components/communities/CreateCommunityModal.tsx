@@ -13,12 +13,12 @@ import { toast } from 'sonner';
 
 // DQ-specific categories
 const DQ_CATEGORIES = [
-  'DQ Culture',
-  'DQ Agile',
-  'DQ Tech',
-  'DQ Persona',
-  'DQ DTMF',
-  'DQ Vision'
+  'GHC - DQ Culture',
+  'GHC - DQ Agile',
+  'GHC - DQ Tech',
+  'GHC - DQ Persona',
+  'GHC - DQ DTMF',
+  'GHC - DQ Vision'
 ];
 
 interface CreateCommunityModalProps {

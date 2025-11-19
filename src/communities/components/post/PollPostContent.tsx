@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from "@/lib/supabaseClient";
 import { safeFetch } from '@/communities/utils/safeFetch';
 import { useAuth } from '@/communities/contexts/AuthProvider';
+import { getAnonymousUserId } from '@/communities/utils/anonymousUser';
 import { BarChart3, Check, Clock, AlertCircle } from 'lucide-react';
 import { Button } from '@/communities/components/ui/button';
 import { Progress } from '@/communities/components/ui/progress';
@@ -13,6 +14,8 @@ interface PollOption {
 }
 interface PollPostContentProps {
   postId: string;
+  communityId?: string;
+  isMember?: boolean;
   metadata?: {
     poll_duration_days?: number;
     end_date?: string;
@@ -22,6 +25,8 @@ interface PollPostContentProps {
 }
 export function PollPostContent({
   postId,
+  communityId,
+  isMember = false,
   metadata,
   content,
   content_html
@@ -82,17 +87,17 @@ export function PollPostContent({
     setLoading(false);
   };
   const checkUserVote = async () => {
-    if (!user) return;
+    const userId = user?.id || getAnonymousUserId();
     const {
       data
-    } = await supabase.from('poll_votes').select('option_id').eq('post_id', postId).eq('user_id', user.id).single();
+    } = await supabase.from('poll_votes').select('option_id').eq('post_id', postId).eq('user_id', userId).single();
     if (data) {
       setUserVote(data.option_id);
     }
   };
   const handleVote = async (optionId: string) => {
-    if (!user) {
-      setError('Please sign in to vote');
+    if (!isMember) {
+      setError('You must be a member of this community to vote');
       return;
     }
     if (pollEnded) {
@@ -103,12 +108,14 @@ export function PollPostContent({
       setError('You have already voted in this poll');
       return;
     }
+    
+    const userId = user?.id || getAnonymousUserId();
     // Insert vote record
     const {
       error: voteError
     } = await supabase.from('poll_votes').insert({
       post_id: postId,
-      user_id: user.id,
+      user_id: userId,
       option_id: optionId
     });
     if (voteError) {

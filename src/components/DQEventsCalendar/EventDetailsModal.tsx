@@ -311,16 +311,18 @@ export function EventDetailsModal({ event, isOpen, onClose }: EventDetailsModalP
   };
 
   const handleRegister = () => {
-    // Navigate to event details page where registration form is available
-    // Add query parameter to auto-open registration form
-    if (displayEvent?.id) {
+    // Redirect to meeting link if available, otherwise navigate to event details page
+    if (displayEvent?.meeting_link) {
+      window.open(displayEvent.meeting_link, '_blank', 'noopener,noreferrer');
+      onClose(); // Close the modal
+    } else if (displayEvent?.id) {
       onClose(); // Close the modal first
-      navigate(`/marketplace/events/${displayEvent.id}?register=true`);
+      navigate(`/marketplace/events/${displayEvent.id}`);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all duration-300">
+    <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all duration-300">
       <div 
         ref={modalRef} 
         className="bg-white rounded-2xl overflow-hidden max-w-2xl w-full max-h-[90vh] shadow-2xl transform transition-all duration-300 animate-fadeIn mx-4"
@@ -559,7 +561,7 @@ export function EventDetailsModal({ event, isOpen, onClose }: EventDetailsModalP
         {/* Footer Actions */}
         <div className="border-t border-gray-200 p-6 bg-gray-50">
           <div className="flex flex-col sm:flex-row gap-3">
-            {/* Register Button */}
+            {/* Join Button */}
             <button
               onClick={handleRegister}
               disabled={!displayEvent}
@@ -570,7 +572,7 @@ export function EventDetailsModal({ event, isOpen, onClose }: EventDetailsModalP
               }`}
             >
               <UserPlus className="w-4 h-4 mr-2" />
-              Register Now
+              Join
             </button>
             
             {/* Add to Calendar Dropdown */}
@@ -603,7 +605,7 @@ export function EventDetailsModal({ event, isOpen, onClose }: EventDetailsModalP
               
               {/* Calendar Options Dropdown */}
               {showCalendarOptions && (
-                <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-10">
+                <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-[260]">
                   <button
                     onClick={() => handleAddToCalendar('teamsCalendar')}
                     className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center transition-colors"
@@ -676,7 +678,7 @@ export function EventDetailsModal({ event, isOpen, onClose }: EventDetailsModalP
 
       {/* Success Message */}
       {showSuccessMessage && (
-        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slideIn">
+        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-[250] animate-slideIn">
           <div className="flex items-center">
             <Calendar className="w-4 h-4 mr-2" />
             <span>Calendar event created successfully!</span>

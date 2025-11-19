@@ -289,7 +289,7 @@ export default function CommunityFeed() {
         title="Community Feed"
         breadcrumbs={[
           { label: "Home", href: "/community" },
-          { label: "Communities", href: "/communities" },
+          { label: "DQ Work Communities", href: "/communities" },
           { label: "Feed", current: true },
         ]}
         headerSubtitle="See updates and posts from your joined communities"

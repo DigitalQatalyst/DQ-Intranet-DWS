@@ -96,7 +96,8 @@ export function FeedSidebar({
   };
   const handleJoinCommunity = async (communityId: string) => {
     if (!user) {
-      navigate('/');
+      // Navigate to sign-in page with redirect to community
+      navigate(`/sign-in?redirect=/community/${communityId}`);
       return;
     }
     const isMember = memberships.some(m => m.community_id === communityId && m.joined);
@@ -151,7 +152,7 @@ export function FeedSidebar({
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <Avatar className="h-10 w-10 flex-shrink-0">
                     <AvatarImage src={community.imageurl} />
-                    <AvatarFallback className="bg-[#0030E3] text-white text-xs font-semibold">
+                    <AvatarFallback className="bg-dq-navy text-white text-xs font-semibold">
                       {community.name.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>

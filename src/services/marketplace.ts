@@ -114,19 +114,22 @@ const transformEventDetail = (event: any): any => {
     day: 'numeric' 
   });
   
-  // Format time
+  // Format time range (start - end)
   const timeStr = startDate.toLocaleTimeString('en-US', { 
     hour: 'numeric', 
     minute: '2-digit',
     hour12: true 
   });
   
-  // Format end time if needed
+  // Format end time
   const endTimeStr = endDate.toLocaleTimeString('en-US', { 
     hour: 'numeric', 
     minute: '2-digit',
     hour12: true 
   });
+  
+  // Combine start and end time for display
+  const timeRangeStr = `${timeStr} - ${endTimeStr}`;
   
   // Calculate duration
   const durationMs = endDate.getTime() - startDate.getTime();
@@ -166,10 +169,9 @@ const transformEventDetail = (event: any): any => {
     businessStage: "All Stages",
     provider: provider,
     date: dateStr,
-    time: timeStr,
+    time: timeRangeStr, // Use time range instead of just start time
     endTime: endTimeStr,
     location: event.location || "TBA",
-    price: "Free",
     capacity: event.max_attendees ? `${event.max_attendees} attendees` : undefined,
     details: details.length > 0 ? details : undefined,
     tags: event.tags || [],

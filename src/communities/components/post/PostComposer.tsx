@@ -217,7 +217,7 @@ export function PostComposer({
       }
 
       // Insert the post
-      const query = supabase.from('posts').insert({
+      const query = supabase.from('community_posts').insert({
         title,
         content,
         content_html: contentHtml,
@@ -225,7 +225,8 @@ export function PostComposer({
         metadata,
         tags,
         community_id: communityId,
-        created_by: user.id,
+        user_id: user.id, // Set user_id (trigger will sync to created_by)
+        created_by: user.id, // Also set created_by explicitly for compatibility
         status: 'active'
       }).select().single();
       const [postData, postError] = await safeFetch(query);

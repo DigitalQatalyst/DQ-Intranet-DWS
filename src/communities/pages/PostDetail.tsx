@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { safeFetch } from "../utils/safeFetch";
+import { useCommunityMembership } from "../hooks/useCommunityMembership";
+import { useAuth } from "../contexts/AuthProvider";
 import { PostAuthorCard } from "../components/post/PostAuthorCard";
 import { RelatedPosts } from "../components/post/RelatedPosts";
 import { CommentList } from "../components/post/CommentList";
@@ -61,10 +63,12 @@ export default function PostDetail() {
   const { id } = useParams<{
     id: string;
   }>();
+  const { user } = useAuth();
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const { isMember } = useCommunityMembership(post?.community_id);
   useEffect(() => {
     if (id) {
       fetchPost();
@@ -73,9 +77,9 @@ export default function PostDetail() {
   const fetchPost = async () => {
     setLoading(true);
     setError(null);
-    // Query posts table directly to get all fields including content_html, post_type, etc.
+    // Query community_posts table directly to get all fields including content_html, post_type, etc.
     const query = supabase
-      .from("posts")
+      .from("community_posts")
       .select(
         `
         id,
@@ -91,13 +95,14 @@ export default function PostDetail() {
         event_date,
         event_location,
         communities!inner(name),
-        users_local!posts_created_by_fkey(username, avatar_url)
+        users_local!community_posts_created_by_fkey(username, avatar_url)
       `
       )
       .eq("id", id)
       .maybeSingle();
     const [data, err] = await safeFetch(query);
     if (err) {
+      console.error("Error loading post:", err);
       setError("Failed to load post");
       setLoading(false);
       return;
@@ -108,9 +113,12 @@ export default function PostDetail() {
       return;
     }
     // Get reaction counts separately
-    const [reactionsData] = await safeFetch(
-      supabase.from("reactions").select("reaction_type").eq("post_id", id)
+    const [reactionsData, reactionsError] = await safeFetch(
+      supabase.from("community_reactions").select("reaction_type").eq("post_id", id)
     );
+    if (reactionsError) {
+      console.error("Error loading reactions:", reactionsError);
+    }
     // Get comment count
     const [commentsData] = await safeFetch(
       supabase
@@ -174,7 +182,7 @@ export default function PostDetail() {
           icon: Home,
         },
         {
-          label: "Communities",
+          label: "DQ Work Communities",
           href: "/communities",
         },
         {
@@ -431,6 +439,8 @@ export default function PostDetail() {
                     {post.post_type === "poll" && (
                       <PollPostContent
                         postId={post.id}
+                        communityId={post.community_id}
+                        isMember={isMember}
                         metadata={post.metadata}
                         content={post.content}
                         content_html={post.content_html}
@@ -456,6 +466,8 @@ export default function PostDetail() {
                     helpfulCount={post.helpful_count || 0}
                     insightfulCount={post.insightful_count || 0}
                     postId={post.id}
+                    communityId={post.community_id}
+                    isMember={isMember}
                   />
                 </SectionContent>
               </PageSection>

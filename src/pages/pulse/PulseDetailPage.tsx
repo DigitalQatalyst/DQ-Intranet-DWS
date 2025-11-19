@@ -58,6 +58,64 @@ export const PulseDetailPage: React.FC = () => {
   const [submitted, setSubmitted] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
+  const [feedbackQuestions, setFeedbackQuestions] = useState<any[]>([]);
+  const [feedbackQuestionsLoading, setFeedbackQuestionsLoading] = useState(false);
+
+  const fetchFeedbackQuestions = async (eventId: string) => {
+    setFeedbackQuestionsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("pulse_feedback_questions")
+        .select("*")
+        .eq("event_id", eventId)
+        .order("display_order", { ascending: true });
+
+      if (error) {
+        console.error('Error fetching feedback questions:', error);
+        // Fallback: try to use questions from pulse_items if available
+        const currentItem = item;
+        if (currentItem?.questions) {
+          setFeedbackQuestions(currentItem.questions);
+        }
+      } else if (data && data.length > 0) {
+        setFeedbackQuestions(data);
+        
+        // Check if user has already responded and load their answers
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: responses } = await supabase
+            .from("pulse_feedback_responses")
+            .select("question_id, response")
+            .eq("event_id", eventId)
+            .eq("user_id", user.id);
+
+          if (responses && responses.length > 0) {
+            const existingAnswers: Record<string, any> = {};
+            responses.forEach((r: any) => {
+              existingAnswers[r.question_id] = r.response;
+            });
+            setFeedbackAnswers(existingAnswers);
+            setHasResponded(true);
+          }
+        }
+      } else {
+        // No questions found in database, check if item has questions (fallback)
+        const currentItem = item;
+        if (currentItem?.questions) {
+          setFeedbackQuestions(currentItem.questions);
+        }
+      }
+    } catch (err: any) {
+      console.error('Error fetching feedback questions:', err);
+      // Fallback to item.questions if available
+      const currentItem = item;
+      if (currentItem?.questions) {
+        setFeedbackQuestions(currentItem.questions);
+      }
+    } finally {
+      setFeedbackQuestionsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchPulseItem = async () => {
@@ -170,11 +228,7 @@ export const PulseDetailPage: React.FC = () => {
               options: null,
               allow_multiple: false,
               anonymous: false,
-              questions: [
-                { id: 'f1', question: 'What did you like most about the event?', type: 'text' },
-                { id: 'f2', question: 'What could be improved?', type: 'text' },
-                { id: 'f3', question: 'Rate your overall experience (1-5)', type: 'scale', scale_min: 1, scale_max: 5 }
-              ],
+              questions: null, // Questions will be fetched from pulse_feedback_questions table
               survey_type: null,
               feedback_type: 'general',
               category: null,
@@ -203,11 +257,20 @@ export const PulseDetailPage: React.FC = () => {
           const mockItem = mockItems.find(i => i.id === id);
           if (mockItem) {
             setItem(mockItem as PulseItem);
+            // If this is a feedback type, fetch questions from database
+            if (mockItem.type === 'feedback') {
+              await fetchFeedbackQuestions(mockItem.id);
+            }
           } else {
             throw new Error("Pulse item not found");
           }
         } else {
           setItem(data);
+          
+          // If this is a feedback type, fetch questions from database
+          if (data.type === 'feedback') {
+            await fetchFeedbackQuestions(data.id);
+          }
         }
 
         // Check if user has already responded (if authenticated)
@@ -318,11 +381,57 @@ export const PulseDetailPage: React.FC = () => {
         }
         responseData = { answers: surveyAnswers };
       } else if (item.type === 'feedback') {
-        const allQuestionsAnswered = item.questions?.every(q => feedbackAnswers[q.id]);
+        // Use dynamically fetched questions if available, otherwise fallback to item.questions
+        const questionsToCheck = feedbackQuestions.length > 0 ? feedbackQuestions : (item.questions || []);
+        const allQuestionsAnswered = questionsToCheck.every((q: any) => {
+          const questionId = q.id || q.question_id;
+          return feedbackAnswers[questionId];
+        });
         if (!allQuestionsAnswered) {
           alert("Please answer all questions");
           return;
         }
+        
+        // Save responses to pulse_feedback_responses table
+        const questionsToSave = feedbackQuestions.length > 0 ? feedbackQuestions : (item.questions || []);
+        for (const question of questionsToSave) {
+          const questionId = question.id || question.question_id;
+          const response = feedbackAnswers[questionId];
+          
+          if (response) {
+            // Check if response already exists
+            const { data: existingResponse } = await supabase
+              .from("pulse_feedback_responses")
+              .select("id")
+              .eq("event_id", id)
+              .eq("question_id", questionId)
+              .eq("user_id", user.id)
+              .single();
+
+            if (existingResponse) {
+              // Update existing response
+              await supabase
+                .from("pulse_feedback_responses")
+                .update({
+                  response: typeof response === 'string' ? response : JSON.stringify(response),
+                  updated_at: new Date().toISOString()
+                })
+                .eq("id", existingResponse.id);
+            } else {
+              // Insert new response
+              await supabase
+                .from("pulse_feedback_responses")
+                .insert({
+                  question_id: questionId,
+                  event_id: id,
+                  user_id: user.id,
+                  response: typeof response === 'string' ? response : JSON.stringify(response)
+                });
+            }
+          }
+        }
+        
+        // Also save to pulse_responses for backward compatibility
         responseData = { feedback: feedbackAnswers };
       }
 
@@ -504,7 +613,7 @@ export const PulseDetailPage: React.FC = () => {
               <div className="flex items-center">
                 <ChevronRightIcon size={16} className="text-gray-400 mx-1" />
                 <Link to="/communities" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
-                  Communities
+                  DQ Work Communities
                 </Link>
               </div>
             </li>
@@ -689,59 +798,95 @@ export const PulseDetailPage: React.FC = () => {
             )}
 
             {/* Feedback Form Section */}
-            {item.type === 'feedback' && item.questions && (
+            {item.type === 'feedback' && (
               <div className="mb-6">
-                {!submitted ? (
-                  <div className="space-y-6">
-                    {item.questions.map((q: any, index: number) => (
-                      <div key={q.id} className="border border-gray-200 rounded-lg p-4">
-                        <label className="block text-lg font-semibold text-gray-900 mb-3">
-                          {index + 1}. {q.question}
-                        </label>
-                        {q.type === 'scale' && (
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-                              <span>{q.scale_min || 1}</span>
-                              <span>{q.scale_max || 5}</span>
-                            </div>
-                            <div className="flex gap-2">
-                              {Array.from({ length: (q.scale_max || 5) - (q.scale_min || 1) + 1 }, (_, i) => {
-                                const value = (q.scale_min || 1) + i;
-                                return (
-                                  <button
-                                    key={value}
-                                    onClick={() => handleFeedbackAnswer(q.id, value)}
-                                    className={`flex-1 py-2 px-4 rounded-lg border-2 transition-all ${
-                                      feedbackAnswers[q.id] === value
-                                        ? 'border-purple-500 bg-purple-50 text-purple-700'
-                                        : 'border-gray-200 hover:border-gray-300'
-                                    }`}
-                                  >
-                                    {value}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-                        {q.type === 'text' && (
-                          <textarea
-                            value={feedbackAnswers[q.id] || ''}
-                            onChange={(e) => handleFeedbackAnswer(q.id, e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                            rows={4}
-                            placeholder="Type your feedback here..."
-                          />
-                        )}
-                      </div>
-                    ))}
-                    <button
-                      onClick={handleSubmitResponse}
-                      className="w-full mt-6 px-6 py-3 bg-dq-navy text-white rounded-lg hover:bg-[#13285A] transition-colors font-semibold"
-                    >
-                      Submit Feedback
-                    </button>
+                {feedbackQuestionsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-pulse space-y-4">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+                    </div>
                   </div>
+                ) : !submitted ? (
+                  feedbackQuestions.length > 0 ? (
+                    <div className="space-y-8">
+                      {/* Group questions by category */}
+                      {Object.entries(
+                        feedbackQuestions.reduce((acc: Record<string, any[]>, q: any) => {
+                          const category = q.category || 'General';
+                          if (!acc[category]) acc[category] = [];
+                          acc[category].push(q);
+                          return acc;
+                        }, {})
+                      ).map(([category, questions]) => (
+                        <div key={category} className="space-y-6">
+                          <h3 className="text-xl font-bold text-gray-900 border-b border-gray-200 pb-2">
+                            {category}
+                          </h3>
+                          {questions.map((q: any, index: number) => {
+                            const questionId = q.id || q.question_id;
+                            const questionText = q.question;
+                            const questionType = q.question_type || q.type || 'text';
+                            const scaleMin = q.scale_min || 1;
+                            const scaleMax = q.scale_max || 5;
+                            
+                            return (
+                              <div key={questionId} className="border border-gray-200 rounded-lg p-4">
+                                <label className="block text-lg font-semibold text-gray-900 mb-3">
+                                  {index + 1}. {questionText}
+                                </label>
+                                {questionType === 'scale' && (
+                                  <div className="space-y-2">
+                                    <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                                      <span>{scaleMin}</span>
+                                      <span>{scaleMax}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                      {Array.from({ length: scaleMax - scaleMin + 1 }, (_, i) => {
+                                        const value = scaleMin + i;
+                                        return (
+                                          <button
+                                            key={value}
+                                            onClick={() => handleFeedbackAnswer(questionId, value)}
+                                            className={`flex-1 py-2 px-4 rounded-lg border-2 transition-all ${
+                                              feedbackAnswers[questionId] === value
+                                                ? 'border-purple-500 bg-purple-50 text-purple-700'
+                                                : 'border-gray-200 hover:border-gray-300'
+                                            }`}
+                                          >
+                                            {value}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                                {questionType === 'text' && (
+                                  <textarea
+                                    value={feedbackAnswers[questionId] || ''}
+                                    onChange={(e) => handleFeedbackAnswer(questionId, e.target.value)}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                    rows={4}
+                                    placeholder="Type your feedback here..."
+                                  />
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
+                      <button
+                        onClick={handleSubmitResponse}
+                        className="w-full mt-6 px-6 py-3 bg-dq-navy text-white rounded-lg hover:bg-[#13285A] transition-colors font-semibold"
+                      >
+                        Submit Feedback
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-600">No feedback questions available for this event.</p>
+                    </div>
+                  )
                 ) : (
                   <div className="text-center py-8">
                     <CheckCircle size={48} className="text-green-600 mx-auto mb-4" />
@@ -843,32 +988,34 @@ export const PulseDetailPage: React.FC = () => {
               </div>
             )}
 
-            {/* Engagement Stats */}
-            <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-gray-200">
-              <button
-                onClick={handleToggleLike}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                  isLiked
-                    ? 'bg-red-50 text-red-600'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
-                <span>{item.like_count || item.total_likes || 0}</span>
-              </button>
-              <div className="flex items-center gap-2 text-gray-600">
-                <BarChart3 size={18} />
-                <span>{item.response_count || item.total_responses || 0} responses</span>
+            {/* Engagement Stats - Only show for non-detail page types (hidden for feedback, survey, poll detail pages) */}
+            {item.type !== 'feedback' && item.type !== 'survey' && item.type !== 'poll' && (
+              <div className="flex flex-wrap items-center gap-6 pt-6 border-t border-gray-200">
+                <button
+                  onClick={handleToggleLike}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                    isLiked
+                      ? 'bg-red-50 text-red-600'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <Heart size={18} fill={isLiked ? 'currentColor' : 'none'} />
+                  <span>{item.like_count || item.total_likes || 0}</span>
+                </button>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <BarChart3 size={18} />
+                  <span>{item.response_count || item.total_responses || 0} responses</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <MessageSquare size={18} />
+                  <span>{item.comment_count || 0} comments</span>
+                </div>
+                <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+                  <Share2 size={18} />
+                  <span>Share</span>
+                </button>
               </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <MessageSquare size={18} />
-                <span>{item.comment_count || 0} comments</span>
-              </div>
-              <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
-                <Share2 size={18} />
-                <span>Share</span>
-              </button>
-            </div>
+            )}
           </div>
         </div>
       </main>

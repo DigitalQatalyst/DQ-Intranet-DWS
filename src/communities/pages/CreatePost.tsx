@@ -216,7 +216,7 @@ export default function CreatePost() {
   };
   const fetchPost = async () => {
     if (!id) return;
-    const query = supabase.from("posts").select("*").eq("id", id).single();
+    const query = supabase.from("community_posts").select("*").eq("id", id).single();
     const [data, error] = await safeFetch(query);
     if (!error && data) {
       setTitle(data.title || "");
@@ -310,11 +310,25 @@ export default function CreatePost() {
     return true;
   };
   const handlePublish = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      setIsPublishing(false);
+      return;
+    }
+    if (!user) {
+      toast.error("Please sign in to create a post");
+      setIsPublishing(false);
+      return;
+    }
     setIsPublishing(true);
-    await savePost("active");
-    clearDraft(); // Clear localStorage draft on publish
-    setIsPublishing(false);
+    try {
+      await savePost("active");
+      clearDraft(); // Clear localStorage draft on publish
+    } catch (error) {
+      console.error("Error publishing post:", error);
+      toast.error("Failed to publish post. Please try again.");
+    } finally {
+      setIsPublishing(false);
+    }
   };
   const savePost = async (status: "active" | "deleted" | "flagged") => {
     if (!user) return;
@@ -336,7 +350,8 @@ export default function CreatePost() {
       post_type: articleMode ? "article" : postType,
       tags,
       community_id: communityId,
-      created_by: user.id,
+      user_id: user.id, // Set user_id (trigger will sync to created_by)
+      created_by: user.id, // Also set created_by explicitly for compatibility
       status,
       metadata: Object.keys(metadata).length > 0 ? metadata : null,
     };
@@ -353,7 +368,7 @@ export default function CreatePost() {
     if (isEditMode && id) {
       // First, verify the post exists and the user has permission to edit it
       const [existingPost, fetchError] = await safeFetch(
-        supabase.from("posts").select("id").eq("id", id).single()
+        supabase.from("community_posts").select("id").eq("id", id).single()
       );
 
       if (fetchError || !existingPost) {
@@ -365,34 +380,57 @@ export default function CreatePost() {
 
       // If post exists, perform the update
       query = supabase
-        .from("posts")
+        .from("community_posts")
         .update(postData)
         .eq("id", id)
         .select()
         .single();
     } else {
-      query = supabase.from("posts").insert([postData]).select().single();
+      query = supabase.from("community_posts").insert([postData]).select().single();
     }
 
     const [data, error] = await safeFetch(query);
+    
+    // Log the query result for debugging
+    if (error) {
+      console.error("Post save error - Full details:", {
+        error,
+        postData,
+        user: user?.id,
+        communityId,
+        postType
+      });
+    } else if (data) {
+      console.log("Post saved successfully:", data.id);
+    }
 
-    // If media post, save uploaded files to media_files table
+    // If media post, save uploaded files to community_assets table
     if (!error && data && postType === "media" && uploadedFiles.length > 0) {
       const mediaFilesData = uploadedFiles.map((file) => ({
         post_id: data.id,
+        community_id: communityId,
         user_id: user.id,
-        file_url: file.url,
-        file_type: file.type,
+        asset_type: file.type.startsWith('image/') ? 'image' : 
+                   file.type.startsWith('video/') ? 'video' : 'document',
+        storage_path: file.url,
+        file_name: file.caption || 'uploaded-file',
+        url: file.url,
+        mime_type: file.type,
         file_size: file.size,
-        display_order: file.order,
         caption: file.caption || null,
       }));
       const [_, mediaError] = await safeFetch(
-        supabase.from("media_files").insert(mediaFilesData)
+        supabase.from("community_assets").insert(mediaFilesData)
       );
       if (mediaError) {
         console.error("Media files error:", mediaError);
-        toast.error("Post created but failed to save media files");
+        console.error("Media error details:", {
+          message: mediaError.message,
+          details: mediaError.details,
+          hint: mediaError.hint,
+          code: mediaError.code
+        });
+        toast.error("Post created but failed to save media files: " + (mediaError.message || 'Unknown error'));
       }
     }
 
@@ -417,6 +455,12 @@ export default function CreatePost() {
     setLoading(false);
     if (error) {
       console.error("Save error:", error);
+      console.error("Error details:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
 
       // Show detailed error message
       let errorMessage = isEditMode
@@ -431,7 +475,10 @@ export default function CreatePost() {
       if (error.hint) {
         errorMessage += ` Hint: ${error.hint}`;
       }
-      toast.error(errorMessage);
+      toast.error(errorMessage, {
+        duration: 5000
+      });
+      throw error; // Re-throw to be caught by handlePublish
     } else {
       toast.success("Your post has been published!");
       clearDraft();
