@@ -30,6 +30,41 @@ export const SFIA_LEVELS: Record<JobItem['sfiaLevel'], { label: string; detail: 
 
 export const JOBS: JobItem[] = [
   {
+    id: 'hr-lead-o2p',
+    title: 'HR Lead O2P',
+    department: 'HRA (People)',
+    roleType: 'HR',
+    location: 'Dubai',
+    type: 'Full-time',
+    seniority: 'Lead',
+    sfiaLevel: 'L5',
+    summary: "Lead DQ's performance function from onboarding through probation and beyond, driving measurable improvement across the organisation.",
+    description:
+      "Lead DQ's performance function from onboarding through probation and beyond, driving measurable improvement across the organisation.",
+    responsibilities: [
+      'Manage onboarding, probation, and performance processes',
+      'Assess associates against SFIA guidelines',
+      'Own ATP scanning and ADP programs',
+      'Deliver insights and drive organisation-wide performance improvement'
+    ],
+    requirements: [
+      '5+ years in performance management or HR transformation',
+      'Team leadership and talent development experience',
+      'Strong skills in frameworks, analytics, and data-driven insights',
+      'Excellent communication and stakeholder influence'
+    ],
+    benefits: [
+      'High-impact role shaping performance culture',
+      'Direct coaching from HR leadership',
+      'Opportunity to own key initiatives and influence across DQ'
+    ],
+    postedOn: '2025-11-18',
+    applyUrl: 'https://dq.example.com/jobs/hr-lead-o2p',
+    image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80'
+  }
+  /* COMMENTED OUT - All other jobs temporarily hidden, only showing HR Lead O2P
+  ,
+  {
     id: 'senior-delivery-lead',
     title: 'Senior Delivery Lead – Riyadh Customer Squad',
     department: 'Delivery — Deploys',
@@ -164,7 +199,7 @@ export const JOBS: JobItem[] = [
     sfiaLevel: 'L4',
     summary: 'Rotate into Studio Ops to run rituals, budgets, and people programs for a new studio without leaving DQ.',
     description:
-      'Lead the makers behind each studio launch. You’ll inherit an existing playbook and evolve it as you keep the studio humming.',
+      'Lead the makers behind each studio launch. You'll inherit an existing playbook and evolve it as you keep the studio humming.',
     responsibilities: [
       'Own the Studio Scorecard and cadence reviews',
       'Coach coordinators on rituals, playbooks, and governance',
@@ -277,4 +312,5 @@ export const JOBS: JobItem[] = [
     applyUrl: 'https://dq.example.com/jobs/riyadh-customer-journey-lead',
     image: 'https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80'
   }
+  */
 ];
