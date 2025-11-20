@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { X, ArrowLeft, Building2, MapPin, Phone, Mail, ExternalLink, BookOpen } from "lucide-react";
+import { X, ArrowLeft, Building2, MapPin, Phone, Mail } from "lucide-react";
 import type { LocationItem } from "../../api/MAPAPI";
 import { MARKER_COLORS } from "./constants";
+import MapActionButton from "./MapActionButton";
 
 interface LocationModalProps {
   location: LocationItem | null;
@@ -67,13 +68,29 @@ const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose
 
   const color = MARKER_COLORS[location.type] || MARKER_COLORS.Default;
   const accentPale = lightenColor(color, 0.85);
-  // Knowledge Center button only shows for Client and Bank locations (both are client types)
-  const isClientLocation = (location.type === "Client" || location.type === "Bank") && location.knowledgeCenterUrl;
+  const showKnowledgeCenter =
+    (location.type === "Client" ||
+      location.type === "Authority" ||
+      location.type === "Bank" ||
+      location.type === "Utility") &&
+    location.knowledgeCenterUrl;
   const description = location.description || "";
   const shouldTruncate = description.length > 200;
   const displayDescription = shouldTruncate && !showFullDescription
     ? description.substring(0, 200) + "..."
     : description;
+
+  const handleVisitKnowledgeCenter = () => {
+    if (location.knowledgeCenterUrl) {
+      window.open(location.knowledgeCenterUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  const handleVisitWebsite = () => {
+    if (location.website) {
+      window.open(location.website, "_blank", "noopener,noreferrer");
+    }
+  };
 
   // Get category display name
   const getCategoryDisplay = () => {
@@ -141,7 +158,7 @@ const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose
       aria-modal="true"
       aria-labelledby="location-modal-title"
     >
-      <div className="flex h-full flex-col overflow-hidden bg-white shadow-[0_25px_60px_rgba(3,15,53,0.25)] ring-1 ring-slate-100">
+      <div className="flex h-full flex-col rounded-[24px] bg-white shadow-[0_25px_60px_rgba(3,15,53,0.25)] ring-1 ring-slate-100">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
           <button
@@ -162,7 +179,7 @@ const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6">
+        <div className="flex-1 overflow-y-auto px-6 pt-6 pb-4 space-y-6">
           <div className="space-y-2">
             <span
               className="inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-wide"
@@ -252,34 +269,26 @@ const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose
         </div>
 
         {/* Footer with Action Buttons */}
-        <div className="border-t border-slate-100 px-5 py-4">
-          <div className="flex flex-col gap-3 sm:flex-row">
-            {/* Knowledge Center Button - Only for Client locations */}
-            {isClientLocation && location.knowledgeCenterUrl && (
-              <a
-                href={location.knowledgeCenterUrl}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#030F35] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#060f2b]"
-              >
-                <BookOpen size={20} />
-                <span>Visit Knowledge Center</span>
-              </a>
+        <div className="border-t border-slate-200 px-4 md:px-6 py-4 bg-white" style={{ borderBottomLeftRadius: 24, borderBottomRightRadius: 24 }}>
+          <div className="flex gap-3 flex-wrap">
+            {showKnowledgeCenter && (
+              <div className="flex-1 min-w-0">
+                <MapActionButton
+                  label="Visit Knowledge Center"
+                  variant="primary"
+                  onClick={handleVisitKnowledgeCenter}
+                />
+              </div>
             )}
 
-            {/* Website Button */}
             {location.website && (
-              <a
-                href={location.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                  isClientLocation && location.knowledgeCenterUrl
-                    ? "flex-1 border border-slate-200 bg-white text-slate-800 hover:border-slate-300"
-                    : "flex-1 bg-blue-600 text-white hover:bg-blue-700"
-                }`}
-              >
-                <ExternalLink size={20} />
-                <span>Visit Website</span>
-              </a>
+              <div className="flex-1 min-w-0">
+                <MapActionButton
+                  label="Visit Website"
+                  variant={showKnowledgeCenter ? "secondary" : "primary"}
+                  onClick={handleVisitWebsite}
+                />
+              </div>
             )}
           </div>
         </div>

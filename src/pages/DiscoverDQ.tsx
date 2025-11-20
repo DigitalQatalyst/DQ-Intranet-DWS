@@ -1,13 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { XIcon } from "lucide-react";
 import { Header } from "../components/Header/Header";
 import { Footer } from "../components/Footer/Footer";
 import VisionMission from "../components/Discover/VisionMission";
 import DQDNA from "../components/Discover/DQDNA";
+import DQSixDigitalJourney from "../components/Discover/DQSixDigitalJourney";
 import WorkspaceInsights from "../components/Discover/WorkspaceInsights";
 import DQDirectory from "../components/Discover/DQDirectory";
-import D6CardsSection from "../components/Discover/D6CardsSection";
 import MapCard from "../components/map/MapCard";
 import {
   DQ_LOCATIONS,
@@ -29,6 +30,7 @@ const insightsData = [
 ];
 
 const DiscoverDQ: React.FC = () => {
+  const navigate = useNavigate();
   const [supportOpen, setSupportOpen] = useState(false);
   const [supportStatus, setSupportStatus] = useState<string | null>(null);
   const [isSubmittingSupport, setSubmittingSupport] = useState(false);
@@ -80,6 +82,14 @@ const DiscoverDQ: React.FC = () => {
   const clearTypes = () => {
     setSelectedTypes(new Set());
     setSelectedLocationId(null);
+  };
+
+  const handleExploreLearningCenter = () => {
+    navigate("/resource-coming-soon?title=DQ%20Learning%20Center%20(Courses%20%26%20Curricula)");
+  };
+
+  const handleExploreKnowledgeCenter = () => {
+    navigate("/insight-coming-soon?title=DQ%20Knowledge%20Center%20(Work%20Guide%20-%20Strategy)");
   };
 
   const handleSupportSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
@@ -168,13 +178,16 @@ const DiscoverDQ: React.FC = () => {
         <VisionMission />
 
         {/* DQ DNA */}
-        <DQDNA />
+        <DQDNA
+          onExploreLearningCenter={handleExploreLearningCenter}
+          onExploreKnowledgeCenter={handleExploreKnowledgeCenter}
+        />
 
         {/* Growth Potential */}
         <WorkspaceInsights data={insightsData} />
 
-        {/* Digital View */}
-        <D6CardsSection />
+        {/* Six Digital Architecture */}
+        <DQSixDigitalJourney />
 
         {/* Directory */}
         <DQDirectory />
