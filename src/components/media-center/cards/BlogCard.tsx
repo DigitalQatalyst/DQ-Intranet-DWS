@@ -49,12 +49,12 @@ export function BlogCard({ item, href }: BlogCardProps) {
           {href ? (
             <Link
               to={href}
-              className="block w-full h-9 rounded-xl bg-[#1A2E6E] text-center text-sm font-semibold text-white leading-9 transition hover:bg-[#132456]"
+              className="block w-full h-9 rounded-xl bg-[#030f35] text-center text-sm font-semibold text-white leading-9 transition hover:opacity-90"
             >
               View Insights
             </Link>
           ) : (
-            <button className="w-full h-9 rounded-xl bg-[#1A2E6E] text-sm font-semibold text-white transition hover:bg-[#132456]">
+            <button className="w-full h-9 rounded-xl bg-[#030f35] text-sm font-semibold text-white transition hover:opacity-90">
               View Insights
             </button>
           )}

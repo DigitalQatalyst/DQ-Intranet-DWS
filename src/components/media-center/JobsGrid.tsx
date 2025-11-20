@@ -47,7 +47,12 @@ export default function JobsGrid({ query }: GridProps) {
           withinOk
         );
       })
-      .sort((a, b) => (a.postedOn < b.postedOn ? 1 : -1));
+      .sort((a, b) => {
+        // Sort by postedOn descending (newest first)
+        const dateA = new Date(a.postedOn).getTime();
+        const dateB = new Date(b.postedOn).getTime();
+        return dateB - dateA;
+      });
   }, [query, sourceItems]);
 
   // Reset to page 1 when filters or search change
@@ -160,7 +165,7 @@ export default function JobsGrid({ query }: GridProps) {
                   onClick={() => handlePageChange(pageNum)}
                   className={`min-w-[36px] px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     currentPage === pageNum
-                      ? 'bg-[#1A2E6E] text-white'
+                      ? 'bg-[#030f35] text-white'
                       : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
                   }`}
                   aria-label={`Go to page ${pageNum}`}

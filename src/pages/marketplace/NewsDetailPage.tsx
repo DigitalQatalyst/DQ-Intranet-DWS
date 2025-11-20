@@ -132,7 +132,7 @@ const formatContent = (content: string, index: number) => {
     const text = match ? match[1].trim() : trimmed;
     const boldText = parseBold(text);
     return (
-      <h1 key={index} className="text-3xl font-bold mb-6 text-gray-900 mt-8 text-center">
+      <h1 key={index} className="text-3xl font-bold mb-6 text-gray-900">
         {boldText}
       </h1>
     );
@@ -144,7 +144,7 @@ const formatContent = (content: string, index: number) => {
     const text = match ? match[1].trim() : trimmed;
     const boldText = parseBold(text);
     return (
-      <h2 key={index} className="text-2xl font-bold mb-5 text-gray-900 mt-8 text-center">
+      <h2 key={index} className="text-2xl font-bold mb-5 text-gray-900 mt-6">
         {boldText}
       </h2>
     );
@@ -156,41 +156,57 @@ const formatContent = (content: string, index: number) => {
     const text = match ? match[1].trim() : trimmed;
     const boldText = parseBold(text);
     return (
-      <h3 key={index} className="text-xl font-bold mb-4 text-gray-900 mt-6 text-center">
+      <h3 key={index} className="text-xl font-bold mb-4 text-gray-900 mt-5">
         {boldText}
       </h3>
     );
   }
 
-  // Parse lists (- item, * item, or 1. item)
-  const listMatch = trimmed.match(/^[-*]\s+(.+)$/) || trimmed.match(/^\d+\.\s+(.+)$/);
-  if (listMatch || content.split('\n').some(line => /^[-*\d.]\s+/.test(line.trim()))) {
+  // Parse lists (- item, * item, or 1. item, or numbered with ➜)
+  const hasListItems = content.split('\n').some(line => {
+    const trimmedLine = line.trim();
+    return /^[-*]\s+/.test(trimmedLine) || /^\d+\.\s+/.test(trimmedLine) || /^➜\s+/.test(trimmedLine);
+  });
+  
+  if (hasListItems) {
     const lines = content.split('\n').filter(line => line.trim());
-    const listItems: Array<{ text: string; level: number }> = [];
+    const listItems: Array<{ text: string; level: number; isNumbered: boolean }> = [];
     
     lines.forEach((line) => {
       const trimmedLine = line.trim();
-      const itemMatch = trimmedLine.match(/^(\s*)([-*\d.]+)\s+(.+)$/);
+      // Match different list patterns: -, *, ➜, or numbered (1. 2. etc.)
+      let itemMatch = trimmedLine.match(/^(\s*)([-*]|\d+\.|➜)\s+(.+)$/);
+      if (!itemMatch) {
+        // Try matching with ➜ at start without space before
+        itemMatch = trimmedLine.match(/^(\s*)(➜)\s*(.+)$/);
+      }
       if (itemMatch) {
-        const level = itemMatch[1].length; // Indentation level
-        const itemText = itemMatch[3].trim();
-        listItems.push({ text: itemText, level });
+        const level = (itemMatch[1] || '').length; // Indentation level
+        const marker = itemMatch[2] || '';
+        const itemText = itemMatch[3] || '';
+        const isNumbered = /^\d+\.$/.test(marker);
+        listItems.push({ text: itemText.trim(), level, isNumbered });
       }
     });
 
     if (listItems.length > 0) {
+      const ListComponent = listItems[0].isNumbered ? 'ol' : 'ul';
+      const listClass = listItems[0].isNumbered 
+        ? 'list-decimal list-inside space-y-3 text-gray-700'
+        : 'list-disc list-inside space-y-3 text-gray-700';
+      
       return (
-        <ul key={index} className="list-disc list-inside mb-6 text-gray-700 space-y-3 max-w-4xl mx-auto">
+        <ListComponent key={index} className={listClass}>
           {listItems.map((item, itemIndex) => {
             const boldText = parseBold(item.text);
             const indentStyle = item.level > 0 ? { marginLeft: `${item.level * 1.5}rem` } : {};
             return (
-              <li key={itemIndex} className="text-left" style={indentStyle}>
+              <li key={itemIndex} className="leading-relaxed" style={indentStyle}>
                 {boldText}
               </li>
             );
           })}
-        </ul>
+        </ListComponent>
       );
     }
   }
@@ -198,7 +214,7 @@ const formatContent = (content: string, index: number) => {
   // Regular paragraphs
   const boldText = parseBold(trimmed);
   return (
-    <p key={index} className="mb-6 text-gray-700 text-center text-lg leading-relaxed max-w-4xl mx-auto">
+    <p key={index} className="text-gray-700 text-base leading-relaxed mb-4">
       {boldText}
     </p>
   );
@@ -228,7 +244,7 @@ const NewsDetailPage: React.FC = () => {
           </p>
           <button
             onClick={() => navigate('/marketplace/news')}
-            className="rounded-lg bg-[#1A2E6E] px-6 py-3 text-sm font-semibold text-white"
+            className="rounded-lg bg-[#030f35] px-6 py-3 text-sm font-semibold text-white"
           >
             Back to Media Center
           </button>
@@ -269,35 +285,216 @@ const NewsDetailPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="bg-white">
-          <div className="mx-auto max-w-5xl px-6 pb-6">
-            <div className="mb-8 rounded-2xl bg-gray-100">
-              <img
-                src={article.image || fallbackHero}
-                alt={article.title}
-                className="h-[420px] w-full rounded-2xl object-cover"
-                loading="lazy"
-              />
-            </div>
-            <article className="max-w-none">
-              <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold text-gray-900 mb-4">{article.title}</h1>
-                <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
-                  <span>{formatDate(article.date)}</span>
-                  <span>•</span>
-                  <span>{article.author}</span>
-                  {article.readingTime && (
-                    <>
-                      <span>•</span>
-                      <span>{article.readingTime} min read</span>
-                    </>
-                  )}
+        <section className="bg-[#F3F6FB] py-8">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Main Content Area */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Hero Image */}
+                <div className="rounded-2xl bg-gray-100 overflow-hidden shadow-sm">
+                  <img
+                    src={article.image || fallbackHero}
+                    alt={article.title}
+                    className="h-[400px] w-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+
+                {/* Article Header */}
+                <div className="bg-white rounded-xl p-8 shadow-sm">
+                  <h1 className="text-4xl font-bold text-gray-900 mb-4">{article.title}</h1>
+                  <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
+                    <span>{formatDate(article.date)}</span>
+                    <span>•</span>
+                    <span>{article.author}</span>
+                    {article.readingTime && (
+                      <>
+                        <span>•</span>
+                        <span>{article.readingTime} min read</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Article Content */}
+                <article className="space-y-6">
+                  {(() => {
+                    interface Section {
+                      heading: string | null;
+                      items: string[];
+                    }
+                    const sections: Section[] = [];
+                    let currentSection: Section | null = null;
+
+                    body.forEach((paragraph) => {
+                      const trimmed = paragraph.trim();
+                      if (!trimmed) return;
+
+                      const isHeading = trimmed.match(/^##\s+(.+)$/); // H2 headings create new sections
+                      const isH1 = trimmed.match(/^#\s+(.+)$/); // H1 headings also create new sections
+
+                      if (isHeading || isH1) {
+                        // Start new section with this heading
+                        if (currentSection !== null && currentSection.items.length > 0) {
+                          sections.push(currentSection);
+                        }
+                        currentSection = { heading: trimmed, items: [] };
+                      } else {
+                        // Add content to current section (or create new section if none exists)
+                        if (currentSection === null) {
+                          currentSection = { heading: null, items: [] };
+                        }
+                        if (currentSection !== null) {
+                          currentSection.items.push(paragraph);
+                        }
+                      }
+                    });
+
+                    if (currentSection !== null) {
+                      const finalSection: Section = currentSection;
+                      if (finalSection.items.length > 0) {
+                        sections.push(finalSection);
+                      }
+                    }
+
+                    return sections.map((section, sectionIndex) => {
+                      // Check if section has lists
+                      const hasLists = section.items.some(item => {
+                        const trimmed = item.trim();
+                        return trimmed.match(/^[-*\d.]\s+/) || trimmed.match(/^➜\s+/) || item.split('\n').some(line => /^[-*\d.]\s+/.test(line.trim()) || /^➜\s+/.test(line.trim()));
+                      });
+                      
+                      const bgColor = hasLists ? 'bg-blue-50' : 'bg-white';
+                      const borderColor = 'border border-gray-200';
+                      
+                      return (
+                        <div key={sectionIndex} className={`${bgColor} ${borderColor} rounded-xl p-8 shadow-sm`}>
+                          <div className="space-y-4">
+                            {section.heading && (
+                              <div>
+                                {formatContent(section.heading, 0)}
+                              </div>
+                            )}
+                            {section.items.map((item, itemIndex) => {
+                              const formatted = formatContent(item, itemIndex);
+                              return formatted;
+                            })}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </article>
+              </div>
+
+              {/* Right Sidebar */}
+              <div className="lg:col-span-1">
+                <div className="sticky top-8 space-y-6">
+                  {/* Article Summary Card */}
+                  <div className="bg-gray-50 rounded-xl p-6 shadow-sm border border-gray-200">
+                    <h2 className="text-xl font-bold text-gray-900 mb-6">Article Summary</h2>
+                    <div className="space-y-4">
+                      {article.type && (
+                        <div>
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Type</div>
+                          <div className="text-sm text-gray-900 font-medium">{article.type}</div>
+                        </div>
+                      )}
+                      {article.department && (
+                        <div>
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Department</div>
+                          <div className="text-sm text-gray-900 font-medium">{article.department}</div>
+                        </div>
+                      )}
+                      {article.location && (
+                        <div>
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Location</div>
+                          <div className="text-sm text-gray-900 font-medium">{article.location}</div>
+                        </div>
+                      )}
+                      {article.domain && (
+                        <div>
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Domain</div>
+                          <div className="text-sm text-gray-900 font-medium">{article.domain}</div>
+                        </div>
+                      )}
+                      {article.newsType && (
+                        <div>
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">News Type</div>
+                          <div className="text-sm text-gray-900 font-medium">{article.newsType}</div>
+                        </div>
+                      )}
+                      {article.newsSource && (
+                        <div>
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Source</div>
+                          <div className="text-sm text-gray-900 font-medium">{article.newsSource}</div>
+                        </div>
+                      )}
+                      {article.focusArea && (
+                        <div>
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Focus Area</div>
+                          <div className="text-sm text-gray-900 font-medium">{article.focusArea}</div>
+                        </div>
+                      )}
+                      <div>
+                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Published</div>
+                        <div className="text-sm text-gray-900 font-medium">{formatDate(article.date)}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Author</div>
+                        <div className="text-sm text-gray-900 font-medium">{article.author}</div>
+                      </div>
+                      {article.views !== undefined && (
+                        <div>
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Views</div>
+                          <div className="text-sm text-gray-900 font-medium">{article.views.toLocaleString()}</div>
+                        </div>
+                      )}
+                      {article.tags && article.tags.length > 0 && (
+                        <div>
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Tags</div>
+                          <div className="flex flex-wrap gap-2">
+                            {article.tags.map((tag, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="space-y-3">
+                    <button 
+                      onClick={() => {
+                        if (navigator.share) {
+                          navigator.share({
+                            title: article.title,
+                            text: article.excerpt,
+                            url: window.location.href,
+                          }).catch(() => {});
+                        } else {
+                          navigator.clipboard.writeText(window.location.href).catch(() => {});
+                        }
+                      }}
+                      className="w-full rounded-xl bg-[#030f35] px-6 py-3 text-sm font-semibold text-white hover:opacity-90 transition-colors shadow-sm inline-flex items-center justify-center gap-2"
+                    >
+                      <Share2 size={16} />
+                      Share Article
+                    </button>
+                    <button className="w-full rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors inline-flex items-center justify-center gap-2">
+                      <BookmarkIcon size={16} />
+                      Save for Later
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-4">
-                {body.map((paragraph, index) => formatContent(paragraph, index))}
-              </div>
-            </article>
+            </div>
           </div>
         </section>
 
@@ -323,7 +520,7 @@ const NewsDetailPage: React.FC = () => {
                   <p className="mt-2 text-sm text-gray-600 line-clamp-3">{item.excerpt}</p>
                   <Link
                     to={`/marketplace/news/${item.id}`}
-                    className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[#1A2E6E] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#132456]"
+                    className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[#030f35] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
                   >
                     Read Article
                   </Link>

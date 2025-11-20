@@ -22,6 +22,63 @@ export type NewsItem = {
 
 export const NEWS: NewsItem[] = [
   {
+    id: 'dq-leave-process-guideline',
+    title: 'DQ Leave Process Guideline',
+    type: 'Guidelines',
+    date: '2025-11-18',
+    author: 'DQ Communications',
+    byline: 'HRA (People)',
+    views: 0,
+    excerpt:
+      'Complete guide to the leave approval process, including required steps, notifications, and consequences for non-compliance.',
+    image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80',
+    department: 'HRA (People)',
+    location: 'Dubai',
+    domain: 'People',
+    tags: ['leave', 'guidelines', 'policy', 'HRA'],
+    readingTime: '5–10',
+    newsType: 'Corporate Announcements',
+    newsSource: 'DQ Operations',
+    focusArea: 'Culture & People',
+    content: `# DQ Leave Process Guideline
+
+## Leave Process
+
+### Step 1: Approval from HRA & Management
+Capture approval from HRA & Management, clearly indicating:
+- **Reason for leave**: Specify the purpose of your leave
+- **Leave period**: Include start and end dates
+- **Associate(s) taking over critical tasks**: Identify who will cover your responsibilities
+
+### Step 2: Submit an Approval Request
+Log into the system and submit your leave request through the designated platform.
+
+### Step 3: Notify on the HR Channel
+Share a brief notification in the designated HR channel to inform relevant parties of your leave request.
+
+### Step 4: Confirm if Approval has been granted
+**Important**: Wait for confirmation that your leave has been approved before proceeding with any leave arrangements.
+
+### Step 5: Notify on the Leaves Channel
+Once approved, post an update in the Leaves channel for broader visibility across the organization.
+
+## Leave Non-Compliance Consequences
+
+### Recorded Violation
+Any leave taken without prior approval or proper handover is documented as a violation.
+
+### Warnings System
+- **1st instance**: Formal warning issued
+- **2nd instance**: Formal warning issued
+- **3rd instance**: Final warning and escalation to HR & Management
+
+### Termination
+Three violations may lead to termination of employment.
+
+## Important Reminder
+**Approval Requirement**: All leave must be approved by HRA and Management to ensure fairness and compliance with company policies.`
+  },
+  {
     id: 'leadership-principles',
     title: "Leadership Principles | What’s Your Leadership Superpower?",
     type: 'Thought Leadership',
@@ -650,8 +707,8 @@ The **Work From Home (WFH) Guidelines** provide a clear framework for how remote
     views: 0,
     excerpt:
       'Dress code guideline balancing professionalism and comfort across the work week, with clear expectations, exceptions, and consequences.',
-    // Image shows a professional man in a crisp white shirt to emphasize smart dress
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1200&q=80',
+    // Image shows a professional group of 2 men and 1 woman in official black suits
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80',
     department: 'HRA (People)',
     location: 'Dubai',
     domain: 'People',

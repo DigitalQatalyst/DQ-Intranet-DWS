@@ -70,12 +70,12 @@ export function NewsCard({ item, href }: NewsCardProps) {
           {href ? (
             <Link
               to={href}
-              className="block h-9 rounded-xl bg-[#1A2E6E] text-center text-sm font-semibold text-white leading-9 transition hover:bg-[#132456]"
+              className="block h-9 rounded-xl bg-[#030f35] text-center text-sm font-semibold text-white leading-9 transition hover:opacity-90"
             >
               View Details
             </Link>
           ) : (
-            <button className="h-9 w-full rounded-xl bg-[#1A2E6E] text-sm font-semibold text-white transition hover:bg-[#132456]">
+            <button className="h-9 w-full rounded-xl bg-[#030f35] text-sm font-semibold text-white transition hover:opacity-90">
               View Details
             </button>
           )}
