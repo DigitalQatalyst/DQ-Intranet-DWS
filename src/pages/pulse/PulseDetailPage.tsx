@@ -61,6 +61,17 @@ export const PulseDetailPage: React.FC = () => {
   const [feedbackQuestions, setFeedbackQuestions] = useState<any[]>([]);
   const [feedbackQuestionsLoading, setFeedbackQuestionsLoading] = useState(false);
 
+  // Helper function to get or generate session ID for anonymous duplicate prevention
+  const getSessionId = (pulseItemId: string): string => {
+    const storageKey = `pulse_session_${pulseItemId}`;
+    let sessionId = sessionStorage.getItem(storageKey);
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      sessionStorage.setItem(storageKey, sessionId);
+    }
+    return sessionId;
+  };
+
   const fetchFeedbackQuestions = async (eventId: string) => {
     setFeedbackQuestionsLoading(true);
     try {
@@ -80,23 +91,21 @@ export const PulseDetailPage: React.FC = () => {
       } else if (data && data.length > 0) {
         setFeedbackQuestions(data);
         
-        // Check if user has already responded and load their answers
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: responses } = await supabase
-            .from("pulse_feedback_responses")
-            .select("question_id, response")
-            .eq("event_id", eventId)
-            .eq("user_id", user.id);
+        // Check if session has already responded and load answers (anonymous duplicate prevention)
+        const sessionId = getSessionId(eventId);
+        const { data: responses } = await supabase
+          .from("pulse_feedback_responses")
+          .select("question_id, response")
+          .eq("event_id", eventId)
+          .eq("session_id", sessionId);
 
-          if (responses && responses.length > 0) {
-            const existingAnswers: Record<string, any> = {};
-            responses.forEach((r: any) => {
-              existingAnswers[r.question_id] = r.response;
-            });
-            setFeedbackAnswers(existingAnswers);
-            setHasResponded(true);
-          }
+        if (responses && responses.length > 0) {
+          const existingAnswers: Record<string, any> = {};
+          responses.forEach((r: any) => {
+            existingAnswers[r.question_id] = r.response;
+          });
+          setFeedbackAnswers(existingAnswers);
+          setHasResponded(true);
         }
       } else {
         // No questions found in database, check if item has questions (fallback)
@@ -273,30 +282,31 @@ export const PulseDetailPage: React.FC = () => {
           }
         }
 
-        // Check if user has already responded (if authenticated)
+        // Check if session has already responded (anonymous duplicate prevention)
+        const sessionId = getSessionId(id);
+        const { data: response } = await supabase
+          .from("pulse_responses")
+          .select("id, response_data")
+          .eq("pulse_item_id", id)
+          .eq("session_id", sessionId)
+          .single();
+
+        if (response) {
+          setHasResponded(true);
+          if (response.response_data?.selected_options) {
+            setSelectedOptions(response.response_data.selected_options);
+          }
+          if (response.response_data?.answers) {
+            setSurveyAnswers(response.response_data.answers);
+          }
+          if (response.response_data?.feedback) {
+            setFeedbackAnswers(response.response_data.feedback);
+          }
+        }
+
+        // Check if user has liked (only for authenticated users)
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const { data: response } = await supabase
-            .from("pulse_responses")
-            .select("id, response_data")
-            .eq("pulse_item_id", id)
-            .eq("user_id", user.id)
-            .single();
-
-          if (response) {
-            setHasResponded(true);
-            if (response.response_data?.selected_options) {
-              setSelectedOptions(response.response_data.selected_options);
-            }
-            if (response.response_data?.answers) {
-              setSurveyAnswers(response.response_data.answers);
-            }
-            if (response.response_data?.feedback) {
-              setFeedbackAnswers(response.response_data.feedback);
-            }
-          }
-
-          // Check if user has liked
           const { data: like } = await supabase
             .from("pulse_likes")
             .select("id")
@@ -359,9 +369,19 @@ export const PulseDetailPage: React.FC = () => {
     if (!item || !id) return;
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        alert("Please sign in to respond");
+      // Get session ID for anonymous duplicate prevention
+      const sessionId = getSessionId(id);
+
+      // Check if already responded in this session
+      const { data: existingResponse } = await supabase
+        .from("pulse_responses")
+        .select("id")
+        .eq("pulse_item_id", id)
+        .eq("session_id", sessionId)
+        .single();
+
+      if (existingResponse) {
+        alert("You have already submitted a response. Thank you for your participation!");
         return;
       }
 
@@ -399,32 +419,27 @@ export const PulseDetailPage: React.FC = () => {
           const response = feedbackAnswers[questionId];
           
           if (response) {
-            // Check if response already exists
-            const { data: existingResponse } = await supabase
+            // Check if response already exists for this session
+            const { data: existingFeedbackResponse } = await supabase
               .from("pulse_feedback_responses")
               .select("id")
               .eq("event_id", id)
               .eq("question_id", questionId)
-              .eq("user_id", user.id)
+              .eq("session_id", sessionId)
               .single();
 
-            if (existingResponse) {
-              // Update existing response
-              await supabase
-                .from("pulse_feedback_responses")
-                .update({
-                  response: typeof response === 'string' ? response : JSON.stringify(response),
-                  updated_at: new Date().toISOString()
-                })
-                .eq("id", existingResponse.id);
+            if (existingFeedbackResponse) {
+              // Already responded - should not happen due to main check, but handle gracefully
+              continue;
             } else {
-              // Insert new response
+              // Insert new anonymous response
               await supabase
                 .from("pulse_feedback_responses")
                 .insert({
                   question_id: questionId,
                   event_id: id,
-                  user_id: user.id,
+                  user_id: null,  // Always NULL for anonymous
+                  session_id: sessionId,
                   response: typeof response === 'string' ? response : JSON.stringify(response)
                 });
             }
@@ -435,29 +450,18 @@ export const PulseDetailPage: React.FC = () => {
         responseData = { feedback: feedbackAnswers };
       }
 
-      if (hasResponded) {
-        // Update existing response
-        await supabase
-          .from("pulse_responses")
-          .update({
-            response_data: responseData,
-            updated_at: new Date().toISOString()
-          })
-          .eq("pulse_item_id", id)
-          .eq("user_id", user.id);
-      } else {
-        // Create new response
-        await supabase
-          .from("pulse_responses")
-          .insert({
-            pulse_item_id: id,
-            user_id: user.id,
-            user_name: user.user_metadata?.full_name || user.email,
-            user_email: user.email,
-            response_data: responseData,
-            is_anonymous: item.anonymous
-          });
-      }
+      // Insert new anonymous response (updates are disabled for anonymous responses)
+      await supabase
+        .from("pulse_responses")
+        .insert({
+          pulse_item_id: id,
+          user_id: null,        // Always NULL for anonymous
+          user_name: null,      // Always NULL for anonymous
+          user_email: null,      // Always NULL for anonymous
+          session_id: sessionId,
+          response_data: responseData,
+          is_anonymous: true    // Always true for anonymous responses
+        });
 
       setHasResponded(true);
       setSubmitted(true);
@@ -1024,3 +1028,4 @@ export const PulseDetailPage: React.FC = () => {
     </div>
   );
 };
+

@@ -442,9 +442,22 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const primaryAction = marketplaceType === 'events' ? 'Join' : config.primaryCTA;
   const secondaryAction = config.secondaryCTA;
   // Extract tags based on marketplace type
-  // For events, use item.tags directly; for others, use fallback logic
+  // For events, combine actual filter fields: category (if not null), location_filter (if Remote or physical), department, and tags
   const displayTags = marketplaceType === 'events' 
-    ? (item.tags || []) 
+    ? [
+        // Include category only if it exists and is not null
+        ...(item.category ? [item.category] : []),
+        // Include location_filter if it's "Remote" or a physical location (not virtual meeting platforms)
+        ...(item.location_filter && item.location_filter !== 'TBA' && 
+            (item.location_filter === 'Remote' || 
+             (!item.isVirtual && !['Microsoft Teams Meeting', 'Zoom', 'Google Meet', 'WebEx'].some(platform => 
+              item.location_filter.toLowerCase().includes(platform.toLowerCase())
+            ))) ? [item.location_filter] : []),
+        // Include department(s) - handle both array and single value
+        ...(item.department ? (Array.isArray(item.department) ? item.department : [item.department]) : []),
+        // Include existing tags
+        ...(item.tags || [])
+      ].filter(Boolean)
     : (item.tags || [item.category, marketplaceType === 'courses' ? item.deliveryMode : item.serviceType, item.businessStage].filter(Boolean));
   // Extract details for the sidebar
   const detailItems = config.attributes.map(attr => ({
@@ -461,36 +474,22 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     switch (tabId) {
       case 'about':
         return <div className="space-y-6">
-            <p className="text-[#030F35]/70 text-lg mb-6">
-              Learn more about this {config.itemName.toLowerCase()} and what it
-              offers for your business.
-            </p>
+            {marketplaceType !== 'events' && (
+              <p className="text-[#030F35]/70 text-lg mb-6 leading-relaxed">
+                Learn more about this {config.itemName.toLowerCase()} and what it
+                offers for your business.
+              </p>
+            )}
             <div className="prose max-w-none">
-              <p className="text-[#030F35]/80 mb-5">{itemDescription}</p>
-              {marketplaceType === 'courses' && <p className="text-[#030F35]/80">
-                  This course is designed to accommodate {item.businessStage}{' '}
-                  businesses, with a focus on practical applications that you
-                  can implement immediately. Our experienced instructors bring
-                  real-world expertise to help you navigate the challenges of
-                  modern business environments.
-                </p>}
-              {marketplaceType === 'financial' && <p className="text-[#030F35]/80">
-                  This financial service is tailored for businesses at the{' '}
-                  {item.businessStage || 'growth'} stage, providing the
-                  financial resources needed to achieve your business
-                  objectives. With competitive terms and a streamlined
-                  application process, you can access the funding you need
-                  quickly and efficiently.
-                </p>}
-              {marketplaceType === 'non-financial' && <p className="text-[#030F35]/80">
-                  This service is designed to support businesses at all stages,
-                  with particular benefits for those in the{' '}
-                  {item.businessStage || 'growth'} phase. Our team of experts
-                  will work closely with you to ensure you receive the maximum
-                  value and can implement effective solutions for your specific
-                  business needs.
-                </p>}
-              {marketplaceType === 'events' && <div className="space-y-4">
+              {marketplaceType === 'events' ? (
+                <div className="space-y-4">
+                  {/* Event Description Box */}
+                  {itemDescription && (
+                    <div className="bg-[#030F35]/5 rounded-lg p-4 border border-[#030F35]/20">
+                      <h3 className="text-lg font-semibold text-[#030F35] mb-4">About Event</h3>
+                      <p className="text-[#030F35]/80 leading-relaxed">{itemDescription}</p>
+                    </div>
+                  )}
                   {/* Event Information */}
                   <div className="bg-[#030F35]/5 rounded-lg p-4 border border-[#030F35]/20">
                     <h3 className="text-lg font-semibold text-[#030F35] mb-4">Event Information</h3>
@@ -525,7 +524,35 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                         {item.meetingLink}
                       </a>
                     </div>}
-                </div>}
+                </div>
+              ) : (
+                <>
+                  <p className="text-[#030F35]/80 mb-5 leading-relaxed">{itemDescription}</p>
+                  {marketplaceType === 'courses' && <p className="text-[#030F35]/80">
+                      This course is designed to accommodate {item.businessStage}{' '}
+                      businesses, with a focus on practical applications that you
+                      can implement immediately. Our experienced instructors bring
+                      real-world expertise to help you navigate the challenges of
+                      modern business environments.
+                    </p>}
+                  {marketplaceType === 'financial' && <p className="text-[#030F35]/80">
+                      This financial service is tailored for businesses at the{' '}
+                      {item.businessStage || 'growth'} stage, providing the
+                      financial resources needed to achieve your business
+                      objectives. With competitive terms and a streamlined
+                      application process, you can access the funding you need
+                      quickly and efficiently.
+                    </p>}
+                  {marketplaceType === 'non-financial' && <p className="text-[#030F35]/80">
+                      This service is designed to support businesses at all stages,
+                      with particular benefits for those in the{' '}
+                      {item.businessStage || 'growth'} phase. Our team of experts
+                      will work closely with you to ensure you receive the maximum
+                      value and can implement effective solutions for your specific
+                      business needs.
+                    </p>}
+                </>
+              )}
             </div>
             {/* Key Highlights Section - Unified layout for all marketplace types */}
             <div className="bg-[#030F35]/5 rounded-lg p-4 border border-[#030F35]/20">
@@ -1020,7 +1047,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               </p>
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-                  <img src={provider.logoUrl} alt={provider.name} className="h-16 w-16 object-contain rounded-lg" />
+                  <img src={provider.logoUrl} alt={provider.name} className="h-16 w-16 object-contain rounded-lg max-w-16" />
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">
                       {provider.name}
@@ -1062,7 +1089,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             </p>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-                <img src={provider.logoUrl} alt={provider.name} className="h-16 w-16 object-contain rounded-lg" />
+                <img src={provider.logoUrl} alt={provider.name} className="h-16 w-16 object-contain rounded-lg max-w-16" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">
                     {provider.name}
@@ -1214,89 +1241,239 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
       <main className="flex-grow">
         {/* Hero Banner - consistent header layout */}
-        <div ref={heroRef} className="w-full bg-gradient-to-r from-[#FB5535]/10 via-[#1A2E6E]/10 to-[#030F35]/10 border-b border-[#030F35]/20">
-          <div className="container mx-auto px-4 md:px-6 max-w-7xl">
-            {/* Breadcrumbs */}
-            <nav className="flex pt-4" aria-label="Breadcrumb">
-              <ol className="inline-flex items-center space-x-1 md:space-x-2">
-                <li className="inline-flex items-center">
-                  <Link to="/" className="text-[#030F35]/70 hover:text-[#030F35] inline-flex items-center transition-colors">
-                    <HomeIcon size={16} className="mr-1" />
-                    <span>Home</span>
-                  </Link>
-                </li>
-                <li>
-                  <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-[#030F35]/40" />
-                    <Link to={config.route} className="ml-1 text-[#030F35]/70 hover:text-[#030F35] md:ml-2 transition-colors">
-                      {config.itemNamePlural}
-                    </Link>
-                  </div>
-                </li>
-                <li aria-current="page">
-                  <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-[#030F35]/40" />
-                    <span className="ml-1 text-[#030F35]/60 md:ml-2">
-                      {itemTitle}
+        <div ref={heroRef} className="w-full bg-white">
+          {/* For events: Breadcrumbs and banner with gradient */}
+          {marketplaceType === 'events' ? (
+            <div className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
+              <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+                <nav className="flex pt-4 pb-2" aria-label="Breadcrumb">
+                  <ol className="inline-flex items-center space-x-1 md:space-x-2">
+                    <li className="inline-flex items-center">
+                      <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center transition-colors">
+                        <HomeIcon size={16} className="mr-1" />
+                        <span>Home</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <div className="flex items-center">
+                        <ChevronRightIcon size={16} className="text-gray-400" />
+                        <Link to="/pulse" className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2 transition-colors">
+                          Pulse
+                        </Link>
+                      </div>
+                    </li>
+                    <li>
+                      <div className="flex items-center">
+                        <ChevronRightIcon size={16} className="text-gray-400" />
+                        <Link to={config.route} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2 transition-colors">
+                          Events
+                        </Link>
+                      </div>
+                    </li>
+                    <li aria-current="page">
+                      <div className="flex items-center">
+                        <ChevronRightIcon size={16} className="text-gray-400" />
+                        <span className="ml-1 text-gray-500 md:ml-2">
+                          {itemTitle}
+                        </span>
+                      </div>
+                    </li>
+                  </ol>
+                </nav>
+              </div>
+              <div className="container mx-auto px-4 md:px-6 max-w-7xl pt-4 pb-8">
+                {/* Department/Category info */}
+                {(item.department || item.category) && (
+                  <div className="mb-3">
+                    <span className="text-sm text-gray-600 font-medium">
+                      {item.department || item.category || 'Digital Qatalyst Events'}
                     </span>
                   </div>
-                </li>
-              </ol>
-            </nav>
-            {/* Event Image - for events only */}
-            {marketplaceType === 'events' && item.imageUrl && (
-              <div className="w-full mb-6 rounded-lg overflow-hidden">
-                <img 
-                  src={item.imageUrl} 
-                  alt={itemTitle} 
-                  className="w-full h-64 md:h-80 object-cover"
-                />
-              </div>
-            )}
-            <div className="flex flex-col items-start max-w-3xl py-8">
-              {/* Provider */}
-              <div className="flex items-center mb-3">
-                <img src={provider.logoUrl} alt={`${provider.name} logo`} className="h-10 w-10 object-contain mr-3 rounded-md" />
-                <span className="text-[#030F35]/80 font-medium">
-                  {provider.name}
-                </span>
-              </div>
-              {/* Title */}
-              <h1 className="text-3xl font-bold text-[#030F35] mb-2 leading-tight">
-                {itemTitle}
-              </h1>
-              {/* Tags row - Separated from ratings */}
-              <div className="flex flex-wrap gap-2 mb-3">
-                {displayTags.map((tag, index) => <span key={index} className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${index === 0 ? 'bg-[#030F35]/10 text-[#030F35] border border-[#030F35]/20' : index === 1 ? 'bg-[#FB5535]/10 text-[#FB5535] border border-[#FB5535]/20' : 'bg-[#1A2E6E]/10 text-[#1A2E6E] border border-[#1A2E6E]/20'}`}>
-                    {tag}
-                  </span>)}
-              </div>
-              {/* Ratings row - Bookmark removed for events */}
-              {marketplaceType === 'courses' && (
-                <div className="flex items-center w-full mb-4">
-                  <div className="flex items-center">
-                    <div className="flex items-center">
-                      {[1, 2, 3, 4, 5].map(star => <StarIcon key={star} size={16} className={`${parseFloat(rating) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />)}
-                    </div>
-                    <span className="ml-2 text-sm font-medium text-gray-700">
-                      {rating}
-                    </span>
-                    <span className="mx-1.5 text-gray-500">·</span>
-                    <span className="text-sm text-gray-500">
-                      {reviewCount} reviews
-                    </span>
-                  </div>
-                  <button onClick={handleToggleBookmark} className={`p-1.5 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} ml-2`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'} title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
-                    <BookmarkIcon size={18} className={isBookmarked ? 'fill-yellow-600' : ''} />
-                  </button>
+                )}
+                
+                {/* Title Row - Title on left, Live tag on right */}
+                <div className="flex items-start justify-between gap-4">
+                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight flex-1">
+                    {itemTitle}
+                  </h1>
+                  
+                  {/* Live tag (if event is currently happening) */}
+                  {(() => {
+                    const startTime = item.start_time || item.startTime;
+                    const endTime = item.end_time || item.endTime;
+                    
+                    if (startTime && endTime) {
+                      try {
+                        const now = new Date();
+                        const start = new Date(startTime);
+                        const end = new Date(endTime);
+                        const isLive = now >= start && now <= end;
+                        
+                        if (isLive) {
+                          return (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700 border border-green-200 whitespace-nowrap">
+                              Live
+                            </span>
+                          );
+                        }
+                      } catch (e) {
+                        console.error('Error parsing event dates:', e);
+                      }
+                    }
+                    
+                    if (item.status === 'live' || item.isLive) {
+                      return (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700 border border-green-200 whitespace-nowrap">
+                          Live
+                        </span>
+                      );
+                    }
+                    
+                    return null;
+                  })()}
                 </div>
-              )}
-              {/* Description - for non-events only */}
-              {marketplaceType !== 'events' && (
-                <p className="text-[#030F35]/80 mb-6 max-w-2xl">{itemDescription}</p>
-              )}
+                {/* Tags - Below title */}
+                {displayTags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-1 mb-4">
+                    {displayTags.map((tag, index) => {
+                      const tagColors = [
+                        'bg-blue-100 text-blue-700 border-blue-200',
+                        'bg-green-100 text-green-700 border-green-200',
+                        'bg-purple-100 text-purple-700 border-purple-200',
+                        'bg-pink-100 text-pink-700 border-pink-200'
+                      ];
+                      const colorClass = tagColors[index] || tagColors[tagColors.length - 1];
+                      
+                      return (
+                        <span 
+                          key={index} 
+                          className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium border ${colorClass}`}
+                        >
+                          {tag}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+                
+                {/* Description below tags */}
+                <p className="text-gray-700 text-lg mb-6 max-w-4xl leading-relaxed border-b border-gray-200 pb-6">
+                  The DQ Townhall is a company-wide meeting to discuss updates, share progress, celebrate achievements, and foster communication.
+                </p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Breadcrumbs - on light grey background (for non-events) */}
+              <div className="w-full bg-gray-50">
+                <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+                  <nav className="flex pt-4 pb-3" aria-label="Breadcrumb">
+                    <ol className="inline-flex items-center space-x-1 md:space-x-2">
+                      <li className="inline-flex items-center">
+                        <Link to="/" className="text-[#030F35]/70 hover:text-[#030F35] inline-flex items-center transition-colors">
+                          <HomeIcon size={16} className="mr-1" />
+                          <span>Home</span>
+                        </Link>
+                      </li>
+                      <li>
+                        <div className="flex items-center">
+                          <ChevronRightIcon size={16} className="text-[#030F35]/40" />
+                          <Link to={config.route} className="ml-1 text-[#030F35]/70 hover:text-[#030F35] md:ml-2 transition-colors">
+                            {config.itemNamePlural}
+                          </Link>
+                        </div>
+                      </li>
+                      <li aria-current="page">
+                        <div className="flex items-center">
+                          <ChevronRightIcon size={16} className="text-[#030F35]/40" />
+                          <span className="ml-1 text-[#030F35]/60 md:ml-2">
+                            {itemTitle}
+                          </span>
+                        </div>
+                      </li>
+                    </ol>
+                  </nav>
+                </div>
+              </div>
+              {/* Title Section - on light grey background (for non-events) */}
+              <div className="w-full bg-gray-50">
+                <div className="container mx-auto px-4 md:px-6 max-w-7xl py-6">
+                  {/* Category/Provider info */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-sm text-[#030F35]/70">{provider.name}</span>
+                    {item.category && (
+                      <>
+                        <span className="text-[#030F35]/40">·</span>
+                        <span className="text-sm text-[#030F35]/70">{item.category}</span>
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* Title Row */}
+                  <div className="flex items-start justify-between gap-4">
+                    <h1 className="text-3xl md:text-4xl font-bold text-[#030F35] leading-tight">
+                      {itemTitle}
+                    </h1>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Content Area - Tags and Description (for non-events) */}
+              <div className="container mx-auto px-4 md:px-6 max-w-7xl py-6">
+                {/* Tags - Below title, horizontally aligned */}
+                {displayTags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {displayTags.map((tag, index) => {
+                      const tagColors = [
+                        'bg-blue-100 text-blue-700 border-blue-200',
+                        'bg-green-100 text-green-700 border-green-200',
+                        'bg-purple-100 text-purple-700 border-purple-200',
+                        'bg-pink-100 text-pink-700 border-pink-200'
+                      ];
+                      const colorClass = tagColors[index] || tagColors[tagColors.length - 1];
+                      
+                      return (
+                        <span 
+                          key={index} 
+                          className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium border ${colorClass}`}
+                        >
+                          {tag}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+                
+                {/* Description */}
+                {itemDescription && (
+                  <p className="text-[#030F35]/80 text-base mb-6 max-w-3xl leading-relaxed">
+                    {itemDescription}
+                  </p>
+                )}
+                
+                {/* Ratings row - Bookmark removed for events */}
+                {marketplaceType === 'courses' && (
+                  <div className="flex items-center w-full mb-4">
+                    <div className="flex items-center">
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map(star => <StarIcon key={star} size={16} className={`${parseFloat(rating) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />)}
+                      </div>
+                      <span className="ml-2 text-sm font-medium text-gray-700">
+                        {rating}
+                      </span>
+                      <span className="mx-1.5 text-gray-500">·</span>
+                      <span className="text-sm text-gray-500">
+                        {reviewCount} reviews
+                      </span>
+                    </div>
+                    <button onClick={handleToggleBookmark} className={`p-1.5 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} ml-2`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'} title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
+                      <BookmarkIcon size={18} className={isBookmarked ? 'fill-yellow-600' : ''} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
         {/* Tabs Navigation */}
         <div className="border-b border-[#030F35]/20 w-full bg-white">
@@ -1345,7 +1522,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             {/* Content column (~8 columns) */}
             <div ref={contentColumnRef} className="col-span-12 lg:col-span-8">
               {/* Tab Content */}
-              <div className="mb-8">
+              <div className="mb-8 space-y-6">
                 {config.tabs.map(tab => <div key={tab.id} className={activeTab === tab.id ? 'block' : 'hidden'} id={`tabpanel-${tab.id}`} role="tabpanel" aria-labelledby={`tab-${tab.id}`}>
                     {renderTabContent(tab.id)}
                   </div>)}

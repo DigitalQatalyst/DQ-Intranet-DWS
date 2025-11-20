@@ -172,6 +172,7 @@ const transformEventDetail = (event: any): any => {
     time: timeRangeStr, // Use time range instead of just start time
     endTime: endTimeStr,
     location: event.location || "TBA",
+    location_filter: event.location_filter || event.location || "TBA",
     capacity: event.max_attendees ? `${event.max_attendees} attendees` : undefined,
     details: details.length > 0 ? details : undefined,
     tags: event.tags || [],

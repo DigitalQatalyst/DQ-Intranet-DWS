@@ -921,12 +921,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       iconBgColor: 'bg-blue-50',
       iconColor: 'text-blue-600'
     }, {
-      id: 'eligibility_terms',
-      label: 'Event Details',
-      icon: CheckCircle,
-      iconBgColor: 'bg-green-50',
-      iconColor: 'text-green-600'
-    }, {
       id: 'application_process',
       label: 'Registration Process',
       icon: ClipboardList,
