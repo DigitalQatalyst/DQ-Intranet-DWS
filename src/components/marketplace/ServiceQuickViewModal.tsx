@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { ServiceItem } from '../../types/marketplace';
-import { XIcon, Clock, Calendar, DollarSign, MapPin, BookmarkIcon, ScaleIcon, CheckCircleIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
+import { XIcon, Calendar, DollarSign, MapPin, BookmarkIcon, ScaleIcon, CheckCircleIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
+import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 interface ServiceQuickViewModalProps {
   service: ServiceItem;
   onClose: () => void;
@@ -22,6 +23,7 @@ export const ServiceQuickViewModal: React.FC<ServiceQuickViewModalProps> = ({
   primaryButtonText = 'Enroll Now'
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const config = getMarketplaceConfig(marketplaceType);
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -101,7 +103,7 @@ export const ServiceQuickViewModal: React.FC<ServiceQuickViewModalProps> = ({
               <li>
                 <div className="flex items-center">
                   <ChevronRightIcon size={14} className="text-gray-400" />
-                  <a href={`/marketplace/${marketplaceType}`} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2 text-sm">
+                  <a href={config.route} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2 text-sm">
                     {getBreadcrumbTitle()}
                   </a>
                 </div>

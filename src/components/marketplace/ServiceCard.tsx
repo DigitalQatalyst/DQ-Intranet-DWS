@@ -1,6 +1,6 @@
 import React from 'react';
 import { resolveServiceImage } from '../../utils/serviceCardImages';
-import { BookmarkIcon, ScaleIcon } from 'lucide-react';
+import { BookmarkIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 export interface ServiceCardProps {
   item: {
@@ -123,12 +123,6 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
             onToggleBookmark();
           }} className={`p-1.5 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'} title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
               <BookmarkIcon size={16} className={isBookmarked ? 'fill-yellow-600' : ''} />
-            </button>
-            <button onClick={e => {
-            e.stopPropagation();
-            onAddToComparison();
-          }} className="p-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200" aria-label="Add to comparison" title="Add to comparison">
-              <ScaleIcon size={16} />
             </button>
           </div>
         </div>

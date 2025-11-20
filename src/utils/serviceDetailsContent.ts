@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 export type ContentBlock =
   | { type: 'p'; text: string }
   | { type: 'ol'; items: string[] }
@@ -13,6 +15,46 @@ export interface TabContent {
     fallbackUrl?: string;
   };
 }
+
+export interface CustomTab {
+  id: string;
+  label: string;
+  icon?: any;
+  iconBgColor?: string;
+  iconColor?: string;
+  renderContent?: (item: any, marketplaceType: string) => React.ReactNode;
+}
+
+// Custom tabs for specific services
+export const SERVICE_CUSTOM_TABS: Record<string, Record<string, CustomTab[]>> = {
+  'non-financial': {
+    '13': [ // Leave Application
+      { id: 'annual_leave', label: 'Annual Leave' },
+      { id: 'sick_leave', label: 'Sick Leave' },
+      { id: 'emergency_leave', label: 'Emergency Leave' },
+      { id: 'maternity_leave', label: 'Maternity Leave' },
+      { id: 'compassionate_leave', label: 'Compassionate Leave' },
+    ],
+    '14': [ // Shifts Allocation
+      { id: 'shift_allocation', label: 'Shift Allocation' },
+      { id: 'request_change', label: 'Request Shift Change' },
+      { id: 'clock_in_out', label: 'Clock In/Out' },
+      { id: 'guidelines_compliance', label: 'Guidelines & Compliance' },
+    ],
+    '15': [ // Flight Tickets Reimbursement
+      { id: 'eligibility_process', label: 'Eligibility & Process' },
+      { id: 'booking_procedure', label: 'Booking Procedure' },
+      { id: 'reimbursement_calculation', label: 'Reimbursement Calculation' },
+      { id: 'compliance_guidelines', label: 'Compliance & Guidelines' },
+    ],
+    '16': [ // Staff Requisition
+      { id: 'process_overview', label: 'Process Overview' },
+      { id: 'roles_responsibilities', label: 'Roles & Responsibilities' },
+      { id: 'role_justification', label: 'Role Justification' },
+      { id: 'role_scope_competencies', label: 'Scope & Competencies' },
+    ],
+  },
+};
 
 // Content store keyed by marketplace type -> service id -> tab id
 const SERVICE_DETAILS_CONTENT: Record<
@@ -36,10 +78,10 @@ const SERVICE_DETAILS_CONTENT: Record<
             type: 'ol',
             items: [
               'Open the request form: Click the Submit Request button to launch the support form.',
-              'Select a category: Choose the most relevant category for your issue (e.g. Hardware, Software, Network) so that your request reaches the right IT team.',
-              'Describe the issue: Enter a clear summary and detailed description. Include error messages, impacted accounts, and attach screenshots or log files if possible.',
-              'Set urgency: Indicate the priority or urgency level (e.g. High/Urgent for critical outages, or Normal for routine problems).',
-              'Submit the form: Review your entries and click Submit. You will receive an email confirmation with a ticket number.',
+              'Select a category: Choose the most relevant category for your issue (e.g. Microsoft Solutions, Devices , Other Solutions) so that your request reaches the right IT team.',
+              'Describe the issue: Enter a clear summary and detailed description. Include error messages, impacted accounts or log files if possible.',
+              'Optionally upload a screenshot of the issue that you are facing. This will help us to understand the issue better and resolve it faster.',
+              'Submit the form: Review your entries and click Submit.',
             ],
           },
           {
@@ -70,11 +112,11 @@ const SERVICE_DETAILS_CONTENT: Record<
           {
             type: 'ul',
             items: [
-              'Account and Password Issues: Confirm correct DQ credentials. If locked out or forgot your password, use the reset tool or contact IT. Verify your DQ account is active.',
-              'Network & Connectivity: Check cables/Wi‑Fi, restart your device, ensure VPN is connected for off‑site access, and check for broader outages.',
+              'Account and Password Issues: Confirm correct DQ credentials. ',
+              'Network & Connectivity: Check cables/Wi‑Fi, restart your device, and check for broader outages.',
               'Software Errors or Crashes: Restart the application and your computer, ensure updates are installed, and if needed reinstall or try another device.',
-              'Hardware & Peripherals: Verify power and connections; check drivers. For printers/scanners, check paper/ink and network settings.',
-              'Microsoft Teams and Email: Sign out/in, try the web version, check Office 365 service status, and ensure your license is active.',
+              'Hardware & Peripherals: Verify power and connections; check drivers.',
+              'Microsoft Teams and Email: Sign out/in, try the web version.',
               'General Tips: A quick restart often resolves minor glitches. Consider whether a recent update/installation changed behavior.',
             ],
           },
@@ -98,13 +140,7 @@ const SERVICE_DETAILS_CONTENT: Record<
             text:
               'Support Hours: Monday–Friday, 8:00 AM to 5:00 PM (Nairobi time). Outside these hours, responses may be delayed unless the issue is critical.',
           },
-          {
-            type: 'ul',
-            items: [
-              'Ticket/Email (Preferred): Submit a request via the form or email it-support@dq.com for non‑urgent issues.',
-              'Phone/Chat (Urgent): For emergencies, message the IT Support group in Microsoft Teams.',
-            ],
-          },
+         
           {
             type: 'ul',
             items: [
@@ -113,12 +149,8 @@ const SERVICE_DETAILS_CONTENT: Record<
               'Resolution Time: Varies based on complexity; we’ll keep you updated and prioritize high‑priority issues.',
               'Escalation: Tickets requiring specialist/higher‑level support are escalated appropriately.',
             ],
-          },
-          {
-            type: 'p',
-            text:
-              'Scope & Eligibility: Support covers DQ‑managed systems for DQ associates. Personal devices or external services are not supported. Please use your DQ login or email when contacting support.',
-          },
+          }
+          
         ],
       },
       required_documents: {
@@ -236,152 +268,6 @@ const SERVICE_DETAILS_CONTENT: Record<
         heading: 'Required Documents',
         blocks: [{ type: 'p', text: 'No required documents.' }],
       },
-    },
-    // Bookings
-    '4': {
-      submit_request: {
-        heading: 'Submit a Booking',
-        blocks: [
-          {
-            type: 'p',
-            text:
-              'Purpose: Request rooms, equipment, or services through Admin/Operations.',
-          },
-          {
-            type: 'ol',
-            items: [
-              'Open the booking form and choose the required category (room, equipment, logistics).',
-              'Provide dates, times, attendees, and any special requirements.',
-              'Submit and await confirmation/clarifications from Admin.',
-            ],
-          },
-        ],
-        action: { label: 'Request Service', urlField: 'requestUrl', fallbackUrl: '#' },
-      },
-      self_service_faq: {
-        heading: 'Booking Tips',
-        blocks: [
-          {
-            type: 'ul',
-            items: [
-              'Book early for larger events to secure preferred rooms.',
-              'Include setup/teardown time in your request.',
-            ],
-          },
-        ],
-      },
-      contact_sla: { heading: 'Contacts & SLAs', blocks: [{ type: 'p', text: 'Admin responds within 1 business day.' }] },
-      required_documents: { heading: 'Required Documents', blocks: [{ type: 'p', text: 'No required documents.' }] },
-    },
-    // Staff Requisition
-    '5': {
-      submit_request: {
-        heading: 'Request Staff',
-        blocks: [
-          { type: 'p', text: 'Purpose: Request staff allocation or temporary support for an activity/project.' },
-          {
-            type: 'ol',
-            items: [
-              'Open the staff requisition form.',
-              'Specify role, duration, skills needed, and cost center (if applicable).',
-              'Submit and await HR/Admin acknowledgment.',
-            ],
-          },
-        ],
-        action: { label: 'Request Service', urlField: 'requestUrl', fallbackUrl: '#' },
-      },
-      self_service_faq: {
-        heading: 'Guidance',
-        blocks: [{ type: 'p', text: 'Ensure you have approvals/budget alignment before submitting the requisition.' }],
-      },
-      contact_sla: { heading: 'Contacts & SLAs', blocks: [{ type: 'p', text: 'Initial response typically within one business day.' }] },
-      required_documents: { heading: 'Required Documents', blocks: [{ type: 'p', text: 'No required documents.' }] },
-    },
-    // Registration
-    '6': {
-      submit_request: {
-        heading: 'Submit a Registration',
-        blocks: [
-          { type: 'p', text: 'Purpose: Register for programs, platforms, or events managed by Admin/Operations.' },
-          {
-            type: 'ol',
-            items: [
-              'Open the registration form and select the registration type.',
-              'Fill participant details and any required identifiers.',
-              'Submit and watch for confirmation details or next steps.',
-            ],
-          },
-        ],
-        action: { label: 'Request Service', urlField: 'requestUrl', fallbackUrl: '#' },
-      },
-      self_service_faq: { heading: 'FAQs', blocks: [{ type: 'p', text: 'Registrations may close when capacity is reached—apply early.' }] },
-      contact_sla: { heading: 'Contacts & SLAs', blocks: [{ type: 'p', text: 'Response typically within one business day.' }] },
-      required_documents: { heading: 'Required Documents', blocks: [{ type: 'p', text: 'No required documents.' }] },
-    },
-    // DTMP (Digital Template / Process)
-    '7': {
-      submit_request: {
-        heading: 'Start DTMP',
-        blocks: [
-          { type: 'p', text: 'Purpose: Initiate a Digital Template/Process request for your team.' },
-          {
-            type: 'ol',
-            items: [
-              'Open the DTMP request form.',
-              'Describe the process/template required and its intended use.',
-              'Attach any examples or existing materials for reference.',
-            ],
-          },
-        ],
-        action: { label: 'Request Service', urlField: 'requestUrl', fallbackUrl: '#' },
-      },
-      self_service_faq: { heading: 'Resources', blocks: [{ type: 'p', text: 'Check if there is an existing DTMP you can reuse.' }] },
-      contact_sla: { heading: 'Contacts & SLAs', blocks: [{ type: 'p', text: 'We aim to respond within one business day.' }] },
-      required_documents: { heading: 'Required Documents', blocks: [{ type: 'p', text: 'No required documents.' }] },
-    },
-    // Governance
-    '8': {
-      submit_request: {
-        heading: 'Request Governance Review',
-        blocks: [
-          { type: 'p', text: 'Purpose: Request a governance or policy review for a process or document.' },
-          { type: 'ol', items: ['Open the governance request form.', 'Attach current policy/process.', 'Submit for review.'] },
-        ],
-        action: { label: 'Request Service', urlField: 'requestUrl', fallbackUrl: '#' },
-      },
-      self_service_faq: {
-        heading: 'Guidelines',
-        blocks: [{ type: 'p', text: 'Ensure you are using the latest templates and reference policies before requesting changes.' }],
-      },
-      contact_sla: { heading: 'Contacts & SLAs', blocks: [{ type: 'p', text: 'Review timeline depends on scope; acknowledgments within one business day.' }] },
-      required_documents: { heading: 'Required Documents', blocks: [{ type: 'p', text: 'No required documents.' }] },
-    },
-    // Proposal
-    '9': {
-      submit_request: {
-        heading: 'Submit Proposal',
-        blocks: [
-          { type: 'p', text: 'Purpose: Submit a proposal for review and approval.' },
-          {
-            type: 'ol',
-            items: [
-              'Open the proposal submission form.',
-              'Provide summary, objectives, scope, timeline, and budget (if applicable).',
-              'Attach draft proposal or slide deck.',
-            ],
-          },
-        ],
-        action: { label: 'Request Service', urlField: 'requestUrl', fallbackUrl: '#' },
-      },
-      self_service_faq: {
-        heading: 'Templates & Tips',
-        blocks: [
-          { type: 'p', text: 'Use the latest proposal template to speed up approvals.' },
-          { type: 'ul', items: ['Be concise', 'Highlight business impact', 'Outline measurable outcomes'] },
-        ],
-      },
-      contact_sla: { heading: 'Contacts & SLAs', blocks: [{ type: 'p', text: 'Initial review typically within two business days.' }] },
-      required_documents: { heading: 'Required Documents', blocks: [{ type: 'p', text: 'No required documents.' }] },
     },
     // Cursor AI
     '10': {
@@ -838,6 +724,813 @@ const SERVICE_DETAILS_CONTENT: Record<
         ],
       },
     },
+    // Leave Application
+    '13': {
+      annual_leave: {
+        heading: 'Annual Leave (30 Calendar Days)',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'Annual leave refers to the allocated number of days an associate can be absent from work without loss of pay during a one-year period. Each associate is entitled to 30 calendar days per year. These days cannot be carried over to the next year. All associates are eligible for leave after the probation period.',
+          },
+          { type: 'p', text: 'Procedure:' },
+          {
+            type: 'p',
+            text: 'STAGE 01: 4 WEEKS PRIOR',
+          },
+          {
+            type: 'ul',
+            items: [
+              'Confirm leave eligibility',
+              'Confirm departmental capacity',
+              'Apply on "Approvals" app',
+              'Update on HR Channel',
+            ],
+          },
+          {
+            type: 'p',
+            text: 'STAGE 02: 2 WEEKS PRIOR',
+          },
+          {
+            type: 'ul',
+            items: [
+              'Notify senior management',
+              'Update handover catalog',
+              'Capture sign-off',
+            ],
+          },
+          {
+            type: 'p',
+            text: 'STAGE 03: 1 WEEK PRIOR',
+          },
+          {
+            type: 'ul',
+            items: [
+              'Publish handover catalog',
+              'Update Leave and HR channel',
+              'Setup "Out-of-Office" reply',
+            ],
+          },
+        ],
+        action: {
+          label: 'Apply For Leave',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      sick_leave: {
+        heading: 'Sick Leave (5 Annual Days)',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'Sick leave refers to an approved absence granted for illness. Each associate is eligible for 5 annual sick leave days. These days cannot be carried over to the following year. All employees are eligible for paid sick leave after the probation period.',
+          },
+          {
+            type: 'p',
+            text: 'SICK LEAVE: 1 WORKING DAY',
+          },
+          {
+            type: 'ul',
+            items: [
+              'Call respective line manager to inform them about your sick leave one day prior',
+              'Use the "Approvals" app to submit sick leave via your department\'s template',
+              'Share an update on both the HR and Leave channels after receiving leave approval',
+            ],
+          },
+          {
+            type: 'p',
+            text: 'SICK LEAVE: MULTIPLE WORKING DAYS',
+          },
+          {
+            type: 'ul',
+            items: [
+              'Call respective line manager to inform them about your sick leave one day prior',
+              'Provide a medical certificate to the line manager',
+              'Use the "Approvals" app to submit sick leave via your department\'s template',
+              'Share an update on both the HR and Leave channels upon approval',
+              'Capture the associate assigned as the task reliever with the line manager',
+              'Capture and update the task handover catalog',
+              'Obtain sign-off from the line manager on the HR channel for the task handover catalog',
+            ],
+          },
+        ],
+        action: {
+          label: 'Apply For Leave',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      emergency_leave: {
+        heading: 'Emergency Leave',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'Emergency leave is a vital provision offered by DQ to support associates facing unforeseen and critical situations. It allows associates to take authorized absence during emergencies, ranging from personal crises to natural disasters. Associates should ensure that emergency leave is only taken for unexpected circumstances and must confide to their line manager the reason for emergency.',
+          },
+          {
+            type: 'p',
+            text: 'Procedure to request emergency leave:',
+          },
+          {
+            type: 'ol',
+            items: [
+              'Call respective line manager to verbally request an emergency leave',
+              'Use the "Approvals" app to submit the leave via your department\'s template',
+              'Notify on both the HR and Leave channels after receiving the final leave approval',
+            ],
+          },
+        ],
+        action: {
+          label: 'Apply For Leave',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      maternity_leave: {
+        heading: 'Maternity Leave (45 Days)',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'Female associates are entitled to 45 days of maternity leave for childbirth and postpartum recovery. This leave can be taken both before and after childbirth, as needed. Leave eligibility begins after the associate\'s probation period.',
+          },
+          { type: 'p', text: 'Procedure:' },
+          {
+            type: 'p',
+            text: 'STAGE 01: 4 WEEKS PRIOR',
+          },
+          {
+            type: 'ul',
+            items: [
+              'Confirm leave eligibility',
+              'Apply on "Approvals" app',
+              'Update on HR Channel',
+            ],
+          },
+          {
+            type: 'p',
+            text: 'STAGE 02: 2 WEEKS PRIOR',
+          },
+          {
+            type: 'ul',
+            items: [
+              'Notify senior management',
+              'Update handover catalog',
+              'Capture sign-off',
+            ],
+          },
+          {
+            type: 'p',
+            text: 'STAGE 03: 1 WEEK PRIOR',
+          },
+          {
+            type: 'ul',
+            items: [
+              'Publish handover catalog',
+              'Update Leave and HR channel',
+              'Setup "Out-of-Office" reply',
+            ],
+          },
+        ],
+        action: {
+          label: 'Apply For Leave',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      compassionate_leave: {
+        heading: 'Compassionate Leave (3-5 Days)',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'Compassionate leave is granted to associates in the event of a family member\'s serious illness or loss. This leave ensures that associates have dedicated time to support loved ones during difficult times. Each associate is entitled to 3 to 5 days of compassionate leave per year, with eligibility beginning after the associate\'s probation period.',
+          },
+          {
+            type: 'p',
+            text: 'Procedure to request compassionate leave:',
+          },
+          {
+            type: 'ol',
+            items: [
+              'Call respective line manager to verbally request a compassionate leave',
+              'Use the "Approvals" app to submit the leave via your department\'s template',
+              'Notify both the HR and Leave channels after receiving the final leave approval',
+            ],
+          },
+        ],
+        action: {
+          label: 'Apply For Leave',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+    },
+    // Shifts Allocation
+    '14': {
+      shift_allocation: {
+        heading: 'Shift Allocation Process',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'The Shift Allocation Process ensures efficiency, fairness, and legal compliance in assigning work schedules. All shifts are published by Wednesday each week, and associates must confirm their shifts immediately upon publication, no later than Friday.',
+          },
+          { type: 'p', text: 'Roles and Responsibilities:' },
+          {
+            type: 'ul',
+            items: [
+              'Associates: Confirm assigned shifts upon publication (by Friday each week), clock in and out at designated times.',
+              'Line Managers: Review and approve shift assignments, ensure fair allocation, approve/deny shift change requests.',
+              'Admin: Confirm associate availability through line managers, publish finalized shifts by Wednesday, process approved shift changes.',
+            ],
+          },
+          { type: 'p', text: 'Step-by-Step Process:' },
+          {
+            type: 'ol',
+            items: [
+              'Confirm Availability: Admin collaborates with line managers to confirm associate availability.',
+              'Assign Shifts: Shifts are assigned based on associate availability and operational needs (morning, evening, split shifts, remote).',
+              'Publish Shifts: Admin publishes shifts by Wednesday each week via Shifts app.',
+              'Confirm Shift Assignments: Associates must confirm shifts immediately upon publication (deadline: Friday).',
+              'View Shifts: Access your assigned shifts in the Shifts app and add them to your calendar.',
+            ],
+          },
+          {
+            type: 'p',
+            text:
+              'Important: Failure to confirm shifts on time will result in the inability to request a shift change for that cycle. All shift assignments comply with local labor laws regarding working hours and rest periods.',
+          },
+        ],
+        action: {
+          label: 'Open Shifts App',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/shifts',
+        },
+      },
+      request_change: {
+        heading: 'Request Shift Change Process',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'Associates can request shift changes through the proper channels by providing valid reasons to their line manager. All shift change requests must be approved before being processed.',
+          },
+          { type: 'p', text: 'Procedure to request a shift change:' },
+          {
+            type: 'ol',
+            items: [
+              'Requesting Change: Associate submits shift change request to line manager via Teams chat with valid reason (e.g., personal emergency, medical appointment, unavoidable conflict).',
+              'Approval: Line manager reviews request and approves or denies based on operational needs and business availability.',
+              'Processing: Once approved by line manager, they inform Admin to update and process the shift change.',
+              'Confirmation: Admin processes the approved shift change and updates records in the Shifts app.',
+              'Notification: Admin promptly informs associates of the shift change with adequate notice.',
+            ],
+          },
+          { type: 'p', text: 'Key Requirements:' },
+          {
+            type: 'ul',
+            items: [
+              'Request must be submitted through line manager (not directly to Admin)',
+              'Provide valid and clear reason for the change',
+              'Request should be made as early as possible to allow proper planning',
+              'Line manager must inform Admin after approval',
+              'Associates must have confirmed their original shifts to be eligible for change requests',
+            ],
+          },
+          {
+            type: 'p',
+            text:
+              'Consequences: Unauthorized shift changes will not be counted for payroll. Excessive shift change requests (repeated, unnecessary) will be denied, and the associate will be prohibited from future requests.',
+          },
+        ],
+        action: {
+          label: 'Contact Line Manager',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/shifts',
+        },
+      },
+      clock_in_out: {
+        heading: 'Clock In/Out Reporting Process',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'Associates are required to clock in and out at designated times for each assigned shift. Accurate clock-in/clock-out reporting is essential for payroll processing and operational tracking. 100% compliance is required.',
+          },
+          { type: 'p', text: 'Clock In/Out Procedure:' },
+          {
+            type: 'ol',
+            items: [
+              'Clock In: At the start of your shift, open the Shifts app and clock in at your designated time.',
+              'During Shift: Remain clocked in for the duration of your assigned shift. For split shifts, clock out and in accordingly.',
+              'Clock Out: At the end of your shift, open the Shifts app and clock out at the designated time.',
+              'Verify Record: Check that your clock-in/clock-out times are accurately recorded in the system.',
+            ],
+          },
+          { type: 'p', text: 'Report Deviations:' },
+          {
+            type: 'ul',
+            items: [
+              'If you experience technical issues with clocking in/out, immediately report to your line manager and Admin via Teams chat.',
+              'If you forget to clock in or out, notify your line manager and Admin as soon as possible with the actual times worked.',
+              'Any discrepancies in clock-in/clock-out records must be reported promptly for correction.',
+              'Documentation may be required for corrections (e.g., screenshot, email confirmation).',
+            ],
+          },
+          {
+            type: 'p',
+            text:
+              'Tracking: Admin tracks and reports all clock-in and clock-out data for operational accuracy and payroll processing. All attendance records are documented for compliance purposes.',
+          },
+        ],
+        action: {
+          label: 'Open Shifts App',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/shifts',
+        },
+      },
+      guidelines_compliance: {
+        heading: 'Guidelines, KPIs & Compliance',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'The Shifts Allocation Guidelines ensure operational efficiency, fairness, and legal compliance. All associates must adhere to these guidelines to support Live24\'s operational goals.',
+          },
+          { type: 'p', text: 'Key Performance Indicators (KPIs):' },
+          {
+            type: 'ul',
+            items: [
+              'Shift Confirmation Rate: 100% confirmation of assigned shifts by associates by the published deadline (Friday).',
+              'Shift Change Request Compliance: 100% of shift changes processed through proper channels (via line manager).',
+              'Clock-in/Clock-out Compliance: 100% accurate clock-in/clock-out reporting by associates.',
+              'Shift Adherence: 100% adherence to assigned shifts by associates.',
+            ],
+          },
+          { type: 'p', text: 'Guiding Principles:' },
+          {
+            type: 'ul',
+            items: [
+              'Shift Confirmation: Associates must confirm assigned shifts immediately upon publication (deadline: Friday).',
+              'Shift Change Requests: Must be requested via line manager with valid reasons.',
+              'Communication: Admin will promptly inform associates of any shift changes with adequate notice.',
+              'Publication Timeline: All shifts must be published by Wednesday each week.',
+              'Shift Reporting: Clock in and out on time; deviations must be reported immediately.',
+            ],
+          },
+          { type: 'p', text: 'Consequences for Non-Compliance:' },
+          {
+            type: 'ul',
+            items: [
+              'Unapproved Absences: Failure to show up for assigned shifts without approval will result in the day not being counted for payroll. 3 unapproved absences in a month will warrant reconsideration of engagement by HR.',
+              'Unauthorized Shift Changes: Will not be counted for payroll purposes.',
+              'Failure to Confirm Shifts: Results in inability to request shift changes for that cycle.',
+              'Excessive Shift Change Requests: Repeated, unnecessary requests will be denied, and associate prohibited from future requests.',
+            ],
+          },
+          { type: 'p', text: 'Compliance and Governance:' },
+          {
+            type: 'ul',
+            items: [
+              'Legal Compliance: All shift assignments comply with local labor laws regarding working hours and rest periods.',
+              'Operational Compliance: Shifts align with business needs and ensure fairness.',
+              'Documentation: All shift assignments, changes, and attendance records documented for compliance.',
+              'Quarterly Review: Guidelines reviewed quarterly to meet evolving operational needs.',
+            ],
+          },
+          { type: 'p', text: 'Tools and Resources:' },
+          {
+            type: 'ul',
+            items: [
+              'Shifts App: Used for scheduling, tracking, and modifying shifts.',
+              'Teams Chat: Communication channel for shift changes, confirmations, and inquiries.',
+            ],
+          },
+        ],
+        action: {
+          label: 'Open Shifts App',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/shifts',
+        },
+      },
+    },
+    // Flight Tickets Reimbursement
+    '15': {
+      eligibility_process: {
+        heading: 'Eligibility & Process Overview',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'These guidelines provide a standardized, clear, and efficient process for flight ticket reimbursement to eligible associates within DQ. The reimbursement applies to economy class return tickets from Dubai to the nearest major airport to the associate\'s home city.',
+          },
+          { type: 'p', text: 'Purpose:' },
+          {
+            type: 'p',
+            text:
+              'To provide a standardized, clear, and efficient process for flight ticket reimbursement to eligible associates within DQ, ensuring fairness, transparency, and consistency in accordance with the company\'s policy.',
+          },
+          { type: 'p', text: 'Scope:' },
+          {
+            type: 'p',
+            text:
+              'These guidelines apply to all permanently employed associates within the organization who meet the eligibility criteria and require flight ticket reimbursement for travel to their home country and back. The reimbursement applies to economy class tickets only.',
+          },
+          { type: 'p', text: 'Roles and Responsibilities:' },
+          {
+            type: 'ul',
+            items: [
+              'Associates: Submit requests with three quotes from reputable online platforms via Approvals App, book flights according to guidelines at least two weeks before travel.',
+              'Admin: Reviews requests, confirms eligibility, ensures guidelines are followed, conducts independent research to verify current average flight costs, passes confirmed requests to Finance.',
+              'Ops Lead: Approves flight bookings and ensures compliance with guidelines.',
+              'Finance: Processes approved reimbursement requests and issues payments.',
+            ],
+          },
+          { type: 'p', text: 'Reimbursement Process Overview:' },
+          {
+            type: 'ol',
+            items: [
+              'Request Initiation: Submit reimbursement request once eligibility criteria are met, at least one month before travel.',
+              'Quote Submission: Provide three quotes from reputable online platforms on HR Channel for comparison.',
+              'Admin Review: Admin confirms eligibility and verifies average flight costs through independent research.',
+              'Ops Lead Approval: Ops Lead reviews and approves the flight booking.',
+              'Book Flight: Book economy class flight at least two weeks before travel date.',
+              'Finance Processing: Finance processes the approved reimbursement based on the average cost calculation.',
+            ],
+          },
+        ],
+        action: {
+          label: 'Submit Request',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      booking_procedure: {
+        heading: 'Booking Procedure & Quote Requirements',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'To ensure transparency and fairness, associates must follow specific procedures when booking flights and submitting quotes for reimbursement.',
+          },
+          { type: 'p', text: 'Quote Submission Requirements:' },
+          {
+            type: 'ol',
+            items: [
+              'Provide Three Quotes: Submit three flight quotes from renowned online platforms (e.g., Skyscanner, Kayak, Google Flights, Expedia).',
+              'Post on HR Channel: Share all three quotes on the HR Channel for review and comparison.',
+              'Ensure Comparability: All quotes must be for the same travel dates, route (Dubai to home country nearest major airport), and class (economy).',
+              'Include Details: Each quote should include airline, flight times, layovers, total cost, and platform used.',
+            ],
+          },
+          { type: 'p', text: 'Booking Timeline and Requirements:' },
+          {
+            type: 'ul',
+            items: [
+              'Submit Request: At least one month before travel date via Approvals App.',
+              'Admin Review: Admin verifies eligibility and conducts independent research on current average flight costs.',
+              'Quote Submission: Provide three quotes on HR Channel immediately after request submission.',
+              'Approval: Wait for Ops Lead approval before proceeding with booking.',
+              'Book Flight: Must book at least two weeks before travel date.',
+              'Economy Class Only: Reimbursement applies only to economy class return tickets.',
+              'Route: Dubai to nearest major airport to associate\'s home city.',
+            ],
+          },
+          { type: 'p', text: 'Guiding Principles:' },
+          {
+            type: 'ul',
+            items: [
+              'Fairness and Transparency: Ensure transparent process by requiring three quotes and providing clarity on reimbursement amount.',
+              'Timeliness: Submit requests at least one month in advance and book at least two weeks before travel.',
+              'Accountability: Ensure all steps of the reimbursement process are followed properly.',
+              'Budget Adherence: Flight bookings must adhere to budgetary constraints based on average costs.',
+            ],
+          },
+          {
+            type: 'p',
+            text:
+              'Important: Late requests submitted after the specified timeframe may not be eligible for reimbursement. Admin will conduct independent verification of flight costs to ensure accuracy.',
+          },
+        ],
+        action: {
+          label: 'Submit Request',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      reimbursement_calculation: {
+        heading: 'Reimbursement Calculation Method',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'The reimbursement amount is calculated based on the average of flight prices from three quotes provided by the associate and verified by Admin through independent research.',
+          },
+          { type: 'p', text: 'Calculation Method:' },
+          {
+            type: 'ol',
+            items: [
+              'Average Calculation: Admin calculates the average of the three quotes provided by the associate.',
+              'Independent Verification: Admin conducts independent research on renowned online platforms to verify the current average cost of flights for the specified route and dates.',
+              'Final Average: The reimbursement baseline is determined based on the verified average cost.',
+            ],
+          },
+          { type: 'p', text: 'Reimbursement Scenarios:' },
+          {
+            type: 'ul',
+            items: [
+              'Ticket Cost Above Average: If the actual ticket cost is above the average, the associate pays the difference. Reimbursement = Average Cost (Associate pays: Actual Cost - Average).',
+              'Ticket Cost Below Average: If the actual ticket cost is below the average, the reimbursement will be the actual ticket cost (no top-up provided). Reimbursement = Actual Ticket Cost.',
+              'Ticket Cost Equal to Average: If the actual ticket cost equals the average, full reimbursement is provided. Reimbursement = Actual Ticket Cost.',
+            ],
+          },
+          { type: 'p', text: 'Example Calculation:' },
+          {
+            type: 'p',
+            text:
+              'Quote 1: AED 2,400 | Quote 2: AED 2,600 | Quote 3: AED 2,500 | Average: AED 2,500',
+          },
+          {
+            type: 'ul',
+            items: [
+              'If Associate Books at AED 2,700: Reimbursement = AED 2,500, Associate pays AED 200 difference.',
+              'If Associate Books at AED 2,300: Reimbursement = AED 2,300 (actual cost, no top-up to average).',
+              'If Associate Books at AED 2,500: Reimbursement = AED 2,500 (full reimbursement).',
+            ],
+          },
+          {
+            type: 'p',
+            text:
+              'Budget Adherence Principle: No top-up will be provided if the ticket cost is below the average. This ensures budget adherence and encourages associates to find cost-effective options.',
+          },
+        ],
+        action: {
+          label: 'Submit Request',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      compliance_guidelines: {
+        heading: 'Compliance, Guidelines & KPIs',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'Flight ticket reimbursement must comply with organizational policies, timelines, and budgetary constraints to ensure fairness and transparency.',
+          },
+          { type: 'p', text: 'Key Performance Indicators (KPIs):' },
+          {
+            type: 'ul',
+            items: [
+              'Timeliness: Ensure requests are submitted on time (at least one month prior to travel).',
+              'Quote Transparency: Provide three quotes from renowned online platforms for flight comparison.',
+              'Compliance: Adhere to budgetary guidelines when booking flights (based on average cost).',
+              'Booking Timeliness: Book flights at least two weeks before travel date.',
+            ],
+          },
+          { type: 'p', text: 'Compliance and Governance:' },
+          {
+            type: 'ul',
+            items: [
+              'Approval Process Compliance: All requests must be submitted and approved through the Approvals App. Any discrepancies will be reviewed by the Admin Lead.',
+              'Ticket Cost Compliance: No reimbursement exceeds the average of the three quotes unless the associate covers the excess.',
+              'Late Submission Protocol: Requests submitted later than the specified timeframes (one month before travel) may not be reimbursed.',
+              'Economy Class Only: Reimbursement applies only to economy class tickets. Business or first-class tickets are not eligible.',
+              'Documentation: All reimbursement requests, quotes, and approvals will be documented for compliance and audit purposes.',
+            ],
+          },
+          { type: 'p', text: 'Review and Update Schedule:' },
+          {
+            type: 'ul',
+            items: [
+              'Quarterly Review: Guidelines will be reviewed quarterly to ensure relevance and efficiency. Next review scheduled for November 2025.',
+              'Ad-Hoc Updates: Updates will be made when operational or regulatory changes occur.',
+            ],
+          },
+          { type: 'p', text: 'Tools and Resources:' },
+          {
+            type: 'ul',
+            items: [
+              'Approvals App: Used for submitting and tracking all flight reimbursement requests.',
+              'Renowned Online Platforms: Skyscanner, Kayak, Google Flights, Expedia for sourcing quotes and booking flights.',
+              'HR Channel: Teams channel for posting quotes and communicating with Admin.',
+              'Reimbursement Request Form: Template available in Approvals App for submitting requests.',
+            ],
+          },
+          {
+            type: 'p',
+            text:
+              'Consequences for Non-Compliance: Late submissions may result in denial of reimbursement. Failure to provide three quotes or booking flights not in economy class will result in request rejection. Associates are responsible for understanding and following these guidelines.',
+          },
+        ],
+        action: {
+          label: 'Submit Request',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+    },
+    // Staff Requisition
+    '16': {
+      process_overview: {
+        heading: 'Staff Requisition Process Overview',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'The Staff Requisition Process ensures that staffing needs are aligned with organizational priorities, budget availability, and operational requirements. All demand cards must be completed accurately, reviewed by the line manager, and routed to HR for evaluation.',
+          },
+          { type: 'p', text: 'Process Flow:' },
+          {
+            type: 'ol',
+            items: [
+              'Demand Card Submission: Associate/Hiring Manager submits a detailed staff requisition request through the Approvals App, outlining the role purpose, key responsibilities, and required competencies.',
+              'Line Manager Review: Line Manager validates the business need, confirms budget availability, ensures alignment with team workload, and approves or rejects the requisition.',
+              'HR Evaluation: HR reviews and validates the demand card, ensures compliance with staffing policies, evaluates job level and salary band.',
+              'Approval & Recruitment: Approved requests proceed to recruitment through Talent Acquisition. Incomplete or unclear submissions may be returned for clarification.',
+              'Sourcing & Hiring: Talent Acquisition team sources candidates, conducts interviews, and completes the hiring process.',
+            ],
+          },
+          { type: 'p', text: 'Staffing Types Supported:' },
+          {
+            type: 'ul',
+            items: [
+              'Permanent Roles: Full-time positions with long-term employment contracts.',
+              'Contract Roles: Fixed-term positions for specific projects or time-bound needs.',
+              'Temporary Staffing: Short-term hires to cover operational peaks or leaves.',
+            ],
+          },
+          { type: 'p', text: 'Key Requirements:' },
+          {
+            type: 'ul',
+            items: [
+              'Complete demand card with all required details (purpose, responsibilities, competencies, justification).',
+              'Line manager approval confirming business need and budget availability.',
+              'HR validation of role alignment with organizational structure and policies.',
+              'Clear specification of whether the role is a replacement or new headcount.',
+              'Full visibility and traceability throughout the recruitment process.',
+            ],
+          },
+          {
+            type: 'p',
+            text:
+              'Important: Incomplete or unclear submissions will be returned to the hiring manager for clarification. Ensure all sections of the demand card are filled accurately to avoid delays in the recruitment process.',
+          },
+        ],
+        action: {
+          label: 'Submit Requisition',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      roles_responsibilities: {
+        heading: 'Roles and Responsibilities',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'The Staff Requisition Process involves collaboration between Associates/Hiring Managers, Line Managers, and HR & Talent Acquisition to ensure staffing decisions are aligned with business needs and organizational priorities.',
+          },
+          { type: 'p', text: 'Associates / Hiring Managers:' },
+          {
+            type: 'ul',
+            items: [
+              'Submit the staff requisition request with complete details on purpose, responsibilities, competencies, and justification for the role.',
+              'Provide clear business rationale explaining why the role is needed (operational gap, strategic initiative, etc.).',
+              'Specify whether the role is a replacement for a departing employee or new headcount.',
+              'Respond to HR clarifications promptly to avoid delays in processing.',
+              'Ensure alignment with departmental goals and organizational priorities.',
+              'Collaborate with Line Manager to validate business need before submission.',
+            ],
+          },
+          { type: 'p', text: 'Line Managers:' },
+          {
+            type: 'ul',
+            items: [
+              'Validate the business need and confirm that the role is critical to operations or strategic objectives.',
+              'Confirm budget availability for the position (salary, benefits, onboarding costs).',
+              'Ensure alignment to team workload and assess whether existing resources can absorb the responsibilities.',
+              'Approve or reject requisition submissions based on business priorities and resource constraints.',
+              'Provide feedback and guidance to Hiring Managers if the requisition requires adjustments.',
+              'Monitor recruitment progress and support Talent Acquisition during candidate evaluation.',
+            ],
+          },
+          { type: 'p', text: 'HR & Talent Acquisition:' },
+          {
+            type: 'ul',
+            items: [
+              'Review and validate the demand card to ensure completeness and clarity.',
+              'Ensure compliance with staffing policies, organizational structure, and headcount planning.',
+              'Evaluate job level, salary band, and benefits alignment with market standards and internal equity.',
+              'Proceed with sourcing once the requisition is approved, leveraging internal and external talent pools.',
+              'Coordinate with Line Managers and Hiring Managers throughout the recruitment process.',
+              'Provide regular updates on sourcing progress and candidate pipelines.',
+              'Return incomplete or unclear submissions to Hiring Managers for clarification.',
+            ],
+          },
+          {
+            type: 'p',
+            text:
+              'Key Success Factor: Clear communication and collaboration between all parties ensure that staffing decisions are made efficiently, transparently, and in alignment with organizational goals.',
+          },
+        ],
+        action: {
+          label: 'Submit Requisition',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      role_justification: {
+        heading: 'Purpose (Role Justification)',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'The Role Justification section is critical to the Staff Requisition Process. It helps Line Managers and HR understand why the position is needed, what gap it fills, and how it supports business objectives.',
+          },
+          { type: 'p', text: 'What to Include in Role Justification:' },
+          {
+            type: 'ul',
+            items: [
+              'Business Challenge or Gap: Describe the specific operational, strategic, or capacity challenge that this role will address. Examples: "Increased customer demand requires additional support," "New product line launch needs dedicated ownership," "Departing employee leaving critical gap in team capacity."',
+              'Operational or Strategic Need: Explain how the role supports departmental or organizational goals. Examples: "Role will lead digital transformation initiative," "Position will improve customer response times by 30%," "Hire will enable team to scale operations for Q2 growth."',
+              'Expected Impact of Filling the Role: Quantify or describe the value this position will bring. Examples: "Will reduce project delivery time by 15%," "Expected to generate AED 500K in revenue annually," "Will improve compliance scores and reduce audit risks."',
+              'Replacement or New Headcount: Clearly state whether this is a replacement for a departing employee or a new position. If replacement, mention the departing employee and their last working day. If new headcount, explain why existing resources cannot absorb the responsibilities.',
+            ],
+          },
+          { type: 'p', text: 'Example Role Justification:' },
+          {
+            type: 'p',
+            text:
+              'Business Challenge: The Customer Success team is currently handling 40% more tickets than capacity allows, resulting in delayed responses and decreased customer satisfaction scores. Operational Need: A dedicated Customer Success Specialist will allow us to meet our SLA targets (24-hour response time) and improve NPS scores by 15 points. Expected Impact: Hiring this role will improve response times, increase customer retention by 10%, and support our Q3 revenue targets. Replacement or New Headcount: This is a new headcount position. Existing team members are at full capacity and cannot absorb additional workload without compromising service quality.',
+          },
+          {
+            type: 'p',
+            text:
+              'Tip: Be specific and data-driven. Vague justifications like "We need more help" or "Team is busy" are not sufficient. Provide concrete evidence (metrics, workload data, business goals) to support your request.',
+          },
+        ],
+        action: {
+          label: 'Submit Requisition',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      role_scope_competencies: {
+        heading: 'Role Scope & Key Competencies',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'Defining the role scope and key competencies ensures that the position is clearly understood by all stakeholders and that Talent Acquisition can source the right candidates.',
+          },
+          { type: 'p', text: 'Key Responsibilities (Role Scope):' },
+          {
+            type: 'p',
+            text:
+              'Outline the major tasks and deliverables the position will perform. This helps HR and Talent Acquisition understand the role\'s purpose and scope, and ensures alignment with organizational needs.',
+          },
+          {
+            type: 'ul',
+            items: [
+              'Day-to-Day Operational Duties: Core tasks performed regularly (e.g., "Manage customer inquiries via email and phone," "Process invoices and reconcile accounts," "Monitor system performance and troubleshoot issues").',
+              'Project or Cross-Functional Activities: Collaborative or project-based work (e.g., "Lead quarterly product launch initiatives," "Collaborate with Marketing on campaign execution," "Support HR on onboarding process improvements").',
+              'Governance, Reporting, or Compliance Tasks: Responsibilities related to oversight, documentation, or regulatory requirements (e.g., "Prepare monthly financial reports for leadership," "Ensure compliance with data privacy regulations," "Conduct quarterly audits of operational processes").',
+              'Expected Deliverables and Performance Outcomes: Clear output expectations (e.g., "Achieve 95% customer satisfaction rating," "Reduce processing time by 20%," "Deliver weekly status reports to Line Manager").',
+            ],
+          },
+          { type: 'p', text: 'Key Competencies (Required Skills & Behaviors):' },
+          {
+            type: 'p',
+            text:
+              'Specify the capabilities and attributes required for success in the role. This section helps Talent Acquisition identify the right talent and ensures candidates meet the role\'s expectations.',
+          },
+          {
+            type: 'ul',
+            items: [
+              'Technical Skills: Tools, systems, or domain expertise required (e.g., "Proficiency in Microsoft Excel and Power BI," "Experience with Salesforce CRM," "Knowledge of IFRS accounting standards," "Fluency in Python and SQL").',
+              'Soft Skills: Interpersonal and behavioral capabilities (e.g., "Strong communication and presentation skills," "Leadership and team collaboration," "Problem-solving and critical thinking," "Adaptability and resilience in fast-paced environments").',
+              'Experience Requirements: Relevant background and tenure (e.g., "3-5 years in customer-facing roles," "Bachelor\'s degree in Finance or Accounting," "Prior experience managing cross-functional teams," "Proven track record in SaaS sales").',
+              'Behavioral Competencies: Alignment with organizational values and culture (e.g., "Customer-centric mindset," "Data-driven decision-making," "Ownership and accountability," "Continuous improvement and innovation").',
+            ],
+          },
+          {
+            type: 'p',
+            text:
+              'Best Practice: Use the STAR method (Situation, Task, Action, Result) when describing responsibilities and competencies. This provides clarity and helps Talent Acquisition evaluate candidates effectively during the recruitment process.',
+          },
+        ],
+        action: {
+          label: 'Submit Requisition',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+    },
   },
 };
 
@@ -848,6 +1541,14 @@ export function getServiceTabContent(
 ): TabContent | undefined {
   if (!serviceId) return undefined;
   return SERVICE_DETAILS_CONTENT[marketplaceType]?.[serviceId]?.[tabId];
+}
+
+export function getCustomTabs(
+  marketplaceType: string,
+  serviceId: string | undefined
+): CustomTab[] | undefined {
+  if (!serviceId) return undefined;
+  return SERVICE_CUSTOM_TABS[marketplaceType]?.[serviceId];
 }
 
 

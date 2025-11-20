@@ -4,7 +4,7 @@ import { BookmarkIcon, ScaleIcon, Clock, Calendar, DollarSign, MapPin, ArrowLeft
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
-import { getServiceTabContent } from '../../utils/serviceDetailsContent';
+import { getServiceTabContent, getCustomTabs } from '../../utils/serviceDetailsContent';
 import type { ContentBlock } from '../../utils/serviceDetailsContent';
 import { fetchMarketplaceItemDetails, fetchRelatedMarketplaceItems } from '../../services/marketplace';
 import { ErrorDisplay } from '../../components/SkeletonLoader';
@@ -64,7 +64,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       resizeObserver.observe(containerRef.current);
     }
     return () => resizeObserver.disconnect();
-  }, [config.tabs]);
+  }, [item]);
   // Update floating card visibility based on scroll position
   useEffect(() => {
     const handleScroll = () => {
@@ -138,8 +138,18 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       });
     }
   };
+  // Check for custom tabs for this service
+  const customTabs = item ? getCustomTabs(marketplaceType, item.id) : undefined;
+  const tabsToUse = customTabs || config.tabs;
   // Add state for active tab
   const [activeTab, setActiveTab] = useState<string>(config.tabs[0]?.id || 'about');
+  
+  // Update active tab when custom tabs are loaded
+  useEffect(() => {
+    if (customTabs && customTabs.length > 0) {
+      setActiveTab(customTabs[0].id);
+    }
+  }, [customTabs]);
   // Generate a random rating between 4.0 and 5.0 for display purposes
   const rating = (4 + Math.random()).toFixed(1);
   const reviewCount = Math.floor(Math.random() * 50) + 10;
@@ -314,25 +324,47 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const renderBlocks = (blocks: ContentBlock[]) => {
     return (blocks || []).map((block, idx) => {
       if (block.type === 'p') {
-        return <p key={idx} className="text-gray-700">{block.text}</p>;
+        return <p key={idx} className="text-gray-700 text-base leading-relaxed mb-4">{block.text}</p>;
       }
       if (block.type === 'ol') {
-        return <ol key={idx} className="list-decimal pl-5 space-y-2 text-gray-700">
-            {block.items.map((it, i) => <li key={i}>{it}</li>)}
+        return <ol key={idx} className="list-decimal pl-6 space-y-3 text-gray-700 mb-4 text-base">
+            {block.items.map((it, i) => <li key={i} className="pl-2 leading-relaxed">{it}</li>)}
           </ol>;
       }
       if (block.type === 'ul') {
-        return <ul key={idx} className="list-disc pl-5 space-y-2 text-gray-700">
-            {block.items.map((it, i) => <li key={i}>{it}</li>)}
+        return <ul key={idx} className="list-disc pl-6 space-y-3 text-gray-700 mb-4 text-base">
+            {block.items.map((it, i) => <li key={i} className="pl-2 leading-relaxed">{it}</li>)}
           </ul>;
       }
       return null;
     });
   };
   const renderTabContent = (tabId: string) => {
-    const tab = config.tabs.find(t => t.id === tabId);
+    const tab = tabsToUse.find(t => t.id === tabId);
     if (!tab) return null;
-    // Return specific tab content based on tab ID
+    
+    // Check if this is a custom tab with its own content
+    const content = getServiceTabContent(marketplaceType, item?.id, tabId);
+    if (content) {
+      // Render content with action button if available
+      return <div className="space-y-8">
+          <div className="prose max-w-none">
+            {content.heading && <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">{content.heading}</h2>}
+            {renderBlocks(content.blocks || [])}
+          </div>
+          {content.action && <div className="pt-4">
+              <button id="action-section" className="px-6 py-3.5 text-white text-base font-bold rounded-md transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5" style={{ backgroundColor: '#1A2E6E' }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#152347')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1A2E6E')} onClick={() => {
+            const urlField = content.action?.urlField;
+            const computedUrl = (urlField && item && item[urlField]) || content.action?.fallbackUrl || '#';
+            window.open(computedUrl, '_blank', 'noopener');
+          }}>
+                {content.action.label}
+              </button>
+            </div>}
+        </div>;
+    }
+    
+    // Return specific tab content based on tab ID for non-custom tabs
     switch (tabId) {
       case 'submit_request': {
         const content = getServiceTabContent(marketplaceType, item?.id, tabId);
@@ -960,7 +992,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               scrollbarWidth: 'none',
               msOverflowStyle: 'none'
             }}>
-                {config.tabs.map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-4 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200 border-b-2 ${activeTab === tab.id ? 'text-blue-600 border-blue-600' : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'}`} aria-selected={activeTab === tab.id} aria-controls={`tabpanel-${tab.id}`} role="tab">
+                {tabsToUse.map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-6 py-4 text-base font-semibold whitespace-nowrap transition-all duration-200 border-b-2 ${activeTab === tab.id ? 'text-blue-600 border-blue-600' : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'}`} aria-selected={activeTab === tab.id} aria-controls={`tabpanel-${tab.id}`} role="tab">
                     {tab.label}
                   </button>)}
               </div>
@@ -974,9 +1006,9 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     </button>
                     {showTabsMenu && <>
                         <div className="fixed inset-0 z-10" onClick={() => setShowTabsMenu(false)} aria-hidden="true" />
-                        <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-20 border border-gray-200">
+                        <div className="absolute right-0 mt-2 w-72 bg-white rounded-md shadow-lg z-20 border border-gray-200">
                           <div className="py-1 max-h-64 overflow-y-auto">
-                            {config.tabs.map(tab => <button key={tab.id} className={`w-full text-left px-4 py-2 text-sm transition-colors ${activeTab === tab.id ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-100'}`} onClick={() => {
+                            {tabsToUse.map(tab => <button key={tab.id} className={`w-full text-left px-4 py-3 text-base font-medium transition-colors ${activeTab === tab.id ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-100'}`} onClick={() => {
                         setActiveTab(tab.id);
                         setShowTabsMenu(false);
                       }} role="menuitem">
@@ -997,7 +1029,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             <div className="col-span-12 lg:col-span-8">
               {/* Tab Content */}
               <div className="mb-8">
-                {config.tabs.map(tab => <div key={tab.id} className={activeTab === tab.id ? 'block' : 'hidden'} id={`tabpanel-${tab.id}`} role="tabpanel" aria-labelledby={`tab-${tab.id}`}>
+                {tabsToUse.map(tab => <div key={tab.id} className={activeTab === tab.id ? 'block' : 'hidden'} id={`tabpanel-${tab.id}`} role="tabpanel" aria-labelledby={`tab-${tab.id}`}>
                     {renderTabContent(tab.id)}
                   </div>)}
               </div>
@@ -1030,7 +1062,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             </div>
             {relatedItems.length > 0 ? <div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {relatedItems.map(relatedItem => <Link key={relatedItem.id} to={`/marketplace/${marketplaceType}/${relatedItem.id}`} className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow block">
+                  {relatedItems.map(relatedItem => <Link key={relatedItem.id} to={`${config.route}/${relatedItem.id}`} className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow block">
                       <div className="flex items-center mb-3">
                         <span className="text-sm text-gray-600">
                           {relatedItem.provider.name}
