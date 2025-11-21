@@ -398,9 +398,12 @@ When you develop your leadership superpowers, you don't just improve your own ef
     author: 'DQ Communications',
     views: 58,
     excerpt: 'New guidelines to enhance fairness and transparency for shifts allocation across teams…',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
     department: 'DCO Operations',
     location: 'Dubai',
     domain: 'People',
+    tags: ['shifts', 'allocation', 'scheduling', 'guidelines'],
+    readingTime: '5–10',
     newsType: 'Corporate Announcements',
     newsSource: 'DQ Operations',
     focusArea: 'DWS'
