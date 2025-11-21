@@ -131,7 +131,7 @@ const SUBDOMAIN_BY_DOMAIN: Record<string, string[]> = {
   blueprints: ['devops', 'dbp', 'dxp', 'dws', 'products', 'projects'],
 };
 
-const DEFAULT_GUIDE_PAGE_SIZE = 9;
+const DEFAULT_GUIDE_PAGE_SIZE = 200;
 const GUIDE_LIST_SELECT = [
   'id',
   'slug',
@@ -185,10 +185,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [facets, setFacets] = useState<GuidesFacets>({});
   const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
   const searchStartRef = useRef<number | null>(null);
-  type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials';
+  type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 'resources';
   const getTabFromParams = useCallback((params: URLSearchParams): WorkGuideTab => {
     const tab = params.get('tab');
-    return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' ? tab : 'guidelines';
+    return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' || tab === 'resources' ? tab : 'guidelines';
   }, []);
   const [activeTab, setActiveTab] = useState<WorkGuideTab>(() => getTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()));
 
@@ -196,7 +196,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     strategy: 'Strategy',
     guidelines: 'Guidelines',
     blueprints: 'Blueprints',
-    testimonials: 'Testimonials'
+    testimonials: 'Testimonials',
+    resources: 'Resources'
   };
 
   const TAB_DESCRIPTIONS: Record<WorkGuideTab, { description: string; author?: string }> = {
@@ -215,6 +216,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     testimonials: {
       description: 'Success stories, case studies, and reflections that capture lessons learned, celebrate achievements, and share insights from real-world experiences and transformations.',
       author: 'Authored by DQ Teams, Clients, and Partners'
+    },
+    resources: {
+      description: 'Reference materials, glossaries, and frequently asked questions to help you navigate and understand DQ terminology, processes, and best practices.',
+      author: 'Maintained by DQ Knowledge Management Team'
     }
   };
 
@@ -240,16 +245,24 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'blueprints') {
         // Keep 'unit' and 'location' for Blueprints; delete incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category'];
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_sector'];
+        keysToDelete.forEach(key => next.delete(key));
+      } else if (tab === 'resources') {
+        // For Resources tab, delete all incompatible filters
+        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
+        keysToDelete.forEach(key => next.delete(key));
+      } else if (tab === 'testimonials') {
+        // Keep 'unit' and 'location' for Testimonials; delete incompatible filters
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector'];
         keysToDelete.forEach(key => next.delete(key));
       } else {
-        // For other tabs (testimonials), delete all incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework'];
+        // For other tabs, delete all incompatible filters
+        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
         keysToDelete.forEach(key => next.delete(key));
       }
     } else {
       // Switching to Guidelines - clear Strategy and Blueprint-specific filters
-      const keysToDelete = ['strategy_type', 'strategy_framework', 'blueprint_framework'];
+      const keysToDelete = ['strategy_type', 'strategy_framework', 'blueprint_framework', 'blueprint_sector'];
       keysToDelete.forEach(key => next.delete(key));
     }
     // Clear tab-specific filters when switching away from their respective tabs
@@ -288,10 +301,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category'];
     } else if (activeTab === 'testimonials') {
       // For Testimonials, delete all incompatible filters
-      keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework'];
+      keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector'];
+    } else if (activeTab === 'resources') {
+      // For Resources, delete all incompatible filters
+      keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
     } else {
       // For Guidelines, delete Strategy and Blueprint-specific filters
-      keysToDelete = ['strategy_type', 'strategy_framework', 'blueprint_framework'];
+      keysToDelete = ['strategy_type', 'strategy_framework', 'blueprint_framework', 'blueprint_sector'];
     }
     // Clear tab-specific filters when switching away from their respective tabs
     if (activeTab !== 'guidelines') {
@@ -303,6 +319,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     if (activeTab !== 'blueprints') {
       if (next.has('blueprint_framework')) {
         next.delete('blueprint_framework');
+        changed = true;
+      }
+      if (next.has('blueprint_sector')) {
+        next.delete('blueprint_sector');
         changed = true;
       }
     }
@@ -320,7 +340,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     setQueryParams(new URLSearchParams(next.toString()));
   }, [isGuides, activeTab]);
 
-  const pageSize = Math.min(50, Math.max(1, parseInt(queryParams.get('pageSize') || String(DEFAULT_GUIDE_PAGE_SIZE), 10)));
+  const pageSize = Math.min(200, Math.max(1, parseInt(queryParams.get('pageSize') || String(DEFAULT_GUIDE_PAGE_SIZE), 10)));
   const currentPage = Math.max(1, parseInt(queryParams.get('page') || '1', 10));
   const totalPages = Math.max(1, Math.ceil(Math.max(totalCount, 0) / pageSize));
 
@@ -481,14 +501,16 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           const strategyFrameworks = parseFilterValues(queryParams, 'strategy_framework');
           const guidelinesCategories = parseFilterValues(queryParams, 'guidelines_category');
           const blueprintFrameworks = parseFilterValues(queryParams, 'blueprint_framework');
+          const blueprintSectors = parseFilterValues(queryParams, 'blueprint_sector');
 
           // Get activeTab from state - ensure it's current
           const currentActiveTab = activeTab;
           const isStrategyTab = currentActiveTab === 'strategy';
           const isBlueprintTab = currentActiveTab === 'blueprints';
           const isTestimonialsTab = currentActiveTab === 'testimonials';
+          const isResourcesTab = currentActiveTab === 'resources';
           const isGuidelinesTab = currentActiveTab === 'guidelines';
-          const isSpecialTab = isStrategyTab || isBlueprintTab || isTestimonialsTab;
+          const isSpecialTab = isStrategyTab || isBlueprintTab || isTestimonialsTab || isResourcesTab;
 
           const allowed = new Set<string>();
           if (!isSpecialTab) {
@@ -542,7 +564,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           // (filter IDs are slugified like 'deals', but DB may have 'Deals' or 'DQ Delivery (Accounts)')
           if (locations.length) q = q.in('location', locations);
 
-          const sort = queryParams.get('sort') || 'relevance';
+          const sort = queryParams.get('sort') || 'editorsPick';
           if (sort === 'updated')       q = q.order('last_updated_at', { ascending: false, nullsFirst: false });
           else if (sort === 'downloads')q = q.order('download_count',   { ascending: false, nullsFirst: false });
           else if (sort === 'editorsPick') {
@@ -558,7 +580,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           // Otherwise, use server-side pagination
           const needsClientSideUnitFilter = effectiveUnits.length > 0;
           const needsClientSideFrameworkFilter = (isStrategyTab && strategyFrameworks.length > 0) || 
-                                                 (isBlueprintTab && blueprintFrameworks.length > 0) ||
+                                                 (isBlueprintTab && (blueprintFrameworks.length > 0 || blueprintSectors.length > 0)) ||
                                                  (isGuidelinesTab && guidelinesCategories.length > 0);
           const needsClientSideFiltering = needsClientSideUnitFilter || needsClientSideFrameworkFilter;
           
@@ -810,6 +832,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                               (b.downloadCount||0)-(a.downloadCount||0) ||
                               new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
 
+          // Ensure default image if missing
+          const defaultImage = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=400&fit=crop&q=80';
+          out = out.map(it => ({
+            ...it,
+            heroImageUrl: it.heroImageUrl || defaultImage,
+          }));
+
           // If client-side filtering was used, paginate after filtering
           const totalFiltered = out.length;
           if (needsClientSideFiltering) {
@@ -1009,7 +1038,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   return (
     <div className={`min-h-screen flex flex-col bg-gray-50 ${isGuides ? 'guidelines-theme' : ''}`}>
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
-      <div className="container mx-auto px-4 py-8 flex-grow">
+      <div className="container mx-auto px-4 py-8 flex-grow max-w-7xl">
         {/* Breadcrumbs */}
         <nav className="flex mb-4" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
@@ -1046,8 +1075,16 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           <>
             {/* Tab Description - Above Navigation */}
             {activeTab && TAB_DESCRIPTIONS[activeTab] && (
-              <div className="mb-4 bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <h2 className="text-xl font-bold text-gray-800 mb-2">{TAB_LABELS[activeTab]}</h2>
+              <div className="mb-4 bg-white rounded-lg p-6 border border-gray-200 relative">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                    <span className="text-xs uppercase text-gray-500 font-medium tracking-wide">CURRENT FOCUS</span>
+                    <h2 className="text-2xl font-bold text-gray-800 mt-1">{TAB_LABELS[activeTab]}</h2>
+                  </div>
+                  <button className="px-4 py-2 bg-blue-50 text-gray-800 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors border-0">
+                    Tab overview
+                  </button>
+                </div>
                 <p className="text-gray-700 mb-2">{TAB_DESCRIPTIONS[activeTab].description}</p>
                 {TAB_DESCRIPTIONS[activeTab].author && (
                   <p className="text-sm text-gray-500">{TAB_DESCRIPTIONS[activeTab].author}</p>
@@ -1057,7 +1094,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             
             <div className="mb-6 border-b border-gray-200">
               <nav className="flex space-x-8" aria-label="Guides navigation">
-              {(['strategy', 'guidelines', 'blueprints', 'testimonials'] as WorkGuideTab[]).map(tab => (
+              {(['strategy', 'guidelines', 'blueprints', 'testimonials', 'resources'] as WorkGuideTab[]).map(tab => (
                   <button
                     key={tab}
                     onClick={() => handleGuidesTabChange(tab)}
@@ -1084,6 +1121,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           <div className="flex-1">
             <SearchBar
               searchQuery={isGuides ? (queryParams.get('q') || '') : searchQuery}
+              placeholder={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
+              ariaLabel={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
               setSearchQuery={(q: string) => {
                 if (isGuides) {
                   const next = new URLSearchParams(queryParams.toString());
@@ -1098,26 +1137,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               }}
             />
           </div>
-          {isGuides && (
-            <select
-              className="border rounded px-2 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-primary)] focus:border-[var(--guidelines-primary)]"
-              aria-label="Sort guides"
-              value={queryParams.get('sort') || 'relevance'}
-              onChange={(e) => {
-                const next = new URLSearchParams(queryParams.toString());
-                next.delete('page');
-                next.set('sort', e.target.value);
-                const qs = next.toString();
-                window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
-                setQueryParams(new URLSearchParams(next.toString()));
-              }}
-            >
-              <option value="relevance">Relevance</option>
-              <option value="updated">Last Updated</option>
-              <option value="downloads">Most Downloaded</option>
-              <option value="editorsPick">Editor's Pick</option>
-            </select>
-          )}
         </div>
 
         <div className="flex flex-col xl:flex-row gap-6">
@@ -1241,17 +1260,97 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               />
             ) : isGuides ? (
               <>
-                <GuidesGrid
-                  items={filteredItems}
-                  onClickGuide={(g) => {
-                    const qs = queryParams.toString();
-                    navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
-                      state: { fromQuery: qs, activeTab }
-                    });
-                  }}
-                />
-                {totalPages > 1 && (
-                  <div className="mt-6 flex items-center justify-center gap-4">
+                {activeTab === 'resources' ? (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      {/* Glossary Card */}
+                      <Link to="/marketplace/guides/glossary" className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer block">
+                        <div className="flex items-center mb-4">
+                          <div className="w-12 h-12 bg-[var(--guidelines-primary-surface)] rounded-lg flex items-center justify-center mr-4">
+                            <svg className="w-6 h-6 text-[var(--guidelines-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                          </div>
+                          <h3 className="text-xl font-semibold text-gray-800">Glossary</h3>
+                        </div>
+                        <p className="text-gray-600 mb-4">
+                          Comprehensive dictionary of DQ terminology, acronyms, and key concepts to help you understand our language and processes.
+                        </p>
+                        <div className="flex items-center text-[var(--guidelines-primary)] font-medium">
+                          <span>View Glossary</span>
+                          <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </Link>
+
+                      {/* FAQs Card */}
+                      <Link to="/marketplace/guides/faqs" className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer block">
+                        <div className="flex items-center mb-4">
+                          <div className="w-12 h-12 bg-[var(--guidelines-primary-surface)] rounded-lg flex items-center justify-center mr-4">
+                            <svg className="w-6 h-6 text-[var(--guidelines-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <h3 className="text-xl font-semibold text-gray-800">FAQs</h3>
+                        </div>
+                        <p className="text-gray-600 mb-4">
+                          Frequently asked questions about DQ processes, tools, workflows, and best practices with detailed answers and guidance.
+                        </p>
+                        <div className="flex items-center text-[var(--guidelines-primary)] font-medium">
+                          <span>View FAQs</span>
+                          <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </Link>
+                    </div>
+                    <GuidesGrid
+                      items={filteredItems}
+                      onClickGuide={(g) => {
+                        const qs = queryParams.toString();
+                        navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
+                          state: { fromQuery: qs, activeTab }
+                        });
+                      }}
+                    />
+                    {totalPages > 1 && (
+                      <div className="mt-6 flex items-center justify-center gap-4">
+                        <button
+                          type="button"
+                          onClick={() => goToPage(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Previous
+                        </button>
+                        <span className="text-sm text-gray-600">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => goToPage(currentPage + 1)}
+                          disabled={currentPage >= totalPages}
+                          className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <GuidesGrid
+                      items={filteredItems}
+                      onClickGuide={(g) => {
+                        const qs = queryParams.toString();
+                        navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
+                          state: { fromQuery: qs, activeTab }
+                        });
+                      }}
+                    />
+                    {totalPages > 1 && (
+                      <div className="mt-6 flex items-center justify-center gap-4">
                     <button
                       type="button"
                       onClick={() => goToPage(currentPage - 1)}
@@ -1271,7 +1370,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     >
                       Next
                     </button>
-                  </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             ) : (

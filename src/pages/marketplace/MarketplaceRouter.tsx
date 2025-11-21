@@ -7,6 +7,8 @@ import ActivitiesPage from './ActivitiesPage';
 import { DollarSign, Briefcase, Users, Calendar, Newspaper, BookOpen, Video } from 'lucide-react';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 const GuideDetailPage = React.lazy(() => import('../guides/GuideDetailPage'));
+const GlossaryPage = React.lazy(() => import('../guides/GlossaryPage'));
+const FAQsPage = React.lazy(() => import('../guides/FAQsPage'));
 // Promo cards for courses marketplace
 const coursePromoCards = [{
   id: 'finance-promo',
@@ -120,6 +122,8 @@ export const MarketplaceRouter: React.FC = () => {
       <Route path="/non-financial/:itemId" element={<MarketplaceDetailsPage marketplaceType="non-financial" bookmarkedItems={bookmarkedItems['non-financial']} onToggleBookmark={itemId => handleToggleBookmark('non-financial', itemId)} />} />
       {/* Guides Marketplace (canonical) */}
       <Route path="/guides" element={<MarketplacePage marketplaceType="guides" title={guidesConfig.title} description={guidesConfig.description} promoCards={knowledgeHubPromoCards} />} />
+      <Route path="/guides/glossary" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><GlossaryPage /></React.Suspense>} />
+      <Route path="/guides/faqs" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><FAQsPage /></React.Suspense>} />
       <Route path="/guides/:itemId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><GuideDetailPage /></React.Suspense>} />
       {/* Backward compatibility: Knowledge Hub routes (aliased to Guides) */}
       <Route path="/knowledge-hub" element={<MarketplacePage marketplaceType="knowledge-hub" title={knowledgeHubConfig.title} description={knowledgeHubConfig.description} promoCards={knowledgeHubPromoCards} />} />

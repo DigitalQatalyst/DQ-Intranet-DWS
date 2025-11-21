@@ -10,7 +10,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams, Link } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
-import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Download, AlertTriangle, ExternalLink } from 'lucide-react'
+import { ChevronRightIcon, HomeIcon, CheckCircle, Download, AlertTriangle, ExternalLink } from 'lucide-react'
 import { supabaseClient } from '../../lib/supabaseClient'
 import { getGuideImageUrl } from '../../utils/guideImageMap'
 import { track } from '../../utils/analytics'
@@ -29,6 +29,9 @@ interface GuideRecord {
   domain?: string | null
   guideType?: string | null
   functionArea?: string | null
+  subDomain?: string | null
+  unit?: string | null
+  location?: string | null
   status?: string | null
   complexityLevel?: string | null
   skillLevel?: string | null
@@ -59,11 +62,12 @@ const GuideDetailPage: React.FC = () => {
   const [previewUnavailable, setPreviewUnavailable] = useState(false)
   const articleRef = useRef<HTMLDivElement | null>(null)
   const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([])
+  const [activeContentTab, setActiveContentTab] = useState<string>('overview')
 
   const backQuery = (location?.state && location.state.fromQuery) ? String(location.state.fromQuery) : ''
   const initialBackHref = `/marketplace/guides${backQuery ? `?${backQuery}` : ''}`
   const activeTabFromState = (location?.state && location.state.activeTab) ? String(location.state.activeTab) : undefined
-  type GuideTabKey = 'guidelines' | 'strategy' | 'blueprints'
+  type GuideTabKey = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials'
 const TAB_LABELS: Record<GuideTabKey, string> = {
   guidelines: 'Guidelines',
   strategy: 'Strategy',
@@ -114,6 +118,9 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
             domain: row.domain ?? null,
             guideType: row.guide_type ?? row.guideType ?? null,
             functionArea: row.function_area ?? null,
+            subDomain: row.sub_domain ?? row.subDomain ?? null,
+            unit: row.unit ?? null,
+            location: row.location ?? null,
             status: row.status ?? null,
             complexityLevel: row.complexity_level ?? null,
             skillLevel: row.skill_level ?? row.skillLevel ?? null,
@@ -239,6 +246,184 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
 
   const imageUrl = useMemo(() => getGuideImageUrl({ heroImageUrl: guide?.heroImageUrl || undefined, domain: guide?.domain || undefined, guideType: guide?.guideType || undefined }), [guide?.heroImageUrl, guide?.domain, guide?.guideType])
 
+  // Parse guide body into sections for tabs (for Guidelines, Strategy, Testimonials, and Blueprints)
+  const guideSections = useMemo(() => {
+    if (!guide?.body) return null
+    // Apply tab navigation to all guides that have sections
+    const hasValidDomain = ['Guidelines', 'Strategy', 'Testimonials', 'Testimonial', 'Blueprint'].includes(guide.domain || '')
+    if (!hasValidDomain) return null
+    
+    const body = guide.body
+    const sections: Array<{ id: string; title: string; content: string }> = []
+    
+    // Extract Description and Key Highlights for Overview tab (if they exist)
+    // Handle both single and double newlines, and Key Highlights with or without colon
+    const descMatch = body.match(/## Description\s*\n+([\s\S]*?)(?=\n##|\n#|$)/)
+    const highlightsMatch = body.match(/## Key Highlights:?\s*\n+([\s\S]*?)(?=\n##|\n#|$)/)
+    
+    if (descMatch || highlightsMatch) {
+      let overviewContent = ''
+      if (descMatch) overviewContent += descMatch[1].trim() + '\n\n'
+      if (highlightsMatch) overviewContent += '## Key Highlights\n\n' + highlightsMatch[1].trim()
+      sections.push({ id: 'overview', title: 'Overview', content: overviewContent })
+    } else {
+      // For guides without Description/Key Highlights, use first paragraph as Overview
+      const firstSectionMatch = body.match(/^# [^\n]+\n\n([\s\S]*?)(?=\n##|\n#|$)/)
+      if (firstSectionMatch && firstSectionMatch[1].trim()) {
+        const firstContent = firstSectionMatch[1].trim()
+        // Only create Overview if there are multiple sections
+        const sectionCount = (body.match(/^## /gm) || []).length
+        if (sectionCount > 1) {
+          sections.push({ id: 'overview', title: 'Overview', content: firstContent })
+        }
+      }
+    }
+    
+    // Split body by section headers (## Title or ## **Title**)
+    // This approach handles both single and double newlines after headers
+    const lines = body.split('\n')
+    const processedSections = new Set<string>(['overview', 'description', 'key-highlights'])
+    let currentSection: { id: string; title: string; content: string[] } | null = null
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      // Match only H2 headers (##), not H3 (###)
+      const trimmed = line.trim()
+      if (trimmed.startsWith('## ') && !trimmed.startsWith('### ')) {
+        // Save previous section
+        if (currentSection && currentSection.content.length > 0) {
+          const content = currentSection.content.join('\n').trim()
+          if (content.length > 0 && !processedSections.has(currentSection.id)) {
+            processedSections.add(currentSection.id)
+            sections.push({
+              id: currentSection.id,
+              title: currentSection.title,
+              content
+            })
+          }
+        }
+        
+        // Extract title by removing ## and any bold markers
+        let title = line.replace(/^##\s+/, '').trim()
+        title = title.replace(/\*\*/g, '').trim()
+        
+        // Skip Description and Key Highlights (already in Overview if they exist)
+        // But only skip if Overview was created
+        const hasOverview = sections.some(s => s.id === 'overview')
+        if (hasOverview && (title === 'Description' || title === 'Key Highlights')) {
+          currentSection = null
+        } else {
+          const sectionId = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+          currentSection = {
+            id: sectionId,
+            title,
+            content: []
+          }
+        }
+      } else if (currentSection) {
+        // Add line to current section content
+        currentSection.content.push(line)
+      }
+    }
+    
+    // Save last section
+    if (currentSection && currentSection.content.length > 0) {
+      const content = currentSection.content.join('\n').trim()
+      if (content.length > 0 && !processedSections.has(currentSection.id)) {
+        sections.push({
+          id: currentSection.id,
+          title: currentSection.title,
+          content
+        })
+      }
+    }
+    
+    return sections.length > 0 ? sections : null
+  }, [guide?.body, guide?.domain])
+
+  // Two-tier layout: Overview on top, other sections as tabs below (applies to all guides with Overview section)
+  const overviewSection = useMemo(() => {
+    if (!guideSections) return null
+    return (guideSections || [])?.find((s: any) => s.id === 'overview') || null
+  }, [guideSections])
+  const sectionsForTabs = useMemo(() => {
+    if (!guideSections) return null
+    // If there's an Overview section, show it separately and put other sections in tabs
+    // Otherwise, show all sections as tabs
+    return overviewSection ? guideSections.filter((s: any) => s.id !== 'overview') : guideSections
+  }, [guideSections, overviewSection])
+  const hasTabsEffective = !!(sectionsForTabs && sectionsForTabs.length > 0)
+  const hasOverviewSection = !!overviewSection
+
+  // If Overview is separated and active tab is overview, default to first remaining section
+  useEffect(() => {
+    if (!hasOverviewSection) return
+    if (activeContentTab !== 'overview') return
+    if (sectionsForTabs && sectionsForTabs.length > 0) {
+      setActiveContentTab(sectionsForTabs[0].id)
+    }
+  }, [hasOverviewSection, sectionsForTabs, activeContentTab])
+  
+  // For "View" buttons - check domain
+  const isBlueprintDomain = deriveTabKey(guide) === 'blueprints'
+  const isGuidelinesDomain = deriveTabKey(guide) === 'guidelines'
+  const isStrategyDomain = deriveTabKey(guide) === 'strategy'
+  const isTestimonialsDomain = deriveTabKey(guide) === 'testimonials'
+
+  // Formatting helpers: Title-case labels and ensure bullet points for highlight items
+  const toTitleCaseLabel = (s: string): string => (s || '').split(/\s+/).map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(' ')
+  const stripLeadingEmoji = (s: string): string => {
+    // Remove leading emojis/symbols commonly used as icons
+    // Unicode ranges cover misc symbols & pictographs
+    return s.replace(/^[\u200d\ufe0f\uFE0F\u2060\s]*[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}]+\s*/u, '')
+  }
+  const ensureBulletedTitleCaseLine = (raw: string): string => {
+    const line = stripLeadingEmoji(raw.trim())
+    if (!line || line.startsWith('##')) return raw
+    // - **Label**: text
+    const m1 = line.match(/^\-\s*\*\*([^*]+)\*\*\s*:\s*(.*)$/)
+    if (m1) return `- **${toTitleCaseLabel(stripLeadingEmoji(m1[1]))}**: ${m1[2]}`
+    // **Label**: text
+    const m2 = line.match(/^\*\*([^*]+)\*\*\s*:\s*(.*)$/)
+    if (m2) return `- **${toTitleCaseLabel(stripLeadingEmoji(m2[1]))}**: ${m2[2]}`
+    // - Label: text
+    const m3 = line.match(/^\-\s*([^:]+)\s*:\s*(.*)$/)
+    if (m3) return `- **${toTitleCaseLabel(stripLeadingEmoji(m3[1]))}**: ${m3[2]}`
+    // Label: text (leading letter, avoid headers/lists)
+    const m4 = line.match(/^[A-Za-z][^:]*:\s*.*$/)
+    if (m4) {
+      const idx = line.indexOf(':')
+      const label = stripLeadingEmoji(line.slice(0, idx))
+      const rest = line.slice(idx + 1).trim()
+      return `- **${toTitleCaseLabel(label)}**: ${rest}`
+    }
+    return raw
+  }
+  const transformKeyHighlightsInOverview = (md: string): string => {
+    const lines = (md || '').split('\n')
+    let inKH = false
+    const out: string[] = []
+    for (const raw of lines) {
+      const t = raw.trim()
+      if (t.startsWith('## ')) {
+        const title = t.replace(/^##\s+/, '').replace(/\*\*/g, '').trim().toLowerCase()
+        inKH = title === 'key highlights'
+        out.push(raw)
+        continue
+      }
+      out.push(inKH ? ensureBulletedTitleCaseLine(raw) : raw)
+    }
+    return out.join('\n')
+  }
+  const formatSectionContent = (section: any): string => {
+    const title = String(section?.title || '').trim().toLowerCase()
+    if (title === 'key highlights') {
+      const lines = (section.content || '').split('\n').map(ensureBulletedTitleCaseLine)
+      return lines.join('\n')
+    }
+    return section.content || ''
+  }
+
   // CODEx: build concise summary from provided summary or derived from body
   const derivedSummary: string | null = useMemo(() => {
     if (!guide) return null
@@ -275,33 +460,12 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
   // CODEx: banner open/download controls for main document
   const openMainDocument = () => {
     if (!hasDocument) return
-    track('policy_open_clicked', { policyId: guide?.slug || guide?.id, title: guide?.title })
+    track('Guides.CTA', { category: 'policy_open_clicked', policyId: guide?.slug || guide?.id, title: guide?.title })
     window.open(documentUrl, '_blank', 'noopener')
   }
-  const downloadMainDocument = async () => {
-    if (!hasDocument) return
-    track('policy_download_clicked', { policyId: guide?.slug || guide?.id, title: guide?.title })
-    try {
-      // Prefer native download attribute; fall back to opening in new tab
-      const a = document.createElement('a')
-      a.href = documentUrl
-      a.download = ''
-      a.rel = 'noopener'
-      a.target = '_blank'
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-    } catch {
-      window.open(guide.documentUrl, '_blank', 'noopener')
-    }
-  }
-  const handleShare = async () => {
-    const url = window.location.href
-    const title = guide?.title || 'Guide'
-    try { if ((navigator as any).share) await (navigator as any).share({ title, url }); else if (navigator.clipboard) { await navigator.clipboard.writeText(url); alert('Link copied to clipboard') } }
-    finally { track('Guides.Share', { slug: guide?.slug || guide?.id }) }
-  }
   // Print removed per new design
+  
+  // (Removed) header guideline navigation now replaced by direct document link "View Blueprint"
 
   const type = (guide?.guideType || '').toLowerCase()
   const stepsCount = guide?.steps?.length ?? 0
@@ -315,8 +479,12 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
   const isApproved = ((guide?.status) || 'Approved') === 'Approved'
   const documentUrl = (guide?.documentUrl || '').trim()
   const hasDocument = documentUrl.length > 0
+  const primaryDocUrl = useMemo(() => {
+    const t = (Array.isArray(guide?.templates) && guide!.templates.length > 0) ? (guide!.templates[0].url || '') : ''
+    const a = (Array.isArray(guide?.attachments) && guide!.attachments.length > 0) ? (guide!.attachments[0].url || '') : ''
+    return (documentUrl || '').trim() || t || a || ''
+  }, [documentUrl, guide?.templates, guide?.attachments])
   const isPolicy = type === 'policy'
-  const showPolicyCtas = isPolicy
   const showDocumentActions = hasDocument
   const isPreviewableDocument = isPolicy && hasDocument && (() => {
     const base = documentUrl.split('#')[0].split('?')[0].toLowerCase()
@@ -331,7 +499,7 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
         <Header toggleSidebar={() => {}} sidebarOpen={false} />
-        <main className="container mx-auto px-4 py-8 flex-grow"><div className="bg-white rounded shadow p-8 text-center text-gray-500">Loading…</div></main>
+        <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl"><div className="bg-white rounded shadow p-8 text-center text-gray-500">Loading…</div></main>
         <Footer isLoggedIn={!!user} />
       </div>
     )
@@ -344,7 +512,7 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
         <Header toggleSidebar={() => {}} sidebarOpen={false} />
-        <main className="container mx-auto px-4 py-8 flex-grow">
+        <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl">
           <nav className="flex mb-4" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
               <li className="inline-flex items-center"><Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center"><HomeIcon size={16} className="mr-1" /><span>Home</span></Link></li>
@@ -370,7 +538,7 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
       <Header toggleSidebar={() => {}} sidebarOpen={false} />
-      <main className="container mx-auto px-4 py-8 flex-grow guide-detail" role="main">
+      <main className="container mx-auto px-4 py-8 flex-grow guide-detail max-w-7xl" role="main">
         <nav className="flex mb-4" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center"><Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center"><HomeIcon size={16} className="mr-1" /><span>Home</span></Link></li>
@@ -389,57 +557,176 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
           </div>
         )}
 
-        {/* Header card */}
-        <header className="bg-white rounded-lg shadow p-6 mb-6" aria-labelledby="guide-title">
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              {imageUrl && (
-                <img src={imageUrl} alt={guide.title} className="w-full h-60 object-cover rounded mb-4" loading="lazy" decoding="async" width={1200} height={320} />
-              )}
-              <h1 id="guide-title" className="text-2xl font-bold mb-2">{guide.title}</h1>
-              {/* CODEx: Only hide header summary for policy pages */}
-              {!isPolicy && guide.summary && <p className="text-gray-700 mb-3">{guide.summary}</p>}
-              <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
-                {guide.domain && <span className="px-2 py-0.5 bg-gray-100 rounded-full">{guide.domain}</span>}
-                {guide.guideType && <span className="px-2 py-0.5 text-[var(--guidelines-primary)] bg-[var(--guidelines-primary-surface)] rounded-full">{guide.guideType}</span>}
-                {guide.functionArea && <span className="px-2 py-0.5 bg-gray-100 rounded-full">{guide.functionArea}</span>}
-                {guide.complexityLevel && <span className="px-2 py-0.5 bg-gray-100 rounded-full">{guide.complexityLevel}</span>}
-                {lastUpdated && <span className="px-2 py-0.5 bg-gray-100 rounded-full">Updated {lastUpdated}</span>}
+        {/* Header - Course-style format */}
+        <div className="bg-white rounded-lg shadow mb-6">
+          <div className="p-6">
+            {/* Title with icon + top-right CTA */}
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded bg-blue-100 flex items-center justify-center">
+                  <span className="text-blue-600 font-semibold text-sm">G</span>
+                </div>
+                <h1 id="guide-title" className="text-2xl md:text-3xl font-bold text-gray-900">
+                  {guide.title}
+                </h1>
               </div>
-              {/* CODEx: Banner actions row (left: policy controls, right: share) */}
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                {showPolicyCtas && (
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      onClick={hasDocument ? downloadMainDocument : undefined}
-                      disabled={!hasDocument}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-gray-200 text-gray-800 bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] disabled:opacity-50 disabled:cursor-not-allowed"
-                      aria-label="Download document"
-                    >
-                      <Download size={16} /> Download
-                    </button>
-                    <button
-                      onClick={hasDocument ? openMainDocument : undefined}
-                      disabled={!hasDocument}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-[var(--guidelines-primary)] text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300"
-                      aria-label="Open document"
-                    >
-                      <ExternalLink size={16} /> Open Document
-                    </button>
-                  </div>
-                )}
-                <button
-                  onClick={handleShare}
-                  className={`inline-flex items-center gap-2 px-3 py-2 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 focus:outline-none ${showPolicyCtas ? 'ml-auto' : ''}`}
-                  aria-label="Share link to this guide"
+              {isBlueprintDomain && (
+                <a
+                  href={primaryDocUrl || '#templates'}
+                  target={primaryDocUrl ? '_blank' : undefined}
+                  rel={primaryDocUrl ? 'noopener noreferrer' : undefined}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full self-start text-sm font-semibold text-white bg-[var(--guidelines-primary-solid)] hover:bg-[var(--guidelines-primary-solid-hover)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
                 >
-                  <Share2 size={16} /> Share
-                </button>
+                  <span>View Blueprint</span>
+                  <ExternalLink size={16} className="opacity-90" />
+                </a>
+              )}
+              {isGuidelinesDomain && (
+                <a
+                  href={primaryDocUrl || '#'}
+                  target={primaryDocUrl && primaryDocUrl !== '#' ? '_blank' : undefined}
+                  rel={primaryDocUrl && primaryDocUrl !== '#' ? 'noopener noreferrer' : undefined}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full self-start text-sm font-semibold text-white bg-[var(--guidelines-primary-solid)] hover:bg-[var(--guidelines-primary-solid-hover)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
+                >
+                  <span>View Guideline</span>
+                  <ExternalLink size={16} className="opacity-90" />
+                </a>
+              )}
+              {isStrategyDomain && (
+                <a
+                  href={primaryDocUrl || '#'}
+                  target={primaryDocUrl && primaryDocUrl !== '#' ? '_blank' : undefined}
+                  rel={primaryDocUrl && primaryDocUrl !== '#' ? 'noopener noreferrer' : undefined}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full self-start text-sm font-semibold text-white bg-[var(--guidelines-primary-solid)] hover:bg-[var(--guidelines-primary-solid-hover)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
+                >
+                  <span>View Strategy</span>
+                  <ExternalLink size={16} className="opacity-90" />
+                </a>
+              )}
+              {isTestimonialsDomain && (
+                <a
+                  href={primaryDocUrl || '#'}
+                  target={primaryDocUrl && primaryDocUrl !== '#' ? '_blank' : undefined}
+                  rel={primaryDocUrl && primaryDocUrl !== '#' ? 'noopener noreferrer' : undefined}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full self-start text-sm font-semibold text-white bg-[var(--guidelines-primary-solid)] hover:bg-[var(--guidelines-primary-solid-hover)] shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
+                >
+                  <span>View Testimonial</span>
+                  <ExternalLink size={16} className="opacity-90" />
+                </a>
+              )}
+            </div>
+            
+            {/* Tags + View Blueprint (Blueprints) */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <div className="flex flex-wrap items-center gap-2">
+                {guide.domain && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                    {guide.domain}
+                  </span>
+                )}
+                {guide.guideType && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-50 text-green-700 border border-green-100">
+                    {guide.guideType}
+                  </span>
+                )}
+                {guide.functionArea && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-50 text-purple-700 border border-purple-100">
+                    {guide.functionArea}
+                  </span>
+                )}
+                {guide.complexityLevel && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-50 text-gray-700 border border-gray-100">
+                    {guide.complexityLevel}
+                  </span>
+                )}
+                {isTestimonialsDomain && guide.unit && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-50 text-orange-700 border border-orange-100">
+                    {guide.unit}
+                  </span>
+                )}
+                {isTestimonialsDomain && guide.location && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-pink-50 text-pink-700 border border-pink-100">
+                    {guide.location}
+                  </span>
+                )}
               </div>
             </div>
-            {/* Actions column removed; title section now full width */}
+            
+            
+            {/* Description */}
+            {guide.summary && (
+              <p className="text-gray-700 text-base leading-relaxed mb-4">
+                {guide.summary}
+              </p>
+            )}
           </div>
-        </header>
+        </div>
+
+        {/* Overview block (shown separately when present) */}
+        {hasOverviewSection && overviewSection && (
+          <div className="bg-white rounded-lg shadow mb-8">
+            <div className="p-8">
+              <h2 className="text-xl font-semibold mb-4">Overview</h2>
+              <article
+                ref={articleRef}
+                className="markdown-body"
+                dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}
+              >
+                <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
+                  <Markdown body={transformKeyHighlightsInOverview(overviewSection.content)} />
+                </React.Suspense>
+              </article>
+            </div>
+          </div>
+        )}
+
+        {/* Tab Navigation for content sections */}
+        {hasTabsEffective && sectionsForTabs && (
+          <div className="bg-white rounded-lg shadow mb-6">
+            {/* Tabs */}
+            <div className="border-b border-gray-200">
+              <nav className="flex space-x-8 px-6" aria-label="Content tabs">
+                {sectionsForTabs.map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => setActiveContentTab(section.id)}
+                    className={`px-0 py-4 text-sm font-medium border-b-2 transition-colors ${
+                      activeContentTab === section.id
+                        ? 'border-blue-600 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700'
+                    }`}
+                    aria-selected={activeContentTab === section.id}
+                    role="tab"
+                  >
+                    {section.title}
+                  </button>
+                ))}
+              </nav>
+            </div>
+            
+            {/* Tab Content */}
+            <div className="p-8">
+              {sectionsForTabs.map((section) => (
+                <div
+                  key={section.id}
+                  className={activeContentTab === section.id ? '' : 'hidden'}
+                  role="tabpanel"
+                  aria-labelledby={`tab-${section.id}`}
+                >
+                  <article
+                    ref={articleRef}
+                    className="markdown-body"
+                    dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}
+                  >
+                    <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
+                      <Markdown body={formatSectionContent(section)} />
+                    </React.Suspense>
+                  </article>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Dynamic layout */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -450,15 +737,15 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
                 documentUrl={guide.documentUrl}
                 title={guide.title}
                 onOpen={() => {
-                  track('policy_preview_open_clicked', { policyId: guide.slug || guide.id, title: guide.title })
+                  track('Guides.CTA', { category: 'policy_preview_open_clicked', policyId: guide.slug || guide.id, title: guide.title })
                   openMainDocument()
                 }}
                 onUnavailable={() => setPreviewUnavailable(true)}
               />
             )}
 
-            {/* CODEx: Concise Summary card for policy pages only */}
-            {isPolicy && (derivedSummary || guide.summary) && (
+            {/* CODEx: Concise Summary card for policy pages only - hidden when tabs are present */}
+            {isPolicy && (derivedSummary || guide.summary) && !hasTabsEffective && (
               <section className="bg-white rounded-lg shadow p-6" aria-label="Summary">
                 <h2 className="text-xl font-semibold mb-3">Summary</h2>
                 <p className="text-gray-700 leading-7">{derivedSummary || guide.summary}</p>
@@ -478,7 +765,7 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
             )}
 
             {/* CODEx: For policy pages, long body behind a toggle; for others, show as usual */}
-            {type !== 'template' && guide.body && (
+            {type !== 'template' && guide.body && !hasTabsEffective && (
               <article
                 id={isPolicy ? 'full-details' : undefined}
                 ref={articleRef}
