@@ -447,7 +447,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               {/* Features/Highlights list - Consistent for all types */}
               <ul className="space-y-2">
                 {highlights.map((highlight, index) => <li key={index} className="flex items-start">
-                    <CheckCircleIcon size={16} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+                    <CheckCircleIcon size={16} className="text-dqYellow mr-3 mt-1 flex-shrink-0" />
                     <span className="text-gray-700">{highlight}</span>
                   </li>)}
               </ul>
@@ -549,7 +549,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               </h3>
               <div className="grid md:grid-cols-2 gap-2">
                 {['Strategic thinking and planning', 'Problem-solving techniques', 'Implementation best practices', 'Performance measurement', 'Risk assessment and mitigation', 'Communication and presentation'].map((skill, index) => <div key={index} className="flex items-center">
-                    <CheckCircleIcon size={16} className="text-green-600 mr-2 flex-shrink-0" />
+                    <CheckCircleIcon size={16} className="text-dqYellow mr-2 flex-shrink-0" />
                     <span className="text-gray-700">{skill}</span>
                   </div>)}
               </div>
@@ -583,10 +583,10 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               </h3>
               <ul className="space-y-2">
                 {item.eligibilityCriteria ? item.eligibilityCriteria.map((criteria, index) => <li key={index} className="flex items-start">
-                      <CheckCircleIcon size={16} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+                      <CheckCircleIcon size={16} className="text-dqYellow mr-3 mt-1 flex-shrink-0" />
                       <span className="text-gray-700">{criteria}</span>
                     </li>) : <li className="flex items-start">
-                    <CheckCircleIcon size={16} className="text-green-500 mr-3 mt-1 flex-shrink-0" />
+                    <CheckCircleIcon size={16} className="text-dqYellow mr-3 mt-1 flex-shrink-0" />
                     <span className="text-gray-700">
                       {item.eligibility || `Businesses at the ${item.businessStage || 'growth'} stage`}
                     </span>
@@ -894,7 +894,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           </h4>
           <ul className="space-y-2">
             {highlights.slice(0, 4).map((highlight, index) => <li key={index} className="flex items-start">
-                <CheckCircleIcon size={14} className="text-green-500 mr-2 mt-1 flex-shrink-0" />
+                <CheckCircleIcon size={14} className="text-dqYellow mr-2 mt-1 flex-shrink-0" />
                 <span className="text-sm text-gray-700">{highlight}</span>
               </li>)}
           </ul>

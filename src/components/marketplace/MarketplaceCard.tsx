@@ -24,7 +24,6 @@ export interface MarketplaceItemProps {
   marketplaceType: string;
   isBookmarked: boolean;
   onToggleBookmark: () => void;
-  onAddToComparison: () => void;
   onQuickView: () => void;
 }
 export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
@@ -32,7 +31,6 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
   marketplaceType,
   isBookmarked,
   onToggleBookmark,
-  onAddToComparison,
   onQuickView
 }) => {
   const navigate = useNavigate();
@@ -226,10 +224,10 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       {/* Card Footer - with two buttons */}
       <div className="mt-auto border-t border-gray-100 p-4 pt-5">
         <div className="flex justify-between gap-2">
-          <button onClick={handleViewDetails} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap min-w-[120px] flex-1 ${marketplaceType === 'non-financial' ? 'bg-white border' : 'text-blue-600 bg-white border border-blue-600 hover:bg-blue-50'}`} style={marketplaceType === 'non-financial' ? { color: '#1A2E6E', borderColor: '#1A2E6E' } : {}} onMouseEnter={(e) => { if (marketplaceType === 'non-financial') e.currentTarget.style.backgroundColor = '#f0f4f8'; }} onMouseLeave={(e) => { if (marketplaceType === 'non-financial') e.currentTarget.style.backgroundColor = 'white'; }}>
+          <button onClick={handleViewDetails} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap min-w-[120px] flex-1 ${marketplaceType === 'non-financial' ? 'bg-white border' : 'text-blue-600 bg-white border border-blue-600 hover:bg-blue-50'}`} style={marketplaceType === 'non-financial' ? { color: '#030F35', borderColor: '#030F35' } : {}} onMouseEnter={(e) => { if (marketplaceType === 'non-financial') e.currentTarget.style.backgroundColor = '#f0f4f8'; }} onMouseLeave={(e) => { if (marketplaceType === 'non-financial') e.currentTarget.style.backgroundColor = 'white'; }}>
             {config.secondaryCTA}
           </button>
-          <button onClick={handlePrimaryAction} className={`px-4 py-2 text-sm font-bold text-white rounded-md transition-colors whitespace-nowrap flex-1 ${marketplaceType === 'non-financial' ? '' : 'bg-blue-600 hover:bg-blue-700'}`} style={marketplaceType === 'non-financial' ? { backgroundColor: '#1A2E6E' } : {}} onMouseEnter={(e) => { if (marketplaceType === 'non-financial') e.currentTarget.style.backgroundColor = '#1A2E6E'; }} onMouseLeave={(e) => { if (marketplaceType === 'non-financial') e.currentTarget.style.backgroundColor = '#1A2E6E'; }}>
+          <button onClick={handlePrimaryAction} className={`px-4 py-2 text-sm font-bold text-white rounded-md transition-colors whitespace-nowrap flex-1 ${marketplaceType === 'non-financial' ? '' : 'bg-blue-600 hover:bg-blue-700'}`} style={marketplaceType === 'non-financial' ? { backgroundColor: '#030F35' } : {}} onMouseEnter={(e) => { if (marketplaceType === 'non-financial') e.currentTarget.style.backgroundColor = '#030F35'; }} onMouseLeave={(e) => { if (marketplaceType === 'non-financial') e.currentTarget.style.backgroundColor = '#030F35'; }}>
             {config.primaryCTA}
           </button>
         </div>

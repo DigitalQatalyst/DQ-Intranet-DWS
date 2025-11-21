@@ -19,7 +19,6 @@ export interface ServiceCardProps {
   type: string;
   isBookmarked: boolean;
   onToggleBookmark: () => void;
-  onAddToComparison: () => void;
   onQuickView: () => void;
 }
 export const ServiceCard: React.FC<ServiceCardProps> = ({
@@ -27,7 +26,6 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
   type,
   isBookmarked,
   onToggleBookmark,
-  onAddToComparison,
   onQuickView
 }) => {
   const navigate = useNavigate();
@@ -130,10 +128,10 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
       {/* Card Footer - with two buttons */}
       <div className="mt-auto border-t border-gray-100 px-4 py-2.5">
         <div className="flex justify-between gap-2">
-          <button onClick={handleViewDetails} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap min-w-[120px] flex-1 ${type === 'non-financial' ? 'bg-white border' : 'text-blue-600 bg-white border border-blue-600 hover:bg-blue-50'}`} style={type === 'non-financial' ? { color: '#1A2E6E', borderColor: '#1A2E6E' } : {}} onMouseEnter={(e) => { if (type === 'non-financial') e.currentTarget.style.backgroundColor = '#f0f4f8'; }} onMouseLeave={(e) => { if (type === 'non-financial') e.currentTarget.style.backgroundColor = 'white'; }}>
+          <button onClick={handleViewDetails} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap min-w-[120px] flex-1 ${type === 'non-financial' ? 'bg-white border' : 'text-blue-600 bg-white border border-blue-600 hover:bg-blue-50'}`} style={type === 'non-financial' ? { color: '#030F35', borderColor: '#030F35' } : {}} onMouseEnter={(e) => { if (type === 'non-financial') e.currentTarget.style.backgroundColor = '#f0f4f8'; }} onMouseLeave={(e) => { if (type === 'non-financial') e.currentTarget.style.backgroundColor = 'white'; }}>
             View Details
           </button>
-          <button onClick={handlePrimaryAction} className="px-4 py-2 text-sm font-bold text-white rounded-md transition-colors whitespace-nowrap flex-1" style={{ backgroundColor: '#1A2E6E' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1A2E6E'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1A2E6E'}>
+          <button onClick={handlePrimaryAction} className="px-4 py-2 text-sm font-bold text-white rounded-md transition-colors whitespace-nowrap flex-1" style={{ backgroundColor: '#030F35' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#030F35'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030F35'}>
             {getPrimaryCTAText()}
           </button>
         </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { XIcon, BookmarkIcon, ScaleIcon, CheckCircleIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
+import { XIcon, BookmarkIcon, CheckCircleIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 interface MarketplaceQuickViewModalProps {
   item: any;
@@ -9,7 +9,6 @@ interface MarketplaceQuickViewModalProps {
   onViewDetails: () => void;
   isBookmarked: boolean;
   onToggleBookmark: () => void;
-  onAddToComparison: () => void;
 }
 export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps> = ({
   item,
@@ -17,8 +16,7 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
   onClose,
   onViewDetails,
   isBookmarked,
-  onToggleBookmark,
-  onAddToComparison
+  onToggleBookmark
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const config = getMarketplaceConfig(marketplaceType);
@@ -57,9 +55,6 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
           <div className="flex items-center space-x-3">
             <button onClick={onToggleBookmark} className={`p-2 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
               <BookmarkIcon size={18} className={isBookmarked ? 'fill-yellow-600' : ''} />
-            </button>
-            <button onClick={onAddToComparison} className="p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200" aria-label="Add to comparison">
-              <ScaleIcon size={18} />
             </button>
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
               <XIcon size={24} />
@@ -142,17 +137,17 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
               </h3>
               <ul className="space-y-2">
                 {highlightItems.map((highlight: string, index: number) => <li key={index} className="flex items-start">
-                    <CheckCircleIcon size={18} className="text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <CheckCircleIcon size={18} className="text-dqYellow mr-2 mt-0.5 flex-shrink-0" />
                     <span className="text-gray-700">{highlight}</span>
                   </li>)}
               </ul>
             </div>}
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-end">
-            <button onClick={onViewDetails} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors border ${config.id === 'non-financial' ? 'bg-white' : 'text-blue-700 bg-blue-50 border-blue-200 hover:bg-blue-100'}`} style={config.id === 'non-financial' ? { color: '#1A2E6E', borderColor: '#1A2E6E' } : {}} onMouseEnter={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = '#f0f4f8'; }} onMouseLeave={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = 'white'; }}>
+            <button onClick={onViewDetails} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors border ${config.id === 'non-financial' ? 'bg-white' : 'text-blue-700 bg-blue-50 border-blue-200 hover:bg-blue-100'}`} style={config.id === 'non-financial' ? { color: '#030F35', borderColor: '#030F35' } : {}} onMouseEnter={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = '#f0f4f8'; }} onMouseLeave={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = 'white'; }}>
               View Full Details
             </button>
-            <button className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${config.id === 'non-financial' ? '' : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'}`} style={config.id === 'non-financial' ? { backgroundColor: '#1A2E6E' } : {}} onMouseEnter={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = '#1A2E6E'; }} onMouseLeave={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = '#1A2E6E'; }}>
+            <button className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${config.id === 'non-financial' ? '' : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'}`} style={config.id === 'non-financial' ? { backgroundColor: '#030F35' } : {}} onMouseEnter={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = '#030F35'; }} onMouseLeave={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = '#030F35'; }}>
               {config.primaryCTA}
             </button>
           </div>

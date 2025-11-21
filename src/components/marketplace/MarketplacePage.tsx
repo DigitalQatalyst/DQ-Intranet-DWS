@@ -533,7 +533,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           const tabCategoryMap: Record<string, string> = {
             'technology': 'Technology',
             'business': 'Business',
-            'digital_worker': 'Digital Worker'
+            'digital_worker': 'Digital Worker',
+            'prompt_library': 'Prompt Library',
+            'doc_writer': 'DOC Writer',
+            'ai_tools': 'AI Tools'
           };
           
           const activeTabCategory = tabCategoryMap[activeServiceTab];
@@ -841,7 +844,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           const tabCategoryMap: Record<string, string> = {
             'technology': 'Technology',
             'business': 'Business',
-            'digital_worker': 'Digital Worker'
+            'digital_worker': 'Digital Worker',
+            'prompt_library': 'Prompt Library',
+            'doc_writer': 'DOC Writer',
+            'ai_tools': 'AI Tools'
           };
           
           const activeTabCategory = tabCategoryMap[activeServiceTab];
@@ -1003,6 +1009,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     {activeServiceTab === 'technology' && 'Technology'}
                     {activeServiceTab === 'business' && 'Business'}
                     {activeServiceTab === 'digital_worker' && 'Digital Worker'}
+                    {activeServiceTab === 'prompt_library' && 'Prompt Library'}
+                    {activeServiceTab === 'doc_writer' && 'DOC Writer'}
+                    {activeServiceTab === 'ai_tools' && 'AI Tools'}
                   </p>
                 </div>
                 <button className="px-3 py-1.5 rounded-full text-xs font-medium text-blue-700" style={{ backgroundColor: '#DBEAFE' }}>
@@ -1013,11 +1022,17 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 {activeServiceTab === 'technology' && 'Access technology-related services including IT support, software requests, system access, and technical assistance.'}
                 {activeServiceTab === 'business' && 'Explore business services such as HR support, finance services, administrative requests, and operational assistance.'}
                 {activeServiceTab === 'digital_worker' && 'Discover digital worker services including automation solutions, AI agents requests, AI tools and usage guidelines'}
+                {activeServiceTab === 'prompt_library' && "A curated collection of your team's best and previously used prompts to speed up workflows and boost productivity."}
+                {activeServiceTab === 'doc_writer' && 'Ready-to-use company document templates for fast, consistent, and professional document creation.'}
+                {activeServiceTab === 'ai_tools' && 'A centralized hub showcasing all AI tools and solutions used across the company.'}
               </p>
               <p className="text-xs text-gray-500">
                 {activeServiceTab === 'technology' && 'Managed by DQ IT Support and Technical teams.'}
                 {activeServiceTab === 'business' && 'Provided by DQ HR, Finance, and Administrative teams.'}
                 {activeServiceTab === 'digital_worker' && 'Handled by DQ Automation Teams.'}
+                {activeServiceTab === 'prompt_library' && 'Curated and maintained by DQ Digital Innovation Teams.'}
+                {activeServiceTab === 'doc_writer' && 'Managed by DQ Documentation and Compliance Teams.'}
+                {activeServiceTab === 'ai_tools' && 'Provided by DQ AI & Innovation Teams.'}
               </p>
             </div>
           </div>
@@ -1030,7 +1045,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               {[
                 { id: 'technology', label: 'Technology' },
                 { id: 'business', label: 'Business' },
-                { id: 'digital_worker', label: 'Digital Worker' }
+                { id: 'digital_worker', label: 'Digital Worker' },
+                { id: 'prompt_library', label: 'Prompt Library' },
+                { id: 'doc_writer', label: 'DOC Writer' },
+                { id: 'ai_tools', label: 'AI Tools' }
               ].map((tab) => {
                 const isActive = activeServiceTab === tab.id;
                 return (

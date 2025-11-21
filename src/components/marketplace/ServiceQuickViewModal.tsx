@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { ServiceItem } from '../../types/marketplace';
-import { XIcon, Calendar, DollarSign, MapPin, BookmarkIcon, ScaleIcon, CheckCircleIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
+import { XIcon, Calendar, DollarSign, MapPin, BookmarkIcon, CheckCircleIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 interface ServiceQuickViewModalProps {
   service: ServiceItem;
@@ -8,7 +8,6 @@ interface ServiceQuickViewModalProps {
   onViewDetails: () => void;
   isBookmarked: boolean;
   onToggleBookmark: () => void;
-  onAddToComparison: () => void;
   marketplaceType: string;
   primaryButtonText?: string;
 }
@@ -18,7 +17,6 @@ export const ServiceQuickViewModal: React.FC<ServiceQuickViewModalProps> = ({
   onViewDetails,
   isBookmarked,
   onToggleBookmark,
-  onAddToComparison,
   marketplaceType,
   primaryButtonText = 'Enroll Now'
 }) => {
@@ -81,9 +79,6 @@ export const ServiceQuickViewModal: React.FC<ServiceQuickViewModalProps> = ({
           <div className="flex items-center space-x-3">
             <button onClick={onToggleBookmark} className={`p-2 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
               <BookmarkIcon size={18} className={isBookmarked ? 'fill-yellow-600' : ''} />
-            </button>
-            <button onClick={onAddToComparison} className="p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200" aria-label="Add to comparison">
-              <ScaleIcon size={18} />
             </button>
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
               <XIcon size={24} />
@@ -161,7 +156,7 @@ export const ServiceQuickViewModal: React.FC<ServiceQuickViewModalProps> = ({
               </h3>
               <ul className="space-y-2">
                 {keyHighlights.map((highlight, index) => <li key={index} className="flex items-start">
-                    <CheckCircleIcon size={18} className="text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <CheckCircleIcon size={18} className="text-dqYellow mr-2 mt-0.5 flex-shrink-0" />
                     <span className="text-gray-700">{highlight}</span>
                   </li>)}
               </ul>

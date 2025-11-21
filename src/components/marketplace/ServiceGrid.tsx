@@ -120,9 +120,6 @@ export const ServiceGrid: React.FC<ServiceGridProps> = ({
       setQuickViewService(null);
       const config = getMarketplaceConfig(marketplaceType);
       navigate(`${config.route}/${quickViewService.id}`);
-    }} isBookmarked={bookmarkedServices.includes(quickViewService.id)} onToggleBookmark={() => onToggleBookmark(quickViewService.id)} onAddToComparison={() => {
-      onAddToComparison(quickViewService);
-      setQuickViewService(null);
-    }} marketplaceType={marketplaceType} primaryButtonText={primaryButtonText} />}
+    }} isBookmarked={bookmarkedServices.includes(quickViewService.id)} onToggleBookmark={() => onToggleBookmark(quickViewService.id)} marketplaceType={marketplaceType} primaryButtonText={primaryButtonText} />}
     </div>;
 };

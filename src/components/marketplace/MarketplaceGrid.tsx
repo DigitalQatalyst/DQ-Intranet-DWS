@@ -123,9 +123,6 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
       } else {
         navigate(`${config.route}/${quickViewItem.id}`);
       }
-    }} isBookmarked={bookmarkedItems.includes(quickViewItem.id)} onToggleBookmark={() => onToggleBookmark(quickViewItem.id)} onAddToComparison={() => {
-      onAddToComparison(quickViewItem);
-      setQuickViewItem(null);
-    }} />}
+    }} isBookmarked={bookmarkedItems.includes(quickViewItem.id)} onToggleBookmark={() => onToggleBookmark(quickViewItem.id)} />}
     </div>;
 };

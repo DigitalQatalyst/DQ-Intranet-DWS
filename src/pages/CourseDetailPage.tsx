@@ -265,7 +265,7 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
                 </h2>
                 <div className="grid md:grid-cols-2 gap-4">
                   {course.learningOutcomes.slice(0, 4).map((outcome, index) => <div key={index} className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-100 h-full">
-                      <CheckCircleIcon size={20} className="text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <CheckCircleIcon size={20} className="text-dqYellow mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-gray-700">{outcome}</span>
                     </div>)}
                 </div>
@@ -453,25 +453,25 @@ export const CourseDetailPage: React.FC<CourseDetailPageProps> = ({
                     </h4>
                     <ul className="space-y-2">
                       <li className="flex items-start">
-                        <CheckCircleIcon size={16} className="text-green-500 mr-2 mt-1 flex-shrink-0" />
+                        <CheckCircleIcon size={16} className="text-dqYellow mr-2 mt-1 flex-shrink-0" />
                         <span className="text-gray-700 text-sm">
                           Comprehensive course materials
                         </span>
                       </li>
                       <li className="flex items-start">
-                        <CheckCircleIcon size={16} className="text-green-500 mr-2 mt-1 flex-shrink-0" />
+                        <CheckCircleIcon size={16} className="text-dqYellow mr-2 mt-1 flex-shrink-0" />
                         <span className="text-gray-700 text-sm">
                           Expert-led sessions
                         </span>
                       </li>
                       <li className="flex items-start">
-                        <CheckCircleIcon size={16} className="text-green-500 mr-2 mt-1 flex-shrink-0" />
+                        <CheckCircleIcon size={16} className="text-dqYellow mr-2 mt-1 flex-shrink-0" />
                         <span className="text-gray-700 text-sm">
                           Certificate of completion
                         </span>
                       </li>
                       <li className="flex items-start">
-                        <CheckCircleIcon size={16} className="text-green-500 mr-2 mt-1 flex-shrink-0" />
+                        <CheckCircleIcon size={16} className="text-dqYellow mr-2 mt-1 flex-shrink-0" />
                         <span className="text-gray-700 text-sm">
                           Access to exclusive resources
                         </span>

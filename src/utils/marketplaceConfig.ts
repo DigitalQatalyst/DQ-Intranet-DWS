@@ -791,7 +791,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   'non-financial': {
     id: 'non-financial',
     title: 'Services Center',
-    description: "Welcome to Digital Qatalyst's Services Center. We're here to ensure your success with dedicated assistance, efficient solutions, comprehensive tools, expert guidance, and both technical and operational support.",
+    description: "Welcome to DigitalQatalyst's Services Center. We're here to ensure your success with dedicated assistance, efficient solutions, comprehensive tools, expert guidance, and both technical and operational support.",
     route: '/marketplace/services-center',
     primaryCTA: 'Request Service',
     secondaryCTA: 'View Details',
@@ -883,6 +883,15 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       }, {
         id: 'digital_worker',
         name: 'Digital Worker'
+      }, {
+        id: 'prompt_library',
+        name: 'Prompt Library'
+      }, {
+        id: 'doc_writer',
+        name: 'DOC Writer'
+      }, {
+        id: 'ai_tools',
+        name: 'AI Tools'
       }]
     }, {
       id: 'location',
@@ -1042,16 +1051,6 @@ export const getTabSpecificFilters = (tabId?: string): FilterCategoryConfig[] =>
         { id: 'legal', name: 'Legal' },
         { id: 'payroll', name: 'Payroll' }
       ]
-    },
-    {
-      id: 'documentType',
-      title: 'Document Type',
-      options: [
-        { id: 'policies', name: 'Policies' },
-        { id: 'guidelines', name: 'Guidelines' },
-        { id: 'reports', name: 'Reports' },
-        { id: 'forms', name: 'Forms' }
-      ]
     }
   ];
 
@@ -1097,6 +1096,91 @@ export const getTabSpecificFilters = (tabId?: string): FilterCategoryConfig[] =>
     }
   ];
 
+  // Tab-specific filters for Prompt Library category
+  const promptLibrarySpecificFilters: FilterCategoryConfig[] = [
+    {
+      id: 'promptType',
+      title: 'Prompt Type',
+      options: [
+        { id: 'content_creation', name: 'Content Creation' },
+        { id: 'code_generation', name: 'Code Generation' },
+        { id: 'data_analysis', name: 'Data Analysis' },
+        { id: 'business_strategy', name: 'Business Strategy' },
+        { id: 'customer_service', name: 'Customer Service' }
+      ]
+    },
+    {
+      id: 'promptCategory',
+      title: 'Category',
+      options: [
+        { id: 'marketing', name: 'Marketing' },
+        { id: 'engineering', name: 'Engineering' },
+        { id: 'operations', name: 'Operations' },
+        { id: 'sales', name: 'Sales' }
+      ]
+    }
+  ];
+
+  // Tab-specific filters for DOC Writer category
+  const docWriterSpecificFilters: FilterCategoryConfig[] = [
+    {
+      id: 'documentCategory',
+      title: 'Document Type',
+      options: [
+        { id: 'contracts', name: 'Contracts' },
+        { id: 'proposals', name: 'Proposals' },
+        { id: 'reports', name: 'Reports' },
+        { id: 'presentations', name: 'Presentations' },
+        { id: 'policies', name: 'Policies' },
+        { id: 'procedures', name: 'Procedures' }
+      ]
+    },
+    {
+      id: 'department',
+      title: 'Department',
+      options: [
+        { id: 'legal', name: 'Legal' },
+        { id: 'hr', name: 'Human Resources' },
+        { id: 'finance', name: 'Finance' },
+       
+        
+      ]
+    }
+  ];
+
+  // Tab-specific filters for AI Tools category
+  const aiToolsSpecificFilters: FilterCategoryConfig[] = [
+    {
+      id: 'toolCategory',
+      title: 'Tool Category',
+      options: [
+        { id: 'llms', name: 'Large Language Models' },
+        { id: 'code_assistants', name: 'Code Assistants' },
+        { id: 'design_tools', name: 'Design Tools' },
+        { id: 'data_analytics', name: 'Data Analytics' },
+        { id: 'automation', name: 'Automation Tools' }
+      ]
+    },
+    {
+      id: 'accessType',
+      title: 'Access Type',
+      options: [
+        { id: 'company_wide', name: 'Company-Wide' },
+        { id: 'team_specific', name: 'Team-Specific' },
+        { id: 'request_access', name: 'Request Access' }
+      ]
+    },
+    {
+      id: 'pricing',
+      title: 'Pricing',
+      options: [
+        { id: 'free', name: 'Free' },
+        { id: 'paid', name: 'Paid' },
+        { id: 'trial', name: 'Trial Available' }
+      ]
+    }
+  ];
+
   // Return tab-specific filters based on the tab
   if (tabId === 'technology') {
     return [...baseFilters, ...technologySpecificFilters];
@@ -1108,6 +1192,18 @@ export const getTabSpecificFilters = (tabId?: string): FilterCategoryConfig[] =>
   
   if (tabId === 'digital_worker') {
     return [...baseFilters, ...digitalWorkerSpecificFilters];
+  }
+  
+  if (tabId === 'prompt_library') {
+    return [...baseFilters, ...promptLibrarySpecificFilters];
+  }
+  
+  if (tabId === 'doc_writer') {
+    return [...baseFilters, ...docWriterSpecificFilters];
+  }
+  
+  if (tabId === 'ai_tools') {
+    return [...baseFilters, ...aiToolsSpecificFilters];
   }
   
   return baseFilters;

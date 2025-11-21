@@ -214,7 +214,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                       key={highlight}
                       className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200"
                     >
-                      <CheckCircleIcon size={18} className="text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <CheckCircleIcon size={18} className="text-dqYellow mr-3 mt-0.5 flex-shrink-0" />
                       <span className="text-gray-700">{highlight}</span>
                     </div>
                   ))}

@@ -39,6 +39,7 @@ module.exports = {
       colors: {
         dqNavy: "#030F35",
         dqOrange: "#FB5535",
+        dqYellow: "#FB5535",
         dqBlue: "#1A2E6E",
         dqWhite: "#FFFFFF",
         primary: {
