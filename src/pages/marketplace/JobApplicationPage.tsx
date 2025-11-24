@@ -1,5 +1,5 @@
 import React, { useState, type FormEvent } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { HomeIcon, ChevronRightIcon } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -8,6 +8,7 @@ import { JOBS, SFIA_LEVELS } from '@/data/media/jobs';
 const JobApplicationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const job = JOBS.find((item) => item.id === id);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,7 +24,7 @@ const JobApplicationPage: React.FC = () => {
             The opportunity you're trying to apply for is unavailable. Browse the latest openings in the Media Center.
           </p>
           <button
-            onClick={() => navigate('/marketplace/opportunities')}
+            onClick={() => navigate(`/marketplace/opportunities${location.search || '?tab=opportunities'}`)}
             className="rounded-lg bg-[#030f35] px-6 py-3 text-sm font-semibold text-white"
           >
             Back to Opportunities
@@ -75,11 +76,11 @@ const JobApplicationPage: React.FC = () => {
                 Home
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
-              <Link to="/marketplace/news" className="hover:text-[#1A2E6E]">
+              <Link to={`/marketplace/news${location.search || ''}`} className="hover:text-[#1A2E6E]">
                 DQ Media Center
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
-              <Link to="/marketplace/opportunities" className="hover:text-[#1A2E6E]">
+              <Link to={`/marketplace/opportunities${location.search || ''}`} className="hover:text-[#1A2E6E]">
                 Opportunities &amp; Openings
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />

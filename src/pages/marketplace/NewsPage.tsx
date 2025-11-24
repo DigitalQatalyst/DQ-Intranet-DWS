@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { FilterIcon, HomeIcon, XIcon, ChevronRightIcon, Search } from 'lucide-react';
@@ -280,8 +280,19 @@ const TAB_SUMMARIES: Record<
 
 const NewsPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [tab, setTab] = useState<MediaCenterTabKey>('announcements');
+  const [tab, setTab] = useState<MediaCenterTabKey>(() => {
+    const paramTab = searchParams.get('tab');
+    if (paramTab === 'announcements' || paramTab === 'insights' || paramTab === 'opportunities') {
+      return paramTab;
+    }
+    if (location.pathname.includes('/opportunities')) {
+      return 'opportunities';
+    }
+    return 'announcements';
+  });
   const [queryText, setQueryText] = useState('');
   const [filters, setFilters] = useState<FiltersValue>({});
   const [showFilters, setShowFilters] = useState(false);
@@ -432,7 +443,21 @@ const NewsPage: React.FC = () => {
           </div>
         </header>
 
-        <Tabs value={tab} onValueChange={(value) => setTab(value as MediaCenterTabKey)} className="w-full">
+        <Tabs
+          value={tab}
+          onValueChange={(value) => {
+            const nextTab = value as MediaCenterTabKey;
+            setTab(nextTab);
+            const params = new URLSearchParams(location.search);
+            if (nextTab === 'announcements') {
+              params.delete('tab');
+            } else {
+              params.set('tab', nextTab);
+            }
+            setSearchParams(params);
+          }}
+          className="w-full"
+        >
           <div className="border-b border-gray-200">
             <TabsList className="flex h-auto w-full justify-start gap-8 overflow-x-auto bg-transparent p-0 text-gray-700">
               <TabsTrigger

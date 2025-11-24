@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { JOBS, type JobItem } from '@/data/media/jobs';
 import type { FiltersValue } from './types';
 import { JobCard } from './cards/JobCard';
@@ -17,6 +18,7 @@ const ITEMS_PER_PAGE = 9;
 export default function JobsGrid({ query }: GridProps) {
   const sourceItems: JobItem[] = JOBS;
   const [currentPage, setCurrentPage] = useState(1);
+  const location = useLocation();
 
   const items = useMemo(() => {
     const search = query.q?.toLowerCase() ?? '';
@@ -133,7 +135,12 @@ export default function JobsGrid({ query }: GridProps) {
       </div>
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {paginatedItems.map((job: JobItem) => (
-          <JobCard key={job.id} job={job} href={`/marketplace/opportunities/${job.id}`} />
+          <JobCard
+            key={job.id}
+            job={job}
+            href={`/marketplace/opportunities/${job.id}`}
+            search={location.search}
+          />
         ))}
       </div>
       

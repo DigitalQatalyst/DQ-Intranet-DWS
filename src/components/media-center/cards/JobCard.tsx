@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 interface JobCardProps {
   job: JobItem;
   href?: string;
+  search?: string;
 }
 
 const fallbackImages = [
@@ -12,7 +13,7 @@ const fallbackImages = [
   'https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?auto=format&fit=crop&w=1200&q=80'
 ];
 
-export function JobCard({ job, href }: JobCardProps) {
+export function JobCard({ job, href, search }: JobCardProps) {
   const imageSrc = job.image || fallbackImages[Math.abs(job.id.split('').reduce((sum, c) => sum + c.charCodeAt(0), 0)) % fallbackImages.length];
   const sfia = SFIA_LEVELS[job.sfiaLevel];
 
@@ -48,7 +49,7 @@ export function JobCard({ job, href }: JobCardProps) {
         <div className="mt-auto pt-4 grid grid-cols-2 gap-3">
           {href ? (
             <Link
-              to={href}
+              to={`${href}${search || ''}`}
               className="h-9 rounded-xl border border-gray-300 text-center text-sm font-semibold text-gray-800 leading-9 transition hover:bg-gray-50"
             >
               View Details
@@ -60,7 +61,7 @@ export function JobCard({ job, href }: JobCardProps) {
           )}
           {href ? (
             <Link
-              to={`${href}/apply`}
+              to={`${href}/apply${search || ''}`}
               className="h-9 rounded-xl bg-[#030f35] text-center text-sm font-semibold text-white leading-9 transition hover:opacity-90"
             >
               Apply

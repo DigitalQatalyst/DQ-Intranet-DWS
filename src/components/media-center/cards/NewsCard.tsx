@@ -54,7 +54,7 @@ export function NewsCard({ item, href }: NewsCardProps) {
           <p className="mt-2 text-sm text-gray-700 line-clamp-3">{item.excerpt}</p>
 
           <div className="mt-3 text-xs text-gray-500">
-            {(item.byline || item.author) ?? 'DQ Media Team'} · {item.views} views {item.location ? `· ${item.location}` : ''}
+            Felicia Araba · {item.views} views {item.location ? `· ${item.location}` : ''}
           </div>
 
           {(item.newsType || item.focusArea || item.newsSource) && (

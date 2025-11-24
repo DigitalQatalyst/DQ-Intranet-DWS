@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { HomeIcon, ChevronRightIcon, MapPin, Briefcase, Clock, Share2, ArrowUpRight } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -10,6 +10,12 @@ const formatDate = (input: string) =>
 
 const fallbackHero =
   'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1600&q=80';
+
+const fallbackImages = [
+  'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?auto=format&fit=crop&w=1200&q=80'
+];
 
 const MEDIA_SEEN_STORAGE_KEY = 'dq-media-center-seen-items';
 
@@ -39,8 +45,15 @@ const markMediaItemSeen = (kind: 'news' | 'job', id: string) => {
 const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const job = JOBS.find((item) => item.id === id);
   const related = JOBS.filter((item) => item.id !== id).slice(0, 3);
+
+  const getImageSrc = (item: JobItem) => {
+    if (item.image) return item.image;
+    const hash = Math.abs(item.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0));
+    return fallbackImages[hash % fallbackImages.length] || fallbackHero;
+  };
 
   useEffect(() => {
     if (job) {
@@ -96,11 +109,11 @@ const JobDetailPage: React.FC = () => {
                 Home
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
-              <Link to="/marketplace/news" className="hover:text-[#1A2E6E]">
+              <Link to={`/marketplace/news${location.search || ''}`} className="hover:text-[#1A2E6E]">
                 DQ Media Center
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
-              <Link to="/marketplace/opportunities" className="hover:text-[#1A2E6E]">
+              <Link to={`/marketplace/opportunities${location.search || ''}`} className="hover:text-[#1A2E6E]">
                 Opportunities & Openings
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
@@ -112,7 +125,7 @@ const JobDetailPage: React.FC = () => {
                 Share
               </button>
               <Link
-                to={`/marketplace/opportunities/${job.id}/apply`}
+                to={`/marketplace/opportunities/${job.id}/apply${location.search || ''}`}
                 className="inline-flex items-center gap-1 rounded-lg bg-[#030f35] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
               >
                 Apply Now
@@ -128,18 +141,20 @@ const JobDetailPage: React.FC = () => {
               <div>
                 <div className="mb-8 rounded-2xl bg-gray-100">
                   <img
-                    src={job.image || fallbackHero}
+                    src={getImageSrc(job)}
                     alt={job.title}
                     className="h-[420px] w-full rounded-2xl object-cover"
                     loading="lazy"
                   />
                 </div>
                 <div className="space-y-4">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-[#1A2E6E]">
-                    {job.roleType} role
-                  </span>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-[#EEF2FF] px-3 py-1 text-xs font-semibold text-[#1A2E6E]">
-                    Internal Mobility · Current associates only
+                  <div className="inline-flex items-center gap-3">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-[#1A2E6E]">
+                      {job.roleType} role
+                    </span>
+                    <div className="inline-flex items-center rounded-full bg-[#EEF2FF] px-3 py-1 text-xs font-semibold text-[#1A2E6E]">
+                      Internal Mobility · Current associates only
+                    </div>
                   </div>
                   <h1 className="text-3xl font-bold text-gray-900">{job.title}</h1>
                   <p className="text-lg text-gray-700">{job.summary}</p>
@@ -225,11 +240,11 @@ const JobDetailPage: React.FC = () => {
                     {related.map((item: JobItem) => (
                       <Link
                         key={item.id}
-                        to={`/marketplace/opportunities/${item.id}`}
+                        to={`/marketplace/opportunities/${item.id}${location.search || ''}`}
                         className="group flex gap-3 rounded-xl border border-transparent p-3 hover:border-gray-200"
                       >
                         <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                          <img src={item.image || fallbackHero} alt={item.title} className="h-full w-full object-cover" />
+                          <img src={getImageSrc(item)} alt={item.title} className="h-full w-full object-cover" />
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-[#1A2E6E]">

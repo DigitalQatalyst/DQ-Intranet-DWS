@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { HomeIcon, ChevronRightIcon, Share2, BookmarkIcon, ArrowUpRight } from 'lucide-react';
@@ -10,6 +10,13 @@ const formatDate = (input: string) =>
 
 const fallbackHero =
   'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1600&q=80';
+
+const fallbackImages = [
+  'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80'
+];
 
 const MEDIA_SEEN_STORAGE_KEY = 'dq-media-center-seen-items';
 
@@ -220,8 +227,15 @@ const formatContent = (content: string, index: number) => {
 const NewsDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const article = NEWS.find((item) => item.id === id);
   const related = NEWS.filter((item) => item.id !== id).slice(0, 3);
+
+  const getImageSrc = (item: NewsItem) => {
+    if (item.image) return item.image;
+    const hash = Math.abs(item.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0));
+    return fallbackImages[hash % fallbackImages.length] || fallbackHero;
+  };
 
   const body = article ? buildBody(article) : [];
   useEffect(() => {
@@ -240,7 +254,7 @@ const NewsDetailPage: React.FC = () => {
             The article you're trying to view is unavailable or has been archived. Please browse the latest announcements.
           </p>
           <button
-            onClick={() => navigate('/marketplace/news')}
+            onClick={() => navigate(`/marketplace/news${location.search || ''}`)}
             className="rounded-lg bg-[#030f35] px-6 py-3 text-sm font-semibold text-white"
           >
             Back to Media Center
@@ -250,6 +264,11 @@ const NewsDetailPage: React.FC = () => {
       </div>
     );
   }
+
+  const displayAuthor =
+    article.type === 'Thought Leadership'
+      ? (article.byline || article.author || 'DQ Media Team')
+      : 'Felicia Araba';
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F3F6FB]">
@@ -263,7 +282,7 @@ const NewsDetailPage: React.FC = () => {
                 Home
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
-              <Link to="/marketplace/news" className="hover:text-[#1A2E6E]">
+              <Link to={`/marketplace/news${location.search || ''}`} className="hover:text-[#1A2E6E]">
                 DQ Media Center
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
@@ -290,7 +309,7 @@ const NewsDetailPage: React.FC = () => {
                 {/* Hero Image */}
                 <div className="rounded-2xl bg-gray-100 overflow-hidden shadow-sm">
                   <img
-                    src={article.image || fallbackHero}
+                    src={getImageSrc(article)}
                     alt={article.title}
                     className="h-[400px] w-full object-cover"
                     loading="lazy"
@@ -438,7 +457,7 @@ const NewsDetailPage: React.FC = () => {
                       </div>
                       <div>
                         <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Author</div>
-                        <div className="text-sm text-gray-900 font-medium">{article.author}</div>
+                        <div className="text-sm text-gray-900 font-medium">{displayAuthor}</div>
                       </div>
                       {article.views !== undefined && (
                         <div>
@@ -507,7 +526,7 @@ const NewsDetailPage: React.FC = () => {
               {related.map((item) => (
                 <article key={item.id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
                   <img
-                    src={item.image || fallbackHero}
+                    src={getImageSrc(item)}
                     alt={item.title}
                     className="mb-4 h-32 w-full rounded-xl object-cover"
                   />
@@ -515,7 +534,7 @@ const NewsDetailPage: React.FC = () => {
                   <h3 className="mt-2 text-lg font-semibold text-gray-900 line-clamp-2">{item.title}</h3>
                   <p className="mt-2 text-sm text-gray-600 line-clamp-3">{item.excerpt}</p>
                   <Link
-                    to={`/marketplace/news/${item.id}`}
+                    to={`/marketplace/news/${item.id}${location.search || ''}`}
                     className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[#030f35] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
                   >
                     Read Article

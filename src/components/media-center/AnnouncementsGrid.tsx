@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { NEWS, type NewsItem } from '@/data/media/news';
 import type { FiltersValue } from './types';
 import { NewsCard } from './cards/NewsCard';
@@ -20,6 +21,7 @@ const matchesSelection = (value: string | undefined, selections?: string[]) =>
 export default function AnnouncementsGrid({ query }: GridProps) {
   const sourceItems: NewsItem[] = NEWS;
   const [currentPage, setCurrentPage] = useState(1);
+  const location = useLocation();
 
   const items = useMemo(() => {
     const search = query.q?.toLowerCase() ?? '';
@@ -132,7 +134,11 @@ export default function AnnouncementsGrid({ query }: GridProps) {
       </div>
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {paginatedItems.map((item: NewsItem) => (
-          <NewsCard key={item.id} item={item} href={`/marketplace/news/${item.id}`} />
+          <NewsCard
+            key={item.id}
+            item={item}
+            href={`/marketplace/news/${item.id}${location.search}`}
+          />
         ))}
       </div>
       
