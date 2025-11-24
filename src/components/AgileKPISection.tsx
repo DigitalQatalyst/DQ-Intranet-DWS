@@ -1,5 +1,6 @@
 import React from 'react';
 import { RefreshCcw, Clock, BookOpen, Medal } from 'lucide-react';
+
 import { FadeInUpOnScroll } from './AnimationUtils';
 
 type KPIIcon = React.ReactNode;
@@ -48,7 +49,7 @@ const defaultKpis: AgileKPI[] = [
   }
 ];
 
-const AgileKPISection: React.FC<AgileKPISectionProps> = ({
+export function AgileKPISection({
   title = defaultTitle,
   caption = defaultCaption,
   kpis = defaultKpis,
@@ -107,6 +108,5 @@ const AgileKPISection: React.FC<AgileKPISectionProps> = ({
       </div>
     </section>
   );
-};
+}
 
-export default AgileKPISection;

@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-// import Link from 'next/link';
+import React, { useEffect, useState, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   X,
   ChevronDown,
@@ -18,8 +18,7 @@ import {
   Check,
   Menu,
   MessageCircleIcon,
-} from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+} from 'lucide-react';
 
 interface Company {
   id: string;
@@ -50,7 +49,7 @@ interface SidebarProps {
   "data-id"?: string;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({
+export function Sidebar({
   isOpen = true,
   onClose,
   onSectionChange,
@@ -545,15 +544,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </nav>
     </div>
   );
-};
+}
 
 // Burger menu stays the same
-export const BurgerMenuButton: React.FC<{
+interface BurgerMenuButtonProps {
   onClick: () => void;
   className?: string;
   isLoggedIn?: boolean;
-  "data-id"?: string;
-}> = ({ onClick, className = "", isLoggedIn = true, "data-id": dataId }) => {
+  'data-id'?: string;
+}
+
+export function BurgerMenuButton({
+  onClick,
+  className = '',
+  isLoggedIn = true,
+  'data-id': dataId
+}: BurgerMenuButtonProps) {
   if (!isLoggedIn) return null;
   return (
     <button
@@ -565,4 +571,4 @@ export const BurgerMenuButton: React.FC<{
       <Menu size={20} />
     </button>
   );
-};
+}

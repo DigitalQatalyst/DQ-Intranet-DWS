@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { Send, ChevronDown, ArrowRight, Users } from "lucide-react";
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Send, ChevronDown, ArrowRight, Users } from 'lucide-react';
+
+import { useAuth } from '@/components/Header';
 import {
   AnimatedText,
   FadeInUpOnScroll,
   StaggeredFadeIn,
-} from "./AnimationUtils";
-import { Link } from "react-router-dom";
-import { useAuth } from "./Header";
+} from './AnimationUtils';
+
 interface HeroSectionProps {
-  "data-id"?: string;
+  'data-id'?: string;
 }
-const HeroSection: React.FC<HeroSectionProps> = ({ "data-id": dataId }) => {
+
+export function HeroSection({ 'data-id': dataId }: HeroSectionProps) {
   const { user } = useAuth();
   const isAuthenticated = Boolean(user);
   const onboardingPath = "/onboarding/start";
@@ -224,5 +227,4 @@ const HeroSection: React.FC<HeroSectionProps> = ({ "data-id": dataId }) => {
       `}</style>
     </div>
   );
-};
-export default HeroSection;
+}

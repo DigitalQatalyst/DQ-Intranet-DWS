@@ -16,7 +16,7 @@ export interface ServiceHighlightCardProps {
   onQuickView?: () => void;
   'data-id'?: string;
 }
-export const ServiceHighlightCard: React.FC<ServiceHighlightCardProps> = ({
+export function ServiceHighlightCard({
   item,
   onClick,
   onQuickView,

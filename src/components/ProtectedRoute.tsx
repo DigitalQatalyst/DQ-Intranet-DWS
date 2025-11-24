@@ -1,6 +1,7 @@
-import {PropsWithChildren, useEffect} from 'react';
-import {Navigate, useLocation} from 'react-router-dom';
-import {useAuth} from './Header';
+import { PropsWithChildren, useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+
+import { useAuth } from './Header';
 
 /**
  * Guards routes behind MSAL auth. If unauthenticated, triggers login and
@@ -9,7 +10,7 @@ import {useAuth} from './Header';
  */
 const AUTO_LOGIN = true;
 
-export const ProtectedRoute: React.FC<PropsWithChildren> = ({children}) => {
+export function ProtectedRoute({ children }: PropsWithChildren) {
     const {user, isLoading, login} = useAuth();
     const location = useLocation();
 
@@ -37,6 +38,4 @@ export const ProtectedRoute: React.FC<PropsWithChildren> = ({children}) => {
     if (AUTO_LOGIN) return null;
 
     return <Navigate to="/" state={{from: location}} replace/>;
-};
-
-export default ProtectedRoute;
+}

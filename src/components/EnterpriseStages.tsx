@@ -1,8 +1,23 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Lightbulb, Rocket, TrendingUp, BarChart3, BadgeCheck, ShieldCheck, Globe, Sparkles, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import {
+  Lightbulb,
+  Rocket,
+  TrendingUp,
+  BarChart3,
+  BadgeCheck,
+  ShieldCheck,
+  Globe,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+} from 'lucide-react';
+
+import { dwsStages } from '@/data/dwsStages';
+
 import { FadeInUpOnScroll, HorizontalScrollReveal } from './AnimationUtils';
-import { dwsStages } from '../data/dwsStages';
-import StageModal from './journey/StageModal';
+import { StageModal } from './journey/StageModal';
+
 interface StageCardProps {
   stageId: string;
   title: string;
@@ -15,7 +30,8 @@ interface StageCardProps {
   activeIndex: number;
   setActiveIndex: (index: number) => void;
 }
-const StageCard: React.FC<StageCardProps> = ({
+
+function StageCard({
   stageId,
   title,
   description,
@@ -26,12 +42,14 @@ const StageCard: React.FC<StageCardProps> = ({
   index,
   activeIndex,
   setActiveIndex
-}) => {
+}: StageCardProps) {
   const isActive = index === activeIndex;
   const baseClasses = 'bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 min-w-[300px] flex flex-col flex-shrink-0 md:min-w-0 relative h-full min-h-[420px]';
   const activeClasses = 'ring-2 ring-blue-500 shadow-lg';
   const inactiveClasses = 'hover:shadow-lg hover:-translate-y-1';
-  return <div className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`} onMouseEnter={() => setActiveIndex(index)}>
+  
+  return (
+    <div className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`} onMouseEnter={() => setActiveIndex(index)}>
       <div className="p-6 flex flex-col h-full">
         <div className="flex items-center mb-4">
           <div className={`p-3 rounded-full mr-4 transition-colors duration-300 ${isActive ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-600'}`}>
@@ -71,9 +89,10 @@ const StageCard: React.FC<StageCardProps> = ({
       <div className={`absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${isActive ? 'bg-dq-coral text-white' : 'bg-gray-200 text-gray-600'}`}>
         {index + 1}
       </div>
-    </div>;
-};
-const EnterpriseStages: React.FC = () => {
+    </div>
+  );
+}
+export function EnterpriseStages() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -282,5 +301,4 @@ const EnterpriseStages: React.FC = () => {
       />
     </div>
   );
-};
-export default EnterpriseStages;
+}

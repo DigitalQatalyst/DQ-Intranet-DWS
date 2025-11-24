@@ -22,7 +22,7 @@ const serviceTypeBadgeColors: Record<StageServiceType, string> = {
   "Non-financial": "bg-slate-100 text-slate-700",
 };
 
-const StageModal = ({ stage, isOpen, onClose }: StageModalProps) => {
+export function StageModal({ stage, isOpen, onClose }: StageModalProps) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const lastFocusedRef = useRef<HTMLElement | null>(null);
@@ -324,6 +324,5 @@ const StageModal = ({ stage, isOpen, onClose }: StageModalProps) => {
       </div>
     </div>
   );
-};
+}
 
-export default StageModal;

@@ -1,8 +1,10 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { TrendingUp, Users, Zap, ArrowRight } from "lucide-react";
-import { FadeInUpOnScroll } from "./AnimationUtils";
-import { KNOWLEDGE_CENTER_LEADERSHIP_GUIDES_URL } from "../constants/leadspaceLinks";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { TrendingUp, Users, Zap, ArrowRight } from 'lucide-react';
+
+import { KNOWLEDGE_CENTER_LEADERSHIP_GUIDES_URL } from '@/constants/leadspaceLinks';
+
+import { FadeInUpOnScroll } from './AnimationUtils';
 
 type LeadershipValueCard = {
   key: string;
@@ -52,7 +54,7 @@ const LEADERSHIP_VALUES: LeadershipValueCard[] = [
   },
 ];
 
-export const LeadershipMeaningSection: React.FC = () => {
+export function LeadershipMeaningSection() {
   return (
     <section id="leadership-meaning" className="py-16 md:py-20 lg:py-24 bg-slate-50 scroll-mt-[72px]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -118,7 +120,5 @@ export const LeadershipMeaningSection: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default LeadershipMeaningSection;
+}
 

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { parseCsv, toCsv } from '../../utils/guides';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+
+import { parseCsv, toCsv } from '@/utils/guides';
 
 type Facet = { id: string; name: string; count?: number };
 
@@ -16,13 +17,15 @@ interface Props {
   onChange: (next: URLSearchParams) => void;
 }
 
-const Section: React.FC<{ 
-  title: string; 
-  category: string; 
-  collapsed: boolean; 
+interface SectionProps {
+  title: string;
+  category: string;
+  collapsed: boolean;
   onToggle: (category: string) => void;
   children: React.ReactNode;
-}> = ({ title, category, collapsed, onToggle, children }) => {
+}
+
+function Section({ title, category, collapsed, onToggle, children }: SectionProps) {
   const contentId = `filters-${category}`;
   return (
     <div className="border-b border-gray-100 pb-3 mb-3">
@@ -41,14 +44,16 @@ const Section: React.FC<{
       </div>
     </div>
   );
-};
+}
 
-const CheckboxList: React.FC<{ 
-  name: string; 
-  options: Facet[]; 
-  query: URLSearchParams; 
+interface CheckboxListProps { 
+  name: string;
+  options: Facet[];
+  query: URLSearchParams;
   onChange: (n: URLSearchParams) => void;
-}> = ({ name, options, query, onChange }) => {
+}
+
+function CheckboxList({ name, options, query, onChange }: CheckboxListProps) {
   const selected = new Set(parseCsv(query.get(name)));
   const toggle = (id: string) => {
     const next = new URLSearchParams(query.toString());
@@ -84,9 +89,9 @@ const CheckboxList: React.FC<{
       })}
     </div>
   );
-};
+}
 
-export const EventsFilters: React.FC<Props> = ({ facets, query, onChange }) => {
+export function EventsFilters({ facets, query, onChange }: Props) {
   const clearAll = () => {
     const next = new URLSearchParams();
     onChange(next);
@@ -129,4 +134,3 @@ export const EventsFilters: React.FC<Props> = ({ facets, query, onChange }) => {
   );
 };
 
-export default EventsFilters;

@@ -11,7 +11,7 @@ import { Link, useLocation } from 'react-router-dom';
  * 1. Delete or comment out the import in App.tsx
  * 2. Delete this file
  */
-export const TemporaryMarketplaceNav: React.FC = () => {
+export function TemporaryMarketplaceNav() {
   const location = useLocation();
   const currentPath = location.pathname;
   // Determine which link is active

@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
-import { X, ArrowLeft, Building2, MapPin, Phone, Mail, ExternalLink, BookOpen } from "lucide-react";
-import type { LocationItem } from "../../api/MAPAPI";
-import { MARKER_COLORS } from "./constants";
+import React, { useState, useEffect, useRef } from 'react';
+import { X, ArrowLeft, Building2, MapPin, Phone, Mail, ExternalLink, BookOpen } from 'lucide-react';
+
+import type { LocationItem } from '@/api/MAPAPI';
+import { MARKER_COLORS } from './constants';
 
 interface LocationModalProps {
   location: LocationItem | null;
@@ -36,7 +37,7 @@ const lightenColor = (hex: string, amount = 0.2) => {
   return `#${toHex(mix(r))}${toHex(mix(g))}${toHex(mix(b))}`;
 };
 
-const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose }) => {
+export function LocationModal({ location, isOpen, onClose }: LocationModalProps) {
   const [showFullDescription, setShowFullDescription] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -286,6 +287,4 @@ const LocationModal: React.FC<LocationModalProps> = ({ location, isOpen, onClose
       </div>
     </div>
   );
-};
-
-export default LocationModal;
+}

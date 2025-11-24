@@ -1,19 +1,19 @@
-import React from 'react'
+import React from 'react';
 
 export type SimpleTab = {
-  id: string
-  label: string
-}
+  id: string;
+  label: string;
+};
 
-export type SimpleTabsProps = {
-  tabs: SimpleTab[]
-  activeTabId: string
-  onTabChange: (id: string) => void
-  className?: string
+export interface SimpleTabsProps {
+  tabs: SimpleTab[];
+  activeTabId: string;
+  onTabChange: (id: string) => void;
+  className?: string;
 }
 
 // Simple horizontal tabs styled to match the Media Center tabs
-export const SimpleTabs: React.FC<SimpleTabsProps> = ({ tabs, activeTabId, onTabChange, className }) => {
+export function SimpleTabs({ tabs, activeTabId, onTabChange, className }: SimpleTabsProps) {
   return (
     <div className={className}>
       <div className="flex space-x-6 border-b border-gray-200">
@@ -36,7 +36,5 @@ export const SimpleTabs: React.FC<SimpleTabsProps> = ({ tabs, activeTabId, onTab
         })}
       </div>
     </div>
-  )
+  );
 }
-
-export default SimpleTabs

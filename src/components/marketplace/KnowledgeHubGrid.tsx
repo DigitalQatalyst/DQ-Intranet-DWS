@@ -1,6 +1,8 @@
-import React, { useEffect, useMemo, useState } from 'react'
-import { KnowledgeHubCard } from './KnowledgeHubCard'
-import { useMediaSearch } from '../../hooks/UseMediaSearch'
+import React, { useEffect, useMemo, useState } from 'react';
+
+import { useMediaSearch } from '@/hooks/UseMediaSearch';
+
+import { KnowledgeHubCard } from './KnowledgeHubCard';
 interface KnowledgeHubGridProps {
   bookmarkedItems: string[]
   onToggleBookmark: (itemId: string) => void
@@ -10,7 +12,7 @@ interface KnowledgeHubGridProps {
   onFilterChange?: (filter: string) => void
   onClearFilters?: () => void
 }
-export const KnowledgeHubGrid: React.FC<KnowledgeHubGridProps> = ({
+export function KnowledgeHubGrid({
   bookmarkedItems,
   onToggleBookmark,
   onAddToComparison,
@@ -106,6 +108,5 @@ export const KnowledgeHubGrid: React.FC<KnowledgeHubGridProps> = ({
         </div>
       )}
     </div>
-  )
+  );
 }
-export default KnowledgeHubGrid

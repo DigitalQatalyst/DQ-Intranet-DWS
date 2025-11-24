@@ -5,8 +5,8 @@ import React, {
   useMemo,
   useState,
   useRef,
-} from "react";
-import { createPortal } from "react-dom";
+} from 'react';
+import { createPortal } from 'react-dom';
 import {
   useFloating,
   autoUpdate,
@@ -19,8 +19,7 @@ import {
   useRole,
   useInteractions,
   FloatingFocusManager,
-} from "@floating-ui/react";
-
+} from '@floating-ui/react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -36,8 +35,9 @@ import {
   Eye,
   EyeOff,
   FileText,
-} from "lucide-react";
-import {useScrollLock} from "../../hooks/useScrollLock.ts";
+} from 'lucide-react';
+
+import { useScrollLock } from '@/hooks/useScrollLock';
 
 // Types
 export interface FormField {
@@ -435,7 +435,7 @@ const validateSchema = (schema: FormSchema | undefined): FormSchema => {
 };
 
 // Custom Select Component
-const CustomSelect: React.FC<{
+interface CustomSelectProps {
   id: string;
   value: string;
   onChange: (value: string) => void;
@@ -447,7 +447,9 @@ const CustomSelect: React.FC<{
   placeholder?: string;
   error?: boolean;
   success?: boolean;
-}> = ({
+}
+
+function CustomSelect({
   id,
   value,
   onChange,
@@ -556,7 +558,7 @@ const CustomSelect: React.FC<{
         )}
     </div>
   );
-};
+}
 
 // Asset Table Component
 interface AssetTableData {
@@ -565,13 +567,15 @@ interface AssetTableData {
   selected?: boolean;
 }
 
-const AssetTableField: React.FC<{
+interface AssetTableFieldProps {
   value: AssetTableData[];
   onChange: (value: AssetTableData[]) => void;
   options?: Array<{ assetName: string; assetNumber: string }>;
   error?: string;
   emptyMessage?: string;
-}> = ({ value, onChange, options = [], error, emptyMessage = "There are no assets in your account." }) => {
+}
+
+function AssetTableField({ value, onChange, options = [], error, emptyMessage = "There are no assets in your account." }: AssetTableFieldProps) {
   const [selectedAssets, setSelectedAssets] = useState<AssetTableData[]>(value || []);
 
   useEffect(() => {
@@ -662,17 +666,19 @@ const AssetTableField: React.FC<{
       )}
     </div>
   );
-};
+}
 
 // Form Field Component
-const FormField: React.FC<{
+interface FormFieldComponentProps {
   field: FormField;
   value: any;
   onChange: (value: any) => void;
   error?: string;
   isVisible: boolean;
   onBlur?: () => void;
-}> = ({ field, value, onChange, error, isVisible, onBlur }) => {
+}
+
+function FormFieldComponent({ field, value, onChange, error, isVisible, onBlur }: FormFieldComponentProps) {
   const [hasBeenTouched, setHasBeenTouched] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -1225,15 +1231,17 @@ const FormField: React.FC<{
       )}
     </div>
   );
-};
+}
 
 // Progress Indicator
-const ProgressIndicator: React.FC<{
+interface ProgressIndicatorProps {
   steps: FormStep[];
   currentStep: number;
   completedSteps: Set<number>;
   onStepClick: (stepIndex: number) => void;
-}> = ({ steps, currentStep, completedSteps, onStepClick }) => {
+}
+
+function ProgressIndicator({ steps, currentStep, completedSteps, onStepClick }: ProgressIndicatorProps) {
   const progressPercentage = ((currentStep + 1) / steps.length) * 100;
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm px-6 py-4 mb-8">
@@ -1301,9 +1309,11 @@ const ProgressIndicator: React.FC<{
 };
 
 // Error Summary
-const ErrorSummary: React.FC<{
+interface ErrorSummaryProps {
   errors: Record<string, string>;
-}> = ({ errors }) => {
+}
+
+function ErrorSummary({ errors }: ErrorSummaryProps) {
   const errorCount = Object.keys(errors).length;
   if (errorCount === 0) return null;
 
@@ -1323,13 +1333,15 @@ const ErrorSummary: React.FC<{
       </div>
     </div>
   );
-};
+}
 
 // Success State
-const SuccessState: React.FC<{
+interface SuccessStateProps {
   onClose?: () => void;
   referenceId?: string;
-}> = ({ onClose, referenceId }) => {
+}
+
+function SuccessState({ onClose, referenceId }: SuccessStateProps) {
   return (
     <div className="text-center py-16">
       <div className="mx-auto flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-6">
@@ -1360,14 +1372,16 @@ const SuccessState: React.FC<{
       )}
     </div>
   );
-};
+}
 
 // Form Preview Component
-const FormPreview: React.FC<{
+interface FormPreviewComponentProps {
   formData: any;
   schema: FormSchema;
   onClose: () => void;
-}> = ({ formData, schema, onClose }) => {
+}
+
+function FormPreview({ formData, schema, onClose }: FormPreviewComponentProps) {
   useScrollLock(true);
   const formatValue = (field: FormField, value: any): string => {
     if (!value) return "Not provided";
@@ -1501,10 +1515,12 @@ interface CourseTableData {
   fees: string;
 }
 
-const CourseTableField: React.FC<{
+interface CourseTableFieldProps {
   value: CourseTableData[];
   onChange: (value: CourseTableData[]) => void;
-}> = ({ value, onChange }) => {
+}
+
+function CourseTableField({ value, onChange }: CourseTableFieldProps) {
   const [courses, setCourses] = useState<CourseTableData[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -2003,7 +2019,7 @@ const CourseTableField: React.FC<{
 
 
 // Main ServiceRequestForm Component
-export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
+export function ServiceRequestForm({
   schema: providedSchema,
   onSubmit,
   onSave,
@@ -2348,7 +2364,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
                                 key={field.id}
                                 className="grid grid-cols-1 sm:grid-cols-2 gap-6"
                               >
-                                <FormField
+                                <FormFieldComponent
                                   field={field}
                                   value={formData[field.id]}
                                   onChange={(value) =>
@@ -2358,7 +2374,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
                                   error={errors[field.id]}
                                   isVisible={true}
                                 />
-                                <FormField
+                                <FormFieldComponent
                                   field={nextField}
                                   value={formData[nextField.id]}
                                   onChange={(value) =>
@@ -2377,7 +2393,7 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
                             if (prevField?.id === "firstName") return null;
                           }
                           return (
-                            <FormField
+                            <FormFieldComponent
                               key={field.id}
                               field={field}
                               value={formData[field.id]}
@@ -2536,4 +2552,4 @@ export const ServiceRequestForm: React.FC<ServiceRequestFormProps> = ({
       )}
     </>
   );
-};
+}

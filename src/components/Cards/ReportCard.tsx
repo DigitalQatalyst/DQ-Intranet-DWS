@@ -22,7 +22,7 @@ export interface ReportCardProps {
   onQuickView?: () => void;
   'data-id'?: string;
 }
-export const ReportCard: React.FC<ReportCardProps> = ({
+export function ReportCard({
   item,
   onViewReport,
   onDownload,

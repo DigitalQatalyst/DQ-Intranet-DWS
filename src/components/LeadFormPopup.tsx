@@ -49,7 +49,7 @@ export function openLeadPopup() {
   }
 }
 
-export default function LeadFormPopup() {
+export function LeadFormPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const panelRef = useRef<HTMLDivElement | null>(null);

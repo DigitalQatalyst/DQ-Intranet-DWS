@@ -92,7 +92,7 @@ const sectorCards: SectorCard[] = [
   },
 ];
 
-export const DQSectors: React.FC<DQSectorsProps> = ({
+export function DQSectors({
   title = 'DQ Directory | Sectors & Units',
   subtitle = 'Connect with DQ sectors, teams, and units driving collaboration, delivery, and innovation across the Digital Workspace.',
   note,
@@ -298,4 +298,4 @@ export const DQSectors: React.FC<DQSectorsProps> = ({
       </div>
     </section>
   );
-};
+}

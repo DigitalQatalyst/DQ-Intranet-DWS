@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight, Users, Calendar, MapPin, Clock } from "lucide-react";
-import { FadeInUpOnScroll } from "../AnimationUtils";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Users, Calendar, MapPin, Clock } from 'lucide-react';
+
+import { FadeInUpOnScroll } from '@/components/AnimationUtils';
 
 // Types
 type TabId = "communities" | "resources" | "programs" | "events" | "mentorship";
@@ -311,7 +312,12 @@ const getCardsForTab = (tabId: TabId): OpportunityCard[] => {
 };
 
 // Card Component
-const OpportunityCard: React.FC<{ card: OpportunityCard; index: number }> = ({ card, index }) => {
+interface OpportunityCardComponentProps {
+  card: OpportunityCard;
+  index: number;
+}
+
+function OpportunityCardComponent({ card, index }: OpportunityCardComponentProps) {
   return (
     <FadeInUpOnScroll delay={index * 0.1}>
       <article className="flex h-full flex-col rounded-2xl bg-white shadow-md ring-1 ring-black/5 overflow-hidden hover:shadow-lg transition-all duration-300">
@@ -393,7 +399,7 @@ const OpportunityCard: React.FC<{ card: OpportunityCard; index: number }> = ({ c
 };
 
 // Main Component
-export const LeadOpportunitiesSection: React.FC = () => {
+export function LeadOpportunitiesSection() {
   const [activeTab, setActiveTab] = useState<TabId>("communities");
   const cards = getCardsForTab(activeTab);
 
@@ -439,7 +445,7 @@ export const LeadOpportunitiesSection: React.FC = () => {
         {/* Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
           {cards.map((card, index) => (
-            <OpportunityCard key={card.id} card={card} index={index} />
+            <OpportunityCardComponent key={card.id} card={card} index={index} />
           ))}
         </div>
 
@@ -456,7 +462,5 @@ export const LeadOpportunitiesSection: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default LeadOpportunitiesSection;
+}
 

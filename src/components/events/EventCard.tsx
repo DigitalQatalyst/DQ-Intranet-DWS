@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Calendar, Clock, MapPin, Tag } from 'lucide-react';
-import { EventDetailsModal } from '../DQEventsCalendar/EventDetailsModal';
+
+import { EventDetailsModal } from '@/components/DQEventsCalendar/EventDetailsModal';
 
 export interface EventCardProps {
   event: any;
   onClick?: () => void;
 }
 
-export const EventCard: React.FC<EventCardProps> = ({ event, onClick }) => {
+export function EventCard({ event, onClick }: EventCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-US', { 
@@ -108,4 +109,3 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onClick }) => {
   );
 };
 
-export default EventCard;

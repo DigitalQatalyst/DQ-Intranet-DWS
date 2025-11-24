@@ -7,7 +7,7 @@ import {
     MailIcon,
 } from 'lucide-react';
 import { PrimaryButton } from '../PageLayout';
-export default function ContactSupportTab() {
+export function ContactSupportTab() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',

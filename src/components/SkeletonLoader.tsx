@@ -1,6 +1,7 @@
 import React from 'react';
 import { AlertTriangleIcon, RefreshCwIcon } from 'lucide-react';
-export const CourseCardSkeleton: React.FC = () => {
+
+export function CourseCardSkeleton() {
   return <div className="bg-white rounded-lg shadow overflow-hidden animate-pulse">
       <div className="p-4">
         <div className="flex items-center mb-3">
@@ -20,13 +21,15 @@ export const CourseCardSkeleton: React.FC = () => {
         </div>
       </div>
     </div>;
-};
+}
+
 interface ErrorDisplayProps {
   message: string;
   onRetry?: () => void;
   additionalMessage?: string;
 }
-export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
+
+export function ErrorDisplay({
   message,
   onRetry,
   additionalMessage

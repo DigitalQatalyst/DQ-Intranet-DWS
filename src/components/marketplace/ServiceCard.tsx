@@ -20,7 +20,7 @@ export interface ServiceCardProps {
   onAddToComparison: () => void;
   onQuickView: () => void;
 }
-export const ServiceCard: React.FC<ServiceCardProps> = ({
+export function ServiceCard({
   item,
   type,
   isBookmarked,
@@ -119,5 +119,6 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
           </button>
         </div>
       </div>
-    </div>;
-};
+    </div>
+  );
+}

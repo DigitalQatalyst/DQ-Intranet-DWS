@@ -37,7 +37,7 @@ const mockApiTokens = [{
     created: '2023-07-20',
     lastUsed: '3 days ago'
 }];
-export default function IntegrationsBillingTab() {
+export function IntegrationsBillingTab() {
     const [showTokenModal, setShowTokenModal] = useState(false);
     const [visibleTokens, setVisibleTokens] = useState<Record<number, boolean>>({});
     const toggleTokenVisibility = (tokenId: number) => {

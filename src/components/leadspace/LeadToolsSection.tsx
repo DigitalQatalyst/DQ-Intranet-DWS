@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight, Users, Clock, Calendar, MapPin } from "lucide-react";
-import { FadeInUpOnScroll } from "../AnimationUtils";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Users, Clock, Calendar, MapPin } from 'lucide-react';
+
+import { FadeInUpOnScroll } from '@/components/AnimationUtils';
 
 // Types
 type TabId = "communities" | "resources" | "programs" | "events";
@@ -249,7 +250,12 @@ const getCardsForTab = (tabId: TabId): ToolCard[] => {
 };
 
 // Card Component
-const ToolCard: React.FC<{ card: ToolCard; index: number }> = ({ card, index }) => {
+interface ToolCardComponentProps {
+  card: ToolCard;
+  index: number;
+}
+
+function ToolCardComponent({ card, index }: ToolCardComponentProps) {
   return (
     <FadeInUpOnScroll delay={index * 0.1}>
       <article className="flex h-full flex-col rounded-2xl bg-white shadow-sm ring-1 ring-black/5 overflow-hidden hover:shadow-md transition-all duration-300">
@@ -331,7 +337,7 @@ const ToolCard: React.FC<{ card: ToolCard; index: number }> = ({ card, index }) 
 };
 
 // Main Component
-export const LeadToolsSection: React.FC = () => {
+export function LeadToolsSection() {
   const [activeTab, setActiveTab] = useState<TabId>("communities");
   const cards = getCardsForTab(activeTab);
 
@@ -377,7 +383,7 @@ export const LeadToolsSection: React.FC = () => {
         {/* Cards Grid - Exactly 3 cards per tab */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {cards.slice(0, 3).map((card, index) => (
-            <ToolCard key={card.id} card={card} index={index} />
+            <ToolCardComponent key={card.id} card={card} index={index} />
           ))}
         </div>
 
@@ -394,7 +400,5 @@ export const LeadToolsSection: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default LeadToolsSection;
+}
 

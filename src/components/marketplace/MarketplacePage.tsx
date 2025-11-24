@@ -153,7 +153,7 @@ const parseFilterValues = (params: URLSearchParams, key: string): string[] =>
     .map((value) => value.trim())
     .filter(Boolean);
 
-export const MarketplacePage: React.FC<MarketplacePageProps> = ({
+export function MarketplacePage({
   marketplaceType,
   title: _title,
   description: _description,
@@ -886,6 +886,5 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       <Footer isLoggedIn={false} />
     </div>
   );
-};
+}
 
-export default MarketplacePage;

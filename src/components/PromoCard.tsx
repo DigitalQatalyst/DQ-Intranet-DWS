@@ -1,6 +1,7 @@
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+
 interface PromoCardProps {
   title: string;
   description: string;
@@ -10,7 +11,8 @@ interface PromoCardProps {
   gradientTo: string;
   ctaLabel?: string;
 }
-export const PromoCard: React.FC<PromoCardProps> = ({
+
+export function PromoCard({
   title,
   description,
   icon,
@@ -35,4 +37,4 @@ export const PromoCard: React.FC<PromoCardProps> = ({
         </div>
       </div>
     </div>;
-};
+}

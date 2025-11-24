@@ -1,5 +1,6 @@
-import React from "react";
-import { FadeInUpOnScroll, StaggeredFadeIn } from "./AnimationUtils";
+import React from 'react';
+
+import { FadeInUpOnScroll, StaggeredFadeIn } from './AnimationUtils';
 
 type LeadHeroStat = {
   key: string;
@@ -14,7 +15,7 @@ const LEAD_HERO_STATS: LeadHeroStat[] = [
   { key: "locations", value: "DXB & NBO", label: "Locations supported" },
 ];
 
-export const BecomeLeadHero: React.FC = () => {
+export function BecomeLeadHero() {
   return (
     <section className="relative overflow-hidden text-white min-h-screen flex items-center">
       <div
@@ -100,7 +101,5 @@ export const BecomeLeadHero: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default BecomeLeadHero;
+}
 

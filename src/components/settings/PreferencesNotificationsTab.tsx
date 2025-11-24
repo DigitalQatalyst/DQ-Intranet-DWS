@@ -14,7 +14,7 @@ type Preferences = {
 
 const STORAGE_KEY = 'settings.preferences.v1';
 
-export default function PreferencesNotificationsTab() {
+export function PreferencesNotificationsTab() {
     const [prefs, setPrefs] = useState<Preferences>(() => {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);

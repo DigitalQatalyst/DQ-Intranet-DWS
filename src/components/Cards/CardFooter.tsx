@@ -11,7 +11,7 @@ export interface CardFooterProps {
   };
   actions?: React.ReactNode;
 }
-export const CardFooter: React.FC<CardFooterProps> = ({
+export function CardFooter({
   primaryCTA,
   secondaryCTA,
   actions
@@ -36,4 +36,4 @@ export const CardFooter: React.FC<CardFooterProps> = ({
             </button>}
         </div>}
     </div>;
-};
+}

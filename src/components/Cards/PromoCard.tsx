@@ -16,7 +16,7 @@ export interface PromoCardProps {
   onQuickView?: () => void;
   'data-id'?: string;
 }
-export const PromoCard: React.FC<PromoCardProps> = ({
+export function PromoCard({
   item,
   onExplore,
   onQuickView,

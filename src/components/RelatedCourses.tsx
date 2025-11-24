@@ -12,7 +12,7 @@ interface RelatedCoursesProps {
   onToggleBookmark: (courseId: string) => void;
   loading?: boolean;
 }
-export const RelatedCourses: React.FC<RelatedCoursesProps> = ({
+export function RelatedCourses({
   currentCourse,
   courses,
   onCourseSelect,
@@ -48,5 +48,6 @@ export const RelatedCourses: React.FC<RelatedCoursesProps> = ({
       setQuickViewCourse(null);
       navigate(`/onboarding/${quickViewCourse.id}`);
     }} isBookmarked={bookmarkedCourses.includes(quickViewCourse.id)} onToggleBookmark={() => onToggleBookmark(quickViewCourse.id)} onAddToComparison={() => {}} />}
-    </div>;
-};
+    </div>
+  );
+}

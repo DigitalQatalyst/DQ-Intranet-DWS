@@ -9,7 +9,7 @@ interface CourseQuickViewModalProps {
   onToggleBookmark: () => void;
   onAddToComparison: () => void;
 }
-export const CourseQuickViewModal: React.FC<CourseQuickViewModalProps> = ({
+export function CourseQuickViewModal({
   course,
   onClose,
   onViewDetails,
@@ -150,5 +150,6 @@ export const CourseQuickViewModal: React.FC<CourseQuickViewModalProps> = ({
           </div>
         </div>
       </div>
-    </div>;
-};
+    </div>
+  );
+}

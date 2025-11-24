@@ -11,7 +11,7 @@ interface ServiceQuickViewModalProps {
   marketplaceType: string;
   primaryButtonText?: string;
 }
-export const ServiceQuickViewModal: React.FC<ServiceQuickViewModalProps> = ({
+export function ServiceQuickViewModal({
   service,
   onClose,
   onViewDetails,

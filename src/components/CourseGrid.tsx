@@ -12,7 +12,7 @@ interface CourseGridProps {
   onToggleBookmark: (courseId: string) => void;
   onAddToComparison: (course: CourseType) => void;
 }
-export const CourseGrid: React.FC<CourseGridProps> = ({
+export function CourseGrid({
   courses,
   onCourseSelect,
   bookmarkedCourses,
@@ -109,5 +109,6 @@ export const CourseGrid: React.FC<CourseGridProps> = ({
       onAddToComparison(quickViewCourse);
       setQuickViewCourse(null);
     }} />}
-    </div>;
-};
+    </div>
+  );
+}

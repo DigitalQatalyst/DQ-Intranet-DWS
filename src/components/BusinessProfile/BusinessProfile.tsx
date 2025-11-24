@@ -1,8 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { TabSection } from './TabSection';
-import { TableSection } from './TableSection';
-import { DocumentSection } from './DocumentSection';
-import { mockMultiEntryData, mockDocuments } from '../../utils/mockData';
 import {
   CheckCircleIcon,
   ChevronDownIcon,
@@ -15,18 +11,34 @@ import {
   MenuIcon,
   AlertTriangleIcon,
 } from 'lucide-react';
+
 import {
   profileConfig,
   getCompanyStageById,
   checkMandatoryFieldsCompletion,
-} from '../../utils/config';
+} from '@/utils/config';
 import {
   fetchBusinessProfileData,
   calculateSectionCompletion,
   calculateMandatoryCompletion,
-} from '../../services/DataverseService';
+} from '@/services/DataverseService';
+import { mockMultiEntryData, mockDocuments } from '@/utils/mockData';
 
-export function BusinessProfile({ activeSection = 'profile', toggleSidebar, sidebarOpen }) {
+import { TabSection } from './TabSection';
+import { TableSection } from './TableSection';
+import { DocumentSection } from './DocumentSection';
+
+interface BusinessProfileProps {
+  activeSection?: string;
+  toggleSidebar?: () => void;
+  sidebarOpen?: boolean;
+}
+
+export function BusinessProfile({ 
+  activeSection = 'profile', 
+  toggleSidebar, 
+  sidebarOpen 
+}: BusinessProfileProps) {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [showAll, setShowAll] = useState(false);
   const [showTabsMenu, setShowTabsMenu] = useState(false);

@@ -1,12 +1,6 @@
-// import React, { Component } from 'react';
-/**
- * SearchBar Component
- *
- * A reusable search input component with clear functionality.
- * Used for searching courses in the marketplace.
- */
-
+import React from 'react';
 import { SearchIcon, XIcon } from 'lucide-react';
+
 /**
  * Props for the SearchBar component
  */
@@ -20,13 +14,17 @@ interface SearchBarProps {
   /** Aria label for accessibility */
   ariaLabel?: string;
 }
+
 /**
  * SearchBar Component
+ *
+ * A reusable search input component with clear functionality.
+ * Used for searching courses in the marketplace.
  *
  * @param props - Component props
  * @returns A search input with clear button
  */
-export const SearchBar: React.FC<SearchBarProps> = ({
+export function SearchBar({
   searchQuery,
   setSearchQuery,
   placeholder = "Search onboarding flows by title, skill, or tool…",
@@ -41,4 +39,4 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           <XIcon className="h-5 w-5 text-gray-400 hover:text-gray-600" />
         </button>}
     </div>;
-};
+}

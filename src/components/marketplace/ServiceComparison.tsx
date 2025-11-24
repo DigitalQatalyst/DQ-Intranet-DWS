@@ -12,7 +12,7 @@ interface ServiceComparisonProps {
   }[];
   marketplaceType: string;
 }
-export const ServiceComparison: React.FC<ServiceComparisonProps> = ({
+export function ServiceComparison({
   services,
   onClose,
   onRemoveService,

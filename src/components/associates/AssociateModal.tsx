@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { X, Mail, Phone, MapPin, ExternalLink, Building2, Award, Briefcase } from 'lucide-react';
+
 import type { Associate } from './AssociateCard';
 
 interface AssociateModalProps {
@@ -8,7 +9,7 @@ interface AssociateModalProps {
   onClose: () => void;
 }
 
-export const AssociateModal: React.FC<AssociateModalProps> = ({ associate, isOpen, onClose }) => {
+export function AssociateModal({ associate, isOpen, onClose }: AssociateModalProps) {
   useEffect(() => {
     if (!isOpen) return;
 
@@ -243,5 +244,5 @@ export const AssociateModal: React.FC<AssociateModalProps> = ({ associate, isOpe
       </div>
     </div>
   );
-};
+}
 

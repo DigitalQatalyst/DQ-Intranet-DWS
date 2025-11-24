@@ -1,7 +1,8 @@
-import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Users, Briefcase, Phone, X } from "lucide-react";
-import { FadeInUpOnScroll } from "./AnimationUtils";
+import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Users, Briefcase, Phone, X } from 'lucide-react';
+
+import { FadeInUpOnScroll } from './AnimationUtils';
 
 const floatingShapes = [
   { size: 120, color: "rgba(3,15,53,0.15)", delay: 0, duration: 15, className: "top-[10%] left-[5%]" },
@@ -25,7 +26,7 @@ type CardConfig = {
 
 type SupportStatus = { type: "ok" | "err"; text: string };
 
-const LeadApplySection = () => {
+export function LeadApplySection() {
   const navigate = useNavigate();
 
   const cards = useMemo<CardConfig[]>(
@@ -385,6 +386,4 @@ const LeadApplySection = () => {
       `}</style>
     </section>
   );
-};
-
-export default LeadApplySection;
+}

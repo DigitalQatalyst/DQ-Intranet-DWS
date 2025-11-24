@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatedText, FadeInUpOnScroll, StaggeredFadeIn } from '../AnimationUtils';
+
+import { AnimatedText, FadeInUpOnScroll, StaggeredFadeIn } from '@/components/AnimationUtils';
 
 const stats = [
   { value: '126+', label: 'Active Users' },
@@ -8,7 +9,7 @@ const stats = [
   { value: '90%', label: 'Collaboration Satisfaction' },
 ];
 
-export const HeroDiscoverDQ: React.FC = () => {
+export function HeroDiscoverDQ() {
   const navigate = useNavigate();
   return (
     <section className="relative isolate grid h-[clamp(560px,70vh,740px)] min-h-[560px] place-items-center overflow-hidden bg-[#030F35] text-white">
@@ -98,6 +99,4 @@ export const HeroDiscoverDQ: React.FC = () => {
       `}</style>
     </section>
   );
-};
-
-export default HeroDiscoverDQ;
+}

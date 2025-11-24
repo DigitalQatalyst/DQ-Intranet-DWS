@@ -8,7 +8,7 @@ interface AssociateModalProps {
   onClose: () => void;
 }
 
-export const AssociateModal: React.FC<AssociateModalProps> = ({ person, isOpen, onClose }) => {
+export function AssociateModal({ person, isOpen, onClose }: AssociateModalProps) {
   useEffect(() => {
     if (!isOpen) return;
     
@@ -244,5 +244,5 @@ export const AssociateModal: React.FC<AssociateModalProps> = ({ person, isOpen, 
       </div>
     </div>
   );
-};
+}
 

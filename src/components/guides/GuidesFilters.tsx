@@ -1,6 +1,7 @@
-import React, { useEffect, useId, useMemo, useState } from 'react'
-import { parseCsv, toCsv } from '../../utils/guides'
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import React, { useEffect, useId, useMemo, useState } from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+
+import { parseCsv, toCsv } from '@/utils/guides';
 
 type Facet = { id: string; name: string; count?: number }
 export interface GuidesFacets {
@@ -27,7 +28,16 @@ interface Props {
   onChange: (next: URLSearchParams) => void
 }
 
-const Section: React.FC<{ idPrefix: string; title: string; category: string; collapsed: boolean; onToggle: (category: string) => void }> = ({ idPrefix, title, category, collapsed, onToggle, children }) => {
+interface SectionProps {
+  idPrefix: string;
+  title: string;
+  category: string;
+  collapsed: boolean;
+  onToggle: (category: string) => void;
+  children: React.ReactNode;
+}
+
+function Section({ idPrefix, title, category, collapsed, onToggle, children }: SectionProps) {
   const contentId = `${idPrefix}-filters-${category}`
   return (
     <div className="border-b border-gray-100 pb-3 mb-3">
@@ -45,10 +55,18 @@ const Section: React.FC<{ idPrefix: string; title: string; category: string; col
         <div className="space-y-2">{children}</div>
       </div>
     </div>
-  )
+  );
 }
 
-const CheckboxList: React.FC<{ idPrefix: string; name: string; options: Facet[]; query: URLSearchParams; onChange: (n: URLSearchParams)=>void }> = ({ idPrefix, name, options, query, onChange }) => {
+interface CheckboxListProps {
+  idPrefix: string;
+  name: string;
+  options: Facet[];
+  query: URLSearchParams;
+  onChange: (n: URLSearchParams) => void;
+}
+
+function CheckboxList({ idPrefix, name, options, query, onChange }: CheckboxListProps) {
   const selected = new Set(parseCsv(query.get(name)))
   const formatLabel = (value: string) => {
     const override = LABEL_OVERRIDES[value.toLowerCase()] ?? LABEL_OVERRIDES[value];
@@ -87,7 +105,7 @@ const CheckboxList: React.FC<{ idPrefix: string; name: string; options: Facet[];
   )
 }
 
-export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange }) => {
+export function GuidesFilters({ facets, query, onChange }: Props) {
   const instanceId = useId()
   const clearAll = () => {
     const next = new URLSearchParams()
@@ -141,4 +159,3 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange }) => {
   )
 }
 
-export default GuidesFilters

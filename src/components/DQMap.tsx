@@ -1,11 +1,12 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
-import "leaflet-defaulticon-compatibility";
-import type { LocationItem } from "../api/MAPAPI";
-import { MARKER_COLORS } from "./map/constants";
-import LocationModal from "./map/LocationModal";
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
+import 'leaflet-defaulticon-compatibility';
+
+import type { LocationItem } from '@/api/MAPAPI';
+import { MARKER_COLORS } from '@/components/map/constants';
+import { LocationModal } from '@/components/map/LocationModal';
 
 // OpenStreetMap tile layer (FREE - no token needed)
 const OSM_TILE_LAYER = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -14,12 +15,14 @@ const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright
 const INITIAL_CENTER: [number, number] = [25.0, 54.0]; // [lat, lng] for Leaflet
 const INITIAL_ZOOM = 5.5;
 
-const DQMap: React.FC<{
+interface DQMapProps {
   className?: string;
   locations: LocationItem[];
   selectedId?: string | null;
   onSelect?: (location: LocationItem) => void;
-}> = ({ className = "", locations, selectedId, onSelect }) => {
+}
+
+export function DQMap({ className = '', locations, selectedId, onSelect }: DQMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});
@@ -281,4 +284,3 @@ const DQMap: React.FC<{
   );
 };
 
-export default DQMap;

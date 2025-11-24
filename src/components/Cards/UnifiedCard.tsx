@@ -67,7 +67,7 @@ export interface UnifiedCardProps {
   className?: string;
   'data-id'?: string;
 }
-export const UnifiedCard: React.FC<UnifiedCardProps> = ({
+export function UnifiedCard({
   content,
   variant,
   isActive = false,

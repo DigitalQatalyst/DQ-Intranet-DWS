@@ -28,7 +28,7 @@ import {
 } from "../services/mutations";
 import { CourseType, ProviderType, CourseFilters } from "../types/course";
 
-export const CourseMarketplace: React.FC = () => {
+export function CourseMarketplace() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState<CourseType[]>([]);
   const [filteredCourses, setFilteredCourses] = useState<CourseType[]>([]);
@@ -403,6 +403,4 @@ export const CourseMarketplace: React.FC = () => {
       )}
     </div>
   );
-};
-
-export default CourseMarketplace;
+}

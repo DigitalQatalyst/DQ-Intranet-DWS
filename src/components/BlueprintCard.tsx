@@ -1,5 +1,5 @@
-import React from "react";
-import { FileText, Eye, Download } from "lucide-react";
+import React from 'react';
+import { FileText, Eye, Download } from 'lucide-react';
 
 interface Blueprint {
   id: string;
@@ -19,7 +19,7 @@ interface BlueprintCardProps {
   onDownload: (blueprint: Blueprint) => void;
 }
 
-export const BlueprintCard: React.FC<BlueprintCardProps> = ({
+export function BlueprintCard({
   blueprint,
   onView,
   onDownload,
@@ -127,6 +127,4 @@ export const BlueprintCard: React.FC<BlueprintCardProps> = ({
       </div>
     </div>
   );
-};
-
-export default BlueprintCard;
+}

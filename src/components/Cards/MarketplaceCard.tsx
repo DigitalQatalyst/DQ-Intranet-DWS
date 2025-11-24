@@ -25,7 +25,7 @@ export interface MarketplaceCardProps {
   onPrimaryAction: () => void;
   "data-id"?: string;
 }
-export const MarketplaceCard: React.FC<MarketplaceCardProps> = ({
+export function MarketplaceCard({
   item,
   isBookmarked: _isBookmarked = false, // Reserved for future bookmark functionality
   config = { primaryCTA: "Get Started", secondaryCTA: "View Details" },

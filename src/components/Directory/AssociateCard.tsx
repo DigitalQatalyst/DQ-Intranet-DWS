@@ -7,7 +7,7 @@ interface AssociateCardProps {
   onViewProfile: (person: Associate) => void;
 }
 
-export const AssociateCard: React.FC<AssociateCardProps> = ({ person, onViewProfile }) => {
+export function AssociateCard({ person, onViewProfile }: AssociateCardProps) {
   const getInitials = (name: string): string => {
     const parts = name.split(' ');
     if (parts.length >= 2) {

@@ -68,7 +68,8 @@ function mapAssociate(dbAssociate: Associate) {
     teamsLink: dbAssociate.teams_link,
     keySkills: dbAssociate.key_skills || [],
     bio: dbAssociate.bio,
-    avatarUrl: dbAssociate.avatar_url ?? null,
+    avatarUrl: dbAssociate.profile_image_url ?? dbAssociate.avatar_url ?? null,
+    yearsExperience: dbAssociate.years_experience ?? null,
   };
 }
 

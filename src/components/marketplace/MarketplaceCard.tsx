@@ -1,13 +1,15 @@
 import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BookmarkIcon, ScaleIcon } from 'lucide-react';
+
+import { LOCATION_ALLOW } from '@/lms/config';
 import {
   CARD_ICON_BY_ID,
   DEFAULT_COURSE_ICON,
   resolveChipIcon
-} from '../../utils/lmsIcons';
-import { LOCATION_ALLOW } from '@/lms/config';
-import { useNavigate } from 'react-router-dom';
-import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
+} from '@/utils/lmsIcons';
+import { getMarketplaceConfig } from '@/utils/marketplaceConfig';
+
 export interface MarketplaceItemProps {
   item: {
     id: string;
@@ -28,14 +30,14 @@ export interface MarketplaceItemProps {
   onAddToComparison: () => void;
   onQuickView: () => void;
 }
-export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
+export function MarketplaceCard({
   item,
   marketplaceType,
   isBookmarked,
   onToggleBookmark,
   onAddToComparison,
   onQuickView
-}) => {
+}: MarketplaceItemProps) {
   const navigate = useNavigate();
   const config = getMarketplaceConfig(marketplaceType);
   // Generate route based on marketplace type
@@ -222,4 +224,4 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
         </div>
       </div>
     </div>;
-};
+}

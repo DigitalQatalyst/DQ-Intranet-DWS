@@ -1,12 +1,13 @@
 import React from 'react';
-import EventCard from './EventCard';
+
+import { EventCard } from './EventCard';
 
 interface Props {
   items: any[];
   onClickEvent: (event: any) => void;
 }
 
-export const EventsGrid: React.FC<Props> = ({ items, onClickEvent }) => {
+export function EventsGrid({ items, onClickEvent }: Props) {
   if (!items || items.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-8 text-center">
@@ -23,6 +24,4 @@ export const EventsGrid: React.FC<Props> = ({ items, onClickEvent }) => {
       ))}
     </div>
   );
-};
-
-export default EventsGrid;
+}

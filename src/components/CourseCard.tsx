@@ -10,7 +10,7 @@ interface CourseCardProps {
   onToggleBookmark: () => void;
   onAddToComparison: () => void;
 }
-export const CourseCard: React.FC<CourseCardProps> = ({
+export function CourseCard({
   course,
   onQuickView,
   isBookmarked,
@@ -82,5 +82,6 @@ export const CourseCard: React.FC<CourseCardProps> = ({
           </button>
         </div>
       </div>
-    </div>;
-};
+    </div>
+  );
+}

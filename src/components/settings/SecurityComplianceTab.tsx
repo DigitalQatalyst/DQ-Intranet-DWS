@@ -20,7 +20,7 @@ const mockDevices = [{
     lastActive: '5 days ago',
     isCurrent: false
 }];
-export default function SecurityComplianceTab() {
+export function SecurityComplianceTab() {
     return <div className="space-y-6">
         {/* Security & Access Section */}
         <section>

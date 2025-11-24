@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Header } from '../components/Header';
-import { Footer } from '../components/Footer';
-import HeroSection from './HeroSection';
-import ProofAndTrust from './ProofAndTrust';
-import EnterpriseStages from './EnterpriseStages';
-import Home from './Home';
-import KnowledgeHub from './KnowledgeHub';
-import LeadApplySection from './LeadApplySection';
 
-const HomePage: React.FC = () => {
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
+
+import { HeroSection } from './HeroSection';
+import { EnterpriseStages } from './EnterpriseStages';
+import { Home } from './Home';
+import { ProofAndTrust } from './ProofAndTrust';
+import { KnowledgeHub } from './KnowledgeHub';
+import { LeadApplySection } from './LeadApplySection';
+
+export function HomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Simulate page loading
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -54,7 +55,5 @@ const HomePage: React.FC = () => {
       <Footer isLoggedIn={false} />
     </div>
   );
-};
-
-export default HomePage;
+}
 

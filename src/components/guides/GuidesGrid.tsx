@@ -1,12 +1,13 @@
-import React from 'react'
-import GuideCard from './GuideCard'
+import React from 'react';
+
+import { GuideCard } from './GuideCard';
 
 interface Props {
   items: any[]
   onClickGuide: (g: any) => void
 }
 
-export const GuidesGrid: React.FC<Props> = ({ items, onClickGuide }) => {
+export function GuidesGrid({ items, onClickGuide }: Props) {
   if (!items || items.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-8 text-center">
@@ -21,7 +22,5 @@ export const GuidesGrid: React.FC<Props> = ({ items, onClickGuide }) => {
         <GuideCard key={g.id || i} guide={g} onClick={() => onClickGuide(g)} />
       ))}
     </div>
-  )
+  );
 }
-
-export default GuidesGrid

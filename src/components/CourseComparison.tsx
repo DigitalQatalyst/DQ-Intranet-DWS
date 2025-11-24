@@ -1,17 +1,21 @@
-import React, { useEffect, useRef } from 'react';
-import { CourseType } from '../utils/mockData';
-import { XIcon, Check, Minus } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { XIcon } from 'lucide-react';
+
+import { CourseType } from '@/utils/mockData';
+
 import { Button } from './Button';
+
 interface CourseComparisonProps {
   courses: CourseType[];
   onClose: () => void;
   onRemoveCourse: (courseId: string) => void;
 }
-export const CourseComparison: React.FC<CourseComparisonProps> = ({
+
+export function CourseComparison({
   courses,
   onClose,
   onRemoveCourse
-}) => {
+}: CourseComparisonProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

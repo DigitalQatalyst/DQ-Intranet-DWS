@@ -100,7 +100,7 @@ const documentationCategories = [
         ],
     },
 ];
-export default function DocumentationTab() {
+export function DocumentationTab() {
     const [searchQuery, setSearchQuery] = useState('');
     // Filter resources based on search query
     const filteredCategories = searchQuery

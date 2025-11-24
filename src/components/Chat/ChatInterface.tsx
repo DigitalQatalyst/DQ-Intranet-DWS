@@ -1,14 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { MessageBubble } from './MessageBubble';
-import { ChatInput } from './ChatInput';
-import {
-    Message,
-    MessageStatus,
-    FileAttachment,
-    ConnectionStatus,
-    ReplyingTo,
-} from './types';
-import { chatService } from './ChatService';
 import {
     MoreVerticalIcon,
     SearchIcon,
@@ -26,7 +16,20 @@ import {
     MessageCircleIcon,
     CheckCircleIcon,
 } from 'lucide-react';
-import { ReportModal } from '../ReportModal';
+
+import { ReportModal } from '@/components/ReportModal';
+
+import { MessageBubble } from './MessageBubble';
+import { ChatInput } from './ChatInput';
+import { chatService } from './ChatService';
+import type {
+    Message,
+    MessageStatus,
+    FileAttachment,
+    ConnectionStatus,
+    ReplyingTo,
+} from './types';
+
 export function ChatInterface() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [isTyping, setIsTyping] = useState(false);

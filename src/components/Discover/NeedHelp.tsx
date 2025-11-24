@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-export const NeedHelp: React.FC = () => {
+export function NeedHelp() {
   const navigate = useNavigate();
 
   return (
@@ -38,7 +38,5 @@ export const NeedHelp: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default NeedHelp;
+}
 

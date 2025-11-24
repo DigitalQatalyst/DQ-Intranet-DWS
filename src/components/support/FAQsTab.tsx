@@ -64,7 +64,7 @@ const initialFaqCategories = [
         ],
     },
 ];
-export default function FAQsTab() {
+export function FAQsTab() {
     const [searchQuery, setSearchQuery] = useState('');
     const [expandedQuestions, setExpandedQuestions] = useState<
         Record<string, boolean>

@@ -18,7 +18,7 @@ export type DirectoryCardData = {
  * EJP-style unified directory card for Units and Associates
  * Clean, professional layout with consistent spacing and navy-blue theme
  */
-export const DirectoryCard: React.FC<DirectoryCardData> = ({
+export function DirectoryCard({
   logoUrl,
   title,
   tag,

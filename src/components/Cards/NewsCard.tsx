@@ -17,7 +17,7 @@ export interface NewsCardProps {
   onQuickView?: () => void;
   'data-id'?: string;
 }
-export const NewsCard: React.FC<NewsCardProps> = ({
+export function NewsCard({
   item,
   onReadMore,
   onQuickView,
@@ -55,4 +55,4 @@ export const NewsCard: React.FC<NewsCardProps> = ({
     maxTags: 2
   };
   return <UnifiedCard content={content} variant={variant} onQuickView={onQuickView} data-id={dataId} />;
-};
+}

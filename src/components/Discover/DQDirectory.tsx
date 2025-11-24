@@ -154,7 +154,7 @@ interface AssociateCardProps {
   onOpen: (associate: Associate) => void;
 }
 
-const AssociateCard: React.FC<AssociateCardProps> = ({ associate, onOpen }) => {
+function AssociateCard({ associate, onOpen }: AssociateCardProps) {
   const { name, tag, email, mobile, location, website } = associate;
   const mailHref = email ? `mailto:${email}` : undefined;
   const phoneHref = mobile ? `tel:${sanitizeTelHref(mobile)}` : undefined;
@@ -275,7 +275,7 @@ interface ProfileModalProps {
   person: Associate | null;
 }
 
-const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose, person }) => {
+function ProfileModal({ open, onClose, person }: ProfileModalProps) {
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -426,9 +426,9 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ open, onClose, person }) =>
       </div>
     </div>
   );
-};
+}
 
-const DQDirectory: React.FC<DQDirectoryProps> = ({
+export function DQDirectory({
   subtitle = 'Connect with DQ sectors, teams, and associates driving collaboration, delivery, and innovation across the Digital Workspace.',
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -755,6 +755,4 @@ const DQDirectory: React.FC<DQDirectoryProps> = ({
       <ProfileModal open={open} onClose={closeModal} person={selected} />
     </section>
   );
-};
-
-export default DQDirectory;
+}

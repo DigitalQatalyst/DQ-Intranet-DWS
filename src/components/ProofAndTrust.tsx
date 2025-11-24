@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Star,
   Award,
@@ -13,14 +13,15 @@ import {
   Users2,
   Clock,
   BookOpen,
-} from "lucide-react";
+} from 'lucide-react';
+
 import {
   AnimatedCounter,
   FadeInUpOnScroll,
   StaggeredFadeIn,
   HorizontalScrollReveal,
   useInView,
-} from "./AnimationUtils";
+} from './AnimationUtils';
 
 interface Testimonial {
   id: string;
@@ -532,7 +533,18 @@ const VideoTestimonialCarousel = () => {
 };
 
 // Partner Category Card component
-const PartnerCategoryCard = ({ category }) => {
+interface PartnerCategoryCardProps {
+  category: {
+    id: string;
+    title: string;
+    subtitle: string;
+    icon: React.ReactNode;
+    metric: string;
+    color: string;
+  };
+}
+
+const PartnerCategoryCard = ({ category }: PartnerCategoryCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const [ref, isInView] = useInView({ threshold: 0.1 });
@@ -592,7 +604,14 @@ const PartnerCategoryCard = ({ category }) => {
 };
 
 // Partner Logo
-const PartnerLogo = ({ partner }) => {
+interface PartnerLogoProps {
+  partner: {
+    name: string;
+    logo: string;
+  };
+}
+
+const PartnerLogo = ({ partner }: PartnerLogoProps) => {
   const [isHovered, setIsHovered] = useState(false);
   return (
     <div
@@ -706,7 +725,7 @@ const FeaturedPartnersCarousel = () => {
   );
 };
 
-const ProofAndTrust: React.FC = () => {
+export function ProofAndTrust() {
   return (
     <div className="bg-white py-16">
       <div className="container mx-auto px-4">
@@ -824,6 +843,4 @@ const ProofAndTrust: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default ProofAndTrust;
+}

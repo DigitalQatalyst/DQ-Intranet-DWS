@@ -22,7 +22,7 @@ export interface EventCardProps {
   onQuickView?: () => void;
   'data-id'?: string;
 }
-export const EventCard: React.FC<EventCardProps> = ({
+export function EventCard({
   item,
   onRegister,
   onViewDetails,

@@ -11,7 +11,7 @@ type Service = {
   isActive?: boolean;
 };
 
-export default function ServiceCarousel({
+export function ServiceCarousel({
   services,
   renderCard,
 }: {

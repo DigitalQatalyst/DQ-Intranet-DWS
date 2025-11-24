@@ -1,16 +1,35 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { ArrowRight, Building, Users, ChevronRight, MessageCircle, Phone, CheckCircle, X, Briefcase } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {
+  ArrowRight,
+  Building,
+  Users,
+  ChevronRight,
+  MessageCircle,
+  Phone,
+  CheckCircle,
+  X,
+  Briefcase,
+} from 'lucide-react';
+
 import { FadeInUpOnScroll, useInView } from './AnimationUtils';
 
 // Animated shape component
-const FloatingShape = ({
+interface FloatingShapeProps {
+  size: number;
+  color: string;
+  delay: number;
+  duration: number;
+  className?: string;
+}
+
+function FloatingShape({
   size,
   color,
   delay,
   duration,
   className = ''
-}) => {
+}: FloatingShapeProps) {
   return <div className={`absolute rounded-full opacity-30 animate-float ${className}`} style={{
     width: `${size}px`,
     height: `${size}px`,
@@ -18,47 +37,70 @@ const FloatingShape = ({
     animationDuration: `${duration}s`,
     animationDelay: `${delay}s`
   }}></div>;
-};
+}
 
 // Form input component
-const FormInput = ({
+interface FormInputProps {
+  label: string;
+  type?: string;
+  placeholder?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  required?: boolean;
+}
+
+function FormInput({
   label,
   type = 'text',
   placeholder,
   value,
   onChange,
   required = false
-}) => {
+}: FormInputProps) {
   return <div className="mb-4">
       <label className="block text-sm font-medium text-gray-700 mb-1">
         {label}
       </label>
       <input type={type} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dq-coral/40 focus:border-dq-coral/60 transition-all" placeholder={placeholder} value={value} onChange={onChange} required={required} />
     </div>;
-};
+}
 
 // Form textarea component
-const FormTextarea = ({
+interface FormTextareaProps {
+  label: string;
+  placeholder?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  required?: boolean;
+}
+
+function FormTextarea({
   label,
   placeholder,
   value,
   onChange,
   required = false
-}) => {
+}: FormTextareaProps) {
   return <div className="mb-4">
       <label className="block text-sm font-medium text-gray-700 mb-1">
         {label}
       </label>
       <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dq-coral/40 focus:border-dq-coral/60 transition-all" placeholder={placeholder} value={value} onChange={onChange} required={required} rows={4}></textarea>
     </div>;
-};
+}
 
 // Toast notification component
-const Toast = ({
+interface ToastProps {
+  message: string;
+  type?: 'success' | 'error' | 'info';
+  onClose: () => void;
+}
+
+function Toast({
   message,
   type = 'success',
   onClose
-}) => {
+}: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onClose();
@@ -97,7 +139,7 @@ interface CTACardProps {
   isSuccess?: boolean;
 }
 
-const CTACard: React.FC<CTACardProps> = ({
+function CTACard({
   icon,
   title,
   description,
@@ -109,7 +151,7 @@ const CTACard: React.FC<CTACardProps> = ({
   onExpand = undefined,
   children = null,
   isSuccess = false
-}) => {
+}: CTACardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [ref, isInView] = useInView({
     threshold: 0.2
@@ -188,17 +230,17 @@ const CTACard: React.FC<CTACardProps> = ({
       </div>
       {/* Background glow effect */}
       <div className={`absolute inset-0 transition-opacity duration-700 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-        <div className={`absolute -inset-1 rounded-xl blur-xl ${buttonColor === 'blue' ? 'bg-dq-coral/15' : buttonColor === 'green' ? 'bg-dq-navy/10' : 'bg-white/15'}`}></div>
+        <div className={`absolute -inset-1 rounded-xl blur-xl ${buttonColor === 'blue' ? 'bg-dq-coral/15' : buttonColor === 'green' ? 'bg-dq-navy/10' : 'bg-white/15'}`}>        </div>
       </div>
     </div>;
-};
+}
 
 interface ToastData {
   message: string;
   type: 'success' | 'error' | 'info';
 }
 
-const CallToAction: React.FC = () => {
+export function CallToAction() {
   const navigate = useNavigate();
   const [ref, isInView] = useInView({
     threshold: 0.2
@@ -343,5 +385,4 @@ const CallToAction: React.FC = () => {
         }
       `}</style>
     </section>;
-};
-export default CallToAction;
+}

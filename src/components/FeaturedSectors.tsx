@@ -1,4 +1,4 @@
-import type { FC, ReactNode, SVGProps } from "react";
+import type { ReactNode, SVGProps } from 'react';
 
 type SectorId = "finance" | "hra" | "inteldev" | "prodev" | "soldev";
 
@@ -7,17 +7,23 @@ export type Sector = {
   label: string;
   description: string;
   href: string;
-  icon: FC<SVGProps<SVGSVGElement>>;
+  icon: (props: SVGProps<SVGSVGElement>) => JSX.Element;
 };
 
-const Hex: FC<{ children: ReactNode }> = ({ children }) => (
+interface HexProps {
+  children: ReactNode;
+}
+
+function Hex({ children }: HexProps) {
+  return (
   <div className="relative mx-auto h-20 w-20 md:h-24 md:w-24">
     <div className="absolute inset-0 [clip-path:polygon(25%_0%,75%_0%,100%_50%,75%_100%,25%_100%,0%_50%)] bg-[linear-gradient(90deg,#FB5535_0%,#1A2E6E_100%)]" />
     <div className="absolute inset-[3px] flex items-center justify-center drop-shadow-sm [clip-path:polygon(25%_0%,75%_0%,100%_50%,75%_100%,25%_100%,0%_50%)] bg-dqNavy">
       {children}
     </div>
   </div>
-);
+  );
+}
 
 const iconBaseProps = {
   fill: "none",
@@ -27,14 +33,17 @@ const iconBaseProps = {
   strokeLinejoin: "round" as const,
 };
 
-const FinanceIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+function FinanceIcon(props: SVGProps<SVGSVGElement>) {
+  return (
   <svg viewBox="0 0 24 24" {...props}>
     <path {...iconBaseProps} d="M4 16.5l5.25-5.25 3.5 3.5L20 7.5" />
     <path {...iconBaseProps} d="M15.5 7.5H20V12" />
   </svg>
-);
+  );
+}
 
-const PeopleIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+function PeopleIcon(props: SVGProps<SVGSVGElement>) {
+  return (
   <svg viewBox="0 0 24 24" {...props}>
     <path {...iconBaseProps} d="M8.5 11.5a3 3 0 1 0 0-5.999 3 3 0 0 0 0 5.999z" />
     <path {...iconBaseProps} d="M15.75 10.25a2.5 2.5 0 1 0 0-5.001 2.5 2.5 0 0 0 0 5.001z" />
@@ -47,9 +56,11 @@ const PeopleIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
       d="M13.5 15.25a3.25 3.25 0 0 1 3.25 3.25v.75"
     />
   </svg>
-);
+  );
+}
 
-const BrainChipIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+function BrainChipIcon(props: SVGProps<SVGSVGElement>) {
+  return (
   <svg viewBox="0 0 24 24" {...props}>
     <path
       {...iconBaseProps}
@@ -69,17 +80,21 @@ const BrainChipIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
     />
     <path {...iconBaseProps} d="M12 9.5V7.75M12 16.25V14.5M9.5 12H7.75M16.25 12H14.5" />
   </svg>
-);
+  );
+}
 
-const CubeIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+function CubeIcon(props: SVGProps<SVGSVGElement>) {
+  return (
   <svg viewBox="0 0 24 24" {...props}>
     <path {...iconBaseProps} d="M12 3.75l7.25 4.25v8L12 20.25l-7.25-4.25v-8L12 3.75z" />
     <path {...iconBaseProps} d="M12 20.25v-8" />
     <path {...iconBaseProps} d="M19.25 8l-7.25 4.25L4.75 8" />
   </svg>
-);
+  );
+}
 
-const StackIcon: FC<SVGProps<SVGSVGElement>> = (props) => (
+function StackIcon(props: SVGProps<SVGSVGElement>) {
+  return (
   <svg viewBox="0 0 24 24" {...props}>
     <path {...iconBaseProps} d="M4.75 8.5L12 4.75l7.25 3.75L12 12.25 4.75 8.5z" />
     <path {...iconBaseProps} d="M4.75 12.5L12 8.75l7.25 3.75L12 16.25 4.75 12.5z" />
@@ -131,7 +146,11 @@ type FeaturedSectorsProps = {
 
 const getTooltipId = (id: SectorId) => `featured-sector-${id}-tooltip`;
 
-const Tile: FC<{ sector: Sector }> = ({ sector }) => {
+interface TileProps {
+  sector: Sector;
+}
+
+function Tile({ sector }: TileProps) {
   const { icon: Icon } = sector;
 
   return (
@@ -164,17 +183,23 @@ const Tile: FC<{ sector: Sector }> = ({ sector }) => {
       </div>
     </a>
   );
-};
+}
 
-const SectorGrid: FC<{ sectors: Sector[] }> = ({ sectors }) => (
+interface SectorGridProps {
+  sectors: Sector[];
+}
+
+function SectorGrid({ sectors }: SectorGridProps) {
+  return (
   <div className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-3 md:gap-8 lg:grid-cols-5">
     {sectors.map((sector) => (
       <Tile key={sector.id} sector={sector} />
     ))}
   </div>
-);
+  );
+}
 
-const FeaturedSectors: FC<FeaturedSectorsProps> = ({ sectors = SECTORS }) => {
+export function FeaturedSectors({ sectors = SECTORS }: FeaturedSectorsProps) {
   return (
     <section
       aria-labelledby="featured-sectors"
@@ -194,6 +219,4 @@ const FeaturedSectors: FC<FeaturedSectorsProps> = ({ sectors = SECTORS }) => {
       </div>
     </section>
   );
-};
-
-export default FeaturedSectors;
+}

@@ -4,15 +4,23 @@
 // - Lazy-render using IntersectionObserver; skeleton fallback and error messaging
 // - Telemetry delegated to parent via onOpen; guards for missing documentUrl
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react';
 
-export const DocumentPreview: React.FC<{
-  documentUrl?: string | null
-  title?: string
-  onOpen?: () => void
-  height?: number
-  onUnavailable?: () => void
-}> = ({ documentUrl, title, onOpen, height, onUnavailable }) => {
+interface DocumentPreviewProps {
+  documentUrl?: string | null;
+  title?: string;
+  onOpen?: () => void;
+  height?: number;
+  onUnavailable?: () => void;
+}
+
+export function DocumentPreview({
+  documentUrl,
+  title,
+  onOpen,
+  height,
+  onUnavailable
+}: DocumentPreviewProps) {
   const [visible, setVisible] = useState(false)
   const [unavailable, setUnavailable] = useState(false)
   const wrapRef = useRef<HTMLDivElement | null>(null)
@@ -75,4 +83,3 @@ export const DocumentPreview: React.FC<{
   )
 }
 
-export default DocumentPreview

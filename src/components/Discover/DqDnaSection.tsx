@@ -148,7 +148,7 @@ const accentColors: Record<string, { gradient: string; text: string; bg: string 
   },
 };
 
-export const DqDnaSection: React.FC = () => {
+export function DqDnaSection() {
   const navigate = useNavigate();
 
   const handleCardClick = (href: string) => {
@@ -253,7 +253,5 @@ export const DqDnaSection: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default DqDnaSection;
+}
 

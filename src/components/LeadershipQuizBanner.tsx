@@ -1,8 +1,9 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { FadeInUpOnScroll } from "./AnimationUtils";
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-export const LeadershipQuizBanner: React.FC = () => {
+import { FadeInUpOnScroll } from './AnimationUtils';
+
+export function LeadershipQuizBanner() {
   return (
     <section id="leadership-quiz" className="pt-0 pb-16 md:pb-20 lg:pb-24 bg-[#F9FAFB] scroll-mt-[72px]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,7 +48,5 @@ export const LeadershipQuizBanner: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default LeadershipQuizBanner;
+}
 

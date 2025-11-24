@@ -313,18 +313,20 @@ export const AutoScrollMarquee = ({
   );
 };
 // Animated counter component
-export const AnimatedCounter: React.FC<{
+interface AnimatedCounterProps {
   value: number;
   duration?: number;
   className?: string;
-}> = ({ value, duration = 2000, className = "" }) => {
+}
+
+export function AnimatedCounter({ value, duration = 2000, className = '' }: AnimatedCounterProps) {
   const [ref, count] = useCountUp(value, duration);
   return (
     <span ref={ref} className={className}>
       {count}
     </span>
   );
-};
+}
 // Typing animation effect
 export const TypingAnimation = ({
   text,

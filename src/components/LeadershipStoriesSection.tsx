@@ -1,6 +1,7 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { FadeInUpOnScroll } from "./AnimationUtils";
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+import { FadeInUpOnScroll } from './AnimationUtils';
 
 export type LeadershipStory = {
   id: string;
@@ -76,7 +77,7 @@ const LEADERSHIP_STORIES: LeadershipStory[] = [
   },
 ];
 
-export const LeadershipStoriesSection: React.FC = () => {
+export function LeadershipStoriesSection() {
   return (
     <section id="leadership-stories" className="py-16 md:py-20 lg:py-24 bg-white scroll-mt-[72px]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -147,8 +148,6 @@ export const LeadershipStoriesSection: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default LeadershipStoriesSection;
+}
 
 

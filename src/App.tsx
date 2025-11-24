@@ -1,10 +1,12 @@
-import { Navigate, Route, Routes } from "react-router-dom";
-import HomePage from "./components/HomePage";
-import SignInPage from "./pages/SignInPage";
-import CreateAccountPage from "./pages/CreateAccountPage";
-import LeadFormPopup from "./components/LeadFormPopup";
-import WorkspaceLanding from "./pages/WorkspaceLanding";
-import OnboardingMarketplacePage from "./pages/OnboardingMarketplace";
+import React from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
+
+import { HomePage } from '@/components/HomePage';
+import LeadFormPopup from '@/components/LeadFormPopup';
+import SignInPage from '@/pages/SignInPage';
+import CreateAccountPage from '@/pages/CreateAccountPage';
+import WorkspaceLanding from '@/pages/WorkspaceLanding';
+import OnboardingMarketplacePage from '@/pages/OnboardingMarketplace';
 
 export function App() {
   return (

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ClockIcon, AlertCircleIcon, InfoIcon } from 'lucide-react';
-export default function TicketHistoryTab() {
+export function TicketHistoryTab() {
     const [showTooltip, setShowTooltip] = useState(false);
     return (
         <div className="space-y-6">

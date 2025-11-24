@@ -5,7 +5,7 @@ export interface ResponsiveCardGridProps {
   className?: string;
   'data-id'?: string;
 }
-export const ResponsiveCardGrid: React.FC<ResponsiveCardGridProps> = ({
+export function ResponsiveCardGrid({
   children,
   className = '',
   'data-id': dataId
@@ -21,4 +21,4 @@ export const ResponsiveCardGrid: React.FC<ResponsiveCardGridProps> = ({
       {children}
     </div>
   );
-};
+}

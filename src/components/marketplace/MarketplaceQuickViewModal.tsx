@@ -11,7 +11,7 @@ interface MarketplaceQuickViewModalProps {
   onToggleBookmark: () => void;
   onAddToComparison: () => void;
 }
-export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps> = ({
+export function MarketplaceQuickViewModal({
   item,
   marketplaceType,
   onClose,
@@ -159,5 +159,6 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
           </div>
         </div>
       </div>
-    </div>;
-};
+    </div>
+  );
+}

@@ -46,7 +46,7 @@ const getDescription = (unit: Unit): string => {
   return unit.description || '';
 };
 
-export const UnitCard: React.FC<UnitCardProps> = ({ unit }) => {
+export function UnitCard({ unit }: UnitCardProps) {
   const primaryTag = getPrimaryTag(unit);
   const description = getDescription(unit);
   const initial = unit.name.charAt(0).toUpperCase();

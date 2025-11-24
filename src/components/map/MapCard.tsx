@@ -1,8 +1,8 @@
-import React from "react";
-import clsx from "clsx";
+import React from 'react';
+import clsx from 'clsx';
 
-import DQMap from "../DQMap";
-import type { LocationItem } from "../../api/MAPAPI";
+import type { LocationItem } from '@/api/MAPAPI';
+import DQMap from '@/components/DQMap';
 
 export type MapCardProps = {
   locations: LocationItem[];
@@ -12,7 +12,7 @@ export type MapCardProps = {
   className?: string;
 };
 
-const MapCard: React.FC<MapCardProps> = ({
+export function MapCard({
   locations,
   selectedId,
   onSelect,
@@ -39,6 +39,4 @@ const MapCard: React.FC<MapCardProps> = ({
       <DQMap className="absolute inset-0" locations={locations} selectedId={selectedId} onSelect={onSelect} />
     </div>
   );
-};
-
-export default MapCard;
+}

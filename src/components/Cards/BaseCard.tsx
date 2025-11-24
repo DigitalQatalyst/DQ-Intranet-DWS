@@ -21,7 +21,7 @@ export interface BaseCardProps {
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 }
-export const BaseCard: React.FC<BaseCardProps> = ({
+export function BaseCard({
   children,
   onClick,
   className = '',
@@ -36,5 +36,6 @@ export const BaseCard: React.FC<BaseCardProps> = ({
     }
   } : undefined}>
       {children}
-    </div>;
+    </div>
+}
 };

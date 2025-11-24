@@ -22,7 +22,7 @@ export interface ServiceCardProps {
   onQuickView?: () => void;
   'data-id'?: string;
 }
-export const ServiceCard: React.FC<ServiceCardProps> = ({
+export function ServiceCard({
   item,
   onApply,
   onLearnMore,

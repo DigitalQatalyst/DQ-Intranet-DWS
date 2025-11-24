@@ -91,8 +91,33 @@ export type Associate = {
   status: string; // text
   email: string; // text
   phone?: string | null; // text
+  years_experience?: number | null;
   teams_link: string; // text
+  profile_image_url?: string | null; // text
   key_skills: string[]; // jsonb
   bio: string; // text
   avatar_url?: string | null; // text
+};
+
+export type EmployeeProfile = {
+  id: string | null;
+  full_name: string | null;
+  role_title: string | null;
+  unit: string | null;
+  department: string | null;
+  location: string | null;
+  years_experience: number | null;
+  status: string | null;
+  sfia_level: string | null;
+  bio: string | null;
+  core_skills: string[] | null;
+  key_attributes: string[] | null;
+  tools_and_systems: string[] | null;
+  qualifications: string[] | null;
+  languages: string[] | null;
+  hobbies: string[] | null;
+  notable_achievements: string[] | null;
+  email: string | null;
+  phone: string | null;
+  profile_image_url: string | null;
 };

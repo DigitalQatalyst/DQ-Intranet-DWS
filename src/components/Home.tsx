@@ -1,5 +1,5 @@
-import React, { useMemo, useState, cloneElement } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo, useState, cloneElement } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   BookOpen,
   Briefcase,
@@ -24,13 +24,14 @@ import {
   CircleDot,
   ClipboardList,
   ChevronRight,
-} from "lucide-react";
+} from 'lucide-react';
+
 import {
   AnimatedCounter,
   FadeInUpOnScroll,
   useInView,
-} from "./AnimationUtils.tsx";
-import ServiceCarousel from "./marketplace/ServiceCarousel.tsx";
+} from './AnimationUtils';
+import ServiceCarousel from './marketplace/ServiceCarousel';
 
 /* ----------------------------- AI Chatbot ----------------------------- */
 const AIChatbot = () => {
@@ -226,7 +227,7 @@ interface CategoryHeaderProps {
   count?: number | null;
 }
 
-const CategoryHeader: React.FC<CategoryHeaderProps> = ({
+function CategoryHeader({
   icon,
   title,
   count = null,
@@ -260,8 +261,8 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
   );
 };
 
-/* ------------------------------ HomePage ----------------------------- */
-export const HomePage: React.FC = () => {
+/* ------------------------------ Home ----------------------------- */
+export function Home() {
   const navigate = useNavigate();
 
   // Services (unchanged)
@@ -783,6 +784,4 @@ export const HomePage: React.FC = () => {
       `}</style>
     </div>
   );
-};
-
-export default HomePage;
+}

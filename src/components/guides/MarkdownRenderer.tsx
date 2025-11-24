@@ -1,12 +1,17 @@
-import React from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import remarkSlug from 'remark-slug'
-import rehypeAutolinkHeadings from 'rehype-autolink-headings'
-import rehypeRaw from 'rehype-raw'
-import rehypeSanitize from 'rehype-sanitize'
+import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkSlug from 'remark-slug';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize from 'rehype-sanitize';
 
-const MarkdownRenderer: React.FC<{ body: string; onRendered?: () => void }> = ({ body, onRendered }) => {
+interface MarkdownRendererProps {
+  body: string;
+  onRendered?: () => void;
+}
+
+export function MarkdownRenderer({ body, onRendered }: MarkdownRendererProps) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm, remarkSlug]}
@@ -20,8 +25,6 @@ const MarkdownRenderer: React.FC<{ body: string; onRendered?: () => void }> = ({
     >
       {body}
     </ReactMarkdown>
-  )
+  );
 }
-
-export default MarkdownRenderer
 

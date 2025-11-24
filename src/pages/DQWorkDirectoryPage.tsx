@@ -10,7 +10,9 @@ import { SearchBar } from '../components/SearchBar';
 import { getPerformanceStatusClasses, getPriorityLevelClasses } from '@/components/work-directory/unitStyles';
 import { useAssociates, useWorkUnits, useWorkPositions } from '@/hooks/useWorkDirectory';
 import { AssociateCard, type Associate } from '../components/associates/AssociateCard';
-import { AssociateModal } from '../components/associates/AssociateModal';
+import AssociateProfileModal from '@/components/associates/AssociateProfileModal';
+import { supabase } from '@/lib/supabaseClient';
+import type { EmployeeProfile } from '@/data/workDirectoryTypes';
 
 type TabKey = 'units' | 'positions' | 'associates';
 
@@ -109,6 +111,8 @@ const DQWorkDirectoryPage: React.FC = () => {
   });
   const [selectedAssociate, setSelectedAssociate] = useState<Associate | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [profile, setProfile] = useState<EmployeeProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   // Fetch data from Supabase
   const { units: allUnits, loading: unitsLoading, error: unitsError } = useWorkUnits();
@@ -535,21 +539,60 @@ const DQWorkDirectoryPage: React.FC = () => {
     status: mapped.status,
     email: mapped.email,
     phone: mapped.phone ?? null,
+    years_experience: mapped.yearsExperience ?? null,
     teams_link: mapped.teamsLink,
     avatar_url: mapped.avatarUrl,
+    profile_image_url: mapped.avatarUrl || null,
     key_skills: mapped.keySkills,
     summary: null, // Not available in current data, will use bio truncation
     bio: mapped.bio,
   });
 
-  const handleViewProfile = (associate: Associate) => {
+  const fetchAssociateProfile = async (associate: Associate) => {
+    setProfileLoading(true);
+    setProfile(null);
+    try {
+      let fetched: EmployeeProfile | null = null;
+      if (associate.email) {
+        const { data, error } = await supabase
+          .from('employee_profiles')
+          .select('*')
+          .ilike('email', associate.email)
+          .single();
+        if (!error && data) {
+          fetched = data as EmployeeProfile;
+        }
+      }
+      if (!fetched) {
+        const { data, error } = await supabase
+          .from('employee_profiles')
+          .select('*')
+          .ilike('full_name', associate.name)
+          .single();
+        if (!error && data) {
+          fetched = data as EmployeeProfile;
+        }
+      }
+      setProfile(fetched);
+    } catch (err) {
+      console.error('Error loading associate profile', err);
+      setProfile(null);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  const handleViewProfile = async (associate: Associate) => {
     setSelectedAssociate(associate);
     setShowModal(true);
+    await fetchAssociateProfile(associate);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedAssociate(null);
+    setProfile(null);
+    setProfileLoading(false);
   };
 
   const UnitCard: React.FC<{ unit: MappedWorkUnit }> = ({ unit }) => {
@@ -914,10 +957,18 @@ const DQWorkDirectoryPage: React.FC = () => {
         </div>
       </main>
       <Footer isLoggedIn={false} />
-      <AssociateModal
-        associate={selectedAssociate}
-        isOpen={showModal}
+      <AssociateProfileModal
+        open={showModal}
         onClose={handleCloseModal}
+        profile={profile}
+        loading={profileLoading}
+        fallbackName={selectedAssociate?.name}
+        fallbackRole={selectedAssociate?.current_role}
+        fallbackLocation={selectedAssociate?.location}
+        fallbackEmail={selectedAssociate?.email}
+        fallbackPhone={selectedAssociate?.phone ?? null}
+        fallbackYearsExperience={selectedAssociate?.years_experience ?? null}
+        fallbackProfileImageUrl={selectedAssociate?.profile_image_url ?? null}
       />
     </div>
   );

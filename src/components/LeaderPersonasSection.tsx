@@ -1,5 +1,6 @@
-import React from "react";
-import { FadeInUpOnScroll } from "./AnimationUtils";
+import React from 'react';
+
+import { FadeInUpOnScroll } from './AnimationUtils';
 
 type LeaderPersonaStory = {
   id: string;
@@ -35,7 +36,7 @@ const LEADER_PERSONA_STORIES: LeaderPersonaStory[] = [
   },
 ];
 
-export const LeaderPersonasSection: React.FC = () => {
+export function LeaderPersonasSection() {
   return (
     <section id="leader-personas" className="py-16 md:py-20 lg:py-24 bg-[#F9FAFB] scroll-mt-[72px]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -75,7 +76,5 @@ export const LeaderPersonasSection: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default LeaderPersonasSection;
+}
 

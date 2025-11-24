@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { fetchDna, DqDnaNode, DqDnaCallout } from "../../services/dq";
+import React, { useEffect, useState } from 'react';
+
+import { fetchDna, DqDnaNode, DqDnaCallout } from '@/services/dq';
 
 /* ===== Visual tokens ===== */
 const NAVY = "#131E42";
@@ -172,7 +173,14 @@ function anchor(role: Role, side: Side) {
 }
 
 /* Small UI helpers */
-const Btn: React.FC<React.PropsWithChildren<{ href: string; variant?: "primary"|"ghost" }>> = ({ href, variant="primary", children }) => (
+interface BtnProps {
+  href: string;
+  variant?: 'primary' | 'ghost';
+  children: React.ReactNode;
+}
+
+function Btn({ href, variant = 'primary', children }: BtnProps) {
+  return (
   <a
     href={href}
     style={{
@@ -196,9 +204,10 @@ const Btn: React.FC<React.PropsWithChildren<{ href: string; variant?: "primary"|
     {children}
     <span style={{ fontSize: 16, lineHeight: 1 }}>↗</span>
   </a>
-);
+  );
+}
 
-function DQDNA() {
+export function DQDNA() {
   const [open, setOpen] = useState<number | null>(null);
   const [nodesDb, setNodesDb] = useState<DqDnaNode[] | null>(null);
   const [calloutsDb, setCalloutsDb] = useState<DqDnaCallout[] | null>(null);
@@ -422,7 +431,3 @@ function DQDNA() {
     </section>
   );
 }
-
-/* Support both import styles */
-export default DQDNA;
-export { DQDNA };

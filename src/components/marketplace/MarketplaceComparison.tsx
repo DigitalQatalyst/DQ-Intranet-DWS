@@ -7,7 +7,7 @@ interface MarketplaceComparisonProps {
   onRemoveItem: (itemId: string) => void;
   marketplaceType: string;
 }
-export const MarketplaceComparison: React.FC<MarketplaceComparisonProps> = ({
+export function MarketplaceComparison({
   items,
   onClose,
   onRemoveItem,

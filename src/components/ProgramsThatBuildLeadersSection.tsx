@@ -1,13 +1,15 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
-import { FadeInUpOnScroll } from "./AnimationUtils";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+
 import {
   LEADS_DEVELOPMENT_PROGRAM_URL,
   LEADERSHIP_BOOTCAMP_URL,
   MENTORSHIP_CIRCLES_URL,
   LEARNING_CENTER_LEADERSHIP_PROGRAMS_URL,
-} from "../constants/leadspaceLinks";
+} from '@/constants/leadspaceLinks';
+
+import { FadeInUpOnScroll } from './AnimationUtils';
 
 type Program = {
   id: string;
@@ -57,7 +59,7 @@ const PROGRAMS: Program[] = [
   },
 ];
 
-export const ProgramsThatBuildLeadersSection: React.FC = () => {
+export function ProgramsThatBuildLeadersSection() {
   return (
     <section id="programs-that-build-leaders" className="py-16 md:py-20 lg:py-24 bg-slate-50 scroll-mt-[72px]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -128,7 +130,5 @@ export const ProgramsThatBuildLeadersSection: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default ProgramsThatBuildLeadersSection;
+}
 

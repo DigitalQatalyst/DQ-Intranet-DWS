@@ -15,7 +15,7 @@ const tagSizes = {
   sm: 'px-2 py-0.5 text-xs',
   md: 'px-3 py-1 text-sm'
 };
-export const TagChip: React.FC<TagChipProps> = ({
+export function TagChip({
   text,
   variant = 'primary',
   size = 'sm'

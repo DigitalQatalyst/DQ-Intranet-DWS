@@ -123,7 +123,7 @@ function anchor(role: Role, side: Side) {
   return { x, y: y + HEX_H/2 - 4 };
 }
 
-export const DNAHexagonDiagram: React.FC<HexagonDiagramProps> = ({ nodes }) => {
+export function DNAHexagonDiagram({ nodes }: HexagonDiagramProps) {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
@@ -236,7 +236,6 @@ export const DNAHexagonDiagram: React.FC<HexagonDiagramProps> = ({ nodes }) => {
       })}
     </div>
   );
-};
+}
 
-export default DNAHexagonDiagram;
 

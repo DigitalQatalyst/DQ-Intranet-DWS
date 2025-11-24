@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { scrollToSupport } from '@/utils/scroll';
+
 import { ExploreDropdown } from './components/ExploreDropdown';
 import { MobileDrawer } from './components/MobileDrawer';
 import { ProfileDropdown } from './ProfileDropdown';
@@ -6,8 +10,6 @@ import { NotificationsMenu } from './notifications/NotificationsMenu';
 import { NotificationCenter } from './notifications/NotificationCenter';
 import { mockNotifications } from './utils/mockNotifications';
 import { useAuth } from './context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
-import { scrollToSupport } from '../../utils/scroll';
 
 interface HeaderProps {
   toggleSidebar?: () => void;

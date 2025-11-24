@@ -102,7 +102,7 @@ const getCTAColorByType = (type: string) => {
       return 'bg-gray-600 hover:bg-gray-700'
   }
 }
-export const MediaCard: React.FC<MediaCardProps> = ({
+export function MediaCard({
   type,
   title,
   description,

@@ -76,7 +76,7 @@ const categoryColors: Record<string, { text: string; bg: string }> = {
   default: { text: '#0E1446', bg: '#F3F4F6' },
 };
 
-export const DirectorySection: React.FC<DirectorySectionProps> = ({
+export function DirectorySection({
   items,
   associates = [],
   onSearch,
@@ -548,6 +548,4 @@ export const DirectorySection: React.FC<DirectorySectionProps> = ({
       </div>
     </section>
   );
-};
-
-export default DirectorySection;
+}

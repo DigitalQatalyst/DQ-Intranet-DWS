@@ -1,14 +1,15 @@
-import React from 'react'
-import { Calendar, Clock, Building2 } from 'lucide-react'
-import { toTimeBucket } from '../../utils/guides'
-import { getGuideImageUrl } from '../../utils/guideImageMap'
+import React from 'react';
+import { Calendar, Clock, Building2 } from 'lucide-react';
+
+import { getGuideImageUrl } from '@/utils/guideImageMap';
+import { toTimeBucket } from '@/utils/guides';
 
 export interface GuideCardProps {
   guide: any
   onClick: () => void
 }
 
-export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick }) => {
+export function GuideCard({ guide, onClick }: GuideCardProps) {
   const timeBucket = toTimeBucket(guide.estimatedTimeMin)
   const hasTemplate = Array.isArray(guide.templates) && guide.templates.length > 0
   const hasInteractive = Array.isArray(guide.templates) && guide.templates.some((t: any) => (t.kind || '').toLowerCase() === 'interactive')
@@ -66,7 +67,5 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick }) => {
         </button>
       </div>
     </div>
-  )
+  );
 }
-
-export default GuideCard

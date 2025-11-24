@@ -65,7 +65,7 @@ export interface KnowledgeHubItemProps {
 const getDetailsHref = (item: KnowledgeHubItemProps['item']): string => {
   return `/media/${item.mediaType.toLowerCase().replace(/\s+/g, '-')}/${item.id}`
 }
-export const KnowledgeHubCard: React.FC<KnowledgeHubItemProps> = ({
+export function KnowledgeHubCard({
   item,
   isBookmarked,
   onToggleBookmark,

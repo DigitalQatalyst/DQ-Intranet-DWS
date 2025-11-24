@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PromoCard } from '../PromoCard';
+
+import { getFallbackItems } from '@/utils/fallbackData';
+import { getMarketplaceConfig } from '@/utils/marketplaceConfig';
+
+import { PromoCard } from '@/components/PromoCard';
 import { MarketplaceCard } from './MarketplaceCard';
 import { KnowledgeHubCard } from './KnowledgeHubCard';
 import { MarketplaceQuickViewModal } from './MarketplaceQuickViewModal';
-import { getFallbackItems } from '../../utils/fallbackData';
-import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 export interface MarketplaceItem {
   id: string;
   title: string;
@@ -36,7 +38,7 @@ interface MarketplaceGridProps {
   onAddToComparison: (item: MarketplaceItem) => void;
   promoCards?: PromoCardData[];
 }
-export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
+export function MarketplaceGrid({
   items,
   totalCount,
   marketplaceType,
@@ -44,7 +46,7 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
   onToggleBookmark,
   onAddToComparison,
   promoCards = []
-}) => {
+}: MarketplaceGridProps) {
   const [quickViewItem, setQuickViewItem] = useState<MarketplaceItem | null>(null);
   const navigate = useNavigate();
   const config = getMarketplaceConfig(marketplaceType);
@@ -128,4 +130,4 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
       setQuickViewItem(null);
     }} />}
     </div>;
-};
+}

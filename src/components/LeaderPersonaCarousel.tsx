@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
-import { ChevronLeft, ChevronRight, Users } from "lucide-react";
-import { FadeInUpOnScroll } from "./AnimationUtils";
+import React, { useEffect, useState, useRef } from 'react';
+import { ChevronLeft, ChevronRight, Users } from 'lucide-react';
+
+import { FadeInUpOnScroll } from './AnimationUtils';
 
 type LeaderPersonaStory = {
   id: string;
@@ -14,10 +15,12 @@ interface LeaderPersonaCarouselProps {
   stories: LeaderPersonaStory[];
 }
 
-const LeaderPersonaCard: React.FC<{
+interface LeaderPersonaCardProps {
   story: LeaderPersonaStory;
   index: number;
-}> = ({ story, index }) => {
+}
+
+function LeaderPersonaCard({ story, index }: LeaderPersonaCardProps) {
   return (
     <FadeInUpOnScroll delay={index * 0.1}>
       <article className="relative h-[300px] overflow-hidden rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer">
@@ -54,11 +57,9 @@ const LeaderPersonaCard: React.FC<{
       </article>
     </FadeInUpOnScroll>
   );
-};
+}
 
-export const LeaderPersonaCarousel: React.FC<LeaderPersonaCarouselProps> = ({
-  stories,
-}) => {
+export function LeaderPersonaCarousel({ stories }: LeaderPersonaCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
 
@@ -130,7 +131,5 @@ export const LeaderPersonaCarousel: React.FC<LeaderPersonaCarouselProps> = ({
       `}</style>
     </div>
   );
-};
-
-export default LeaderPersonaCarousel;
+}
 

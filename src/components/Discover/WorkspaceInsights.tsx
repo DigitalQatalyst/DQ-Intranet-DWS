@@ -38,7 +38,7 @@ const shortenLabel = (label: string, isMobile: boolean): string => {
   return shortMap[label] || label;
 };
 
-export const WorkspaceInsights: React.FC<WorkspaceInsightsProps> = ({ 
+export function WorkspaceInsights({ 
   data, 
   yoyData,
   loading = false 
@@ -297,6 +297,4 @@ export const WorkspaceInsights: React.FC<WorkspaceInsightsProps> = ({
       </div>
     </section>
   );
-};
-
-export default WorkspaceInsights;
+}

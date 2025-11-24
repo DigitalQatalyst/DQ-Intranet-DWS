@@ -40,7 +40,7 @@ const getInitials = (name: string): string => {
   return name.substring(0, 2).toUpperCase();
 };
 
-export const AssociateCard: React.FC<AssociateCardProps> = ({ associate, onViewProfile }) => {
+export function AssociateCard({ associate, onViewProfile }: AssociateCardProps) {
   const summary = associate.summary 
     ? truncateToWords(associate.summary, 20)
     : truncateToWords(associate.bio, 20);
@@ -124,5 +124,5 @@ export const AssociateCard: React.FC<AssociateCardProps> = ({ associate, onViewP
       </button>
     </div>
   );
-};
+}
 

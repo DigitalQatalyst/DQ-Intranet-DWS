@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react';
 
-interface Props {
-  activeTab: "units" | "positions" | "associates";
+interface WorkDirectoryOverviewProps {
+  activeTab: 'units' | 'positions' | 'associates';
 }
 
-export default function WorkDirectoryOverview({ activeTab }: Props) {
+export function WorkDirectoryOverview({ activeTab }: WorkDirectoryOverviewProps) {
   const content = {
     units: {
       title: "Units Directory",

@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { ExternalLink, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
+
 interface FooterProps {
   'data-id'?: string;
   isLoggedIn?: boolean;
 }
+
 interface AccordionSectionProps {
   title: string;
   children: React.ReactNode;
 }
+
 function AccordionSection({
   title,
   children

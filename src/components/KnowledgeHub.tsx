@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef, Component } from "react";
+import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Calendar,
   BookOpen,
@@ -13,10 +14,10 @@ import {
   Calculator,
   Loader,
   AlertCircle,
-} from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { FadeInUpOnScroll, StaggeredFadeIn, useInView } from "./AnimationUtils";
-import { EventCard, NewsCard, ResourceCard } from "./CardComponents";
+} from 'lucide-react';
+
+import { FadeInUpOnScroll, StaggeredFadeIn, useInView } from './AnimationUtils';
+import { EventCard, NewsCard, ResourceCard } from './CardComponents';
 
 interface NewsItem {
   id: string;
@@ -285,11 +286,11 @@ interface SegmentedTabsProps {
   onTabChange: (id: TabId) => void;
 }
 
-const SegmentedTabs: React.FC<SegmentedTabsProps> = ({
+function SegmentedTabs({
   tabs,
   activeTab,
   onTabChange,
-}) => {
+}: SegmentedTabsProps) {
   return (
     <div className="w-full flex justify-center mb-6">
       <div className="inline-flex items-center rounded-full bg-white shadow-sm ring-1 ring-black/5 px-1 py-1">
@@ -327,7 +328,11 @@ const LoadingIndicator = () => (
 );
 
 // Error message component
-const ErrorMessage = ({ message }) => (
+interface ErrorMessageProps {
+  message?: string;
+}
+
+const ErrorMessage = ({ message }: ErrorMessageProps) => (
   <div className="flex flex-col items-center justify-center py-12 text-center">
     <AlertCircle size={40} className="text-red-500 mb-4" />
     <h3 className="text-lg font-bold text-gray-800 mb-2">Error Loading Data</h3>
@@ -338,7 +343,11 @@ const ErrorMessage = ({ message }) => (
 );
 
 // KnowledgeHub Content Component
-const KnowledgeHubContent = ({ graphqlEndpoint }) => {
+interface KnowledgeHubContentProps {
+  graphqlEndpoint?: string | null;
+}
+
+const KnowledgeHubContent = ({ graphqlEndpoint }: KnowledgeHubContentProps) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabId>("news");
   const [isTabChanging, setIsTabChanging] = useState(false);
@@ -379,7 +388,7 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
   const getResourcesData = () => resources;
 
   // Helper function to get the appropriate icon for a resource type
-  const getResourceIconByType = (type) => {
+  const getResourceIconByType = (type?: string) => {
     switch (type?.toLowerCase()) {
       case "guide":
         return <BookOpen size={24} className="#030F35-600" />;
@@ -646,9 +655,7 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
 };
 
 // Main KnowledgeHub component
-const KnowledgeHub: React.FC<KnowledgeHubProps> = ({ graphqlEndpoint }) => {
+export function KnowledgeHub({ graphqlEndpoint }: KnowledgeHubProps) {
   // Always render without Apollo since we don't have the dependency
   return <KnowledgeHubContent graphqlEndpoint={null} />;
-};
-
-export default KnowledgeHub;
+}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 type Accelerator = {
    id: string;
@@ -78,7 +78,7 @@ const ACCELERATORS: Accelerator[] = [
 const CTA_PRIMARY =
   "inline-flex w-full min-w-[130px] items-center justify-center rounded-xl bg-[#030F35] px-4 py-2.5 text-sm font-semibold tracking-wide text-white shadow-sm transition hover:bg-[#1A2E6E] whitespace-nowrap";
  
- const D6CardsSection: React.FC = () => {
+export function D6CardsSection() {
    const [active, setActive] = useState<Accelerator | null>(null);
  
    return (
@@ -225,6 +225,4 @@ const CTA_PRIMARY =
        )}
      </section>
    );
- };
- 
- export default D6CardsSection;
+}

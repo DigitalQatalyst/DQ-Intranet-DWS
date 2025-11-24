@@ -16,7 +16,7 @@ export interface FeatureCardProps {
   onQuickView?: () => void;
   'data-id'?: string;
 }
-export const FeatureCard: React.FC<FeatureCardProps> = ({
+export function FeatureCard({
   item,
   onClick,
   onQuickView,

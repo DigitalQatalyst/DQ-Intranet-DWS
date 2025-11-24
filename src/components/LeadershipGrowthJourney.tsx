@@ -1,19 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Lightbulb, 
-  User, 
-  Users, 
-  UserCheck, 
-  Layers, 
-  Network, 
+import {
+  Lightbulb,
+  User,
+  Users,
+  UserCheck,
+  Layers,
+  Network,
   Building2,
   ArrowRight,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from 'lucide-react';
+
+import { KNOWLEDGE_CENTER_GROWTH_FRAMEWORK_URL } from '@/constants/leadspaceLinks';
+
 import { FadeInUpOnScroll, HorizontalScrollReveal } from './AnimationUtils';
-import { KNOWLEDGE_CENTER_GROWTH_FRAMEWORK_URL } from '../constants/leadspaceLinks';
 
 type LeadershipLevel = {
   code: string;
@@ -126,12 +128,12 @@ interface LevelCardProps {
   setActiveIndex: (index: number) => void;
 }
 
-const LevelCard: React.FC<LevelCardProps> = ({
+function LevelCard({
   level,
   index,
   activeIndex,
   setActiveIndex,
-}) => {
+}: LevelCardProps) {
   const isActive = index === activeIndex;
 
   return (
@@ -220,9 +222,9 @@ const LevelCard: React.FC<LevelCardProps> = ({
       </div>
     </article>
   );
-};
+}
 
-export const LeadershipGrowthJourney: React.FC = () => {
+export function LeadershipGrowthJourney() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -417,7 +419,5 @@ export const LeadershipGrowthJourney: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default LeadershipGrowthJourney;
+}
 

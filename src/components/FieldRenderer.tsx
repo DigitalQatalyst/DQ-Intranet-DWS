@@ -29,7 +29,7 @@ interface FieldRendererProps {
 /**
  * Component for rendering form fields based on their type
  */
-export const FieldRenderer: React.FC<FieldRendererProps> = ({
+export function FieldRenderer({
     field,
     formData,
     errors,
@@ -127,4 +127,4 @@ export const FieldRenderer: React.FC<FieldRendererProps> = ({
             )}
         </div>
     );
-};
+}

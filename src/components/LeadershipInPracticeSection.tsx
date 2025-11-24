@@ -1,7 +1,8 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
-import { FadeInUpOnScroll } from "./AnimationUtils";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+
+import { FadeInUpOnScroll } from './AnimationUtils';
 
 type LeadershipLevel = {
   code: string;
@@ -52,7 +53,7 @@ const LEADERSHIP_LEVELS: LeadershipLevel[] = [
   },
 ];
 
-export const LeadershipInPracticeSection: React.FC = () => {
+export function LeadershipInPracticeSection() {
   return (
     <section id="leadership-in-practice" className="py-20 md:py-24 bg-white scroll-mt-[72px]">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -149,7 +150,5 @@ export const LeadershipInPracticeSection: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default LeadershipInPracticeSection;
+}
 

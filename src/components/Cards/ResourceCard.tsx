@@ -43,7 +43,7 @@ const getResourceIcon = (resourceType: ResourceItem['resourceType']) => {
       return <FileText size={24} />;
   }
 };
-export const ResourceCard: React.FC<ResourceCardProps> = ({
+export function ResourceCard({
   item,
   onAccessResource,
   onDownload,

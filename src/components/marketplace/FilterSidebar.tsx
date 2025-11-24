@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+
 export interface FilterOption {
   id: string;
   name: string;
@@ -23,12 +24,12 @@ export interface FilterSidebarProps {
   isResponsive?: boolean;
   defaultOpen?: boolean;
 }
-const AccordionSection: React.FC<AccordionSectionProps> = ({
+function AccordionSection({
   title,
   isOpen,
   onToggle,
   children
-}) => {
+}: AccordionSectionProps) {
   return <div className="border-b border-gray-100 py-3">
       <button className="flex w-full justify-between items-center text-left font-medium text-gray-900 mb-2" onClick={onToggle} aria-expanded={isOpen}>
         {title}
@@ -38,8 +39,9 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
         {children}
       </div>
     </div>;
-};
-export const FilterSidebar: React.FC<FilterSidebarProps> = ({
+}
+
+export function FilterSidebar({
   filters,
   filterConfig,
   onFilterChange,
@@ -80,4 +82,4 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
           </div>
         </AccordionSection>)}
     </div>;
-};
+}

@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
-export const VisionMissionSection: React.FC = () => {
+export function VisionMissionSection() {
   const navigate = useNavigate();
 
   return (
@@ -86,7 +86,5 @@ export const VisionMissionSection: React.FC = () => {
       </div>
     </section>
   );
-};
-
-export default VisionMissionSection;
+}
 

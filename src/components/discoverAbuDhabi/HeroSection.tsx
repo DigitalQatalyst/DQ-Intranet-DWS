@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-export default function HeroSection() {
+export function HeroSection() {
   return (
     <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
       <div className="container mx-auto px-4 text-center">

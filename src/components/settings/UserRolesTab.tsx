@@ -114,7 +114,7 @@ const mockRoles = [{
         access: 'Full'
     }]
 }];
-export default function UserRolesTab() {
+export function UserRolesTab() {
     const [showUserModal, setShowUserModal] = useState(false);
     const [expandedRoleId, setExpandedRoleId] = useState<number | null>(null);
     const toggleRoleExpand = (roleId: number) => {

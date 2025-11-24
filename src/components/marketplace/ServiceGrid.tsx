@@ -14,7 +14,7 @@ interface ServiceGridProps {
   marketplaceType: string;
   primaryButtonText?: string;
 }
-export const ServiceGrid: React.FC<ServiceGridProps> = ({
+export function ServiceGrid({
   services,
   onServiceSelect,
   bookmarkedServices,
@@ -122,5 +122,6 @@ export const ServiceGrid: React.FC<ServiceGridProps> = ({
       onAddToComparison(quickViewService);
       setQuickViewService(null);
     }} marketplaceType={marketplaceType} primaryButtonText={primaryButtonText} />}
-    </div>;
-};
+    </div>
+  );
+}
