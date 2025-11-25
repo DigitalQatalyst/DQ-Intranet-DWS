@@ -135,47 +135,11 @@ const FAQS_DATA: FAQ[] = [
   }
 ]
 
-const FAQItem: React.FC<{ faq: FAQ; isOpen: boolean; onToggle: () => void }> = ({ faq, isOpen, onToggle }) => {
-  return (
-    <div className="border-b border-gray-200 last:border-0">
-      <button
-        onClick={onToggle}
-        className="w-full text-left py-4 flex items-start justify-between hover:bg-gray-50 transition-colors"
-        aria-expanded={isOpen}
-      >
-        <h3 className="text-lg font-semibold text-gray-900 pr-4 flex-1">{faq.question}</h3>
-        {isOpen ? (
-          <ChevronUp className="w-5 h-5 text-[var(--guidelines-primary)] flex-shrink-0 mt-1" />
-        ) : (
-          <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0 mt-1" />
-        )}
-      </button>
-      {isOpen && (
-        <div className="pb-4 pl-0">
-          <p className="text-gray-700 leading-relaxed">{faq.answer}</p>
-        </div>
-      )}
-    </div>
-  )
-}
-
 const FAQsPage: React.FC = () => {
   const { user } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [openFAQs, setOpenFAQs] = useState<Set<string>>(new Set())
-
-  // Filter FAQs based on search query and category
-  const filteredFAQs = FAQS_DATA.filter(faq => {
-    const matchesSearch = searchQuery === '' || 
-      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === null || faq.category === selectedCategory
-    return matchesSearch && matchesCategory
-  })
-
-  // Get all available categories
-  const categories = Array.from(new Set(FAQS_DATA.map(faq => faq.category))).sort()
 
   const toggleFAQ = (id: string) => {
     setOpenFAQs(prev => {
@@ -189,20 +153,33 @@ const FAQsPage: React.FC = () => {
     })
   }
 
-  const expandAll = () => {
-    setOpenFAQs(new Set(filteredFAQs.map(faq => faq.id)))
-  }
+  // Filter FAQs based on search query and category
+  const filteredFAQs = FAQS_DATA.filter(faq => {
+    const matchesSearch = searchQuery === '' || 
+      faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCategory = selectedCategory === null || faq.category === selectedCategory
+    return matchesSearch && matchesCategory
+  })
 
-  const collapseAll = () => {
-    setOpenFAQs(new Set())
-  }
+  // Get all available categories
+  const categories = Array.from(new Set(FAQS_DATA.map(faq => faq.category))).sort()
+
+  // Group FAQs by category
+  const faqsByCategory = filteredFAQs.reduce((acc, faq) => {
+    if (!acc[faq.category]) {
+      acc[faq.category] = []
+    }
+    acc[faq.category].push(faq)
+    return acc
+  }, {} as Record<string, FAQ[]>)
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
+    <div className="min-h-screen flex flex-col bg-white guidelines-theme">
       <Header toggleSidebar={() => {}} sidebarOpen={false} />
       <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl">
         {/* Breadcrumbs */}
-        <nav className="flex mb-4" aria-label="Breadcrumb">
+        <nav className="flex mb-6" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center">
               <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
@@ -227,94 +204,98 @@ const FAQsPage: React.FC = () => {
           </ol>
         </nav>
 
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow mb-6 p-8">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="h-12 w-12 bg-[var(--guidelines-primary-surface)] rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-[var(--guidelines-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900">DQ FAQs</h1>
-          </div>
-          <p className="text-gray-700 text-base leading-relaxed">
+        {/* Main Title - Centered */}
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            The DQ FAQs
+          </h1>
+          <p className="text-base text-gray-800 max-w-3xl mx-auto leading-relaxed">
             Frequently asked questions about DQ processes, tools, workflows, and best practices with detailed answers and guidance.
           </p>
         </div>
 
-        {/* Search and Filter */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="flex flex-col md:flex-row gap-4 mb-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  placeholder="Search FAQs..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-primary)]"
-                />
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setSelectedCategory(null)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedCategory === null
-                    ? 'bg-[var(--guidelines-primary)] text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                All
-              </button>
-              {categories.map(category => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    selectedCategory === category
-                      ? 'bg-[var(--guidelines-primary)] text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={expandAll}
-              className="px-4 py-2 text-sm font-medium text-[var(--guidelines-primary)] hover:bg-[var(--guidelines-primary-surface)] rounded-lg transition-colors"
-            >
-              Expand All
-            </button>
-            <button
-              onClick={collapseAll}
-              className="px-4 py-2 text-sm font-medium text-[var(--guidelines-primary)] hover:bg-[var(--guidelines-primary-surface)] rounded-lg transition-colors"
-            >
-              Collapse All
-            </button>
+        {/* Search Bar */}
+        <div className="mb-6 max-w-2xl mx-auto">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Search FAQs..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-primary)]"
+            />
           </div>
         </div>
 
-        {/* FAQs List */}
-        <div className="bg-white rounded-lg shadow p-8">
+        {/* Category Navigation - Theme colors */}
+        <div className="mb-8 flex flex-wrap justify-center gap-2">
+          <button
+            onClick={() => setSelectedCategory(null)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+              selectedCategory === null
+                ? 'bg-[var(--guidelines-primary-surface)] border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
+                : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            All
+          </button>
+          {categories.map(category => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                selectedCategory === category
+                  ? 'bg-[var(--guidelines-primary-surface)] border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
+                  : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        {/* FAQs Content - Card sections */}
+        <div className="bg-white">
           {filteredFAQs.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">No FAQs found matching your search.</p>
             </div>
           ) : (
-            <div className="space-y-0">
-              {filteredFAQs.map((faq) => (
-                <FAQItem
-                  key={faq.id}
-                  faq={faq}
-                  isOpen={openFAQs.has(faq.id)}
-                  onToggle={() => toggleFAQ(faq.id)}
-                />
-              ))}
+            <div className="space-y-4">
+              {filteredFAQs.map((faq) => {
+                const isOpen = openFAQs.has(faq.id)
+                return (
+                  <div 
+                    key={faq.id} 
+                    className="bg-slate-50 rounded-lg border border-gray-200 shadow-sm overflow-hidden"
+                  >
+                    {/* Question - Clickable header */}
+                    <button
+                      onClick={() => toggleFAQ(faq.id)}
+                      className="w-full text-left p-6 flex items-start justify-between hover:bg-slate-100 transition-colors"
+                      aria-expanded={isOpen}
+                    >
+                      <h3 className="text-lg font-bold text-[var(--guidelines-primary)] pr-4 flex-1">
+                        {faq.question}
+                      </h3>
+                      {isOpen ? (
+                        <ChevronUp className="w-5 h-5 text-[var(--guidelines-primary)] flex-shrink-0 mt-1" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-400 flex-shrink-0 mt-1" />
+                      )}
+                    </button>
+                    {/* Answer - Expandable content */}
+                    {isOpen && (
+                      <div className="px-6 pb-6 pt-0">
+                        <p className="text-base text-gray-800 leading-relaxed">
+                          {faq.answer}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>
@@ -325,4 +306,3 @@ const FAQsPage: React.FC = () => {
 }
 
 export default FAQsPage
-

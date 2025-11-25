@@ -63,6 +63,33 @@ const GuideDetailPage: React.FC = () => {
   const articleRef = useRef<HTMLDivElement | null>(null)
   const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([])
   const [activeContentTab, setActiveContentTab] = useState<string>('overview')
+  const isClientTestimonials = (guide?.slug || '').toLowerCase() === 'client-testimonials'
+  const featuredClientTestimonials = [
+    {
+      id: 'khalifa',
+      name: 'Ali Al Jasmi',
+      role: 'Head of Technology • Khalifa Fund',
+      quote:
+        'DQ designed and implemented a multi-sided marketplace concept that revitalises SME growth and links vision to delivery through one integrated strategy.',
+      avatar: 'https://randomuser.me/api/portraits/men/52.jpg'
+    },
+    {
+      id: 'adib',
+      name: 'Kamran Sheikh',
+      role: 'Head of Enterprise Architecture & Analytics • ADIB',
+      quote:
+        'DQ re-centered the ADIB EA function at the heart of technology decision making, bringing pragmatic EA-driven transformation approaches.',
+      avatar: 'https://randomuser.me/api/portraits/men/50.jpg'
+    },
+    {
+      id: 'dfsa',
+      name: 'Waleed Saeed Al Awadhi',
+      role: 'Chief Operating Officer • DFSA',
+      quote:
+        'DQ established a practical transformation design and delivered it through agile implementation, laying the foundation for intuitive, data-driven services.',
+      avatar: 'https://randomuser.me/api/portraits/men/40.jpg'
+    }
+  ]
 
   const backQuery = (location?.state && location.state.fromQuery) ? String(location.state.fromQuery) : ''
   const initialBackHref = `/marketplace/guides${backQuery ? `?${backQuery}` : ''}`
@@ -248,6 +275,7 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
 
   // Parse guide body into sections for tabs (for Guidelines, Strategy, Testimonials, and Blueprints)
   const guideSections = useMemo(() => {
+    if (isClientTestimonials) return null
     if (!guide?.body) return null
     // Apply tab navigation to all guides that have sections
     const hasValidDomain = ['Guidelines', 'Strategy', 'Testimonials', 'Testimonial', 'Blueprint'].includes(guide.domain || '')
@@ -729,8 +757,8 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
         )}
 
         {/* Dynamic layout */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        <section className="grid grid-cols-1 gap-6">
+          <div className="space-y-6">
             {/* CODEx: Document preview placed before summary */}
             {(isPolicy && isPreviewableDocument && !previewUnavailable && hasDocument) && (
               <DocumentPreview
@@ -765,7 +793,38 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
             )}
 
             {/* CODEx: For policy pages, long body behind a toggle; for others, show as usual */}
-            {type !== 'template' && guide.body && !hasTabsEffective && (
+            {isClientTestimonials && (
+              <section className="bg-white rounded-2xl shadow p-6" aria-label="Client Testimonials">
+                <div className="mb-5">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Featured Clients</p>
+                  <h2 className="text-2xl font-bold text-gray-900">Why organizations choose DQ</h2>
+                  <p className="text-sm text-gray-600">
+                    Stories from DFSA, ADIB, and Khalifa Fund demonstrate how DQ engagements translate into measurable outcomes.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  {featuredClientTestimonials.map((client) => (
+                    <div
+                      key={client.id}
+                      className="rounded-[22px] border border-gray-200 bg-white p-5 shadow-sm"
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-200 bg-gray-100">
+                          <img src={client.avatar} alt={client.name} className="w-full h-full object-cover" loading="lazy" />
+                        </div>
+                        <div className="leading-tight">
+                          <p className="font-semibold text-gray-900">{client.name}</p>
+                          <p className="text-xs text-gray-500">{client.role}</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">“{client.quote}”</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {!isClientTestimonials && type !== 'template' && guide.body && !hasTabsEffective && (
               <article
                 id={isPolicy ? 'full-details' : undefined}
                 ref={articleRef}
@@ -777,7 +836,7 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
                 </React.Suspense>
               </article>
             )}
-            {type !== 'template' && !guide.body && (
+            {!isClientTestimonials && type !== 'template' && !guide.body && (
               <section className="bg-white rounded-lg shadow p-6 space-y-4" aria-label="Overview">
                 {guide.summary && (
                   <div className="text-gray-700 leading-7 whitespace-pre-line">{guide.summary}</div>

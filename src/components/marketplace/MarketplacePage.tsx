@@ -185,7 +185,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [facets, setFacets] = useState<GuidesFacets>({});
   const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
   const searchStartRef = useRef<number | null>(null);
-  type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 'resources';
+type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 'resources';
   const getTabFromParams = useCallback((params: URLSearchParams): WorkGuideTab => {
     const tab = params.get('tab');
     return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' || tab === 'resources' ? tab : 'guidelines';
@@ -197,7 +197,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     guidelines: 'Guidelines',
     blueprints: 'Blueprints',
     testimonials: 'Testimonials',
-    resources: 'Resources'
+    resources: 'Library'
   };
 
   const TAB_DESCRIPTIONS: Record<WorkGuideTab, { description: string; author?: string }> = {
@@ -218,7 +218,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       author: 'Authored by DQ Teams, Clients, and Partners'
     },
     resources: {
-      description: 'Reference materials, glossaries, and frequently asked questions to help you navigate and understand DQ terminology, processes, and best practices.',
+      description: 'Library of reference materials, glossaries, and FAQs that help you navigate DQ terminology, processes, and best practices.',
       author: 'Maintained by DQ Knowledge Management Team'
     }
   };
@@ -1307,6 +1307,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     </div>
                     <GuidesGrid
                       items={filteredItems}
+                      hideEmptyState={activeTab === 'resources'}
                       onClickGuide={(g) => {
                         const qs = queryParams.toString();
                         navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
@@ -1342,6 +1343,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   <>
                     <GuidesGrid
                       items={filteredItems}
+                      hideEmptyState={activeTab === 'resources'}
                       onClickGuide={(g) => {
                         const qs = queryParams.toString();
                         navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {

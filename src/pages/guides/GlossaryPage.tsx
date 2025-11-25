@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
@@ -187,6 +187,9 @@ const GlossaryPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null)
 
+  // Get all available letters
+  const allLetters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i))
+  
   // Filter terms based on search query
   const filteredTerms = GLOSSARY_DATA.filter(term => {
     const matchesSearch = searchQuery === '' || 
@@ -205,15 +208,31 @@ const GlossaryPage: React.FC = () => {
     return acc
   }, {} as Record<string, GlossaryTerm[]>)
 
-  // Get all available letters
-  const availableLetters = Array.from(new Set(GLOSSARY_DATA.map(t => t.letter))).sort()
+  // Get letters that have content
+  const lettersWithContent = Array.from(new Set(GLOSSARY_DATA.map(t => t.letter))).sort()
+
+  // Scroll to letter when clicked
+  const scrollToLetter = (letter: string) => {
+    setSelectedLetter(letter)
+    const element = document.getElementById(`letter-${letter}`)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  // Reset to show all when search is cleared
+  useEffect(() => {
+    if (searchQuery === '') {
+      setSelectedLetter(null)
+    }
+  }, [searchQuery])
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
+    <div className="min-h-screen flex flex-col bg-white guidelines-theme">
       <Header toggleSidebar={() => {}} sidebarOpen={false} />
       <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl">
         {/* Breadcrumbs */}
-        <nav className="flex mb-4" aria-label="Breadcrumb">
+        <nav className="flex mb-6" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center">
               <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
@@ -238,92 +257,72 @@ const GlossaryPage: React.FC = () => {
           </ol>
         </nav>
 
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow mb-6 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="h-12 w-12 bg-[var(--guidelines-primary-surface)] rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-[var(--guidelines-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900">DQ Glossary</h1>
-          </div>
-          <p className="text-gray-700 text-base leading-relaxed mb-4">
-            Comprehensive dictionary of DQ terminology, acronyms, and key concepts to help you understand our language and processes.
-          </p>
-          <p className="text-sm text-gray-600 mb-4">
-            Understanding Digital Transformation 2.0 (DT2.0): Digital Transformation 2.0 represents a significant evolution in how organizations leverage digital technologies to drive business success. In this era, digital transformation goes beyond adopting new tools and technologies—it requires a comprehensive rethinking of business models, processes, customer interactions, and organizational culture. As organizations embrace digital-first leadership and strategies, the need for a clear understanding of the key concepts, methodologies, and frameworks becomes essential.
+        {/* Main Title - Centered */}
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            The DQ Glossary
+          </h1>
+          <p className="text-base text-gray-800 max-w-3xl mx-auto leading-relaxed">
+            Read our comprehensive collection of terms explaining various Digital Transformation 2.0 (DT2.0) and Internet Marketing concepts in our DQ Glossary!
           </p>
         </div>
 
-        {/* Search and Filter */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  placeholder="Search terms..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-primary)]"
-                />
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
+        {/* Search Bar */}
+        <div className="mb-6 max-w-2xl mx-auto">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Search terms..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-primary)]"
+            />
+          </div>
+        </div>
+
+        {/* Alphabetical Navigation - Theme colors */}
+        <div className="mb-8 flex flex-wrap justify-center gap-2">
+          {allLetters.map(letter => {
+            const hasContent = lettersWithContent.includes(letter)
+            const isActive = selectedLetter === letter
+            return (
               <button
-                onClick={() => setSelectedLetter(null)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedLetter === null
-                    ? 'bg-[var(--guidelines-primary)] text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                key={letter}
+                onClick={() => scrollToLetter(letter)}
+                className={`w-10 h-10 border border-gray-800 text-gray-900 font-medium text-sm transition-colors ${
+                  hasContent || isActive
+                    ? 'bg-[var(--guidelines-primary-surface)] hover:bg-[var(--guidelines-primary)] hover:text-white'
+                    : 'bg-gray-100 hover:bg-gray-200'
                 }`}
               >
-                All
+                {letter}
               </button>
-              {availableLetters.map(letter => (
-                <button
-                  key={letter}
-                  onClick={() => setSelectedLetter(letter)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    selectedLetter === letter
-                      ? 'bg-[var(--guidelines-primary)] text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {letter}
-                </button>
-              ))}
-            </div>
-          </div>
+            )
+          })}
         </div>
 
-        {/* Glossary Terms */}
-        <div className="bg-white rounded-lg shadow p-6">
+        {/* Glossary Terms - White background, no cards */}
+        <div className="bg-white">
           {filteredTerms.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">No terms found matching your search.</p>
             </div>
           ) : (
-            <div className="space-y-8">
-              {Object.keys(termsByLetter).sort().map(letter => (
-                <div key={letter}>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                    {letter}
-                  </h2>
-                  <div className="space-y-4">
-                    {termsByLetter[letter].map((term, index) => (
-                      <div key={`${letter}-${index}`} className="py-3 border-b border-gray-100 last:border-0">
-                        <h3 className="text-lg font-semibold text-[var(--guidelines-primary)] mb-2">
-                          {term.term}
-                        </h3>
-                        <p className="text-gray-700 leading-relaxed">
-                          {term.definition}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
+            <div className="space-y-4">
+              {filteredTerms.map((term, index) => (
+                <div 
+                  key={`${term.letter}-${index}`} 
+                  className="bg-slate-50 rounded-lg border border-gray-200 shadow-sm p-6"
+                >
+                  {/* Term Title - Theme color, bold */}
+                  <h3 className="text-lg font-bold text-[var(--guidelines-primary)] mb-3">
+                    {term.term}
+                  </h3>
+                  {/* Definition - Regular black text */}
+                  <p className="text-base text-gray-800 leading-relaxed">
+                    {term.definition}
+                  </p>
                 </div>
               ))}
             </div>
@@ -336,4 +335,3 @@ const GlossaryPage: React.FC = () => {
 }
 
 export default GlossaryPage
-
