@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { HomeIcon, ChevronRightIcon, MapPin, Briefcase, Clock, Share2, ArrowUpRight } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { JOBS, SFIA_LEVELS, type JobItem } from '@/data/media/jobs';
+import { SFIA_LEVELS, type JobItem } from '@/data/media/jobs';
+import { fetchAllJobs, fetchJobById } from '@/services/mediaCenterService';
 
 const formatDate = (input: string) =>
   new Date(input).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -46,8 +47,10 @@ const JobDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const job = JOBS.find((item) => item.id === id);
-  const related = JOBS.filter((item) => item.id !== id).slice(0, 3);
+  const [job, setJob] = useState<JobItem | null>(null);
+  const [related, setRelated] = useState<JobItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const getImageSrc = (item: JobItem) => {
     if (item.image) return item.image;
@@ -56,20 +59,55 @@ const JobDetailPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (job) {
-      markMediaItemSeen('job', job.id);
+    if (!id) return;
+    let isMounted = true;
+
+    async function loadJob() {
+      setIsLoading(true);
+      try {
+        const [jobItem, allJobs] = await Promise.all([fetchJobById(id), fetchAllJobs()]);
+        if (!isMounted) return;
+        setJob(jobItem);
+        setRelated(allJobs.filter((item) => item.id !== id).slice(0, 3));
+        if (jobItem) {
+          markMediaItemSeen('job', jobItem.id);
+        }
+        setLoadError(null);
+      } catch (error) {
+        if (!isMounted) return;
+        // eslint-disable-next-line no-console
+        console.error('Error loading job', error);
+        setLoadError('Unable to load this opportunity right now.');
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
     }
-  }, [job]);
+
+    loadJob();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
 
   if (!job) {
     return (
       <div className="flex min-h-screen flex-col bg-gray-50">
         <Header toggleSidebar={() => {}} sidebarOpen={false} />
         <main className="flex flex-1 flex-col items-center justify-center px-4 text-center">
-          <h1 className="mb-2 text-2xl font-semibold text-gray-900">Role not found</h1>
+          <h1 className="mb-2 text-2xl font-semibold text-gray-900">
+            {isLoading ? 'Loading role' : 'Role not found'}
+          </h1>
           <p className="mb-6 max-w-md text-gray-600">
-            The opportunity you’re trying to view is unavailable. Browse the latest openings in the Media Center.
+            {isLoading
+              ? 'Fetching the latest details. Please wait.'
+              : 'The opportunity you’re trying to view is unavailable. Browse the latest openings in the Media Center.'}
           </p>
+          {loadError && !isLoading && (
+            <p className="mb-4 text-sm text-red-600">{loadError}</p>
+          )}
           <button
             onClick={() => navigate('/marketplace/opportunities')}
                 className="rounded-lg bg-[#030f35] px-6 py-3 text-sm font-semibold text-white"

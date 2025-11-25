@@ -1,51 +1,45 @@
-export type NewsItem = {
-  id: string;
-  title: string;
-  type: 'Announcement' | 'Guidelines' | 'Notice' | 'Thought Leadership';
-  date: string;
-  author: string;
-  byline?: string;
-  views: number;
-  excerpt: string;
-  image?: string;
-  department?: string;
-  location?: 'Dubai' | 'Nairobi' | 'Riyadh' | 'Remote';
-  domain?: 'Technology' | 'Business' | 'People' | 'Operations';
-  theme?: 'Leadership' | 'Delivery' | 'Culture' | 'DTMF';
-  tags?: string[];
-  readingTime?: '<5' | '5–10' | '10–20' | '20+';
-  newsType?: 'Corporate Announcements' | 'Product / Project Updates' | 'Events & Campaigns' | 'Digital Tech News';
-  newsSource?: 'DQ Leadership' | 'DQ Operations' | 'DQ Communications';
-  focusArea?: 'GHC' | 'DWS' | 'Culture & People';
-  content?: string; // Full article content for detail pages
-};
+-- ============================================================================
+-- Complete Marketplace Seed Data
+-- Populates Supabase with all hardcoded data from src/data/media/news.ts and jobs.ts
+-- Run this after marketplace-complete-schema.sql
+-- ============================================================================
 
-export const NEWS: NewsItem[] = [
-  /*
-  {
-    id: 'dq-townhall-meeting-agenda',
-    title: 'DQ Townhall Meeting Agenda',
-    type: 'Announcement',
-    date: '2025-11-21',
-    author: 'Irene Musyoki',
-    byline: 'DQ Operations',
-    views: 0,
-    excerpt:
-      'Join us for the upcoming DQ Townhall meeting featuring working room guidelines, Scrum Master framework discussions, and important organizational updates.',
-    image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80',
-    department: 'DQ Operations',
-    location: 'Dubai',
-    domain: 'Operations',
-    tags: ['townhall', 'meeting', 'agenda', 'framework'],
-    readingTime: '5–10',
-    newsType: 'Corporate Announcements',
-    newsSource: 'DQ Operations',
-    focusArea: 'Culture & People',
-    content: `# DQ Townhall Meeting Agenda
+-- Clear existing data (optional - comment out if you want to preserve existing data)
+-- TRUNCATE public.news, public.jobs CASCADE;
+
+-- ===== Seed News Data =====
+-- All news items from NEWS array in news.ts
+
+INSERT INTO public.news (
+  id, title, type, date, author, byline, views, excerpt, image, department, 
+  location, domain, theme, tags, "readingTime", "newsType", "newsSource", 
+  "focusArea", content
+) VALUES
+
+-- DQ Townhall Meeting Agenda
+('dq-townhall-meeting-agenda', 
+ 'DQ Townhall Meeting Agenda', 
+ 'Announcement', 
+ '2025-11-21', 
+ 'Irene Musyoki', 
+ 'DQ Operations', 
+ 0, 
+ 'Join us for the upcoming DQ Townhall meeting featuring working room guidelines, Scrum Master framework discussions, and important organizational updates.', 
+ 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80', 
+ 'DQ Operations', 
+ 'Dubai', 
+ 'Operations', 
+ NULL, 
+ ARRAY['townhall', 'meeting', 'agenda', 'framework'], 
+ '5–10', 
+ 'Corporate Announcements', 
+ 'DQ Operations', 
+ 'Culture & People', 
+ '# DQ Townhall Meeting Agenda
 
 ## Welcome & Introduction
 
-Join us for an informative and engaging DQ Townhall meeting where we'll discuss important updates, share insights, and align on our organizational goals and practices.
+Join us for an informative and engaging DQ Townhall meeting where we''ll discuss important updates, share insights, and align on our organizational goals and practices.
 
 ## Working Room Guidelines
 
@@ -80,28 +74,28 @@ This townhall aims to:
 
 - Please arrive on time to ensure we can cover all agenda items
 - Questions and discussions are encouraged during designated Q&A segments
-- Meeting materials and recordings will be shared following the session`
-  },
-  {
-    id: 'dq-leave-process-guideline',
-    title: 'DQ Leave Process Guidelines',
-    type: 'Guidelines',
-    date: '2025-11-18',
-    author: 'Felicia Araba',
-    byline: 'HRA (People)',
-    views: 0,
-    excerpt:
-      'Complete guide to the leave approval process, including required steps, notification procedures, and consequences for non-compliance.',
-    image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80',
-    department: 'HRA (People)',
-    location: 'Dubai',
-    domain: 'People',
-    tags: ['leave', 'guidelines', 'policy', 'HRA'],
-    readingTime: '5–10',
-    newsType: 'Corporate Announcements',
-    newsSource: 'DQ Operations',
-    focusArea: 'Culture & People',
-    content: `# DQ Leave Process Guideline
+- Meeting materials and recordings will be shared following the session'),
+
+-- DQ Leave Process Guidelines
+('dq-leave-process-guideline', 
+ 'DQ Leave Process Guidelines', 
+ 'Guidelines', 
+ '2025-11-18', 
+ 'Felicia Araba', 
+ 'HRA (People)', 
+ 0, 
+ 'Complete guide to the leave approval process, including required steps, notification procedures, and consequences for non-compliance.', 
+ 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80', 
+ 'HRA (People)', 
+ 'Dubai', 
+ 'People', 
+ NULL, 
+ ARRAY['leave', 'guidelines', 'policy', 'HRA'], 
+ '5–10', 
+ 'Corporate Announcements', 
+ 'DQ Operations', 
+ 'Culture & People', 
+ '# DQ Leave Process Guideline
 
 ## Leave Process
 
@@ -137,27 +131,28 @@ Any leave taken without prior approval or proper handover is documented as a vio
 Three violations may result in termination of employment.
 
 ## Important Reminder
-**Approval Requirement**: All leave must be approved by HRA and Management to ensure fairness and compliance with company policies.`
-  },
-  {
-    id: 'leadership-principles',
-    title: "Leadership Principles | What’s Your Leadership Superpower?",
-    type: 'Thought Leadership',
-    date: '2024-08-19',
-    author: 'Leads',
-    byline: 'Stephanie Kioko',
-    views: 47,
-    excerpt:
-      'Researchers have identified more than 1,000 leadership traits, but only a handful consistently drive real impact…',
-    department: 'Stories',
-    location: 'Remote',
-    theme: 'Leadership',
-    tags: ['Playbook', 'EJP'],
-    readingTime: '10–20',
-    newsType: 'Digital Tech News',
-    newsSource: 'DQ Leadership',
-    focusArea: 'Culture & People',
-    content: `# Leadership Principles | What's Your Leadership Superpower?
+**Approval Requirement**: All leave must be approved by HRA and Management to ensure fairness and compliance with company policies.'),
+
+-- Leadership Principles
+('leadership-principles', 
+ 'Leadership Principles | What''s Your Leadership Superpower?', 
+ 'Thought Leadership', 
+ '2024-08-19', 
+ 'Leads', 
+ 'Stephanie Kioko', 
+ 47, 
+ 'Researchers have identified more than 1,000 leadership traits, but only a handful consistently drive real impact…', 
+ NULL, 
+ 'Stories', 
+ 'Remote', 
+ NULL, 
+ 'Leadership', 
+ ARRAY['Playbook', 'EJP'], 
+ '10–20', 
+ 'Digital Tech News', 
+ 'DQ Leadership', 
+ 'Culture & People', 
+ '# Leadership Principles | What''s Your Leadership Superpower?
 
 ## The Research Behind Leadership Excellence
 
@@ -192,7 +187,7 @@ Researchers have identified more than **1,000 leadership traits**, but only a ha
 
 ## The DQ Leadership Framework
 
-At DQ, we've integrated these superpowers into our **Everyday Journey Playbook (EJP)**:
+At DQ, we''ve integrated these superpowers into our **Everyday Journey Playbook (EJP)**:
 
 ### **Morning Rituals**
 - **Vision Check**: Start each day by connecting work to larger purpose
@@ -257,276 +252,328 @@ At DQ, we've integrated these superpowers into our **Everyday Journey Playbook (
 
 ## The Ripple Effect
 
-Remember: **Leadership is not about being perfect—it's about being intentional**. Every interaction is an opportunity to model the behaviors you want to see in your team and organization.
+Remember: **Leadership is not about being perfect—it''s about being intentional**. Every interaction is an opportunity to model the behaviors you want to see in your team and organization.
 
-When you develop your leadership superpowers, you don't just improve your own effectiveness—you create a ripple effect that elevates everyone around you.
+When you develop your leadership superpowers, you don''t just improve your own effectiveness—you create a ripple effect that elevates everyone around you.
 
 ---
 
-*What's your leadership superpower? Take the assessment and start your development journey today.*`
-  },
-  {
-    id: 'dq-storybook-live',
-    title: 'From Vision to Impact: The DQ Storybook Goes Live!',
-    type: 'Announcement',
-    date: '2024-08-14',
-    author: 'Irene Musyoki',
-    views: 75,
-    excerpt: 'We’re excited to announce that the DQ Story is now officially published on the DQ Competencies page…',
-    department: 'Products',
-    location: 'Dubai',
-    domain: 'Business',
-    newsType: 'Corporate Announcements',
-    newsSource: 'DQ Communications',
-    focusArea: 'GHC'
-  },
-  {
-    id: 'dq-persona-mindset',
-    title: 'DQ Persona | Not Just a Role – It’s a Qatalyst Mindset',
-    type: 'Thought Leadership',
-    date: '2024-08-12',
-    author: 'DQ Associates',
-    byline: 'Stephanie Kioko',
-    views: 55,
-    excerpt:
-      'Culture eats strategy for breakfast—why a Qatalyst mindset matters for how we work and deliver…',
-    department: 'Stories',
-    location: 'Remote',
-    theme: 'Culture',
-    tags: ['QMS'],
-    readingTime: '5–10',
-    newsType: 'Events & Campaigns',
-    newsSource: 'DQ Leadership',
-    focusArea: 'Culture & People'
-  },
-  {
-    id: 'growth-emotional-intelligence',
-    title: 'Grounded in Growth and Emotional Intelligence',
-    type: 'Thought Leadership',
-    date: '2024-08-08',
-    author: 'Leads',
-    byline: 'Stephanie Kioko',
-    views: 79,
-    excerpt:
-      'People with a Growth Mindset are twice as likely to take on challenges and push through obstacles…',
-    department: 'Intelligence',
-    location: 'Dubai',
-    theme: 'Leadership',
-    tags: ['EJP', 'Playbook'],
-    readingTime: '10–20',
-    newsType: 'Digital Tech News',
-    newsSource: 'DQ Leadership',
-    focusArea: 'Culture & People'
-  },
-  {
-    id: 'one-vision',
-    title: 'The One Vision We All Build Toward',
-    type: 'Thought Leadership',
-    date: '2024-08-04',
-    author: 'Partners',
-    byline: 'Stephanie Kioko',
-    views: 50,
-    excerpt:
-      'At DQ, we all share a single powerful vision that guides how we build and deliver value…',
-    department: 'Solutions',
-    location: 'Remote',
-    theme: 'Delivery',
-    tags: ['Playbook', 'QMS'],
-    readingTime: '5–10',
-    newsType: 'Product / Project Updates',
-    newsSource: 'DQ Leadership',
-    focusArea: 'GHC'
-  },
-  {
-    id: 'life-transactions',
-    title: 'DQ’s Path to Perfect Life Transactions',
-    type: 'Thought Leadership',
-    date: '2024-08-01',
-    author: 'Leads',
-    byline: 'Stephanie Kioko',
-    views: 49,
-    excerpt:
-      'Every day we make thousands of transactions—here’s how we design for clarity and flow…',
-    department: 'Delivery — Deploys',
-    location: 'Remote',
-    theme: 'DTMF',
-    tags: ['QMS', 'EJP'],
-    readingTime: '10–20',
-    newsType: 'Product / Project Updates',
-    newsSource: 'DQ Operations',
-    focusArea: 'GHC'
-  },
-  {
-    id: 'agile-way-week',
-    title: 'Your Week, the Agile Way',
-    type: 'Thought Leadership',
-    date: '2024-07-28',
-    author: 'DQ Associates',
-    byline: 'Stephanie Kioko',
-    views: 69,
-    excerpt:
-      'Practical ways to plan your week with agile habits—focus, alignment, and iterative delivery…',
-    department: 'Delivery — Designs',
-    location: 'Nairobi',
-    theme: 'Delivery',
-    tags: ['Playbook'],
-    readingTime: '<5',
-    newsType: 'Events & Campaigns',
-    newsSource: 'DQ Operations',
-    focusArea: 'DWS'
-  },
-  {
-    id: 'riyadh-horizon-hub',
-    title: 'Riyadh Horizon Hub Opens for Cross-Studio Delivery',
-    type: 'Announcement',
-    date: '2024-07-20',
-    author: 'Irene Musyoki',
-    views: 61,
-    excerpt:
-      'The new Riyadh Horizon Hub is live—bringing Delivery, Platform, and People teams together to accelerate Saudi programs.',
-    department: 'Delivery — Deploys',
-    location: 'Riyadh',
-    domain: 'Business',
-    newsType: 'Corporate Announcements',
-    newsSource: 'DQ Leadership',
-    focusArea: 'GHC'
-  },
-  {
-    id: 'shifts-allocation-guidelines',
-    title: 'Shifts Allocation Guidelines',
-    type: 'Guidelines',
-    date: '2024-07-25',
-    author: 'Felicia Araba',
-    views: 58,
-    excerpt: 'New guidelines to enhance fairness and transparency for shifts allocation across teams…',
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
-    department: 'DCO Operations',
-    location: 'Dubai',
-    domain: 'People',
-    tags: ['shifts', 'allocation', 'scheduling', 'guidelines'],
-    readingTime: '5–10',
-    newsType: 'Corporate Announcements',
-    newsSource: 'DQ Operations',
-    focusArea: 'DWS'
-  },
-  {
-    id: 'islamic-new-year',
-    title: 'Honoring the Islamic New Year',
-    type: 'Notice',
-    date: '2024-06-27',
-    author: 'DQ Communications',
-    views: 63,
-    excerpt:
-      'A reflection on Al-Hijra 1447 AH—renewal, gratitude, and the values that ground our community…',
-    department: 'HRA (People)',
-    location: 'Dubai',
-    domain: 'People',
-    newsType: 'Events & Campaigns',
-    newsSource: 'DQ Communications',
-    focusArea: 'Culture & People'
-  },
-  {
-    id: 'dq-website-launch',
-    title: 'DQ Corporate Website Launch!',
-    type: 'Announcement',
-    date: '2024-06-24',
-    author: 'Irene Musyoki',
-    views: 84,
-    excerpt:
-      'Our new DQ corporate website is live—packed with what makes DQ a leader in digital delivery…',
-    department: 'Products',
-    location: 'Remote',
-    domain: 'Technology',
-    newsType: 'Corporate Announcements',
-    newsSource: 'DQ Communications',
-    focusArea: 'DWS'
-  },
-  {
-    id: 'po-dev-sync-guidelines',
-    title: 'Product Owner & Dev Sync Guidelines',
-    type: 'Guidelines',
-    date: '2024-06-19',
-    author: 'Felicia Araba',
-    views: 70,
-    excerpt:
-      'Standardizing PO–Dev syncs for clarity, cadence, and decision-making across products…',
-    department: 'DBP Delivery',
-    location: 'Dubai',
-    domain: 'Operations',
-    newsType: 'Product / Project Updates',
-    newsSource: 'DQ Operations',
-    focusArea: 'DWS'
-  },
-  {
-    id: 'riyadh-designing-at-scale',
-    title: 'Designing at Scale for Riyadh Citizen Services',
-    type: 'Thought Leadership',
-    date: '2024-06-15',
-    author: 'Leads',
-    byline: 'Yara Al Harthy',
-    views: 52,
-    excerpt:
-      'How the Riyadh studio co-created digital citizen services with local regulators—pairing delivery playbooks with cultural fluency.',
-    department: 'Delivery — Designs',
-    location: 'Riyadh',
-    theme: 'Delivery',
-    tags: ['Playbook', 'EJP'],
-    readingTime: '10–20',
-    newsType: 'Product / Project Updates',
-    newsSource: 'DQ Operations',
-    focusArea: 'GHC'
-  },
-  {
-    id: 'azure-devops-task-guidelines',
-    title: 'Azure DevOps Task Guidelines',
-    type: 'Guidelines',
-    date: '2024-06-12',
-    author: 'Felicia Araba',
-    views: 77,
-    excerpt:
-      'New task guidelines for ADO: naming, states, and flow so teams ship with less friction…',
-    department: 'SecDevOps',
-    location: 'Remote',
-    domain: 'Technology',
-    newsType: 'Digital Tech News',
-    newsSource: 'DQ Operations',
-    focusArea: 'DWS'
-  },
-  {
-    id: 'eid-al-adha',
-    title: 'Blessed Eid al-Adha!',
-    type: 'Notice',
-    date: '2024-06-05',
-    author: 'DQ Communications',
-    views: 47,
-    excerpt:
-      'Warmest wishes to all observing Eid al-Adha—celebrating community and gratitude…',
-    department: 'HRA (People)',
-    location: 'Nairobi',
-    domain: 'People',
-    newsType: 'Events & Campaigns',
-    newsSource: 'DQ Communications',
-    focusArea: 'Culture & People'
-  }
-  ,
-  {
-    id: 'company-wide-lunch-break-schedule',
-    title: 'DQ CHANGES | COMPANY-WIDE LUNCH BREAK SCHEDULE',
-    type: 'Announcement',
-    date: '2025-11-13',
-    author: 'Irene Musyoki',
-    byline: 'Corporate Comms',
-    views: 0,
-    excerpt:
-      'Unified lunch break for all associates: 2:00 PM – 3:00 PM DXB Time. Please avoid meetings within this window (except emergencies).',
-    image: 'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=800&q=80',
-    location: 'Dubai',
-    tags: ['policy', 'schedule', 'collaboration'],
-    readingTime: '5–10',
-    newsType: 'Corporate Announcements',
-    newsSource: 'DQ Communications',
-    focusArea: 'Culture & People',
-    content: `# Enhancing Collaboration Through Unified Scheduling
+*What''s your leadership superpower? Take the assessment and start your development journey today.*'),
+
+-- DQ Storybook Goes Live
+('dq-storybook-live', 
+ 'From Vision to Impact: The DQ Storybook Goes Live!', 
+ 'Announcement', 
+ '2024-08-14', 
+ 'Irene Musyoki', 
+ NULL, 
+ 75, 
+ 'We''re excited to announce that the DQ Story is now officially published on the DQ Competencies page…', 
+ NULL, 
+ 'Products', 
+ 'Dubai', 
+ 'Business', 
+ NULL, 
+ NULL, 
+ NULL, 
+ 'Corporate Announcements', 
+ 'DQ Communications', 
+ 'GHC', 
+ NULL),
+
+-- DQ Persona Mindset
+('dq-persona-mindset', 
+ 'DQ Persona | Not Just a Role – It''s a Qatalyst Mindset', 
+ 'Thought Leadership', 
+ '2024-08-12', 
+ 'DQ Associates', 
+ 'Stephanie Kioko', 
+ 55, 
+ 'Culture eats strategy for breakfast—why a Qatalyst mindset matters for how we work and deliver…', 
+ NULL, 
+ 'Stories', 
+ 'Remote', 
+ NULL, 
+ 'Culture', 
+ ARRAY['QMS'], 
+ '5–10', 
+ 'Events & Campaigns', 
+ 'DQ Leadership', 
+ 'Culture & People', 
+ NULL),
+
+-- Growth and Emotional Intelligence
+('growth-emotional-intelligence', 
+ 'Grounded in Growth and Emotional Intelligence', 
+ 'Thought Leadership', 
+ '2024-08-08', 
+ 'Leads', 
+ 'Stephanie Kioko', 
+ 79, 
+ 'People with a Growth Mindset are twice as likely to take on challenges and push through obstacles…', 
+ NULL, 
+ 'Intelligence', 
+ 'Dubai', 
+ NULL, 
+ 'Leadership', 
+ ARRAY['EJP', 'Playbook'], 
+ '10–20', 
+ 'Digital Tech News', 
+ 'DQ Leadership', 
+ 'Culture & People', 
+ NULL),
+
+-- One Vision
+('one-vision', 
+ 'The One Vision We All Build Toward', 
+ 'Thought Leadership', 
+ '2024-08-04', 
+ 'Partners', 
+ 'Stephanie Kioko', 
+ 50, 
+ 'At DQ, we all share a single powerful vision that guides how we build and deliver value…', 
+ NULL, 
+ 'Solutions', 
+ 'Remote', 
+ NULL, 
+ 'Delivery', 
+ ARRAY['Playbook', 'QMS'], 
+ '5–10', 
+ 'Product / Project Updates', 
+ 'DQ Leadership', 
+ 'GHC', 
+ NULL),
+
+-- Life Transactions
+('life-transactions', 
+ 'DQ''s Path to Perfect Life Transactions', 
+ 'Thought Leadership', 
+ '2024-08-01', 
+ 'Leads', 
+ 'Stephanie Kioko', 
+ 49, 
+ 'Every day we make thousands of transactions—here''s how we design for clarity and flow…', 
+ NULL, 
+ 'Delivery — Deploys', 
+ 'Remote', 
+ NULL, 
+ 'DTMF', 
+ ARRAY['QMS', 'EJP'], 
+ '10–20', 
+ 'Product / Project Updates', 
+ 'DQ Operations', 
+ 'GHC', 
+ NULL),
+
+-- Agile Way Week
+('agile-way-week', 
+ 'Your Week, the Agile Way', 
+ 'Thought Leadership', 
+ '2024-07-28', 
+ 'DQ Associates', 
+ 'Stephanie Kioko', 
+ 69, 
+ 'Practical ways to plan your week with agile habits—focus, alignment, and iterative delivery…', 
+ NULL, 
+ 'Delivery — Designs', 
+ 'Nairobi', 
+ NULL, 
+ 'Delivery', 
+ ARRAY['Playbook'], 
+ '<5', 
+ 'Events & Campaigns', 
+ 'DQ Operations', 
+ 'DWS', 
+ NULL),
+
+-- Riyadh Horizon Hub
+('riyadh-horizon-hub', 
+ 'Riyadh Horizon Hub Opens for Cross-Studio Delivery', 
+ 'Announcement', 
+ '2024-07-20', 
+ 'Irene Musyoki', 
+ NULL, 
+ 61, 
+ 'The new Riyadh Horizon Hub is live—bringing Delivery, Platform, and People teams together to accelerate Saudi programs.', 
+ NULL, 
+ 'Delivery — Deploys', 
+ 'Riyadh', 
+ 'Business', 
+ NULL, 
+ NULL, 
+ NULL, 
+ 'Corporate Announcements', 
+ 'DQ Leadership', 
+ 'GHC', 
+ NULL),
+
+-- Shifts Allocation Guidelines
+('shifts-allocation-guidelines', 
+ 'Shifts Allocation Guidelines', 
+ 'Guidelines', 
+ '2024-07-25', 
+ 'Felicia Araba', 
+ NULL, 
+ 58, 
+ 'New guidelines to enhance fairness and transparency for shifts allocation across teams…', 
+ 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80', 
+ 'DCO Operations', 
+ 'Dubai', 
+ 'People', 
+ NULL, 
+ ARRAY['shifts', 'allocation', 'scheduling', 'guidelines'], 
+ '5–10', 
+ 'Corporate Announcements', 
+ 'DQ Operations', 
+ 'DWS', 
+ NULL),
+
+-- Islamic New Year
+('islamic-new-year', 
+ 'Honoring the Islamic New Year', 
+ 'Notice', 
+ '2024-06-27', 
+ 'DQ Communications', 
+ NULL, 
+ 63, 
+ 'A reflection on Al-Hijra 1447 AH—renewal, gratitude, and the values that ground our community…', 
+ NULL, 
+ 'HRA (People)', 
+ 'Dubai', 
+ 'People', 
+ NULL, 
+ NULL, 
+ NULL, 
+ 'Events & Campaigns', 
+ 'DQ Communications', 
+ 'Culture & People', 
+ NULL),
+
+-- DQ Website Launch
+('dq-website-launch', 
+ 'DQ Corporate Website Launch!', 
+ 'Announcement', 
+ '2024-06-24', 
+ 'Irene Musyoki', 
+ NULL, 
+ 84, 
+ 'Our new DQ corporate website is live—packed with what makes DQ a leader in digital delivery…', 
+ NULL, 
+ 'Products', 
+ 'Remote', 
+ 'Technology', 
+ NULL, 
+ NULL, 
+ NULL, 
+ 'Corporate Announcements', 
+ 'DQ Communications', 
+ 'DWS', 
+ NULL),
+
+-- PO Dev Sync Guidelines
+('po-dev-sync-guidelines', 
+ 'Product Owner & Dev Sync Guidelines', 
+ 'Guidelines', 
+ '2024-06-19', 
+ 'Felicia Araba', 
+ NULL, 
+ 70, 
+ 'Standardizing PO–Dev syncs for clarity, cadence, and decision-making across products…', 
+ NULL, 
+ 'DBP Delivery', 
+ 'Dubai', 
+ 'Operations', 
+ NULL, 
+ NULL, 
+ NULL, 
+ 'Product / Project Updates', 
+ 'DQ Operations', 
+ 'DWS', 
+ NULL),
+
+-- Riyadh Designing at Scale
+('riyadh-designing-at-scale', 
+ 'Designing at Scale for Riyadh Citizen Services', 
+ 'Thought Leadership', 
+ '2024-06-15', 
+ 'Leads', 
+ 'Yara Al Harthy', 
+ 52, 
+ 'How the Riyadh studio co-created digital citizen services with local regulators—pairing delivery playbooks with cultural fluency.', 
+ NULL, 
+ 'Delivery — Designs', 
+ 'Riyadh', 
+ NULL, 
+ 'Delivery', 
+ ARRAY['Playbook', 'EJP'], 
+ '10–20', 
+ 'Product / Project Updates', 
+ 'DQ Operations', 
+ 'GHC', 
+ NULL),
+
+-- Azure DevOps Task Guidelines
+('azure-devops-task-guidelines', 
+ 'Azure DevOps Task Guidelines', 
+ 'Guidelines', 
+ '2024-06-12', 
+ 'Felicia Araba', 
+ NULL, 
+ 77, 
+ 'New task guidelines for ADO: naming, states, and flow so teams ship with less friction…', 
+ NULL, 
+ 'SecDevOps', 
+ 'Remote', 
+ 'Technology', 
+ NULL, 
+ NULL, 
+ NULL, 
+ 'Digital Tech News', 
+ 'DQ Operations', 
+ 'DWS', 
+ NULL),
+
+-- Eid al-Adha
+('eid-al-adha', 
+ 'Blessed Eid al-Adha!', 
+ 'Notice', 
+ '2024-06-05', 
+ 'DQ Communications', 
+ NULL, 
+ 47, 
+ 'Warmest wishes to all observing Eid al-Adha—celebrating community and gratitude…', 
+ NULL, 
+ 'HRA (People)', 
+ 'Nairobi', 
+ 'People', 
+ NULL, 
+ NULL, 
+ NULL, 
+ 'Events & Campaigns', 
+ 'DQ Communications', 
+ 'Culture & People', 
+ NULL),
+
+-- Company Wide Lunch Break Schedule
+('company-wide-lunch-break-schedule', 
+ 'DQ CHANGES | COMPANY-WIDE LUNCH BREAK SCHEDULE', 
+ 'Announcement', 
+ '2025-11-13', 
+ 'Irene Musyoki', 
+ 'Corporate Comms', 
+ 0, 
+ 'Unified lunch break for all associates: 2:00 PM – 3:00 PM DXB Time. Please avoid meetings within this window (except emergencies).', 
+ 'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=800&q=80', 
+ NULL, 
+ 'Dubai', 
+ NULL, 
+ NULL, 
+ ARRAY['policy', 'schedule', 'collaboration'], 
+ '5–10', 
+ 'Corporate Announcements', 
+ 'DQ Communications', 
+ 'Culture & People', 
+ '# Enhancing Collaboration Through Unified Scheduling
 
 ## Overview
 To enhance collaboration and synchronize workflows across all studios, we are implementing a unified company-wide lunch break schedule.
@@ -558,25 +605,28 @@ To enhance collaboration and synchronize workflows across all studios, we are im
 ## Questions?
 For any questions or concerns about this new policy, please reach out to your local HR representative or contact DQ Communications directly.
 
-Thank you for your cooperation in helping us build a more synchronized and efficient work environment.`
-  },
-  {
-    id: 'grading-review-program-grp',
-    title: 'DQ ADP | GRADING REVIEW PROGRAM (GRP)',
-    type: 'Announcement',
-    date: '2025-11-13',
-    author: 'Irene Musyoki',
-    byline: 'Corporate Comms',
-    views: 0,
-    excerpt:
-      'Launch of the DQ Associate Grade Review Program to align associates to the SFIA-based grading scale; initial focus group led by Araba and Mercy Kyuma.',
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80',
-    tags: ['SFIA', 'grading', 'capability'],
-    readingTime: '10–20',
-    newsType: 'Corporate Announcements',
-    newsSource: 'DQ Communications',
-    focusArea: 'Culture & People',
-    content: `# DQ Associate Grade Review Program Launch
+Thank you for your cooperation in helping us build a more synchronized and efficient work environment.'),
+
+-- Grading Review Program
+('grading-review-program-grp', 
+ 'DQ ADP | GRADING REVIEW PROGRAM (GRP)', 
+ 'Announcement', 
+ '2025-11-13', 
+ 'Irene Musyoki', 
+ 'Corporate Comms', 
+ 0, 
+ 'Launch of the DQ Associate Grade Review Program to align associates to the SFIA-based grading scale; initial focus group led by Araba and Mercy Kyuma.', 
+ 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80', 
+ NULL, 
+ NULL, 
+ NULL, 
+ NULL, 
+ ARRAY['SFIA', 'grading', 'capability'], 
+ '10–20', 
+ 'Corporate Announcements', 
+ 'DQ Communications', 
+ 'Culture & People', 
+ '# DQ Associate Grade Review Program Launch
 
 ## Program Overview
 We are pleased to announce the launch of the **DQ Associate Grade Review Program (GRP)**. This comprehensive initiative aims to ensure all associates are aligned to the DQ SFIA-based grading scale, reflecting both their competence levels and scope of responsibility.
@@ -643,28 +693,28 @@ For questions about the GRP program, please contact:
 
 We are committed to maintaining transparent, fair, and consistent grading standards that support both individual growth and organizational excellence.
 
-*More details will follow as we progress through the program phases. Stay tuned for updates!*`
-  },
-  {
-    id: 'dq-wfh-guidelines',
-    title: 'DQ WFH Guidelines',
-    type: 'Guidelines',
-    date: '2025-11-18',
-    author: 'Felicia Araba',
-    byline: 'HRA (People)',
-    views: 0,
-    excerpt:
-      'Work From Home (WFH) guidelines outlining purpose, roles, processes, tools, KPIs, and compliance for remote work across DQ.',
-    image: 'https://images.unsplash.com/photo-1587614382346-4ec70e388b28?auto=format&fit=crop&w=800&q=80',
-    department: 'HRA (People)',
-    location: 'Remote',
-    domain: 'People',
-    tags: ['WFH', 'guidelines', 'policy'],
-    readingTime: '10–20',
-    newsType: 'Corporate Announcements',
-    newsSource: 'DQ Operations',
-    focusArea: 'Culture & People',
-    content: `# DQ Work From Home (WFH) Guidelines
+*More details will follow as we progress through the program phases. Stay tuned for updates!*'),
+
+-- DQ WFH Guidelines
+('dq-wfh-guidelines', 
+ 'DQ WFH Guidelines', 
+ 'Guidelines', 
+ '2025-11-18', 
+ 'Felicia Araba', 
+ 'HRA (People)', 
+ 0, 
+ 'Work From Home (WFH) guidelines outlining purpose, roles, processes, tools, KPIs, and compliance for remote work across DQ.', 
+ 'https://images.unsplash.com/photo-1587614382346-4ec70e388b28?auto=format&fit=crop&w=800&q=80', 
+ 'HRA (People)', 
+ 'Remote', 
+ 'People', 
+ NULL, 
+ ARRAY['WFH', 'guidelines', 'policy'], 
+ '10–20', 
+ 'Corporate Announcements', 
+ 'DQ Operations', 
+ 'Culture & People', 
+ '# DQ Work From Home (WFH) Guidelines
 
 ## WFH Guideline Overview
 The **Work From Home (WFH) Guidelines** provide a clear framework for how remote work is requested, approved, executed, and monitored across DQ. Each section below is designed to keep productivity, accountability, and culture intact while associates are working remotely.
@@ -758,40 +808,38 @@ The **Work From Home (WFH) Guidelines** provide a clear framework for how remote
 **Key Contacts**
 - **Pelagie Njiki** – CoE Lead
 - **Mauline Wangui** – TechOps Coordinator
-- **Martin Wambugu** – Content & Marketing Analyst
-`,
-  },
-  {
-    id: 'dq-dress-code-guideline',
-    title: 'DQ Dress Code Guidelines',
-    type: 'Guidelines',
-    date: '2025-11-18',
-    author: 'Felicia Araba',
-    byline: 'HRA (People)',
-    views: 0,
-    excerpt:
-      'Dress code guideline balancing professionalism and comfort across the work week, with clear expectations, exceptions, and consequences.',
-    // Image shows a professional group of 2 men and 1 woman in official black suits
-    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80',
-    department: 'HRA (People)',
-    location: 'Dubai',
-    domain: 'People',
-    tags: ['dress code', 'guidelines', 'policy'],
-    readingTime: '10–20',
-    newsType: 'Corporate Announcements',
-    newsSource: 'DQ Operations',
-    focusArea: 'Culture & People',
-    content: `# DQ Dress Code Guideline (Version 1.0)
+- **Martin Wambugu** – Content & Marketing Analyst'),
+
+-- DQ Dress Code Guidelines
+('dq-dress-code-guideline', 
+ 'DQ Dress Code Guidelines', 
+ 'Guidelines', 
+ '2025-11-18', 
+ 'Felicia Araba', 
+ 'HRA (People)', 
+ 0, 
+ 'Dress code guideline balancing professionalism and comfort across the work week, with clear expectations, exceptions, and consequences.', 
+ 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80', 
+ 'HRA (People)', 
+ 'Dubai', 
+ 'People', 
+ NULL, 
+ ARRAY['dress code', 'guidelines', 'policy'], 
+ '10–20', 
+ 'Corporate Announcements', 
+ 'DQ Operations', 
+ 'Culture & People', 
+ '# DQ Dress Code Guideline (Version 1.0)
 
 ## Context
 At **DigitalQatalyst (DQ)**, professional appearance shapes how our brand is perceived, supports personal confidence, and creates an environment where associates feel comfortable and productive. This guideline sets expectations for attire so we strike the right balance between professionalism and comfort.
 
 ## Purpose
-These dress code guidelines ensure associates align with DQ's culture of professionalism while allowing flexibility for creativity and comfort. The standard is **business casual Monday–Thursday** with a more relaxed **Casual Friday**, adapted for the diverse nature of work at DQ.
+These dress code guidelines ensure associates align with DQ''s culture of professionalism while allowing flexibility for creativity and comfort. The standard is **business casual Monday–Thursday** with a more relaxed **Casual Friday**, adapted for the diverse nature of work at DQ.
 
 ## Key Characteristics
 
-- **Professional Appearance** – Associates dress in a professional, decent, and clean manner; clothing should enhance DQ's image.
+- **Professional Appearance** – Associates dress in a professional, decent, and clean manner; clothing should enhance DQ''s image.
 - **Cultural Sensitivity** – Outfits should be respectful of cultural and religious norms.
 - **Personal Grooming** – Hair, nails, and hygiene are maintained to a high standard. Fragrances, jewelry, and accessories should not distract from the professional setting.
 
@@ -839,7 +887,7 @@ Before rolling out the dress code:
 Failure to comply with the dress code may result in:
 
 1. **Verbal warning** – Direct message to the associate.
-2. **Written warning** – Formal note placed on the associate's HR channel.
+2. **Written warning** – Formal note placed on the associate''s HR channel.
 3. **Further disciplinary action** – May include suspension or other actions as deemed appropriate.
 
 Associates and leaders are jointly responsible for ensuring the guideline is understood and consistently applied.
@@ -879,33 +927,35 @@ These recognitions help reinforce the guideline in a positive, motivating way.
 - **Business Casual** – Button-up shirt, slacks, blazer (men); blouse and pencil skirt or knee-length dress with flats or heels (women).
 - **Casual Fridays** – Polo shirt and jeans with casual shoes (men); casual top with jeans and flats/sneakers (women). Always maintain neat, non-revealing, and culturally respectful outfits.
 
-Where in doubt, associates should choose the more professional option and consult HR or their Line Manager for clarification.
-`,
-  },
-  {
-    id: 'dq-storybook-latest-links',
-    title: 'DQ Storybook — Latest Version and Links',
-    type: 'Announcement',
-    date: '2025-11-13',
-    author: 'Irene Musyoki',
-    views: 0,
-    excerpt:
-      'Explore the latest DQ Storybook and quick links to GHC elements including Vision, HoV, Persona, Agile TMS/SoS/Flows, and 6xD.',
-    image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=800&q=80',
-    domain: 'Business',
-    tags: ['story', 'GHC', 'references'],
-    readingTime: '5–10',
-    newsType: 'Corporate Announcements',
-    newsSource: 'DQ Communications',
-    focusArea: 'GHC',
-    content: `# DQ Storybook — Latest Version and Quick Reference Links
+Where in doubt, associates should choose the more professional option and consult HR or their Line Manager for clarification.'),
+
+-- DQ Storybook Latest Links
+('dq-storybook-latest-links', 
+ 'DQ Storybook — Latest Version and Links', 
+ 'Announcement', 
+ '2025-11-13', 
+ 'Irene Musyoki', 
+ NULL, 
+ 0, 
+ 'Explore the latest DQ Storybook and quick links to GHC elements including Vision, HoV, Persona, Agile TMS/SoS/Flows, and 6xD.', 
+ 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=800&q=80', 
+ NULL, 
+ NULL, 
+ 'Business', 
+ NULL, 
+ ARRAY['story', 'GHC', 'references'], 
+ '5–10', 
+ 'Corporate Announcements', 
+ 'DQ Communications', 
+ 'GHC', 
+ '# DQ Storybook — Latest Version and Quick Reference Links
 
 ## Introduction
-Here's the latest version of the **DQ Storybook** — our evolving narrative that brings the Golden Honeycomb of Competencies (GHC) to life. We're continuing to shape and refine this Storybook, so keep an eye out for new updates and deep dives in the coming weeks.
+Here''s the latest version of the **DQ Storybook** — our evolving narrative that brings the Golden Honeycomb of Competencies (GHC) to life. We''re continuing to shape and refine this Storybook, so keep an eye out for new updates and deep dives in the coming weeks.
 
 ## Main Storybook Access
 **[DQ Storybook: Complete Guide](https://dq-storybook.example.com)**
-*Your comprehensive resource for understanding DQ's methodology, culture, and operational excellence.*
+*Your comprehensive resource for understanding DQ''s methodology, culture, and operational excellence.*
 
 ---
 
@@ -989,7 +1039,93 @@ For questions about any of these resources or to request additional documentatio
 
 ---
 
-*Keep this reference handy for quick access to all DQ frameworks and methodologies. Together, we continue to build excellence through shared knowledge and consistent application of our proven approaches.*`
-  }
-  */
-];
+*Keep this reference handy for quick access to all DQ frameworks and methodologies. Together, we continue to build excellence through shared knowledge and consistent application of our proven approaches.*')
+
+ON CONFLICT (id) DO UPDATE SET
+  title = EXCLUDED.title,
+  type = EXCLUDED.type,
+  date = EXCLUDED.date,
+  author = EXCLUDED.author,
+  byline = EXCLUDED.byline,
+  views = EXCLUDED.views,
+  excerpt = EXCLUDED.excerpt,
+  image = EXCLUDED.image,
+  department = EXCLUDED.department,
+  location = EXCLUDED.location,
+  domain = EXCLUDED.domain,
+  theme = EXCLUDED.theme,
+  tags = EXCLUDED.tags,
+  "readingTime" = EXCLUDED."readingTime",
+  "newsType" = EXCLUDED."newsType",
+  "newsSource" = EXCLUDED."newsSource",
+  "focusArea" = EXCLUDED."focusArea",
+  content = EXCLUDED.content,
+  updated_at = now();
+
+-- ===== Seed Jobs Data =====
+-- All job items from JOBS array in jobs.ts
+
+INSERT INTO public.jobs (
+  id, title, department, "roleType", location, type, seniority, "sfiaLevel", 
+  summary, description, responsibilities, requirements, benefits, "postedOn", 
+  "applyUrl", image
+) VALUES
+
+-- HR Lead O2P
+('hr-lead-o2p', 
+ 'HR Lead O2P', 
+ 'HRA (People)', 
+ 'HR', 
+ 'Dubai', 
+ 'Full-time', 
+ 'Lead', 
+ 'L5', 
+ 'Lead DQ''s performance function from onboarding through probation and beyond, driving measurable improvement across the organization.', 
+ 'Lead DQ''s performance function from onboarding through probation and beyond, driving measurable improvement across the organization.', 
+ ARRAY[
+   'Manage onboarding, probation, and performance evaluation processes',
+   'Assess associates against SFIA guidelines',
+   'Own and manage ATP scanning and ADP programs',
+   'Deliver actionable insights and drive organization-wide performance improvement'
+ ], 
+ ARRAY[
+   '5+ years of experience in performance management or HR transformation',
+   'Proven experience in team leadership and talent development',
+   'Strong skills in frameworks, analytics, and data-driven insights',
+   'Excellent communication and stakeholder management skills'
+ ], 
+ ARRAY[
+   'High-impact role shaping performance culture',
+   'Direct coaching from HR leadership',
+   'Opportunity to own key initiatives and influence across DQ'
+ ], 
+ '2025-11-18', 
+ 'https://dq.example.com/jobs/hr-lead-o2p', 
+ 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80')
+
+ON CONFLICT (id) DO UPDATE SET
+  title = EXCLUDED.title,
+  department = EXCLUDED.department,
+  "roleType" = EXCLUDED."roleType",
+  location = EXCLUDED.location,
+  type = EXCLUDED.type,
+  seniority = EXCLUDED.seniority,
+  "sfiaLevel" = EXCLUDED."sfiaLevel",
+  summary = EXCLUDED.summary,
+  description = EXCLUDED.description,
+  responsibilities = EXCLUDED.responsibilities,
+  requirements = EXCLUDED.requirements,
+  benefits = EXCLUDED.benefits,
+  "postedOn" = EXCLUDED."postedOn",
+  "applyUrl" = EXCLUDED."applyUrl",
+  image = EXCLUDED.image,
+  updated_at = now();
+
+-- ===== Verification Queries =====
+-- Uncomment to verify data was inserted correctly
+
+-- SELECT COUNT(*) as news_count FROM public.news;
+-- SELECT COUNT(*) as jobs_count FROM public.jobs;
+-- SELECT type, COUNT(*) FROM public.news GROUP BY type;
+-- SELECT "roleType", COUNT(*) FROM public.jobs GROUP BY "roleType";
+

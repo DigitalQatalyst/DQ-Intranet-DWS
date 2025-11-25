@@ -29,6 +29,7 @@ export const SFIA_LEVELS: Record<JobItem['sfiaLevel'], { label: string; detail: 
 };
 
 export const JOBS: JobItem[] = [
+  /*
   {
     id: 'hr-lead-o2p',
     title: 'HR Lead O2P',
@@ -62,8 +63,8 @@ export const JOBS: JobItem[] = [
     applyUrl: 'https://dq.example.com/jobs/hr-lead-o2p',
     image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80'
   }
-  /* COMMENTED OUT - All other jobs temporarily hidden, only showing HR Lead O2P
-  ,
+  */
+  /*
   {
     id: 'senior-delivery-lead',
     title: 'Senior Delivery Lead – Riyadh Customer Squad',

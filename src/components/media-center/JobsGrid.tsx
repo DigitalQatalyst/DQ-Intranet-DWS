@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { JOBS, type JobItem } from '@/data/media/jobs';
+import type { JobItem } from '@/data/media/jobs';
 import type { FiltersValue } from './types';
 import { JobCard } from './cards/JobCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -11,12 +11,13 @@ interface GridProps {
     q?: string;
     filters?: FiltersValue;
   };
+  jobs: JobItem[];
 }
 
 const ITEMS_PER_PAGE = 9;
 
-export default function JobsGrid({ query }: GridProps) {
-  const sourceItems: JobItem[] = JOBS;
+export default function JobsGrid({ query, jobs }: GridProps) {
+  const sourceItems: JobItem[] = jobs;
   const [currentPage, setCurrentPage] = useState(1);
   const location = useLocation();
 

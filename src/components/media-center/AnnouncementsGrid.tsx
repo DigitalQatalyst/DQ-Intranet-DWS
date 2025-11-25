@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { NEWS, type NewsItem } from '@/data/media/news';
+import type { NewsItem } from '@/data/media/news';
 import type { FiltersValue } from './types';
 import { NewsCard } from './cards/NewsCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -11,6 +11,7 @@ interface GridProps {
     q?: string;
     filters?: FiltersValue;
   };
+  items: NewsItem[];
 }
 
 const UPDATE_TYPES = ['Announcement', 'Guidelines', 'Notice'];
@@ -18,12 +19,12 @@ const ITEMS_PER_PAGE = 9;
 const matchesSelection = (value: string | undefined, selections?: string[]) =>
   !selections?.length || (value && selections.includes(value));
 
-export default function AnnouncementsGrid({ query }: GridProps) {
-  const sourceItems: NewsItem[] = NEWS;
+export default function AnnouncementsGrid({ query, items }: GridProps) {
+  const sourceItems: NewsItem[] = items;
   const [currentPage, setCurrentPage] = useState(1);
   const location = useLocation();
 
-  const items = useMemo(() => {
+  const filteredItems = useMemo(() => {
     const search = query.q?.toLowerCase() ?? '';
     return sourceItems
       .filter((item) => UPDATE_TYPES.includes(item.type))
@@ -65,10 +66,10 @@ export default function AnnouncementsGrid({ query }: GridProps) {
     return null;
   }
 
-  const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedItems = items.slice(startIndex, endIndex);
+  const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -114,7 +115,7 @@ export default function AnnouncementsGrid({ query }: GridProps) {
     return pages;
   };
 
-  if (items.length === 0) {
+  if (filteredItems.length === 0) {
     return (
       <section className="space-y-3">
         <div className="flex items-center justify-between text-sm text-gray-600">
@@ -129,7 +130,7 @@ export default function AnnouncementsGrid({ query }: GridProps) {
   return (
     <section className="space-y-3">
       <div className="flex items-center justify-between text-sm text-gray-600">
-        <h3 className="font-medium text-gray-800">Available Items ({items.length})</h3>
+        <h3 className="font-medium text-gray-800">Available Items ({filteredItems.length})</h3>
         <span>Auto-refresh · Live</span>
       </div>
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">

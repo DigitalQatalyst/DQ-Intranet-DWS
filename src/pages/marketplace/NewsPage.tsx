@@ -10,8 +10,9 @@ import AnnouncementsGrid from '@/components/media-center/AnnouncementsGrid';
 import BlogsGrid from '@/components/media-center/BlogsGrid';
 import JobsGrid from '@/components/media-center/JobsGrid';
 import type { FacetConfig, FiltersValue, MediaCenterTabKey } from '@/components/media-center/types';
-import { NEWS, type NewsItem } from '@/data/media/news';
-import { JOBS, type JobItem } from '@/data/media/jobs';
+import type { NewsItem } from '@/data/media/news';
+import type { JobItem } from '@/data/media/jobs';
+import { fetchAllNews, fetchAllJobs } from '@/services/mediaCenterService';
 
 const PINNED_FACETS: FacetConfig[] = [
   {
@@ -220,7 +221,7 @@ const buildJobNotification = (job: JobItem): MediaNotification => {
   };
 };
 
-const getLatestUnseenMediaItem = (): MediaNotification | null => {
+const getLatestUnseenMediaItem = (newsItems: NewsItem[], jobItems: JobItem[]): MediaNotification | null => {
   if (typeof window === 'undefined') return null;
   try {
     const raw = window.localStorage.getItem(MEDIA_SEEN_STORAGE_KEY);
@@ -228,11 +229,11 @@ const getLatestUnseenMediaItem = (): MediaNotification | null => {
     const seenNews = new Set(parsed.news ?? []);
     const seenJobs = new Set(parsed.jobs ?? []);
 
-    const latestUnseenNews = [...NEWS]
+    const latestUnseenNews = [...newsItems]
       .sort((a, b) => (a.date < b.date ? 1 : -1))
       .find((item) => !seenNews.has(item.id));
 
-    const latestUnseenJob = [...JOBS]
+    const latestUnseenJob = [...jobItems]
       .sort((a, b) => (a.postedOn < b.postedOn ? 1 : -1))
       .find((job) => !seenJobs.has(job.id));
 
@@ -298,6 +299,10 @@ const NewsPage: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [newItem, setNewItem] = useState<MediaNotification | null>(null);
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
+  const [jobItems, setJobItems] = useState<JobItem[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     setFilters({});
@@ -317,9 +322,40 @@ const NewsPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const item = getLatestUnseenMediaItem();
-    setNewItem(item);
+    let isMounted = true;
+
+    async function loadMediaData() {
+      setIsLoadingData(true);
+      try {
+        const [newsData, jobsData] = await Promise.all([fetchAllNews(), fetchAllJobs()]);
+        if (!isMounted) return;
+        setNewsItems(newsData);
+        setJobItems(jobsData);
+        setLoadError(null);
+      } catch (error) {
+        if (!isMounted) return;
+        // eslint-disable-next-line no-console
+        console.error('Error loading media center data', error);
+        setLoadError('Unable to load media items right now.');
+      } finally {
+        if (isMounted) {
+          setIsLoadingData(false);
+        }
+      }
+    }
+
+    loadMediaData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  useEffect(() => {
+    if (!newsItems.length && !jobItems.length) return;
+    const item = getLatestUnseenMediaItem(newsItems, jobItems);
+    setNewItem(item);
+  }, [newsItems, jobItems]);
 
   const facets = useMemo(() => [...SECONDARY_FACETS[tab]], [tab]);
 
@@ -587,14 +623,22 @@ const NewsPage: React.FC = () => {
             </aside>
 
             <section className="space-y-6">
+              {isLoadingData && !newsItems.length && !jobItems.length && (
+                <div className="text-sm text-gray-500">Loading latest items</div>
+              )}
+              {loadError && (
+                <div className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {loadError}
+                </div>
+              )}
               <TabsContent value="announcements">
-                <AnnouncementsGrid query={query} />
+                <AnnouncementsGrid query={query} items={newsItems} />
               </TabsContent>
               <TabsContent value="insights">
-                <BlogsGrid query={query} />
+                <BlogsGrid query={query} items={newsItems} />
               </TabsContent>
               <TabsContent value="opportunities">
-                <JobsGrid query={query} />
+                <JobsGrid query={query} jobs={jobItems} />
               </TabsContent>
             </section>
           </div>

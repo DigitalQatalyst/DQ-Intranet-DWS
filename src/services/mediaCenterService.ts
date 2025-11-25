@@ -1,9 +1,9 @@
-import { supabaseClient } from '@/lib/supabaseClient'
+import { mediaSupabaseClient } from '@/lib/mediaSupabaseClient'
 import type { NewsItem } from '@/data/media/news'
 import type { JobItem } from '@/data/media/jobs'
 
 export async function fetchAllNews(): Promise<NewsItem[]> {
-  const { data, error } = await supabaseClient
+  const { data, error } = await mediaSupabaseClient
     .from('news')
     .select('*')
     .order('date', { ascending: false })
@@ -17,7 +17,7 @@ export async function fetchAllNews(): Promise<NewsItem[]> {
 }
 
 export async function fetchAllJobs(): Promise<JobItem[]> {
-  const { data, error } = await supabaseClient
+  const { data, error } = await mediaSupabaseClient
     .from('jobs')
     .select('*')
     .order('postedOn', { ascending: false })
@@ -31,7 +31,7 @@ export async function fetchAllJobs(): Promise<JobItem[]> {
 }
 
 export async function fetchNewsById(id: string): Promise<NewsItem | null> {
-  const { data, error } = await supabaseClient
+  const { data, error } = await mediaSupabaseClient
     .from('news')
     .select('*')
     .eq('id', id)
@@ -47,7 +47,7 @@ export async function fetchNewsById(id: string): Promise<NewsItem | null> {
 }
 
 export async function fetchJobById(id: string): Promise<JobItem | null> {
-  const { data, error } = await supabaseClient
+  const { data, error } = await mediaSupabaseClient
     .from('jobs')
     .select('*')
     .eq('id', id)

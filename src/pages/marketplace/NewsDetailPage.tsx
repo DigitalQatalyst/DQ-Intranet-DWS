@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { HomeIcon, ChevronRightIcon, Share2, BookmarkIcon, ArrowUpRight } from 'lucide-react';
-import { NEWS, type NewsItem } from '@/data/media/news';
+import type { NewsItem } from '@/data/media/news';
+import { fetchAllNews, fetchNewsById } from '@/services/mediaCenterService';
 
 const formatDate = (input: string) =>
   new Date(input).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -228,8 +229,10 @@ const NewsDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const article = NEWS.find((item) => item.id === id);
-  const related = NEWS.filter((item) => item.id !== id).slice(0, 3);
+  const [article, setArticle] = useState<NewsItem | null>(null);
+  const [related, setRelated] = useState<NewsItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const getImageSrc = (item: NewsItem) => {
     if (item.image) return item.image;
@@ -238,21 +241,57 @@ const NewsDetailPage: React.FC = () => {
   };
 
   const body = article ? buildBody(article) : [];
+
   useEffect(() => {
-    if (article) {
-      markMediaItemSeen('news', article.id);
+    if (!id) return;
+    let isMounted = true;
+
+    async function loadArticle() {
+      setIsLoading(true);
+      try {
+        const [item, allNews] = await Promise.all([fetchNewsById(id), fetchAllNews()]);
+        if (!isMounted) return;
+        setArticle(item);
+        setRelated(allNews.filter((newsItem) => newsItem.id !== id).slice(0, 3));
+        if (item) {
+          markMediaItemSeen('news', item.id);
+        }
+        setLoadError(null);
+      } catch (error) {
+        if (!isMounted) return;
+        // eslint-disable-next-line no-console
+        console.error('Error loading news article', error);
+        setLoadError('Unable to load this article right now.');
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
     }
-  }, [article]);
+
+    loadArticle();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
 
   if (!article) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Header toggleSidebar={() => {}} sidebarOpen={false} />
         <main className="flex flex-1 flex-col items-center justify-center text-center px-4">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Article not found</h1>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+            {isLoading ? 'Loading article' : 'Article not found'}
+          </h1>
           <p className="text-gray-600 mb-6 max-w-md">
-            The article you're trying to view is unavailable or has been archived. Please browse the latest announcements.
+            {isLoading
+              ? 'Fetching the latest details. Please wait.'
+              : "The article you're trying to view is unavailable or has been archived. Please browse the latest announcements."}
           </p>
+          {loadError && !isLoading && (
+            <p className="text-sm text-red-600 mb-4">{loadError}</p>
+          )}
           <button
             onClick={() => navigate(`/marketplace/news${location.search || ''}`)}
             className="rounded-lg bg-[#030f35] px-6 py-3 text-sm font-semibold text-white"
@@ -268,7 +307,7 @@ const NewsDetailPage: React.FC = () => {
   const displayAuthor =
     article.type === 'Thought Leadership'
       ? (article.byline || article.author || 'DQ Media Team')
-      : 'Felicia Araba';
+      : article.author;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F3F6FB]">
@@ -321,8 +360,6 @@ const NewsDetailPage: React.FC = () => {
                   <h1 className="text-4xl font-bold text-gray-900 mb-4">{article.title}</h1>
                   <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
                     <span>{formatDate(article.date)}</span>
-                    <span>•</span>
-                    <span>{article.author}</span>
                     {article.readingTime && (
                       <>
                         <span>•</span>
