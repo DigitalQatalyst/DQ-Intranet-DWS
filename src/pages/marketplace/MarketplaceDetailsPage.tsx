@@ -309,7 +309,8 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const itemTitle = item.title;
   const itemDescription = item.description;
   const provider = item.provider;
-  const primaryAction = config.primaryCTA;
+  const isPromptLibrary = item.id === '17' || item.category === 'Prompt Library';
+  const primaryAction = isPromptLibrary ? 'Visit Page' : config.primaryCTA;
   // const secondaryAction = config.secondaryCTA;
   // Extract tags based on marketplace type
   const displayTags = item.tags || [item.category, marketplaceType === 'courses' ? item.deliveryMode : item.serviceType, item.businessStage].filter(Boolean);
@@ -321,6 +322,52 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   // Extract highlights/features based on marketplace type
   const highlights = marketplaceType === 'courses' ? item.learningOutcomes || [] : item.details || [];
   // Render tab content with consistent styling
+  // Code block component with copy functionality
+  const CodeBlock: React.FC<{ code: string; language?: string; title?: string }> = ({ code, language, title }) => {
+    const [copied, setCopied] = React.useState(false);
+    
+    const handleCopy = () => {
+      navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+      <div className="mb-6 relative">
+        {title && (
+          <div className="bg-gray-100 px-4 py-2 rounded-t-lg border-b border-gray-300">
+            <h4 className="text-sm font-semibold text-gray-700">{title}</h4>
+          </div>
+        )}
+        <div className="relative">
+          <pre className="bg-gray-900 text-gray-100 p-6 rounded-b-lg overflow-x-auto text-sm leading-relaxed">
+            <code className={language ? `language-${language}` : ''}>{code}</code>
+          </pre>
+          <button
+            onClick={handleCopy}
+            className="absolute top-3 right-3 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors duration-200 flex items-center gap-1.5"
+          >
+            {copied ? (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Copied!
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Copy
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   const renderBlocks = (blocks: ContentBlock[]) => {
     return (blocks || []).map((block, idx) => {
       if (block.type === 'p') {
@@ -349,6 +396,9 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               className="rounded-lg shadow-md"
             />
           </div>;
+      }
+      if (block.type === 'code') {
+        return <CodeBlock key={idx} code={block.code} language={block.language} title={block.title} />;
       }
       return null;
     });
@@ -384,16 +434,27 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         const content = getServiceTabContent(marketplaceType, item?.id, tabId);
         const urlField = content?.action?.urlField;
         const computedUrl = (urlField && item && item[urlField]) || content?.action?.fallbackUrl || '#';
+        
+        // Check if this is a prompt library item (service 17)
+        const isPromptLibrary = item?.id === '17' || item?.category === 'Prompt Library';
+        
         return <div className="space-y-6">
             <div className="prose max-w-none">
               {content?.heading && <h3 className="text-xl font-bold text-gray-900 mb-2">{content.heading}</h3>}
               {renderBlocks(content?.blocks || [])}
             </div>
-            <div>
-              <button id="action-section" className="px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md" style={{ backgroundColor: '#1A2E6E' }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1A2E6E')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1A2E6E')} onClick={() => window.open(computedUrl, '_blank', 'noopener')}>
-                {content?.action?.label || 'Submit Request'}
-              </button>
-            </div>
+            {!isPromptLibrary && content?.action && <div>
+                <button 
+                  id="action-section" 
+                  className="px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md" 
+                  style={{ backgroundColor: '#1A2E6E' }} 
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#152554')} 
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1A2E6E')} 
+                  onClick={() => window.open(computedUrl, '_blank', 'noopener')}
+                >
+                  {content.action.label || 'Submit Request'}
+                </button>
+              </div>}
           </div>;
       }
       case 'self_service_faq': {
@@ -913,12 +974,55 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               </li>)}
           </ul>
         </div>
-        <button id="action-section" className="w-full px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md mb-3" style={{ backgroundColor: '#1A2E6E' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1A2E6E'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1A2E6E'}>
-          {primaryAction}
+        <button 
+          id="action-section" 
+          className="w-full px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md mb-3 flex items-center justify-center gap-2"
+          style={{ backgroundColor: '#1A2E6E' }} 
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#152554')} 
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1A2E6E')}
+          onClick={() => {
+            if (isPromptLibrary && item.sourceUrl) {
+              window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
+            }
+          }}
+        >
+          {isPromptLibrary ? (
+            <>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              Visit Page
+            </>
+          ) : (
+            primaryAction
+          )}
         </button>
       </div>
     </div>;
   return <div className="bg-white min-h-screen flex flex-col">
+      <style>{`
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          }
+          50% {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.4), 0 4px 6px -2px rgba(34, 197, 94, 0.2);
+          }
+        }
+        
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+      `}</style>
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
       <main className="flex-grow">
         {/* Hero Banner - consistent header layout */}
@@ -1113,8 +1217,27 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   {item.duration || item.serviceType || ''}
                 </div>
               </div>
-              <button className="flex-1 px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md" style={{ backgroundColor: '#1A2E6E' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1A2E6E'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1A2E6E'}>
-                {primaryAction}
+              <button 
+                className="flex-1 px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md flex items-center justify-center gap-2"
+                style={{ backgroundColor: '#1A2E6E' }} 
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#152554')} 
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1A2E6E')}
+                onClick={() => {
+                  if (isPromptLibrary && item.sourceUrl) {
+                    window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
+                  }
+                }}
+              >
+                {isPromptLibrary ? (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Visit Page
+                  </>
+                ) : (
+                  primaryAction
+                )}
               </button>
             </div>
           </div>}

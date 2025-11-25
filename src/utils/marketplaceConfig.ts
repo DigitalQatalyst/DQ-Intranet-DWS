@@ -417,21 +417,11 @@ export const getTabSpecificFilters = (tabId?: string): FilterCategoryConfig[] =>
       id: 'promptType',
       title: 'Prompt Type',
       options: [
-        { id: 'content_creation', name: 'Content Creation' },
-        { id: 'code_generation', name: 'Code Generation' },
-        { id: 'data_analysis', name: 'Data Analysis' },
-        { id: 'business_strategy', name: 'Business Strategy' },
-        { id: 'customer_service', name: 'Customer Service' }
-      ]
-    },
-    {
-      id: 'promptCategory',
-      title: 'Category',
-      options: [
-        { id: 'marketing', name: 'Marketing' },
-        { id: 'engineering', name: 'Engineering' },
-        { id: 'operations', name: 'Operations' },
-        { id: 'sales', name: 'Sales' }
+        { id: 'business', name: 'Business (Admin, HR, Finance, Ops)' },
+        { id: 'tech', name: 'Tech (Hardware, Software)' },
+        { id: 'dev_prompts', name: 'Dev Prompts (Software Development)' },
+        { id: 'devops_prompts', name: 'DevOps Prompts (Deployment)' },
+        { id: 'ai', name: 'AI (Machine Learning)' }
       ]
     }
   ];
