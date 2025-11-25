@@ -809,38 +809,6 @@ export const mockNonFinancialServices = [
     requestUrl: 'https://forms.office.com/pages/responsepage.aspx?id=LovableAIRequest',
   },
   {
-    id: '12',
-    title: 'Sora AI',
-    description:
-      'Request access to Sora AI, an advanced AI-powered video generation platform that creates high-quality videos from text descriptions. Transform your ideas into professional video content for marketing, training, presentations, and creative projects. Submit your requisition to unlock AI-driven video creation capabilities.',
-    category: 'AI Tools',
-    serviceType: 'Requisition',
-    deliveryMode: 'Online',
-    businessStage: 'All Stages',
-    toolCategory: 'design_tools',
-    accessType: 'request_access',
-    pricing: 'paid',
-    provider: {
-      name: 'Digital Innovation',
-      logoUrl: '/Sora-AI.png',
-      description:
-        'Digital Innovation team manages AI video generation tools, providing access to cutting-edge content creation platforms for business use.',
-    },
-    duration: '2-3 business days',
-    price: 'Licensed',
-    details: [
-      'Request access to Sora AI video generation platform',
-      'AI-powered video creation from text descriptions',
-      'Professional-quality video output',
-      'Support for various video formats and resolutions',
-      'Training and best practices documentation',
-      'Use case consultation and guidance',
-    ],
-    tags: ['Digital Innovation', 'Online', 'AI Tools'],
-    featuredImageUrl: '/images/services/sora-ai.jpg',
-    requestUrl: 'https://forms.office.com/pages/responsepage.aspx?id=SoraAIRequest',
-  },
-  {
     id: '13',
     title: 'Leave Application',
     description:

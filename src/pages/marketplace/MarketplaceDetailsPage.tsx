@@ -336,6 +336,20 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             {block.items.map((it, i) => <li key={i} className="pl-2 leading-relaxed">{it}</li>)}
           </ul>;
       }
+      if (block.type === 'iframe') {
+        return <div key={idx} className="mb-6">
+            <iframe
+              src={block.src}
+              width={block.width || '640'}
+              height={block.height || '360'}
+              frameBorder="0"
+              scrolling="no"
+              allowFullScreen
+              title={block.title || 'Embedded video'}
+              className="rounded-lg shadow-md"
+            />
+          </div>;
+      }
       return null;
     });
   };
@@ -872,7 +886,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       <div className="bg-gray-50 p-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-lg text-gray-900">
-            {config.itemName} Details
+            Service Details
           </h3>
           {isFloating && <button onClick={() => setIsFloatingCardVisible(false)} className="p-1 hover:bg-gray-200 rounded transition-colors text-gray-600" aria-label="Hide card">
               <XIcon size={16} />
@@ -992,7 +1006,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               scrollbarWidth: 'none',
               msOverflowStyle: 'none'
             }}>
-                {tabsToUse.map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-6 py-4 text-base font-semibold whitespace-nowrap transition-all duration-200 border-b-2 ${activeTab === tab.id ? 'text-blue-600 border-blue-600' : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'}`} aria-selected={activeTab === tab.id} aria-controls={`tabpanel-${tab.id}`} role="tab">
+                {tabsToUse.map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-8 py-4 text-base font-semibold whitespace-nowrap transition-all duration-200 border-b-2 ${activeTab === tab.id ? 'text-blue-600 border-blue-600' : 'text-gray-600 border-transparent hover:text-gray-800 hover:border-gray-300'}`} aria-selected={activeTab === tab.id} aria-controls={`tabpanel-${tab.id}`} role="tab">
                     {tab.label}
                   </button>)}
               </div>

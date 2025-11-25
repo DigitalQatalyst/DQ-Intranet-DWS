@@ -3,15 +3,16 @@ import * as React from 'react';
 export type ContentBlock =
   | { type: 'p'; text: string }
   | { type: 'ol'; items: string[] }
-  | { type: 'ul'; items: string[] };
+  | { type: 'ul'; items: string[] }
+  | { type: 'iframe'; src: string; width?: string; height?: string; title?: string };
 
 export interface TabContent {
   heading?: string;
   blocks: ContentBlock[];
   action?: {
     label: string;
-    // Which field from the item to open if present (e.g., requestUrl or formUrl)
-    urlField?: 'requestUrl' | 'formUrl';
+    // Which field from the item to open if present (e.g., requestUrl, formUrl, videoUrl, templateUrl)
+    urlField?: 'requestUrl' | 'formUrl' | 'videoUrl' | 'templateUrl';
     fallbackUrl?: string;
   };
 }
@@ -28,6 +29,9 @@ export interface CustomTab {
 // Custom tabs for specific services
 export const SERVICE_CUSTOM_TABS: Record<string, Record<string, CustomTab[]>> = {
   'non-financial': {
+    '3': [ // IT Support Walkthrough
+      { id: 'submit_request', label: 'Video Tutorial' },
+    ],
     '13': [ // Leave Application
       { id: 'annual_leave', label: 'Annual Leave' },
       { id: 'sick_leave', label: 'Sick Leave' },
@@ -223,7 +227,7 @@ const SERVICE_DETAILS_CONTENT: Record<
     // IT Support Walkthrough (video/guide)
     '3': {
       submit_request: {
-        heading: 'Follow the Walkthrough',
+        //heading: 'Follow the Walkthrough',
         blocks: [
           {
             type: 'p',
@@ -238,35 +242,14 @@ const SERVICE_DETAILS_CONTENT: Record<
               'Open the Submit Request tab and follow the same steps to log your ticket.',
             ],
           },
-        ],
-        action: {
-          label: 'Request Service',
-          urlField: 'videoUrl',
-          fallbackUrl: '#',
-        },
-      },
-      self_service_faq: {
-        heading: 'Common Issues to Try First',
-        blocks: [
           {
-            type: 'ul',
-            items: [
-              'Restart the app/device and try again.',
-              'Check VPN/Network and sign back into Microsoft 365.',
-              'Update to the latest version of the affected software.',
-            ],
+            type: 'iframe',
+            src: 'https://arqitek.sharepoint.com/sites/General/_layouts/15/embed.aspx?UniqueId=3c26dca2-2c1a-4707-b639-46d1dce6d6df&embed=%7B%22ust%22%3Atrue%2C%22hv%22%3A%22CopyEmbedCode%22%7D&referrer=StreamWebApp&referrerScenario=EmbedDialog.Create',
+            width: '640',
+            height: '360',
+            title: 'DQ IT and admin Support Request Tutorial',
           },
         ],
-      },
-      contact_sla: {
-        heading: 'Support & Response',
-        blocks: [
-          { type: 'p', text: 'Standard hours: Mon–Fri, 9:00–17:00. For urgent outages, call the IT line.' },
-        ],
-      },
-      required_documents: {
-        heading: 'Required Documents',
-        blocks: [{ type: 'p', text: 'No required documents.' }],
       },
     },
     // Cursor AI
@@ -562,164 +545,6 @@ const SERVICE_DETAILS_CONTENT: Record<
             type: 'p',
             text:
               'Note: Most individual access requests only require completion of the online form with a clear use case description. Additional documentation is typically only needed for team access or projects involving sensitive data.',
-          },
-        ],
-      },
-    },
-    // Sora AI
-    '12': {
-      submit_request: {
-        heading: 'Request Sora AI Access',
-        blocks: [
-          {
-            type: 'p',
-            text:
-              'Sora AI is a cutting-edge AI-powered video generation platform that transforms text descriptions into high-quality professional videos. Whether you need marketing content, training materials, product demonstrations, or creative visual storytelling, Sora AI enables you to create compelling video content without traditional video production expertise or equipment.',
-          },
-          {
-            type: 'p',
-            text:
-              'Click the "Request Service" button below to submit your Sora AI access request. The form will open in a new window where you can provide the necessary information for platform access provisioning.',
-          },
-          { type: 'p', text: 'Steps to request Sora AI access:' },
-          {
-            type: 'ol',
-            items: [
-              'Open the request form: Click the Request Service button to launch the Sora AI access request form.',
-              'Provide your details: Enter your name, department, role, and DQ email address.',
-              'Specify use case: Describe your intended use for Sora AI (e.g., marketing videos, training content, product demos, internal communications, presentations).',
-              'Content requirements: Outline the type and volume of video content you plan to create, including approximate duration and frequency.',
-              'Acknowledge policies: Review and accept the AI content generation policies, brand guidelines, copyright considerations, and ethical AI usage guidelines.',
-              'Select access level: Choose between individual access or team access (if requesting for multiple content creators).',
-              'Submit the form: Review your entries and click Submit. You will receive an email confirmation with your request number.',
-            ],
-          },
-          {
-            type: 'p',
-            text:
-              'After submission, the Digital Innovation team will review your request and assess the use case for compliance with content guidelines. Once approved, you will receive platform access credentials, video generation tutorials, and links to best practices documentation. Platform access is typically provisioned within 2-3 business days.',
-          },
-        ],
-        action: {
-          label: 'Request Service',
-          urlField: 'requestUrl',
-          fallbackUrl: 'https://forms.office.com/pages/responsepage.aspx?id=SoraAIRequest',
-        },
-      },
-      self_service_faq: {
-        heading: 'Sora AI FAQs & Best Practices',
-        blocks: [
-          {
-            type: 'p',
-            text:
-              'Before submitting your request, review these frequently asked questions and best practices to get the most out of Sora AI video generation.',
-          },
-          { type: 'p', text: 'Frequently Asked Questions:' },
-          {
-            type: 'ul',
-            items: [
-              'What is Sora AI? Sora AI is an AI-powered video generation platform that creates realistic, high-quality videos from text descriptions. It uses advanced machine learning models to generate video content including scenes, movements, camera angles, and visual effects based on your prompts.',
-              'Who should use Sora AI? Marketing teams, content creators, L&D professionals, product managers, communications teams, and anyone who needs to create video content quickly without traditional video production resources.',
-              'What types of videos can I create? You can create marketing videos, product demonstrations, training modules, explainer videos, social media content, internal communications, presentation videos, concept visualizations, and more.',
-              'Do I need video production experience? No video production experience is required. You describe what you want to see in natural language, and Sora AI generates the video. However, understanding basic storytelling and visual communication principles will help you create more effective content.',
-              'How long does it take to generate a video? Generation time varies based on video length and complexity. Short videos (15-30 seconds) typically generate in 2-5 minutes, while longer, more complex videos may take 10-20 minutes.',
-              'What video formats and quality are supported? Sora AI generates videos in standard formats (MP4, MOV) with resolutions up to 1080p. You can specify aspect ratios for different platforms (16:9 for YouTube, 9:16 for social media stories, 1:1 for Instagram).',
-              'Can I edit the generated videos? Yes, you can download generated videos and edit them using standard video editing tools. You can also regenerate specific scenes or create variations using different prompts.',
-              'What about copyright and usage rights? Videos generated by Sora AI are owned by DQ and can be used for business purposes. You must follow DQ brand guidelines and cannot use generated content that includes copyrighted materials, trademarked content, or violates third-party rights.',
-            ],
-          },
-          { type: 'p', text: 'Best Practices:' },
-          {
-            type: 'ul',
-            items: [
-              'Write clear, detailed prompts: Describe the scene, actions, camera movements, lighting, and mood. The more specific your description, the better the results.',
-              'Start with shorter videos: Begin with 15-30 second videos to learn the platform before creating longer content.',
-              'Iterate and refine: Generate multiple variations of your video by adjusting your prompts. Test different descriptions to achieve the desired result.',
-              'Follow brand guidelines: Ensure generated content aligns with DQ visual identity, brand colors, and messaging guidelines.',
-              'Plan your narrative: Outline your story or message structure before generating videos. Break complex stories into shorter scenes.',
-              'Review for accuracy: Always review generated content for factual accuracy, appropriate messaging, and alignment with your objectives.',
-              'Respect ethical guidelines: Do not create misleading content, deepfakes of real people without consent, or content that could be harmful or offensive.',
-              'Optimize for platform: Consider where the video will be used and optimize aspect ratio, duration, and content accordingly.',
-              'Combine with other tools: Use Sora AI alongside traditional editing tools for titles, branding, music, and final polish.',
-              'Join the community: Connect with other Sora AI users in the #sora-ai channel on Microsoft Teams to share tips and creative techniques.',
-            ],
-          },
-          {
-            type: 'p',
-            text:
-              'For video tutorials, prompt templates, and creative inspiration, visit the Sora AI resource center or attend monthly showcase sessions hosted by the Digital Innovation team.',
-          },
-        ],
-      },
-      contact_sla: {
-        heading: 'Contact & Service Level',
-        blocks: [
-          {
-            type: 'p',
-            text:
-              'Purpose: Provide contact information, support hours, and expected response times for Sora AI access requests and video generation support.',
-          },
-          {
-            type: 'p',
-            text:
-              'Support Hours: Monday–Friday, 9:00 AM to 5:00 PM (DQ business days). Requests submitted outside these hours will be processed on the next business day.',
-          },
-          { type: 'p', text: 'Contact Methods:' },
-          {
-            type: 'ul',
-            items: [
-              'Access Requests: Submit via the request form or email digital-innovation@dq.com for new access requests.',
-              'Platform Support: For platform issues, generation problems, or technical questions, contact the Digital Innovation team via Microsoft Teams (#sora-ai channel) or email.',
-              'License Issues: For access problems or account issues, email digital-innovation@dq.com with your request number.',
-              'Training & Resources: Join monthly showcase sessions (first Thursday at 3:00 PM) or schedule one-on-one training through the Digital Innovation team.',
-              'Content Consultation: For guidance on video concepts, brand compliance, or creative direction, request a consultation with the Digital Content team.',
-              'Brand Review: For videos requiring brand approval, submit through the Marketing Brand Review process.',
-            ],
-          },
-          { type: 'p', text: 'Service Level Agreements:' },
-          {
-            type: 'ul',
-            items: [
-              'Request Acknowledgment: All requests are acknowledged within 2 hours during business hours.',
-              'Initial Response: Use case review and compliance assessment within 1 business day.',
-              'Access Provisioning: Approved requests are processed and platform access granted within 2-3 business days.',
-              'Technical Support: Platform issues and technical questions are addressed within 4 hours during business hours.',
-              'Training Access: Getting started guides and tutorial access provided immediately upon platform access activation.',
-              'Content Consultation: Creative consultation meetings scheduled within 3-5 business days.',
-              'Generation Time: Video generation typically completes within 2-20 minutes depending on complexity.',
-            ],
-          },
-          {
-            type: 'p',
-            text:
-              'Scope & Eligibility: Sora AI access is available to DQ staff working on approved business content, marketing materials, training programs, or internal communications. Requests must include a valid business use case. All generated content must comply with DQ brand guidelines, content policies, and ethical AI usage standards. Personal or non-business content creation is not supported.',
-          },
-        ],
-      },
-      required_documents: {
-        heading: 'Required Documents',
-        blocks: [
-          {
-            type: 'p',
-            text:
-              'To complete your Sora AI access request, you may need to provide the following information:',
-          },
-          {
-            type: 'ul',
-            items: [
-              'Use Case Description: Detailed description of the video content you plan to create and the business purpose it serves (provided in the request form).',
-              'Content Plan: Brief overview of your content strategy including target audience, video types, estimated volume, and distribution channels.',
-              'Manager Approval: Manager approval is required for all Sora AI access requests to ensure alignment with team objectives and budget.',
-              'Brand Compliance Acknowledgment: Confirmation that you understand and will comply with DQ brand guidelines and content policies.',
-              'Team Access Request: For team access (multiple users), provide list of team members with names, email addresses, roles, and their specific content creation needs.',
-              'Budget Allocation: For high-volume usage, provide cost center information and approved budget allocation.',
-              'Training Completion: After receiving access, completion of the Sora AI fundamentals training and ethical AI content creation module is required within 7 business days.',
-            ],
-          },
-          {
-            type: 'p',
-            text:
-              'Note: All access requests require manager approval due to licensing costs and content governance requirements. Individual creators should provide a clear use case and expected content volume. Team licenses require additional justification and budget approval.',
           },
         ],
       },
@@ -1550,5 +1375,6 @@ export function getCustomTabs(
   if (!serviceId) return undefined;
   return SERVICE_CUSTOM_TABS[marketplaceType]?.[serviceId];
 }
+
 
 

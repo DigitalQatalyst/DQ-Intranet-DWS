@@ -1010,7 +1010,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     {activeServiceTab === 'business' && 'Business'}
                     {activeServiceTab === 'digital_worker' && 'Digital Worker'}
                     {activeServiceTab === 'prompt_library' && 'Prompt Library'}
-                    {activeServiceTab === 'doc_writer' && 'DOC Writer'}
+                    {activeServiceTab === 'doc_writer' && 'Doc Writer'}
                     {activeServiceTab === 'ai_tools' && 'AI Tools'}
                   </p>
                 </div>
@@ -1047,7 +1047,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 { id: 'business', label: 'Business' },
                 { id: 'digital_worker', label: 'Digital Worker' },
                 { id: 'prompt_library', label: 'Prompt Library' },
-                { id: 'doc_writer', label: 'DOC Writer' },
+                { id: 'doc_writer', label: 'Doc Writer' },
                 { id: 'ai_tools', label: 'AI Tools' }
               ].map((tab) => {
                 const isActive = activeServiceTab === tab.id;
