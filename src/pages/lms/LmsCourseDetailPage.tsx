@@ -604,11 +604,11 @@ export const LmsCourseDetailPage: React.FC = () => {
 
               {/* Curriculum Tab */}
               {activeTab === 'curriculum' && (
-                <section className="space-y-6">
+                <section className="space-y-4">
                   {curriculum && curriculum.length > 0 && (
-                    <div className="flex items-center justify-end mb-4">
+                    <div className="flex items-center justify-start mb-2">
                       <span className="text-sm text-gray-600">
-                        {curriculum.length} {curriculum.length === 1 ? 'item' : 'items'}
+                        {course.deliveryMode || 'Self-paced'} course has {courseStats.totalModules} {courseStats.totalModules === 1 ? 'module' : 'modules'} and {courseStats.totalLessons} {courseStats.totalLessons === 1 ? 'lesson' : 'lessons'}
                       </span>
                     </div>
                   )}
@@ -1540,7 +1540,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                     </span>
                   </div>
                   {courseStats.totalModules > 0 && (
-                    <div className="flex justify-between text-sm text-gray-600">
+                  <div className="flex justify-between text-sm text-gray-600">
                       <span>Modules</span>
                       <span className="font-medium text-gray-900">
                         {courseStats.totalModules} {courseStats.totalModules === 1 ? 'module' : 'modules'}
