@@ -244,7 +244,13 @@ export function PostComposer({
       // Insert the post into posts_v2 (simplified schema)
       // Note: posts_v2 only has: id, community_id, user_id, title, content, created_at, updated_at
       // Additional metadata (post_type, tags, etc.) can be stored in content or handled separately
-      const postContent = contentHtml || content; // Use HTML if available, otherwise plain text
+      let postContent = contentHtml || content; // Use HTML if available, otherwise plain text
+      
+      // If media post, add media HTML to content immediately
+      if (postType === 'media' && mediaUrl) {
+        const mediaHtml = `<div class="media-content"><img src="${mediaUrl.trim()}" alt="${caption || 'Media'}" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 12px;" />${caption ? `<p class="text-sm text-gray-600 mt-2">${caption}</p>` : ''}</div>`;
+        postContent = postContent ? `${postContent}\n${mediaHtml}` : mediaHtml;
+      }
       
       const query = supabase.from('posts_v2').insert({
         title: title.trim(),
@@ -286,6 +292,13 @@ export function PostComposer({
           });
         }
       }
+
+      // Media is already included in content above, so no need to save separately
+      // Note: media_files table has foreign key to posts(id), not posts_v2(id), so we store in content instead
+      if (postType === 'media' && mediaUrl) {
+        console.log('✅ Media included in post content');
+      }
+
       toast.success('Post created successfully!');
       resetForm();
       onPostCreated();

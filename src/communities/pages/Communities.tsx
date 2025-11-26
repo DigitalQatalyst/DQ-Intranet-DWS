@@ -53,54 +53,56 @@ export default function Communities() {
   // Dynamic filter options from backend
   const [filterConfig, setFilterConfig] = useState<FilterConfig[]>([]);
   
-  // Fetch filter options from backend
+  // Fetch filter options from backend (non-blocking)
   useEffect(() => {
-    // Don't let filter fetching errors block the page
+    // Set minimal filter config immediately so page can load
+    setFilterConfig([
+      {
+        id: 'department',
+        title: 'Department',
+        options: [
+          { id: 'hra-people', name: 'HRA (People)' },
+          { id: 'finance', name: 'Finance' },
+          { id: 'deals', name: 'Deals' },
+          { id: 'stories', name: 'Stories' },
+          { id: 'intelligence', name: 'Intelligence' },
+          { id: 'solutions', name: 'Solutions' },
+          { id: 'secdevops', name: 'SecDevOps' },
+          { id: 'products', name: 'Products' },
+          { id: 'delivery-deploys', name: 'Delivery — Deploys' },
+          { id: 'delivery-designs', name: 'Delivery — Designs' },
+          { id: 'dco-operations', name: 'DCO Operations' },
+          { id: 'dbp-platform', name: 'DBP Platform' },
+          { id: 'dbp-delivery', name: 'DBP Delivery' }
+        ]
+      },
+      {
+        id: 'location',
+        title: 'Location',
+        options: [
+          { id: 'dubai', name: 'Dubai' },
+          { id: 'nairobi', name: 'Nairobi' },
+          { id: 'riyadh', name: 'Riyadh' }
+        ]
+      },
+      {
+        id: 'category',
+        title: 'Category',
+        options: [
+          { id: 'dq-agile', name: 'GHC - DQ Agile' },
+          { id: 'dq-culture', name: 'GHC - DQ Culture' },
+          { id: 'dq-dtmf', name: 'GHC - DQ DTMF' },
+          { id: 'dq-persona', name: 'GHC - DQ Persona' },
+          { id: 'dq-tech', name: 'GHC - DQ Tech' },
+          { id: 'dq-vision', name: 'GHC - DQ Vision' }
+        ]
+      }
+    ]);
+    
+    // Then fetch filter options in background (non-blocking)
     fetchFilterOptions().catch(err => {
       console.error('Filter options fetch failed, but continuing:', err);
-      // Set minimal filter config so page can still load
-      setFilterConfig([
-        {
-          id: 'department',
-          title: 'Department',
-          options: [
-            { id: 'hra-people', name: 'HRA (People)' },
-            { id: 'finance', name: 'Finance' },
-            { id: 'deals', name: 'Deals' },
-            { id: 'stories', name: 'Stories' },
-            { id: 'intelligence', name: 'Intelligence' },
-            { id: 'solutions', name: 'Solutions' },
-            { id: 'secdevops', name: 'SecDevOps' },
-            { id: 'products', name: 'Products' },
-            { id: 'delivery-deploys', name: 'Delivery — Deploys' },
-            { id: 'delivery-designs', name: 'Delivery — Designs' },
-            { id: 'dco-operations', name: 'DCO Operations' },
-            { id: 'dbp-platform', name: 'DBP Platform' },
-            { id: 'dbp-delivery', name: 'DBP Delivery' }
-          ]
-        },
-        {
-          id: 'location',
-          title: 'Location',
-          options: [
-            { id: 'dubai', name: 'Dubai' },
-            { id: 'nairobi', name: 'Nairobi' },
-            { id: 'riyadh', name: 'Riyadh' }
-          ]
-        },
-        {
-          id: 'category',
-          title: 'Category',
-          options: [
-            { id: 'dq-agile', name: 'GHC - DQ Agile' },
-            { id: 'dq-culture', name: 'GHC - DQ Culture' },
-            { id: 'dq-dtmf', name: 'GHC - DQ DTMF' },
-            { id: 'dq-persona', name: 'GHC - DQ Persona' },
-            { id: 'dq-tech', name: 'GHC - DQ Tech' },
-            { id: 'dq-vision', name: 'GHC - DQ Vision' }
-          ]
-        }
-      ]);
+      // Keep the minimal config already set above
     });
   }, []);
 
@@ -447,12 +449,7 @@ export default function Communities() {
     }
   };
 
-  // Fetch communities with filters from backend
-  useEffect(() => {
-    fetchCommunities();
-  }, [searchQuery, filters, user]);
-
-  const fetchCommunities = async () => {
+  const fetchCommunities = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -549,6 +546,42 @@ export default function Communities() {
       
       console.log('Query result:', { hasData: !!data, dataLength: data?.length || 0, hasError: !!error });
       
+      // Fetch recent posts for each community
+      if (data && !error && data.length > 0) {
+        const communityIds = data.map((c: any) => c.id);
+        
+        // Fetch most recent post for each community
+        const recentPostsQuery = supabase
+          .from('posts_v2')
+          .select('id, title, community_id, created_at')
+          .in('community_id', communityIds)
+          .order('created_at', { ascending: false });
+        
+        const [recentPostsData] = await safeFetch(recentPostsQuery);
+        
+        // Create a map of community_id -> most recent post title
+        const recentPostsMap = new Map<string, string>();
+        if (recentPostsData) {
+          // Group by community_id and get the most recent for each
+          const postsByCommunity = new Map<string, any>();
+          recentPostsData.forEach((post: any) => {
+            if (!postsByCommunity.has(post.community_id)) {
+              postsByCommunity.set(post.community_id, post);
+            }
+          });
+          
+          postsByCommunity.forEach((post, communityId) => {
+            recentPostsMap.set(communityId, post.title);
+          });
+        }
+        
+        // Add recent post title to each community
+        data = data.map((community: any) => ({
+          ...community,
+          recent_post_title: recentPostsMap.get(community.id) || null
+        }));
+      }
+      
       // If querying base table (for department/location filters), transform data
       if (hasDepartmentOrLocationFilter && data && !error) {
         const transformedData = data.map((community: any) => ({
@@ -573,6 +606,36 @@ export default function Communities() {
 
         // Sort by member count
         filteredData.sort((a, b) => (b.member_count || 0) - (a.member_count || 0));
+        
+        // Fetch recent posts for these communities
+        const communityIds = filteredData.map((c: any) => c.id);
+        if (communityIds.length > 0) {
+          const recentPostsQuery = supabase
+            .from('posts_v2')
+            .select('id, title, community_id, created_at')
+            .in('community_id', communityIds)
+            .order('created_at', { ascending: false });
+          
+          const [recentPostsData] = await safeFetch(recentPostsQuery);
+          const recentPostsMap = new Map<string, string>();
+          if (recentPostsData) {
+            const postsByCommunity = new Map<string, any>();
+            recentPostsData.forEach((post: any) => {
+              if (!postsByCommunity.has(post.community_id)) {
+                postsByCommunity.set(post.community_id, post);
+              }
+            });
+            postsByCommunity.forEach((post, communityId) => {
+              recentPostsMap.set(communityId, post.title);
+            });
+          }
+          
+          // Add recent post titles
+          filteredData = filteredData.map((community: any) => ({
+            ...community,
+            recent_post_title: recentPostsMap.get(community.id) || null
+          }));
+        }
 
         console.log('Successfully fetched communities from base table with department/location filters:', filteredData.length);
         setFilteredCommunities(filteredData as Community[]);
@@ -647,11 +710,34 @@ export default function Communities() {
         
         // Transform data to match expected format
         if (data && !error) {
+          // Fetch recent posts for fallback communities too
+          const communityIds = data.map((c: any) => c.id);
+          const recentPostsQuery = supabase
+            .from('posts_v2')
+            .select('id, title, community_id, created_at')
+            .in('community_id', communityIds)
+            .order('created_at', { ascending: false });
+          
+          const [recentPostsData] = await safeFetch(recentPostsQuery);
+          const recentPostsMap = new Map<string, string>();
+          if (recentPostsData) {
+            const postsByCommunity = new Map<string, any>();
+            recentPostsData.forEach((post: any) => {
+              if (!postsByCommunity.has(post.community_id)) {
+                postsByCommunity.set(post.community_id, post);
+              }
+            });
+            postsByCommunity.forEach((post, communityId) => {
+              recentPostsMap.set(communityId, post.title);
+            });
+          }
+          
           const transformedData = data.map((community: any) => ({
             ...community,
             member_count: Array.isArray(community.memberships) 
               ? community.memberships[0]?.count || 0 
-              : (typeof community.member_count === 'number' ? community.member_count : 0)
+              : (typeof community.member_count === 'number' ? community.member_count : 0),
+            recent_post_title: recentPostsMap.get(community.id) || null
           }));
 
           // Apply member count filter client-side if needed
@@ -671,6 +757,7 @@ export default function Communities() {
 
           console.log('Successfully fetched communities from base table:', filteredData.length);
           setFilteredCommunities(filteredData as Community[]);
+          setLoading(false);
           return;
         }
       }
@@ -701,7 +788,12 @@ export default function Communities() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchQuery, filters, user]);
+  
+  // Fetch communities with filters from backend
+  useEffect(() => {
+    fetchCommunities();
+  }, [fetchCommunities]);
   const fetchUserMemberships = async () => {
     if (!user) return;
     const query = supabase
@@ -1146,6 +1238,12 @@ export default function Communities() {
                     const activeMembers = Math.floor(count * (0.6 + Math.random() * 0.3));
                     const category = community.category || 'General';
                     const tags = [category, activityLevel === 'high' ? 'Popular' : 'Growing'];
+                    
+                    // Get recent activity from community data (fetched with recent post)
+                    const recentActivity = (community as any).recent_post_title 
+                      ? `New discussion: ${(community as any).recent_post_title}`
+                      : `New discussion started in ${community.name}`;
+                    
                     return (
                       <CommunityCard
                         key={community.id}
@@ -1160,7 +1258,7 @@ export default function Communities() {
                           imageUrl: community.imageurl || 'https://images.unsplash.com/photo-1534043464124-3be32fe000c9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80',
                           isPrivate: community.isprivate || false,
                           activityLevel: activityLevel,
-                          recentActivity: `New discussion started in ${community.name}`
+                          recentActivity: recentActivity
                         }}
                         isMember={userMemberships.has(community.id)}
                         onJoin={() => {

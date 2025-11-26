@@ -6,6 +6,7 @@ import { CommunityReactions } from '@/communities/components/post/CommunityReact
 import { CommunityComments } from '@/communities/components/post/CommunityComments';
 import { useAuth } from '@/communities/contexts/AuthProvider';
 import { toast } from 'sonner';
+import { PostCardMedia } from './PostCard/PostCardMedia';
 
 interface Post {
   id: string;
@@ -125,7 +126,30 @@ export function PostCard({ post, onActionComplete, isMember = false }: PostCardP
       {/* Post Content */}
       <div className="px-6 pb-4">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">{post.title}</h3>
-        <p className="text-gray-700 leading-relaxed line-clamp-3">{post.content}</p>
+        
+        {/* Check if content has media (either post_type is media OR content contains media HTML) */}
+        {(() => {
+          const hasMedia = post.post_type === 'media' || 
+                          (post.content && (post.content.includes('<div class="media-content">') || 
+                                           post.content.includes('<img') ||
+                                           post.content.match(/<img[^>]+src/i)));
+          
+          if (hasMedia) {
+            return (
+              <div className="mt-3">
+                <PostCardMedia post={post as any} />
+                {/* Show text content only if it doesn't contain media HTML */}
+                {post.content && !post.content.includes('<div class="media-content">') && !post.content.includes('<img') && (
+                  <p className="text-gray-700 leading-relaxed mt-3">{post.content.replace(/<[^>]*>/g, '')}</p>
+                )}
+              </div>
+            );
+          } else {
+            return (
+              <p className="text-gray-700 leading-relaxed line-clamp-3">{post.content?.replace(/<[^>]*>/g, '') || post.content}</p>
+            );
+          }
+        })()}
         
         {/* Event specific content */}
         {post.post_type === 'event' && (

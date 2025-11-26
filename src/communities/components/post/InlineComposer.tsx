@@ -220,10 +220,16 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
     try {
       // Prepare simplified post data for posts_v2
       // For text posts, use content if available, otherwise use title
-      // This allows users to post with just a title
-      const postContent = postType === 'text' 
+      // For media posts, include media HTML in content
+      let postContent = postType === 'text' 
         ? (content.trim() || title.trim()) 
         : title.trim();
+      
+      // If media post, add media HTML to content immediately
+      if (postType === 'media' && mediaFile) {
+        const mediaHtml = `<div class="media-content"><img src="${mediaFile.url}" alt="${mediaFile.caption || 'Media'}" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 12px;" />${mediaFile.caption ? `<p class="text-sm text-gray-600 mt-2">${mediaFile.caption}</p>` : ''}</div>`;
+        postContent = postContent ? `${postContent}\n${mediaHtml}` : mediaHtml;
+      }
       
       const postDataV2 = {
         community_id: targetCommunityId,
@@ -249,6 +255,12 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
       }
       
       console.log('✅ Post created successfully:', post);
+
+      // Media is already included in content above, so no need to save separately
+      // Note: media_files table has foreign key to posts(id), not posts_v2(id), so we store in content instead
+      if (postType === 'media' && mediaFile) {
+        console.log('✅ Media included in post content');
+      }
 
       // Clear form
       clearForm();

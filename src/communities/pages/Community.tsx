@@ -377,6 +377,50 @@ export default function Community() {
             );
             userData = userResult;
           }
+
+          // Check if post has media to determine post_type
+          // Primary check: look for media HTML in content (since posts_v2 stores media in content)
+          // Also check if it's a poll by checking poll_options table
+          let postType = "text";
+          
+          // Check if it's a poll first
+          const [pollOptionsCheck] = await safeFetch(
+            supabase
+              .from("poll_options")
+              .select("id")
+              .eq("post_id", post.id)
+              .limit(1)
+          );
+          
+          if (pollOptionsCheck && pollOptionsCheck.length > 0) {
+            postType = "poll";
+          }
+          
+          // Check for media in content (can be media post or poll with media)
+          if (post.content) {
+            const hasMedia = post.content.includes('<div class="media-content">') || 
+                            post.content.includes('<img') ||
+                            post.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+            
+            if (hasMedia && postType !== "poll") {
+              postType = "media";
+            }
+          }
+          
+          // Fallback: check media_files table (though this may not work due to foreign key constraint)
+          if (postType === "text") {
+            const [mediaFiles] = await safeFetch(
+              supabase
+                .from("media_files")
+                .select("id")
+                .eq("post_id", post.id)
+                .limit(1)
+            );
+            
+            if (mediaFiles && mediaFiles.length > 0) {
+              postType = "media";
+            }
+          }
           
           return {
             ...post,
@@ -388,7 +432,7 @@ export default function Community() {
             author_avatar: userData?.avatar_url || null,
             // Add default values for fields not in posts_v2
             status: "active", // posts_v2 doesn't have status, default to active
-            post_type: "text", // Default post type
+            post_type: postType, // Detect post type from media_files or content
             tags: [], // posts_v2 doesn't have tags
             content_html: null, // posts_v2 doesn't have content_html
             metadata: {},
@@ -444,6 +488,8 @@ export default function Community() {
     }
   };
   const handlePostCreated = () => {
+    // Refresh posts immediately after creation
+    fetchPosts().catch(err => console.error("Error refreshing posts:", err));
     setRefreshKey((prev) => prev + 1);
   };
 
