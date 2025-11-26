@@ -765,8 +765,6 @@ export const LmsCourses: React.FC = () => {
                           {/* Stats */}
                           <div className="flex flex-wrap gap-3 mb-4 text-sm text-gray-600">
                             <span>{totalCourses} {totalCourses === 1 ? 'Course' : 'Courses'}</span>
-                            {totalTopics > 0 && <span>• {totalTopics} {totalTopics === 1 ? 'Topic' : 'Topics'}</span>}
-                            {totalLessons > 0 && <span>• {totalLessons} {totalLessons === 1 ? 'Lesson' : 'Lessons'}</span>}
                           </div>
                           
                           {/* Tags */}

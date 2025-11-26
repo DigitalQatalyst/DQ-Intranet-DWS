@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { BookmarkIcon, ScaleIcon } from 'lucide-react';
+import { BookmarkIcon, Clock, Layers } from 'lucide-react';
 import {
   CARD_ICON_BY_ID,
   DEFAULT_COURSE_ICON,
@@ -26,7 +26,7 @@ export interface MarketplaceItemProps {
   marketplaceType: string;
   isBookmarked: boolean;
   onToggleBookmark: () => void;
-  onAddToComparison: () => void;
+  onAddToComparison?: () => void;
   onQuickView: () => void;
 }
 export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
@@ -130,7 +130,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       return baseTags.map((label, index) => ({ key: `generic-${index}`, label }));
     }
     
-    // For courses: only show duration and lessons/modules count
+    // For courses: only show duration and modules count with separator
     const chips: Array<{ key: string; label: string; iconValue?: string }> = [];
     
     // 1. duration
@@ -140,19 +140,12 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       chips.push({ key: 'duration', label: durationLabel, iconValue: durationValue });
     }
     
-    // 2. lessons/modules count
-    if (courseStats) {
-      if (courseStats.totalModules > 0) {
-        chips.push({ 
-          key: 'modules', 
-          label: `${courseStats.totalModules} ${courseStats.totalModules === 1 ? 'module' : 'modules'}` 
-        });
-      } else if (courseStats.totalLessons > 0) {
-        chips.push({ 
-          key: 'lessons', 
-          label: `${courseStats.totalLessons} ${courseStats.totalLessons === 1 ? 'lesson' : 'lessons'}` 
-        });
-      }
+    // 2. modules count (only modules, not lessons)
+    if (courseStats && courseStats.totalModules > 0) {
+      chips.push({ 
+        key: 'modules', 
+        label: `${courseStats.totalModules} ${courseStats.totalModules === 1 ? 'module' : 'modules'}` 
+      });
     }
     
     return chips;
@@ -195,21 +188,40 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
         </div>
         {/* Tags and Actions in same row - fixed position */}
         <div className="flex justify-between items-center mt-auto">
-          <div className="flex flex-wrap gap-1 max-w-[70%]">
-            {chipData.map((chip, index) => {
-            const Icon = resolveChipIcon(chip.key, chip.iconValue ?? chip.label);
-            return <span 
-              key={`${chip.key}-${chip.label}-${index}`} 
-              className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium truncate"
-              style={{
-                backgroundColor: '#F3F4F6',
-                color: '#000000'
-              }}
-            >
-                {Icon ? <Icon className="h-3.5 w-3.5 mr-1" style={{ color: '#000000' }} /> : null}
-                {chip.label}
-              </span>;
-          })}
+          <div className="flex flex-wrap gap-1 max-w-[70%] items-center">
+            {marketplaceType === 'courses' && chipData.length > 0 ? (
+              <>
+                {chipData.map((chip, index) => {
+                  const Icon = chip.key === 'duration' ? Clock : chip.key === 'modules' ? Layers : resolveChipIcon(chip.key, chip.iconValue ?? chip.label);
+                  return (
+                    <React.Fragment key={`${chip.key}-${chip.label}-${index}`}>
+                      {index > 0 && <span className="text-gray-400">.</span>}
+                      <span 
+                        className="inline-flex items-center text-xs font-medium truncate text-gray-700"
+                      >
+                        {Icon ? <Icon className="h-3.5 w-3.5 mr-1" /> : null}
+                        {chip.label}
+                      </span>
+                    </React.Fragment>
+                  );
+                })}
+              </>
+            ) : (
+              chipData.map((chip, index) => {
+                const Icon = resolveChipIcon(chip.key, chip.iconValue ?? chip.label);
+                return <span 
+                  key={`${chip.key}-${chip.label}-${index}`} 
+                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium truncate"
+                  style={{
+                    backgroundColor: '#F3F4F6',
+                    color: '#000000'
+                  }}
+                >
+                  {Icon ? <Icon className="h-3.5 w-3.5 mr-1" style={{ color: '#000000' }} /> : null}
+                  {chip.label}
+                </span>;
+              })
+            )}
           </div>
           <div className="flex space-x-2 flex-shrink-0">
             <button onClick={e => {
@@ -217,12 +229,6 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
             onToggleBookmark();
           }} className={`p-1.5 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'} title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
               <BookmarkIcon size={16} className={isBookmarked ? 'fill-yellow-600' : ''} />
-            </button>
-            <button onClick={e => {
-            e.stopPropagation();
-            onAddToComparison();
-          }} className="p-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200" aria-label="Add to comparison" title="Add to comparison">
-              <ScaleIcon size={16} />
             </button>
           </div>
         </div>

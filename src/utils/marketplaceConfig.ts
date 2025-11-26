@@ -453,7 +453,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     title: 'DQ LMS Course Marketplace',
     description: 'Discover focused, practical courses to help you work smarter at DQ.',
     route: '/marketplace/courses',
-    primaryCTA: 'Enroll Now',
+    primaryCTA: 'Start Learning',
     secondaryCTA: 'View Details',
     itemName: 'LMS Course',
     itemNamePlural: 'LMS Courses',

@@ -608,7 +608,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                   {curriculum && curriculum.length > 0 && (
                     <div className="flex items-center justify-start mb-2">
                       <span className="text-sm text-gray-600">
-                        {course.deliveryMode || 'Self-paced'} course has {courseStats.totalModules} {courseStats.totalModules === 1 ? 'module' : 'modules'} and {courseStats.totalLessons} {courseStats.totalLessons === 1 ? 'lesson' : 'lessons'}
+                        This course has {courseStats.totalModules} {courseStats.totalModules === 1 ? 'module' : 'modules'} and {courseStats.totalLessons} {courseStats.totalLessons === 1 ? 'lesson' : 'lessons'}
                       </span>
                     </div>
                   )}
