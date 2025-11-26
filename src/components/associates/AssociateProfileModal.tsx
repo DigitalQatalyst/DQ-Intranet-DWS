@@ -15,10 +15,10 @@ interface AssociateProfileModalProps {
   fallbackSummary?: string | null;
   fallbackBio?: string | null;
   fallbackKeySkills?: string[];
-  fallbackSfiaRating?: string;
-  fallbackStatus?: string;
-  fallbackUnit?: string;
-  fallbackDepartment?: string;
+  fallbackSfiaRating?: string | null;
+  fallbackStatus?: string | null;
+  fallbackUnit?: string | null;
+  fallbackDepartment?: string | null;
 }
 
 interface SectionProps {

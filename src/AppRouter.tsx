@@ -27,7 +27,7 @@ import EventsPage from "./pages/events/EventsPage";
 import KfBot from "./bot/KfBot";
 import ThankYou from "./pages/ThankYou";
 import WomenEntrepreneursLeadPage from "./pages/WomenEntrepreneursLeadPage";
-import DQWorkDirectoryPage from "./pages/DQWorkDirectoryPage";
+import { DQWorkDirectoryPage } from "./pages/DQWorkDirectoryPage";
 import UnitProfilePage from "./pages/UnitProfilePage";
 import WorkPositionProfilePage from "./pages/WorkPositionProfilePage";
 

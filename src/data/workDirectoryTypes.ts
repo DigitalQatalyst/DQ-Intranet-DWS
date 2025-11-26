@@ -74,6 +74,7 @@ export type WorkPositionRow = {
   responsibilities: string[] | null;
   expectations: string | null; // Changed from string[] to string (text field)
   image_url: string | null;
+  banner_image_url?: string | null;
   status?: string | null;
   created_at?: string;
   updated_at?: string;
@@ -96,6 +97,7 @@ export interface WorkPosition {
   responsibilities: string[];
   expectations: string | null; // Changed from string[] to string (text field)
   imageUrl?: string | null;
+  bannerImageUrl?: string | null;
   status?: string | null;
   createdAt?: string;
   updatedAt?: string;

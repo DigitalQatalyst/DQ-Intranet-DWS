@@ -3,9 +3,9 @@ import { Link, useParams } from "react-router-dom";
 import { HomeIcon, ChevronRightIcon, MapPin } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { getPerformanceStatusClasses } from "@/components/work-directory/unitStyles";
 import { TagChip } from "@/components/Cards/TagChip";
 import { useUnitProfile, useWorkUnits } from "@/hooks/useWorkDirectory";
+import { UnitPerformancePanel } from "@/components/units/UnitPerformancePanel";
 import classNames from "clsx";
 import { formatDistanceToNow } from "date-fns";
 
@@ -110,7 +110,6 @@ const UnitProfilePage: React.FC = () => {
   const performanceScore = unit?.performanceScore ?? null;
   const performanceStatus = unit?.performanceStatus ?? "Unknown";
   const performanceUpdatedAt = unit?.performanceUpdatedAt ?? null;
-  const perfClasses = getPerformanceStatusClasses(performanceStatus);
 
   useEffect(() => {
     if (unit) {
@@ -148,6 +147,16 @@ const UnitProfilePage: React.FC = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const normalizeStatus = (value?: string | null) => {
+    const normalized = (value || "").toLowerCase();
+    if (normalized === "leading") return "leading";
+    if (normalized === "on track" || normalized === "on_track") return "on_track";
+    if (normalized === "at risk" || normalized === "at_risk" || normalized === "off track" || normalized === "off_track") {
+      return "at_risk";
+    }
+    return "on_track";
   };
 
   return (
@@ -318,40 +327,17 @@ const UnitProfilePage: React.FC = () => {
                     </button>
                   )}
                 </div>
-                <div className="space-y-1">
-                  {(() => {
-                    const derived = getPerformanceStatus(unit.performanceScore);
-                    const statusLabel = getPerformanceLabelFromStatus(unit.performanceStatus) || derived.label;
-                    const badgeClasses = getPerformanceStatusClasses(statusLabel) || derived.colorClass;
-                    return (
-                      <span
-                        className={classNames(
-                          "inline-flex items-center rounded-full px-3 py-1 text-xs font-medium border",
-                          badgeClasses || derived.colorClass
-                        )}
-                      >
-                        {statusLabel}
-                        {unit.performanceScore != null && (
-                          <span className="ml-1 font-normal text-slate-500">
-                            ({unit.performanceScore} / 100)
-                          </span>
-                        )}
-                      </span>
-                    );
-                  })()}
-                  <p className="mt-2 text-sm text-slate-600">
-                    This performance indicator reflects the latest functional tracker status for this unit
-                    based on mandate delivery, priorities, and overall execution health.
-                  </p>
-                  {unit.performanceUpdatedAt && (
-                    <p className="mt-1 text-xs text-slate-500">
-                      Last updated: {formatDate(unit.performanceUpdatedAt)}
-                    </p>
-                  )}
-                </div>
+
+                <UnitPerformancePanel
+                  status={normalizeStatus(unit.performanceStatus)}
+                  score={unit.performanceScore ?? 0}
+                  lastUpdated={unit.performanceUpdatedAt ? formatDate(unit.performanceUpdatedAt) : undefined}
+                  helperText="This performance indicator reflects the latest functional tracker status for this unit based on mandate delivery, priorities, and overall execution health."
+                  showTitle={false}
+                />
 
                 {isAdmin && showPerformanceEditor && (
-                  <div className="mt-3 space-y-3 border border-slate-100 rounded-lg p-3 bg-slate-50">
+                  <div className="space-y-3 border border-slate-100 rounded-lg p-3 bg-slate-50">
                     {saveError && (
                       <div className="mb-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
                         {saveError}
@@ -450,31 +436,15 @@ const UnitProfilePage: React.FC = () => {
                     <dt className="font-medium text-slate-700">Location</dt>
                     <dd>{unit.location}</dd>
                   </div>
-                  <div className="flex items-start justify-between gap-4">
-                    <dt className="text-sm text-slate-500">Performance</dt>
-                    <dd className="flex flex-col items-end gap-1 text-sm">
-                      <div className="flex flex-col gap-1 text-right">
-                        <span
-                          className={classNames(
-                            "inline-flex px-3 py-1 rounded-full text-sm font-medium",
-                            perfClasses.badgeClass
-                          )}
-                        >
-                          {performanceStatus}
-                        </span>
-
-                        {performanceScore !== null && (
-                          <span className="text-gray-700 text-sm">Score: {performanceScore} / 100</span>
-                        )}
-
-                        {performanceUpdatedAt && (
-                          <span className="text-gray-400 text-xs">
-                            Updated {formatDistanceToNow(new Date(performanceUpdatedAt), { addSuffix: true })}
-                          </span>
-                        )}
-                      </div>
-                    </dd>
-                  </div>
+                  {(unit.performanceStatus || unit.performanceScore != null) && (
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-sm text-slate-500">Performance</dt>
+                      <dd className="text-sm text-slate-600 text-right">
+                        {unit.performanceStatus || "See Unit Performance above"}
+                        {unit.performanceScore != null ? ` • ${unit.performanceScore} / 100` : ""}
+                      </dd>
+                    </div>
+                  )}
                   {unit.wiAreas && unit.wiAreas.length > 0 && (
                     <div className="flex flex-col gap-2">
                       <dt className="font-medium text-slate-700">WI areas</dt>

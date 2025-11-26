@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabaseClient";
 import type { WorkPositionRow, WorkPosition, WorkUnitRow, WorkUnit } from "@/data/workDirectoryTypes";
 
 export const WORK_POSITION_COLUMNS =
-  "id, slug, position_name, role_family, department, unit, unit_slug, location, sfia_rating, sfia_level, contract_type, summary, description, responsibilities, expectations, image_url, status, created_at, updated_at";
+  "id, slug, position_name, role_family, department, unit, unit_slug, location, sfia_rating, sfia_level, contract_type, summary, description, responsibilities, expectations, image_url, banner_image_url, status, created_at, updated_at";
 
 export const WORK_UNIT_COLUMNS =
   "id, slug, sector, unit_name, unit_type, mandate, location, focus_tags, wi_areas, priority_level, priority_scope, current_focus, priorities, priorities_list, performance_status, performance_score, performance_summary, performance_notes, performance_updated_at, banner_image_url, created_at, updated_at";
@@ -91,6 +91,7 @@ export const mapWorkPositionRow = (row: WorkPositionRow): WorkPosition => {
     responsibilities: Array.isArray(row?.responsibilities) ? row.responsibilities : [],
     expectations: typeof row?.expectations === 'string' ? row.expectations : (row?.expectations ?? null), // Handle as string
     imageUrl: row?.image_url ?? null,
+    bannerImageUrl: row?.banner_image_url ?? null,
     status: row?.status ?? null,
     createdAt: row?.created_at,
     updatedAt: row?.updated_at,

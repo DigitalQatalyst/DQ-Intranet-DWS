@@ -1,0 +1,14 @@
+---
+description: Log each AI prompt and action for auditing
+globs: ['**/*']
+alwaysApply: true
+---
+
+# Prompt Logging
+
+- After every request, append an entry to `logs/ai-prompts/YYYY-MM-DD.md` (create if missing).
+- Entry format (one line): `YYYY-MM-DD HH:mm UTC | USER | "<prompt>" | files: path1,path2 | tests: <tests or none>`
+- Use initials or short user id for USER (ask if unknown).
+- If no files were changed, use `files: none`.
+- If no tests were run, use `tests: none`.
+- Keep entries ASCII and concise; no multi-line blocks.

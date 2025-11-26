@@ -12,11 +12,12 @@ export interface Associate {
   status: string;
   email: string;
   phone?: string | null;
-  teams_link: string;
+  teams_link?: string | null;
   avatar_url?: string | null;
   key_skills: string[];
   summary?: string | null;
   bio: string;
+  level?: string | null;
 }
 
 interface AssociateCardProps {
@@ -125,4 +126,3 @@ export function AssociateCard({ associate, onViewProfile }: AssociateCardProps) 
     </div>
   );
 }
-

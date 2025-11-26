@@ -6,6 +6,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import type { WorkPosition } from "@/data/workDirectoryTypes";
 import { getWorkPositionBySlug } from "@/api/workDirectory";
+import { PositionHero } from "@/components/work-directory/PositionHero";
 
 const WorkPositionProfilePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -107,51 +108,15 @@ const WorkPositionProfilePage: React.FC = () => {
 
         {position && (
           <>
-            {/* Image Banner - Full width at top if available */}
-            {position?.imageUrl && (
-              <section className="rounded-2xl overflow-hidden mb-6">
-                <img
-                  src={position.imageUrl}
-                  alt={position?.positionName || 'Position banner'}
-                  className="w-full h-64 object-cover"
-                  onError={(e) => {
-                    // Hide image if it fails to load
-                    (e.currentTarget as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              </section>
-            )}
-
-            <section className="rounded-3xl bg-gradient-to-br from-[#030F35] via-[#1A2E6E] to-[#4B61D1] text-white shadow-xl p-6 sm:p-10">
-              <div className="flex flex-col lg:flex-row gap-8 items-start">
-                <div className="flex-1 space-y-4">
-                  <div className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide text-blue-100">
-                    {position?.roleFamily && (
-                      <span className="px-3 py-1 rounded-full bg-white/10 text-white">{position.roleFamily}</span>
-                    )}
-                    {position?.unit && (
-                      <span className="px-3 py-1 rounded-full bg-white/10 text-white">{position.unit}</span>
-                    )}
-                    {position?.location && (
-                      <span className="px-3 py-1 rounded-full bg-white/10 text-white">{position.location}</span>
-                    )}
-                    {(position?.sfiaLevel || position?.sfiaRating) && (
-                      <span className="px-3 py-1 rounded-full bg-white/10 text-white">
-                        {position.sfiaLevel || position.sfiaRating}
-                      </span>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-sm text-blue-100 uppercase tracking-wide">Role profile</p>
-                    <h1 className="text-3xl sm:text-4xl font-bold mt-2">{position?.positionName || 'TBC'}</h1>
-                  </div>
-                </div>
-                <div className="w-full lg:w-1/3 rounded-2xl bg-white/10 px-5 py-4 text-sm text-blue-50">
-                  <h2 className="text-base font-semibold text-white mb-1">Role profile</h2>
-                  <p>Internal reference to understand scope, responsibilities and expectations for this position.</p>
-                </div>
-              </div>
-            </section>
+            <PositionHero
+              title={position.positionName || "TBC"}
+              unitName={position.unit}
+              location={position.location}
+              sfiaLevel={position.sfiaLevel || position.sfiaRating || null}
+              tags={[]}
+              bannerImageUrl={position.bannerImageUrl}
+              description={position.summary || position.description}
+            />
 
             <section className="rounded-2xl border border-slate-100 bg-white shadow-sm p-6 space-y-3">
               <h2 className="text-xl font-semibold text-slate-900">About this role</h2>

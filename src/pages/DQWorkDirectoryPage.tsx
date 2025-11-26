@@ -1,20 +1,91 @@
-import React, { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { HomeIcon, ChevronRightIcon, FilterIcon, MapPin } from 'lucide-react';
-import { SimpleTabs, SimpleTab } from '@/components/SimpleTabs';
-import { WorkDirectoryOverview } from '../components/work-directory/WorkDirectoryOverview';
-import { Header } from '../components/Header';
-import { Footer } from '../components/Footer';
-import { FilterSidebar, FilterConfig, FilterGroup } from '../components/marketplace/FilterSidebar';
-import { SearchBar } from '../components/SearchBar';
-import { getPerformanceStatusClasses } from '@/components/work-directory/unitStyles';
-import { useAssociates, useWorkUnits, useWorkPositions } from '@/hooks/useWorkDirectory';
-import { AssociateCard, type Associate } from '../components/associates/AssociateCard';
+import { ChevronRightIcon, FilterIcon, HomeIcon, MapPin } from 'lucide-react';
+
+import { AssociateCard } from '@/components/associates/AssociateCard';
 import { AssociateProfileModal } from '@/components/associates/AssociateProfileModal';
+import { Footer } from '@/components/Footer';
+import { Header } from '@/components/Header';
+import { FilterSidebar } from '@/components/marketplace/FilterSidebar';
+import { SearchBar } from '@/components/SearchBar';
+import { SimpleTab, SimpleTabs } from '@/components/SimpleTabs';
+import { WorkDirectoryOverview } from '@/components/work-directory/WorkDirectoryOverview';
+import { getPerformanceStyle } from '@/components/work-directory/unitStyles';
+import { getUnitIcon } from '@/components/Directory/unitIcons';
+import { useAssociates, useWorkPositions, useWorkUnits } from '@/hooks/useWorkDirectory';
 import { supabase } from '@/lib/supabaseClient';
+
+import type { Associate } from '@/components/associates/AssociateCard';
+import type { FilterConfig, FilterGroup } from '@/components/marketplace/FilterSidebar';
 import type { EmployeeProfile } from '@/data/workDirectoryTypes';
 
 type TabKey = 'units' | 'positions' | 'associates';
+
+interface MappedWorkUnit {
+  id: string;
+  slug: string;
+  sector: string;
+  unitName: string;
+  unitType: string;
+  mandate: string;
+  location: string;
+  focusTags: string[];
+  priorityLevel?: string | null;
+  priorityScope?: string | null;
+  performanceStatus?: string | null;
+  performanceScore?: number | null;
+  wiAreas?: string[];
+  bannerImageUrl: string | null;
+  department: string;
+}
+
+interface MappedWorkPosition {
+  id: string;
+  slug: string;
+  positionName: string;
+  roleFamily?: string | null;
+  unit?: string | null;
+  unitSlug?: string | null;
+  location?: string | null;
+  sfiaLevel?: string | null;
+  sfiaRating?: string | null;
+  summary?: string | null;
+  description?: string | null;
+  responsibilities: string[];
+  expectations: string | null;
+  status?: string | null;
+  imageUrl?: string | null;
+  bannerImageUrl?: string | null;
+}
+
+interface MappedAssociate {
+  id: string;
+  name: string;
+  currentRole: string;
+  department: string;
+  unit: string;
+  location: string;
+  sfiaRating: string;
+  status: string;
+  level?: string | null;
+  email: string;
+  phone?: string | null;
+  teams_link?: string | null;
+  keySkills: string[];
+  bio: string;
+  summary: string | null;
+  avatarUrl: string | null;
+}
+
+interface UnitCardProps {
+  unit: MappedWorkUnit;
+}
+
+interface PositionCardProps {
+  position: MappedWorkPosition;
+}
+
+const PAGE_SIZE = 24;
 
 const tabs: Array<{ id: TabKey; label: string }> = [
   { id: 'units', label: 'Units' },
@@ -167,13 +238,12 @@ const buildGroupedOptions = (spec: Array<{ title: string; values: string[] }>, a
 
 const flattenGroups = (groups: FilterGroup[]) => groups.flatMap((group) => group.options);
 
-const DQWorkDirectoryPage: React.FC = () => {
+export function DQWorkDirectoryPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>('units');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [sort, setSort] = useState('relevance');
-  const PAGE_SIZE = 24;
   const [visibleCounts, setVisibleCounts] = useState<Record<TabKey, number>>({
     units: PAGE_SIZE,
     positions: PAGE_SIZE,
@@ -224,18 +294,41 @@ const DQWorkDirectoryPage: React.FC = () => {
     ];
   }, [allUnits]);
 
-  const positionFilterConfig = useMemo<FilterConfig[]>(
-    () => {
-      const unitOptions = allUnits.map((u) => ({ id: u.slug, name: u.unitName }));
-      return [
-        { id: 'unitSlug', title: 'Unit', options: unitOptions },
-        { id: 'category', title: 'Role Family', options: toOptions(allPositions.map((p) => p.roleFamily)) },
-        { id: 'level', title: 'SFIA Level', options: toOptions(allPositions.map((p) => p.sfiaLevel)) },
-        { id: 'status', title: 'Status', options: toOptions(allPositions.map((p) => p.status)) },
-      ];
-    },
-    [allUnits, allPositions]
-  );
+  const positionFilterConfig = useMemo<FilterConfig[]>(() => {
+    const getUniqueValues = (values: Array<string | null | undefined>) => {
+      const set = new Set<string>();
+      values.forEach((val) => {
+        if (typeof val === 'string' && val.trim().length > 0) {
+          set.add(val.trim());
+        }
+      });
+      return Array.from(set);
+    };
+
+    const unitOptions = getUniqueValues(allPositions.map((p) => p.unit)).sort().map((v) => ({ id: v, name: v }));
+    const roleFamilyOptions = getUniqueValues(allPositions.map((p) => p.roleFamily))
+      .sort()
+      .map((v) => ({ id: v, name: v }));
+    const statusOptions = getUniqueValues(allPositions.map((p) => p.status)).sort().map((v) => ({ id: v, name: v }));
+
+    const sfiaLevels = getUniqueValues(allPositions.map((p) => p.sfiaLevel));
+    const sfiaLevelOptions = sfiaLevels
+      .sort((a, b) => {
+        const numA = parseInt(a.replace(/\D/g, '') || '0', 10);
+        const numB = parseInt(b.replace(/\D/g, '') || '0', 10);
+        return numA - numB || a.localeCompare(b);
+      })
+      .map((v) => ({ id: v, name: v }));
+
+    const config: FilterConfig[] = [
+      unitOptions.length ? { id: 'unit', title: 'Unit', options: unitOptions } : null,
+      roleFamilyOptions.length ? { id: 'roleFamily', title: 'Role Family', options: roleFamilyOptions } : null,
+      sfiaLevelOptions.length ? { id: 'sfiaLevel', title: 'SFIA Level', options: sfiaLevelOptions } : null,
+      statusOptions.length ? { id: 'status', title: 'Status', options: statusOptions } : null,
+    ].filter(Boolean) as FilterConfig[];
+
+    return config;
+  }, [allPositions]);
 
   const associateFilterConfig = useMemo<FilterConfig[]>(
     () => [
@@ -313,9 +406,13 @@ const DQWorkDirectoryPage: React.FC = () => {
   const query = searchQuery.toLowerCase();
 
   // Reset pagination on search or filter changes for the active tab
-  React.useEffect(() => {
+  useEffect(() => {
     resetVisibleForTab(activeTab);
   }, [searchQuery, unitFilters, positionFilters, associateFilters, activeTab]);
+
+  useEffect(() => {
+    setPositionFilters(createInitialFilters(positionFilterConfig));
+  }, [positionFilterConfig]);
 
   const applySort = <T,>(items: T[], comparator: (a: T, b: T) => number) => {
     return [...items].sort(comparator);
@@ -363,6 +460,8 @@ const DQWorkDirectoryPage: React.FC = () => {
         ...unit,
         departmentLabel: getUnitDepartmentLabel(unit),
         locationLabel: locationLabel(unit.location),
+        department: unit.department ?? getUnitDepartmentLabel(unit),
+        bannerImageUrl: unit.bannerImageUrl ?? null,
       }));
 
     if (sort === 'az') {
@@ -397,15 +496,13 @@ const DQWorkDirectoryPage: React.FC = () => {
         return haystack.includes(query.toLowerCase());
       })
       .filter((position) => {
-        const { unitSlug = [], category = [], level = [], status = [] } = positionFilters;
-        const matchesUnit =
-          unitSlug.length === 0 || (position.unitSlug ? unitSlug.includes(position.unitSlug) : false);
-        const matchesCategory =
-          category.length === 0 || (position.roleFamily ? category.includes(position.roleFamily) : false);
-        const matchesLevel =
-          level.length === 0 || (position.sfiaLevel ? level.includes(position.sfiaLevel) : false);
+        const { unit = [], roleFamily = [], sfiaLevel = [], status = [] } = positionFilters;
+        const matchesUnit = unit.length === 0 || (position.unit ? unit.includes(position.unit) : false);
+        const matchesRoleFamily =
+          roleFamily.length === 0 || (position.roleFamily ? roleFamily.includes(position.roleFamily) : false);
+        const matchesSfia = sfiaLevel.length === 0 || (position.sfiaLevel ? sfiaLevel.includes(position.sfiaLevel) : false);
         const matchesStatus = status.length === 0 || (position.status ? status.includes(position.status) : false);
-        return matchesUnit && matchesCategory && matchesLevel && matchesStatus;
+        return matchesUnit && matchesRoleFamily && matchesSfia && matchesStatus;
       });
 
     if (sort === 'az') {
@@ -432,7 +529,7 @@ const DQWorkDirectoryPage: React.FC = () => {
           associate.department,
           associate.bio,
           associate.location,
-          associate.level,
+          associate.sfiaRating,
           associate.status,
           ...associate.keySkills,
         ]
@@ -445,7 +542,7 @@ const DQWorkDirectoryPage: React.FC = () => {
         const { department = [], role = [], skills = [], location = [], status = [], level = [] } = associateFilters;
         const associateDepartment = mapDepartment(associate.unit || associate.department);
         const associateLocation = locationLabel(associate.location);
-        const rating = associate.sfiaRating || associate.level;
+        const rating = associate.sfiaRating || null;
         const matchesDepartment = department.length === 0 || department.includes(associateDepartment);
         const matchesPosition = role.length === 0 || role.includes(associate.currentRole);
         const matchesSkills = skills.length === 0 || associate.keySkills.some((skill) => skills.includes(skill));
@@ -479,153 +576,6 @@ const DQWorkDirectoryPage: React.FC = () => {
   const cards =
     activeTab === 'units' ? filteredUnits : activeTab === 'positions' ? filteredPositions : filteredAssociates;
 
-  const sortOptions =
-    activeTab === 'units'
-      ? [
-          { value: 'relevance', label: 'Relevance' },
-          { value: 'az', label: 'A–Z' },
-          { value: 'recent', label: 'Recently updated' },
-        ]
-      : [
-          { value: 'relevance', label: 'Relevance' },
-          { value: 'az', label: 'A–Z' },
-          { value: 'recent', label: 'Recently updated' },
-        ];
-
-  const CardShell: React.FC<{
-    children: React.ReactNode;
-    variant: 'associate' | 'position' | 'unit';
-    badge: string;
-    meta: string;
-    avatarText: string;
-    imageUrl?: string;
-    imageAlt?: string;
-    IconComponent?: React.ComponentType<{ className?: string }>;
-    avatarUrl?: string | null;
-  }> = ({
-    children,
-    variant,
-    badge,
-    meta,
-    avatarText,
-    imageUrl,
-    imageAlt,
-    IconComponent,
-    avatarUrl,
-  }) => (
-    <div className="bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 p-5 flex flex-col h-full">
-      {variant === 'unit' && (
-        <div className="mb-3 overflow-hidden rounded-2xl bg-slate-100 h-32">
-          {imageUrl && (
-            <img
-              src={imageUrl}
-              alt={imageAlt || avatarText}
-              className="h-full w-full object-cover"
-              loading="lazy"
-              onError={(e) => {
-                // if the image fails, hide it but keep a neutral background
-                (e.currentTarget as HTMLImageElement).style.display = 'none';
-              }}
-            />
-          )}
-        </div>
-      )}
-      <div className="flex items-start gap-3 mb-3">
-        <div className={`flex ${variant === 'associate' ? 'h-12 w-12' : 'h-10 w-10'} items-center justify-center rounded-full overflow-hidden relative ${variant === 'associate' ? 'bg-gradient-to-br from-dqBlue to-dqOrange text-white font-bold' : 'bg-gradient-to-br from-[#FB5535] via-[#1A2E6E] to-[#030F35] text-xs font-semibold text-white'}`}>
-          {/* Always render initials as fallback */}
-          {variant !== 'unit' || !IconComponent ? (
-            <span className={variant === 'associate' && avatarUrl ? 'opacity-0' : ''}>
-              {avatarText?.slice(0, 3).toUpperCase()}
-            </span>
-          ) : null}
-          {/* Overlay image for associates if available */}
-          {variant === 'associate' && avatarUrl && (
-            <img
-              src={avatarUrl}
-              alt={avatarText}
-              className="h-12 w-12 rounded-full object-cover absolute inset-0"
-              loading="lazy"
-              onError={(e) => {
-                // Hide image on error to reveal initials fallback
-                (e.currentTarget as HTMLImageElement).style.display = 'none';
-                // Show initials by removing opacity
-                const initialsSpan = (e.currentTarget as HTMLElement).parentElement?.querySelector('span');
-                if (initialsSpan) {
-                  initialsSpan.classList.remove('opacity-0');
-                }
-              }}
-            />
-          )}
-          {/* Show icon for units */}
-          {variant === 'unit' && IconComponent && (
-            <IconComponent className="h-5 w-5 text-white" />
-          )}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">
-              {badge}
-            </span>
-            <span className="text-xs text-gray-500 line-clamp-1">{meta}</span>
-          </div>
-        </div>
-      </div>
-      {children}
-    </div>
-  );
-
-  // Type aliases for mapped data from hooks (camelCase for UI)
-  type MappedWorkUnit = {
-    id: string;
-    slug: string;
-    sector: string;
-    unitName: string;
-    unitType: string;
-    mandate: string;
-    location: string;
-    focusTags: string[];
-    priorityLevel?: string | null;
-    priorityScope?: string | null;
-    performanceStatus?: string | null;
-    performanceScore?: number | null;
-    wiAreas?: string[];
-    bannerImageUrl: string | null;
-    department: string;
-  };
-  type MappedWorkPosition = {
-    id: string;
-    slug: string;
-    positionName: string;
-    roleFamily?: string | null;
-    unit?: string | null;
-    unitSlug?: string | null;
-    location?: string | null;
-    sfiaLevel?: string | null;
-    summary?: string | null;
-    description?: string | null;
-    responsibilities: string[];
-    expectations: string | null;
-    status?: string | null;
-    imageUrl?: string | null;
-  };
-  type MappedAssociate = {
-    id: string;
-    name: string;
-    currentRole: string;
-    department: string;
-    unit: string;
-    location: string;
-    sfiaRating: string;
-    status: string;
-    level?: string; // Optional fallback for sfiaRating
-    email: string;
-    phone?: string | null;
-    keySkills: string[];
-    bio: string;
-    summary: string | null;
-    avatarUrl: string | null;
-  };
-
   // Helper to map MappedAssociate to Associate type for new card component
   const mapToAssociate = (mapped: MappedAssociate): Associate => ({
     id: mapped.id,
@@ -638,6 +588,7 @@ const DQWorkDirectoryPage: React.FC = () => {
     status: mapped.status,
     email: mapped.email,
     phone: mapped.phone ?? null,
+    teams_link: mapped.teams_link ?? '',
     avatar_url: mapped.avatarUrl,
     key_skills: mapped.keySkills,
     summary: mapped.summary ?? null,
@@ -691,72 +642,90 @@ const DQWorkDirectoryPage: React.FC = () => {
     setProfileLoading(false);
   };
 
-  const UnitCard: React.FC<{ unit: MappedWorkUnit }> = ({ unit }) => {
-    const focusTags = unit.focusTags?.slice(0, 3) ?? [];
-    const extraTags = (unit.focusTags?.length || 0) - focusTags.length;
-    const performanceClasses = getPerformanceStatusClasses(unit.performanceStatus);
+  function UnitCard({ unit }: UnitCardProps) {
+    const performanceStyle = getPerformanceStyle(unit.performanceStatus);
+    const Icon = getUnitIcon({ sector: unit.sector, unitName: unit.unitName });
+    const formatStatusLabel = (value?: string | null) => {
+      if (!value) return "Unknown";
+      const normalized = value.toLowerCase();
+      if (normalized === "leading") return "Leading";
+      if (normalized === "on track" || normalized === "on_track") return "On track";
+      if (normalized === "at risk" || normalized === "at_risk") return "At risk";
+      return value;
+    };
+
     return (
-      <div className="bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 p-5 flex flex-col h-full">
-        <div className="flex items-start justify-between mb-3">
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
-            {unit.unitType}
+      <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        {/* Icon + chips */}
+        <div className="mb-2 flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+            <Icon className="h-4 w-4" aria-hidden="true" />
           </span>
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-50 text-slate-600 max-w-[60%] truncate">
-            {unit.sector}
-          </span>
+          <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-slate-500">
+            <span className="inline-flex items-center rounded-full bg-slate-50 px-2 py-0.5">
+              {unit.unitType}
+            </span>
+            <span className="inline-flex items-center rounded-full bg-slate-50 px-2 py-0.5 max-w-[60%] truncate">
+              {unit.sector}
+            </span>
+          </div>
         </div>
-        <h3 className="text-xl font-semibold text-gray-900">{unit.unitName}</h3>
-        <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-gray-600">
-          <span className="inline-flex items-center gap-1 text-xs text-gray-600">
-            <MapPin size={14} className="text-gray-500" />
-            {locationLabel(unit.location)}
-          </span>
+
+        {/* Header */}
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold text-slate-900">{unit.unitName}</h3>
+          <div className="flex items-center gap-1 text-sm text-slate-500">
+            <MapPin size={14} className="text-slate-400" />
+            <span>{locationLabel(unit.location)}</span>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="mt-2 flex-1 text-sm text-slate-600">
+          <p className="line-clamp-3">{unit.mandate || "Not yet added."}</p>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-3 border-t border-slate-100 pt-3 space-y-2">
           {unit.performanceStatus && (
-            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${performanceClasses}`}>
-              {unit.performanceStatus}
-            </span>
-          )}
-        </div>
-        <p className="text-sm text-gray-700 mt-3 line-clamp-3">{unit.mandate || "Not yet added."}</p>
-        {unit.performanceStatus && (
-          <div className="mt-3">
-            <span
-              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${performanceClasses}`}
-            >
-              {unit.performanceStatus}
-              {unit.performanceScore != null && (
-                <span className="ml-1 font-normal text-slate-700">
-                  · {unit.performanceScore}/100
-                </span>
-              )}
-            </span>
-          </div>
-        )}
-        {unit.focusTags && unit.focusTags.length > 0 ? (
-          <div className="flex flex-wrap gap-2 mt-3">
-            {unit.focusTags.slice(0, 3).map((tag) => (
-              <span key={tag} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                {tag}
+            <div className="flex items-center justify-between text-xs">
+              <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold border ${performanceStyle.pillClass}`}>
+                <span className="h-2 w-2 rounded-full bg-current" />
+                <span className="font-medium">{formatStatusLabel(unit.performanceStatus)}</span>
+                {unit.performanceScore != null && (
+                  <span className="text-slate-400">{unit.performanceScore} / 100</span>
+                )}
               </span>
-            ))}
-            {unit.focusTags.length > 3 && (
-              <span className="text-xs text-gray-500">+{unit.focusTags.length - 3} more</span>
-            )}
+            </div>
+          )}
+
+          {unit.focusTags && unit.focusTags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {unit.focusTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-700"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div>
+            <Link
+              to={`/work-directory/units/${unit.slug}`}
+              className="inline-flex w-full items-center justify-center rounded-full bg-[#030F35] px-4 py-2 text-sm font-semibold text-white hover:bg-[#051040] transition-colors"
+            >
+              View Unit Profile
+            </Link>
           </div>
-        ) : null}
-        <div className="mt-auto pt-4">
-          <Link
-            to={`/work-directory/units/${unit.slug}`}
-            className="inline-flex items-center justify-center rounded-lg bg-[#030F35] px-4 py-2 text-sm font-semibold text-white hover:bg-[#051040] transition-colors"
-          >
-            View Unit Profile
-          </Link>
         </div>
       </div>
     );
-  };
+  }
 
-  const PositionCard: React.FC<{ position: MappedWorkPosition }> = ({ position }) => {
+  function PositionCard({ position }: PositionCardProps) {
     // Null-safe access with fallbacks
     if (!position) {
       if (import.meta.env.DEV) {
@@ -855,7 +824,7 @@ const DQWorkDirectoryPage: React.FC = () => {
         </div>
       </div>
     );
-  };
+  }
 
 
   return (
@@ -1087,6 +1056,4 @@ const DQWorkDirectoryPage: React.FC = () => {
       />
     </div>
   );
-};
-
-export default DQWorkDirectoryPage;
+}
