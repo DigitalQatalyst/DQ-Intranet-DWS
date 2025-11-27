@@ -386,26 +386,26 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     return <div className="min-h-screen flex flex-col bg-[#030F35]/5">
         <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
         <div className="container mx-auto px-4 py-8 flex-grow">
-          <nav className="flex mb-4" aria-label="Breadcrumb">
+          <nav className="flex mb-4 min-h-[24px]" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
               <li className="inline-flex items-center">
-                <Link to="/" className="text-[#030F35]/70 hover:text-[#030F35] inline-flex items-center transition-colors">
-                  <HomeIcon size={16} className="mr-1" />
+                <Link to="/" className="text-[#030F35]/70 hover:text-[#030F35] inline-flex items-center text-sm md:text-base transition-colors" aria-label="Navigate to Home">
+                  <HomeIcon size={16} className="mr-1" aria-hidden="true" />
                   <span>Home</span>
                 </Link>
               </li>
               <li>
                 <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-[#030F35]/40" />
-                  <Link to={config.route} className="ml-1 text-[#030F35]/70 hover:text-[#030F35] md:ml-2 transition-colors">
+                  <ChevronRightIcon size={16} className="text-[#030F35]/40 mx-1 flex-shrink-0" aria-hidden="true" />
+                  <Link to={config.route} className="text-[#030F35]/70 hover:text-[#030F35] text-sm md:text-base font-medium transition-colors">
                     {config.itemNamePlural}
                   </Link>
                 </div>
               </li>
               <li aria-current="page">
                 <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-[#030F35]/40" />
-                  <span className="ml-1 text-[#030F35]/60 md:ml-2">Details</span>
+                  <ChevronRightIcon size={16} className="text-[#030F35]/40 mx-1 flex-shrink-0" aria-hidden="true" />
+                  <span className="text-[#030F35]/60 text-sm md:text-base font-medium whitespace-nowrap">Details</span>
                 </div>
               </li>
             </ol>
@@ -1246,34 +1246,34 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           {marketplaceType === 'events' ? (
             <div className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
               <div className="container mx-auto px-4 md:px-6 max-w-7xl">
-                <nav className="flex pt-4 pb-2" aria-label="Breadcrumb">
+                <nav className="flex pt-4 pb-2 min-h-[24px]" aria-label="Breadcrumb">
                   <ol className="inline-flex items-center space-x-1 md:space-x-2">
                     <li className="inline-flex items-center">
-                      <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center transition-colors">
-                        <HomeIcon size={16} className="mr-1" />
+                      <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center text-sm md:text-base transition-colors" aria-label="Navigate to Home">
+                        <HomeIcon size={16} className="mr-1" aria-hidden="true" />
                         <span>Home</span>
                       </Link>
                     </li>
                     <li>
                       <div className="flex items-center">
-                        <ChevronRightIcon size={16} className="text-gray-400" />
-                        <Link to="/pulse" className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2 transition-colors">
-                          Pulse
+                        <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                        <Link to="/communities" className="text-gray-600 hover:text-gray-900 text-sm md:text-base font-medium transition-colors" aria-label="Navigate to DQ Work Communities">
+                          DQ Work Communities
                         </Link>
                       </div>
                     </li>
                     <li>
                       <div className="flex items-center">
-                        <ChevronRightIcon size={16} className="text-gray-400" />
-                        <Link to={config.route} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2 transition-colors">
+                        <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                        <Link to={config.route} className="text-gray-600 hover:text-gray-900 text-sm md:text-base font-medium transition-colors">
                           Events
                         </Link>
                       </div>
                     </li>
                     <li aria-current="page">
                       <div className="flex items-center">
-                        <ChevronRightIcon size={16} className="text-gray-400" />
-                        <span className="ml-1 text-gray-500 md:ml-2">
+                        <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                        <span className="text-gray-500 text-sm md:text-base font-medium whitespace-nowrap">
                           {itemTitle}
                         </span>
                       </div>
@@ -1367,26 +1367,26 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               {/* Breadcrumbs - on light grey background (for non-events) */}
               <div className="w-full bg-gray-50">
                 <div className="container mx-auto px-4 md:px-6 max-w-7xl">
-                  <nav className="flex pt-4 pb-3" aria-label="Breadcrumb">
+                  <nav className="flex pt-4 pb-3 min-h-[24px]" aria-label="Breadcrumb">
                     <ol className="inline-flex items-center space-x-1 md:space-x-2">
                       <li className="inline-flex items-center">
-                        <Link to="/" className="text-[#030F35]/70 hover:text-[#030F35] inline-flex items-center transition-colors">
-                          <HomeIcon size={16} className="mr-1" />
+                        <Link to="/" className="text-[#030F35]/70 hover:text-[#030F35] inline-flex items-center text-sm md:text-base transition-colors" aria-label="Navigate to Home">
+                          <HomeIcon size={16} className="mr-1" aria-hidden="true" />
                           <span>Home</span>
                         </Link>
                       </li>
                       <li>
                         <div className="flex items-center">
-                          <ChevronRightIcon size={16} className="text-[#030F35]/40" />
-                          <Link to={config.route} className="ml-1 text-[#030F35]/70 hover:text-[#030F35] md:ml-2 transition-colors">
+                          <ChevronRightIcon size={16} className="text-[#030F35]/40 mx-1 flex-shrink-0" aria-hidden="true" />
+                          <Link to={config.route} className="text-[#030F35]/70 hover:text-[#030F35] text-sm md:text-base font-medium transition-colors">
                             {config.itemNamePlural}
                           </Link>
                         </div>
                       </li>
                       <li aria-current="page">
                         <div className="flex items-center">
-                          <ChevronRightIcon size={16} className="text-[#030F35]/40" />
-                          <span className="ml-1 text-[#030F35]/60 md:ml-2">
+                          <ChevronRightIcon size={16} className="text-[#030F35]/40 mx-1 flex-shrink-0" aria-hidden="true" />
+                          <span className="text-[#030F35]/60 text-sm md:text-base font-medium whitespace-nowrap">
                             {itemTitle}
                           </span>
                         </div>

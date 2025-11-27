@@ -402,21 +402,34 @@ export const EventsPage: React.FC = () => {
       />
       <div className="container mx-auto px-4 py-8 flex-grow">
         {/* Breadcrumbs */}
-        <nav className="flex mb-4" aria-label="Breadcrumb">
+        <nav className="flex mb-4 min-h-[24px]" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center">
               <Link
                 to="/"
-                className="text-gray-600 hover:text-gray-900 inline-flex items-center"
+                className="text-gray-600 hover:text-gray-900 inline-flex items-center text-sm md:text-base transition-colors"
+                aria-label="Navigate to Home"
               >
-                <HomeIcon size={16} className="mr-1" />
+                <HomeIcon size={16} className="mr-1" aria-hidden="true" />
                 <span>Home</span>
               </Link>
             </li>
-            <li aria-current="page">
+            <li>
               <div className="flex items-center">
-                <ChevronRightIcon size={16} className="text-gray-400" />
-                <span className="ml-1 text-gray-500 md:ml-2">Events</span>
+                <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                <Link
+                  to="/communities"
+                  className="text-gray-600 hover:text-gray-900 text-sm md:text-base font-medium transition-colors"
+                  aria-label="Navigate to DQ Work Communities"
+                >
+                  DQ Work Communities
+                </Link>
+              </div>
+            </li>
+            <li aria-current="page">
+              <div className="flex items-center min-w-[80px]">
+                <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                <span className="text-gray-500 text-sm md:text-base font-medium whitespace-nowrap">Events</span>
               </div>
             </li>
           </ol>

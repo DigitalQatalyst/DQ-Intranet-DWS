@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { BookmarkIcon, ScaleIcon, Calendar, MapPin, Building } from 'lucide-react';
+import { BookmarkIcon, ScaleIcon, Calendar, MapPin, Building, Clock } from 'lucide-react';
 import {
   CARD_ICON_BY_ID,
   DEFAULT_COURSE_ICON,
@@ -207,6 +207,12 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
               <div className="flex items-center text-sm text-gray-500">
                 <Calendar size={14} className="mr-2 flex-shrink-0" />
                 <span>{item.date}</span>
+              </div>
+            )}
+            {item.time && (
+              <div className="flex items-center text-sm text-gray-500">
+                <Clock size={14} className="mr-2 flex-shrink-0" />
+                <span>{item.time}</span>
               </div>
             )}
             {(item.organizer || item.provider?.name) && (

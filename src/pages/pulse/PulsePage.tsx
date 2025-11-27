@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { SearchBar } from "../../components/SearchBar";
-import { FilterIcon, XIcon, ChevronDown, MessageSquare, BarChart3, MessageCircle, Calendar, Clock, MapPin, Building, Users, HomeIcon, ChevronRightIcon } from "lucide-react";
+import { FilterIcon, XIcon, ChevronDown, MessageSquare, BarChart3, MessageCircle, Calendar, Clock, Building, Users, HomeIcon, ChevronRightIcon } from "lucide-react";
 import { CourseCardSkeleton } from "../../components/SkeletonLoader";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
@@ -15,7 +15,6 @@ interface PulseItemFromDB {
   description: string | null;
   type: 'poll' | 'survey' | 'feedback';
   department: string | null;
-  location_filter: string | null;
   published_at: string | null;
   closes_at: string | null;
   created_at: string;
@@ -33,7 +32,6 @@ interface TransformedPulseItem {
   title: string;
   description: string;
   department: string;
-  location: string;
   surveyType: string;
   type: 'poll' | 'survey' | 'feedback';
   launchDate: string;
@@ -66,7 +64,7 @@ export const PulsePage: React.FC = () => {
   // Mobile filter state
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  // Load filter options - using correct Department and Location filters
+  // Load filter options
   useEffect(() => {
     // Correct Department filter options
     const departmentOptions = [
@@ -83,13 +81,6 @@ export const PulsePage: React.FC = () => {
       'DCO Operations',
       'DBP Platform',
       'DBP Delivery'
-    ];
-
-    // Correct Location filter options
-    const locationOptions = [
-      'Dubai',
-      'Nairobi',
-      'Riyadh'
     ];
 
     // Type options (poll, survey, feedback)
@@ -144,14 +135,6 @@ export const PulsePage: React.FC = () => {
           id: dept.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, '').replace(/—/g, '-'),
           name: dept
         }))
-      },
-      {
-        id: 'location',
-        title: 'Location',
-        options: locationOptions.map(loc => ({
-          id: loc.toLowerCase().replace(/\s+/g, '-'),
-          name: loc
-        }))
       }
     ];
 
@@ -181,9 +164,9 @@ export const PulsePage: React.FC = () => {
         // Apply search query if provided (server-side search)
         if (searchQuery && searchQuery.trim()) {
           const searchTerm = `%${searchQuery.trim()}%`;
-          // Search across title, description, department, location_filter, and tags
+          // Search across title, description, department, and tags
           pulseQuery = pulseQuery.or(
-            `title.ilike.${searchTerm},description.ilike.${searchTerm},department.ilike.${searchTerm},location_filter.ilike.${searchTerm}`
+            `title.ilike.${searchTerm},description.ilike.${searchTerm},department.ilike.${searchTerm}`
           );
         }
 
@@ -243,7 +226,6 @@ export const PulsePage: React.FC = () => {
             title: item.title,
             description: item.description || '',
             department: item.department || 'N/A',
-            location: item.location_filter || 'N/A',
             surveyType: getTypeLabel(),
             type: item.type,
             launchDate: item.published_at || item.created_at || new Date().toISOString(),
@@ -359,13 +341,6 @@ export const PulsePage: React.FC = () => {
       if (filtersByCategory['department'] && filtersByCategory['department'].length > 0) {
         filtered = filtered.filter(item => 
           filtersByCategory['department'].includes(item.department)
-        );
-      }
-
-      // Apply location filter
-      if (filtersByCategory['location'] && filtersByCategory['location'].length > 0) {
-        filtered = filtered.filter(item => 
-          filtersByCategory['location'].includes(item.location)
         );
       }
 
@@ -732,12 +707,6 @@ export const PulsePage: React.FC = () => {
                         <div className="flex items-center text-sm text-gray-500">
                           <Building size={14} className="mr-2 flex-shrink-0" />
                           <span>{item.department}</span>
-                        </div>
-                        
-                        {/* Location */}
-                        <div className="flex items-center text-sm text-gray-500">
-                          <MapPin size={14} className="mr-2 flex-shrink-0" />
-                          <span className="truncate" title={item.location}>{item.location}</span>
                         </div>
 
                         {/* Launch Date */}

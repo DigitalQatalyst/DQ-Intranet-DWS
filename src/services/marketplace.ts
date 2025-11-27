@@ -128,8 +128,8 @@ const transformEventDetail = (event: any): any => {
     hour12: true 
   });
   
-  // Combine start and end time for display
-  const timeRangeStr = `${timeStr} - ${endTimeStr}`;
+  // Combine start and end time for display with timezone
+  const timeRangeStr = `${timeStr} - ${endTimeStr} (UTC +3)`;
   
   // Calculate duration
   const durationMs = endDate.getTime() - startDate.getTime();

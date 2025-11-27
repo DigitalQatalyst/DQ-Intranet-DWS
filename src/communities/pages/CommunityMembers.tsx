@@ -5,7 +5,7 @@ import { useAuth } from "../contexts/AuthProvider";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Skeleton } from "../components/ui/skeleton";
-import { useToast } from "../components/ui/use-toast";
+import { toast } from "sonner";
 import { MemberCard } from "../components/communities/MemberCard";
 import { useCommunityRole } from "../hooks/useCommunityRole";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
@@ -37,9 +37,6 @@ export default function CommunityMembers() {
   const {
     user
   } = useAuth();
-  const {
-    toast
-  } = useToast();
   const [community, setCommunity] = useState<Community | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
@@ -69,11 +66,7 @@ export default function CommunityMembers() {
       error: communityError
     } = await supabase.from('communities').select('id, name, imageurl').eq('id', id).single();
     if (communityError) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load community',
-        variant: 'destructive'
-      });
+      toast.error('Failed to load community');
       setLoading(false);
       return;
     }
@@ -87,11 +80,7 @@ export default function CommunityMembers() {
       p_community_id: id
     });
     if (membersError) {
-      toast({
-        title: 'Error',
-        description: 'Failed to load members',
-        variant: 'destructive'
-      });
+      toast.error('Failed to load members');
       setLoading(false);
       return;
     }
@@ -124,17 +113,10 @@ export default function CommunityMembers() {
         p_current_user_id: user.id
       });
       if (error) throw error;
-      toast({
-        title: 'Success',
-        description: 'Member role updated'
-      });
+      toast.success('Member role updated');
       fetchCommunityAndMembers();
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to update role',
-        variant: 'destructive'
-      });
+      toast.error(error.message || 'Failed to update role');
     }
   };
   const handleRemoveMember = async () => {
@@ -148,22 +130,15 @@ export default function CommunityMembers() {
         p_current_user_id: user.id
       });
       if (error) throw error;
-      toast({
-        title: 'Success',
-        description: 'Member removed from community'
-      });
+      toast.success('Member removed from community');
       setMemberToRemove(null);
       fetchCommunityAndMembers();
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to remove member',
-        variant: 'destructive'
-      });
+      toast.error(error.message || 'Failed to remove member');
     }
   };
   if (loading) {
-    return <MainLayout>
+    return <MainLayout hidePageLayout>
       <div className="max-w-7xl mx-auto px-4 py-8">
         <Skeleton className="h-48 w-full mb-8" />
         <div className="space-y-4">
@@ -175,13 +150,13 @@ export default function CommunityMembers() {
     </MainLayout>;
   }
   if (!community) {
-    return <MainLayout>
+    return <MainLayout hidePageLayout>
       <div className="max-w-7xl mx-auto px-4 py-8 text-center">
         <p className="text-gray-500">Community not found</p>
       </div>
     </MainLayout>;
   }
-  return <MainLayout>
+  return <MainLayout hidePageLayout>
     {/* Breadcrumbs */}
     <div className="max-w-7xl mx-auto px-4 pt-4">
       <Breadcrumb>
@@ -233,10 +208,7 @@ export default function CommunityMembers() {
               </div>
             </div>
             {(currentUserRole === 'owner' || currentUserRole === 'moderator') && <Button onClick={() => {
-              toast({
-                title: 'Coming Soon',
-                description: 'Invite functionality will be added soon'
-              });
+              toast.info('Invite functionality will be added soon');
             }} className="bg-white text-gray-900 hover:bg-gray-100">
               <UserPlus className="h-4 w-4 mr-2" />
               Invite Members

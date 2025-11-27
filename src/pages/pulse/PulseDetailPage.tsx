@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import { supabase } from "../../lib/supabaseClient";
-import { ArrowLeft, BarChart3, MessageSquare, MessageCircle, Heart, Share2, Clock, User, MapPin, Building, HomeIcon, ChevronRightIcon, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, BarChart3, MessageSquare, MessageCircle, Heart, Share2, Clock, User, Building, HomeIcon, ChevronRightIcon, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PulseItem {
   id: string;
@@ -12,7 +12,6 @@ interface PulseItem {
   type: 'poll' | 'survey' | 'feedback';
   status: string;
   department: string | null;
-  location_filter: string | null;
   question: string | null;
   options: any[] | null;
   allow_multiple: boolean;
@@ -152,7 +151,6 @@ export const PulseDetailPage: React.FC = () => {
               type: 'feedback' as const,
               status: 'published',
               department: 'Stories',
-              location_filter: 'Nairobi',
               question: null,
               options: null,
               allow_multiple: false,
@@ -528,31 +526,31 @@ export const PulseDetailPage: React.FC = () => {
         <nav className="flex mb-6" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center">
-              <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
+              <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center text-sm md:text-base transition-colors">
                 <HomeIcon size={16} className="mr-1" />
                 <span>Home</span>
               </Link>
             </li>
             <li>
               <div className="flex items-center">
-                <ChevronRightIcon size={16} className="text-gray-400 mx-1" />
-                <Link to="/communities" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
+                <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" />
+                <Link to="/communities" className="text-gray-600 hover:text-gray-900 text-sm md:text-base font-medium transition-colors">
                   DQ Work Communities
                 </Link>
               </div>
             </li>
             <li>
               <div className="flex items-center">
-                <ChevronRightIcon size={16} className="text-gray-400 mx-1" />
-                <Link to="/marketplace/pulse" className="text-gray-600 hover:text-gray-900 text-sm font-medium">
+                <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" />
+                <Link to="/marketplace/pulse" className="text-gray-600 hover:text-gray-900 text-sm md:text-base font-medium transition-colors">
                   Pulse
                 </Link>
               </div>
             </li>
             <li aria-current="page">
               <div className="flex items-center">
-                <ChevronRightIcon size={16} className="text-gray-400 mx-1" />
-                <span className="text-gray-500 text-sm font-medium">{getTypeLabel(item.type)}</span>
+                <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" />
+                <span className="text-gray-500 text-sm md:text-base font-medium whitespace-nowrap">{getTypeLabel(item.type)}</span>
               </div>
             </li>
           </ol>
@@ -611,12 +609,6 @@ export const PulseDetailPage: React.FC = () => {
                 <div className="flex items-center gap-1">
                   <Building size={16} />
                   <span>{item.department}</span>
-                </div>
-              )}
-              {item.location_filter && (
-                <div className="flex items-center gap-1">
-                  <MapPin size={16} />
-                  <span>{item.location_filter}</span>
                 </div>
               )}
             </div>

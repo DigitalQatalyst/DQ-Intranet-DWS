@@ -293,11 +293,30 @@ const transformEventToMarketplace = (event: SupabaseEvent): MarketplaceEvent => 
     month: 'long', 
     day: 'numeric' 
   });
-  const timeStr = startDate.toLocaleTimeString('en-US', { 
+  
+  // Format time - use range if we have both start and end times, otherwise just start time
+  const startTimeStr = startDate.toLocaleTimeString('en-US', { 
     hour: 'numeric', 
     minute: '2-digit',
     hour12: true 
   });
+  
+  let timeStr: string;
+  // Check if we have a meaningful end time (not just 1 hour default)
+  const hasRealEndTime = endDate.getTime() - startDate.getTime() > 60 * 60 * 1000 || 
+                         (endDate.getTime() - startDate.getTime() === 60 * 60 * 1000 && 
+                          ('start_time' in event && 'end_time' in event));
+  
+  if (hasRealEndTime) {
+    const endTimeStr = endDate.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
+    timeStr = `${startTimeStr} - ${endTimeStr} (UTC +3)`;
+  } else {
+    timeStr = `${startTimeStr} (UTC +3)`;
+  }
 
   // Determine event type from category or tags
   const eventType = category || "General";
