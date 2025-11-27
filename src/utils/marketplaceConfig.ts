@@ -372,41 +372,31 @@ export const getTabSpecificFilters = (tabId?: string): FilterCategoryConfig[] =>
   // Tab-specific filters for Digital Worker category
   const digitalWorkerSpecificFilters: FilterCategoryConfig[] = [
     {
-      id: 'dwServiceType',
-      title: 'Service Type',
+      id: 'serviceDomains',
+      title: 'Service Domains',
       options: [
-        { id: 'automation_request', name: 'Automation Request' },
-        { id: 'ai_agent_request', name: 'AI Agent Request' },
-        { id: 'ai_tool_access', name: 'AI Tool Access' }
+        { id: 'backoffice_operations', name: 'Backoffice Operations' },
+        { id: 'automation_integration', name: 'Automation & Integration' },
+        { id: 'digital_security', name: 'Digital Security' },
+        { id: 'digital_channels', name: 'Digital Channels' },
+        { id: 'customer_experiences', name: 'Customer Experiences' },
+        { id: 'service_delivery', name: 'Service Delivery' },
+        { id: 'marketing_comms', name: 'Marketing & Comms' },
+        { id: 'digital_workspace', name: 'Digital Workspace' },
+        { id: 'design', name: 'Design' },
+        { id: 'business_intelligence', name: 'Business Intelligence' },
+        { id: 'it_operations', name: 'IT Operations' }
       ]
     },
     {
-      id: 'usageGuidelines',
-      title: 'Usage Guidelines',
+      id: 'aiMaturityLevel',
+      title: 'AI Maturity Level',
       options: [
-        { id: 'policies', name: 'Policies' },
-        { id: 'best_practices', name: 'Best Practices' }
-      ]
-    },
-    {
-      id: 'aiProducts',
-      title: 'AI Products',
-      options: [
-        { id: 'ai_ides', name: 'AI IDEs' },
-        { id: 'llms', name: 'Large Language Models' },
-        {id: 'automated-workflows', name: 'Automated Workflows'},
-        { id: 'generative_ai', name: 'Content Generators' },
-        { id: 'low_code_tools', name: 'Low-Code Tools' }
-      ]
-    },
-    {
-      id: 'integrations',
-      title: 'Integrations',
-      options: [
-        { id: 'graphql_apis', name: 'GraphQL APIs' },
-        { id: 'rest_apis', name: 'REST APIs' },
-        { id: 'sdks', name: 'SDKs' },
-        { id: 'plugins', name: 'Plugins' }
+        { id: 'level_1', name: 'Level 1 (Prompting)' },
+        { id: 'level_2', name: 'Level 2 (Integrate Systems)' },
+        { id: 'level_3', name: 'Level 3 (Unified Operations)' },
+        { id: 'level_4', name: 'Level 4 (Human Oversight)' },
+        { id: 'level_5', name: 'Level 5 (Autonomous)' }
       ]
     }
   ];

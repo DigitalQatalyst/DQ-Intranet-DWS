@@ -67,9 +67,10 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
   const handlePrimaryAction = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // For AI Tools, open the access request form in a new tab
-    if (item.category === 'AI Tools') {
-      window.open('https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl', '_blank', 'noopener,noreferrer');
+    // For AI Tools and Digital Worker, open the request form in a new tab
+    if (item.category === 'AI Tools' || item.category === 'Digital Worker') {
+      const requestUrl = item.requestUrl || 'https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl';
+      window.open(requestUrl, '_blank', 'noopener,noreferrer');
     } else {
       navigate(`${getItemRoute()}?action=true`);
     }

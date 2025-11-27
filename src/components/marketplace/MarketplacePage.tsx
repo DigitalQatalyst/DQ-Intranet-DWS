@@ -653,68 +653,34 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             }
           }
           
-          // Filter by dwServiceType (Digital Worker-specific)
-          const dwServiceTypeFilter = filters.dwServiceType;
-          if (dwServiceTypeFilter) {
-            const dwServiceTypes = Array.isArray(dwServiceTypeFilter) ? dwServiceTypeFilter : [dwServiceTypeFilter];
-            if (dwServiceTypes.length > 0) {
+          // Filter by serviceDomains (Digital Worker-specific)
+          const serviceDomainsFilter = filters.serviceDomains;
+          if (serviceDomainsFilter) {
+            const serviceDomains = Array.isArray(serviceDomainsFilter) ? serviceDomainsFilter : [serviceDomainsFilter];
+            if (serviceDomains.length > 0) {
               filtered = filtered.filter(item => {
-                const itemDwServiceTypes = item.dwServiceType || [];
-                const itemDwServiceTypesArray = Array.isArray(itemDwServiceTypes) ? itemDwServiceTypes : [itemDwServiceTypes];
-                return dwServiceTypes.some(filterType => 
-                  itemDwServiceTypesArray.some(itemType => 
-                    itemType.toLowerCase().replace(/[\s_]/g, '') === filterType.toLowerCase().replace(/[\s_]/g, '')
+                const itemServiceDomains = item.serviceDomains || [];
+                const itemServiceDomainsArray = Array.isArray(itemServiceDomains) ? itemServiceDomains : [itemServiceDomains];
+                return serviceDomains.some(filterDomain => 
+                  itemServiceDomainsArray.some(itemDomain => 
+                    itemDomain.toLowerCase().replace(/[\s_&]/g, '') === filterDomain.toLowerCase().replace(/[\s_&]/g, '')
                   )
                 );
               });
             }
           }
           
-          // Filter by usageGuidelines (Digital Worker-specific)
-          const usageGuidelinesFilter = filters.usageGuidelines;
-          if (usageGuidelinesFilter) {
-            const usageGuidelines = Array.isArray(usageGuidelinesFilter) ? usageGuidelinesFilter : [usageGuidelinesFilter];
-            if (usageGuidelines.length > 0) {
+          // Filter by aiMaturityLevel (Digital Worker-specific)
+          const aiMaturityLevelFilter = filters.aiMaturityLevel;
+          if (aiMaturityLevelFilter) {
+            const aiMaturityLevels = Array.isArray(aiMaturityLevelFilter) ? aiMaturityLevelFilter : [aiMaturityLevelFilter];
+            if (aiMaturityLevels.length > 0) {
               filtered = filtered.filter(item => {
-                const itemGuidelines = item.usageGuidelines || [];
-                const itemGuidelinesArray = Array.isArray(itemGuidelines) ? itemGuidelines : [itemGuidelines];
-                return usageGuidelines.some(filterGuideline => 
-                  itemGuidelinesArray.some(itemGuide => 
-                    itemGuide.toLowerCase().replace(/[\s_]/g, '') === filterGuideline.toLowerCase().replace(/[\s_]/g, '')
-                  )
-                );
-              });
-            }
-          }
-          
-          // Filter by aiProducts (Digital Worker-specific)
-          const aiProductsFilter = filters.aiProducts;
-          if (aiProductsFilter) {
-            const aiProducts = Array.isArray(aiProductsFilter) ? aiProductsFilter : [aiProductsFilter];
-            if (aiProducts.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemAiProducts = item.aiProducts || [];
-                const itemAiProductsArray = Array.isArray(itemAiProducts) ? itemAiProducts : [itemAiProducts];
-                return aiProducts.some(filterProduct => 
-                  itemAiProductsArray.some(itemProduct => 
-                    itemProduct.toLowerCase().replace(/[\s_\-()\/]/g, '') === filterProduct.toLowerCase().replace(/[\s_\-()\/]/g, '')
-                  )
-                );
-              });
-            }
-          }
-          
-          // Filter by integrations (Digital Worker-specific)
-          const integrationsFilter = filters.integrations;
-          if (integrationsFilter) {
-            const integrations = Array.isArray(integrationsFilter) ? integrationsFilter : [integrationsFilter];
-            if (integrations.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemIntegrations = item.integrations || [];
-                const itemIntegrationsArray = Array.isArray(itemIntegrations) ? itemIntegrations : [itemIntegrations];
-                return integrations.some(filterIntegration => 
-                  itemIntegrationsArray.some(itemInteg => 
-                    itemInteg.toLowerCase().replace(/[\s_]/g, '') === filterIntegration.toLowerCase().replace(/[\s_]/g, '')
+                const itemMaturityLevel = item.aiMaturityLevel || '';
+                const itemMaturityLevelArray = Array.isArray(itemMaturityLevel) ? itemMaturityLevel : [itemMaturityLevel];
+                return aiMaturityLevels.some(filterLevel => 
+                  itemMaturityLevelArray.some(itemLevel => 
+                    itemLevel.toLowerCase().replace(/[\s_()]/g, '') === filterLevel.toLowerCase().replace(/[\s_()]/g, '')
                   )
                 );
               });

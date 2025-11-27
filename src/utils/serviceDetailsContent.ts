@@ -97,6 +97,48 @@ export const SERVICE_CUSTOM_TABS: Record<string, Record<string, CustomTab[]>> = 
       { id: 'role_justification', label: 'Role Justification' },
       { id: 'role_scope_competencies', label: 'Scope & Competencies' },
     ],
+    'dw-001': [ // Portfolio Analysis
+      { id: 'about', label: 'About' },
+      { id: 'requirements', label: 'Requirements' },
+      { id: 'tools', label: 'Tools' },
+      { id: 'sample_use_case', label: 'Sample Use Case' },
+    ],
+    'dw-002': [ // Portfolio Intelligence
+      { id: 'about', label: 'About' },
+      { id: 'requirements', label: 'Requirements' },
+      { id: 'tools', label: 'Tools' },
+      { id: 'sample_use_case', label: 'Sample Use Case' },
+    ],
+    'dw-003': [ // Portfolio Optimization
+      { id: 'about', label: 'About' },
+      { id: 'requirements', label: 'Requirements' },
+      { id: 'tools', label: 'Tools' },
+      { id: 'sample_use_case', label: 'Sample Use Case' },
+    ],
+    'dw-004': [ // Strategy Advisor
+      { id: 'about', label: 'About' },
+      { id: 'requirements', label: 'Requirements' },
+      { id: 'tools', label: 'Tools' },
+      { id: 'sample_use_case', label: 'Sample Use Case' },
+    ],
+    'dw-005': [ // Autonomous Strategy
+      { id: 'about', label: 'About' },
+      { id: 'requirements', label: 'Requirements' },
+      { id: 'tools', label: 'Tools' },
+      { id: 'sample_use_case', label: 'Sample Use Case' },
+    ],
+    'dw-006': [ // Requirements Elicitation
+      { id: 'about', label: 'About' },
+      { id: 'requirements', label: 'Requirements' },
+      { id: 'tools', label: 'Tools' },
+      { id: 'sample_use_case', label: 'Sample Use Case' },
+    ],
+    'dw-007': [ // Design Automation
+      { id: 'about', label: 'About' },
+      { id: 'requirements', label: 'Requirements' },
+      { id: 'tools', label: 'Tools' },
+      { id: 'sample_use_case', label: 'Sample Use Case' },
+    ],
   },
 };
 

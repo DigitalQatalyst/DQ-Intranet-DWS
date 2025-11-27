@@ -167,9 +167,10 @@ export const ServiceQuickViewModal: React.FC<ServiceQuickViewModalProps> = ({
             </button>
             <button 
               onClick={() => {
-                // For AI Tools, open the access request form in a new tab
-                if (service.category === 'AI Tools') {
-                  window.open('https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl', '_blank', 'noopener,noreferrer');
+                // For AI Tools and Digital Worker, open the request form in a new tab
+                if (service.category === 'AI Tools' || service.category === 'Digital Worker') {
+                  const requestUrl = service.requestUrl || 'https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl';
+                  window.open(requestUrl, '_blank', 'noopener,noreferrer');
                 } else {
                   onViewDetails();
                 }
@@ -179,7 +180,7 @@ export const ServiceQuickViewModal: React.FC<ServiceQuickViewModalProps> = ({
               onMouseEnter={(e) => { if (marketplaceType === 'non-financial') e.currentTarget.style.backgroundColor = '#020a23'; }} 
               onMouseLeave={(e) => { if (marketplaceType === 'non-financial') e.currentTarget.style.backgroundColor = '#030F35'; }}
             >
-              {service.category === 'AI Tools' ? 'Request Access' : primaryButtonText}
+              {service.category === 'AI Tools' ? 'Request Access' : service.category === 'Digital Worker' ? 'Request Service' : primaryButtonText}
             </button>
           </div>
         </div>
