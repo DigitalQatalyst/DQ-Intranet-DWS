@@ -16,14 +16,11 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
     return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
-  if (!items || items.length === 0) {
-    return (
-      <div className="bg-white rounded-lg shadow p-8 text-center">
-        <h3 className="text-xl font-medium text-gray-900 mb-2">No testimonials found</h3>
-        <p className="text-gray-500">Try adjusting your filters or check back later</p>
-      </div>
-    )
-  }
+  // Filter items to exclude "Client Feedback" entries
+  const filteredItems = (items || []).filter((item) => {
+    const title = (item.title || "").toLowerCase()
+    return !title.includes("client feedback")
+  })
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -32,7 +29,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
         {/* Hero Image */}
         <img 
           src={serviceCardImage} 
-          alt="Client Testimonials" 
+          alt="Client Feedback" 
           className="w-full h-32 object-cover"
           loading="lazy"
         />
@@ -40,7 +37,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
         {/* Content */}
         <div className="p-4 flex flex-col flex-grow">
           {/* Title */}
-          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">Client Testimonials</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">Client Feedback</h3>
           
           {/* Description */}
           <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-2 flex-grow">
@@ -76,13 +73,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
           </button>
         </div>
       </div>
-        {items
-          .filter((item) => {
-            // Filter out items with "Client Testimonials" as title to remove the smaller card
-            const title = (item.title || "").toLowerCase()
-            return !title.includes("client testimonials")
-          })
-          .map((item) => {
+        {filteredItems.map((item) => {
           const name = item.author_name || item.title || "Unnamed Testimonial"
           const organization = item.author_org || item.domain || ""
           const quote = (item.summary || item.body || "").trim()

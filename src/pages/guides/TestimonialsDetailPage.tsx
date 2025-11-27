@@ -56,7 +56,7 @@ const TestimonialsDetailPage: React.FC = () => {
             <li aria-current="page">
               <div className="flex items-center">
                 <ChevronRightIcon size={16} className="text-gray-400" />
-                <span className="ml-1 text-gray-500 md:ml-2">Client Testimonials</span>
+                <span className="ml-1 text-gray-500 md:ml-2">Client Feedback</span>
               </div>
             </li>
           </ol>
@@ -66,7 +66,7 @@ const TestimonialsDetailPage: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
           <img 
             src={heroImage} 
-            alt="Client Testimonials" 
+            alt="Client Feedback" 
             className="w-full h-64 md:h-80 object-cover"
             loading="lazy"
           />
@@ -74,7 +74,7 @@ const TestimonialsDetailPage: React.FC = () => {
 
         {/* Header Section */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Client Testimonials</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Client Feedback</h1>
 
           {/* Filter Buttons */}
           <div className="flex flex-wrap gap-2 mb-4">

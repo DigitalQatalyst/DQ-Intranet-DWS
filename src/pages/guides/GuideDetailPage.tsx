@@ -646,12 +646,41 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
 
   // Parse sections from markdown body for all guides
   const parseGuideSections = (body: string) => {
-    const sections: Array<{ title: string; content: string }> = []
+    const sections: Array<{ title: string; content: string; isTile?: boolean }> = []
     const lines = body.split('\n')
     let currentSection: { title: string; content: string[] } | null = null
 
     for (const line of lines) {
       const h2Match = line.match(/^##\s+(.+)$/)
+      const h3Match = line.match(/^###\s+(.+)$/)
+      
+      // Check for H3 sections that should be tiles (AI Tools, Model Provider)
+      if (h3Match) {
+        const h3Title = h3Match[1].trim().replace(/\*\*/g, '').trim()
+        const normalizedH3 = h3Title.toLowerCase()
+        
+        // If this is AI Tools or Model Provider, save current section first, then start new tile section
+        if (normalizedH3 === 'ai tools' || normalizedH3 === 'model provider') {
+          // Save current section if exists
+          if (currentSection && currentSection.content.length > 0) {
+            let content = currentSection.content.join('\n').trim()
+            if (currentSection.title.toLowerCase().includes('feature')) {
+              content = makeFeaturesPrecise(content)
+            }
+            sections.push({
+              title: currentSection.title,
+              content: content
+            })
+          }
+          // Start new tile section
+          currentSection = {
+            title: h3Title,
+            content: []
+          }
+          continue
+        }
+      }
+      
       if (h2Match) {
         if (currentSection && currentSection.content.length > 0) {
           let content = currentSection.content.join('\n').trim()
@@ -659,9 +688,13 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
           if (currentSection.title.toLowerCase().includes('feature')) {
             content = makeFeaturesPrecise(content)
           }
+          // Check if this section should be a tile
+          const isTile = currentSection.title.toLowerCase() === 'ai tools' || 
+                        currentSection.title.toLowerCase() === 'model provider'
           sections.push({
             title: currentSection.title,
-            content: content
+            content: content,
+            isTile: isTile
           })
         }
         let title = h2Match[1].trim()
@@ -681,9 +714,13 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
       if (currentSection.title.toLowerCase().includes('feature')) {
         content = makeFeaturesPrecise(content)
       }
+      // Check if this section should be a tile
+      const isTile = currentSection.title.toLowerCase() === 'ai tools' || 
+                    currentSection.title.toLowerCase() === 'model provider'
       sections.push({
         title: currentSection.title,
-        content: content
+        content: content,
+        isTile: isTile
       })
     }
     return sections
@@ -1384,7 +1421,7 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
 
             {/* CODEx: For policy pages, long body behind a toggle; for others, show as usual */}
             {isClientTestimonials && (
-              <section className="bg-white rounded-2xl shadow p-6" aria-label="Client Testimonials">
+              <section className="bg-white rounded-2xl shadow p-6" aria-label="Client Feedback">
                 <div className="mb-5">
                   <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Featured Clients</p>
                   <h2 className="text-2xl font-bold text-gray-900">Why organizations choose DQ</h2>

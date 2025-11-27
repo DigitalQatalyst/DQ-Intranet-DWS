@@ -98,6 +98,26 @@ const MarkdownRenderer: React.FC<{ body: string; onRendered?: () => void }> = ({
         ),
         li: ({ node, ...props }) => (
           <li className="ml-1" {...(props as any)} />
+        ),
+        table: ({ node, ...props }) => (
+          <div className="overflow-x-auto my-6">
+            <table className="min-w-full border-collapse border border-gray-200 rounded-lg" {...(props as any)} />
+          </div>
+        ),
+        thead: ({ node, ...props }) => (
+          <thead className="bg-gray-50" {...(props as any)} />
+        ),
+        tbody: ({ node, ...props }) => (
+          <tbody className="bg-white divide-y divide-gray-200" {...(props as any)} />
+        ),
+        tr: ({ node, ...props }) => (
+          <tr className="hover:bg-gray-50 transition-colors" {...(props as any)} />
+        ),
+        th: ({ node, ...props }) => (
+          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b border-gray-200" style={{ minWidth: '180px' }} {...(props as any)} />
+        ),
+        td: ({ node, ...props }) => (
+          <td className="px-6 py-4 text-sm text-gray-600 border-b border-gray-100" style={{ minWidth: '300px' }} {...(props as any)} />
         )
       }}
     >
