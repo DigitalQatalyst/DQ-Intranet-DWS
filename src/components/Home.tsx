@@ -286,7 +286,7 @@ export const HomePage: React.FC = () => {
       {
         id: 'work-guide-strategy',
         title: 'Strategy Guide',
-        description: 'Understand DQ’s journey, history, 6xD, initiatives, clients, and operating models.',
+        description: 'Understand DQ's journey, history, 6xD, initiatives, clients, and operating models.',
         icon: <BarChart />,
         path: '/work-guides/strategy',
         isActive: true
