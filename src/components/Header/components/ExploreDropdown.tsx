@@ -77,13 +77,6 @@ const marketplaces: Marketplace[] = [
     href: '/marketplace/guides',
   },
   {
-    id: 'opportunity',
-    name: 'News & Announcements',
-    description: 'Company updates and internal notices.',
-    icon: SparklesIcon,
-    href: '/marketplace/opportunities',
-  },
-  {
     id: 'asset-library',
     name: 'Asset Library',
     description: 'Shared design, deployment and marketing artefacts.',

@@ -147,7 +147,7 @@ const JobDetailPage: React.FC = () => {
                 Home
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
-              <Link to={`/marketplace/news${location.search || ''}`} className="hover:text-[#1A2E6E]">
+              <Link to={`/marketplace/guides${location.search || ''}`} className="hover:text-[#1A2E6E]">
                 DQ Media Center
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
