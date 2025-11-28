@@ -293,7 +293,7 @@ const NewsDetailPage: React.FC = () => {
             <p className="text-sm text-red-600 mb-4">{loadError}</p>
           )}
           <button
-            onClick={() => navigate(`/marketplace/news${location.search || ''}`)}
+            onClick={() => navigate(`/marketplace/guides${location.search || ''}`)}
             className="rounded-lg bg-[#030f35] px-6 py-3 text-sm font-semibold text-white"
           >
             Back to Media Center
@@ -321,7 +321,7 @@ const NewsDetailPage: React.FC = () => {
                 Home
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
-              <Link to={`/marketplace/news${location.search || ''}`} className="hover:text-[#1A2E6E]">
+              <Link to={`/marketplace/guides${location.search || ''}`} className="hover:text-[#1A2E6E]">
                 DQ Media Center
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />

@@ -88,7 +88,7 @@ const marketplaces: Marketplace[] = [
     name: 'DQ Media Center',
     description: 'News, announcements, job openings, and blogs.',
     icon: NewspaperIcon,
-    href: '/dq-media-center',
+    href: '/marketplace/guides',
   },
   {
     id: 'work-communities',

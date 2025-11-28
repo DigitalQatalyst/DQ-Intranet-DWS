@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import AssetLibraryPage from '../assetLibrary';
 import { MarketplacePage } from '../../components/marketplace/MarketplacePage';
 import MarketplaceDetailsPage from './MarketplaceDetailsPage';
@@ -123,14 +123,14 @@ export const MarketplaceRouter: React.FC = () => {
       {/* Non-Financial Services Marketplace */}
       <Route path="/non-financial" element={<MarketplacePage marketplaceType="non-financial" title={nonFinancialConfig.title} description={nonFinancialConfig.description} promoCards={nonFinancialPromoCards} />} />
       <Route path="/non-financial/:itemId" element={<MarketplaceDetailsPage marketplaceType="non-financial" bookmarkedItems={bookmarkedItems['non-financial']} onToggleBookmark={itemId => handleToggleBookmark('non-financial', itemId)} />} />
-      {/* Guides Marketplace (canonical) */}
-      <Route path="/guides" element={<MarketplacePage marketplaceType="guides" title={guidesConfig.title} description={guidesConfig.description} promoCards={knowledgeHubPromoCards} />} />
+      {/* Guides Marketplace (canonical) - Now shows Media Center */}
+      <Route path="/guides" element={<NewsPage />} />
       <Route path="/guides/:itemId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><GuideDetailPage /></React.Suspense>} />
       {/* Backward compatibility: Knowledge Hub routes (aliased to Guides) */}
       <Route path="/knowledge-hub" element={<MarketplacePage marketplaceType="knowledge-hub" title={knowledgeHubConfig.title} description={knowledgeHubConfig.description} promoCards={knowledgeHubPromoCards} />} />
       <Route path="/knowledge-hub/:itemId" element={<MarketplaceDetailsPage marketplaceType="knowledge-hub" bookmarkedItems={bookmarkedItems['knowledge-hub']} onToggleBookmark={itemId => handleToggleBookmark('knowledge-hub', itemId)} />} />
-      {/* News & Opportunities Marketplace */}
-      <Route path="/news" element={<NewsPage />} />
+      {/* News & Opportunities Marketplace - Redirected to /guides */}
+      <Route path="/news" element={<Navigate to="/marketplace/guides" replace />} />
       <Route path="/news/:id" element={<NewsDetailPage />} />
       <Route path="/opportunities" element={<NewsPage />} />
       <Route path="/opportunities/:id" element={<JobDetailPage />} />
