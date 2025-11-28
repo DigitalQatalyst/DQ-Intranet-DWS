@@ -105,6 +105,13 @@ const marketplaces: Marketplace[] = [
     href: '/dq-knowledge-center',
   },
   {
+    id: 'asset-library',
+    name: 'Asset Library',
+    description: 'Shared design, deployment and marketing artefacts.',
+    icon: FileText,
+    href: '/dq-knowledge-center',
+  },
+  {
     id: 'communities',
     name: 'DQ Communities',
     description: 'Connect, collaborate, and engage with peers in vibrant communities.',
