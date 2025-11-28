@@ -1,5 +1,6 @@
 // Mock data for the Course Marketplace
 export interface ProviderType {
+  id: string;
   name: string;
   logoUrl: string;
   description: string;
@@ -10,8 +11,6 @@ export interface CourseType {
   description: string;
   category: string;
   deliveryMode: string;
-  duration: string;
-  durationType: string;
   businessStage: string;
   provider: ProviderType;
   learningOutcomes: string[];
@@ -27,26 +26,13 @@ export interface CourseType {
   journeyPhase?: string;
   time?: number;
   roles?: string[];
+  duration?: string;
+  durationType?: string;
 }
 // Categories
-export const categories = ["Discover", "Set Up", "Connect", "Grow"];
+export const categories = ["IT Support", "Admin Support", "Reports Support"];
 // Delivery Modes
-export const deliveryModes = ["Checklist", "Interactive", "Video", "Guide"];
-// Durations
-export const durations = [
-  {
-    value: "Short",
-    label: "Short (<15 min)",
-  },
-  {
-    value: "Medium",
-    label: "Medium (15–30 min)",
-  },
-  {
-    value: "Long",
-    label: "Long (30–60+ min)",
-  },
-];
+export const deliveryModes = ["Online", "In-person", "Hybrid"];
 // Business Stages
 export const businessStages = [
   "New Joiner",
@@ -60,225 +46,190 @@ export const businessStages = [
 // Providers
 export const providers = [
   {
-    name: "DQ Academy",
-    logoUrl: "/logo/dq_logo2.png",
+    id: "1",
+    name: "DQ IT Support",
+    logoUrl: "/DWS-Logo.png",
     description:
-      "DQ Academy curates learning experiences that strengthen associate capabilities across strategy, delivery, and culture.",
+      "DQ IT Support provides technical assistance and support for all technology-related issues and requests.",
   },
   {
-    name: "DQ Agile Office",
-    logoUrl: "/logo/dq_logo2.png",
+    id: "2",
+    name: "DQ Admin Support",
+    logoUrl: "/DWS-Logo.png",
     description:
-      "The DQ Agile Office equips teams with practices, rituals, and support to deliver with speed and clarity.",
+      "DQ Admin Support handles administrative requests including bookings, staff requisitions, and registrations.",
   },
   {
-    name: "DQ Knowledge & Insights",
-    logoUrl: "/logo/dq_logo2.png",
+    id: "3",
+    name: "DQ Reports Support",
+    logoUrl: "/DWS-Logo.png",
     description:
-      "DQ Knowledge & Insights crafts research, playbooks, and competency guidance for every associate journey.",
-  },
-  {
-    name: "DQ Operations Enablement",
-    logoUrl: "/logo/dq_logo2.png",
-    description:
-      "DQ Operations Enablement supports tools, platforms, and governance that power daily work.",
-  },
-  {
-    name: "DQ Culture & Community",
-    logoUrl: "/logo/dq_logo2.png",
-    description:
-      "DQ Culture & Community builds rituals, communications, and experiences that connect every associate.",
+      "DQ Reports Support assists with DTMP setup, governance, and proposal-related reporting requests.",
   },
 ];
 // Mock Courses
 export const mockCourses: CourseType[] = [
   {
-    id: "flow-01",
-    title: "Discover DQ Culture",
+    id: "1",
+    title: "IT Support Form",
     description:
-      "How we work: values, rituals, and collaboration norms across DQ.",
-    category: "Discover",
-    deliveryMode: "Guide",
-    duration: "10 min",
-    durationType: "Short",
-    businessStage: "New Joiner",
-    provider: providers[4],
+      "Please use this form to submit any support requests related to Technology at DQ. Be sure to include details about the problem you're experiencing, along with any error messages you see. The more information you provide, the faster our support team can assist you.",
+    category: "IT Support",
+    deliveryMode: "Hybrid",
+    businessStage: "Team Lead",
+    provider: providers[0],
     learningOutcomes: [
-      "Understand our values and ways of working",
-      "Know the core communication channels",
-      "See how squads, chapters, and communities connect",
+      "Submit IT support requests efficiently",
+      "Provide detailed problem descriptions",
+      "Include relevant error messages",
+      "Track support request progress",
     ],
-    startDate: "Anytime",
-    price: "Included",
+    startDate: "Available Now",
+    price: "Free",
   },
   {
-    id: "flow-02",
-    title: "Set Up Your Workspace",
+    id: "2",
+    title: "Support Charter Template",
     description:
-      "Access tools (Teams, ADO, Git) and confirm your basic setup.",
-    category: "Set Up",
-    deliveryMode: "Checklist",
-    duration: "20 min",
-    durationType: "Medium",
-    businessStage: "New Joiner",
-    provider: providers[3],
+      "Support Charter Template is a structured document that outlines the scope, responsibilities, standards, and expectations of the IT support function. It acts as a formal agreement or guideline between the IT support team and the users or departments they serve.",
+    category: "IT Support",
+    deliveryMode: "Hybrid",
+    businessStage: "Team Lead",
+    provider: providers[0],
     learningOutcomes: [
-      "Sign in to Teams and join core channels",
-      "Access Azure DevOps and repos",
-      "Confirm Git + editor configuration",
+      "Understand IT support scope and responsibilities",
+      "Define service level agreements",
+      "Establish support standards and expectations",
+      "Create formal support agreements",
     ],
-    startDate: "Anytime",
-    price: "Included",
+    startDate: "Available Now",
+    price: "Free",
   },
   {
-    id: "flow-03",
-    title: "Join the Right Teams & Channels",
-    description: "Find and join your squad, chapter, and community spaces.",
-    category: "Connect",
-    deliveryMode: "Interactive",
-    duration: "15 min",
-    durationType: "Short",
+    id: "3",
+    title: "IT Support Walkthrough",
+    description:
+      "An instructional video detailing how to successfully launch an IT support request on the DWS platform.",
+    category: "IT Support",
+    deliveryMode: "Online",
     businessStage: "New Joiner",
     provider: providers[0],
     learningOutcomes: [
-      "Locate your squad/tribe Teams channels",
-      "Subscribe to key announcements",
-      "Book a quick intro with your mentor",
+      "Navigate the DWS platform effectively",
+      "Launch IT support requests correctly",
+      "Follow proper request procedures",
+      "Understand platform functionality",
     ],
-    startDate: "Anytime",
-    price: "Included",
+    startDate: "Available Now",
+    price: "Free",
   },
   {
-    id: "flow-04",
-    title: "Ship Your First Task in ADO",
+    id: "4",
+    title: "Bookings",
     description:
-      "Pull your first work item, move it through the board, and close it.",
-    category: "Grow",
-    deliveryMode: "Checklist",
-    duration: "30–45 min",
-    durationType: "Long",
-    businessStage: "Engineering",
+      "Use this form to submit any support requests to the BSS Factory at DQ. Be sure to include detailed information about your request for the DBP Admin (Booking). The more information you provide, the faster our support team can assist you.",
+    category: "Admin Support",
+    deliveryMode: "In-person",
+    businessStage: "Project/Delivery",
     provider: providers[1],
     learningOutcomes: [
-      "Pick up a starter ticket",
-      "Follow DoD/DoR guardrails",
-      "Create a concise playback update",
+      "Submit booking requests to BSS Factory",
+      "Provide detailed booking information",
+      "Work with DBP Admin for bookings",
+      "Understand booking procedures",
     ],
-    startDate: "Anytime",
-    price: "Included",
+    startDate: "Available Now",
+    price: "Free",
   },
   {
-    id: "flow-05",
-    title: "Product: From Brief to Story",
+    id: "5",
+    title: "Staff Requisition",
     description:
-      "Turn a product brief into clear user stories and acceptance criteria.",
-    category: "Grow",
-    deliveryMode: "Guide",
-    duration: "25 min",
-    durationType: "Medium",
-    businessStage: "Product",
+      "Please use this form to submit any support requests to the BSS Factory at DQ. Be sure to include detailed information about your request for the DBP Hiring (Staff Requisition). The more information you provide, the faster our support team can assist you.",
+    category: "Admin Support",
+    deliveryMode: "Hybrid",
+    businessStage: "Team Lead",
+    provider: providers[1],
+    learningOutcomes: [
+      "Submit staff requisition requests",
+      "Work with DBP Hiring team",
+      "Provide detailed hiring information",
+      "Understand requisition procedures",
+    ],
+    startDate: "Available Now",
+    price: "Free",
+  },
+  {
+    id: "6",
+    title: "Registration",
+    description:
+      "Please use this form to submit any support requests to the BSS Factory at DQ. Be sure to include detailed information about your request for the DBP Hiring Admin (Registration). The more information you provide, the faster our support team can assist you.",
+    category: "Admin Support",
+    deliveryMode: "In-person",
+    businessStage: "New Joiner",
+    provider: providers[1],
+    learningOutcomes: [
+      "Submit registration requests",
+      "Work with DBP Hiring Admin",
+      "Provide detailed registration information",
+      "Understand registration procedures",
+    ],
+    startDate: "Available Now",
+    price: "Free",
+  },
+  {
+    id: "7",
+    title: "DTMP (Base Setup)",
+    description:
+      "Please use this form to submit any support requests to the BSS Factory at DQ. Be sure to include detailed information about your request for the DT2.0 DTMP (Base Setup). The more information you provide, the faster our support team can assist you.",
+    category: "Reports Support",
+    deliveryMode: "Online",
+    businessStage: "Project/Delivery",
     provider: providers[2],
     learningOutcomes: [
-      "Author thin-sliced user stories",
-      "Add acceptance criteria aligned to KPIs",
-      "Link to sprint and release plans",
+      "Submit DTMP base setup requests",
+      "Work with DT2.0 DTMP team",
+      "Provide detailed setup information",
+      "Understand DTMP procedures",
     ],
-    startDate: "Anytime",
-    price: "Included",
+    startDate: "Available Now",
+    price: "Free",
   },
   {
-    id: "flow-06",
-    title: "Design Toolchain Setup",
-    description: "Access Figma, libraries, and DQ brand components.",
-    category: "Set Up",
-    deliveryMode: "Checklist",
-    duration: "15–20 min",
-    durationType: "Medium",
-    businessStage: "Design",
-    provider: providers[0],
-    learningOutcomes: [
-      "Join Figma team and libraries",
-      "Use DQ brand tokens/components",
-      "Share inspect links with engineers",
-    ],
-    startDate: "Anytime",
-    price: "Included",
-  },
-  {
-    id: "flow-07",
-    title: "Marketing Analytics Access",
+    id: "8",
+    title: "Governance",
     description:
-      "Get access to dashboards and set up campaign tracking.",
-    category: "Set Up",
-    deliveryMode: "Guide",
-    duration: "20 min",
-    durationType: "Medium",
-    businessStage: "Marketing",
+      "Please use this form to submit any support requests to the BSS Factory at DQ. Be sure to include detailed information about your request for the DT2.0 Report (Governance). The more information you provide, the faster our support team can assist you.",
+    category: "Reports Support",
+    deliveryMode: "Online",
+    businessStage: "Ops & Support",
     provider: providers[2],
     learningOutcomes: [
-      "Request analytics access",
-      "Review core KPIs and naming conventions",
-      "Validate a sample dashboard view",
+      "Submit governance report requests",
+      "Work with DT2.0 Report team",
+      "Provide detailed governance information",
+      "Understand reporting procedures",
     ],
-    startDate: "Anytime",
-    price: "Included",
+    startDate: "Available Now",
+    price: "Free",
   },
   {
-    id: "flow-08",
-    title: "Operate Safely: Compliance Basics",
+    id: "9",
+    title: "Proposal",
     description:
-      "Key guardrails for data, approvals, and confidentiality.",
-    category: "Discover",
-    deliveryMode: "Video",
-    duration: "12 min",
-    durationType: "Short",
-    businessStage: "Operations",
-    provider: providers[3],
+      "Please use this form to submit any support requests to the BSS Factory at DQ. Be sure to include detailed information about your request for the DT2.0 Report (Design). The more information you provide, the faster our support team can assist you.",
+    category: "Reports Support",
+    deliveryMode: "Online",
+    businessStage: "Project/Delivery",
+    provider: providers[2],
     learningOutcomes: [
-      "Follow data handling requirements",
-      "Use approval workflows correctly",
-      "Escalate issues via the right channels",
+      "Submit proposal report requests",
+      "Work with DT2.0 Report team",
+      "Provide detailed design information",
+      "Understand proposal procedures",
     ],
-    startDate: "Anytime",
-    price: "Included",
-  },
-  {
-    id: "flow-09",
-    title: "Run Your First Playback",
-    description:
-      "Share a short progress update using DQ storytelling templates.",
-    category: "Connect",
-    deliveryMode: "Interactive",
-    duration: "15–20 min",
-    durationType: "Medium",
-    businessStage: "New Joiner",
-    provider: providers[4],
-    learningOutcomes: [
-      "Structure a crisp playback",
-      "Highlight risks/asks and next steps",
-      "Invite feedback and log actions",
-    ],
-    startDate: "Anytime",
-    price: "Included",
-  },
-  {
-    id: "flow-10",
-    title: "Enroll in Core LMS Paths",
-    description:
-      "Pick the right learning paths to accelerate your first 30 days.",
-    category: "Grow",
-    deliveryMode: "Interactive",
-    duration: "20–30 min",
-    durationType: "Medium",
-    businessStage: "New Joiner",
-    provider: providers[0],
-    learningOutcomes: [
-      "Select 1–2 core paths",
-      "Add weekly learning time to calendar",
-      "Track completions in your profile",
-    ],
-    startDate: "Anytime",
-    price: "Included",
+    startDate: "Available Now",
+    price: "Free",
   },
 ];
 

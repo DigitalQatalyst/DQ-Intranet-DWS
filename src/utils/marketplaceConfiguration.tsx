@@ -94,14 +94,14 @@ export const mockNonFinancialServicesData = {
   items: mockNonFinancialServices,
   filterOptions: {
     categories: [{
-      id: 'consultancy',
-      name: 'Consultancy'
+      id: 'it_support',
+      name: 'IT Support'
     }, {
-      id: 'technology',
-      name: 'Technology'
+      id: 'support_charter_template',
+      name: 'Support Charter Template'
     }, {
-      id: 'research',
-      name: 'Research'
+      id: 'it_support_walkthrough',
+      name: 'IT Support Walkthrough'
     }, {
       id: 'export',
       name: 'Export'
@@ -404,65 +404,135 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     }],
     summarySticky: true,
     filterCategories: [{
-      id: 'category',
+      id: 'department',
+      title: 'Department',
+      options: [{
+        id: 'dco',
+        name: 'DCO'
+      }, {
+        id: 'dbp',
+        name: 'DBP'
+      }]
+    }, {
+      id: 'location',
+      title: 'Location & Studio',
+      options: [{
+        id: 'Global',
+        name: 'Global'
+      }, {
+        id: 'Dubai',
+        name: 'Dubai'
+      }, {
+        id: 'Nairobi',
+        name: 'Nairobi'
+      }, {
+        id: 'Remote',
+        name: 'Remote'
+      }]
+    }, {
+      id: 'audience',
+      title: 'Audience',
+      options: [{
+        id: 'associate',
+        name: 'Associate'
+      }, {
+        id: 'lead',
+        name: 'Lead'
+      }]
+    }, {
+      id: 'level',
+      title: 'Level',
+      options: [{
+        id: 'L1',
+        name: 'L1 – Starting'
+      }, {
+        id: 'L2',
+        name: 'L2 – Following'
+      }, {
+        id: 'L3',
+        name: 'L3 – Assisting'
+      }, {
+        id: 'L4',
+        name: 'L4 – Applying'
+      }, {
+        id: 'L5',
+        name: 'L5 – Enabling'
+      }, {
+        id: 'L6',
+        name: 'L6 – Ensuring'
+      }, {
+        id: 'L7',
+        name: 'L7 – Influencing'
+      }, {
+        id: 'L8',
+        name: 'L8 – Inspiring'
+      }]
+    }, {
+      id: 'status',
+      title: 'Status',
+      options: [{
+        id: 'live',
+        name: 'Live'
+      }, {
+        id: 'coming-soon',
+        name: 'Coming Soon'
+      }]
+    }, {
+      id: 'courseCategory',
       title: 'Course Category',
       options: [{
         id: 'ghc',
         name: 'GHC'
       }, {
-        id: 'digital',
-        name: 'Digital'
+        id: '6xd',
+        name: '6xD'
       }, {
-        id: 'hov',
-        name: 'HoV'
+        id: 'dws',
+        name: 'DWS'
       }, {
-        id: 'keytools',
-        name: 'Key Tools'
+        id: 'dxp',
+        name: 'DXP'
       }, {
-        id: 'dayindq',
+        id: 'day-in-dq',
         name: 'Day in DQ'
+      }, {
+        id: 'key-tools',
+        name: 'Key Tools'
       }]
     }, {
       id: 'deliveryMode',
       title: 'Delivery Mode',
       options: [{
-        id: 'online',
-        name: 'Online'
+        id: 'video',
+        name: 'Video'
       }, {
-        id: 'inperson',
-        name: 'In-person'
+        id: 'guide',
+        name: 'Guide'
+      }, {
+        id: 'workshop',
+        name: 'Workshop'
       }, {
         id: 'hybrid',
         name: 'Hybrid'
+      }, {
+        id: 'online',
+        name: 'Online'
       }]
     }, {
       id: 'duration',
       title: 'Duration',
       options: [{
+        id: 'bite-size',
+        name: 'Bite-size'
+      }, {
         id: 'short',
-        name: 'Short (<1 week)'
+        name: 'Short'
       }, {
         id: 'medium',
-        name: 'Medium (1-4 weeks)'
+        name: 'Medium'
       }, {
         id: 'long',
-        name: 'Long (1+ month)'
-      }]
-    }, {
-      id: 'businessStage',
-      title: 'Level',
-      options: [{
-        id: 'new-joiner',
-        name: 'New Joiner'
-      }, {
-        id: 'team-lead',
-        name: 'Team Lead'
-      }, {
-        id: 'project-delivery',
-        name: 'Project/Delivery'
-      }, {
-        id: 'ops-support',
-        name: 'Ops & Support'
+        name: 'Long'
       }]
     }],
     // Data mapping functions
@@ -482,7 +552,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     },
     mapFilterResponse: data => {
       return [{
-        id: 'category',
+        id: 'courseCategory',
         title: 'Course Category',
         options: data.categories || []
       }, {
@@ -492,20 +562,11 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       }, {
         id: 'duration',
         title: 'Duration',
-        options: [{
-          id: 'short',
-          name: 'Short (<1 week)'
-        }, {
-          id: 'medium',
-          name: 'Medium (1-4 weeks)'
-        }, {
-          id: 'long',
-          name: 'Long (1+ month)'
-        }]
+        options: data.duration || []
       }, {
-        id: 'businessStage',
+        id: 'level',
         title: 'Level',
-        options: data.businessStages || []
+        options: data.levels || []
       }];
     },
     // Mock data for fallback and schema reference
@@ -586,26 +647,13 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'creditcard',
         name: 'Credit Card'
       }]
-    }, {
-      id: 'serviceType',
-      title: 'Service Type',
-      options: [{
-        id: 'financing',
-        name: 'Financing'
-      }, {
-        id: 'credit',
-        name: 'Credit'
-      }, {
-        id: 'riskmanagement',
-        name: 'Risk Management'
-      }]
     }],
     // Data mapping functions
     mapListResponse: data => {
       return data.map((item: any) => ({
         ...item,
         // Transform any fields if needed
-        tags: item.tags || [item.category, item.serviceType].filter(Boolean)
+        tags: item.tags || [item.category].filter(Boolean)
       }));
     },
     mapDetailResponse: data => {
@@ -620,10 +668,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'category',
         title: 'Service Category',
         options: data.categories || []
-      }, {
-        id: 'serviceType',
-        title: 'Service Type',
-        options: data.serviceTypes || []
       }];
     },
     // Mock data for fallback and schema reference
@@ -705,22 +749,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         name: 'Export'
       }]
     }, {
-      id: 'serviceType',
-      title: 'Service Type',
-      options: [{
-        id: 'advisory',
-        name: 'Advisory'
-      }, {
-        id: 'implementation',
-        name: 'Implementation'
-      }, {
-        id: 'information',
-        name: 'Information'
-      }, {
-        id: 'program',
-        name: 'Program'
-      }]
-    }, {
       id: 'deliveryMode',
       title: 'Delivery Mode',
       options: [{
@@ -739,7 +767,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       return data.map((item: any) => ({
         ...item,
         // Transform any fields if needed
-        tags: item.tags || [item.category, item.serviceType, item.deliveryMode].filter(Boolean)
+        tags: item.tags || [item.category, item.deliveryMode].filter(Boolean)
       }));
     },
     mapDetailResponse: data => {
@@ -754,10 +782,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'category',
         title: 'Service Category',
         options: data.categories || []
-      }, {
-        id: 'serviceType',
-        title: 'Service Type',
-        options: data.serviceTypes || []
       }, {
         id: 'deliveryMode',
         title: 'Delivery Mode',

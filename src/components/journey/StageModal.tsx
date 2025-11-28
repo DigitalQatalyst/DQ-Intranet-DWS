@@ -320,7 +320,7 @@ const StageModal = ({ stage, isOpen, onClose }: StageModalProps) => {
               </div>
               <a
                 href={stage.ctaHref}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[linear-gradient(135deg,#030F35_0%,#FB5535_100%)] px-5 py-2.5 font-semibold text-white shadow-lg transition hover:brightness-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FB5535]"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#131E42] px-5 py-2.5 font-semibold text-white shadow-lg transition hover:bg-[#0F1A4F] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#99B2FF]"
               >
                 {stage.ctaLabel}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
