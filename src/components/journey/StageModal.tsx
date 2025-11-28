@@ -20,7 +20,6 @@ const focusableSelectors =
 const serviceTypeBadgeColors: Record<StageServiceType, string> = {
   Learning: "bg-[#030F35]/10 text-[#030F35]",
   Service: "bg-[#FB5535]/10 text-[#FB5535]",
-  "Non-financial": "bg-slate-100 text-slate-700",
 };
 
 const StageModal = ({ stage, isOpen, onClose }: StageModalProps) => {

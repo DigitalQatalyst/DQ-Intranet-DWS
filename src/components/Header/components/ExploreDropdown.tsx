@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDownIcon } from 'lucide-react';
-import { BuildingIcon, CreditCardIcon, NewspaperIcon, UsersIcon, GraduationCapIcon, TrendingUpIcon, CalendarIcon, SparklesIcon, FileText, LucideProps } from 'lucide-react';
+import { BuildingIcon, GraduationCapIcon, CalendarIcon, UsersIcon, NewspaperIcon, SparklesIcon, FileText, LucideProps } from 'lucide-react';
 
 interface Marketplace {
   id: string;
@@ -13,74 +13,53 @@ interface Marketplace {
 
 const marketplaces: Marketplace[] = [
   {
-    id: 'discover-dq',
-    name: 'Discover DQ',
-    description: 'Tour the digital workspace zones and teams across DQ.',
-    icon: SparklesIcon,
-    href: '/discover-dq',
-  },
-  {
-    id: 'non-financial',
-    name: 'IT & Systems Support',
-    description: 'Helpdesk, access requests, device & app support.',
-    icon: BuildingIcon,
-    href: '/it-systems-support',
-  },
-  {
-    id: 'finance',
-    name: 'HR & Finance Services',
-    description: 'Leave, payroll, benefits, and reimbursements.',
-    icon: CreditCardIcon,
-    href: '/hr-finance-services',
-  },
-  {
-    id: 'media',
-    name: 'Facilities & Logistics',
-    description: 'Office access, seating, travel, and logistics.',
-    icon: NewspaperIcon,
-    href: '/facilities-logistics',
-  },
-  {
-    id: 'community',
-    name: 'Associates Directory',
-    description: 'Find people, teams, and contacts across DQ.',
-    icon: UsersIcon,
-    href: '/associates-directory',
-  },
-  {
-    id: 'course',
-    name: 'DQ LMS Courses',
-    description: '7x GHC, 6x Digital, 12x HoV, 1x Day in DQ, Key Tools.',
+    id: 'learning-center',
+    name: 'DQ Learning Center',
+    description: 'Courses, learning tracks, and associate reviews.',
     icon: GraduationCapIcon,
-    href: '/marketplace/courses',
+    href: '/dq-learning-center',
   },
   {
-    id: 'investment',
-    name: 'Certifications & Onboarding',
-    description: 'Mandatory training and new associate onboarding.',
-    icon: TrendingUpIcon,
-    href: '/certifications-onboarding',
+    id: 'services-center',
+    name: 'DQ Services Center',
+    description: 'Business services, technology services, and digital worker tools.',
+    icon: BuildingIcon,
+    href: '/dq-services-center',
   },
   {
-    id: 'calendar',
-    name: 'Training Materials',
-    description: 'Guides, playbooks, and how-to resources.',
+    id: 'work-center',
+    name: 'DQ Work Center',
+    description: 'Daily sessions, project work, and execution trackers.',
     icon: CalendarIcon,
-    href: '/training-materials',
+    href: '/dq-work-center',
   },
   {
-    id: 'opportunity',
-    name: 'News & Announcements',
-    description: 'Company updates and internal notices.',
+    id: 'work-directory',
+    name: 'DQ Work Directory',
+    description: 'Units, positions, and associate profiles.',
+    icon: UsersIcon,
+    href: '/dq-work-directory',
+  },
+  {
+    id: 'media-center',
+    name: 'DQ Media Center',
+    description: 'News, announcements, job openings, and blogs.',
+    icon: NewspaperIcon,
+    href: '/dq-media-center',
+  },
+  {
+    id: 'work-communities',
+    name: 'DQ Work Communities',
+    description: 'Discussion rooms, pulse updates, and events.',
     icon: SparklesIcon,
-    href: '/news-announcements',
+    href: '/dq-work-communities',
   },
   {
-    id: 'asset-library',
-    name: 'Asset Library',
-    description: 'Shared design, deployment and marketing artefacts.',
+    id: 'knowledge-center',
+    name: 'DQ Knowledge Center',
+    description: 'Strategy guides, blueprints, libraries, and testimonials.',
     icon: FileText,
-    href: '/asset-library',
+    href: '/dq-knowledge-center',
   },
 ];
 
@@ -190,15 +169,7 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
           aria-orientation="vertical"
           aria-labelledby="explore-menu"
         >
-          <div className="px-4 py-2 border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-800">
-              Explore Marketplaces
-            </h3>
-            <p className="text-xs text-gray-500 mt-1">
-              Discover opportunities across Abu Dhabi's business ecosystem
-            </p>
-          </div>
-          <div className="max-h-96 overflow-y-auto">
+          <div className="overflow-y-auto">
             {marketplaces.map((marketplace, index) => {
               const Icon = marketplace.icon;
               return (

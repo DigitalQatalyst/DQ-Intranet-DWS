@@ -105,8 +105,8 @@ export function App() {
           element={<ComingSoonCountdownPage title="Asset Library" />}
         />
         <Route
-          path="/become-a-lead"
-          element={<ComingSoonCountdownPage title="Become a Lead" />}
+          path="/scrum-master-space"
+          element={<ComingSoonCountdownPage title="Scrum Master Space" />}
         />
         <Route path="*" element={<Navigate to="/404" replace />} />
       </Routes>

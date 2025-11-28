@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { MenuIcon, XIcon, ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
-import { BuildingIcon, CreditCardIcon, NewspaperIcon, UsersIcon, GraduationCapIcon, TrendingUpIcon, CalendarIcon, SparklesIcon } from 'lucide-react';
+import { BuildingIcon, GraduationCapIcon, CalendarIcon, UsersIcon, NewspaperIcon, SparklesIcon, FileText } from 'lucide-react';
 import { scrollToSupport } from '../../../utils/scroll';
 interface MobileDrawerProps {
   isCompact?: boolean;
@@ -9,53 +9,47 @@ interface MobileDrawerProps {
   isSignedIn: boolean;
 }
 const marketplaces = [{
-  id: 'non-financial',
-  name: 'IT & Systems Support',
-  description: 'Helpdesk, access requests, device & app support.',
-  icon: BuildingIcon,
-  href: '/it-systems-support'
-}, {
-  id: 'finance',
-  name: 'HR & Finance Services',
-  description: 'Leave, payroll, benefits, and reimbursements.',
-  icon: CreditCardIcon,
-  href: '/hr-finance-services'
-}, {
-  id: 'media',
-  name: 'Facilities & Logistics',
-  description: 'Office access, seating, travel, and logistics.',
-  icon: NewspaperIcon,
-  href: '/facilities-logistics'
-}, {
-  id: 'community',
-  name: 'Associates Directory',
-  description: 'Find people, teams, and contacts across DQ.',
-  icon: UsersIcon,
-  href: '/associates-directory'
-}, {
-  id: 'course',
-  name: 'DQ LMS Courses',
-  description: '7x GHC, 6x Digital, 12x HoV, 1x Day in DQ, Key Tools.',
+  id: 'learning-center',
+  name: 'DQ Learning Center',
+  description: 'Courses, learning tracks, and associate reviews.',
   icon: GraduationCapIcon,
-  href: '/marketplace/courses'
+  href: '/dq-learning-center'
 }, {
-  id: 'investment',
-  name: 'Certifications & Onboarding',
-  description: 'Mandatory training and new associate onboarding.',
-  icon: TrendingUpIcon,
-  href: '/certifications-onboarding'
+  id: 'services-center',
+  name: 'DQ Services Center',
+  description: 'Business services, technology services, and digital worker tools.',
+  icon: BuildingIcon,
+  href: '/dq-services-center'
 }, {
-  id: 'calendar',
-  name: 'Training Materials',
-  description: 'Guides, playbooks, and how-to resources.',
+  id: 'work-center',
+  name: 'DQ Work Center',
+  description: 'Daily sessions, project work, and execution trackers.',
   icon: CalendarIcon,
-  href: '/training-materials'
+  href: '/dq-work-center'
 }, {
-  id: 'opportunity',
-  name: 'News & Announcements',
-  description: 'Company updates and internal notices.',
+  id: 'work-directory',
+  name: 'DQ Work Directory',
+  description: 'Units, positions, and associate profiles.',
+  icon: UsersIcon,
+  href: '/dq-work-directory'
+}, {
+  id: 'media-center',
+  name: 'DQ Media Center',
+  description: 'News, announcements, job openings, and blogs.',
+  icon: NewspaperIcon,
+  href: '/dq-media-center'
+}, {
+  id: 'work-communities',
+  name: 'DQ Work Communities',
+  description: 'Discussion rooms, pulse updates, and events.',
   icon: SparklesIcon,
-  href: '/news-announcements'
+  href: '/dq-work-communities'
+}, {
+  id: 'knowledge-center',
+  name: 'DQ Knowledge Center',
+  description: 'Strategy guides, blueprints, libraries, and testimonials.',
+  icon: FileText,
+  href: '/dq-knowledge-center'
 }];
 export function MobileDrawer({
   isCompact = false,
