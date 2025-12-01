@@ -96,6 +96,7 @@ export const MarketplaceRouter: React.FC = () => {
   const financialConfig = getMarketplaceConfig('financial');
   const nonFinancialConfig = getMarketplaceConfig('non-financial');
   const knowledgeHubConfig = getMarketplaceConfig('knowledge-hub');
+  const guidesConfig = getMarketplaceConfig('guides');
   // State for bookmarked items and comparison
   const [bookmarkedItems, setBookmarkedItems] = useState<Record<string, string[]>>({
     courses: [],

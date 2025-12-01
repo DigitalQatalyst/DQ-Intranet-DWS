@@ -13,6 +13,7 @@
     "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed-guides.js",
     "db:seed-media": "node --loader ts-node/esm scripts/seed-media.ts",
+    "db:seed-services": "npx tsx scripts/seed-marketplace-services.js",
     "test": "vitest run",
     "db:seed-guides": "node scripts/seed-guides.js",
     "test:supabase": "node test-supabase-connection.js",

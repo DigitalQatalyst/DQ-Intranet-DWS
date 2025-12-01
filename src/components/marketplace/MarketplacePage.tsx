@@ -539,12 +539,12 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
 
           if (statuses.length) q = q.in('status', statuses); else q = q.eq('status', 'Approved');
           if (qStr) q = q.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
-          if (isStrategyTab) {
-            q = q.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
-          } else if (isBlueprintTab) {
-            q = q.or('domain.ilike.%Blueprint%,guide_type.ilike.%Blueprint%');
-          } else if (isTestimonialsTab) {
-            q = q.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
+          // For Strategy, Blueprints, and Testimonials tabs: fetch all approved guides
+          // Client-side filtering will handle the domain/guide_type matching
+          // This ensures we don't miss any guides due to query syntax issues
+          if (isStrategyTab || isBlueprintTab || isTestimonialsTab) {
+            // Don't filter by domain/guide_type here - let client-side filtering handle it
+            // This ensures we get all guides and filter them properly client-side
           } else if (isGuidelinesTab) {
             // For Guidelines tab: if domain filter is set, use it; otherwise fetch all and filter client-side
             // Client-side filtering will exclude Strategy/Blueprint/Testimonial guides
@@ -600,9 +600,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           // Facets should show ALL available options for the current tab, not filtered by selected filters
           // This ensures filter options don't disappear when other filters are selected
           if (qStr)              facetQ = facetQ.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
-          if (isStrategyTab)    facetQ = facetQ.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
-          else if (isBlueprintTab) facetQ = facetQ.or('domain.ilike.%Blueprint%,guide_type.ilike.%Blueprint%');
-          else if (isTestimonialsTab) facetQ = facetQ.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
+          // For Strategy, Blueprints, and Testimonials tabs: don't filter facets server-side
+          // Client-side filtering will handle the domain/guide_type matching for facets too
           // For Guidelines tab: facets should only include Guidelines guides (exclude Strategy/Blueprint/Testimonial)
           // But don't filter by selected guide_type, units, locations - show all available options for Guidelines
           // Only filter by status if needed
