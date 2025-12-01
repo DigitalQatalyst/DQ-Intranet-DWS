@@ -1247,6 +1247,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 onToggleBookmark={toggleBookmark}
                 onAddToComparison={handleAddToComparison}
                 promoCards={promoCards}
+                activeServiceTab={activeServiceTab}
               />
             )}
           </div>

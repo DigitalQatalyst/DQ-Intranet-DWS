@@ -429,17 +429,6 @@ export const getTabSpecificFilters = (tabId?: string): FilterCategoryConfig[] =>
         { id: 'policies', name: 'Policies' },
         { id: 'procedures', name: 'Procedures' }
       ]
-    },
-    {
-      id: 'department',
-      title: 'Department',
-      options: [
-        { id: 'legal', name: 'Legal' },
-        { id: 'hr', name: 'Human Resources' },
-        { id: 'finance', name: 'Finance' },
-       
-        
-      ]
     }
   ];
 
