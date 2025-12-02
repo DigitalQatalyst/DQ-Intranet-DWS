@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CalendarIcon, ChevronDownIcon } from 'lucide-react';
-import { BuildingIcon, CreditCardIcon, GraduationCapIcon, UsersIcon, NewspaperIcon, SparklesIcon, FileText, LucideProps, BookOpen } from 'lucide-react';
+import { BuildingIcon, CreditCardIcon, GraduationCapIcon, UsersIcon, NewspaperIcon, SparklesIcon, FileText, LucideProps, BookOpen, Briefcase } from 'lucide-react';
 
 interface Marketplace {
   id: string;
@@ -118,6 +118,13 @@ const marketplaces: Marketplace[] = [
     icon: UsersIcon,
     href: '/communities',
   },
+  {
+    id: 'work-center',
+    name: 'Work Center',
+    description: 'Manage sessions, tasks, and trackers across projects and teams.',
+    icon: Briefcase,
+    href: '/work-center',
+  },
 ];
 
 interface ExploreDropdownProps {
@@ -230,7 +237,9 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
           <div className="max-h-96 overflow-y-auto">
             {marketplaces.map((marketplace, index) => {
               const Icon = marketplace.icon;
-              const isActive = marketplace.id === 'guides' && (location.pathname.startsWith('/marketplace/guides') || location.pathname.startsWith('/marketplace/knowledge-hub'));
+              const isActive = 
+                (marketplace.id === 'guides' && (location.pathname.startsWith('/marketplace/guides') || location.pathname.startsWith('/marketplace/knowledge-hub'))) ||
+                (marketplace.id === 'work-center' && location.pathname.startsWith('/work-center'));
               return (
                 <a
                   key={marketplace.id}

@@ -146,6 +146,12 @@ export function MobileDrawer({
           <div className={`flex-1 overflow-y-auto ${!isSignedIn ? 'pb-20' : ''}`}>
             {/* Navigation Section - Show for Mobile only, Tablet has these in header */}
             <div className="px-4 py-3 md:hidden">
+              <button onClick={() => handleMarketplaceClick('/discover-dq')} className="w-full text-left py-2 px-3 hover:bg-dq-coral/10 rounded-md transition-colors mb-1">
+                <span className="text-sm font-medium text-dq-navy">Discover DQ</span>
+              </button>
+              <button onClick={() => handleMarketplaceClick('/work-center')} className="w-full text-left py-2 px-3 hover:bg-dq-coral/10 rounded-md transition-colors mb-2">
+                <span className="text-sm font-medium text-dq-navy">Work Center</span>
+              </button>
               <h3 className="text-xs font-semibold text-dq-navy/60 uppercase tracking-wider mb-2 md:text-[11px] sm:text-[10px]">
                 Navigation
               </h3>

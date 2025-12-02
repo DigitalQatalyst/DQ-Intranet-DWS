@@ -33,6 +33,7 @@ import { ApolloProvider } from "@apollo/client/react";
 import EventsPage from "./pages/events/EventsPage";
 import KfBot from "./bot/KfBot";
 import ThankYou from "./pages/ThankYou";
+import { WorkCenterRouter } from "./pages/workCenter/WorkCenterRouter";
 import WomenEntrepreneursPage from "./pages/WomenEntrepreneursPage";
 
 export function AppRouter() {
@@ -126,6 +127,7 @@ export function AppRouter() {
             <Route path="/%20marketplace/news" element={<Navigate to="/marketplace/news" replace />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/communities/*" element={<CommunitiesRouter />} />
+            <Route path="/work-center/*" element={<WorkCenterRouter />} />
             <Route
               path="/women-entrepreneurs"
               element={<WomenEntrepreneursPage />}
