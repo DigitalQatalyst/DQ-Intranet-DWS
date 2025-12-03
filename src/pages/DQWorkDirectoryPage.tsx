@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ChevronRightIcon, FilterIcon, HomeIcon, MapPin } from 'lucide-react';
 
 import { AssociateCard } from '@/components/associates/AssociateCard';
-import { AssociateProfileModal } from '@/components/associates/AssociateProfileModal';
+import { AssociateProfileModal } from '@/components/work-directory/AssociateProfileModal';
 import { Footer } from '@/components/Footer';
 import { Header } from '@/components/Header';
 import { FilterSidebar } from '@/components/marketplace/FilterSidebar';
@@ -27,14 +27,14 @@ interface MappedWorkUnit {
   sector: string;
   unitName: string;
   unitType: string;
-  mandate: string;
+  mandate?: string | null;
   location: string;
   focusTags: string[];
   priorityLevel?: string | null;
   priorityScope?: string | null;
   performanceStatus?: string | null;
   performanceScore?: number | null;
-  wiAreas?: string[];
+  wiAreas?: string[] | null;
   bannerImageUrl: string | null;
   department: string;
 }
@@ -51,7 +51,7 @@ interface MappedWorkPosition {
   sfiaRating?: string | null;
   summary?: string | null;
   description?: string | null;
-  responsibilities: string[];
+  responsibilities?: string[] | null;
   expectations: string | null;
   status?: string | null;
   imageUrl?: string | null;
@@ -73,8 +73,14 @@ interface MappedAssociate {
   teams_link?: string | null;
   keySkills: string[];
   bio: string;
-  summary: string | null;
+  summary?: string | null;
   avatarUrl: string | null;
+  hobbies?: string[];
+  technicalSkills?: string[];
+  functionalSkills?: string[];
+  softSkills?: string[];
+  keyCompetencies?: string[];
+  languages?: string[];
 }
 
 interface UnitCardProps {
@@ -153,7 +159,7 @@ const mapDepartment = (value?: string) => {
   return value;
 };
 
-const getUnitDepartmentLabel = (unit: { department?: string; unitName?: string; sector?: string }) => {
+const getUnitDepartmentLabel = (unit: { department?: string | null; unitName?: string; sector?: string }) => {
   const raw = unit.department || unit.unitName || unit.sector || '';
   if (raw.toLowerCase().includes('coe | lead')) {
     return 'CoE | Lead';
@@ -185,46 +191,6 @@ const DEPARTMENT_GROUPS_SPEC: Array<{ title: string; values: string[] }> = [
   },
 ];
 
-const FOCUS_TAG_GROUPS_SPEC: Array<{ title: string; values: string[] }> = [
-  {
-    title: 'CoE & Governance',
-    values: ['CoE', 'Enablement', 'Governance'],
-  },
-  {
-    title: 'Delivery & Experience',
-    values: ['Delivery — Deploys', 'Delivery — Designs', 'Go-lives', 'Roll-outs', 'UX/UI'],
-  },
-  {
-    title: 'Factories & Products',
-    values: [
-      'People',
-      'HR Ops',
-      'Records',
-      'Billing',
-      'Stories',
-      'Content',
-      'Brand',
-      'Intelligence',
-      'Analytics',
-      'Insights',
-      'Products',
-      'Roadmap',
-      'Releases',
-      'Solutions',
-      'Architecture',
-      'Designs',
-      'SecDevOps',
-      'Pipelines',
-      'Security',
-    ],
-  },
-  {
-    title: 'Platform & Ops',
-    values: ['Platform', 'Tools', 'Studio Ops'],
-  },
-];
-
-const UNIT_TYPE_ORDER = ['Sector', 'Factory', 'Unit'];
 
 const buildGroupedOptions = (spec: Array<{ title: string; values: string[] }>, available: Set<string>): FilterGroup[] =>
   spec
@@ -239,8 +205,26 @@ const buildGroupedOptions = (spec: Array<{ title: string; values: string[] }>, a
 const flattenGroups = (groups: FilterGroup[]) => groups.flatMap((group) => group.options);
 
 export function DQWorkDirectoryPage() {
+  console.log('DQWorkDirectoryPage mounted');
+  const [searchParams, setSearchParams] = useSearchParams();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabKey>('units');
+  
+  // Get active tab from URL, default to 'units'
+  const tabParam = searchParams.get('tab') as TabKey | null;
+  const isValidTab = tabParam && ['units', 'positions', 'associates'].includes(tabParam);
+  const initialTab: TabKey = isValidTab ? tabParam : 'units';
+  const [activeTab, setActiveTab] = useState<TabKey>(initialTab);
+  
+  // Update active tab when URL changes (e.g., from browser back/forward or direct link)
+  useEffect(() => {
+    if (tabParam && isValidTab && tabParam !== activeTab) {
+      setActiveTab(tabParam);
+    } else if (!tabParam && activeTab !== 'units') {
+      // If no tab param and not default, set default
+      setSearchParams({ tab: 'units' }, { replace: true });
+    }
+  }, [tabParam, isValidTab, activeTab, setSearchParams]);
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [sort, setSort] = useState('relevance');
@@ -267,30 +251,9 @@ export function DQWorkDirectoryPage() {
     );
     const departmentGroups = buildGroupedOptions(DEPARTMENT_GROUPS_SPEC, availableDepartments);
 
-    const locationOptions = toOptions(allUnits.map((u) => locationLabel(u.location)));
-
-    const unitTypeValues = Array.from(new Set(allUnits.map((u) => u.unitType).filter(Boolean) as string[]));
-    const unitTypeOptions = unitTypeValues
-      .sort((a, b) => {
-        const aIdx = UNIT_TYPE_ORDER.indexOf(a);
-        const bIdx = UNIT_TYPE_ORDER.indexOf(b);
-        if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-        if (aIdx !== -1) return -1;
-        if (bIdx !== -1) return 1;
-        return a.localeCompare(b);
-      })
-      .map((value) => ({ id: value, name: value }));
-
-    const availableFocusTags = new Set(
-      allUnits.flatMap((u) => (Array.isArray(u.focusTags) ? u.focusTags : [])).filter(Boolean) as string[]
-    );
-    const focusTagGroups = buildGroupedOptions(FOCUS_TAG_GROUPS_SPEC, availableFocusTags);
-
     return [
       { id: 'department', title: 'Department', options: flattenGroups(departmentGroups), groups: departmentGroups },
-      { id: 'location', title: 'Location', options: locationOptions },
-      { id: 'unitType', title: 'Unit Type', options: unitTypeOptions },
-      { id: 'focusTags', title: 'Focus Tags', options: flattenGroups(focusTagGroups), groups: focusTagGroups },
+      ...globalFilterConfig.filter((f) => f.id === 'location'),
     ];
   }, [allUnits]);
 
@@ -306,25 +269,15 @@ export function DQWorkDirectoryPage() {
     };
 
     const unitOptions = getUniqueValues(allPositions.map((p) => p.unit)).sort().map((v) => ({ id: v, name: v }));
-    const roleFamilyOptions = getUniqueValues(allPositions.map((p) => p.roleFamily))
-      .sort()
-      .map((v) => ({ id: v, name: v }));
-    const statusOptions = getUniqueValues(allPositions.map((p) => p.status)).sort().map((v) => ({ id: v, name: v }));
-
-    const sfiaLevels = getUniqueValues(allPositions.map((p) => p.sfiaLevel));
-    const sfiaLevelOptions = sfiaLevels
-      .sort((a, b) => {
-        const numA = parseInt(a.replace(/\D/g, '') || '0', 10);
-        const numB = parseInt(b.replace(/\D/g, '') || '0', 10);
-        return numA - numB || a.localeCompare(b);
-      })
-      .map((v) => ({ id: v, name: v }));
 
     const config: FilterConfig[] = [
+      ...globalFilterConfig.filter((f) => f.id === 'location'),
       unitOptions.length ? { id: 'unit', title: 'Unit', options: unitOptions } : null,
-      roleFamilyOptions.length ? { id: 'roleFamily', title: 'Role Family', options: roleFamilyOptions } : null,
-      sfiaLevelOptions.length ? { id: 'sfiaLevel', title: 'SFIA Level', options: sfiaLevelOptions } : null,
-      statusOptions.length ? { id: 'status', title: 'Status', options: statusOptions } : null,
+      {
+        id: 'level',
+        title: 'Rating – SFIA',
+        options: SFIA_LEVEL_OPTIONS,
+      },
     ].filter(Boolean) as FilterConfig[];
 
     return config;
@@ -401,7 +354,6 @@ export function DQWorkDirectoryPage() {
     resetVisibleForTab(activeTab);
   };
 
-  const searchPlaceholder = 'Search by unit, position, associate name, skill, or keyword…';
 
   const query = searchQuery.toLowerCase();
 
@@ -437,24 +389,14 @@ export function DQWorkDirectoryPage() {
       })
       .filter((unit) => {
         const {
-          unitType = [],
-          focusTags = [],
           department = [],
           location = [],
         } = unitFilters;
         const departmentLabel = getUnitDepartmentLabel(unit);
         const unitLocation = locationLabel(unit.location);
-        const matchesUnitType = unitType.length === 0 || unitType.includes(unit.unitType);
         const matchesDepartment = department.length === 0 || department.includes(departmentLabel);
         const matchesLocation = location.length === 0 || location.includes(unitLocation);
-        const matchesFocus =
-          focusTags.length === 0 || unit.focusTags.some((tag) => focusTags.includes(tag));
-        return (
-          matchesUnitType &&
-          matchesDepartment &&
-          matchesLocation &&
-          matchesFocus
-        );
+        return matchesDepartment && matchesLocation;
       })
       .map((unit) => ({
         ...unit,
@@ -462,6 +404,7 @@ export function DQWorkDirectoryPage() {
         locationLabel: locationLabel(unit.location),
         department: unit.department ?? getUnitDepartmentLabel(unit),
         bannerImageUrl: unit.bannerImageUrl ?? null,
+        focusTags: unit.focusTags ?? [],
       }));
 
     if (sort === 'az') {
@@ -496,14 +439,18 @@ export function DQWorkDirectoryPage() {
         return haystack.includes(query.toLowerCase());
       })
       .filter((position) => {
-        const { unit = [], roleFamily = [], sfiaLevel = [], status = [] } = positionFilters;
+        const { unit = [], level = [], location = [] } = positionFilters;
         const matchesUnit = unit.length === 0 || (position.unit ? unit.includes(position.unit) : false);
-        const matchesRoleFamily =
-          roleFamily.length === 0 || (position.roleFamily ? roleFamily.includes(position.roleFamily) : false);
-        const matchesSfia = sfiaLevel.length === 0 || (position.sfiaLevel ? sfiaLevel.includes(position.sfiaLevel) : false);
-        const matchesStatus = status.length === 0 || (position.status ? status.includes(position.status) : false);
-        return matchesUnit && matchesRoleFamily && matchesSfia && matchesStatus;
-      });
+        const positionLocation = position.location ? locationLabel(position.location) : null;
+        const matchesLocation = location.length === 0 || (positionLocation ? location.includes(positionLocation) : false);
+        const matchesSfia = level.length === 0 || (position.sfiaLevel ? level.includes(position.sfiaLevel) : false);
+        return matchesUnit && matchesLocation && matchesSfia;
+      })
+      .map((position) => ({
+        ...position,
+        expectations: position.expectations ?? null,
+        responsibilities: position.responsibilities ?? [],
+      }));
 
     if (sort === 'az') {
       return applySort(base, (a, b) => {
@@ -562,6 +509,7 @@ export function DQWorkDirectoryPage() {
         ...associate,
         departmentLabel: mapDepartment(associate.unit || associate.department),
         locationLabel: locationLabel(associate.location),
+        avatarUrl: associate.avatarUrl ?? null,
       }));
 
     if (sort === 'az') {
@@ -589,10 +537,16 @@ export function DQWorkDirectoryPage() {
     email: mapped.email,
     phone: mapped.phone ?? null,
     teams_link: mapped.teams_link ?? '',
-    avatar_url: mapped.avatarUrl,
+    avatar_url: mapped.avatarUrl ?? null,
     key_skills: mapped.keySkills,
     summary: mapped.summary ?? null,
     bio: mapped.bio,
+    hobbies: mapped.hobbies,
+    technicalSkills: mapped.technicalSkills,
+    functionalSkills: mapped.functionalSkills,
+    softSkills: mapped.softSkills,
+    keyCompetencies: mapped.keyCompetencies,
+    languages: mapped.languages,
   });
 
   const fetchAssociateProfile = async (associate: Associate) => {
@@ -864,16 +818,20 @@ export function DQWorkDirectoryPage() {
           </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-6">
           <WorkDirectoryOverview activeTab={activeTab} />
         </div>
+
+        <div className="mt-10" />
 
         <div id="directory-tabs" className="mb-6">
           <SimpleTabs
             tabs={tabs as SimpleTab[]}
             activeTabId={activeTab}
             onTabChange={(id) => {
-              setActiveTab(id as TabKey);
+              const newTab = id as TabKey;
+              setActiveTab(newTab);
+              setSearchParams({ tab: newTab }, { replace: true });
               setShowFilters(false);
               setSort('relevance');
               resetVisibleForTab(id as TabKey);
@@ -885,8 +843,6 @@ export function DQWorkDirectoryPage() {
           <SearchBar
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            placeholder={searchPlaceholder}
-            ariaLabel="Search directory"
           />
         </div>
 
@@ -918,7 +874,6 @@ export function DQWorkDirectoryPage() {
                 onFilterChange={handleFilterChange}
                 onResetFilters={resetFilters}
                 isResponsive={false}
-                defaultOpen={false}
               />
             </div>
           </div>
@@ -1053,6 +1008,12 @@ export function DQWorkDirectoryPage() {
         fallbackStatus={selectedAssociate?.status ?? null}
         fallbackUnit={selectedAssociate?.unit ?? null}
         fallbackDepartment={selectedAssociate?.department ?? null}
+        fallbackHobbies={selectedAssociate?.hobbies ?? []}
+        fallbackTechnicalSkills={selectedAssociate?.technicalSkills ?? []}
+        fallbackFunctionalSkills={selectedAssociate?.functionalSkills ?? []}
+        fallbackSoftSkills={selectedAssociate?.softSkills ?? []}
+        fallbackKeyCompetencies={selectedAssociate?.keyCompetencies ?? []}
+        fallbackLanguages={selectedAssociate?.languages ?? []}
       />
     </div>
   );

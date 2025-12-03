@@ -6,12 +6,10 @@ import {
   Users,
   Newspaper,
   Lightbulb,
-  TrendingUp,
   Briefcase as JobIcon,
   Globe,
   Calendar,
   Book as BookIcon,
-  Award,
   MessageCircle,
   X,
   Clock,
@@ -424,7 +422,7 @@ export const HomePage: React.FC = () => {
         title: 'Units Directory',
         description: 'Explore sectors, units, mandates, priorities, and performance data.',
         icon: <Building />,
-        path: '/directory/units',
+        path: '/marketplace/work-directory?tab=units',
         isActive: true
       },
       {
@@ -432,7 +430,7 @@ export const HomePage: React.FC = () => {
         title: 'Positions Directory',
         description: 'Browse DQ positions, role descriptions, and key responsibilities.',
         icon: <Briefcase />,
-        path: '/directory/positions',
+        path: '/marketplace/work-directory?tab=positions',
         isActive: true
       },
       {
@@ -440,7 +438,7 @@ export const HomePage: React.FC = () => {
         title: 'Associates Directory',
         description: 'View associate profiles, contacts, skills, and performance details.',
         icon: <Users />,
-        path: '/directory/associates',
+        path: '/marketplace/work-directory?tab=associates',
         isActive: true
       },
       {

@@ -35,6 +35,86 @@ export interface UseUnitProfileResult {
   refresh: () => Promise<void>;
 }
 
+// Helper function to map database row to WorkUnit
+function mapUnitRow(row: any): WorkUnit {
+  return {
+    id: row.id,
+    slug: row.slug,
+    sector: row.sector,
+    unitName: row.unit_name || row.unitName,
+    unitType: row.unit_type || row.unitType,
+    mandate: row.mandate,
+    location: row.location,
+    focusTags: row.focus_tags || row.focusTags || null,
+    priorityLevel: row.priority_level || row.priorityLevel || null,
+    priorityScope: row.priority_scope || row.priorityScope || null,
+    performanceStatus: row.performance_status || row.performanceStatus || null,
+    performanceScore: row.performance_score ?? row.performanceScore ?? null,
+    performanceSummary: row.performance_summary || row.performanceSummary || null,
+    performanceNotes: row.performance_notes || row.performanceNotes || null,
+    performanceUpdatedAt: row.performance_updated_at || row.performanceUpdatedAt || null,
+    wiAreas: row.wi_areas || row.wiAreas || null,
+    bannerImageUrl: row.banner_image_url || row.bannerImageUrl || null,
+    department: row.department || null,
+    currentFocus: row.current_focus || row.currentFocus || null,
+    priorities: row.priorities || null,
+    prioritiesList: row.priorities_list || row.prioritiesList || null,
+    updatedAt: row.updated_at || row.updatedAt || null,
+  };
+}
+
+// Helper function to map database row to WorkPosition
+function mapPositionRow(row: any): WorkPosition {
+  return {
+    id: row.id,
+    slug: row.slug,
+    positionName: row.position_name || row.positionName,
+    roleFamily: row.role_family || row.roleFamily || null,
+    unit: row.unit || null,
+    unitSlug: row.unit_slug || row.unitSlug || null,
+    location: row.location || null,
+    sfiaLevel: row.sfia_level || row.sfiaLevel || null,
+    sfiaRating: row.sfia_rating || row.sfiaRating || null,
+    summary: row.summary || null,
+    description: row.description || null,
+    responsibilities: row.responsibilities || null,
+    expectations: row.expectations || null,
+    status: row.status || null,
+    imageUrl: row.image_url || row.imageUrl || null,
+    bannerImageUrl: row.banner_image_url || row.bannerImageUrl || null,
+    department: row.department || null,
+    contractType: row.contract_type || row.contractType || null,
+  };
+}
+
+// Helper function to map database row to WorkAssociate
+function mapAssociateRow(row: any): WorkAssociate {
+  return {
+    id: row.id,
+    name: row.name,
+    currentRole: row.current_role || row.currentRole,
+    department: row.department,
+    unit: row.unit,
+    location: row.location,
+    sfiaRating: row.sfia_rating || row.sfiaRating,
+    status: row.status,
+    level: row.level || null,
+    email: row.email,
+    phone: row.phone || null,
+    teams_link: row.teams_link || row.teamsLink || null,
+    keySkills: row.key_skills || row.keySkills || [],
+    bio: row.bio,
+    summary: row.summary || null,
+    avatarUrl: row.avatar_url || row.avatarUrl || null,
+    hobbies: row.hobbies || null,
+    technicalSkills: row.technical_skills || row.technicalSkills || null,
+    functionalSkills: row.functional_skills || row.functionalSkills || null,
+    softSkills: row.soft_skills || row.softSkills || null,
+    keyCompetencies: row.key_competencies || row.keyCompetencies || null,
+    languages: row.languages || null,
+  };
+}
+
 export function useWorkUnits(): UseWorkUnitsResult {
   const [units, setUnits] = useState<WorkUnit[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,10 +127,19 @@ export function useWorkUnits(): UseWorkUnitsResult {
         const { data, error: fetchError } = await supabaseClient
           .from('work_units')
           .select('*')
-          .order('unitName', { ascending: true });
+          .order('unit_name', { ascending: true });
 
-        if (fetchError) throw fetchError;
-        setUnits((data as WorkUnit[]) || []);
+        if (fetchError) {
+          console.error('Error fetching work units:', fetchError);
+          throw fetchError;
+        }
+
+        console.log('UNITS (raw):', data);
+        
+        const mappedUnits = (data || []).map(mapUnitRow);
+        console.log('UNITS (mapped):', mappedUnits);
+        
+        setUnits(mappedUnits);
         setError(null);
       } catch (err) {
         console.error('Error fetching work units:', err);
@@ -112,7 +201,7 @@ export function useWorkUnits(): UseWorkUnitsResult {
       }
 
       setUnits((prev) =>
-        prev.map((unit) => (unit.id === unitId ? (updatedData as WorkUnit) : unit))
+        prev.map((unit) => (unit.id === unitId ? mapUnitRow(updatedData) : unit))
       );
 
       return { error: null };
@@ -138,10 +227,19 @@ export function useWorkPositions(): UseWorkPositionsResult {
         const { data, error: fetchError } = await supabaseClient
           .from('work_positions')
           .select('*')
-          .order('positionName', { ascending: true });
+          .order('position_name', { ascending: true });
 
-        if (fetchError) throw fetchError;
-        setPositions((data as WorkPosition[]) || []);
+        if (fetchError) {
+          console.error('Error fetching work positions:', fetchError);
+          throw fetchError;
+        }
+
+        console.log('POSITIONS (raw):', data);
+        
+        const mappedPositions = (data || []).map(mapPositionRow);
+        console.log('POSITIONS (mapped):', mappedPositions);
+        
+        setPositions(mappedPositions);
         setError(null);
       } catch (err) {
         console.error('Error fetching work positions:', err);
@@ -172,8 +270,17 @@ export function useAssociates(): UseAssociatesResult {
           .select('*')
           .order('name', { ascending: true });
 
-        if (fetchError) throw fetchError;
-        setAssociates((data as WorkAssociate[]) || []);
+        if (fetchError) {
+          console.error('Error fetching work associates:', fetchError);
+          throw fetchError;
+        }
+
+        console.log('ASSOCIATES (raw):', data);
+        
+        const mappedAssociates = (data || []).map(mapAssociateRow);
+        console.log('ASSOCIATES (mapped):', mappedAssociates);
+        
+        setAssociates(mappedAssociates);
         setError(null);
       } catch (err) {
         console.error('Error fetching associates:', err);
@@ -212,20 +319,23 @@ export function useUnitProfile(slug: string | undefined): UseUnitProfileResult {
         .single();
 
       if (fetchError) throw fetchError;
-      setUnit((data as WorkUnit) || null);
+      
+      const mappedUnit = data ? mapUnitRow(data) : null;
+      setUnit(mappedUnit);
       setError(null);
 
       // Fetch related associates
-      if (data) {
+      if (mappedUnit) {
         setAssociatesLoading(true);
         const { data: associatesData, error: associatesError } = await supabaseClient
           .from('work_associates')
           .select('*')
-          .eq('unit', (data as WorkUnit).unitName)
+          .eq('unit', mappedUnit.unitName)
           .limit(20);
 
         if (!associatesError && associatesData) {
-          setRelatedAssociates((associatesData as WorkAssociate[]) || []);
+          const mappedAssociates = associatesData.map(mapAssociateRow);
+          setRelatedAssociates(mappedAssociates);
         }
         setAssociatesLoading(false);
       }
@@ -248,4 +358,3 @@ export function useUnitProfile(slug: string | undefined): UseUnitProfileResult {
 
   return { unit, loading, error, relatedAssociates, associatesLoading, refresh };
 }
-

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ExploreDropdown } from "./components/ExploreDropdown";
 import { MobileDrawer } from "./components/MobileDrawer";
 import { ProfileDropdown } from "./ProfileDropdown";
@@ -7,7 +7,6 @@ import { NotificationCenter } from "./notifications/NotificationCenter";
 import { mockNotifications } from "./utils/mockNotifications";
 import { useAuth } from "./context/AuthContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu } from "lucide-react";
 import EnquiryModal from "../Enquiry/EnquiryModal";
 
 interface HeaderProps {
@@ -17,8 +16,6 @@ interface HeaderProps {
 }
 
 export function Header({
-  toggleSidebar,
-  sidebarOpen,
   "data-id": dataId,
 }: HeaderProps) {
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);

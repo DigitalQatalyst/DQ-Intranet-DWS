@@ -1,7 +1,6 @@
 import React from 'react';
 import { X, Mail, Phone, MapPin, Building2 } from 'lucide-react';
 import type { EmployeeProfile } from '@/data/workDirectoryTypes';
-import type { Associate } from './AssociateCard';
 
 interface AssociateProfileModalProps {
   open: boolean;
@@ -29,23 +28,40 @@ interface AssociateProfileModalProps {
   fallbackLanguages?: string[];
 }
 
-// Reusable ProfileSection component for tag sections
-interface ProfileSectionProps {
+// Reusable Section component for text blocks
+interface SectionProps {
+  title: string;
+  children: React.ReactNode;
+}
+
+const Section: React.FC<SectionProps> = ({ title, children }) => {
+  if (!children) return null;
+  
+  return (
+    <div className="mb-8">
+      <h3 className="text-lg font-semibold text-gray-800 mb-3">{title}</h3>
+      <div className="text-gray-700 leading-relaxed text-[15px]">{children}</div>
+    </div>
+  );
+};
+
+// Reusable TagsSection component for array-based fields
+interface TagsSectionProps {
   title: string;
   items?: string[] | null;
 }
 
-const ProfileSection: React.FC<ProfileSectionProps> = ({ title, items }) => {
+const TagsSection: React.FC<TagsSectionProps> = ({ title, items }) => {
   if (!items || items.length === 0) return null;
 
   return (
     <div className="mb-8">
-      <h3 className="text-lg font-semibold text-gray-800 mt-8 mb-3">{title}</h3>
+      <h3 className="text-lg font-semibold text-gray-800 mb-3">{title}</h3>
       <div className="flex flex-wrap gap-2">
         {items.map((item, idx) => (
           <span
             key={idx}
-            className="inline-block px-3 py-1 rounded-full text-sm bg-slate-100 text-slate-700 shadow-sm border border-slate-200 mr-2 mb-2"
+            className="px-4 py-1.5 bg-gray-100 rounded-full text-sm text-gray-800 shadow-sm"
           >
             {item}
           </span>
@@ -66,7 +82,6 @@ export function AssociateProfileModal({
   fallbackEmail,
   fallbackPhone,
   fallbackProfileImageUrl,
-  fallbackSummary,
   fallbackBio,
   fallbackKeySkills = [],
   fallbackSfiaRating,
@@ -88,7 +103,6 @@ export function AssociateProfileModal({
   const email = profile?.email || fallbackEmail || '';
   const phone = profile?.phone || fallbackPhone || null;
   const avatarUrl = profile?.avatar_url || fallbackProfileImageUrl || null;
-  const summary = profile?.summary || fallbackSummary || null;
   const bio = profile?.bio || fallbackBio || null;
   const skills = profile?.key_skills || fallbackKeySkills || [];
   const sfiaRating = profile?.sfia_rating || fallbackSfiaRating || null;
@@ -115,11 +129,14 @@ export function AssociateProfileModal({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center p-4">
+        {/* Backdrop with blur */}
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" 
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
           onClick={onClose} 
         />
-        <div className="relative bg-white rounded-2xl shadow-xl max-w-3xl w-full transition-all duration-300">
+        
+        {/* Modal Wrapper */}
+        <div className="relative bg-white rounded-2xl shadow-xl max-w-4xl w-full transition-all duration-300">
           {loading ? (
             <div className="p-8 text-center">
               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent" />
@@ -140,10 +157,11 @@ export function AssociateProfileModal({
               </div>
 
               {/* Scrollable Content */}
-              <div className="max-h-[75vh] overflow-y-auto">
+              <div className="max-h-[80vh] overflow-y-auto">
                 <div className="px-8 py-6">
-                  {/* Profile Header */}
-                  <div className="flex items-start gap-4 mb-4">
+                  {/* Profile Header Block */}
+                  <div className="flex items-start gap-4 mb-6">
+                    {/* Avatar */}
                     <div className="w-20 h-20 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-lg text-white bg-gradient-to-br from-[#030F35] to-[#4B61D1]">
                       {avatarUrl ? (
                         <img
@@ -155,18 +173,20 @@ export function AssociateProfileModal({
                         getInitials(name)
                       )}
                     </div>
+                    
+                    {/* Name, Role, and Badges */}
                     <div className="flex-1 min-w-0">
                       <h3 className="text-2xl font-bold text-gray-900 mb-1">{name}</h3>
                       <p className="text-base text-gray-600 mb-3">{role}</p>
                       <div className="flex flex-wrap gap-2">
                         {unit && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
                             <Building2 size={12} />
                             {unit}
                           </span>
                         )}
                         {department && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 text-xs">
                             {department}
                           </span>
                         )}
@@ -184,11 +204,8 @@ export function AssociateProfileModal({
                     </div>
                   </div>
 
-                  {/* Divider */}
-                  <div className="border-b border-slate-200 my-4"></div>
-
-                  {/* Contact Information */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                  {/* Contact Row */}
+                  <div className="grid grid-cols-2 gap-6 mb-8">
                     {location && (
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <MapPin size={16} className="text-slate-400" />
@@ -213,43 +230,22 @@ export function AssociateProfileModal({
                     )}
                   </div>
 
-                  {/* Summary */}
-                  {summary && (
-                    <div className="mb-8">
-                      <h4 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Summary</h4>
-                      <p className="text-gray-700 leading-relaxed text-[15px] max-w-3xl">{summary}</p>
-                    </div>
-                  )}
+                  {/* Bio Section */}
+                  <Section title="Bio">
+                    {bio && <p className="whitespace-pre-line">{bio}</p>}
+                  </Section>
 
-                  {/* Bio */}
-                  {bio && (
-                    <div className="mb-8">
-                      <h4 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Bio</h4>
-                      <p className="text-gray-700 leading-relaxed text-[15px] max-w-3xl whitespace-pre-line">{bio}</p>
-                    </div>
-                  )}
-
-                  {/* Hobbies */}
-                  <ProfileSection title="Hobbies" items={hobbies} />
-
-                  {/* Technical Skills */}
-                  <ProfileSection title="Technical Skills" items={technicalSkills} />
-
-                  {/* Functional Skills */}
-                  <ProfileSection title="Functional Skills" items={functionalSkills} />
-
-                  {/* Soft Skills */}
-                  <ProfileSection title="Soft Skills" items={softSkills} />
-
-                  {/* Key Competencies */}
-                  <ProfileSection title="Key Competencies" items={keyCompetencies} />
-
-                  {/* Languages */}
-                  <ProfileSection title="Languages" items={languages} />
-
-                  {/* Key Skills */}
+                  {/* Tags Sections */}
+                  <TagsSection title="Hobbies" items={hobbies} />
+                  <TagsSection title="Technical Skills" items={technicalSkills} />
+                  <TagsSection title="Functional Skills" items={functionalSkills} />
+                  <TagsSection title="Soft Skills" items={softSkills} />
+                  <TagsSection title="Key Competencies" items={keyCompetencies} />
+                  <TagsSection title="Languages" items={languages} />
+                  
+                  {/* Key Skills (if exists) */}
                   {skills.length > 0 && (
-                    <ProfileSection title="Key Skills" items={skills} />
+                    <TagsSection title="Key Skills" items={skills} />
                   )}
                 </div>
               </div>
@@ -260,3 +256,4 @@ export function AssociateProfileModal({
     </div>
   );
 }
+

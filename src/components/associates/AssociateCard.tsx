@@ -17,6 +17,12 @@ export interface Associate {
   key_skills: string[];
   summary?: string | null;
   bio: string;
+  hobbies?: string[];
+  technicalSkills?: string[];
+  functionalSkills?: string[];
+  softSkills?: string[];
+  keyCompetencies?: string[];
+  languages?: string[];
 }
 
 interface AssociateCardProps {

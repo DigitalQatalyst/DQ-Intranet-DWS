@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { HomeIcon, ChevronRightIcon } from "lucide-react";
-import NotFound from "./NotFound";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import type { WorkPosition } from "@/data/workDirectoryTypes";

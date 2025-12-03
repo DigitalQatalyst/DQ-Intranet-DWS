@@ -59,6 +59,12 @@ export interface EmployeeProfile {
   key_skills?: string[] | null;
   sfia_rating?: string | null;
   status?: string | null;
+  hobbies?: string[] | null;
+  technical_skills?: string[] | null;
+  functional_skills?: string[] | null;
+  soft_skills?: string[] | null;
+  key_competencies?: string[] | null;
+  languages?: string[] | null;
   [key: string]: unknown;
 }
 
@@ -79,5 +85,11 @@ export interface WorkAssociate {
   bio: string;
   summary?: string | null;
   avatarUrl?: string | null;
+  hobbies?: string[];
+  technicalSkills?: string[];
+  functionalSkills?: string[];
+  softSkills?: string[];
+  keyCompetencies?: string[];
+  languages?: string[];
 }
 
