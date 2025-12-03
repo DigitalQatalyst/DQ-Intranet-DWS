@@ -25,14 +25,14 @@ export function AddCommentForm({
   } = useAuth();
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [showSignInModal, setShowSignInModal] = useState(false);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) return;
     
-    if (!isAuthenticated || !user) {
-      setShowSignInModal(true);
+    // User should be authenticated via Azure AD at app level
+    if (!user) {
+      toast.error('Please wait for authentication to complete');
       return;
     }
     
@@ -44,17 +44,15 @@ export function AddCommentForm({
     setSubmitting(true);
     
     try {
-      // Get auth user ID directly from Supabase session (must use auth.uid())
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session?.user?.id) {
-        console.error('❌ Session error:', sessionError);
-        toast.error('Unable to verify authentication. Please sign in again.');
+      // Get user ID from Azure AD authentication
+      if (!user.id) {
+        console.error('❌ User ID not available');
+        toast.error('Unable to verify authentication. Please refresh the page.');
         setSubmitting(false);
         return;
       }
       
-      const userId = session.user.id;
+      const userId = user.id;
       console.log('✅ User ID from session:', userId);
       console.log('✅ Submitting comment:', { postId, userId, contentLength: content.trim().length });
       
@@ -106,24 +104,12 @@ export function AddCommentForm({
         <div className="text-center py-6">
           <MessageSquare className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-bold text-foreground mb-2">
-            Sign In to Comment
+            {loading ? 'Loading...' : 'Authentication Required'}
           </h3>
           <p className="text-sm text-muted-foreground mb-6">
-            Please sign in to join the conversation
+            {loading ? 'Please wait...' : 'Please wait for authentication to complete'}
           </p>
-          <Button onClick={() => setShowSignInModal(true)}>
-            Sign In
-          </Button>
         </div>
-        <SignInModal
-          open={showSignInModal}
-          onOpenChange={setShowSignInModal}
-          onSuccess={() => {
-            setShowSignInModal(false);
-          }}
-          title="Sign In to Comment"
-          description="You need to be signed in to comment on posts."
-        />
       </>
     );
   }

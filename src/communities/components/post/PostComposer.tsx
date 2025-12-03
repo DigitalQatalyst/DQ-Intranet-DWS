@@ -38,7 +38,6 @@ export function PostComposer({
   const [communities, setCommunities] = useState<Community[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [showSignInModal, setShowSignInModal] = useState(false);
 
   // Form state
   const [postType, setPostType] = useState<PostType>('text');
@@ -69,10 +68,7 @@ export function PostComposer({
   const contentCharCount = content.length;
   useEffect(() => {
     if (open) {
-      if (!isAuthenticated) {
-        setShowSignInModal(true);
-        return;
-      }
+      // User should be authenticated via Azure AD at app level
       if (user) {
         fetchUserCommunities();
         if (initialCommunityId) {
@@ -205,8 +201,9 @@ export function PostComposer({
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAuthenticated || !user) {
-      setShowSignInModal(true);
+    // User should be authenticated via Azure AD at app level
+    if (!user) {
+      toast.error('Please wait for authentication to complete');
       return;
     }
     if (!validateForm()) return;
@@ -229,17 +226,15 @@ export function PostComposer({
         if (rsvpLimit) metadata.rsvp_limit = parseInt(rsvpLimit);
       }
 
-      // Get auth user ID directly from Supabase session (must match auth.uid() for RLS)
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session?.user?.id) {
-        console.error('❌ Session error:', sessionError);
+      // Get user ID from Azure AD authentication
+      if (!user?.id) {
+        console.error('❌ User not authenticated');
         toast.error('Unable to verify authentication. Please sign in again.');
         setSubmitting(false);
         return;
       }
       
-      const userId = session.user.id;
+      const userId = user.id;
       
       // Insert the post into posts_v2 (simplified schema)
       // Note: posts_v2 only has: id, community_id, user_id, title, content, created_at, updated_at
@@ -311,39 +306,42 @@ export function PostComposer({
   };
   const isFormValid = title.trim() && content.trim() && communityId && !submitting;
   
-  // If not authenticated, show sign-in prompt
-  if (!isAuthenticated) {
+  // User should be authenticated via Azure AD at app level
+  // If user is not available, show loading state
+  if (!user && loading) {
     return (
-      <>
-        <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">Sign In Required</DialogTitle>
-              <DialogDescription>
-                Please sign in to create posts in communities
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex justify-end gap-3 pt-4">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => setShowSignInModal(true)}>
-                Sign In
-              </Button>
-            </div>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Loading...</DialogTitle>
+            <DialogDescription>
+              Please wait while we verify your authentication.
+            </DialogDescription>
           </DialogContent>
         </Dialog>
-        <SignInModal
-          open={showSignInModal}
-          onOpenChange={setShowSignInModal}
-          onSuccess={() => {
-            setShowSignInModal(false);
-            // Keep dialog open after sign in
-          }}
-          title="Sign In to Create Posts"
-          description="You need to be signed in to create posts in communities."
-        />
-      </>
+      );
+  }
+  
+  if (!user) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Authentication Required</DialogTitle>
+            <DialogDescription>
+              You need to be signed in to create posts. Redirecting to sign in...
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button onClick={() => {
+              signIn();
+              onOpenChange(false);
+            }}>
+              Sign In with Microsoft
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     );
   }
   

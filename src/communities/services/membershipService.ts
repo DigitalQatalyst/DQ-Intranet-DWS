@@ -43,12 +43,10 @@ export async function joinCommunity(
 ): Promise<boolean> {
   console.log('🔵 joinCommunity called', { communityId, hasUser: !!user, user });
   
-  // Get auth user ID directly from Supabase session
-  const { data: { session } } = await supabase.auth.getSession();
-  const authUserId = session?.user?.id;
-  const userId = options.userId || authUserId || getCurrentUserId(user);
+  // Get user ID from Azure AD authentication
+  const userId = options.userId || getCurrentUserId(user);
   
-  console.log('🔵 User IDs:', { authUserId, userIdFromUser: getCurrentUserId(user), finalUserId: userId });
+  console.log('🔵 User IDs:', { userIdFromUser: getCurrentUserId(user), finalUserId: userId });
   
   if (!userId) {
     console.error('❌ No user ID found');

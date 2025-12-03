@@ -1,6 +1,10 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from "@/lib/supabaseClient";
+import { createContext, useContext, useState, useEffect, useMemo, useCallback, ReactNode } from 'react';
+import { useMsal, useIsAuthenticated } from '@azure/msal-react';
+import { EventType, AuthenticationResult } from '@azure/msal-browser';
+import { defaultLoginRequest, signupRequest } from '../../services/auth/msal';
+import { supabaseClient } from '../../lib/supabaseClient';
 import { toast } from 'sonner';
+import { azureIdToUuid } from '../utils/azureIdToUuid';
 
 interface User {
   id: string;
@@ -8,13 +12,14 @@ interface User {
   username: string | null;
   role: string | null;
   avatar_url: string | null;
+  name?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<boolean>;
-  signUp: (email: string, password: string, username?: string) => Promise<boolean>;
+  signIn: () => void; // Redirects to Azure AD login
+  signUp: () => void; // Redirects to Azure AD signup
   signOut: () => void;
   isAuthenticated: boolean;
 }
@@ -26,246 +31,231 @@ export function AuthProvider({
 }: {
   children: ReactNode;
 }) {
+  // Users are already authenticated via main app's ProtectedRoute
+  // So we can be optimistic about authentication state
+  const { instance, accounts } = useMsal();
+  const isAuthenticated = useIsAuthenticated();
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start as false - don't block UI
+  const [emailOverride, setEmailOverride] = useState<string | undefined>(undefined);
+  const viteEnv = (import.meta as any).env as Record<string, string | undefined>;
+  const enableGraphFallback = (viteEnv?.VITE_MSAL_ENABLE_GRAPH_FALLBACK || viteEnv?.NEXT_PUBLIC_MSAL_ENABLE_GRAPH_FALLBACK) === 'true';
 
-  // Initialize auth state from Supabase
+  // Ensure active account is set for convenience
   useEffect(() => {
-    let mounted = true;
+    const active = instance.getActiveAccount();
+    if (!active && accounts.length === 1) {
+      instance.setActiveAccount(accounts[0]);
+    }
+  }, [instance, accounts]);
 
-    // Get initial session with better error handling
-    const initializeAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('❌ Error getting session:', error);
-          if (mounted) {
-            setLoading(false);
-          }
-          return;
-        }
+  // Simple fire-and-forget sync - directly upsert user data from Azure profile
+  const syncUserQuietly = useCallback(async (account: any) => {
+    if (!account) return;
 
-        console.log('🔵 Initial session check:', {
-          hasSession: !!session,
-          hasUser: !!session?.user,
-          userId: session?.user?.id,
-          event: 'INITIAL_SESSION'
+    const claims = account.idTokenClaims as any;
+    const email =
+      claims?.emails?.[0] ||
+      claims?.email ||
+      claims?.preferred_username ||
+      account.username ||
+      '';
+    const name = account.name || claims?.name || '';
+    const azureId = account.localAccountId || account.homeAccountId;
+
+    if (!email || !azureId) return;
+
+    const userId = azureIdToUuid(azureId);
+    const username = name || email.split('@')[0];
+
+    // Direct upsert - no RPC function needed
+    try {
+      await supabaseClient
+        .from('users_local')
+        .upsert({
+          id: userId,
+          email: email,
+          name: name,
+          username: username,
+          azure_id: azureId,
+          password: 'AZURE_AD_AUTHENTICATED',
+          role: 'member',
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'id'
         });
-
-        if (session?.user) {
-          await loadUserProfile(session.user.id);
-        } else {
-          console.log('⚠️ No session found on initialization');
-          if (mounted) {
-            setLoading(false);
-          }
-        }
-      } catch (err) {
-        console.error('❌ Error initializing auth:', err);
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    initializeAuth();
-
-    // Listen for auth changes
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔵 Auth state changed:', {
-        event,
-        hasSession: !!session,
-        hasUser: !!session?.user,
-        userId: session?.user?.id
-      });
-
-      if (!mounted) return;
-
-      if (session?.user) {
-        await loadUserProfile(session.user.id);
-      } else {
-        console.log('⚠️ Session cleared, setting user to null');
-        setUser(null);
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    } catch (error) {
+      // Silent fail - sync will retry on next login
+    }
   }, []);
 
-  const loadUserProfile = async (userId: string) => {
+  // Ensure active account is set on successful login/redirect events
+  useEffect(() => {
+    const callbackId = instance.addEventCallback((event) => {
+      if (
+        event.eventType === EventType.LOGIN_SUCCESS ||
+        event.eventType === EventType.ACQUIRE_TOKEN_SUCCESS ||
+        event.eventType === EventType.SSO_SILENT_SUCCESS
+      ) {
+        const payload = event.payload as AuthenticationResult | null;
+        const account = payload?.account;
+        if (account) {
+          instance.setActiveAccount(account);
+          syncUserQuietly(account); // Fire and forget
+        }
+      }
+    });
+    return () => {
+      if (callbackId) instance.removeEventCallback(callbackId);
+    };
+  }, [instance, syncUserQuietly]);
+
+  // Load user profile from users_local table using UUID generated from Azure AD ID
+  const loadUserProfile = useCallback(async (azureId: string) => {
     try {
-      console.log('🔵 Loading user profile for:', userId);
+      // Generate UUID from Azure AD ID (must match database trigger logic)
+      const userId = azureIdToUuid(azureId);
       
-      // Try to get user profile from users_local table
-      const { data: profile, error } = await supabase
+      // Get user profile from users_local table using the UUID
+      const { data: profile, error } = await supabaseClient
         .from('users_local')
         .select('*')
-        .eq('id' as any, userId as any)
+        .eq('id', userId)
         .maybeSingle();
 
       if (!error && profile && typeof profile === 'object' && 'id' in profile) {
-        console.log('✅ Found user in users_local table');
         const userData: User = {
-          id: (profile as any).id,
+          id: (profile as any).id, // This is the UUID
           email: (profile as any).email || '',
           username: (profile as any).username,
           role: (profile as any).role,
-          avatar_url: (profile as any).avatar_url
+          avatar_url: (profile as any).avatar_url,
+          name: (profile as any).username || (profile as any).email?.split('@')[0] || ''
         };
         setUser(userData);
         setLoading(false);
-        console.log('✅ User authenticated:', true);
         return;
       } else {
-        console.log('⚠️ User not found in users_local, using Supabase auth user');
-        if (error) {
-          console.warn('⚠️ Error querying users_local:', error);
-        }
-      }
-
-      // If no profile in users_local, create a basic user from Supabase auth
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError) {
-        console.error('❌ Error getting auth user:', authError);
-        setLoading(false);
-        return;
-      }
-
-      if (authUser && authUser.id === userId) {
-        console.log('✅ Using Supabase auth user');
-        const userData: User = {
-          id: authUser.id,
-          email: authUser.email || '',
-          username: authUser.user_metadata?.username || authUser.email?.split('@')[0] || null,
-          role: null,
-          avatar_url: authUser.user_metadata?.avatar_url || null
-        };
-        setUser(userData);
-        setLoading(false);
-        console.log('✅ User authenticated:', true);
-      } else {
-        console.error('❌ Auth user ID mismatch or not found');
+        // User will be synced automatically by database trigger when they authenticate
+        // But we should still update the user object with the UUID
+        const userId = azureIdToUuid(azureId);
+        setUser(prev => prev ? { ...prev, id: userId } : null);
         setLoading(false);
       }
     } catch (error) {
-      console.error('❌ Error loading user profile:', error);
-      // Fallback to Supabase auth user
-      try {
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        if (authUser) {
-          const userData: User = {
-            id: authUser.id,
-            email: authUser.email || '',
-            username: authUser.user_metadata?.username || authUser.email?.split('@')[0] || null,
-            role: null,
-            avatar_url: authUser.user_metadata?.avatar_url || null
-          };
-          setUser(userData);
-          console.log('✅ User authenticated (fallback):', true);
-        }
-      } catch (fallbackError) {
-        console.error('❌ Fallback also failed:', fallbackError);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const signIn = async (email: string, password: string): Promise<boolean> => {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) {
-        toast.error(error.message || 'Invalid email or password');
-        return false;
-      }
-
-      if (data.user) {
-        // Load user profile and wait for it to complete
-        await loadUserProfile(data.user.id);
-        // Force a small delay to ensure state updates propagate
-        await new Promise(resolve => setTimeout(resolve, 100));
-        toast.success(`Welcome back!`);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Sign in error:', error);
-      toast.error('An unexpected error occurred');
-      return false;
-    }
-  };
-
-  const signUp = async (email: string, password: string, username?: string): Promise<boolean> => {
-    try {
-      // Sign up user - this automatically stores email and encrypted password in auth.users
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username: username || email.split('@')[0]
-          }
-        }
-      });
-
-      if (error) {
-        toast.error(error.message || 'Failed to create account');
-        return false;
-      }
-
-      if (data.user) {
-        // Create profile in users_local table
-        const { error: profileError } = await supabase
-          .from('users_local')
-          .insert({
-            id: data.user.id,
-            email: email,
-            username: username || email.split('@')[0],
-            role: 'member',
-            created_at: new Date().toISOString()
-          } as any);
-
-        // If profile creation fails, it's not critical - user is still created in auth.users
-        if (profileError) {
-          console.warn('Profile creation failed (user still created in auth.users):', profileError);
-        }
-
-        // Load user profile
-        await loadUserProfile(data.user.id);
+  // Get Azure AD user info and load profile
+  // Since users are already authenticated via main app's ProtectedRoute,
+  // we can immediately create user object and load profile in background
+  useEffect(() => {
+    const account = instance.getActiveAccount() || accounts[0];
+    
+    if (account) {
+      const azureId = account.localAccountId || account.homeAccountId;
+      if (azureId) {
+        // Generate UUID from Azure AD ID (must match database)
+        const userId = azureIdToUuid(azureId);
         
-        toast.success('Account created successfully!');
-        return true;
+        // Immediately create user object from Azure AD data - don't wait for database
+        const claims = account.idTokenClaims as any;
+        const email = claims?.emails?.[0] || claims?.email || claims?.preferred_username || account.username || '';
+        const name = account.name || claims?.name || email.split('@')[0] || '';
+        
+        // Set user immediately with UUID (not raw Azure ID) so UI is not blocked
+        setUser({
+          id: userId, // Use UUID, not raw azureId
+          email,
+          username: name,
+          role: null,
+          avatar_url: null,
+          name
+        });
+        setLoading(false);
+        
+        // Sync user and load full profile from database in background (non-blocking)
+        syncUserQuietly(account);
+        loadUserProfile(azureId);
       }
-      return false;
-    } catch (error) {
-      console.error('Sign up error:', error);
-      toast.error('An unexpected error occurred');
-      return false;
-    }
-  };
-
-  const signOut = async () => {
-    try {
-      await supabase.auth.signOut();
+    } else {
+      // No account - but since main app requires auth via ProtectedRoute, this shouldn't happen
+      // Still set loading to false to not block UI
       setUser(null);
-      toast.success('Signed out successfully');
-    } catch (error) {
-      console.error('Sign out error:', error);
-      toast.error('Failed to sign out');
+      setLoading(false);
     }
-  };
+  }, [accounts, instance, syncUserQuietly, loadUserProfile]);
+
+
+  useEffect(() => {
+    // Since main app already requires authentication via ProtectedRoute,
+    // users are always authenticated when they reach Communities
+    // Don't block UI with loading state
+    setLoading(false);
+  }, [isAuthenticated, accounts, instance]);
+
+  // Heuristic to detect synthetic/UPN-like emails we want to improve
+  const looksSynthetic = useCallback((value?: string) => {
+    if (!value) return true;
+    const onMs = /@.*\.onmicrosoft\.com$/i.test(value);
+    const guidLocal = /^[0-9a-f-]{36}@/i.test(value) || value.includes('#EXT#');
+    return onMs || guidLocal;
+  }, []);
+
+  // Optional: resolve better email via Microsoft Graph if configured and necessary
+  useEffect(() => {
+    if (!enableGraphFallback) return;
+    const account = instance.getActiveAccount() || accounts[0];
+    if (!account) return;
+    const claims = account.idTokenClaims as any;
+    const current = (claims?.emails?.[0] || claims?.email || claims?.preferred_username || account.username) as string | undefined;
+    if (current && !looksSynthetic(current)) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const result = await instance.acquireTokenSilent({
+          account,
+          scopes: ['User.Read']
+        });
+        const r = await fetch('https://graph.microsoft.com/v1.0/me?$select=mail,userPrincipalName,otherMails', {
+          headers: { Authorization: `Bearer ${result.accessToken}` }
+        });
+        if (!r.ok) return;
+        const me = await r.json();
+        const resolved: string | undefined = me.mail || (me.otherMails && me.otherMails[0]) || me.userPrincipalName || current;
+        if (!cancelled && resolved && !looksSynthetic(resolved)) {
+          setEmailOverride(resolved);
+        }
+      } catch (e) {
+        // ignore failures silently; fallback remains
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [accounts, instance, enableGraphFallback, looksSynthetic]);
+
+  const signIn = useCallback(() => {
+    instance.loginRedirect({
+      ...defaultLoginRequest
+    });
+  }, [instance]);
+
+  // For Entra ID, signup is the same as login
+  const signUp = useCallback(() => {
+    instance.loginRedirect({
+      ...signupRequest,
+      // Tag this flow so we can route to onboarding after redirect
+      state: 'ej-signup'
+    });
+  }, [instance]);
+
+  const signOut = useCallback(() => {
+    const account = instance.getActiveAccount() || accounts[0];
+    instance.logoutRedirect({ account: account });
+    setUser(null);
+    toast.success('Signed out successfully');
+  }, [instance, accounts]);
 
   return (
     <AuthContext.Provider
@@ -275,7 +265,7 @@ export function AuthProvider({
         signIn,
         signUp,
         signOut,
-        isAuthenticated: !!user
+        isAuthenticated: !!user && isAuthenticated
       }}
     >
       {children}

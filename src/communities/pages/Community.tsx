@@ -17,7 +17,6 @@ import { format } from 'date-fns';
 import { PostCard } from '@/communities/components/posts/PostCard';
 import { Skeleton } from '@/communities/components/ui/skeleton';
 import { FeedSidebar } from '@/communities/components/feed/FeedSidebar';
-import { SignInModal } from '@/communities/components/auth/SignInModal';
 // Import PageLayout components
 import {
   PageLayout,
@@ -79,7 +78,7 @@ export default function Community() {
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showSignInModal, setShowSignInModal] = useState(false);
+  // SignInModal removed - users are already authenticated via main app
   useEffect(() => {
     if (id) {
       fetchCommunity();
@@ -225,9 +224,8 @@ export default function Community() {
       return;
     }
     
-    // Get authenticated user ID from Supabase session
-    const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id || user?.id;
+    // Get user ID from Azure AD authentication
+    const userId = user?.id;
     
     if (!userId) {
       setIsMember(false);
@@ -242,23 +240,21 @@ export default function Community() {
   const handleJoinLeave = async () => {
     if (!id) return;
     
-    // Check if user is authenticated before joining
+    // User should be authenticated via Azure AD at app level (ProtectedRoute)
+    // If user is null, it's likely still loading
     if (!user) {
-      toast.error('Please sign in to join communities');
-      setShowSignInModal(true);
+      toast.error('Please wait for authentication to complete');
       return;
     }
     
     setJoinLoading(true);
     
-    // Get authenticated user ID
-    const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id || user?.id;
+    // Get user ID from Azure AD authentication
+    const userId = user?.id;
     
     if (!userId) {
-      toast.error('Unable to verify authentication. Please sign in again.');
+      toast.error('Unable to verify authentication. Please refresh the page.');
       setJoinLoading(false);
-      setShowSignInModal(true);
       return;
     }
     
@@ -955,75 +951,7 @@ export default function Community() {
             <Plus className="h-6 w-6" />
           </Button>
         )}
-        {/* Sign In Modal */}
-        <SignInModal
-          open={showSignInModal}
-          onOpenChange={setShowSignInModal}
-          title="Sign In to Join Community"
-          description="Please sign in to join this community and start participating."
-          onSuccess={async () => {
-            setShowSignInModal(false);
-            // Wait for user state to update, then join directly using session
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            if (!id) return;
-            
-            // Get user directly from session instead of relying on auth context
-            const { data: { session } } = await supabase.auth.getSession();
-            const userId = session?.user?.id;
-            
-            if (!userId) {
-              toast.error('Unable to verify authentication. Please try again.');
-              return;
-            }
-            
-            // Join directly without checking auth context user
-            setJoinLoading(true);
-            
-            try {
-              // Check if already a member
-              const { data: existingMembership } = await supabase
-                .from('memberships')
-                .select('id')
-                .eq('user_id', userId)
-                .eq('community_id', id)
-                .maybeSingle();
-              
-              if (existingMembership) {
-                toast.info('You are already a member of this community');
-                setIsMember(true);
-                setJoinLoading(false);
-                return;
-              }
-              
-              // Join community
-              const query = supabase.from('memberships').insert({
-                user_id: userId,
-                community_id: id
-              });
-              const [, error] = await safeFetch(query);
-              
-              if (error) {
-                if (error.code === '23505') {
-                  toast.info('You are already a member of this community');
-                  setIsMember(true);
-                } else {
-                  toast.error('Failed to join community');
-                }
-              } else {
-                toast.success('Joined community!');
-                setIsMember(true);
-                setMemberCount(prev => prev + 1);
-                handlePostCreated();
-              }
-            } catch (error) {
-              console.error('Error joining community:', error);
-              toast.error('Failed to join community');
-            } finally {
-              setJoinLoading(false);
-            }
-          }}
-        />
+        {/* SignInModal removed - users are already authenticated via main app */}
 
         {/* Image Update Dialog */}
         <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>

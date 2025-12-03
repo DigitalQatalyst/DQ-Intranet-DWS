@@ -30,7 +30,6 @@ export function PostReactions({
   const [helpfulCount, setHelpfulCount] = useState(initialHelpfulCount);
   const [insightfulCount, setInsightfulCount] = useState(initialInsightfulCount);
   const [isReacting, setIsReacting] = useState(false);
-  const [showSignInModal, setShowSignInModal] = useState(false);
   
   useEffect(() => {
     checkUserReactions();
@@ -99,26 +98,24 @@ export function PostReactions({
   const handleReaction = async (type: 'helpful' | 'insightful') => {
     if (isReacting) return; // Prevent double-clicks
     
-    if (!isAuthenticated || !user) {
-      console.log('❌ Not authenticated, showing sign-in modal');
-      setShowSignInModal(true);
+    // User should be authenticated via Azure AD at app level
+    if (!user) {
+      toast.error('Please wait for authentication to complete');
       return;
     }
     
     setIsReacting(true);
     
     try {
-      // Get user ID directly from Supabase session (must match auth.uid() for RLS)
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session?.user?.id) {
-        console.error('❌ Session error:', sessionError);
-        toast.error('Unable to verify authentication. Please sign in again.');
+      // Get user ID from Azure AD authentication
+      if (!user.id) {
+        console.error('❌ User ID not available');
+        toast.error('Unable to verify authentication. Please refresh the page.');
         setIsReacting(false);
         return;
       }
       
-      const userId = session.user.id;
+      const userId = user.id;
       console.log('✅ User ID from session:', userId);
       
       // Check membership if communityId is provided
@@ -282,15 +279,6 @@ export function PostReactions({
           <span>Share</span>
         </Button>
       </div>
-      <SignInModal
-        open={showSignInModal}
-        onOpenChange={setShowSignInModal}
-        onSuccess={() => {
-          setShowSignInModal(false);
-        }}
-        title="Sign In to React"
-        description="You need to be signed in to react to posts."
-      />
     </>
   );
 }

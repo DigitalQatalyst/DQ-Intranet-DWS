@@ -44,7 +44,6 @@ export const CommunityComments: React.FC<CommunityCommentsProps> = ({
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [showSignInModal, setShowSignInModal] = useState(false);
 
   useEffect(() => {
     fetchComments();
@@ -150,9 +149,9 @@ export const CommunityComments: React.FC<CommunityCommentsProps> = ({
       return;
     }
 
-    if (!isAuthenticated || !user) {
-      console.log('User not authenticated, showing sign in modal');
-      setShowSignInModal(true);
+    // User should be authenticated via Azure AD at app level
+    if (!user) {
+      toast.error('Please wait for authentication to complete');
       return;
     }
 
@@ -164,17 +163,15 @@ export const CommunityComments: React.FC<CommunityCommentsProps> = ({
     console.log('🔄 Starting comment submission...');
     setSubmitting(true);
     try {
-      // Get auth user ID directly from Supabase session (must match auth.uid() for RLS)
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError || !session?.user?.id) {
-        console.error('❌ Session error:', sessionError);
-        toast.error('Unable to verify authentication. Please sign in again.');
+      // Get user ID from Azure AD authentication
+      if (!user.id) {
+        console.error('❌ User ID not available');
+        toast.error('Unable to verify authentication. Please refresh the page.');
         setSubmitting(false);
         return;
       }
       
-      const authUserId = session.user.id;
+      const authUserId = user.id;
       console.log('✅ User ID from session:', authUserId);
       console.log('✅ Submitting comment:', { postId, userId: authUserId, contentLength: replyContent.trim().length });
       
@@ -340,14 +337,9 @@ export const CommunityComments: React.FC<CommunityCommentsProps> = ({
             </div>
           ) : (
             <div className="bg-[#030F35]/5 rounded-lg p-4 mb-4 border border-[#030F35]/20 text-center">
-              <p className="text-sm text-[#030F35]/60 mb-3">Sign in to join the conversation</p>
-              <Button
-                size="sm"
-                onClick={() => setShowSignInModal(true)}
-                className="bg-dq-navy hover:bg-[#13285A] text-white"
-              >
-                Sign In
-              </Button>
+              <p className="text-sm text-[#030F35]/60 mb-3">
+                {loading ? 'Loading...' : 'Please wait for authentication to complete'}
+              </p>
             </div>
           )}
 
@@ -365,15 +357,6 @@ export const CommunityComments: React.FC<CommunityCommentsProps> = ({
           )}
         </div>
       )}
-      <SignInModal
-        open={showSignInModal}
-        onOpenChange={setShowSignInModal}
-        onSuccess={() => {
-          setShowSignInModal(false);
-        }}
-        title="Sign In to Comment"
-        description="You need to be signed in to comment on posts."
-      />
     </div>
   );
 };

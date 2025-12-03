@@ -43,7 +43,6 @@ export function PollPostContent({
   const [error, setError] = useState<string | null>(null);
   const [pollEnded, setPollEnded] = useState(false);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [showSignInModal, setShowSignInModal] = useState(false);
   const pollDurationDays = metadata?.poll_duration_days || 7;
   useEffect(() => {
     fetchPollOptions();
@@ -99,8 +98,9 @@ export function PollPostContent({
     }
   };
   const handleVote = async (optionId: string) => {
-    if (!isAuthenticated || !user) {
-      setShowSignInModal(true);
+    // User should be authenticated via Azure AD at app level
+    if (!user) {
+      toast.error('Please wait for authentication to complete');
       return;
     }
     if (!isMember) {
@@ -231,14 +231,5 @@ export function PollPostContent({
             This poll has ended. No new votes can be submitted.
           </p>
         </div>}
-      <SignInModal
-        open={showSignInModal}
-        onOpenChange={setShowSignInModal}
-        onSuccess={() => {
-          setShowSignInModal(false);
-        }}
-        title="Sign In to Vote"
-        description="You need to be signed in to vote in polls."
-      />
     </div>;
 }

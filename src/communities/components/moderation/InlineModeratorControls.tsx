@@ -36,7 +36,7 @@ export function InlineModeratorControls({
       targetId: postId,
       action,
       reason: 'Quick moderation action'
-    }, user.email);
+    }, user.email, user.id);
     if (result.success) {
       toast.success(`Content ${action}d successfully`);
       onActionComplete?.();
@@ -54,7 +54,7 @@ export function InlineModeratorControls({
       action: currentAction,
       reason: actionReason || undefined,
       message: currentAction === 'warn' ? actionReason : undefined
-    }, user.email);
+    }, user.email, user.id);
     if (result.success) {
       toast.success(`Content ${currentAction === 'delete' ? 'deleted' : currentAction === 'warn' ? 'warning sent' : `${currentAction}d`} successfully`);
       setActionReason('');

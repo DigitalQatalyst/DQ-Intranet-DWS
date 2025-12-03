@@ -220,7 +220,7 @@ class ModerationAPIService {
   /**
    * Take moderation action on a report
    */
-  async takeAction(params: ActionParams, userEmail: string): Promise<{
+  async takeAction(params: ActionParams, userEmail: string, userId?: string): Promise<{
     success: boolean;
     error?: string;
   }> {
@@ -361,19 +361,14 @@ class ModerationAPIService {
       if (reportId) {
         console.log('Updating report status:', reportId, 'to', updateStatus);
 
-        // Get current user ID
-        const {
-          data: {
-            user
-          }
-        } = await supabase.auth.getUser();
+        // Use provided userId or null
         const {
           data: updateResult,
           error: updateError
         } = await supabase.rpc('update_report_status_secure', {
           p_report_id: reportId,
           p_status: updateStatus,
-          p_resolved_by: user?.id || null
+          p_resolved_by: userId || null
         });
         if (updateError) {
           console.error('Failed to update report status:', updateError);

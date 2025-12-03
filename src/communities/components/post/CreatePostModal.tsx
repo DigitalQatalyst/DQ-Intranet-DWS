@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useAuth } from '@/communities/contexts/AuthProvider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/communities/components/ui/dialog';
 import { InlineComposer } from './InlineComposer';
-import { SignInModal } from '@/communities/components/auth/SignInModal';
 import { useCommunityMembership } from '@/communities/hooks/useCommunityMembership';
 
 interface CreatePostModalProps {
@@ -18,9 +17,8 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
   communityId,
   onPostCreated
 }) => {
-  const { isAuthenticated, user } = useAuth();
+  const { user } = useAuth();
   const { isMember } = useCommunityMembership(communityId);
-  const [showSignInModal, setShowSignInModal] = useState(false);
 
   const handlePostCreated = () => {
     // Trigger parent refresh callback
@@ -37,20 +35,9 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
       return;
     }
 
-    // If opening the modal, check authentication first
-    if (!isAuthenticated || !user) {
-      setShowSignInModal(true);
-      onOpenChange(false);
-      return;
-    }
-
-    // If authenticated but not a member, show error
-    if (!isMember) {
-      // We'll handle this in the InlineComposer, but we can also show a message here
-      onOpenChange(true);
-      return;
-    }
-
+    // Users are already authenticated via main app's ProtectedRoute
+    // If user is not available yet, it's just loading - allow modal to open
+    // The InlineComposer will handle the actual post creation
     onOpenChange(true);
   };
 
@@ -62,7 +49,8 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
             <DialogTitle>Create a Post</DialogTitle>
           </DialogHeader>
           <div className="mt-4">
-            {isAuthenticated && user ? (
+            {/* Users are already authenticated via main app - show composer directly */}
+            {user ? (
               <InlineComposer
                 communityId={communityId}
                 isMember={isMember}
@@ -70,35 +58,15 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
               />
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-600 mb-4">Please sign in to create a post</p>
-                <button
-                  onClick={() => {
-                    onOpenChange(false);
-                    setShowSignInModal(true);
-                  }}
-                  className="text-dq-navy hover:underline"
-                >
-                  Sign In
-                </button>
+                <p className="text-gray-600 mb-4">Loading user information...</p>
+                <p className="text-sm text-gray-500">If this persists, please refresh the page.</p>
               </div>
             )}
           </div>
         </DialogContent>
       </Dialog>
 
-      <SignInModal
-        open={showSignInModal}
-        onOpenChange={setShowSignInModal}
-        onSuccess={() => {
-          setShowSignInModal(false);
-          // After successful sign in, open the create post modal
-          if (isAuthenticated && user) {
-            onOpenChange(true);
-          }
-        }}
-        title="Sign In to Create Posts"
-        description="You need to be signed in to create posts in communities."
-      />
+      {/* SignInModal removed - users are already authenticated via main app */}
     </>
   );
 };

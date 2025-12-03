@@ -96,7 +96,7 @@ export function ReportDetailDrawer({
       reportId: report.id,
       action,
       reason: actionReason || undefined
-    }, user.email);
+    }, user.email, user.id);
     console.log('Action result:', result);
     if (result.success) {
       toast.success(`Report ${action}d successfully`);

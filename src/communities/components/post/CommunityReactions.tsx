@@ -36,7 +36,6 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
   });
   const [userReactions, setUserReactions] = useState<Set<ReactionType>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [showSignInModal, setShowSignInModal] = useState(false);
 
   useEffect(() => {
     fetchReactions();
@@ -71,9 +70,8 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
         const userReactionSet = new Set<ReactionType>();
 
         if (isAuthenticated && user) {
-          // Get auth user ID directly from Supabase session
-          const { data: { session } } = await supabase.auth.getSession();
-          const userId = session?.user?.id || user?.id;
+          // Get user ID from Azure AD authentication
+          const userId = user?.id;
           
           data.forEach((reaction: any) => {
             if (reaction.reaction_type in counts) {
@@ -111,9 +109,9 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
       return;
     }
 
-    if (!isAuthenticated || !user) {
-      console.log('❌ Not authenticated, showing sign-in modal');
-      setShowSignInModal(true);
+    // User should be authenticated via Azure AD at app level
+    if (!user) {
+      toast.error('Please wait for authentication to complete');
       return;
     }
 
@@ -125,32 +123,17 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
       console.warn('⚠️ User may not be a member, but attempting reaction anyway (RLS will enforce)');
     }
 
-    // Get auth user ID directly from Supabase session (must use auth.uid())
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session?.user?.id) {
-      console.error('❌ Session error:', sessionError);
-      toast.error('Unable to verify authentication. Please sign in again.');
+    // Get user ID from Azure AD authentication
+    if (!user.id) {
+      console.error('❌ User ID not available');
+      toast.error('Unable to verify authentication. Please refresh the page.');
       return;
     }
     
-    const userId = session.user.id;
-    console.log('✅ User ID from session:', userId);
-    console.log('✅ Session user object:', {
-      id: session.user.id,
-      email: session.user.email,
-      aud: session.user.aud,
-      role: session.user.role
-    });
+    const userId = user.id;
+    console.log('✅ User ID from Azure AD:', userId);
     console.log('📋 Post ID:', postId);
     console.log('📋 Community ID:', communityId);
-    
-    // Double-check auth.uid() matches
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    console.log('🔍 Auth user from getUser():', {
-      id: authUser?.id,
-      matchesSession: authUser?.id === userId
-    });
 
     // Verify post exists in posts_v2 (required by foreign key)
     const { data: postCheck } = await supabase
@@ -357,15 +340,6 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
         <span className="font-semibold">{reactions.insightful}</span>
         <span>Insightful</span>
       </Button>
-      <SignInModal
-        open={showSignInModal}
-        onOpenChange={setShowSignInModal}
-        onSuccess={() => {
-          setShowSignInModal(false);
-        }}
-        title="Sign In to React"
-        description="You need to be signed in to react to posts and comments."
-      />
     </div>
   );
 };

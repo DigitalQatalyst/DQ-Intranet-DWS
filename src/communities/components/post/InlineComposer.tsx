@@ -47,7 +47,6 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
   // Use prop if provided, otherwise fall back to hook
   const isMember = isMemberProp !== undefined ? isMemberProp : isMemberFromHook;
   
-  const [showSignInModal, setShowSignInModal] = useState(false);
   const [postType, setPostType] = useState<PostType>('text');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -161,8 +160,9 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
     e.preventDefault();
     e.stopPropagation();
     
-    if (!isAuthenticated || !user) {
-      setShowSignInModal(true);
+    // User should be authenticated via Azure AD at app level
+    if (!user) {
+      toast.error('Please wait for authentication to complete');
       return;
     }
       
@@ -172,13 +172,11 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
         return;
       }
       
-      // Get auth user ID directly from Supabase session
-      const { data: { session } } = await supabase.auth.getSession();
-      const userId = session?.user?.id || user?.id || null;
+      // Get user ID from Azure AD authentication
+      const userId = user.id;
       
       if (!userId) {
-        toast.error('Unable to identify user. Please sign in again.');
-        setShowSignInModal(true);
+        toast.error('Unable to identify user. Please refresh the page.');
         return;
       }
 
@@ -360,28 +358,26 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
         return 'Post';
     }
   };
-  // Show composer only to authenticated users
-  
-  if (!isAuthenticated) {
+  // User should be authenticated via Azure AD at app level
+  // Show loading state if user is not yet available
+  if (!user && loading) {
     return (
-      <>
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Sign In to Create Posts</h3>
-          <p className="text-sm text-gray-600 mb-4">Please sign in to create posts in communities</p>
-          <Button onClick={() => setShowSignInModal(true)}>
-            Sign In
-          </Button>
-        </div>
-        <SignInModal
-          open={showSignInModal}
-          onOpenChange={setShowSignInModal}
-          onSuccess={() => {
-            setShowSignInModal(false);
-          }}
-          title="Sign In to Create Posts"
-          description="You need to be signed in to create posts in communities."
-        />
-      </>
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center">
+        <p className="text-sm text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+  
+  // If user is not available after loading, show message (shouldn't happen due to ProtectedRoute)
+  if (!user) {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 text-center">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Authentication Required</h3>
+        <p className="text-sm text-gray-600 mb-4">Please sign in to create posts in communities</p>
+        <Button onClick={() => signIn()}>
+          Sign In with Microsoft
+        </Button>
+      </div>
     );
   }
   

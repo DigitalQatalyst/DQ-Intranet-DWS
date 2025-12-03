@@ -86,11 +86,9 @@ export function NewPostModal({
     }
     setSubmitting(true);
     
-    // Get auth user ID directly from Supabase session (must match auth.uid() for RLS)
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session?.user?.id) {
-      console.error('❌ Session error:', sessionError);
+    // Get user ID from Azure AD authentication
+    if (!user?.id) {
+      console.error('❌ User not authenticated');
       toast.error('Unable to verify authentication. Please sign in again.');
       setSubmitting(false);
       return;

@@ -30,20 +30,15 @@ export default function CommunityFeed() {
   const [currentSort, setCurrentSort] = useState<string>("recent");
   const filterTag = searchParams.get("tag");
 
-  // Handle unauthenticated users
+  // Fetch posts when user is available
+  // Note: User should always be authenticated due to ProtectedRoute at app level
   useEffect(() => {
-    if (!loading && !user) {
-      navigate("/community");
-    }
-  }, [loading, user, navigate]);
-
-  useEffect(() => {
-    if (user) {
+    if (!loading && user) {
       fetchMyPosts(currentSort, 0);
       fetchGlobalPosts(currentSort, 0);
       fetchTrendingPosts(currentSort, 0);
     }
-  }, [user, filterTag]);
+  }, [user, filterTag, loading, currentSort]);
 
   const fetchMyPosts = async (
     _sortBy: string = "recent",

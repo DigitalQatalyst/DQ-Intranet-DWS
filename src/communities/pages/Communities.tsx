@@ -14,7 +14,6 @@ import { PlusCircle, Filter, X, HomeIcon, ChevronRightIcon } from 'lucide-react'
 import { CommunityCard } from "../components/Cards/CommunityCard";
 import { Sheet, SheetContent, SheetTrigger } from "../components/ui/sheet";
 import { StickyActionButton } from "../components/Button/StickyActionButton";
-import { SignInModal } from "../components/auth/SignInModal";
 
 interface Community {
   id: string;
@@ -47,8 +46,7 @@ export default function Communities() {
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
-  const [showSignInModal, setShowSignInModal] = useState(false);
-  const [pendingJoinCommunityId, setPendingJoinCommunityId] = useState<string | null>(null);
+  // SignInModal removed - users are already authenticated via main app's ProtectedRoute
   
   // Dynamic filter options from backend
   const [filterConfig, setFilterConfig] = useState<FilterConfig[]>([]);
@@ -828,12 +826,11 @@ export default function Communities() {
   const handleJoinLeave = useCallback(async (communityId: string, isCurrentlyMember: boolean) => {
     console.log('🔵 handleJoinLeave called', { communityId, isCurrentlyMember, hasUser: !!user });
     
-    // Check if user is authenticated
+    // User should be authenticated via Azure AD at app level (ProtectedRoute)
+    // If user is null, it's likely still loading - wait for auth to complete
     if (!user) {
-      console.warn('⚠️ User not authenticated, showing sign in modal');
-      toast.error('Please sign in to join communities');
-      setPendingJoinCommunityId(communityId);
-      setShowSignInModal(true);
+      console.warn('⚠️ User not available yet, may still be loading');
+      toast.error('Please wait for authentication to complete');
       return;
     }
     
@@ -889,49 +886,7 @@ export default function Communities() {
     await handleJoinLeave(communityId, isMember);
   }, [userMemberships, handleJoinLeave]);
   
-  // Retry joining after successful sign-in
-  const handleSignInSuccess = useCallback(async () => {
-    setShowSignInModal(false);
-    if (pendingJoinCommunityId) {
-      const communityId = pendingJoinCommunityId;
-      setPendingJoinCommunityId(null);
-      
-      // Wait for user state to update
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      // Get user directly from session instead of relying on auth context
-      const { data: { session } } = await supabase.auth.getSession();
-      const userId = session?.user?.id;
-      
-      if (!userId) {
-        toast.error('Unable to verify authentication. Please try again.');
-        return;
-      }
-      
-      // Join directly using the session user
-      try {
-        const success = await joinCommunity(communityId, { id: userId } as any, {
-          refreshData: async () => {
-            // Update local membership state
-            setUserMemberships(prev => new Set(prev).add(communityId));
-          },
-          onSuccess: () => {
-            console.log('✅ Successfully joined community');
-            toast.success('Successfully joined community!');
-          },
-          onError: (error) => {
-            console.error('❌ Error joining community:', error);
-            toast.error('Failed to join community. Please try again.');
-          },
-        });
-        
-        console.log('🔵 Join result:', success);
-      } catch (error) {
-        console.error('❌ Exception joining community:', error);
-        toast.error('Failed to join community. Please try again.');
-      }
-    }
-  }, [pendingJoinCommunityId]);
+  // SignInSuccess handler removed - users are already authenticated via main app
   if (authLoading) {
     return <div className="flex min-h-screen items-center justify-center bg-[var(--gradient-subtle)]">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
@@ -1376,14 +1331,7 @@ export default function Communities() {
           )}
         </div>
 
-        {/* Sign In Modal */}
-        <SignInModal
-          open={showSignInModal}
-          onOpenChange={setShowSignInModal}
-          title="Sign In to Join Community"
-          description="Please sign in to join this community and start participating."
-          onSuccess={handleSignInSuccess}
-        />
+        {/* SignInModal removed - users are already authenticated via main app */}
 
         {/* Floating Create Button (mobile) - Only for logged-in users */}
         {user && <div className="sm:hidden">

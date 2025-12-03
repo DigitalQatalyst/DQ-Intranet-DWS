@@ -72,85 +72,83 @@ export function AppRouter() {
         <AuthProvider>
           <CommunitiesAuthProvider>
             <KfBot />
-            <Routes>
-              <Route path="/discover-dq" element={<DiscoverDQ />} />
-            <Route path="/*" element={<App />} />
-            <Route path="/courses/:itemId" element={<LmsCourseDetailPage />} />
-            <Route path="/lms" element={<LmsCourses />} />
-            <Route path="/lms/:slug" element={<LmsCourseDetail />} />
-            <Route
-              path="/onboarding/:itemId"
-              element={
-                <MarketplaceDetailsPage
-                  marketplaceType="onboarding"
+            <ProtectedRoute>
+              <Routes>
+                <Route path="/discover-dq" element={<DiscoverDQ />} />
+                <Route path="/*" element={<App />} />
+                <Route path="/courses/:itemId" element={<LmsCourseDetailPage />} />
+                <Route path="/lms" element={<LmsCourses />} />
+                <Route path="/lms/:slug" element={<LmsCourseDetail />} />
+                <Route
+                  path="/onboarding/:itemId"
+                  element={
+                    <MarketplaceDetailsPage
+                      marketplaceType="onboarding"
+                    />
+                  }
                 />
-              }
-            />
-            <Route
-              path="/onboarding/:itemId/details"
-              element={
-                <MarketplaceDetailsPage
-                  marketplaceType="onboarding"
+                <Route
+                  path="/onboarding/:itemId/details"
+                  element={
+                    <MarketplaceDetailsPage
+                      marketplaceType="onboarding"
+                    />
+                  }
                 />
-              }
-            />
-            <Route path="/marketplace/*" element={<MarketplaceRouter />} />
-            {/* Admin - Guides CRUD */}
-            <Route path="/admin/guides" element={<AdminGuidesList />} />
-            <Route path="/admin/guides/new" element={<GuideEditor />} />
-            <Route path="/admin/guides/:id" element={<GuideEditor />} />
-          {/* Canonical and compatibility routes for Guides marketplace */}
-          <Route path="/guides" element={<Navigate to="/marketplace/guides" replace />} />
-          <Route path="/knowledge-hub" element={<Navigate to="/marketplace/guides" replace />} />
-            <Route
-              path="/dashboard/*"
-              element={
-                // <ProtectedRoute>
-                <DashboardRouter />
-                // </ProtectedRoute>
-              }
-            />
-            <Route path="/asset-library" element={<AssetLibraryPage />} />
-            <Route path="/blueprints" element={<BlueprintsPage />} />
-            <Route path="/blueprints/:projectId" element={<BlueprintsPage />} />
-            <Route
-              path="/blueprints/:projectId/:folderId"
-              element={<BlueprintsPage />}
-            />
-            <Route path="/play/dq-agile-kpis" element={<DQAgileKPIsPage />} />
-            <Route path="/discover-dq" element={<DiscoverDQ />} />
-            <Route path="/thank-you" element={<ThankYou />} />
-            {/* Redirect encoded leading-space path to canonical route */}
-            <Route path="/%20marketplace/news" element={<Navigate to="/marketplace/news" replace />} />
-            {/* <Route path="/events" element={<EventsPage />} /> */}
-            {/* Community Routes */}
-            <Route path="/community" element={<Home />} />
-            <Route path="/communities" element={<Communities />} />
-            <Route path="/community/:id" element={<Community />} />
-            <Route path="/feed" element={<CommunityFeed />} />
-            <Route
-              path="/community/:id/members"
-              element={<CommunityMembers />}
-            />
-            <Route
-              path="/community/:id/settings"
-              element={<CommunitySettings />}
-            />
-            <Route path="/moderation" element={<ModerationDashboard />} />
-            <Route path="/analytics" element={<CommunityAnalytics />} />
-            <Route path="/activity" element={<ActivityCenter />} />
-            <Route path="/messages" element={<MessagingDashboard />} />
-            <Route path="/create-post" element={<CreatePost />} />
-            <Route path="/post/edit/:id" element={<CreatePost />} />
-            <Route path="/post/:id" element={<PostDetail />} />
-            <Route
-              path="/profile/:userId?"
-              element={<ProfileDashboard />}
-            />
-            <Route path="/404" element={<NotFound />} />
+                <Route path="/marketplace/*" element={<MarketplaceRouter />} />
+                {/* Admin - Guides CRUD */}
+                <Route path="/admin/guides" element={<AdminGuidesList />} />
+                <Route path="/admin/guides/new" element={<GuideEditor />} />
+                <Route path="/admin/guides/:id" element={<GuideEditor />} />
+                {/* Canonical and compatibility routes for Guides marketplace */}
+                <Route path="/guides" element={<Navigate to="/marketplace/guides" replace />} />
+                <Route path="/knowledge-hub" element={<Navigate to="/marketplace/guides" replace />} />
+                <Route
+                  path="/dashboard/*"
+                  element={<DashboardRouter />}
+                />
+                <Route path="/asset-library" element={<AssetLibraryPage />} />
+                <Route path="/blueprints" element={<BlueprintsPage />} />
+                <Route path="/blueprints/:projectId" element={<BlueprintsPage />} />
+                <Route
+                  path="/blueprints/:projectId/:folderId"
+                  element={<BlueprintsPage />}
+                />
+                <Route path="/play/dq-agile-kpis" element={<DQAgileKPIsPage />} />
+                <Route path="/discover-dq" element={<DiscoverDQ />} />
+                <Route path="/thank-you" element={<ThankYou />} />
+                {/* Redirect encoded leading-space path to canonical route */}
+                <Route path="/%20marketplace/news" element={<Navigate to="/marketplace/news" replace />} />
+                {/* <Route path="/events" element={<EventsPage />} /> */}
+                {/* Community Routes */}
+                <Route path="/community" element={<Home />} />
+                <Route path="/communities" element={<Communities />} />
+                <Route path="/community/:id" element={<Community />} />
+                <Route path="/feed" element={<CommunityFeed />} />
+                <Route
+                  path="/community/:id/members"
+                  element={<CommunityMembers />}
+                />
+                <Route
+                  path="/community/:id/settings"
+                  element={<CommunitySettings />}
+                />
+                <Route path="/moderation" element={<ModerationDashboard />} />
+                <Route path="/analytics" element={<CommunityAnalytics />} />
+                <Route path="/activity" element={<ActivityCenter />} />
+                <Route path="/messages" element={<MessagingDashboard />} />
+                <Route path="/create-post" element={<CreatePost />} />
+                <Route path="/post/edit/:id" element={<CreatePost />} />
+                <Route path="/post/:id" element={<PostDetail />} />
+                <Route
+                  path="/profile/:userId?"
+                  element={<ProfileDashboard />}
+                />
+                <Route path="/404" element={<NotFound />} />
 
-            <Route path="*" element={<Navigate to="/404" replace />} />
-          </Routes>
+                <Route path="*" element={<Navigate to="/404" replace />} />
+              </Routes>
+            </ProtectedRoute>
           </CommunitiesAuthProvider>
         </AuthProvider>
       </BrowserRouter>
