@@ -13,7 +13,6 @@ const LmsCourseDetailPageWrapper = () => {
   const { slug } = useParams<{ slug: string }>();
   return <LmsCourseDetailPage key={slug} />;
 };
-import LmsCourseDetail from "./pages/LmsCourseDetail";
 import LmsCourses from "./pages/LmsCourses";
 import AssetLibraryPage from "./pages/assetLibrary";
 import BlueprintsPage from "./pages/blueprints";
