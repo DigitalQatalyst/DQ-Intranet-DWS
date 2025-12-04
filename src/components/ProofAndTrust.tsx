@@ -146,98 +146,60 @@ const VideoTestimonialCarousel = () => {
     }
   }, [isModalOpen]);
 
-  const getMetricColor = (color: string) => {
-    switch (color) {
-      case 'green':
-        return 'text-green-500';
-      case 'orange':
-        return 'text-orange-500';
-      case 'blue':
-        return 'text-blue-500';
-      case 'red':
-        return 'text-red-500';
-      default:
-        return 'text-white';
-    }
-  };
-
   return (
     <>
       <div className="relative">
         {/* Carousel Container */}
         <div
           ref={carouselRef}
-          className="flex overflow-x-auto scrollbar-hide gap-6 pb-4 snap-x snap-mandatory justify-center"
+          className="flex overflow-x-auto scrollbar-hide gap-6 pb-4 snap-x snap-mandatory"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {testimonials.map((testimonial, index) => (
             <FadeInUpOnScroll key={testimonial.id} delay={index * 0.08}>
               <div
-                className="relative group cursor-pointer rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 min-w-[600px] max-w-[600px] h-[400px] flex-shrink-0 snap-start"
+                className="relative group cursor-pointer rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 min-w-[280px] max-w-[280px] snap-start transform hover:-translate-y-1"
                 onClick={() => openModal(testimonial)}
               >
-                {/* Video Thumbnail Background with Blur */}
-                <div className="absolute inset-0">
+                {/* Video Thumbnail */}
+                <div className="relative aspect-video bg-gray-900 overflow-hidden">
                   <img
                     src={testimonial.videoThumbnail}
                     alt={testimonial.name}
-                    className="w-full h-full object-cover"
-                    style={{ filter: 'blur(4px)' }}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  {/* Dark Semi-transparent Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/60 to-black/80" />
+                  {/* Play Button Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-all duration-300">
+                    <div className="w-16 h-16 rounded-full bg-white/95 flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:bg-white transition-all duration-300">
+                      <Play size={28} className="text-gray-900 ml-1" fill="currentColor" />
+                    </div>
+                  </div>
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
-
-                {/* DQ Logo - Top Left */}
-                <div className="absolute top-4 left-4 z-10">
-                  <div className="flex flex-col items-start">
-                    <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg mb-1">
-                      <span className="text-lg font-bold text-[#030F35]">DQ</span>
-                    </div>
-                    <span className="text-white text-[10px] font-medium">Digital Qatalyst</span>
-                  </div>
-                </div>
-
-                {/* Content Overlay */}
-                <div className="relative h-full flex flex-col justify-between p-5 z-10">
-                  {/* Top Section - Metric */}
-                  <div className="pt-12">
-                    <div className={`text-4xl font-bold mb-1 ${getMetricColor(testimonial.metricColor)}`}>
-                      {testimonial.metric}
-                    </div>
-                    <div className="text-white text-base font-semibold">
-                      {testimonial.metricLabel}
+                {/* Testimonial Info */}
+                <div className="p-5 bg-white">
+                  <div className="flex items-center gap-3 mb-3">
+                    <img
+                      src={testimonial.avatar}
+                      alt={testimonial.name}
+                      className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {testimonial.name}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">{testimonial.position}</p>
                     </div>
                   </div>
-
-                  {/* Middle Section - Quote */}
-                  <div className="flex-1 flex items-center py-2">
-                    <p className="text-white text-sm leading-relaxed font-medium">
-                      {testimonial.quote}
-                    </p>
-                  </div>
-
-                  {/* Bottom Section - Author Info and Play Button */}
-                  <div className="flex items-center justify-between">
-                    {/* Author Info */}
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={testimonial.avatar}
-                        alt={testimonial.name}
-                        className="w-10 h-10 rounded-full object-cover ring-2 ring-white/30"
-                      />
-                      <div>
-                        <p className="text-white font-semibold text-xs">
-                          {testimonial.name}
-                        </p>
-                        <p className="text-white/90 text-[10px] leading-tight">{testimonial.position}{testimonial.company ? `, ${testimonial.company}` : ''}</p>
-                      </div>
-                    </div>
-
-                    {/* Play Button - Bottom Right */}
-                    <div className="w-10 h-10 rounded-full bg-gray-800/95 flex items-center justify-center shadow-xl transition-all duration-300 group-hover:bg-gray-700">
-                      <Play size={14} className="text-white ml-0.5" fill="currentColor" />
-                    </div>
+                  <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+                    "{testimonial.quote}"
+                  </p>
+                  {/* Rating Stars */}
+                  <div className="flex items-center gap-1 mt-3">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />
+                    ))}
                   </div>
                 </div>
               </div>
@@ -272,6 +234,40 @@ const VideoTestimonialCarousel = () => {
               className={`h-2 rounded-full transition-all duration-300 ${
                 index === activeIndex
                   ? 'w-8 bg-orange-500'
+                  : 'w-2 bg-gray-300 hover:bg-gray-400'
+              }`}
+              aria-label={`Go to testimonial ${index + 1}`}
+            />
+          ))}
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="absolute top-1/2 left-0 right-0 flex justify-between items-center transform -translate-y-1/2 pointer-events-none px-2">
+          <button
+            className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-gray-700 pointer-events-auto flex items-center justify-center transition-all w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg"
+            onClick={handlePrev}
+            aria-label="Previous testimonial"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <button
+            className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-gray-700 pointer-events-auto flex items-center justify-center transition-all w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg"
+            onClick={handleNext}
+            aria-label="Next testimonial"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
+
+        {/* Carousel Indicators */}
+        <div className="flex justify-center gap-2 mt-6">
+          {testimonials.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setActiveIndex(index)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                index === activeIndex
+                  ? 'w-8 bg-blue-600'
                   : 'w-2 bg-gray-300 hover:bg-gray-400'
               }`}
               aria-label={`Go to testimonial ${index + 1}`}
