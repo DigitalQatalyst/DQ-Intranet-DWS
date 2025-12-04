@@ -10,8 +10,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import EnquiryModal from "../Enquiry/EnquiryModal";
 
 interface HeaderProps {
-  toggleSidebar?: () => void;
-  sidebarOpen?: boolean;
   "data-id"?: string;
 }
 

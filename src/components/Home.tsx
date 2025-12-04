@@ -187,7 +187,7 @@ const ServiceCard = ({
       <p className={descriptionClasses}>{service.description}</p>
 
       <button
-        className={isComingSoon ? disabledButtonClasses : "cta-ejp"}
+        className={isComingSoon ? disabledButtonClasses : "cta-dq"}
         disabled={isComingSoon}
         onClick={(e) => {
           if (!isComingSoon) {
@@ -284,7 +284,7 @@ export const HomePage: React.FC = () => {
       {
         id: 'work-guide-strategy',
         title: 'Strategy Guide',
-        description: 'Understand DQ’s journey, history, 6xD, initiatives, clients, and operating models.',
+        description: "Understand DQ's journey, history, 6xD, initiatives, clients, and operating models.",
         icon: <BarChart />,
         path: '/work-guides/strategy',
         isActive: true
@@ -385,10 +385,10 @@ export const HomePage: React.FC = () => {
     cultureEventsNetworking: [
       {
         id: 'news-announcements',
-        title: 'News & Announcements',
+        title: 'DQ Media Center',
         description: 'View DQ updates, corporate news, trends, and essential announcements.',
         icon: <Newspaper />,
-        path: '/updates/news',
+        path: '/marketplace/guides',
         isActive: true
       },
       {
@@ -495,7 +495,7 @@ export const HomePage: React.FC = () => {
     loadSections();
   }, []);
 
-  /* --------- ROW COLORS + EJP BUTTON/ICON TREATMENT (UPDATED) --------- */
+  /* --------- ROW COLORS + DQ BUTTON/ICON TREATMENT (UPDATED) --------- */
   const sectionStyles: Record<string, SectionStyle> = {
     // ROW 1 — Navy gradient
     'Learning & Work Knowledge Hub': {
@@ -738,7 +738,7 @@ export const HomePage: React.FC = () => {
       {/* AI Chatbot */}
       <AIChatbot />
 
-      {/* animations + EJP CTA styles */}
+      {/* animations + DQ CTA styles */}
       <style>{`
         @keyframes fade-in-up {
           from {
@@ -793,8 +793,8 @@ export const HomePage: React.FC = () => {
           transform: scale(1.02);
         }
 
-        /* ---------- EJP-style CTA (dark translucent -> white on hover) ---------- */
-        .cta-ejp {
+        /* ---------- DQ-style CTA (dark translucent -> white on hover) ---------- */
+        .cta-dq {
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -811,17 +811,17 @@ export const HomePage: React.FC = () => {
           -webkit-backdrop-filter: saturate(140%) blur(4px);
           transition: all 0.3s ease;
         }
-        .cta-ejp:hover {
+        .cta-dq:hover {
           color: #1a2e6e;
           background: rgba(255, 255, 255, 0.95);
           border-color: rgba(255, 255, 255, 0.9);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
           transform: translateY(-1px);
         }
-        .cta-ejp .chev {
+        .cta-dq .chev {
           transition: transform 0.3s ease;
         }
-        .cta-ejp:hover .chev {
+        .cta-dq:hover .chev {
           transform: translateX(4px);
         }
       `}</style>

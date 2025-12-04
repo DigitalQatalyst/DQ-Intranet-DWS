@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CalendarIcon, ChevronDownIcon } from 'lucide-react';
-import { BuildingIcon, GraduationCapIcon, UsersIcon, NewspaperIcon, SparklesIcon, FileText, LucideProps, BookOpen } from 'lucide-react';
+import { BuildingIcon, CreditCardIcon, GraduationCapIcon, UsersIcon, NewspaperIcon, SparklesIcon, FileText, LucideProps, BookOpen } from 'lucide-react';
 
 interface Marketplace {
   id: string;
@@ -14,11 +14,46 @@ interface Marketplace {
 
 const marketplaces: Marketplace[] = [
   {
-    id: 'learning-center',
-    name: 'DQ Learning Center',
-    description: 'Courses, learning tracks, and associate reviews.',
+    id: 'discover-dq',
+    name: 'Discover DQ',
+    description: 'Tour the digital workspace zones and teams across DQ.',
+    icon: SparklesIcon,
+    href: '/discover-dq',
+  },
+  {
+    id: 'non-financial',
+    name: 'IT & Systems Support',
+    description: 'Helpdesk, access requests, device & app support.',
+    icon: BuildingIcon,
+    href: '/marketplace/non-financial',
+  },
+  {
+    id: 'finance',
+    name: 'HR & Finance Services',
+    description: 'Leave, payroll, benefits, and reimbursements.',
+    icon: CreditCardIcon,
+    href: '/marketplace/financial',
+  },
+  {
+    id: 'media',
+    name: 'Facilities & Logistics',
+    description: 'Office access, seating, travel, and logistics.',
+    icon: NewspaperIcon,
+    href: '/marketplace/media',
+  },
+  {
+    id: 'community',
+    name: 'Associates Directory',
+    description: 'Find people, teams, and contacts across DQ.',
+    icon: UsersIcon,
+    href: '/marketplace/community',
+  },
+  {
+    id: 'course',
+    name: 'Learning Center',
+    description: '7x GHC, 6x Digital, 12x HoV, 1x Day in DQ, Key Tools.',
     icon: GraduationCapIcon,
-    href: '/dq-learning-center',
+    href: '/lms',
   },
   {
     id: 'services-center',
@@ -36,7 +71,7 @@ const marketplaces: Marketplace[] = [
   },
   {
     id: 'guidelines',
-    name: 'Guidelines Marketplace',
+    name: 'DQ Knowledge Center',
     description: 'Access practical guidelines, templates, and processes.',
     icon: BookOpen,
     href: '/marketplace/guides',
@@ -53,7 +88,7 @@ const marketplaces: Marketplace[] = [
     name: 'DQ Media Center',
     description: 'News, announcements, job openings, and blogs.',
     icon: NewspaperIcon,
-    href: '/dq-media-center',
+    href: '/marketplace/guides',
   },
   {
     id: 'work-communities',
@@ -66,6 +101,13 @@ const marketplaces: Marketplace[] = [
     id: 'knowledge-center',
     name: 'DQ Knowledge Center',
     description: 'Strategy guides, blueprints, libraries, and testimonials.',
+    icon: FileText,
+    href: '/dq-knowledge-center',
+  },
+  {
+    id: 'asset-library',
+    name: 'Asset Library',
+    description: 'Shared design, deployment and marketing artefacts.',
     icon: FileText,
     href: '/dq-knowledge-center',
   },
@@ -163,7 +205,7 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         ref={buttonRef}
-        className={`flex items-center text-white hover:text-[#FF874F] hover:bg-white/10 hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 rounded-md px-2 py-1 ${
+        className={`flex items-center text-white hover:text-dq-coral transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 rounded-md px-2 py-1 ${
           isCompact ? 'text-sm' : ''
         }`}
         onClick={() => setIsOpen(!isOpen)}
@@ -185,7 +227,7 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
           aria-orientation="vertical"
           aria-labelledby="explore-menu"
         >
-          <div className="overflow-y-auto">
+          <div className="max-h-[480px] overflow-y-auto">
             {marketplaces.map((marketplace, index) => {
               const Icon = marketplace.icon;
               const isActive = marketplace.id === 'guides' && (location.pathname.startsWith('/marketplace/guides') || location.pathname.startsWith('/marketplace/knowledge-hub'));
