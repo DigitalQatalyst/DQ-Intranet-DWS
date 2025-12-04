@@ -96,13 +96,246 @@ const TestimonialsShowcase = () => {
   );
 };
 
+const VideoTestimonialCard = ({
+  testimonial,
+  onClick,
+}: {
+  testimonial: Testimonial;
+  onClick: () => void;
+}) => {
+  const [isHovering, setIsHovering] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isHovering) {
+        videoRef.current
+          .play()
+          .catch((error) => console.error("Video play error:", error));
+      } else {
+        videoRef.current.pause();
+        videoRef.current.currentTime = 0;
+      }
+    }
+  }, [isHovering]);
+
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-[300px] cursor-pointer group"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      onClick={onClick}
+    >
+      {/* Video/Thumbnail Background */}
+      <div className="absolute inset-0 bg-gray-900 overflow-hidden">
+        <img
+          src={testimonial.videoThumbnail}
+          alt={`${testimonial.name} from ${testimonial.company}`}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${
+            isHovering ? "opacity-0" : "opacity-100"
+          }`}
+        />
+        <video
+          ref={videoRef}
+          src={testimonial.videoUrl}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+            isHovering ? "opacity-100" : "opacity-0"
+          }`}
+          muted
+          playsInline
+          loop
+        />
+      </div>
+
+      {/* Overlay with content */}
+      <div
+        className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30 p-6 flex flex-col transition-all duration-300 ${
+          isHovering ? "bg-black/60" : ""
+        }`}
+      >
+        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm overflow-hidden mb-4">
+          <img
+            src={testimonial.companyLogo}
+            alt={testimonial.company}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        <div className="mt-auto">
+          <div
+            className={`text-2xl font-bold mb-1 ${
+              testimonial.metricColor === "green"
+                ? "text-green-500"
+                : testimonial.metricColor === "orange"
+                ? "text-orange-500"
+                : testimonial.metricColor === "red"
+                ? "text-red-500"
+                : "text-dq-coral"
+            }`}
+          >
+            {testimonial.metric}{" "}
+            <span className="text-white text-lg font-medium">
+              {testimonial.metricLabel}
+            </span>
+          </div>
+
+          <p className="text-white/90 text-sm line-clamp-2 mb-3">
+            "{testimonial.quote}"
+          </p>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <img
+                src={testimonial.avatar}
+                alt={testimonial.name}
+                className="w-8 h-8 rounded-full mr-2 border border-white/30"
+              />
+              <div>
+                <p className="text-white text-sm font-medium">
+                  {testimonial.name}
+                </p>
+                <p className="text-white/70 text-xs">
+                  {testimonial.position}, {testimonial.company}
+                </p>
+              </div>
+            </div>
+            <div
+              className={`w-10 h-10 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center transition-all duration-300 ${
+                isHovering ? "animate-pulse bg-white/50" : ""
+              }`}
+            >
+              <Play size={18} className="text-white ml-1" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TestimonialModal = ({
+  testimonial,
+  isOpen,
+  onClose,
+}: {
+  testimonial: Testimonial | null;
+  isOpen: boolean;
+  onClose: () => void;
+}) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !testimonial) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all duration-300">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] shadow-2xl transform transition-all duration-300 animate-fadeIn flex flex-col overflow-hidden"
+      >
+        <div className="relative flex-shrink-0">
+          <div className="w-full aspect-video bg-gray-900">
+            <video
+              src={testimonial.videoUrl}
+              controls
+              autoPlay
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <button
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-all"
+            onClick={onClose}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto flex-1 min-h-0">
+          <div className="flex items-center mb-4">
+            <img
+              src={testimonial.companyLogo}
+              alt={testimonial.company}
+              className="w-12 h-12 rounded-full object-cover mr-4"
+            />
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">
+                How {testimonial.company} scaled with Enterprise Journey
+              </h3>
+              <div className="flex items-center mt-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    size={16}
+                    className={
+                      i < testimonial.rating
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-gray-300"
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-start mb-6">
+            <img
+              src={testimonial.avatar}
+              alt={testimonial.name}
+              className="w-12 h-12 rounded-full object-cover mr-4 mt-1"
+            />
+            <div>
+              <p className="text-gray-700 italic mb-3">
+                "{testimonial.fullQuote}"
+              </p>
+              <div>
+                <p className="font-medium text-gray-900">{testimonial.name}</p>
+                <p className="text-sm text-gray-600">
+                  {testimonial.position}, {testimonial.company}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">
+                  {testimonial.metric} {testimonial.metricLabel}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Impact achieved through DQ Workspace
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const VideoTestimonialCarousel = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedTestimonial, setSelectedTestimonial] =
     useState<Testimonial | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -113,8 +346,8 @@ const VideoTestimonialCarousel = () => {
 
   useEffect(() => {
     if (carouselRef.current) {
-      const cardWidth = carouselRef.current.scrollWidth / testimonials.length;
-      const scrollAmount = activeIndex * cardWidth;
+      const scrollAmount =
+        activeIndex * (carouselRef.current.scrollWidth / testimonials.length);
       carouselRef.current.scrollTo({ left: scrollAmount, behavior: "smooth" });
     }
   }, [activeIndex]);
@@ -125,217 +358,78 @@ const VideoTestimonialCarousel = () => {
     );
   const handleNext = () =>
     setActiveIndex((prev) => (prev + 1) % testimonials.length);
-  
   const openModal = (testimonial: Testimonial) => {
     setSelectedTestimonial(testimonial);
     setIsModalOpen(true);
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedTestimonial(null);
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
-  };
-
-  useEffect(() => {
-    if (isModalOpen && videoRef.current) {
-      videoRef.current.play();
-    }
-  }, [isModalOpen]);
-
   return (
-    <>
-      <div className="relative">
-        {/* Carousel Container */}
-        <div
-          ref={carouselRef}
-          className="flex overflow-x-auto scrollbar-hide gap-6 pb-4 snap-x snap-mandatory"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {testimonials.map((testimonial, index) => (
-            <FadeInUpOnScroll key={testimonial.id} delay={index * 0.08}>
-              <div
-                className="relative group cursor-pointer rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 min-w-[280px] max-w-[280px] snap-start transform hover:-translate-y-1"
+    <div className="relative">
+      <div
+        ref={carouselRef}
+        className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth gap-6 pb-8"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        {testimonials.map((testimonial, index) => (
+          <div
+            key={testimonial.id}
+            className="min-w-full sm:min-w-[calc(100%/2-12px)] lg:min-w-[calc(100%/3-16px)] flex-shrink-0 snap-center"
+          >
+            <FadeInUpOnScroll delay={index * 0.1}>
+              <VideoTestimonialCard
+                testimonial={testimonial}
                 onClick={() => openModal(testimonial)}
-              >
-                {/* Video Thumbnail */}
-                <div className="relative aspect-video bg-gray-900 overflow-hidden">
-                  <img
-                    src={testimonial.videoThumbnail}
-                    alt={testimonial.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  {/* Play Button Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-all duration-300">
-                    <div className="w-16 h-16 rounded-full bg-white/95 flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:bg-white transition-all duration-300">
-                      <Play size={28} className="text-gray-900 ml-1" fill="currentColor" />
-                    </div>
-                  </div>
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
-                {/* Testimonial Info */}
-                <div className="p-5 bg-white">
-                  <div className="flex items-center gap-3 mb-3">
-                    <img
-                      src={testimonial.avatar}
-                      alt={testimonial.name}
-                      className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">
-                        {testimonial.name}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">{testimonial.position}</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                    "{testimonial.quote}"
-                  </p>
-                  {/* Rating Stars */}
-                  <div className="flex items-center gap-1 mt-3">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />
-                    ))}
-                  </div>
-                </div>
-              </div>
+              />
             </FadeInUpOnScroll>
-          ))}
-        </div>
-
-        {/* Navigation Buttons */}
-        <div className="absolute top-1/2 left-0 right-0 flex justify-between items-center transform -translate-y-1/2 pointer-events-none px-2">
-          <button
-            className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-gray-600 pointer-events-auto flex items-center justify-center transition-all w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg"
-            onClick={handlePrev}
-            aria-label="Previous testimonial"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <button
-            className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-gray-600 pointer-events-auto flex items-center justify-center transition-all w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg"
-            onClick={handleNext}
-            aria-label="Next testimonial"
-          >
-            <ChevronRight size={24} />
-          </button>
-        </div>
-
-        {/* Carousel Indicators */}
-        <div className="flex justify-center gap-2 mt-6">
-          {testimonials.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setActiveIndex(index)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                index === activeIndex
-                  ? 'w-8 bg-orange-500'
-                  : 'w-2 bg-gray-300 hover:bg-gray-400'
-              }`}
-              aria-label={`Go to testimonial ${index + 1}`}
-            />
-          ))}
-        </div>
-
-        {/* Navigation Buttons */}
-        <div className="absolute top-1/2 left-0 right-0 flex justify-between items-center transform -translate-y-1/2 pointer-events-none px-2">
-          <button
-            className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-gray-700 pointer-events-auto flex items-center justify-center transition-all w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg"
-            onClick={handlePrev}
-            aria-label="Previous testimonial"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <button
-            className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-gray-700 pointer-events-auto flex items-center justify-center transition-all w-10 h-10 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg"
-            onClick={handleNext}
-            aria-label="Next testimonial"
-          >
-            <ChevronRight size={24} />
-          </button>
-        </div>
-
-        {/* Carousel Indicators */}
-        <div className="flex justify-center gap-2 mt-6">
-          {testimonials.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setActiveIndex(index)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                index === activeIndex
-                  ? 'w-8 bg-blue-600'
-                  : 'w-2 bg-gray-300 hover:bg-gray-400'
-              }`}
-              aria-label={`Go to testimonial ${index + 1}`}
-            />
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
-      {/* Video Modal */}
-      {isModalOpen && selectedTestimonial && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 animate-fade-in"
-          onClick={closeModal}
+      <div className="absolute top-1/2 left-0 right-0 flex justify-between items-center transform -translate-y-1/2 pointer-events-none px-4">
+        <button
+          className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-white pointer-events-auto flex items-center justify-center transition-all"
+          onClick={handlePrev}
+          aria-label="Previous testimonial"
         >
-          <div
-            className="relative bg-black rounded-lg overflow-hidden max-w-4xl w-full shadow-2xl animate-scale-in"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={closeModal}
-              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors backdrop-blur-sm"
-              aria-label="Close video"
-            >
-              <X size={24} />
-            </button>
-            <video
-              ref={videoRef}
-              src={selectedTestimonial.videoUrl}
-              controls
-              className="w-full h-auto"
-              autoPlay
-            />
-            <div className="p-6 bg-white">
-              <div className="flex items-center gap-4 mb-3">
-                <img
-                  src={selectedTestimonial.avatar}
-                  alt={selectedTestimonial.name}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-200"
-                />
-                <div>
-                  <p className="text-lg font-semibold text-gray-900">
-                    {selectedTestimonial.name}
-                  </p>
-                  <p className="text-sm text-gray-500">{selectedTestimonial.position}</p>
-                </div>
-              </div>
-              <p className="text-gray-700 leading-relaxed">
-                "{selectedTestimonial.fullQuote}"
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+          <ChevronLeft size={24} />
+        </button>
+        <button
+          className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-white pointer-events-auto flex items-center justify-center transition-all"
+          onClick={handleNext}
+          aria-label="Next testimonial"
+        >
+          <ChevronRight size={24} />
+        </button>
+      </div>
+
+      <div className="flex justify-center mt-4 gap-2">
+        {testimonials.map((_, index) => (
+          <button
+            key={index}
+            className={`w-2 h-2 rounded-full transition-all ${
+              activeIndex === index ? "bg-dq-coral w-6" : "bg-gray-300"
+            }`}
+            onClick={() => setActiveIndex(index)}
+            aria-label={`Go to testimonial ${index + 1}`}
+          />
+        ))}
+      </div>
+
+      <TestimonialModal
+        testimonial={selectedTestimonial}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
 
       <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes scale-in {
-          from { transform: scale(0.95); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        .animate-fade-in { animation: fade-in 0.2s ease-out; }
-        .animate-scale-in { animation: scale-in 0.3s ease-out; }
       `}</style>
-    </>
+    </div>
   );
 };
 
