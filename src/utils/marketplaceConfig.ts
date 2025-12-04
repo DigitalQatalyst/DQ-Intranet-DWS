@@ -453,7 +453,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     title: 'DQ LMS Course Marketplace',
     description: 'Discover focused, practical courses to help you work smarter at DQ.',
     route: '/marketplace/courses',
-    primaryCTA: 'Enroll Now',
+    primaryCTA: 'Start Learning',
     secondaryCTA: 'View Details',
     itemName: 'LMS Course',
     itemNamePlural: 'LMS Courses',
@@ -521,8 +521,8 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'Nairobi',
         name: 'Nairobi'
       }, {
-        id: 'Global',
-        name: 'Global'
+        id: 'Riyadh',
+        name: 'Riyadh'
       }, {
         id: 'Remote',
         name: 'Remote'
@@ -891,7 +891,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     ...knowledgeHubBaseConfig,
     id: 'guides',
     route: '/marketplace/guides',
-    title: 'Guidelines',
+    title: 'DQ Knowledge Center',
     description: 'Access practical guidelines, templates, and processes to support everyday delivery and collaboration.'
   }
 };

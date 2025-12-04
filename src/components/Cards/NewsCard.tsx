@@ -27,6 +27,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({
     e.stopPropagation();
     onReadMore();
   };
+
   const content: CardContent = {
     title: item.title,
     subtitle: item.source,
@@ -49,10 +50,12 @@ export const NewsCard: React.FC<NewsCardProps> = ({
       onClick: handleReadMore
     }
   };
+
   const variant: CardVariantConfig = {
     type: 'news',
     layout: 'standard',
     maxTags: 2
   };
+
   return <UnifiedCard content={content} variant={variant} onQuickView={onQuickView} data-id={dataId} />;
 };
