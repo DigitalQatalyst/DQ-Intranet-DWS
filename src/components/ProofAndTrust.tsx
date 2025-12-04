@@ -173,7 +173,7 @@ const VideoTestimonialCarousel = () => {
           {testimonials.map((testimonial, index) => (
             <FadeInUpOnScroll key={testimonial.id} delay={index * 0.08}>
               <div
-                className="relative group cursor-pointer rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 min-w-[480px] max-w-[480px] h-[600px] flex-shrink-0 snap-start"
+                className="relative group cursor-pointer rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 min-w-[600px] max-w-[600px] h-[400px] flex-shrink-0 snap-start"
                 onClick={() => openModal(testimonial)}
               >
                 {/* Video Thumbnail Background with Blur */}
@@ -199,20 +199,20 @@ const VideoTestimonialCarousel = () => {
                 </div>
 
                 {/* Content Overlay */}
-                <div className="relative h-full flex flex-col justify-between p-8 z-10">
+                <div className="relative h-full flex flex-col justify-between p-6 z-10">
                   {/* Top Section - Metric */}
-                  <div className="pt-20">
-                    <div className={`text-6xl font-bold mb-3 ${getMetricColor(testimonial.metricColor)}`}>
+                  <div className="pt-16">
+                    <div className={`text-5xl font-bold mb-2 ${getMetricColor(testimonial.metricColor)}`}>
                       {testimonial.metric}
                     </div>
-                    <div className="text-white text-xl font-semibold">
+                    <div className="text-white text-lg font-semibold">
                       {testimonial.metricLabel}
                     </div>
                   </div>
 
                   {/* Middle Section - Quote */}
-                  <div className="flex-1 flex items-center">
-                    <p className="text-white text-lg leading-relaxed font-medium">
+                  <div className="flex-1 flex items-center py-4">
+                    <p className="text-white text-base leading-relaxed font-medium">
                       {testimonial.quote}
                     </p>
                   </div>
@@ -224,19 +224,19 @@ const VideoTestimonialCarousel = () => {
                       <img
                         src={testimonial.avatar}
                         alt={testimonial.name}
-                        className="w-14 h-14 rounded-full object-cover ring-2 ring-white/30"
+                        className="w-12 h-12 rounded-full object-cover ring-2 ring-white/30"
                       />
                       <div>
-                        <p className="text-white font-semibold text-base">
+                        <p className="text-white font-semibold text-sm">
                           {testimonial.name}
                         </p>
-                        <p className="text-white/90 text-sm">{testimonial.position}{testimonial.company ? `, ${testimonial.company}` : ''}</p>
+                        <p className="text-white/90 text-xs">{testimonial.position}{testimonial.company ? `, ${testimonial.company}` : ''}</p>
                       </div>
                     </div>
 
                     {/* Play Button - Bottom Right */}
-                    <div className="w-14 h-14 rounded-full bg-gray-800/95 flex items-center justify-center shadow-xl transition-all duration-300 group-hover:bg-gray-700">
-                      <Play size={18} className="text-white ml-1" fill="currentColor" />
+                    <div className="w-12 h-12 rounded-full bg-gray-800/95 flex items-center justify-center shadow-xl transition-all duration-300 group-hover:bg-gray-700">
+                      <Play size={16} className="text-white ml-1" fill="currentColor" />
                     </div>
                   </div>
                 </div>
