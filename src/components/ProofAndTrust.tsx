@@ -1,18 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   Star,
-  Award,
-  Users,
   Play,
   X,
   ChevronLeft,
   ChevronRight,
-  Building2,
-  Landmark,
-  Network,
-  Users2,
-  Clock,
-  BookOpen,
 } from 'lucide-react';
 import {
   AnimatedCounter,
@@ -21,164 +13,13 @@ import {
   HorizontalScrollReveal,
   useInView,
 } from './AnimationUtils';
-
-interface Testimonial {
-  id: string;
-  name: string;
-  position: string;
-  company: string;
-  companyLogo: string;
-  avatar: string;
-  quote: string;
-  fullQuote: string;
-  rating: number;
-  videoThumbnail: string;
-  videoUrl: string;
-  metric: string;
-  metricLabel: string;
-  metricColor: 'green' | 'blue' | 'orange';
-}
-
-const testimonials: Testimonial[] = [
-  {
-    id: "1",
-    name: "Salem Wasike",
-    position: "Product Owner - DQ Deploys",
-    company: "Digital Qatalyst",
-    companyLogo:
-      "https://image2url.com/images/1760524231537-47b810dd-94eb-4571-a6a9-0a9c6fbfb390.jpg",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    quote:
-      "Agile Essentials and DTMF learning paths reduced blockers by 40% and sped up feature delivery.",
-    fullQuote:
-      "Through the DQ LMS, our teams completed Agile Essentials and DTMF learning paths. The shared practices cut delivery blockers by 40% and improved flow, which helped us ship features faster and with clearer ownership.",
-    rating: 5,
-    videoThumbnail:
-      "https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-5s.mp4",
-    metric: "40%",
-    metricLabel: "Faster Task Completion",
-    metricColor: "green",
-  },
-  {
-    id: "2",
-    name: "Sharavi Chander",
-    position: "Head of DQ Deploys",
-    company: "Digital Qatalyst",
-    companyLogo:
-      "https://image2url.com/images/1760524231537-47b810dd-94eb-4571-a6a9-0a9c6fbfb390.jpg",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    quote:
-      "80+ team certifications built a learning culture that lifted consistency across releases.",
-    fullQuote:
-      "The LMS pathways and peer sessions led to 80+ certifications across Deploys. That shared foundation in tooling and governance raised our consistency and confidence from planning through release.",
-    rating: 5,
-    videoThumbnail:
-      "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-10s.mp4",
-    metric: "80+",
-    metricLabel: "Team Certifications",
-    metricColor: "orange",
-  },
-  {
-    id: "3",
-    name: "Mohamed Thameez",
-    position: "Product Manager",
-    company: "Digital Qatalyst",
-    companyLogo:
-      "https://image2url.com/images/1760524231537-47b810dd-94eb-4571-a6a9-0a9c6fbfb390.jpg",
-    avatar: "https://randomuser.me/api/portraits/men/22.jpg",
-    quote: "Cross-unit learning spaces cut our feature turnaround time by 30%.",
-    fullQuote:
-      "Standard playbooks, shared boards, and course-led upskilling created tighter handoffs between Design, Build, and Deploy. As a result, our feature turnaround time improved by 30% with fewer reworks.",
-    rating: 4,
-    videoThumbnail:
-      "https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-15s.mp4",
-    metric: "3x",
-    metricLabel: "Collaboration Growth",
-    metricColor: "blue",
-  },
-];
-
-// Partner categories for the grid
-const partnerCategories = [
-  {
-    id: "government",
-    title: "Governance Sector",
-    subtitle:
-      "Leadership, strategy, and value management for enterprise alignment",
-    icon: <Building2 size={28} />,
-    metric: "4+",
-    color: "indigo-600",
-  },
-  {
-    id: "financial",
-    title: "Operations Sector",
-    subtitle:
-      "HR, Finance, and Deals support factories for day-to-day enablement",
-    icon: <Landmark size={28} />,
-    metric: "5+",
-    color: "yellow-500",
-  },
-  {
-    id: "service",
-    title: "Platform Sector",
-    subtitle:
-      "Intelligence, Solutions, Security, and Products driving digital platforms",
-    icon: <Users2 size={28} />,
-    metric: "6+",
-    color: "blue-600",
-  },
-  {
-    id: "network",
-    title: "Delivery Sector",
-    subtitle:
-      "Design, Deploys, and Accounts teams ensuring outcomes and engagements",
-    icon: <Network size={28} />,
-    metric: "3+",
-    color: "orange-500",
-  },
-];
-
-const featuredSectors = [
-  { id: 'ce', name: 'CE', logo: '/logo/prodev.png' },
-  { id: 'soldev', name: 'Soldev', logo: '/logo/soldev.png' },
-  { id: 'finance', name: 'Finance', logo: '/logo/finance.png' },
-  { id: 'hra', name: 'HRA', logo: '/logo/hra.png' },
-  { id: 'inteldev', name: 'IntelDev', logo: '/logo/inteldev.png' },
-];
-
-/* =========================
-   ✅ UPDATED KPI CONTENT
-   ========================= */
-const impactStats = [
-  {
-    label: 'Faster Task Closure',
-    value: 80,
-    prefix: 'Over',
-    suffix: '%',
-    icon: <Users size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
-  },
-  {
-    label: 'Focus Time Saved',
-    value: 6,
-    suffix: 'hrs+',
-    icon: <Clock size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
-  },
-  {
-    label: 'Concepts Learned Daily',
-    value: 5,
-    suffix: '+',
-    icon: <BookOpen size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
-  },
-  {
-    label: 'Collaboration Growth Rate',
-    value: 87,
-    suffix: '%',
-    icon: <Award size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
-  },
-];
+import {
+  testimonials,
+  partnerCategories,
+  featuredSectors,
+  impactStats,
+  type Testimonial,
+} from '../data/landingPageContent';
 
 const VideoTestimonialCard = ({
   testimonial,
@@ -476,18 +317,18 @@ const VideoTestimonialCarousel = () => {
 
       <div className="absolute top-1/2 left-0 right-0 flex justify-between items-center transform -translate-y-1/2 pointer-events-none px-4">
         <button
-          className="w-10 h-10 rounded-full bg-white/80 shadow-md flex items-center justify-center text-gray-800 hover:bg-white transition-all pointer-events-auto"
+          className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-white pointer-events-auto flex items-center justify-center transition-all"
           onClick={handlePrev}
           aria-label="Previous testimonial"
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft size={24} />
         </button>
         <button
-          className="w-10 h-10 rounded-full bg-white/80 shadow-md flex items-center justify-center text-gray-800 hover:bg-white transition-all pointer-events-auto"
+          className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-white pointer-events-auto flex items-center justify-center transition-all"
           onClick={handleNext}
           aria-label="Next testimonial"
         >
-          <ChevronRight size={20} />
+          <ChevronRight size={24} />
         </button>
       </div>
 
@@ -560,7 +401,7 @@ const PartnerCategoryCard = ({ category }) => {
             isHovered ? "animate-bounce-subtle" : ""
           }`}
         >
-          {category.icon}
+          {React.createElement(category.iconComponent, { size: category.iconSize || 28 })}
         </div>
       </div>
 
@@ -724,7 +565,11 @@ const ProofAndTrust: React.FC = () => {
                 >
                   <div className="flex justify-center mb-4">
                     <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#FB5535]/10 text-[#FB5535]">
-                      {stat.icon}
+                      {React.createElement(stat.iconComponent, {
+                        size: stat.iconSize || 20,
+                        strokeWidth: 2.5,
+                        className: stat.iconClassName,
+                      })}
                     </span>
                   </div>
                   <div className="text-3xl font-bold text-dq-navy mb-1 flex items-baseline justify-center">
