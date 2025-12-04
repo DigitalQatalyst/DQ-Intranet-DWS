@@ -97,64 +97,124 @@ const TestimonialsShowcase = () => {
 };
 
 const VideoTestimonialCarousel = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
   const [selectedTestimonial, setSelectedTestimonial] =
     useState<Testimonial | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (carouselRef.current) {
-      const scrollAmount =
-        activeIndex * (carouselRef.current.scrollWidth / testimonials.length);
-      carouselRef.current.scrollTo({ left: scrollAmount, behavior: "smooth" });
-    }
-  }, [activeIndex]);
-
-  const handlePrev = () =>
-    setActiveIndex(
-      (prev) => (prev - 1 + testimonials.length) % testimonials.length
-    );
-  const handleNext = () =>
-    setActiveIndex((prev) => (prev + 1) % testimonials.length);
   const openModal = (testimonial: Testimonial) => {
     setSelectedTestimonial(testimonial);
     setIsModalOpen(true);
   };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedTestimonial(null);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  };
+
+  useEffect(() => {
+    if (isModalOpen && videoRef.current) {
+      videoRef.current.play();
+    }
+  }, [isModalOpen]);
+
   return (
-    <div>
+    <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {testimonials.map((testimonial, index) => (
           <FadeInUpOnScroll key={testimonial.id} delay={index * 0.08}>
-            <TestimonialCard testimonial={testimonial} />
+            <div
+              className="relative group cursor-pointer rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
+              onClick={() => openModal(testimonial)}
+            >
+              {/* Video Thumbnail */}
+              <div className="relative aspect-video bg-gray-900">
+                <img
+                  src={testimonial.videoThumbnail}
+                  alt={testimonial.name}
+                  className="w-full h-full object-cover"
+                />
+                {/* Play Button Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                  <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <Play size={24} className="text-gray-900 ml-1" fill="currentColor" />
+                  </div>
+                </div>
+              </div>
+              {/* Testimonial Info */}
+              <div className="p-4 bg-white">
+                <div className="flex items-center gap-3 mb-2">
+                  <img
+                    src={testimonial.avatar}
+                    alt={testimonial.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {testimonial.name}
+                    </p>
+                    <p className="text-xs text-gray-500">{testimonial.position}</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 line-clamp-2">
+                  "{testimonial.quote}"
+                </p>
+              </div>
+            </div>
           </FadeInUpOnScroll>
         ))}
       </div>
-      <div className="flex justify-center mt-6">
-        <button
-          className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-white pointer-events-auto flex items-center justify-center transition-all"
-          onClick={handlePrev}
-          aria-label="Previous testimonial"
+
+      {/* Video Modal */}
+      {isModalOpen && selectedTestimonial && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={closeModal}
         >
-          <ChevronLeft size={24} />
-        </button>
-        <button
-          className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-white pointer-events-auto flex items-center justify-center transition-all"
-          onClick={handleNext}
-          aria-label="Next testimonial"
-        >
-          <ChevronRight size={24} />
-        </button>
-      </div>
-    </div>
+          <div
+            className="relative bg-black rounded-lg overflow-hidden max-w-4xl w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              aria-label="Close video"
+            >
+              <X size={24} />
+            </button>
+            <video
+              ref={videoRef}
+              src={selectedTestimonial.videoUrl}
+              controls
+              className="w-full h-auto"
+              autoPlay
+            />
+            <div className="p-6 bg-white">
+              <div className="flex items-center gap-4 mb-3">
+                <img
+                  src={selectedTestimonial.avatar}
+                  alt={selectedTestimonial.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {selectedTestimonial.name}
+                  </p>
+                  <p className="text-sm text-gray-500">{selectedTestimonial.position}</p>
+                </div>
+              </div>
+              <p className="text-gray-700 leading-relaxed">
+                "{selectedTestimonial.fullQuote}"
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -397,7 +457,7 @@ const ProofAndTrust: React.FC = () => {
               </p>
             </div>
           </FadeInUpOnScroll>
-            <TestimonialsShowcase />
+            <VideoTestimonialCarousel />
           </div>
 
         {/* Powered by Strategic Partnerships - NEW SECTION */}
