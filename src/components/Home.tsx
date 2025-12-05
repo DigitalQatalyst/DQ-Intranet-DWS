@@ -563,7 +563,14 @@ export const HomePage: React.FC = () => {
 
   const handleServiceClick = (path: string) => {
     if (path === "#" || !path) return; // Don't navigate if path is # or empty
-    navigate(path);
+    
+    // Handle query parameters properly
+    if (path.includes('?')) {
+      const [pathname, search] = path.split('?');
+      navigate({ pathname, search: `?${search}` });
+    } else {
+      navigate(path);
+    }
   };
 
   return (

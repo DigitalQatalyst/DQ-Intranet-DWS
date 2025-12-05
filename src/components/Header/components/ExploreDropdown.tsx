@@ -17,7 +17,7 @@ const marketplaces: Marketplace[] = [
     name: 'DQ Learning Center',
     description: 'Explore LMS courses, onboarding tracks, and learning resources across GHC, 6xD, DWS, and DXP.',
     icon: GraduationCapIcon,
-    href: '/marketplace/courses',
+    href: '#',
   },
   {
     id: 'services-center',
@@ -31,14 +31,14 @@ const marketplaces: Marketplace[] = [
     name: 'DQ Work Center',
     description: 'Run work sessions, manage projects & tasks, and track performance across workflows.',
     icon: TrendingUpIcon,
-    href: '/marketplace/activities',
+    href: '#',
   },
   {
     id: 'work-directory',
     name: 'DQ Work Directory',
     description: 'Explore sectors, units, positions, and associates across DQ to connect and collaborate.',
     icon: UsersIcon,
-    href: '/discover-dq',
+    href: '#',
   },
   {
     id: 'media-center',
@@ -52,7 +52,7 @@ const marketplaces: Marketplace[] = [
     name: 'DQ Work Communities',
     description: 'Connect, collaborate, and engage with peers in vibrant communities across DQ.',
     icon: UsersIcon,
-    href: '/communities',
+    href: '#',
   },
   {
     id: 'knowledge-center',
@@ -176,17 +176,13 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
               Explore Marketplaces
             </h3>
             <p className="text-xs text-gray-500 mt-1">
-              Discover opportunities across Abu Dhabi's business ecosystem
+              Discover the tools, services, and spaces across DQ's Digital Workspace
             </p>
           </div>
           <div className="max-h-96 overflow-y-auto">
             {marketplaces.map((marketplace, index) => {
               const Icon = marketplace.icon;
-              const isActive = (marketplace.id === 'media-center' && (location.pathname.startsWith('/marketplace/opportunities') || location.pathname.startsWith('/marketplace/news'))) || 
-                                (marketplace.id === 'learning-center' && location.pathname.startsWith('/marketplace/courses')) ||
-                                (marketplace.id === 'work-center' && location.pathname.startsWith('/marketplace/activities')) ||
-                                (marketplace.id === 'work-directory' && location.pathname.startsWith('/discover-dq')) ||
-                                (marketplace.id === 'work-communities' && location.pathname.startsWith('/communities'));
+              const isActive = marketplace.id === 'media-center' && (location.pathname.startsWith('/marketplace/opportunities') || location.pathname.startsWith('/marketplace/news'));
               return (
                 <a
                   key={marketplace.id}
