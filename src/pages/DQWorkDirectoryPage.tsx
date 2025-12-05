@@ -898,13 +898,50 @@ export function DQWorkDirectoryPage() {
             ) : (activeTab === 'units' && unitsError) ||
               (activeTab === 'positions' && positionsError) ||
               (activeTab === 'associates' && associatesError) ? (
-              <div className="py-12 text-center text-sm text-red-500">
-                Could not load directory items.{' '}
-                {activeTab === 'units' && unitsError
-                  ? unitsError
-                  : activeTab === 'positions' && positionsError
-                  ? positionsError
-                  : associatesError}
+              <div className="py-12 text-center px-4">
+                <div className="text-sm text-red-600 font-medium mb-2">
+                  Could not load directory items
+                </div>
+                <div className="text-xs text-red-500 mb-4 max-w-2xl mx-auto">
+                  {activeTab === 'units' && unitsError
+                    ? unitsError
+                    : activeTab === 'positions' && positionsError
+                    ? positionsError
+                    : associatesError}
+                </div>
+                {(unitsError?.includes('does not exist') || 
+                   positionsError?.includes('does not exist') || 
+                   associatesError?.includes('does not exist') ||
+                   unitsError?.includes('table does not exist') ||
+                   positionsError?.includes('table does not exist') ||
+                   associatesError?.includes('table does not exist')) && (
+                  <div className="text-xs text-gray-700 mt-4 p-6 bg-blue-50 rounded-lg border border-blue-200 max-w-3xl mx-auto text-left">
+                    <p className="font-semibold mb-3 text-blue-900">💡 How to Fix This:</p>
+                    <ol className="list-decimal list-inside space-y-2 mb-4">
+                      <li>Go to <a href="https://app.supabase.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Supabase Dashboard</a> → Select your project</li>
+                      <li>Navigate to <strong>SQL Editor</strong> → Click <strong>New Query</strong></li>
+                      <li>Open the file <code className="bg-blue-100 px-2 py-1 rounded text-xs font-mono">supabase/work-directory-schema.sql</code> from this project</li>
+                      <li>Copy the entire contents and paste into the SQL Editor</li>
+                      <li>Click <strong>Run</strong> to execute the migration</li>
+                      <li>Refresh this page</li>
+                    </ol>
+                    <p className="text-xs text-gray-600 italic">
+                      This will create the required tables: work_units, work_positions, work_associates, and employee_profiles
+                    </p>
+                  </div>
+                )}
+                {(unitsError?.includes('not initialized') || 
+                   positionsError?.includes('not initialized') || 
+                   associatesError?.includes('not initialized')) && (
+                  <div className="text-xs text-gray-700 mt-4 p-6 bg-yellow-50 rounded-lg border border-yellow-200 max-w-3xl mx-auto text-left">
+                    <p className="font-semibold mb-3 text-yellow-900">⚠️ Supabase Not Configured:</p>
+                    <ol className="list-decimal list-inside space-y-2">
+                      <li>Add your Supabase credentials to the <code className="bg-yellow-100 px-2 py-1 rounded text-xs font-mono">.env</code> file</li>
+                      <li>Set <code className="bg-yellow-100 px-2 py-1 rounded text-xs font-mono">VITE_SUPABASE_URL</code> and <code className="bg-yellow-100 px-2 py-1 rounded text-xs font-mono">VITE_SUPABASE_ANON_KEY</code></li>
+                      <li>Restart your development server</li>
+                    </ol>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

@@ -137,6 +137,10 @@ export function useWorkUnits(): UseWorkUnitsResult {
 
         if (fetchError) {
           console.error('Error fetching work units:', fetchError);
+          // Provide more helpful error message for missing table
+          if (fetchError.code === 'PGRST116' || fetchError.message?.includes('does not exist')) {
+            throw new Error('work_units table does not exist. Please run the schema migration in Supabase. See supabase/work-directory-schema.sql');
+          }
           throw fetchError;
         }
 
@@ -246,6 +250,10 @@ export function useWorkPositions(): UseWorkPositionsResult {
 
         if (fetchError) {
           console.error('Error fetching work positions:', fetchError);
+          // Provide more helpful error message for missing table
+          if (fetchError.code === 'PGRST116' || fetchError.message?.includes('does not exist')) {
+            throw new Error('work_positions table does not exist. Please run the schema migration in Supabase. See supabase/work-directory-schema.sql');
+          }
           throw fetchError;
         }
 
@@ -292,6 +300,10 @@ export function useAssociates(): UseAssociatesResult {
 
         if (fetchError) {
           console.error('Error fetching work associates:', fetchError);
+          // Provide more helpful error message for missing table
+          if (fetchError.code === 'PGRST116' || fetchError.message?.includes('does not exist')) {
+            throw new Error('work_associates table does not exist. Please run the schema migration in Supabase. See supabase/work-directory-schema.sql');
+          }
           throw fetchError;
         }
 
@@ -343,7 +355,13 @@ export function useUnitProfile(slug: string | undefined): UseUnitProfileResult {
         .eq('slug', slug)
         .single();
 
-      if (fetchError) throw fetchError;
+      if (fetchError) {
+        // Provide more helpful error message for missing table
+        if (fetchError.code === 'PGRST116' || fetchError.message?.includes('does not exist')) {
+          throw new Error('work_units table does not exist. Please run the schema migration in Supabase. See supabase/work-directory-schema.sql');
+        }
+        throw fetchError;
+      }
       
       const mappedUnit = data ? mapUnitRow(data) : null;
       setUnit(mappedUnit);
