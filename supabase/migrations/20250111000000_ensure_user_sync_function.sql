@@ -98,3 +98,4 @@ GRANT SELECT ON users_sync_status TO authenticated;
 
 COMMENT ON VIEW users_sync_status IS 'View to check user sync status in users_local table';
 
+
