@@ -930,6 +930,28 @@ export function DQWorkDirectoryPage() {
                     </p>
                   </div>
                 )}
+                {(unitsError?.includes('Permission denied') || 
+                   positionsError?.includes('Permission denied') || 
+                   associatesError?.includes('Permission denied') ||
+                   unitsError?.includes('row-level security') ||
+                   positionsError?.includes('row-level security') ||
+                   associatesError?.includes('row-level security')) && (
+                  <div className="text-xs text-gray-700 mt-4 p-6 bg-yellow-50 rounded-lg border border-yellow-200 max-w-3xl mx-auto text-left">
+                    <p className="font-semibold mb-3 text-yellow-900">🔒 Permission Issue Detected:</p>
+                    <p className="mb-3">Your tables exist but Row Level Security (RLS) is blocking access.</p>
+                    <ol className="list-decimal list-inside space-y-2 mb-4">
+                      <li>Go to <a href="https://app.supabase.com" target="_blank" rel="noopener noreferrer" className="text-yellow-700 underline font-medium">Supabase Dashboard</a> → Select your project</li>
+                      <li>Navigate to <strong>SQL Editor</strong> → Click <strong>New Query</strong></li>
+                      <li>Open the file <code className="bg-yellow-100 px-2 py-1 rounded text-xs font-mono">supabase/fix-work-directory-rls.sql</code> from this project</li>
+                      <li>Copy the entire contents and paste into the SQL Editor</li>
+                      <li>Click <strong>Run</strong> to fix RLS policies</li>
+                      <li>Refresh this page</li>
+                    </ol>
+                    <p className="text-xs text-gray-600 italic">
+                      This will enable public read access to your work directory tables
+                    </p>
+                  </div>
+                )}
                 {(unitsError?.includes('not initialized') || 
                    positionsError?.includes('not initialized') || 
                    associatesError?.includes('not initialized')) && (
