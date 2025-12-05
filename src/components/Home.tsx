@@ -264,222 +264,215 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
-  // Services (unchanged)
+  // Services organized by new categories
   const allServices = useMemo(() => {
     return {
-      finance: [
+      learningKnowledge: [
         {
-          id: "dq-lms-courses",
-          title: "DQ LMS Courses",
+          id: "courses",
+          title: "Courses",
           description:
-            "Access DQ's Learning Hub to grow skills and master courses that shape your professional journey",
+            "Explore LMS courses across GHC, 6xD, DWS, DXP, and core curricula.",
           icon: <GraduationCap />,
           path: "/marketplace/courses",
           isActive: true,
         },
         {
-          id: "dq-onboarding-flows",
-          title: "DQ Onboarding Flows",
+          id: "onboarding",
+          title: "Onboarding",
           description:
-            "Navigate clear onboarding flows to connect faster and feel confident from your first day.",
+            "Follow onboarding tracks to complete role-based learning and setup.",
           icon: <Compass />,
           path: "/onboarding",
           isActive: true,
         },
         {
-          id: "dq-guideline-center-dco",
-          title: "DQ DCO Guidelines",
+          id: "strategy-guide",
+          title: "Strategy Guide",
           description:
-            "Discover DQ’s core workflows, policies, and daily operational standards.",
-          icon: <BookIcon />,
-          path: "/marketplace/guides",
+            "Understand DQ's journey, history, 6xD, initiatives, clients, and operating models.",
+          icon: <BarChart />,
+          path: "#",
           isActive: true,
         },
         {
-          id: "dq-guideline-center-dbp",
-          title: "DQ DBP Guidelines",
+          id: "operational-guide",
+          title: "Operational Guide",
           description:
-            "Explore DQ’s build standards,templates, and development processes.",
+            "Access operational guidelines, policies, templates, and governance playbooks.",
           icon: <BookIcon />,
-          path: '/marketplace/guides',
-          isActive: true
-        }
-      ],
-      advisory: [
+          path: "#",
+          isActive: true,
+        },
         {
-          id: "dq-services-requests",
-          title: "DQ Services & Requests",
+          id: "knowledge-library",
+          title: "Knowledge Library",
           description:
-            "Access HR, IT, and Finance services in one place. Track requests and manage workflows easily.",
+            "Browse glossaries, FAQs, and reference resources for everyday work.",
+          icon: <BookOpen />,
+          path: "#",
+          isActive: true,
+        },
+      ],
+      servicesDigital: [
+        {
+          id: "technology-services",
+          title: "Technology Services",
+          description:
+            "Submit technology requests: queries, support, environments, and self-service tools.",
           icon: <Briefcase />,
-          path: "/marketplace/guides",
+          path: "#",
           isActive: true,
         },
         {
-          id: "self-service-center",
-          title: "Self-Service Center",
+          id: "business-services",
+          title: "Business Services",
           description:
-            "Find templates and dashboards that empower independent, efficient daily work.",
+            "Submit business, finance, and admin requests through a unified console.",
           icon: <Globe />,
-          path: "/marketplace/guides",
+          path: "#",
           isActive: true,
         },
         {
-          id: "self-service-tools",
-          title: "Self-Service Tools",
+          id: "digital-worker-tools",
+          title: "Digital Worker Tools",
           description:
-            "Use smart digital shortcuts and assistants that simplify your everyday tasks.",
+            "Use Doc Writers, prompting kits, AI tools, agents, and BPM helpers for delivery.",
           icon: <Lightbulb />,
-          path: "/marketplace/guides",
-          isActive: false,
+          path: "#",
+          isActive: true,
         },
         {
-          id: "service-integrations",
-          title: "Service Integrations",
+          id: "blueprint-library",
+          title: "Blueprint Library",
           description:
-            "Connect your favorite DQ apps and automate workflows seamlessly.",
-          icon: <TrendingUp />,
-          path: "/marketplace/guides",
-          isActive: false,
+            "Access blueprint packs for 6xD design, DevOps, DBP, DXP, and DWS delivery.",
+          icon: <Compass />,
+          path: "#",
+          isActive: true,
         },
       ],
-      growth: [
+      workCollaboration: [
         {
-          id: "units-directory",
-          title: "Units & Associates Directory",
+          id: "work-sessions",
+          title: "Work Sessions",
           description:
-            "Explore people and units across DQ to connect, collaborate, and grow together.",
-          icon: <Users />,
-          path: "/marketplace/guides",
+            "Run daily and weekly work sessions, reviews, retros, and collaborator touchpoints.",
+          icon: <Clock />,
+          path: "/marketplace/activities",
           isActive: true,
         },
         {
-          id: "communities-surveys",
-          title: "Communities & Surveys",
+          id: "projects-tasks",
+          title: "Projects & Tasks",
           description:
-            "Join conversations that shape DQ's culture and share feedback that drives improvement.",
+            "Manage tasks, planners, chat threads, and ATP delivery activities.",
+          icon: <ClipboardList />,
+          path: "/marketplace/activities",
+          isActive: true,
+        },
+        {
+          id: "performance-trackers",
+          title: "Performance Trackers",
+          description:
+            "Track statuses, categories, descriptions, and live workflow updates.",
+          icon: <TrendingUp />,
+          path: "#",
+          isActive: true,
+        },
+        {
+          id: "team-discussions",
+          title: "Team Discussions",
+          description:
+            "Join forums on topics, DNA practices, learnings, and team conversations.",
+          icon: <MessageCircle />,
+          path: "/communities",
+          isActive: true,
+        },
+        {
+          id: "pulse-insights",
+          title: "Pulse Insights",
+          description:
+            "Share insights through polls, surveys, and feedback loops.",
           icon: <HeartHandshake />,
           path: "/communities",
+          isActive: true,
+        },
+      ],
+      cultureEvents: [
+        {
+          id: "dq-media-center",
+          title: "DQ Media Center",
+          description:
+            "View DQ updates, corporate news, trends, and essential announcements.",
+          icon: <Newspaper />,
+          path: "/marketplace/opportunities",
+          isActive: true,
+        },
+        {
+          id: "career-opportunities",
+          title: "Career Opportunities",
+          description:
+            "Browse new job postings and internal career opportunities.",
+          icon: <JobIcon />,
+          path: "/marketplace/opportunities?tab=opportunities",
+          isActive: true,
+        },
+        {
+          id: "blogs-stories",
+          title: "Blogs & Stories",
+          description:
+            "Read stories, updates, and insights from teams across DQ.",
+          icon: <BookIcon />,
+          path: "/marketplace/opportunities?tab=insights",
           isActive: true,
         },
         {
           id: "events-calendars",
           title: "Events & Calendars",
           description:
-            "Stay in sync with everything DQ, from weekly huddles to cultural events.",
+            "Stay aligned with scheduled huddles, events, calendars, and logistics.",
           icon: <Calendar />,
           path: "/events",
           isActive: true,
         },
-        {
-          id: "dq-activities",
-          title: "DQ Activities",
-          description:
-            "Track priorities, manage tasks, and collaborate seamlessly within DQ's workspaces.",
-          icon: <ClipboardList />,
-          path: "/marketplace/activities",
-          isActive: true,
-        },
-        {
-          id: "news-announcements",
-          title: "DQ Media Center",
-          description:
-            "See daily DQ updates, success stories, and highlights that keep every team informed and inspired.",
-          icon: <Newspaper />,
-          path: "/marketplace/opportunities",
-          isActive: true,
-        },
       ],
-      learning: [
+      peopleOrg: [
         {
-          id: "dq-faqs",
-          title: "DQ FAQs",
+          id: "units-directory",
+          title: "Units Directory",
           description:
-            "Browse DQ's FAQ hub for quick answers and shared insights from across our teams.",
-          icon: <MessageCircle />,
-          path: '/marketplace/guides',
-          isActive: true
-        },
-        {
-          id: "asset-library",
-          title: "DQ Glossary",
-          description:
-            "Decode DQ terminology with clear definitions updated by teams across the organization.",
+            "Explore sectors, units, mandates, priorities, and performance data.",
           icon: <Building />,
-          path: "/marketplace/guides",
+          path: "#",
           isActive: true,
         },
         {
-          id: "blueprint-library",
-          title: "DQ DBP Blueprints Library",
+          id: "positions-directory",
+          title: "Positions Directory",
           description:
-            "Access blueprint structures and delivery frameworks for DBP development.",
-          icon: <Compass />,
-          path: '/marketplace/guides',
-          isActive: true
-        },
-        {
-          id: "reference-library-products",
-          title: "DQ Product Library",
-          description:
-            "Find product reference materials and documentation for ongoing builds.",
-          icon: <Compass />,
-          path: "/blueprints",
+            "Browse DQ positions, role descriptions, and key responsibilities.",
+          icon: <Briefcase />,
+          path: "#",
           isActive: true,
         },
         {
-          id: "strategy-center",
-          title: "Strategy Center",
+          id: "associates-directory",
+          title: "Associates Directory",
           description:
-            "Understand how DQ's initiatives align with its purpose, DNA, and vision.",
-          icon: <BarChart />,
-          path: "/marketplace/guides",
+            "View associate profiles, contacts, skills, and performance details.",
+          icon: <Users />,
+          path: "#",
           isActive: true,
         },
         {
-          id: "job-center",
-          title: "Job Center",
+          id: "client-testimonials",
+          title: "Client Testimonials",
           description:
-            "Find roles, mobility opportunities, and career paths to grow within DQ.",
-          icon: <JobIcon />,
-          path: "/marketplace/guides",
-          isActive: true,
-        },
-        {
-          id: "asset-libraey",
-          title: "Asset Library",
-          description:
-            "Access logos, templates, and assets for consistent DQ communication and design.",
-          icon: <BookOpen />,
-          path: '/marketplace/guides',
-          isActive: true
-        },
-        {
-          id: "knowledge-base",
-          title: "Knowledge Base",
-          description:
-            "Follow step-by-step answers covering tools, governance, and support workflows across DQ.",
-          icon: <BookIcon />,
-          path: '/marketplace/guides',
-          isActive: true
-        },
-        {
-          id: "research-hub",
-          title: "Research Hub",
-          description:
-            "Explore insights, data, and reports powering DQ's continuous transformation and decision making.",
-          icon: <Lightbulb />,
-          path: "/marketplace/guides",
-          isActive: false,
-        },
-        {
-          id: "template-library",
-          title: "Template Library",
-          description:
-            "Download ready-to-use decks and documents to share DQ initiatives with polish and consistency.",
+            "Explore client stories, cases, achievements, and leadership references.",
           icon: <Award />,
-          path: "/marketplace/guides",
-          isActive: false,
+          path: "#",
+          isActive: true,
         },
       ],
     };
@@ -488,7 +481,7 @@ export const HomePage: React.FC = () => {
   /* --------- ROW COLORS + EJP BUTTON/ICON TREATMENT (UPDATED) --------- */
   const sectionStyles: Record<string, SectionStyle> = {
     // ROW 1 — Navy gradient
-    "Learning & Enablement": {
+    "Learning & Work Knowledge Hub": {
       cardClasses:
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
       headingClass: "text-white",
@@ -503,8 +496,8 @@ export const HomePage: React.FC = () => {
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed",
     },
 
-    // ROW 2 — Navy gradient (matching Learning & Enablement)
-    "Services & Requests": {
+    // ROW 2 — Navy gradient (matching Learning & Work Knowledge Hub)
+    "Services & Digital Enablement": {
       cardClasses:
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
       headingClass: "text-white",
@@ -519,8 +512,8 @@ export const HomePage: React.FC = () => {
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed",
     },
 
-    // ROW 3 — Navy gradient (matching Learning & Enablement)
-    "Collaboration & Communities": {
+    // ROW 3 — Navy gradient (matching Learning & Work Knowledge Hub)
+    "Work Execution & Collaboration": {
       cardClasses:
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
       headingClass: "text-white",
@@ -535,8 +528,24 @@ export const HomePage: React.FC = () => {
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed",
     },
 
-    // ROW 4 — Navy gradient (matching Learning & Enablement)
-    "Resources & Libraries": {
+    // ROW 4 — Navy gradient (matching Learning & Work Knowledge Hub)
+    "Culture, Events & Communications": {
+      cardClasses:
+        "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
+      headingClass: "text-white",
+      descriptionClass: "text-white/90",
+      iconClass: "text-[#030F35]",
+      buttonClasses:
+        "text-white bg-[#030F35] hover:bg-[#13285A] " +
+        "border border-[rgba(255,255,255,0.22)] focus:ring-[#030F35] focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200",
+      hoverOverlayClass: "bg-white/10",
+      iconWrapperClass: "w-10 h-10",
+      disabledCardClasses:
+        "bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed",
+    },
+
+    // ROW 5 — Navy gradient (matching Learning & Work Knowledge Hub)
+    "People & Organization Hub": {
       cardClasses:
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
       headingClass: "text-white",
@@ -552,7 +561,10 @@ export const HomePage: React.FC = () => {
     },
   };
 
-  const handleServiceClick = (path: string) => navigate(path);
+  const handleServiceClick = (path: string) => {
+    if (path === "#" || !path) return; // Don't navigate if path is # or empty
+    navigate(path);
+  };
 
   return (
     <div className="bg-white py-16">
@@ -571,86 +583,26 @@ export const HomePage: React.FC = () => {
             </div>
           </FadeInUpOnScroll>
 
-          {/* Row 1 */}
+          {/* Row 1: Learning & Work Knowledge Hub */}
           <div className="mb-10">
             <FadeInUpOnScroll>
               <CategoryHeader
                 icon={<GraduationCap size={24} />}
-                title="Learning & Enablement"
-                count={4}
-              />
-            </FadeInUpOnScroll>
-            <ServiceCarousel
-              services={allServices.finance}
-              renderCard={(service) => {
-                const index = allServices.finance.findIndex(
-                  (item) => item.id === service.id
-                );
-                return (
-                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
-                    <ServiceCard
-                      service={service}
-                      sectionStyle={sectionStyles["Learning & Enablement"]}
-                      onClick={() => handleServiceClick(service.path)}
-                      isComingSoon={!service.isActive}
-                    />
-                  </FadeInUpOnScroll>
-                );
-              }}
-            />
-          </div>
-
-          {/* Row 2 */}
-          <div className="mb-10">
-            <FadeInUpOnScroll>
-              <CategoryHeader
-                icon={<Briefcase size={24} />}
-                title="Services & Requests"
-                count={4}
-              />
-            </FadeInUpOnScroll>
-            <ServiceCarousel
-              services={allServices.advisory}
-              renderCard={(service) => {
-                const index = allServices.advisory.findIndex(
-                  (item) => item.id === service.id
-                );
-                return (
-                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
-                    <ServiceCard
-                      service={service}
-                      sectionStyle={sectionStyles["Services & Requests"]}
-                      onClick={() => handleServiceClick(service.path)}
-                      isComingSoon={!service.isActive}
-                    />
-                  </FadeInUpOnScroll>
-                );
-              }}
-            />
-          </div>
-
-          {/* Row 3 */}
-          <div className="mb-10">
-            <FadeInUpOnScroll>
-              <CategoryHeader
-                icon={<Users size={24} />}
-                title="Collaboration & Communities"
+                title="Learning & Work Knowledge Hub"
                 count={5}
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
-              services={allServices.growth}
+              services={allServices.learningKnowledge}
               renderCard={(service) => {
-                const index = allServices.growth.findIndex(
+                const index = allServices.learningKnowledge.findIndex(
                   (item) => item.id === service.id
                 );
                 return (
                   <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
                     <ServiceCard
                       service={service}
-                      sectionStyle={
-                        sectionStyles["Collaboration & Communities"]
-                      }
+                      sectionStyle={sectionStyles["Learning & Work Knowledge Hub"]}
                       onClick={() => handleServiceClick(service.path)}
                       isComingSoon={!service.isActive}
                     />
@@ -660,26 +612,113 @@ export const HomePage: React.FC = () => {
             />
           </div>
 
-          {/* Row 4 */}
+          {/* Row 2: Services & Digital Enablement */}
           <div className="mb-10">
             <FadeInUpOnScroll>
               <CategoryHeader
-                icon={<BookOpen size={24} />}
-                title="Resources & Libraries"
-                count={10}
+                icon={<Briefcase size={24} />}
+                title="Services & Digital Enablement"
+                count={4}
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
-              services={allServices.learning}
+              services={allServices.servicesDigital}
               renderCard={(service) => {
-                const index = allServices.learning.findIndex(
+                const index = allServices.servicesDigital.findIndex(
                   (item) => item.id === service.id
                 );
                 return (
                   <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
                     <ServiceCard
                       service={service}
-                      sectionStyle={sectionStyles["Resources & Libraries"]}
+                      sectionStyle={sectionStyles["Services & Digital Enablement"]}
+                      onClick={() => handleServiceClick(service.path)}
+                      isComingSoon={!service.isActive}
+                    />
+                  </FadeInUpOnScroll>
+                );
+              }}
+            />
+          </div>
+
+          {/* Row 3: Work Execution & Collaboration */}
+          <div className="mb-10">
+            <FadeInUpOnScroll>
+              <CategoryHeader
+                icon={<Users size={24} />}
+                title="Work Execution & Collaboration"
+                count={5}
+              />
+            </FadeInUpOnScroll>
+            <ServiceCarousel
+              services={allServices.workCollaboration}
+              renderCard={(service) => {
+                const index = allServices.workCollaboration.findIndex(
+                  (item) => item.id === service.id
+                );
+                return (
+                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
+                    <ServiceCard
+                      service={service}
+                      sectionStyle={sectionStyles["Work Execution & Collaboration"]}
+                      onClick={() => handleServiceClick(service.path)}
+                      isComingSoon={!service.isActive}
+                    />
+                  </FadeInUpOnScroll>
+                );
+              }}
+            />
+          </div>
+
+          {/* Row 4: Culture, Events & Communications */}
+          <div className="mb-10">
+            <FadeInUpOnScroll>
+              <CategoryHeader
+                icon={<Newspaper size={24} />}
+                title="Culture, Events & Communications"
+                count={4}
+              />
+            </FadeInUpOnScroll>
+            <ServiceCarousel
+              services={allServices.cultureEvents}
+              renderCard={(service) => {
+                const index = allServices.cultureEvents.findIndex(
+                  (item) => item.id === service.id
+                );
+                return (
+                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
+                    <ServiceCard
+                      service={service}
+                      sectionStyle={sectionStyles["Culture, Events & Communications"]}
+                      onClick={() => handleServiceClick(service.path)}
+                      isComingSoon={!service.isActive}
+                    />
+                  </FadeInUpOnScroll>
+                );
+              }}
+            />
+          </div>
+
+          {/* Row 5: People & Organization Hub */}
+          <div className="mb-10">
+            <FadeInUpOnScroll>
+              <CategoryHeader
+                icon={<Building size={24} />}
+                title="People & Organization Hub"
+                count={4}
+              />
+            </FadeInUpOnScroll>
+            <ServiceCarousel
+              services={allServices.peopleOrg}
+              renderCard={(service) => {
+                const index = allServices.peopleOrg.findIndex(
+                  (item) => item.id === service.id
+                );
+                return (
+                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
+                    <ServiceCard
+                      service={service}
+                      sectionStyle={sectionStyles["People & Organization Hub"]}
                       onClick={() => handleServiceClick(service.path)}
                       isComingSoon={!service.isActive}
                     />
