@@ -553,6 +553,10 @@ export function DQWorkDirectoryPage() {
     setProfileLoading(true);
     setProfile(null);
     try {
+      if (!supabase) {
+        throw new Error('Supabase client is not initialized. Please check your environment variables.');
+      }
+      
       let fetched: EmployeeProfile | null = null;
       if (associate.email) {
         const { data, error } = await supabase

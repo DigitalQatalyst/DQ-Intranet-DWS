@@ -125,6 +125,11 @@ export function useWorkUnits(): UseWorkUnitsResult {
     const fetchUnits = async () => {
       try {
         setLoading(true);
+        
+        if (!supabaseClient) {
+          throw new Error('Supabase client is not initialized. Please check your environment variables.');
+        }
+        
         const { data, error: fetchError } = await supabaseClient
           .from('work_units')
           .select('*')
@@ -181,6 +186,10 @@ export function useWorkUnits(): UseWorkUnitsResult {
         updateData.performance_notes = data.performanceNotes;
       }
 
+      if (!supabaseClient) {
+        return { error: new Error('Supabase client is not initialized. Please check your environment variables.') };
+      }
+
       const { error: updateError } = await supabaseClient
         .from('work_units')
         .update(updateData)
@@ -225,6 +234,11 @@ export function useWorkPositions(): UseWorkPositionsResult {
     const fetchPositions = async () => {
       try {
         setLoading(true);
+        
+        if (!supabaseClient) {
+          throw new Error('Supabase client is not initialized. Please check your environment variables.');
+        }
+        
         const { data, error: fetchError } = await supabaseClient
           .from('work_positions')
           .select('*')
@@ -266,6 +280,11 @@ export function useAssociates(): UseAssociatesResult {
     const fetchAssociates = async () => {
       try {
         setLoading(true);
+        
+        if (!supabaseClient) {
+          throw new Error('Supabase client is not initialized. Please check your environment variables.');
+        }
+        
         const { data, error: fetchError } = await supabaseClient
           .from('work_associates')
           .select('*')
@@ -313,6 +332,11 @@ export function useUnitProfile(slug: string | undefined): UseUnitProfileResult {
 
     try {
       setLoading(true);
+      
+      if (!supabaseClient) {
+        throw new Error('Supabase client is not initialized. Please check your environment variables.');
+      }
+      
       const { data, error: fetchError } = await supabaseClient
         .from('work_units')
         .select('*')
@@ -326,7 +350,7 @@ export function useUnitProfile(slug: string | undefined): UseUnitProfileResult {
       setError(null);
 
       // Fetch related associates
-      if (mappedUnit) {
+      if (mappedUnit && supabaseClient) {
         setAssociatesLoading(true);
         const { data: associatesData, error: associatesError } = await supabaseClient
           .from('work_associates')
