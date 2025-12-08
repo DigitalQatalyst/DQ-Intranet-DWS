@@ -17,7 +17,7 @@ const marketplaces: Marketplace[] = [
     name: 'DQ Learning Center',
     description: 'Explore LMS courses, onboarding tracks, and learning resources across GHC, 6xD, DWS, and DXP.',
     icon: GraduationCapIcon,
-    href: '#',
+    href: '/lms',
   },
   {
     id: 'services-center',
@@ -31,7 +31,7 @@ const marketplaces: Marketplace[] = [
     name: 'DQ Work Center',
     description: 'Run work sessions, manage projects & tasks, and track performance across workflows.',
     icon: TrendingUpIcon,
-    href: '#',
+    href: '/marketplace/activities',
   },
   {
     id: 'work-directory',
@@ -59,7 +59,7 @@ const marketplaces: Marketplace[] = [
     name: 'DQ Knowledge Center',
     description: 'Access strategy guides, operational guidelines, knowledge library, and reference resources.',
     icon: BookOpen,
-    href: '#',
+    href: '/marketplace/guides',
   },
 ];
 
@@ -183,8 +183,10 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
             {marketplaces.map((marketplace, index) => {
               const Icon = marketplace.icon;
               const isActive = 
+                (marketplace.id === 'learning-center' && location.pathname.startsWith('/lms')) ||
                 (marketplace.id === 'media-center' && (location.pathname.startsWith('/marketplace/opportunities') || location.pathname.startsWith('/marketplace/news'))) ||
-                (marketplace.id === 'work-directory' && location.pathname.startsWith('/marketplace/work-directory'));
+                (marketplace.id === 'work-directory' && location.pathname.startsWith('/marketplace/work-directory')) ||
+                (marketplace.id === 'work-center' && location.pathname.startsWith('/marketplace/activities'));
               return (
                 <a
                   key={marketplace.id}

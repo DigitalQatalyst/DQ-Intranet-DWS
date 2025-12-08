@@ -85,7 +85,7 @@ const DiscoverDQ: React.FC = () => {
   };
 
   const handleExploreLearningCenter = () => {
-    navigate("/resource-coming-soon?title=DQ%20Learning%20Center%20(Courses%20%26%20Curricula)");
+    navigate("/lms?tab=courses");
   };
 
   const handleExploreKnowledgeCenter = () => {

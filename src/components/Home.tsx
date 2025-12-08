@@ -24,6 +24,8 @@ import {
   CircleDot,
   ClipboardList,
   ChevronRight,
+  Star,
+  Layers,
 } from "lucide-react";
 import {
   AnimatedCounter,
@@ -274,8 +276,26 @@ export const HomePage: React.FC = () => {
           description:
             "Explore LMS courses across GHC, 6xD, DWS, DXP, and core curricula.",
           icon: <GraduationCap />,
-          path: "/marketplace/courses",
+          path: "/lms?tab=courses",
           isActive: true,
+        },
+        {
+          id: "learning-tracks",
+          title: "Learning Tracks",
+          description:
+            "Explore structured learning tracks that combine multiple courses into comprehensive learning journeys.",
+          icon: <Layers />,
+          path: "/lms?tab=tracks",
+          isActive: true,
+        },
+        {
+          id: "reviews",
+          title: "Reviews & Testimonials",
+          description:
+            "Read real experiences and insights from DQ associates who have completed courses.",
+          icon: <Star />,
+          path: "/lms?tab=reviews",
+          isActive: false,
         },
         {
           id: "onboarding",
@@ -284,7 +304,7 @@ export const HomePage: React.FC = () => {
             "Follow onboarding tracks to complete role-based learning and setup.",
           icon: <Compass />,
           path: "/onboarding",
-          isActive: true,
+          isActive: false,
         },
         {
           id: "strategy-guide",
@@ -292,7 +312,7 @@ export const HomePage: React.FC = () => {
           description:
             "Understand DQ's journey, history, 6xD, initiatives, clients, and operating models.",
           icon: <BarChart />,
-          path: "#",
+          path: "/marketplace/guides?tab=strategy",
           isActive: true,
         },
         {
@@ -301,7 +321,7 @@ export const HomePage: React.FC = () => {
           description:
             "Access operational guidelines, policies, templates, and governance playbooks.",
           icon: <BookIcon />,
-          path: "#",
+          path: "/marketplace/guides?tab=guidelines",
           isActive: true,
         },
         {
@@ -310,7 +330,7 @@ export const HomePage: React.FC = () => {
           description:
             "Browse glossaries, FAQs, and reference resources for everyday work.",
           icon: <BookOpen />,
-          path: "#",
+          path: "/marketplace/guides?tab=resources",
           isActive: true,
         },
       ],
@@ -348,7 +368,7 @@ export const HomePage: React.FC = () => {
           description:
             "Access blueprint packs for 6xD design, DevOps, DBP, DXP, and DWS delivery.",
           icon: <Compass />,
-          path: "#",
+          path: "/marketplace/guides?tab=blueprints",
           isActive: true,
         },
       ],
@@ -359,7 +379,7 @@ export const HomePage: React.FC = () => {
           description:
             "Run daily and weekly work sessions, reviews, retros, and collaborator touchpoints.",
           icon: <Clock />,
-          path: "/marketplace/activities",
+          path: "/marketplace/activities?tab=sessions",
           isActive: true,
         },
         {
@@ -368,7 +388,7 @@ export const HomePage: React.FC = () => {
           description:
             "Manage tasks, planners, chat threads, and ATP delivery activities.",
           icon: <ClipboardList />,
-          path: "/marketplace/activities",
+          path: "/marketplace/activities?tab=projects-tasks",
           isActive: true,
         },
         {
@@ -377,7 +397,7 @@ export const HomePage: React.FC = () => {
           description:
             "Track statuses, categories, descriptions, and live workflow updates.",
           icon: <TrendingUp />,
-          path: "#",
+          path: "/marketplace/activities?tab=trackers",
           isActive: true,
         },
         {
@@ -471,7 +491,7 @@ export const HomePage: React.FC = () => {
           description:
             "Explore client stories, cases, achievements, and leadership references.",
           icon: <Award />,
-          path: "#",
+          path: "/marketplace/guides?tab=testimonials",
           isActive: true,
         },
       ],
@@ -596,7 +616,7 @@ export const HomePage: React.FC = () => {
               <CategoryHeader
                 icon={<GraduationCap size={24} />}
                 title="Learning & Work Knowledge Hub"
-                count={5}
+                count={7}
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
