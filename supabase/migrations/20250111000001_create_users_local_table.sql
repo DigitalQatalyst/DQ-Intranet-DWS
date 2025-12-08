@@ -85,3 +85,5 @@ COMMENT ON COLUMN users_local.role IS 'User role: admin, moderator, or member';
 COMMENT ON COLUMN users_local.avatar_url IS 'URL to user avatar image';
 COMMENT ON COLUMN users_local.notification_settings IS 'JSON object storing user notification preferences';
 
+
+

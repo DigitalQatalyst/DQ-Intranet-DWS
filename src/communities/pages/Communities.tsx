@@ -1040,56 +1040,54 @@ export default function Communities() {
           </div>
         </div>
 
-        {/* Search Bar - Separate component, no container */}
-        <div className="mb-6">
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-            <div className="flex-1 w-full">
-              <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search communities by name or description..." />
-            </div>
-            <div className="flex items-center gap-4">
-              {/* Filter Button - Mobile/Tablet */}
-              <Sheet open={filterDrawerOpen} onOpenChange={setFilterDrawerOpen}>
-                <SheetTrigger asChild>
-                  <Button className="lg:hidden bg-brand-blue hover:bg-brand-darkBlue text-white flex items-center gap-2 transition-all duration-200 ease-in-out">
-                    <Filter size={18} />
-                    <span className="hidden sm:inline">Filters</span>
-                    {Object.keys(filters).length > 0 && <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs text-brand-blue font-medium">
-                        {Object.keys(filters).length}
-                      </span>}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent className="w-[300px] sm:w-[400px] bg-white">
-                  <div className="h-full flex flex-col">
-                    <div className="flex justify-between items-center mb-6">
-                      <h3 className="font-semibold text-lg">Filters</h3>
-                      {Object.keys(filters).length > 0 && <Button variant="ghost" size="sm" onClick={resetFilters} className="text-brand-blue text-sm font-medium hover:text-brand-darkBlue">
-                          Reset All
-                        </Button>}
-                    </div>
-                    <div className="flex-1 overflow-y-auto">
-                      <FilterSidebar filters={filters} filterConfig={filterConfig} onFilterChange={handleFilterChange} onResetFilters={resetFilters} />
-                    </div>
-                    <div className="pt-4 border-t mt-auto">
-                      <div className="flex justify-between items-center">
-                        <Button variant="outline" onClick={() => setFilterDrawerOpen(false)}>
-                          Cancel
-                        </Button>
-                        <Button onClick={() => setFilterDrawerOpen(false)} className="bg-brand-blue hover:bg-brand-darkBlue text-white transition-all duration-200 ease-in-out">
-                          Apply Filters
-                        </Button>
-                      </div>
-                    </div>
+        {/* Search Bar - Full width spanning from left to right edge of content container */}
+        <div className="mb-6 -ml-0 -mr-1 sm:-mr-2 lg:-mr-3">
+          <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search communities by name or description..." />
+        </div>
+        
+        {/* Action Buttons - Positioned separately */}
+        <div className="mb-6 flex items-center gap-4 pr-1 sm:pr-2 lg:pr-3">
+          {/* Filter Button - Mobile/Tablet */}
+          <Sheet open={filterDrawerOpen} onOpenChange={setFilterDrawerOpen}>
+            <SheetTrigger asChild>
+              <Button className="lg:hidden bg-brand-blue hover:bg-brand-darkBlue text-white flex items-center gap-2 transition-all duration-200 ease-in-out">
+                <Filter size={18} />
+                <span className="hidden sm:inline">Filters</span>
+                {Object.keys(filters).length > 0 && <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs text-brand-blue font-medium">
+                    {Object.keys(filters).length}
+                  </span>}
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="w-[300px] sm:w-[400px] bg-white">
+              <div className="h-full flex flex-col">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="font-semibold text-lg">Filters</h3>
+                  {Object.keys(filters).length > 0 && <Button variant="ghost" size="sm" onClick={resetFilters} className="text-brand-blue text-sm font-medium hover:text-brand-darkBlue">
+                      Reset All
+                    </Button>}
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <FilterSidebar filters={filters} filterConfig={filterConfig} onFilterChange={handleFilterChange} onResetFilters={resetFilters} />
+                </div>
+                <div className="pt-4 border-t mt-auto">
+                  <div className="flex justify-between items-center">
+                    <Button variant="outline" onClick={() => setFilterDrawerOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={() => setFilterDrawerOpen(false)} className="bg-brand-blue hover:bg-brand-darkBlue text-white transition-all duration-200 ease-in-out">
+                      Apply Filters
+                    </Button>
                   </div>
-                </SheetContent>
-              </Sheet>
-              {/* Create Community button */}
-              {user && <Button onClick={() => setCreateModalOpen(true)} className="bg-brand-blue hover:bg-brand-darkBlue text-white gap-2 transition-all duration-200 ease-in-out">
-                  <PlusCircle className="h-4 w-4" />
-                  <span className="hidden sm:inline">Create Community</span>
-                  <span className="sm:hidden">Create</span>
-                </Button>}
-            </div>
-          </div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+          {/* Create Community button */}
+          {user && <Button onClick={() => setCreateModalOpen(true)} className="bg-brand-blue hover:bg-brand-darkBlue text-white gap-2 transition-all duration-200 ease-in-out">
+              <PlusCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">Create Community</span>
+              <span className="sm:hidden">Create</span>
+            </Button>}
         </div>
 
         {/* Active filters display - Mobile */}

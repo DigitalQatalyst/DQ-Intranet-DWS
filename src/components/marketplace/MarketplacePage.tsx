@@ -613,12 +613,85 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       // EVENTS: fetch from Supabase
       if (isEvents) {
         setLoading(true);
+        setError(null);
         try {
           let data: SupabaseEvent[] | null = null;
           let error: any = null;
 
           // Fetch from events_v2 table (primary source)
           const now = new Date().toISOString();
+          console.log('[Events Marketplace] Fetching events with filters:', {
+            searchQuery,
+            activeFilters,
+            now
+          });
+          
+          // Diagnostic: Check what's in the database
+          console.log('[Events Marketplace] Running database diagnostics...');
+          
+          const diagnosticQuery = await supabaseClient
+            .from("events_v2")
+            .select("*", { count: 'exact', head: true });
+          
+          const allEventsQuery = await supabaseClient
+            .from("events_v2")
+            .select("id, title, status, start_time", { count: 'exact' })
+            .limit(10);
+          
+          const publishedEventsQuery = await supabaseClient
+            .from("events_v2")
+            .select("id, title, status, start_time", { count: 'exact' })
+            .eq("status", "published")
+            .limit(10);
+          
+          const futureEventsQuery = await supabaseClient
+            .from("events_v2")
+            .select("id, title, status, start_time", { count: 'exact' })
+            .gte("start_time", now)
+            .limit(10);
+          
+          console.log('[Events Marketplace] ===== DATABASE DIAGNOSTICS =====');
+          console.log('Total events in events_v2 table:', diagnosticQuery.count || 0);
+          console.log('Published events count:', publishedEventsQuery.count || 0);
+          console.log('Future events count (start_time >= now):', futureEventsQuery.count || 0);
+          console.log('Current time (now):', now);
+          
+          if (allEventsQuery.data && allEventsQuery.data.length > 0) {
+            console.log('Sample of ALL events (first 3):', allEventsQuery.data.slice(0, 3).map(e => ({
+              id: e.id,
+              title: e.title,
+              status: e.status,
+              start_time: e.start_time,
+              isFuture: new Date(e.start_time) >= new Date(now)
+            })));
+          } else {
+            console.log('No events found in events_v2 table');
+          }
+          
+          if (publishedEventsQuery.data && publishedEventsQuery.data.length > 0) {
+            console.log('Sample of PUBLISHED events (first 3):', publishedEventsQuery.data.slice(0, 3).map(e => ({
+              id: e.id,
+              title: e.title,
+              status: e.status,
+              start_time: e.start_time,
+              isFuture: new Date(e.start_time) >= new Date(now)
+            })));
+          } else {
+            console.log('No published events found');
+          }
+          
+          if (futureEventsQuery.data && futureEventsQuery.data.length > 0) {
+            console.log('Sample of FUTURE events (first 3):', futureEventsQuery.data.slice(0, 3).map(e => ({
+              id: e.id,
+              title: e.title,
+              status: e.status,
+              start_time: e.start_time
+            })));
+          } else {
+            console.log('No future events found');
+          }
+          
+          console.log('[Events Marketplace] ===== END DIAGNOSTICS =====');
           
           let eventsQuery = supabaseClient
             .from("events_v2")
@@ -777,19 +850,28 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
           const queryResult = await eventsQuery;
 
+          console.log('[Events Marketplace] Query result:', {
+            hasData: !!queryResult.data,
+            dataLength: queryResult.data?.length || 0,
+            hasError: !!queryResult.error,
+            error: queryResult.error
+          });
+
           if (!queryResult.error && queryResult.data) {
             data = queryResult.data;
+            console.log(`[Events Marketplace] Successfully fetched ${data.length} events`);
           } else {
             error = queryResult.error || new Error("Events_v2 table query failed");
+            console.error('[Events Marketplace] Query error:', error);
           }
 
           // Handle errors gracefully - for events, don't use fallback data
           if (error && (!data || data.length === 0)) {
             if (error?.code === '42501') {
-              console.warn("Permission denied: Events may require authentication or proper RLS policies.");
+              console.warn("[Events Marketplace] Permission denied: Events may require authentication or proper RLS policies.");
               setError("Permission denied: Events may require authentication or proper RLS policies.");
             } else {
-              console.error("Error fetching events:", error);
+              console.error("[Events Marketplace] Error fetching events:", error);
               setError(`Failed to load events: ${error?.message || 'Unknown error'}`);
             }
             // Show empty state instead of fallback data
@@ -801,7 +883,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           }
 
           if (!data || data.length === 0) {
-            console.log("No events found in Supabase");
+            console.log("[Events Marketplace] No events found in Supabase - this may be normal if there are no published future events");
             // Show empty state - no fallback to mock data
             setItems([]);
             setFilteredItems([]);
@@ -1322,7 +1404,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
         {/* Search + Sort */}
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex-1">
+          <div className="flex-1 w-full">
             <SearchBar
               searchQuery={isGuides ? (queryParams.get('q') || '') : searchQuery}
               setSearchQuery={(q: string) => {

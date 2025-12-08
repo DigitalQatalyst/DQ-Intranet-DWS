@@ -115,6 +115,14 @@ END $$;
 -- STEP 3: Add comments
 -- ============================================
 
-COMMENT ON TABLE community_post_reactions_new IS 'Reactions table for posts - user_id references users_local.id (Azure AD users)';
-COMMENT ON TABLE community_post_comments_new IS 'Comments table for posts - user_id references users_local.id (Azure AD users)';
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'community_post_reactions_new') THEN
+    COMMENT ON TABLE community_post_reactions_new IS 'Reactions table for posts - user_id references users_local.id (Azure AD users)';
+  END IF;
+  
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'community_post_comments_new') THEN
+    COMMENT ON TABLE community_post_comments_new IS 'Comments table for posts - user_id references users_local.id (Azure AD users)';
+  END IF;
+END $$;
 
