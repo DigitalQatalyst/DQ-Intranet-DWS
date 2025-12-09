@@ -10,6 +10,7 @@ type Service = {
   gradientFrom?: string;
   gradientTo?: string;
   isActive?: boolean;
+  isTabbedCard?: boolean;
 };
 
 export default function ServiceCarousel({

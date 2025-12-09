@@ -33,6 +33,7 @@ import {
   useInView,
 } from "./AnimationUtils.tsx";
 import ServiceCarousel from "./marketplace/ServiceCarousel.tsx";
+import { DirectoryHubCard } from "./DirectoryHubCard.tsx";
 
 /* ----------------------------- AI Chatbot ----------------------------- */
 const AIChatbot = () => {
@@ -459,31 +460,14 @@ export const HomePage: React.FC = () => {
       ],
       peopleOrg: [
         {
-          id: "units-directory",
-          title: "Units Directory",
+          id: "work-directory-hub",
+          title: "Work Directory Hub",
           description:
-            "Explore sectors, units, mandates, priorities, and performance data.",
+            "Explore units, positions, and associates in one unified directory.",
           icon: <Building />,
-          path: "/marketplace/work-directory?tab=units",
+          path: "/marketplace/work-directory",
           isActive: true,
-        },
-        {
-          id: "positions-directory",
-          title: "Positions Directory",
-          description:
-            "Browse DQ positions, role descriptions, and key responsibilities.",
-          icon: <Briefcase />,
-          path: "/marketplace/work-directory?tab=positions",
-          isActive: true,
-        },
-        {
-          id: "associates-directory",
-          title: "Associates Directory",
-          description:
-            "View associate profiles, contacts, skills, and performance details.",
-          icon: <Users />,
-          path: "/marketplace/work-directory?tab=associates",
-          isActive: true,
+          isTabbedCard: true, // Special flag for tabbed card
         },
         {
           id: "client-testimonials",
@@ -732,7 +716,7 @@ export const HomePage: React.FC = () => {
               <CategoryHeader
                 icon={<Building size={24} />}
                 title="People & Organization Hub"
-                count={4}
+                count={2}
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
@@ -741,6 +725,17 @@ export const HomePage: React.FC = () => {
                 const index = allServices.peopleOrg.findIndex(
                   (item) => item.id === service.id
                 );
+                // Check if this is the tabbed directory card
+                if (service.isTabbedCard) {
+                  return (
+                    <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
+                      <DirectoryHubCard
+                        sectionStyle={sectionStyles["People & Organization Hub"]}
+                      />
+                    </FadeInUpOnScroll>
+                  );
+                }
+                // Regular service card
                 return (
                   <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
                     <ServiceCard
