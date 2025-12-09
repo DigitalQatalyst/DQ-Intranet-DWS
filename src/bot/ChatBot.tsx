@@ -1,275 +1,54 @@
-// "use client";
-// import React, { useEffect, useRef } from "react";
-// import { usePathname } from "next/navigation";
+import React, { useState } from "react";
+import { MessageCircle, X } from "lucide-react";
 
-// declare global {
-//   interface Window {
-//     voiceflow?: {
-//       chat?: {
-//         load: (opts: any) => Promise<void>;
-//         close?: () => void;
-//         interact?: (payload: any) => void;
-//         destroy?: () => void;
-//       };
-//     };
-//   }
-// }
+export function ChatBot() {
+  const [isOpen, setIsOpen] = useState(false);
 
-// // page specific detection enabled
+  return (
+    <>
+      {/* Floating button */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[image:var(--dq-cta-gradient)] text-white flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 z-50 animate-pulse hover:animate-none hover:brightness-105"
+        aria-label="Open AI Assistant"
+      >
+        <MessageCircle size={24} />
+      </button>
 
-// const KfBot = () => {
-//   const pathname = usePathname();
-//   const isInitialized = useRef(false);
-
-//   useEffect(() => {
-//     const initializeVoiceflow = async () => {
-//       // If already initialized, destroy the existing instance
-//       if (isInitialized.current && window.voiceflow?.chat) {
-//         window.voiceflow.chat.destroy?.();
-//         window.voiceflow.chat.close?.();
-//       }
-
-//       // Remove existing script if it exists
-//       const existingScript = document.getElementById("voiceflow-script");
-//       if (existingScript) {
-//         existingScript.remove();
-//       }
-
-//       // Create and load new script
-//       const script = document.createElement("script");
-//       script.id = "voiceflow-script";
-//       script.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs";
-
-//       script.onload = async () => {
-//         const stylesheet =
-//           "data:text/css;base64," +
-//           btoa(`
-//           .vfrc-launcher {
-//             background-color: #ffffff !important;
-//             color: #ffffff !important;
-//             width: 60px !important;
-//             height: 60px !important;
-//             border-radius: 50% !important;
-//           }
-//           .vfrc-launcher:hover {
-//             background-color: #ffffff !important;
-//           }
-//         `);
-
-//         const sharedConfig = {
-//           verify: { projectID: "6849bea9894655c0d600d259" },
-//           url: "https://general-runtime.voiceflow.com",
-//           versionID: "production",
-//           assistant: {
-//             stylesheet,
-//           },
-//         };
-
-//         const eventMap: Record<string, string> = {
-//           "/financial-marketplace": "Navigation_to_Finance_Marketplace",
-//           "/non-financial-marketplace":
-//             "Navigation_To_The_Non_Finance_Marketplace",
-//         };
-
-//         const eventName = eventMap[pathname];
-
-//         const config =
-//           eventName != null
-//             ? {
-//                 ...sharedConfig,
-//                 voice: {
-//                   url: "https://runtime-api.voiceflow.com",
-//                 },
-//                 assistant: {
-//                   ...sharedConfig.assistant,
-//                   persistence: "sessionStorage",
-//                 },
-//               }
-//             : sharedConfig;
-
-//         try {
-//           await window.voiceflow?.chat?.load(config);
-//           isInitialized.current = true;
-
-//           if (eventName) {
-//             // Add a small delay to ensure the widget is fully loaded
-//             setTimeout(() => {
-//               console.log(`Triggering event for: ${eventName}`);
-//               window.voiceflow?.chat?.interact?.({
-//                 type: "event",
-//                 payload: {
-//                   event: {
-//                     name: eventName,
-//                   },
-//                 },
-//               });
-//             }, 500);
-//           }
-//         } catch (error) {
-//           console.error("Failed to load Voiceflow:", error);
-//         }
-//       };
-
-//       document.body.appendChild(script);
-//     };
-
-//     initializeVoiceflow();
-
-//     // Cleanup function
-//     return () => {
-//       if (window.voiceflow?.chat) {
-//         window.voiceflow.chat.close?.();
-//       }
-//     };
-//   }, [pathname]);
-
-//   return null;
-// };
-
-// export default KfBot;
-
-"use client";
-import React, { useEffect, useRef } from "react";
-
-declare global {
-  interface Window {
-    voiceflow?: {
-      chat?: {
-        load: (opts: any) => Promise<void>;
-        close?: () => void;
-        interact?: (payload: any) => void;
-        destroy?: () => void;
-      };
-    };
-  }
+      {/* Chat modal */}
+      {isOpen && (
+        <div className="fixed bottom-24 right-6 w-80 sm:w-96 bg-white rounded-lg shadow-xl z-50 overflow-hidden border border-gray-200 animate-fade-in-up">
+          <div className="bg-[image:var(--dq-cta-gradient)] p-4 text-white flex justify-between items-center">
+            <h3 className="font-medium">AI Assistant</h3>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-white hover:text-gray-200 transition-colors"
+              aria-label="Close AI Assistant"
+            >
+              <X size={18} />
+            </button>
+          </div>
+          <div className="p-4 h-80 overflow-y-auto bg-gray-50">
+            <div className="bg-dq-navy/10 p-3 rounded-lg rounded-tl-none inline-block max-w-[85%] animate-fade-in">
+              <p className="text-gray-800">
+                Hi there! How can I help you navigate the Abu Dhabi Enterprise
+                Journey Platform?
+              </p>
+            </div>
+            <div className="mt-4">
+              <input
+                type="text"
+                placeholder="Type your question here..."
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dq-coral/40 transition-all duration-300"
+                autoFocus
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
 
-// page specific detection enabled
-
-const ChatBot = () => {
-  // get pathname
-  const pathname = window.location.pathname;
-  const isInitialized = useRef(false);
-
-  useEffect(() => {
-    const initializeVoiceflow = async () => {
-      // If already initialized, destroy the existing instance
-      if (isInitialized.current && window.voiceflow?.chat) {
-        window.voiceflow.chat.destroy?.();
-        window.voiceflow.chat.close?.();
-      }
-
-      // Remove existing script if it exists
-      const existingScript = document.getElementById("voiceflow-script");
-      if (existingScript) {
-        existingScript.remove();
-      }
-
-      // Create and load new script
-      const script = document.createElement("script");
-      script.id = "voiceflow-script";
-      script.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs";
-
-      script.onload = async () => {
-        const stylesheet =
-          "data:text/css;base64," +
-          btoa(`
-          .vfrc-launcher {
-            background-color: #ffffff !important;
-            color: #ffffff !important;
-            width: 60px !important;
-            height: 60px !important;
-            border-radius: 50% !important;
-          }
-          .vfrc-launcher:hover {
-            background-color: #ffffff !important;
-          }
-        `);
-
-        const sharedConfig = {
-          verify: { projectID: "6849bea9894655c0d600d259" },
-          url: "https://general-runtime.voiceflow.com",
-          versionID: "production",
-          assistant: {
-            stylesheet,
-          },
-        };
-
-        const eventMap: Record<string, string> = {
-          "/financial-marketplace": "Navigation_to_Finance_Marketplace",
-          "/non-financial-marketplace":
-            "Navigation_To_The_Non_Finance_Marketplace",
-        };
-
-        const eventName = eventMap[pathname];
-
-        const config =
-          eventName != null
-            ? {
-                ...sharedConfig,
-                voice: {
-                  url: "https://runtime-api.voiceflow.com",
-                },
-                assistant: {
-                  ...sharedConfig.assistant,
-                  persistence: "sessionStorage",
-                },
-              }
-            : sharedConfig;
-
-        try {
-          await window.voiceflow?.chat?.load(config);
-          isInitialized.current = true;
-
-          if (eventName) {
-            // Add a small delay to ensure the widget is fully loaded
-            setTimeout(() => {
-              console.log(`Triggering event for: ${eventName}`);
-              window.voiceflow?.chat?.interact?.({
-                type: "event",
-                payload: {
-                  event: {
-                    name: eventName,
-                  },
-                },
-              });
-            }, 500);
-          }
-
-          // Trigger the launch event
-          const storage = {
-            name: "User Name", // Example: Replace with actual data from your storage
-            stage: "Stage 1", // Example: Replace with actual data from your storage
-            sector: "Finance", // Example: Replace with actual data from your storage
-          };
-
-          window.voiceflow?.chat?.interact?.({
-            type: "launch",
-            payload: {
-              user_name: storage.name,
-              user_stage: storage.stage,
-              user_sector: storage.sector,
-            },
-          });
-        } catch (error) {
-          console.error("Failed to load Voiceflow:", error);
-        }
-      };
-
-      document.body.appendChild(script);
-    };
-
-    initializeVoiceflow();
-
-    // Cleanup function
-    return () => {
-      if (window.voiceflow?.chat) {
-        window.voiceflow.chat.close?.();
-      }
-    };
-  }, [pathname]);
-
-  return null;
-};
-
 export default ChatBot;
+

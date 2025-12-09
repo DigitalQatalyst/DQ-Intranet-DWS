@@ -48,7 +48,7 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
   const highlightItems = keyHighlights.slice(0, 3);
   // Extract tags from item - use tags if available, otherwise use category and other relevant fields
   const displayTags = item.tags || [item.category, item.deliveryMode, item.businessStage, item.serviceType].filter(Boolean).slice(0, 3);
-  return <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  return <div className="fixed inset-0 bg-black bg-opacity-50 z-[250] flex items-center justify-center p-4">
       <div ref={modalRef} className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-900 truncate">
@@ -58,9 +58,11 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
             <button onClick={onToggleBookmark} className={`p-2 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
               <BookmarkIcon size={18} className={isBookmarked ? 'fill-yellow-600' : ''} />
             </button>
-            <button onClick={onAddToComparison} className="p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200" aria-label="Add to comparison">
-              <ScaleIcon size={18} />
-            </button>
+            {marketplaceType !== 'events' && (
+              <button onClick={onAddToComparison} className="p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200" aria-label="Add to comparison">
+                <ScaleIcon size={18} />
+              </button>
+            )}
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
               <XIcon size={24} />
             </button>
@@ -68,42 +70,65 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
         </div>
         <div className="p-6">
           {/* Breadcrumbs */}
-          <nav className="flex mb-4" aria-label="Breadcrumb">
+          <nav className="flex mb-4 min-h-[24px]" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
               <li className="inline-flex items-center">
-                <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center text-sm">
-                  <HomeIcon size={14} className="mr-1" />
+                <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center text-sm md:text-base transition-colors" aria-label="Navigate to Home">
+                  <HomeIcon size={16} className="mr-1" aria-hidden="true" />
                   <span>Home</span>
                 </Link>
               </li>
-              <li>
-                <div className="flex items-center">
-                  <ChevronRightIcon size={14} className="text-gray-400" />
-                  <Link to={config.route} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2 text-sm">
-                    {config.itemNamePlural}
-                  </Link>
-                </div>
-              </li>
+              {marketplaceType === 'events' ? (
+                <>
+                  <li>
+                    <div className="flex items-center">
+                      <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                      <Link to="/communities" className="text-gray-600 hover:text-gray-900 text-sm md:text-base font-medium transition-colors" aria-label="Navigate to DQ Work Communities">
+                        DQ Work Communities
+                      </Link>
+                    </div>
+                  </li>
+                  <li>
+                    <div className="flex items-center">
+                      <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                      <Link to={config.route} className="text-gray-600 hover:text-gray-900 text-sm md:text-base font-medium transition-colors">
+                        {config.itemNamePlural}
+                      </Link>
+                    </div>
+                  </li>
+                </>
+              ) : (
+                <li>
+                  <div className="flex items-center">
+                    <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                    <Link to={config.route} className="text-gray-600 hover:text-gray-900 text-sm md:text-base font-medium transition-colors">
+                      {config.itemNamePlural}
+                    </Link>
+                  </div>
+                </li>
+              )}
               <li aria-current="page">
                 <div className="flex items-center">
-                  <ChevronRightIcon size={14} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2 truncate max-w-[150px] text-sm">
+                  <ChevronRightIcon size={16} className="text-gray-400 mx-1 flex-shrink-0" aria-hidden="true" />
+                  <span className="text-gray-500 text-sm md:text-base font-medium whitespace-nowrap truncate max-w-[150px]">
                     {item.title}
                   </span>
                 </div>
               </li>
             </ol>
           </nav>
-          {/* Provider Section */}
-          <div className="flex items-center mb-4">
-            <img src={item.provider.logoUrl} alt={`${item.provider.name} logo`} className="h-12 w-12 object-contain mr-4" />
-            <div>
-              <span className="text-sm text-gray-500">Provided by</span>
-              <h3 className="text-lg font-medium text-gray-900">
-                {item.provider.name}
-              </h3>
+          {/* Provider Section - Hidden for events */}
+          {marketplaceType !== 'events' && (
+            <div className="flex items-center mb-4">
+              <img src={item.provider.logoUrl} alt={`${item.provider.name} logo`} className="h-12 w-12 object-contain mr-4" />
+              <div>
+                <span className="text-sm text-gray-500">Provided by</span>
+                <h3 className="text-lg font-medium text-gray-900">
+                  {item.provider.name}
+                </h3>
+              </div>
             </div>
-          </div>
+          )}
           {/* Title */}
           <h1 className="text-2xl font-bold text-gray-900 mb-3">
             {item.title}
@@ -150,10 +175,18 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
             </div>}
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-end">
-            <button onClick={onViewDetails} className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 transition-colors">
+            <button onClick={onViewDetails} className={`px-4 py-2 text-sm font-medium rounded-md border transition-colors ${
+              marketplaceType === 'events'
+                ? 'text-dq-navy bg-dq-navy/10 border-dq-navy/30 hover:bg-dq-navy/20'
+                : 'text-blue-700 bg-blue-50 border-blue-200 hover:bg-blue-100'
+            }`}>
               View Full Details
             </button>
-            <button className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-md hover:from-blue-700 hover:to-purple-700 transition-colors">
+            <button className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${
+              marketplaceType === 'events'
+                ? 'bg-dq-navy hover:bg-[#13285A]'
+                : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'
+            }`}>
               {config.primaryCTA}
             </button>
           </div>
