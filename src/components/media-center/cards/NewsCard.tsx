@@ -34,11 +34,30 @@ const formatDate = (input: string) =>
 export function NewsCard({ item, href }: NewsCardProps) {
   const imageIndex = Math.abs(item.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0));
   const imageSrc = item.image || fallbackImages[imageIndex % fallbackImages.length];
+  
+  // Update title for specific articles
+  const getDisplayTitle = () => {
+    if (item.id === 'dq-scrum-master-structure-update' || item.title.toLowerCase().includes('scrum master structure')) {
+      return 'Updated Scrum Master Structure';
+    }
+    if (item.id === 'dq-townhall-meeting-agenda' || item.title.toLowerCase().includes('townhall meeting agenda')) {
+      return 'DQ Townhall Meeting';
+    }
+    if (item.id === 'company-wide-lunch-break-schedule' || item.title.toLowerCase().includes('company-wide lunch break schedule') || item.title.toLowerCase().includes('lunch break schedule')) {
+      return 'Company-Wide Lunch Break Schedule';
+    }
+    if (item.id === 'grading-review-program-grp' || item.title.toLowerCase().includes('grading review program') || item.title.toLowerCase().includes('grp')) {
+      return 'Grading Review Program (GRP)';
+    }
+    return item.title;
+  };
+  
+  const displayTitle = getDisplayTitle();
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className="relative">
-        <img src={imageSrc} alt={item.title} className="h-40 w-full object-cover" loading="lazy" />
+        <img src={imageSrc} alt={displayTitle} className="h-40 w-full object-cover" loading="lazy" />
         <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/40 bg-white/80 px-3 py-1 text-xs font-semibold text-gray-700 backdrop-blur">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: statusColor[item.type] }} />
           {statusLabel[item.type]}
@@ -50,7 +69,7 @@ export function NewsCard({ item, href }: NewsCardProps) {
           <div className="text-xs text-gray-500">
             {item.type} · {formatDate(item.date)}
           </div>
-          <h3 className="mt-2 text-lg font-semibold text-gray-900">{item.title}</h3>
+          <h3 className="mt-2 text-lg font-semibold text-gray-900">{displayTitle}</h3>
           <p className="mt-2 text-sm text-gray-700 line-clamp-3">{item.excerpt}</p>
 
           <div className="mt-3 text-xs text-gray-500">

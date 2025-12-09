@@ -10,7 +10,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams, Link } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
-import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Download, AlertTriangle, ExternalLink } from 'lucide-react'
+import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Download, AlertTriangle, ExternalLink, Calendar, User, Building2, Heart, MessageCircle, BookmarkIcon, FileText } from 'lucide-react'
 import { supabaseClient } from '../../lib/supabaseClient'
 import { getGuideImageUrl } from '../../utils/guideImageMap'
 import { track } from '../../utils/analytics'
@@ -59,6 +59,9 @@ const GuideDetailPage: React.FC = () => {
   const [previewUnavailable, setPreviewUnavailable] = useState(false)
   const articleRef = useRef<HTMLDivElement | null>(null)
   const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([])
+  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [likes, setLikes] = useState(47) // Mock likes count
+  const [comments, setComments] = useState(12) // Mock comments count
 
   const backQuery = (location?.state && location.state.fromQuery) ? String(location.state.fromQuery) : ''
   const backHref = `/marketplace/guides${backQuery ? `?${backQuery}` : ''}`
@@ -291,6 +294,27 @@ const GuideDetailPage: React.FC = () => {
   const isPractitionerType = ['best practice', 'best-practice', 'process', 'sop', 'procedure'].includes(type)
   const showFallbackModule = isPractitionerType && !showTemplates && !showAttachments
   const lastUpdated = guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null
+  const announcementDate = guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : null
+  const announcementDateShort = guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null
+  
+  // Generate initials for author icon (G|CC style)
+  const getAuthorInitials = () => {
+    if (guide?.authorOrg) {
+      const parts = guide.authorOrg.split('|').map(p => p.trim())
+      if (parts.length >= 2) {
+        return `${parts[0].charAt(0)}|${parts[1].substring(0, 2).toUpperCase()}`
+      }
+      return guide.authorOrg.substring(0, 3).toUpperCase()
+    }
+    if (guide?.authorName) {
+      const names = guide.authorName.split(' ')
+      if (names.length >= 2) {
+        return `${names[0].charAt(0)}${names[1].charAt(0)}`.toUpperCase()
+      }
+      return guide.authorName.substring(0, 2).toUpperCase()
+    }
+    return 'DQ'
+  }
   const isApproved = ((guide?.status) || 'Approved') === 'Approved'
   const documentUrl = (guide?.documentUrl || '').trim()
   const hasDocument = documentUrl.length > 0
@@ -362,55 +386,48 @@ const GuideDetailPage: React.FC = () => {
           </div>
         )}
 
-        {/* Header card */}
+        {/* Header card - Updated to match screenshot styling */}
         <header className="bg-white rounded-lg shadow p-6 mb-6" aria-labelledby="guide-title">
-          <div className="grid grid-cols-1 gap-4">
-            <div>
-              {imageUrl && (
-                <img src={imageUrl} alt={guide.title} className="w-full h-60 object-cover rounded mb-4" loading="lazy" decoding="async" width={1200} height={320} />
+          <div className="space-y-4">
+            {/* Category tag and date row */}
+            <div className="flex items-center gap-4 flex-wrap">
+              {guide.guideType && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
+                  {guide.guideType}
+                </span>
               )}
-              <h1 id="guide-title" className="text-2xl font-bold mb-2">{guide.title}</h1>
-              {/* CODEx: Only hide header summary for policy pages */}
-              {!isPolicy && guide.summary && <p className="text-gray-700 mb-3">{guide.summary}</p>}
-              <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
-                {guide.domain && <span className="px-2 py-0.5 bg-gray-100 rounded-full">{guide.domain}</span>}
-                {guide.guideType && <span className="px-2 py-0.5 text-[var(--guidelines-primary)] bg-[var(--guidelines-primary-surface)] rounded-full">{guide.guideType}</span>}
-                {guide.functionArea && <span className="px-2 py-0.5 bg-gray-100 rounded-full">{guide.functionArea}</span>}
-                {guide.complexityLevel && <span className="px-2 py-0.5 bg-gray-100 rounded-full">{guide.complexityLevel}</span>}
-                {lastUpdated && <span className="px-2 py-0.5 bg-gray-100 rounded-full">Updated {lastUpdated}</span>}
-              </div>
-              {/* CODEx: Banner actions row (left: policy controls, right: share) */}
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                {showPolicyCtas && (
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      onClick={hasDocument ? downloadMainDocument : undefined}
-                      disabled={!hasDocument}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-gray-200 text-gray-800 bg-white shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] disabled:opacity-50 disabled:cursor-not-allowed"
-                      aria-label="Download document"
-                    >
-                      <Download size={16} /> Download
-                    </button>
-                    <button
-                      onClick={hasDocument ? openMainDocument : undefined}
-                      disabled={!hasDocument}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-[var(--guidelines-primary)] text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-300"
-                      aria-label="Open document"
-                    >
-                      <ExternalLink size={16} /> Open Document
-                    </button>
-                  </div>
-                )}
-                <button
-                  onClick={handleShare}
-                  className={`inline-flex items-center gap-2 px-3 py-2 rounded border border-gray-200 text-gray-700 hover:bg-gray-50 focus:outline-none ${showPolicyCtas ? 'ml-auto' : ''}`}
-                  aria-label="Share link to this guide"
-                >
-                  <Share2 size={16} /> Share
-                </button>
-              </div>
+              {announcementDateShort && (
+                <div className="flex items-center gap-2 text-gray-600 text-sm">
+                  <Calendar size={16} className="text-gray-400" />
+                  <span>{announcementDateShort}</span>
+                </div>
+              )}
             </div>
-            {/* Actions column removed; title section now full width */}
+
+            {/* Title */}
+            <h1 id="guide-title" className="text-3xl font-bold text-gray-900">{guide.title}</h1>
+
+            {/* Author info with circular icon */}
+            {(guide.authorName || guide.authorOrg) && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-semibold">
+                  {getAuthorInitials()}
+                </div>
+                <div>
+                  {guide.authorOrg && (
+                    <div className="font-medium text-gray-900">{guide.authorOrg}</div>
+                  )}
+                  {guide.authorName && (
+                    <div className="text-sm text-gray-600">{guide.authorName}</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Image if available */}
+            {imageUrl && (
+              <img src={imageUrl} alt={guide.title} className="w-full h-60 object-cover rounded mb-4" loading="lazy" decoding="async" width={1200} height={320} />
+            )}
           </div>
         </header>
 
@@ -428,6 +445,17 @@ const GuideDetailPage: React.FC = () => {
                 }}
                 onUnavailable={() => setPreviewUnavailable(true)}
               />
+            )}
+
+            {/* Announcement body content */}
+            {guide.body && !isPolicy && (
+              <section className="bg-white rounded-lg shadow p-6" aria-label="Content">
+                <div className="prose max-w-none">
+                  <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
+                    <Markdown body={guide.body || ''} />
+                  </React.Suspense>
+                </div>
+              </section>
             )}
 
             {/* CODEx: Concise Summary card for policy pages only */}
@@ -450,12 +478,107 @@ const GuideDetailPage: React.FC = () => {
               </section>
             )}
 
+            {/* COMPANY NEWS DETAILS Section */}
+            <section className="bg-gray-50 rounded-lg p-6 border border-gray-200" aria-label="Company News Details">
+              <div className="space-y-4">
+                {announcementDate && (
+                  <div className="flex items-center gap-3">
+                    <Calendar size={18} className="text-gray-500" />
+                    <div>
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">ANNOUNCEMENT DATE</div>
+                      <div className="text-gray-900">{announcementDate}</div>
+                    </div>
+                  </div>
+                )}
+                {(guide.authorName || guide.authorOrg) && (
+                  <div className="flex items-center gap-3">
+                    <User size={18} className="text-gray-500" />
+                    <div>
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">RELEVANT CONTACT</div>
+                      <div className="text-gray-900">{guide.authorOrg || guide.authorName || 'N/A'}</div>
+                    </div>
+                  </div>
+                )}
+                {(guide.functionArea || guide.domain) && (
+                  <div className="flex items-center gap-3">
+                    <Building2 size={18} className="text-gray-500" />
+                    <div>
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">DEPARTMENT</div>
+                      <div className="text-gray-900">{guide.functionArea || guide.domain || 'N/A'}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* NEXT STEPS Section */}
+            <section className="bg-white rounded-lg shadow p-6" aria-label="Next Steps">
+              <h2 className="text-xl font-semibold mb-4">NEXT STEPS</h2>
+              <div className="flex flex-wrap gap-3">
+                {hasDocument && (
+                  <button
+                    onClick={openMainDocument}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <FileText size={16} /> Read Full Policy
+                  </button>
+                )}
+                <button
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-800 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+                >
+                  <FileText size={16} /> Complete Survey
+                </button>
+                <button
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-800 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+                >
+                  <Calendar size={16} /> Book Orientation
+                </button>
+              </div>
+            </section>
+
+            {/* Engagement Metrics and Actions */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+                    <Heart size={18} />
+                    <span>{likes}</span>
+                  </button>
+                  <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+                    <MessageCircle size={18} />
+                    <span>{comments}</span>
+                  </button>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setIsBookmarked(!isBookmarked)}
+                    className={`p-2 rounded hover:bg-gray-100 transition-colors ${isBookmarked ? 'text-blue-600' : 'text-gray-600'}`}
+                    aria-label="Bookmark"
+                  >
+                    <BookmarkIcon size={18} fill={isBookmarked ? 'currentColor' : 'none'} />
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="p-2 rounded hover:bg-gray-100 transition-colors text-gray-600"
+                    aria-label="Share"
+                  >
+                    <Share2 size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Questions section */}
+            <div className="text-sm text-gray-600 pt-4">
+              <strong>Questions about this announcement?</strong> Contact {guide.authorOrg || guide.authorName || 'Human Resources'}.
+            </div>
+
             {/* CODEx: For policy pages, long body behind a toggle; for others, show as usual */}
-            {type !== 'template' && guide.body && (
+            {isPolicy && type !== 'template' && guide.body && (
               <article
-                id={isPolicy ? 'full-details' : undefined}
+                id="full-details"
                 ref={articleRef}
-                className={`bg-white rounded-lg shadow p-6 markdown-body ${isPolicy && !showFullDetails ? 'hidden' : ''}`}
+                className={`bg-white rounded-lg shadow p-6 markdown-body ${!showFullDetails ? 'hidden' : ''}`}
                 dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}
               >
                 <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
@@ -576,33 +699,46 @@ const GuideDetailPage: React.FC = () => {
             )}
           </div>
 
-          {/* Sidebar: Related Guides */}
+          {/* Sidebar: Related Announcements - Updated to match screenshot */}
           <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-24" aria-label="Secondary">
             {related && related.length > 0 && (
               <section aria-labelledby="related-title" className="bg-white rounded-lg shadow p-6" id="related">
-                <h2 id="related-title" className="text-xl font-semibold mb-4">Related Guides</h2>
+                <h2 id="related-title" className="text-xl font-semibold mb-4">Related Announcements</h2>
                 <div className="space-y-3">
-                  {related.map((r) => (
-                    <Link
-                      key={r.slug || r.id}
-                      to={`/marketplace/guides/${encodeURIComponent(r.slug || r.id)}`}
-                      className="block border border-gray-200 rounded-lg p-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
-                      onClick={() => track('Guides.RelatedClick', { from: guide.slug || guide.id, to: r.slug || r.id })}
-                    >
-                      <div className="flex gap-3">
-                        <img
-                          src={getGuideImageUrl({ heroImageUrl: r.heroImageUrl || undefined, domain: r.domain || undefined, guideType: r.guideType || undefined })}
-                          alt={r.title}
-                          className="w-20 h-20 object-cover rounded"
-                          loading="lazy"
-                        />
-                        <div className="min-w-0">
-                          <div className="font-medium text-gray-900 truncate" title={r.title}>{r.title}</div>
-                          {r.summary && <div className="text-sm text-gray-600 line-clamp-2">{r.summary}</div>}
+                  {related.slice(0, 3).map((r) => {
+                    const relatedDate = r.lastUpdatedAt ? new Date(r.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null
+                    const getTagColor = (type: string | null | undefined) => {
+                      if (!type) return 'bg-gray-100 text-gray-700'
+                      const lowerType = type.toLowerCase()
+                      if (lowerType.includes('event') || lowerType.includes('upcoming')) return 'bg-orange-100 text-orange-700'
+                      if (lowerType.includes('recognition') || lowerType.includes('employee')) return 'bg-green-100 text-green-700'
+                      if (lowerType.includes('policy') || lowerType.includes('update')) return 'bg-purple-100 text-purple-700'
+                      return 'bg-blue-100 text-blue-700'
+                    }
+                    return (
+                      <Link
+                        key={r.slug || r.id}
+                        to={`/marketplace/guides/${encodeURIComponent(r.slug || r.id)}`}
+                        className="block border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
+                        onClick={() => track('Guides.RelatedClick', { from: guide.slug || guide.id, to: r.slug || r.id })}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            {r.guideType && (
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mb-2 ${getTagColor(r.guideType)}`}>
+                                {r.guideType}
+                              </span>
+                            )}
+                            {relatedDate && (
+                              <div className="text-xs text-gray-500 mb-2">{relatedDate}</div>
+                            )}
+                            <div className="font-medium text-gray-900 line-clamp-2" title={r.title}>{r.title}</div>
+                          </div>
+                          <ChevronRightIcon size={18} className="text-gray-400 flex-shrink-0 mt-1" />
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    )
+                  })}
                 </div>
               </section>
             )}

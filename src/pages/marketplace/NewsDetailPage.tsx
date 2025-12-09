@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { HomeIcon, ChevronRightIcon, Share2, BookmarkIcon, ArrowUpRight } from 'lucide-react';
+import { HomeIcon, ChevronRightIcon, Share2, BookmarkIcon, Calendar, User, Building2, Heart, MessageCircle, FileText } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
 import { fetchAllNews, fetchNewsById } from '@/services/mediaCenterService';
 
@@ -44,64 +44,257 @@ const markMediaItemSeen = (kind: 'news' | 'job', id: string) => {
   }
 };
 
-const buildBody = (article: NewsItem & { content?: string }) => {
-  // Use content field if available, otherwise fall back to default paragraphs
-  if (article.content) {
-    // Split content into blocks, preserving list structure
-    const blocks: string[] = [];
-    const lines = article.content.split('\n');
-    let currentBlock = '';
-    let inList = false;
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      const isEmpty = !line;
-      const isListLine = /^[-*\d.]\s+/.test(line) || /^  [-*\d.]\s+/.test(line);
+// Generate a brief 4-paragraph overview for the details page
+const buildOverview = (article: NewsItem & { content?: string }) => {
+  const overview: string[] = [];
+  
+  // Check if this is the WFH Guidelines article
+  const isWFHGuidelines = article.id === 'dq-wfh-guidelines' || 
+                           article.title.toLowerCase().includes('wfh guidelines') ||
+                           article.title.toLowerCase().includes('work from home');
+  
+  // Check if this is the Scrum Master structure article
+  const isScrumMasterArticle = article.id === 'dq-scrum-master-structure-update' || 
+                                article.title.toLowerCase().includes('scrum master structure');
+  
+  if (isWFHGuidelines) {
+    // Paragraph 1: Introduction
+    overview.push('The Work From Home (WFH) Guidelines provide a clear framework for how remote work is requested, approved, executed, and monitored across DQ, ensuring productivity, accountability, and culture remain intact while associates work remotely.');
+    
+    // Paragraph 2: Process summary - convert numbered list to brief paragraph
+    if (article.content) {
+      const processSteps: string[] = [];
+      const lines = article.content.split('\n');
+      let inProcessSection = false;
       
-      if (isEmpty && currentBlock) {
-        // Empty line ends current block
-        blocks.push(currentBlock.trim());
-        currentBlock = '';
-        inList = false;
-      } else if (isListLine) {
-        // List item - add to current block
-        if (currentBlock && !inList) {
-          // Previous block wasn't a list, start new block
-          if (currentBlock.trim()) {
-            blocks.push(currentBlock.trim());
-          }
-          currentBlock = line;
-        } else {
-          currentBlock += (currentBlock ? '\n' : '') + line;
+      for (const line of lines) {
+        const trimmed = line.trim();
+        
+        // Detect the WFH Processes section
+        if (trimmed.match(/^##+\s+.*[Ww]FH\s+[Pp]rocess/i) || trimmed.match(/^##+\s+.*[Pp]rocess/i)) {
+          inProcessSection = true;
+          continue;
         }
-        inList = true;
-      } else if (line) {
-        // Regular content line
-        if (inList && currentBlock) {
-          // End list block, start new block
-          blocks.push(currentBlock.trim());
-          currentBlock = line;
-          inList = false;
-        } else {
-          currentBlock += (currentBlock ? '\n' : '') + line;
+        
+        // Stop at next major section
+        if (inProcessSection && trimmed.match(/^##+\s+[^4]/)) {
+          break;
+        }
+        
+        // Extract numbered process steps
+        if (inProcessSection && trimmed.match(/^\d+\.\s+/)) {
+          const stepText = trimmed.replace(/^\d+\.\s+/, '').replace(/\*\*/g, '').trim();
+          if (stepText.length > 20) {
+            processSteps.push(stepText);
+          }
+        }
+      }
+      
+      if (processSteps.length > 0) {
+        // Convert steps to a brief summary paragraph capturing all key details
+        const processSummary = `The WFH process begins with associates submitting requests at least 24 hours in advance via the HR Channel, including reason, dates, and expected working hours. Line Managers review and provide pre-approval based on operational needs, followed by HR final approval that verifies compliance and notifies all parties. On the WFH day, associates must create a thread in the HR Channel before work starts with daily actions and engagement links, clock in on DQ Shifts, and remain active on DQ Live24 throughout working hours. Associates must follow their day plan, provide regular updates, respond promptly, attend all calls, and at end of day post completed tasks, outstanding items, and blockers in the HR thread. HRA and Line Managers monitor adherence, and failure to post updates or remain active may result in the day being treated as unpaid and can lead to revocation of WFH privileges or performance review.`;
+        overview.push(processSummary);
+      } else {
+        overview.push('The process requires associates to submit requests 24 hours in advance via the HR Channel with reason and dates, obtain Line Manager pre-approval and HR final approval, post daily action plans and engagement links before work starts, clock in on DQ Shifts and remain active on DQ Live24, execute work with regular updates and communication, and record deliverables at end of day. Failure to comply may result in unpaid workday treatment and revocation of WFH privileges.');
+      }
+    } else {
+      overview.push('The process requires associates to submit requests 24 hours in advance, obtain necessary approvals, maintain visibility through DQ Live24, post daily updates, and comply with all monitoring requirements to ensure accountability and productivity.');
+    }
+    
+    // Paragraph 3: Roles and responsibilities summary
+    overview.push('Key roles include Associates who submit requests and maintain daily visibility, Line Managers who provide pre-approval and monitor deliverables, HR who provides final approval and ensures policy compliance, and HRA who oversees overall compliance and adherence to guidelines.');
+    
+    // Paragraph 4: Principles and tools
+    overview.push('The guidelines are built on principles of transparency, accountability, equity, compliance, collaboration, and data security. Essential tools include DQ Live24 for visibility and communication, DQ Shifts for attendance tracking, and the HR Channel for requests and updates.');
+  } else if (isScrumMasterArticle) {
+    // First paragraph: Introduction about organizational optimization
+    overview.push('As part of our organizational optimization, we are updating the leadership structure across functions to streamline responsibilities and enhance ownership.');
+    
+    // Second paragraph: Previous structure
+    overview.push('Previously, our leadership structure included Sector Leads, Factory Leads, Tower Leads, and Scrum Masters. These have now been streamlined into 4 unified Scrum Master framework.');
+    
+    // Third paragraph: New structure introduction
+    overview.push('DQ will now operate under four defined Scrum Master categories:');
+    
+    // Fourth paragraph: Extract and list the four categories from content
+    const categories: string[] = [];
+    if (article.content) {
+      const lines = article.content.split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        // Look for headings that might be category names (H2 or H3 level)
+        const headingMatch = trimmed.match(/^##+\s+(.+)$/);
+        if (headingMatch) {
+          const headingText = headingMatch[1].trim();
+          // Check if it's a category heading (contains "Scrum Master" or specific patterns)
+          if (headingText.includes('Scrum Master') || 
+              headingText.includes('COE') || 
+              headingText.includes('Delivery') || 
+              headingText.includes('Working Room') || 
+              headingText.includes('Unit')) {
+            // Extract just the category name, removing any parenthetical notes
+            const categoryName = headingText.split('(')[0].trim();
+            if (categoryName && !categories.includes(categoryName)) {
+              categories.push(categoryName);
+            }
+          }
         }
       }
     }
-
-    // Push remaining block
-    if (currentBlock.trim()) {
-      blocks.push(currentBlock.trim());
+    
+    // If we found categories, list them; otherwise use default
+    if (categories.length > 0) {
+      const categoryList = categories.slice(0, 4).join(', ');
+      overview.push(categoryList + '.');
+    } else {
+      // Default categories if not found in content
+      overview.push('COE Scrum Masters, Delivery Scrum Masters, Working Room Scrum Masters, and Unit Scrum Masters.');
     }
-
-    return blocks.filter(p => p.trim());
+  } else {
+    // For other articles, build a structured 4-paragraph overview
+    
+    // Paragraph 1: Brief introduction using excerpt or first meaningful content
+    let introPara = '';
+    if (article.excerpt && article.excerpt.length > 30) {
+      introPara = article.excerpt;
+      // Ensure it ends with proper punctuation
+      if (!introPara.match(/[.!?]$/)) {
+        introPara += '.';
+      }
+    } else if (article.content) {
+      // Extract first meaningful paragraph from content
+      const lines = article.content.split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        // Skip headings, empty lines, and list markers
+        if (trimmed && !trimmed.match(/^#+\s+/) && !trimmed.match(/^[-*\d.]\s+/) && !trimmed.match(/^➜\s+/)) {
+          // Remove markdown bold markers for cleaner text
+          const cleanLine = trimmed.replace(/\*\*/g, '').replace(/\*/g, '');
+          if (cleanLine.length > 50) {
+            introPara = cleanLine;
+            if (!introPara.match(/[.!?]$/)) {
+              introPara += '.';
+            }
+            break;
+          }
+        }
+      }
+    }
+    
+    if (introPara) {
+      overview.push(introPara);
+    } else {
+      // Default intro if nothing found
+      overview.push('This announcement provides important information and updates that will impact our organization.');
+    }
+    
+    // Paragraphs 2-4: Extract meaningful content sections
+    if (article.content) {
+      const lines = article.content.split('\n');
+      const extractedSections: string[] = [];
+      let currentSection = '';
+      let inSection = false;
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        
+        // Skip empty lines
+        if (!trimmed) {
+          if (currentSection && currentSection.trim().length > 80) {
+            extractedSections.push(currentSection.trim());
+            currentSection = '';
+            inSection = false;
+          }
+          continue;
+        }
+        
+        // Check if this is a heading (H2 or H3) - start a new section
+        const headingMatch = trimmed.match(/^##+\s+(.+)$/);
+        if (headingMatch) {
+          // Save previous section if it exists
+          if (currentSection && currentSection.trim().length > 80) {
+            extractedSections.push(currentSection.trim());
+          }
+          // Start new section with heading text
+          const headingText = headingMatch[1].trim().replace(/\*\*/g, '').replace(/\*/g, '');
+          currentSection = headingText + ': ';
+          inSection = true;
+          continue;
+        }
+        
+        // Skip list markers but extract their content
+        if (trimmed.match(/^[-*\d.]\s+/) || trimmed.match(/^➜\s+/)) {
+          const listContent = trimmed.replace(/^[-*\d.]\s+/, '').replace(/^➜\s+/, '').trim();
+          const cleanContent = listContent.replace(/\*\*/g, '').replace(/\*/g, '');
+          if (cleanContent.length > 30) {
+            if (currentSection) {
+              currentSection += cleanContent + '. ';
+            } else {
+              currentSection = cleanContent + '. ';
+            }
+            inSection = true;
+          }
+          continue;
+        }
+        
+        // Regular paragraph text
+        if (trimmed && !trimmed.match(/^#+\s+/)) {
+          const cleanText = trimmed.replace(/\*\*/g, '').replace(/\*/g, '').trim();
+          if (cleanText.length > 30) {
+            if (currentSection) {
+              currentSection += cleanText + ' ';
+            } else {
+              currentSection = cleanText + ' ';
+            }
+            inSection = true;
+          }
+        }
+      }
+      
+      // Add final section if exists
+      if (currentSection && currentSection.trim().length > 80) {
+        extractedSections.push(currentSection.trim());
+      }
+      
+      // Add extracted sections to overview (ensure proper sentence endings)
+      for (const section of extractedSections) {
+        if (overview.length >= 4) break;
+        
+        let cleanSection = section.trim();
+        // Ensure it ends with proper punctuation
+        if (!cleanSection.match(/[.!?]$/)) {
+          cleanSection += '.';
+        }
+        
+        // Skip if too similar to intro or already added
+        if (cleanSection.length > 50 && !overview.some(p => p.includes(cleanSection.substring(0, 30)))) {
+          overview.push(cleanSection);
+        }
+      }
+    }
+    
+    // Fill remaining slots with contextual default paragraphs
+    const defaultParagraphs = [
+      'These guidelines and procedures are designed to ensure consistency, fairness, and operational excellence across all teams and departments.',
+      'Implementation of these updates will begin immediately, and we encourage all associates to familiarize themselves with the new requirements.',
+      'For questions or clarifications regarding this announcement, please reach out to the relevant contact person listed above or your department lead.'
+    ];
+    
+    while (overview.length < 4) {
+      const defaultIndex = overview.length - 1;
+      if (defaultIndex < defaultParagraphs.length) {
+        overview.push(defaultParagraphs[defaultIndex]);
+      } else {
+        // Final fallback
+        overview.push('We encourage all associates to review the details carefully and reach out with any questions or concerns.');
+        break;
+      }
+    }
   }
   
-  return [
-    article.excerpt,
-    'Since launching, DQ teams continue to connect dots across studios, squads, and journeys. Every announcement is an opportunity to reinforce a shared language, codify repeatable wins, and inspire new experiments.',
-    'This story highlights the rituals, playbooks, and leadership behaviors that help teams deliver value faster—while keeping culture, clarity, and craft at the center.',
-    'Read on for the context, quotes, and resources you can plug into right away.'
-  ];
+  // Return exactly 4 paragraphs
+  return overview.slice(0, 4);
 };
 
 // Parse bold text (**text** or **text**)
@@ -129,101 +322,6 @@ const parseBold = (text: string) => {
   return parts.length > 0 ? parts : [text];
 };
 
-// Format content with proper markdown parsing
-const formatContent = (content: string, index: number) => {
-  const trimmed = content.trim();
-  if (!trimmed) return null;
-
-  // Parse H1 headings (# Heading) - strip hashtags
-  if (trimmed.match(/^#+\s+(.+)$/)) {
-    const match = trimmed.match(/^#+\s+(.+)$/);
-    if (match && match[1]) {
-      let text = match[1].trim();
-      // Remove any remaining markdown hashtags from the text
-      text = text.replace(/^#+\s*/, '');
-      const boldText = parseBold(text);
-      // Check if it's H1, H2, or H3 based on number of # at start
-      const hashCount = (trimmed.match(/^#+/)?.[0] || '').length;
-      if (hashCount === 1) {
-        return (
-          <h1 key={index} className="text-3xl font-bold mb-6 text-gray-900">
-            {boldText}
-          </h1>
-        );
-      } else if (hashCount === 2) {
-        return (
-          <h2 key={index} className="text-2xl font-bold mb-5 text-gray-900 mt-6">
-            {boldText}
-          </h2>
-        );
-      } else {
-        return (
-          <h3 key={index} className="text-xl font-bold mb-4 text-gray-900 mt-5">
-            {boldText}
-          </h3>
-        );
-      }
-    }
-  }
-
-  // Parse lists (- item, * item, or 1. item, or numbered with ➜)
-  const hasListItems = content.split('\n').some(line => {
-    const trimmedLine = line.trim();
-    return /^[-*]\s+/.test(trimmedLine) || /^\d+\.\s+/.test(trimmedLine) || /^➜\s+/.test(trimmedLine);
-  });
-  
-  if (hasListItems) {
-    const lines = content.split('\n').filter(line => line.trim());
-    const listItems: Array<{ text: string; level: number; isNumbered: boolean }> = [];
-    
-    lines.forEach((line) => {
-      const trimmedLine = line.trim();
-      // Match different list patterns: -, *, ➜, or numbered (1. 2. etc.)
-      let itemMatch = trimmedLine.match(/^(\s*)([-*]|\d+\.|➜)\s+(.+)$/);
-      if (!itemMatch) {
-        // Try matching with ➜ at start without space before
-        itemMatch = trimmedLine.match(/^(\s*)(➜)\s*(.+)$/);
-      }
-      if (itemMatch) {
-        const level = (itemMatch[1] || '').length; // Indentation level
-        const marker = itemMatch[2] || '';
-        const itemText = itemMatch[3] || '';
-        const isNumbered = /^\d+\.$/.test(marker);
-        listItems.push({ text: itemText.trim(), level, isNumbered });
-      }
-    });
-
-    if (listItems.length > 0) {
-      const ListComponent = listItems[0].isNumbered ? 'ol' : 'ul';
-      const listClass = listItems[0].isNumbered 
-        ? 'list-decimal list-inside space-y-3 text-gray-700'
-        : 'list-disc list-inside space-y-3 text-gray-700';
-      
-      return (
-        <ListComponent key={index} className={listClass}>
-          {listItems.map((item, itemIndex) => {
-            const boldText = parseBold(item.text);
-            const indentStyle = item.level > 0 ? { marginLeft: `${item.level * 1.5}rem` } : {};
-            return (
-              <li key={itemIndex} className="leading-relaxed" style={indentStyle}>
-                {boldText}
-              </li>
-            );
-          })}
-        </ListComponent>
-      );
-    }
-  }
-
-  // Regular paragraphs - strip any markdown hashtags that might appear
-  let cleanedText = trimmed.replace(/^#+\s*/, '').trim();
-  const boldText = parseBold(cleanedText);
-  return (
-    <p key={index} className="text-gray-700 text-base leading-relaxed mb-4">
-      {boldText}
-    </p>
-  );
-};
 
 const NewsDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -233,6 +331,9 @@ const NewsDetailPage: React.FC = () => {
   const [related, setRelated] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [likes] = useState(47); // Mock likes count - can be replaced with actual data
+  const [comments] = useState(12); // Mock comments count - can be replaced with actual data
 
   const getImageSrc = (item: NewsItem) => {
     if (item.image) return item.image;
@@ -240,7 +341,7 @@ const NewsDetailPage: React.FC = () => {
     return fallbackImages[hash % fallbackImages.length] || fallbackHero;
   };
 
-  const body = article ? buildBody(article) : [];
+  const overview = article ? buildOverview(article) : [];
 
   useEffect(() => {
     if (!id) return;
@@ -249,7 +350,7 @@ const NewsDetailPage: React.FC = () => {
     async function loadArticle() {
       setIsLoading(true);
       try {
-        const [item, allNews] = await Promise.all([fetchNewsById(id), fetchAllNews()]);
+        const [item, allNews] = await Promise.all([fetchNewsById(id || ''), fetchAllNews()]);
         if (!isMounted) return;
         setArticle(item);
         setRelated(allNews.filter((newsItem) => newsItem.id !== id).slice(0, 3));
@@ -309,6 +410,35 @@ const NewsDetailPage: React.FC = () => {
       ? (article.byline || article.author || 'DQ Media Team')
       : article.author;
 
+  // Generate initials for author icon (G|CC style)
+  const getAuthorInitials = () => {
+    if (article.newsSource) {
+      const parts = article.newsSource.split('|').map(p => p.trim());
+      if (parts.length >= 2) {
+        return `${parts[0].charAt(0)}|${parts[1].substring(0, 2).toUpperCase()}`;
+      }
+      return article.newsSource.substring(0, 3).toUpperCase();
+    }
+    if (article.department) {
+      const parts = article.department.split('|').map(p => p.trim());
+      if (parts.length >= 2) {
+        return `${parts[0].charAt(0)}|${parts[1].substring(0, 2).toUpperCase()}`;
+      }
+      return article.department.substring(0, 3).toUpperCase();
+    }
+    if (displayAuthor) {
+      const names = displayAuthor.split(' ');
+      if (names.length >= 2) {
+        return `${names[0].charAt(0)}${names[1].charAt(0)}`.toUpperCase();
+      }
+      return displayAuthor.substring(0, 2).toUpperCase();
+    }
+    return 'DQ';
+  };
+
+  const announcementDate = article.date ? formatDate(article.date) : '';
+  const announcementDateShort = article.date ? new Date(article.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F3F6FB]">
       <Header toggleSidebar={() => {}} sidebarOpen={false} />
@@ -340,247 +470,231 @@ const NewsDetailPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="bg-[#F3F6FB] py-8">
+        <section className="bg-gray-50 py-8">
           <div className="mx-auto max-w-7xl px-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Main Content Area */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Hero Image */}
-                <div className="rounded-2xl bg-gray-100 overflow-hidden shadow-sm">
-                  <img
-                    src={getImageSrc(article)}
-                    alt={article.title}
-                    className="h-[400px] w-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
+                {/* Header Card - Updated to match Secret Santa structure */}
+                <header className="bg-white rounded-lg shadow p-6" aria-labelledby="article-title">
+                  <div className="space-y-4">
+                    {/* Category tag and date row */}
+                    <div className="flex items-center gap-4 flex-wrap">
+                      {article.type && (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
+                          {article.type}
+                        </span>
+                      )}
+                      <div className="flex items-center gap-2 text-gray-600 text-sm">
+                        <Calendar size={16} className="text-gray-400" />
+                        <span>{announcementDateShort}</span>
+                      </div>
+                    </div>
 
-                {/* Article Header */}
-                <div className="bg-white rounded-xl p-8 shadow-sm">
-                  <h1 className="text-4xl font-bold text-gray-900 mb-4">{article.title}</h1>
-                  <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
-                    <span>{formatDate(article.date)}</span>
-                    {article.readingTime && (
-                      <>
-                        <span>•</span>
-                        <span>{article.readingTime} min read</span>
-                      </>
+                    {/* Title */}
+                    <h1 id="article-title" className="text-2xl font-bold text-gray-900 leading-tight">
+                      {(() => {
+                        if (article.id === 'dq-scrum-master-structure-update' || article.title.toLowerCase().includes('scrum master structure')) {
+                          return 'Updated Scrum Master Structure';
+                        }
+                        if (article.id === 'dq-townhall-meeting-agenda' || article.title.toLowerCase().includes('townhall meeting agenda')) {
+                          return 'DQ Townhall Meeting';
+                        }
+                        if (article.id === 'company-wide-lunch-break-schedule' || article.title.toLowerCase().includes('company-wide lunch break schedule') || article.title.toLowerCase().includes('lunch break schedule')) {
+                          return 'Company-Wide Lunch Break Schedule';
+                        }
+                        if (article.id === 'grading-review-program-grp' || article.title.toLowerCase().includes('grading review program') || article.title.toLowerCase().includes('grp')) {
+                          return 'Grading Review Program (GRP)';
+                        }
+                        return article.title;
+                      })()}
+                    </h1>
+
+                    {/* Author info with circular icon */}
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-semibold">
+                        {getAuthorInitials()}
+                      </div>
+                      <div>
+                        {(article.newsSource || article.department) && (
+                          <div className="text-sm font-medium text-gray-900">{article.newsSource || article.department}</div>
+                        )}
+                        {displayAuthor && (
+                          <div className="text-xs text-gray-600">{displayAuthor}</div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Hero Image if available */}
+                    {getImageSrc(article) && (
+                      <img
+                        src={getImageSrc(article)}
+                        alt={article.title}
+                        className="w-full h-60 object-cover rounded mb-4"
+                        loading="lazy"
+                      />
                     )}
                   </div>
-                </div>
+                </header>
 
-                {/* Article Content */}
-                <article className="space-y-6">
-                  {(() => {
-                    interface Section {
-                      heading: string | null;
-                      items: string[];
-                    }
-                    const sections: Section[] = [];
-                    let currentSection: Section | null = null;
-
-                    body.forEach((paragraph) => {
+                {/* Announcement Overview - Brief 4-paragraph summary */}
+                <article className="bg-white rounded-lg shadow p-6 space-y-4">
+                  <div className="space-y-3">
+                    {overview.map((paragraph, index) => {
                       const trimmed = paragraph.trim();
-                      if (!trimmed) return;
-
-                      const isHeading = trimmed.match(/^#+\s+(.+)$/); // Any markdown heading (# ## ###) creates new sections
-
-                      if (isHeading) {
-                        // Start new section with this heading
-                        if (currentSection !== null && currentSection.items.length > 0) {
-                          sections.push(currentSection);
-                        }
-                        currentSection = { heading: trimmed, items: [] };
-                      } else {
-                        // Add content to current section (or create new section if none exists)
-                        if (currentSection === null) {
-                          currentSection = { heading: null, items: [] };
-                        }
-                        if (currentSection !== null) {
-                          currentSection.items.push(paragraph);
-                        }
-                      }
-                    });
-
-                    if (currentSection !== null) {
-                      const finalSection: Section = currentSection;
-                      if (finalSection.items.length > 0) {
-                        sections.push(finalSection);
-                      }
-                    }
-
-                    return sections.map((section, sectionIndex) => {
-                      // Check if section has lists
-                      const hasLists = section.items.some(item => {
-                        const trimmed = item.trim();
-                        return trimmed.match(/^[-*\d.]\s+/) || trimmed.match(/^➜\s+/) || item.split('\n').some(line => /^[-*\d.]\s+/.test(line.trim()) || /^➜\s+/.test(line.trim()));
-                      });
+                      if (!trimmed) return null;
                       
-                      const bgColor = hasLists ? 'bg-blue-50' : 'bg-white';
-                      const borderColor = 'border border-gray-200';
+                      // Parse bold text in the paragraph
+                      const boldText = parseBold(trimmed);
                       
                       return (
-                        <div key={sectionIndex} className={`${bgColor} ${borderColor} rounded-xl p-8 shadow-sm`}>
-                          <div className="space-y-4">
-                            {section.heading && (
-                              <div>
-                                {formatContent(section.heading, 0)}
-                              </div>
-                            )}
-                            {section.items.map((item, itemIndex) => {
-                              const formatted = formatContent(item, itemIndex);
-                              return formatted;
-                            })}
-                          </div>
-                        </div>
+                        <p key={index} className="text-gray-700 text-sm leading-relaxed">
+                          {boldText}
+                        </p>
                       );
-                    });
-                  })()}
+                    })}
+                  </div>
                 </article>
-              </div>
 
-              {/* Right Sidebar */}
-              <div className="lg:col-span-1">
-                <div className="sticky top-8 space-y-6">
-                  {/* Article Summary Card */}
-                  <div className="bg-gray-50 rounded-xl p-6 shadow-sm border border-gray-200">
-                    <h2 className="text-xl font-bold text-gray-900 mb-6">Article Summary</h2>
-                    <div className="space-y-4">
-                      {article.type && (
-                        <div>
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Type</div>
-                          <div className="text-sm text-gray-900 font-medium">{article.type}</div>
-                        </div>
-                      )}
-                      {article.department && (
-                        <div>
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Department</div>
-                          <div className="text-sm text-gray-900 font-medium">{article.department}</div>
-                        </div>
-                      )}
-                      {article.location && (
-                        <div>
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Location</div>
-                          <div className="text-sm text-gray-900 font-medium">{article.location}</div>
-                        </div>
-                      )}
-                      {article.domain && (
-                        <div>
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Domain</div>
-                          <div className="text-sm text-gray-900 font-medium">{article.domain}</div>
-                        </div>
-                      )}
-                      {article.newsType && (
-                        <div>
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">News Type</div>
-                          <div className="text-sm text-gray-900 font-medium">{article.newsType}</div>
-                        </div>
-                      )}
-                      {article.newsSource && (
-                        <div>
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Source</div>
-                          <div className="text-sm text-gray-900 font-medium">{article.newsSource}</div>
-                        </div>
-                      )}
-                      {article.focusArea && (
-                        <div>
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Focus Area</div>
-                          <div className="text-sm text-gray-900 font-medium">{article.focusArea}</div>
-                        </div>
-                      )}
+                {/* COMPANY NEWS DETAILS Section */}
+                <section className="bg-gray-50 rounded-lg p-6 border border-gray-200" aria-label="Company News Details">
+                  <h2 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wide">COMPANY NEWS DETAILS</h2>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <Calendar size={16} className="text-gray-500 flex-shrink-0" />
                       <div>
-                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Published</div>
-                        <div className="text-sm text-gray-900 font-medium">{formatDate(article.date)}</div>
+                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">ANNOUNCEMENT DATE</div>
+                        <div className="text-sm text-gray-900">{announcementDate}</div>
                       </div>
-                      <div>
-                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Author</div>
-                        <div className="text-sm text-gray-900 font-medium">{displayAuthor}</div>
+                    </div>
+                    {displayAuthor && (
+                      <div className="flex items-center gap-3">
+                        <User size={16} className="text-gray-500 flex-shrink-0" />
+                        <div>
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">RELEVANT CONTACT</div>
+                          <div className="text-sm text-gray-900">{displayAuthor}</div>
+                        </div>
                       </div>
-                      {article.views !== undefined && (
+                    )}
+                    {(article.department || article.domain) && (
+                      <div className="flex items-center gap-3">
+                        <Building2 size={16} className="text-gray-500 flex-shrink-0" />
                         <div>
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Views</div>
-                          <div className="text-sm text-gray-900 font-medium">{article.views.toLocaleString()}</div>
+                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">DEPARTMENT</div>
+                          <div className="text-sm text-gray-900">{article.department || article.domain || 'N/A'}</div>
                         </div>
-                      )}
-                      {article.tags && article.tags.length > 0 && (
-                        <div>
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Tags</div>
-                          <div className="flex flex-wrap gap-2">
-                            {article.tags.map((tag, idx) => (
-                              <span
-                                key={idx}
-                                className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                {/* NEXT STEPS Section */}
+                <section className="bg-white rounded-lg shadow p-6" aria-label="Next Steps">
+                  <h2 className="text-sm font-bold mb-4 uppercase tracking-wide">NEXT STEPS</h2>
+                  <div className="flex flex-wrap gap-3">
+                    <button className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <FileText size={14} /> Read Full Policy
+                    </button>
+                  </div>
+                </section>
+
+                {/* Engagement Metrics and Actions */}
+                <div className="bg-white rounded-lg shadow p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                      <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900">
+                        <Heart size={16} />
+                        <span>{likes}</span>
+                      </button>
+                      <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900">
+                        <MessageCircle size={16} />
+                        <span>{comments}</span>
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setIsBookmarked(!isBookmarked)}
+                        className={`p-1.5 rounded hover:bg-gray-100 transition-colors ${isBookmarked ? 'text-blue-600' : 'text-gray-600'}`}
+                        aria-label="Bookmark"
+                      >
+                        <BookmarkIcon size={16} fill={isBookmarked ? 'currentColor' : 'none'} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (navigator.share) {
+                            navigator.share({
+                              title: article.title,
+                              text: article.excerpt,
+                              url: window.location.href,
+                            }).catch(() => {});
+                          } else {
+                            navigator.clipboard.writeText(window.location.href).catch(() => {});
+                          }
+                        }}
+                        className="p-1.5 rounded hover:bg-gray-100 transition-colors text-gray-600"
+                        aria-label="Share"
+                      >
+                        <Share2 size={16} />
+                      </button>
                     </div>
                   </div>
+                </div>
 
-                  {/* Action Buttons */}
-                  <div className="space-y-3">
-                    <button 
-                      onClick={() => {
-                        if (navigator.share) {
-                          navigator.share({
-                            title: article.title,
-                            text: article.excerpt,
-                            url: window.location.href,
-                          }).catch(() => {});
-                        } else {
-                          navigator.clipboard.writeText(window.location.href).catch(() => {});
-                        }
-                      }}
-                      className="w-full rounded-xl bg-[#030f35] px-6 py-3 text-sm font-semibold text-white hover:opacity-90 transition-colors shadow-sm inline-flex items-center justify-center gap-2"
-                    >
-                      <Share2 size={16} />
-                      Share Article
-                    </button>
-                    <button className="w-full rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors inline-flex items-center justify-center gap-2">
-                      <BookmarkIcon size={16} />
-                      Save for Later
-                    </button>
+                {/* Questions section */}
+                {displayAuthor && (
+                  <div className="text-xs text-gray-600 pt-4">
+                    <strong className="font-semibold">Questions about this announcement?</strong> Contact {displayAuthor}.
                   </div>
+                )}
+              </div>
+
+              {/* Right Sidebar - Related Announcements */}
+              <div className="lg:col-span-1">
+                <div className="sticky top-8 space-y-6">
+                  {related && related.length > 0 && (
+                    <section className="bg-white rounded-lg shadow p-6" aria-label="Related Announcements">
+                      <h2 className="text-base font-semibold mb-4">Related Announcements</h2>
+                      <div className="space-y-3">
+                        {related.slice(0, 3).map((item) => {
+                          const relatedDate = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                          const getTagColor = (type: string | undefined) => {
+                            if (!type) return 'bg-gray-100 text-gray-700';
+                            const lowerType = type.toLowerCase();
+                            if (lowerType.includes('event') || lowerType.includes('upcoming')) return 'bg-orange-100 text-orange-700';
+                            if (lowerType.includes('recognition') || lowerType.includes('employee')) return 'bg-green-100 text-green-700';
+                            if (lowerType.includes('policy') || lowerType.includes('update') || lowerType.includes('guideline')) return 'bg-purple-100 text-purple-700';
+                            return 'bg-blue-100 text-blue-700';
+                          };
+                          return (
+                            <Link
+                              key={item.id}
+                              to={`/marketplace/news/${item.id}${location.search || ''}`}
+                              className="block border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex-1 min-w-0">
+                                  {item.type && (
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mb-1.5 ${getTagColor(item.type)}`}>
+                                      {item.type}
+                                    </span>
+                                  )}
+                                  <div className="text-xs text-gray-500 mb-1.5">{relatedDate}</div>
+                                  <div className="text-sm font-medium text-gray-900 line-clamp-2 leading-snug" title={item.title}>{item.title}</div>
+                                </div>
+                                <ChevronRightIcon size={16} className="text-gray-400 flex-shrink-0 mt-0.5" />
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="border-t border-gray-200 bg-[#F8FAFF]">
-          <div className="mx-auto max-w-6xl px-6 py-10">
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Related Resources</h2>
-              <button className="text-sm font-semibold text-[#1A2E6E] inline-flex items-center gap-1">
-                See All Resources
-                <ArrowUpRight size={16} />
-              </button>
-            </div>
-            <div className="grid gap-6 md:grid-cols-3">
-              {related.map((item) => (
-                <article key={item.id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-                  <img
-                    src={getImageSrc(item)}
-                    alt={item.title}
-                    className="mb-4 h-32 w-full rounded-xl object-cover"
-                  />
-                  <div className="text-xs text-gray-500">{formatDate(item.date)}</div>
-                  <h3 className="mt-2 text-lg font-semibold text-gray-900 line-clamp-2">{item.title}</h3>
-                  <p className="mt-2 text-sm text-gray-600 line-clamp-3">{item.excerpt}</p>
-                  <Link
-                    to={`/marketplace/news/${item.id}${location.search || ''}`}
-                    className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[#030f35] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-                  >
-                    Read Article
-                  </Link>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
       </main>
 
       <Footer isLoggedIn={false} />

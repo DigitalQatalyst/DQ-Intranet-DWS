@@ -297,3 +297,5 @@ For questions or issues with the schema, please refer to:
 - PostgreSQL array documentation: https://www.postgresql.org/docs/current/arrays.html
 - Supabase RLS documentation: https://supabase.com/docs/guides/auth/row-level-security
 
+
+
