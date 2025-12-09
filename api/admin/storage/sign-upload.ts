@@ -10,12 +10,13 @@ export default async function handler(req: AnyRequest, res: AnyResponse) {
     const url = new URL(`${proto}://${host}${req.url}`)
     const bucket = url.searchParams.get('bucket') || 'guide-images'
     const object = url.searchParams.get('object') || `uploads/${Date.now()}`
-    const seconds = parseInt(url.searchParams.get('expires') || '300', 10)
-    const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUploadUrl(object, { expiresIn: seconds })
+    // Note: createSignedUploadUrl doesn't accept expiresIn - URLs are valid for 2 hours by default
+    // The expires query param is kept for API compatibility but not used
+    const upsert = url.searchParams.get('upsert') === 'true'
+    const { data, error } = await supabaseAdmin.storage.from(bucket).createSignedUploadUrl(object, { upsert })
     if (error) throw error
     res.status?.(200); res.json?.(data)
   } catch (e: any) {
     res.status?.(500); res.json?.({ error: e?.message || 'Server error' })
   }
 }
-
