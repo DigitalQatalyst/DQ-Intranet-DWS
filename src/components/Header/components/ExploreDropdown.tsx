@@ -91,13 +91,6 @@ const marketplaces: Marketplace[] = [
     href: '/marketplace/guides',
   },
   {
-    id: 'work-communities',
-    name: 'DQ Work Communities',
-    description: 'Discussion rooms, pulse updates, and events.',
-    icon: SparklesIcon,
-    href: '/dq-work-communities',
-  },
-  {
     id: 'knowledge-center',
     name: 'DQ Knowledge Center',
     description: 'Strategy guides, blueprints, libraries, and testimonials.',
@@ -112,15 +105,8 @@ const marketplaces: Marketplace[] = [
     href: '/dq-knowledge-center',
   },
   {
-    id: 'communities',
-    name: 'DQ Communities',
-    description: 'Connect, collaborate, and engage with peers in vibrant communities.',
-    icon: UsersIcon,
-    href: '/communities',
-  },
-  {
     id: 'dq-comms',
-    name: 'DQ COMMS',
+    name: 'DQ Work Communities',
     description: 'Discussion rooms, pulse updates, and community events.',
     icon: UsersIcon,
     href: '/dq-comms',
