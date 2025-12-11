@@ -33,10 +33,7 @@ export function HeroSection() {
 
           {/* Meta Row */}
           <div className="flex items-center gap-3 text-sm text-white/90 font-inter">
-            <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold">
-              DW
-            </div>
-            <span>EVOM UNIT • Digital Qatalyst</span>
+            <span>EVMO UNIT • Digital Qatalyst</span>
           </div>
         </div>
       </div>
