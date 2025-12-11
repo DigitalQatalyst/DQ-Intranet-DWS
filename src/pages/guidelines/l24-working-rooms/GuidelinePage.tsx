@@ -1,15 +1,34 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Header } from '../../../components/Header'
 import { Footer } from '../../../components/Footer'
 import { useAuth } from '../../../components/Header/context/AuthContext'
+import { supabaseClient } from '../../../lib/supabaseClient'
 import { HeroSection } from './HeroSection'
 import { SideNav } from './SideNav'
 import { GuidelineSection } from './GuidelineSection'
 import { SummaryTable } from './SummaryTable'
 import { FullTableModal } from './FullTableModal'
+import { GuideCard } from '../../../components/guides/GuideCard'
+
+interface RelatedGuide {
+  id: string
+  slug?: string
+  title: string
+  summary?: string
+  heroImageUrl?: string | null
+  domain?: string | null
+  guideType?: string | null
+  lastUpdatedAt?: string | null
+  downloadCount?: number | null
+  isEditorsPick?: boolean | null
+  estimatedTimeMin?: number | null
+}
 
 function GuidelinePage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
+  const currentSlug = 'dq-l24-working-rooms-guidelines'
   
   // Modal state management for each table
   const [structureModalOpen, setStructureModalOpen] = useState(false)
@@ -18,6 +37,150 @@ function GuidelinePage() {
   const [rolesModalOpen, setRolesModalOpen] = useState(false)
   const [governanceModalOpen, setGovernanceModalOpen] = useState(false)
   const [escalationModalOpen, setEscalationModalOpen] = useState(false)
+  
+  // Related guides state
+  const [relatedGuides, setRelatedGuides] = useState<RelatedGuide[]>([])
+  const [relatedGuidesLoading, setRelatedGuidesLoading] = useState(true)
+  const [currentGuide, setCurrentGuide] = useState<{ domain?: string | null; guideType?: string | null } | null>(null)
+
+  // Fetch current guide data
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { data: guideData, error } = await supabaseClient
+          .from('guides')
+          .select('domain, guide_type')
+          .eq('slug', currentSlug)
+          .maybeSingle()
+        
+        if (error) throw error
+        if (!cancelled) {
+          if (guideData) {
+            setCurrentGuide({
+              domain: guideData.domain,
+              guideType: guideData.guide_type
+            })
+          } else {
+            // If guide not found, set empty to trigger related guides fetch with fallback
+            setCurrentGuide({ domain: null, guideType: null })
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching current guide:', error)
+        if (!cancelled) {
+          // Set empty to allow related guides to still try fetching
+          setCurrentGuide({ domain: null, guideType: null })
+        }
+      }
+    })()
+    return () => { cancelled = true }
+  }, [currentSlug])
+
+  // Fetch related guides
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      // Wait a bit for currentGuide to be set
+      if (currentGuide === null) return
+      
+      setRelatedGuidesLoading(true)
+      try {
+        const selectCols = 'id,slug,title,summary,hero_image_url,guide_type,domain,last_updated_at,download_count,is_editors_pick,estimated_time_min'
+        let first: any[] = []
+        
+        // First, try to get guides with same domain
+        if (currentGuide.domain) {
+          const { data: rows } = await supabaseClient
+            .from('guides')
+            .select(selectCols)
+            .eq('domain', currentGuide.domain)
+            .neq('slug', currentSlug)
+            .eq('status', 'Approved')
+            .order('is_editors_pick', { ascending: false, nullsFirst: false })
+            .order('download_count', { ascending: false, nullsFirst: false })
+            .order('last_updated_at', { ascending: false, nullsFirst: false })
+            .limit(6)
+          first = rows || []
+        }
+        
+        let results = first
+        
+        // If we don't have enough, try same guide type
+        if ((results?.length || 0) < 6 && currentGuide.guideType) {
+          const { data: rows2 } = await supabaseClient
+            .from('guides')
+            .select(selectCols)
+            .eq('guide_type', currentGuide.guideType)
+            .neq('slug', currentSlug)
+            .eq('status', 'Approved')
+            .order('is_editors_pick', { ascending: false, nullsFirst: false })
+            .order('download_count', { ascending: false, nullsFirst: false })
+            .order('last_updated_at', { ascending: false, nullsFirst: false })
+            .limit(6)
+          
+          const map = new Map<string, any>()
+          for (const r of (first || [])) map.set(r.slug || r.id, r)
+          for (const r of (rows2 || [])) {
+            const k = r.slug || r.id
+            if (!map.has(k)) map.set(k, r)
+          }
+          results = Array.from(map.values()).slice(0, 6)
+        }
+        
+        // If still not enough and we have no domain/type, try to get any approved guidelines
+        if ((results?.length || 0) < 6 && !currentGuide.domain && !currentGuide.guideType) {
+          const { data: rows3 } = await supabaseClient
+            .from('guides')
+            .select(selectCols)
+            .ilike('domain', '%guideline%')
+            .neq('slug', currentSlug)
+            .eq('status', 'Approved')
+            .order('is_editors_pick', { ascending: false, nullsFirst: false })
+            .order('download_count', { ascending: false, nullsFirst: false })
+            .order('last_updated_at', { ascending: false, nullsFirst: false })
+            .limit(6)
+          
+          const map = new Map<string, any>()
+          for (const r of (results || [])) map.set(r.slug || r.id, r)
+          for (const r of (rows3 || [])) {
+            const k = r.slug || r.id
+            if (!map.has(k)) map.set(k, r)
+          }
+          results = Array.from(map.values()).slice(0, 6)
+        }
+        
+        if (!cancelled) {
+          setRelatedGuides((results || []).map((r: any) => ({
+            id: r.id,
+            slug: r.slug,
+            title: r.title,
+            summary: r.summary,
+            heroImageUrl: r.hero_image_url,
+            domain: r.domain,
+            guideType: r.guide_type,
+            lastUpdatedAt: r.last_updated_at,
+            downloadCount: r.download_count,
+            isEditorsPick: r.is_editors_pick,
+            estimatedTimeMin: r.estimated_time_min,
+          })))
+          setRelatedGuidesLoading(false)
+        }
+      } catch (error) {
+        console.error('Error fetching related guides:', error)
+        if (!cancelled) {
+          setRelatedGuides([])
+          setRelatedGuidesLoading(false)
+        }
+      }
+    })()
+    return () => { cancelled = true }
+  }, [currentGuide, currentSlug])
+
+  const handleGuideClick = (guide: RelatedGuide) => {
+    const slug = guide.slug || guide.id
+    navigate(`/marketplace/guides/${encodeURIComponent(slug)}`)
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -554,6 +717,42 @@ function GuidelinePage() {
           </div>
         </div>
       </main>
+
+      {/* Related Guides Section */}
+      <section className="bg-white border-t border-gray-200 py-16 px-6 md:px-12 lg:px-24">
+        <div className="container mx-auto max-w-7xl">
+          <div className="mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: '#0A1A3B' }}>
+              Related Guidelines
+            </h2>
+            <p className="text-gray-600">
+              Explore other guides that might be helpful
+            </p>
+          </div>
+          
+          {relatedGuidesLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(3)].map((_, idx) => (
+                <div key={idx} className="bg-gray-100 rounded-lg h-64 animate-pulse"></div>
+              ))}
+            </div>
+          ) : relatedGuides.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {relatedGuides.map((guide) => (
+                <GuideCard
+                  key={guide.id}
+                  guide={guide}
+                  onClick={() => handleGuideClick(guide)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No related guides found at this time.</p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Need Help Section */}
       <section className="bg-white border-t border-gray-200 py-12 px-6 md:px-12 lg:px-24">
