@@ -17,7 +17,17 @@ import { track } from '../../utils/analytics'
 import { useAuth } from '../../components/Header/context/AuthContext'
 // CODEx: import new preview component
 import { DocumentPreview } from '../../components/guides/DocumentPreview'
-const GuidelinePage = React.lazy(() => import('../guidelines/l24-working-rooms/GuidelinePage'))
+const L24WorkingRoomsGuidelinePage = React.lazy(() => import('../guidelines/l24-working-rooms/GuidelinePage'))
+const RescueShiftGuidelinePage = React.lazy(() => import('../guidelines/rescue-shift-guidelines/GuidelinePage'))
+const RAIDGuidelinePage = React.lazy(() => import('../guidelines/raid-guidelines/GuidelinePage'))
+const AgendaSchedulingGuidelinePage = React.lazy(() => import('../guidelines/agenda-scheduling-guidelines/GuidelinePage'))
+const FunctionalTrackerGuidelinePage = React.lazy(() => import('../guidelines/functional-tracker-guidelines/GuidelinePage'))
+const ScrumMasterGuidelinePage = React.lazy(() => import('../guidelines/scrum-master-guidelines/GuidelinePage'))
+const QForumGuidelinePage = React.lazy(() => import('../guidelines/qforum-guidelines/GuidelinePage'))
+const ATPGuidelinePage = React.lazy(() => import('../guidelines/atp-guidelines/GuidelinePage'))
+const AgileWorkingGuidelinePage = React.lazy(() => import('../guidelines/agile-working-guidelines/GuidelinePage'))
+const ClientSessionGuidelinePage = React.lazy(() => import('../guidelines/client-session-guidelines/GuidelinePage'))
+const DBPSupportGuidelinePage = React.lazy(() => import('../guidelines/dbp-support-guidelines/GuidelinePage'))
 
 const Markdown = React.lazy(() => import('../../components/guides/MarkdownRenderer'))
 
@@ -64,6 +74,61 @@ const GuideDetailPage: React.FC = () => {
   const [activeContentTab, setActiveContentTab] = useState<string>('overview')
   const isClientTestimonials = useMemo(() => (guide?.slug || '').toLowerCase() === 'client-testimonials', [guide?.slug])
   const isL24WorkingRooms = useMemo(() => (guide?.slug || '').toLowerCase() === 'dq-l24-working-rooms-guidelines' || (guide?.title || '').toLowerCase().includes('l24 working rooms'), [guide?.slug, guide?.title])
+  const isRescueShift = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'dq-rescue-shift-guidelines' || slug === 'rescue-shift-guidelines' || title.includes('rescue shift')
+  }, [guide?.slug, guide?.title])
+  const isRAID = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'raid-guidelines' || slug === 'dq-raid-guidelines' || title.includes('raid guidelines')
+  }, [guide?.slug, guide?.title])
+  const isAgendaScheduling = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'dq-agenda-and-scheduling-guidelines' || slug === 'agenda-scheduling-guidelines' || title.includes('agenda') && title.includes('scheduling')
+  }, [guide?.slug, guide?.title])
+  const isFunctionalTracker = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'dq-functional-tracker-guidelines' || slug === 'functional-tracker-guidelines' || title.includes('functional tracker')
+  }, [guide?.slug, guide?.title])
+  const isScrumMaster = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'dq-scrum-master-guidelines' || slug === 'scrum-master-guidelines' || title.includes('scrum master')
+  }, [guide?.slug, guide?.title])
+  const isQForum = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'forum-guidelines' || slug === 'dq-forum-guidelines' || slug === 'qforum-guidelines' || title.includes('forum guidelines')
+  }, [guide?.slug, guide?.title])
+  const isATP = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'atp-guidelines' || title.includes('atp guidelines')
+  }, [guide?.slug, guide?.title])
+  const isAgileWorking = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'agile-working-guidelines' || title.includes('agile working')
+  }, [guide?.slug, guide?.title])
+  const isClientSession = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'client-session-guidelines' || title.includes('client session')
+  }, [guide?.slug, guide?.title])
+  const isDBPSupport = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'dbp-support-guidelines' || title.includes('dbp support')
+  }, [guide?.slug, guide?.title])
+  
+  // Check if this guide should use a custom GuidelinePage
+  const hasCustomGuidelinePage = useMemo(() => {
+    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isATP || isAgileWorking || isClientSession || isDBPSupport
+  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isATP, isAgileWorking, isClientSession, isDBPSupport])
   const featuredClientTestimonials = [
     {
       id: 'khalifa',
@@ -813,22 +878,59 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     )
   }
 
-  // Use custom layout for L24 Working Rooms Guidelines
-  if (isL24WorkingRooms) {
-    return (
-      <React.Suspense fallback={
-        <div className="min-h-screen flex flex-col bg-gray-50">
-          <Header toggleSidebar={() => {}} sidebarOpen={false} />
-          <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl">
-            <div className="bg-white rounded shadow p-8 text-center text-gray-500">Loading…</div>
-          </main>
-          <Footer isLoggedIn={!!user} />
-        </div>
-      }>
-        <GuidelinePage />
+  // Use custom layout for guidelines with custom GuidelinePage components
+  if (hasCustomGuidelinePage) {
+    const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
+      <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div><p className="mt-4 text-gray-600">Loading...</p></div></div>}>
+        {children}
       </React.Suspense>
     )
+
+    if (isL24WorkingRooms) {
+      return <SuspenseWrapper><L24WorkingRoomsGuidelinePage /></SuspenseWrapper>
+    }
+    
+    if (isRescueShift) {
+      return <SuspenseWrapper><RescueShiftGuidelinePage /></SuspenseWrapper>
+    }
+    
+    if (isRAID) {
+      return <SuspenseWrapper><RAIDGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isAgendaScheduling) {
+      return <SuspenseWrapper><AgendaSchedulingGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isFunctionalTracker) {
+      return <SuspenseWrapper><FunctionalTrackerGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isScrumMaster) {
+      return <SuspenseWrapper><ScrumMasterGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isQForum) {
+      return <SuspenseWrapper><QForumGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isATP) {
+      return <SuspenseWrapper><ATPGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isAgileWorking) {
+      return <SuspenseWrapper><AgileWorkingGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isClientSession) {
+      return <SuspenseWrapper><ClientSessionGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isDBPSupport) {
+      return <SuspenseWrapper><DBPSupportGuidelinePage /></SuspenseWrapper>
+    }
   }
+
 
 
 
