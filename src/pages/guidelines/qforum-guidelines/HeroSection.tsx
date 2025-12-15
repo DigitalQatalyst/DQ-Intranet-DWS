@@ -23,7 +23,7 @@ export function HeroSection() {
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight font-inter">
-            Q Forum Guidelines
+            DQ Forum Guidelines
           </h1>
 
           <div className="flex items-center gap-3 text-sm text-white/90 font-inter">

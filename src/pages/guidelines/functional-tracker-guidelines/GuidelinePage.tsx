@@ -34,6 +34,9 @@ function GuidelinePage() {
   // Modal state management for each table
   const [trackerStructureModalOpen, setTrackerStructureModalOpen] = useState(false)
   const [taskStructureModalOpen, setTaskStructureModalOpen] = useState(false)
+  const [progressStatusModalOpen, setProgressStatusModalOpen] = useState(false)
+  const [rolesModalOpen, setRolesModalOpen] = useState(false)
+  const [escalationModalOpen, setEscalationModalOpen] = useState(false)
   
   // Related guides state
   const [relatedGuides, setRelatedGuides] = useState<RelatedGuide[]>([])
@@ -218,14 +221,11 @@ function GuidelinePage() {
             <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12">
               {/* Context Section */}
               <GuidelineSection id="context" title="Context">
-                <p className="mb-4">
-                  The Functional Tracker has been established across all Digital Qatalyst (DQ) factories (Business Units) as a unified system to monitor and manage all associate tasks.
-                </p>
-                <p className="mb-4">
-                  It consolidates information from multiple workstreams into a single tracker, allowing real-time visibility into progress, performance, and task health across the organization.
-                </p>
                 <p>
-                  By standardizing how tasks are created, maintained, and reviewed, the Functional Tracker ensures consistency in reporting, strengthens accountability, and supports proactive identification of issues or inefficiencies within each factory. These guidelines ensure the tracker is used effectively and consistently across all units, maintaining its role as a reliable management and decision-support tool.
+                  The Functional Tracker has been established across all Digital Qatalyst (DQ) factories (Business Units) as a unified system to monitor and manage all associates tasks. It consolidates information from multiple workstreams into a single tracker, allowing real-time visibility into progress, performance, and task health across the organization.
+                </p>
+                <p className="mt-4">
+                  By standardizing how tasks are created, maintained, and reviewed, the Functional Tracker ensures consistency in reporting, strengthens accountability, and supports proactive identification of issues or inefficiencies within each factory. These guidelines are being put in place to ensure the tracker is used effectively and consistently across all units, maintaining its role as a reliable management and decision-support tool.
                 </p>
               </GuidelineSection>
 
@@ -234,10 +234,10 @@ function GuidelinePage() {
                 <p className="mb-4">
                   The Functional Tracker serves as the single source of truth for tracking all work items (tasks) across each DQ Factory (Business Unit). It provides visibility on:
                 </p>
-                <ul className="list-disc list-inside space-y-2 mb-4">
-                  <li>Task progress and status by associates</li>
-                  <li>Overall factory health and performance</li>
-                  <li>Gaps and bottlenecks that impact delivery</li>
+                <ul className="list-disc list-inside space-y-2 mb-4 text-gray-700">
+                  <li>Task progress and status by associates.</li>
+                  <li>Overall factory health and performance.</li>
+                  <li>Gaps and bottlenecks impact delivery.</li>
                 </ul>
                 <p>
                   It enables Scrum Masters, Factory Leads, and Associates to maintain transparency, accountability, and alignment across all active workstreams.
@@ -252,17 +252,45 @@ function GuidelinePage() {
                 <SummaryTable
                   title="Functional Tracker Structure"
                   columns={[
+                    { header: '#', accessor: 'number' },
                     { header: 'Item', accessor: 'item' },
                     { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
-                      item: '01. WI Areas',
+                      number: '01',
+                      item: 'WI Areas',
                       description: 'Defines the key work item clusters or areas of focus.',
                     },
                     {
-                      item: '02. Purpose',
+                      number: '02',
+                      item: 'Purpose',
                       description: 'Clarifies the goal or intent of each work item area.',
+                    },
+                    {
+                      number: '03',
+                      item: 'Tower',
+                      description: 'Represents the sub-units or focus areas under each factory.',
+                    },
+                    {
+                      number: '04',
+                      item: 'Customer',
+                      description: 'Indicates the end customer or stakeholder benefiting from the task.',
+                    },
+                    {
+                      number: '05',
+                      item: 'Priority (Level)',
+                      description: 'Reflects the urgency or importance of the task.',
+                    },
+                    {
+                      number: '06',
+                      item: 'Priority (Scope)',
+                      description: 'Captures the task\'s impact or scope of influence.',
+                    },
+                    {
+                      number: '07',
+                      item: 'Assignments',
+                      description: 'Lists all tasks and links them to their relevant Work Item Areas.',
                     },
                   ]}
                   onViewFull={() => setTrackerStructureModalOpen(true)}
@@ -272,36 +300,44 @@ function GuidelinePage() {
                   onClose={() => setTrackerStructureModalOpen(false)}
                   title="Functional Tracker Structure"
                   columns={[
+                    { header: '#', accessor: 'number' },
                     { header: 'Item', accessor: 'item' },
                     { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
-                      item: '01. WI Areas',
+                      number: '01',
+                      item: 'WI Areas',
                       description: 'Defines the key work item clusters or areas of focus.',
                     },
                     {
-                      item: '02. Purpose',
+                      number: '02',
+                      item: 'Purpose',
                       description: 'Clarifies the goal or intent of each work item area.',
                     },
                     {
-                      item: '03. Tower',
+                      number: '03',
+                      item: 'Tower',
                       description: 'Represents the sub-units or focus areas under each factory.',
                     },
                     {
-                      item: '04. Customer',
+                      number: '04',
+                      item: 'Customer',
                       description: 'Indicates the end customer or stakeholder benefiting from the task.',
                     },
                     {
-                      item: '05. Priority (Level)',
+                      number: '05',
+                      item: 'Priority (Level)',
                       description: 'Reflects the urgency or importance of the task.',
                     },
                     {
-                      item: '06. Priority (Scope)',
+                      number: '06',
+                      item: 'Priority (Scope)',
                       description: 'Captures the task\'s impact or scope of influence.',
                     },
                     {
-                      item: '07. Assignments',
+                      number: '07',
+                      item: 'Assignments',
                       description: 'Lists all tasks and links them to their relevant Work Item Areas.',
                     },
                   ]}
@@ -316,17 +352,40 @@ function GuidelinePage() {
                 <SummaryTable
                   title="Task Structure (Planner)"
                   columns={[
+                    { header: '#', accessor: 'number' },
                     { header: 'Guideline', accessor: 'guideline' },
                     { header: 'Action Point', accessor: 'action' },
                   ]}
                   data={[
                     {
-                      guideline: '01. Context',
+                      number: '01',
+                      guideline: 'Context',
                       action: 'A clear description of the task background or what it is addressing.',
                     },
                     {
-                      guideline: '02. Purpose',
+                      number: '02',
+                      guideline: 'Purpose',
                       action: 'Why does the task exist (value, impact, or problem it solves).',
+                    },
+                    {
+                      number: '03',
+                      guideline: 'Approach',
+                      action: 'The method or steps to achieve the task.',
+                    },
+                    {
+                      number: '04',
+                      guideline: 'Outcome',
+                      action: 'The tangible, measurable deliverable is expected.',
+                    },
+                    {
+                      number: '05',
+                      guideline: 'Relevant Links',
+                      action: 'References to supporting materials or outputs.',
+                    },
+                    {
+                      number: '06',
+                      guideline: 'Checklist Items (CLIs)',
+                      action: 'Actionable subtasks with clear completion dates.',
                     },
                   ]}
                   onViewFull={() => setTaskStructureModalOpen(true)}
@@ -336,33 +395,263 @@ function GuidelinePage() {
                   onClose={() => setTaskStructureModalOpen(false)}
                   title="Task Structure (Planner)"
                   columns={[
+                    { header: '#', accessor: 'number' },
                     { header: 'Guideline', accessor: 'guideline' },
                     { header: 'Action Point', accessor: 'action' },
                   ]}
                   data={[
                     {
-                      guideline: '01. Context',
+                      number: '01',
+                      guideline: 'Context',
                       action: 'A clear description of the task background or what it is addressing.',
                     },
                     {
-                      guideline: '02. Purpose',
+                      number: '02',
+                      guideline: 'Purpose',
                       action: 'Why does the task exist (value, impact, or problem it solves).',
                     },
                     {
-                      guideline: '03. Approach',
+                      number: '03',
+                      guideline: 'Approach',
                       action: 'The method or steps to achieve the task.',
                     },
                     {
-                      guideline: '04. Outcome',
-                      action: 'The tangible, measurable deliverable expected.',
+                      number: '04',
+                      guideline: 'Outcome',
+                      action: 'The tangible, measurable deliverable is expected.',
                     },
                     {
-                      guideline: '05. Relevant Links',
+                      number: '05',
+                      guideline: 'Relevant Links',
                       action: 'References to supporting materials or outputs.',
                     },
                     {
-                      guideline: '06. Checklist Items (CLIs)',
+                      number: '06',
+                      guideline: 'Checklist Items (CLIs)',
                       action: 'Actionable subtasks with clear completion dates.',
+                    },
+                  ]}
+                />
+                <p className="mt-6 text-sm text-gray-600 italic">
+                  Standard template for the planner task is attached as a reference below:
+                </p>
+              </GuidelineSection>
+
+              {/* Progress Status Definitions Section */}
+              <GuidelineSection id="progress-status" title="Progress Status Definitions">
+                <p className="mb-6">
+                  The progress of each assignment is color-coded to represent its health:
+                </p>
+                <SummaryTable
+                  title="Progress Status Definitions"
+                  columns={[
+                    { header: '#', accessor: 'number' },
+                    { header: 'Status', accessor: 'status' },
+                    { header: 'Color', accessor: 'color' },
+                    { header: 'Description', accessor: 'description' },
+                  ]}
+                  data={[
+                    {
+                      number: '01',
+                      status: 'Problems',
+                      color: '🔴 Red',
+                      description: 'Task lacks clarity or valid context; purpose missing or irrelevant.',
+                    },
+                    {
+                      number: '02',
+                      status: 'Major Gaps',
+                      color: '🟠 Orange',
+                      description: 'Missing or misaligned outcomes, incomplete CLIs, or delayed progress.',
+                    },
+                    {
+                      number: '03',
+                      status: 'Some Gaps',
+                      color: '🟡 Yellow',
+                      description: 'Some issues exist (minor missing items or slight misalignment).',
+                    },
+                    {
+                      number: '04',
+                      status: 'On Track',
+                      color: '🟢 Green',
+                      description: 'Tasks have complete context, purpose, outcome, and progress to reflect reality',
+                    },
+                    {
+                      number: '05',
+                      status: 'TBC or N/A',
+                      color: '⚪ Grey',
+                      description: 'Task pending clarification, or not yet applicable.',
+                    },
+                  ]}
+                  onViewFull={() => setProgressStatusModalOpen(true)}
+                />
+                <FullTableModal
+                  isOpen={progressStatusModalOpen}
+                  onClose={() => setProgressStatusModalOpen(false)}
+                  title="Progress Status Definitions"
+                  columns={[
+                    { header: '#', accessor: 'number' },
+                    { header: 'Status', accessor: 'status' },
+                    { header: 'Color', accessor: 'color' },
+                    { header: 'Description', accessor: 'description' },
+                  ]}
+                  data={[
+                    {
+                      number: '01',
+                      status: 'Problems',
+                      color: '🔴 Red',
+                      description: 'Task lacks clarity or valid context; purpose missing or irrelevant.',
+                    },
+                    {
+                      number: '02',
+                      status: 'Major Gaps',
+                      color: '🟠 Orange',
+                      description: 'Missing or misaligned outcomes, incomplete CLIs, or delayed progress.',
+                    },
+                    {
+                      number: '03',
+                      status: 'Some Gaps',
+                      color: '🟡 Yellow',
+                      description: 'Some issues exist (minor missing items or slight misalignment).',
+                    },
+                    {
+                      number: '04',
+                      status: 'On Track',
+                      color: '🟢 Green',
+                      description: 'Tasks have complete context, purpose, outcome, and progress to reflect reality',
+                    },
+                    {
+                      number: '05',
+                      status: 'TBC or N/A',
+                      color: '⚪ Grey',
+                      description: 'Task pending clarification, or not yet applicable.',
+                    },
+                  ]}
+                />
+              </GuidelineSection>
+
+              {/* Roles & Responsibilities Section */}
+              <GuidelineSection id="roles-responsibilities" title="Roles & Responsibilities">
+                <p className="mb-6">
+                  Key responsibilities of all roles involved in maintaining and governing the Functional Tracker
+                </p>
+                <SummaryTable
+                  title="Roles & Responsibilities"
+                  columns={[
+                    { header: '#', accessor: 'number' },
+                    { header: 'Role', accessor: 'role' },
+                    { header: 'Key Responsibilities', accessor: 'responsibilities' },
+                  ]}
+                  data={[
+                    {
+                      number: '01',
+                      role: 'Associates',
+                      responsibilities: '- Update assigned tasks daily according to progress.\n- Maintain complete Context, Purpose, and Outcome fields.\n- Ensure CLIs are updated, and completion dates accurate.\n- Flag blockers immediately to the Factory Leads/Scrum Master.\n- Prevent tasks from staying in red (Problem) status.',
+                    },
+                    {
+                      number: '02',
+                      role: 'Scrum Masters',
+                      responsibilities: '- Scan the Functional Tracker at least twice a week.\n- Verify status accuracy and identify missing elements.\n- Support associates in resolving gaps and ensuring proper task hygiene.\n- Ensure consistency across all towers within the factory.',
+                    },
+                    {
+                      number: '03',
+                      role: 'Factory Leads',
+                      responsibilities: '- Regularly review the tracker to identify maintenance or quality gaps.\n- Communicate issues directly to associates for optimization.\n- Ensure task quality and progress reflect true delivery.\n- Support Scrum Masters in maintaining tracker discipline.',
+                    },
+                  ]}
+                  onViewFull={() => setRolesModalOpen(true)}
+                />
+                <FullTableModal
+                  isOpen={rolesModalOpen}
+                  onClose={() => setRolesModalOpen(false)}
+                  title="Roles & Responsibilities"
+                  columns={[
+                    { header: '#', accessor: 'number' },
+                    { header: 'Role', accessor: 'role' },
+                    { header: 'Key Responsibilities', accessor: 'responsibilities' },
+                  ]}
+                  data={[
+                    {
+                      number: '01',
+                      role: 'Associates',
+                      responsibilities: '- Update assigned tasks daily according to progress.\n- Maintain complete Context, Purpose, and Outcome fields.\n- Ensure CLIs are updated, and completion dates accurate.\n- Flag blockers immediately to the Factory Leads/Scrum Master.\n- Prevent tasks from staying in red (Problem) status.',
+                    },
+                    {
+                      number: '02',
+                      role: 'Scrum Masters',
+                      responsibilities: '- Scan the Functional Tracker at least twice a week.\n- Verify status accuracy and identify missing elements.\n- Support associates in resolving gaps and ensuring proper task hygiene.\n- Ensure consistency across all towers within the factory.',
+                    },
+                    {
+                      number: '03',
+                      role: 'Factory Leads',
+                      responsibilities: '- Regularly review the tracker to identify maintenance or quality gaps.\n- Communicate issues directly to associates for optimization.\n- Ensure task quality and progress reflect true delivery.\n- Support Scrum Masters in maintaining tracker discipline.',
+                    },
+                  ]}
+                />
+              </GuidelineSection>
+
+              {/* Escalation & Payroll Protocol Section */}
+              <GuidelineSection id="escalation-payroll" title="Escalation & Payroll Protocol">
+                <p className="mb-6">
+                  The escalation process and payroll implications to ensure timely resolution of issues and accountability for task maintenance.
+                </p>
+                <SummaryTable
+                  title="Escalation & Payroll Protocol"
+                  columns={[
+                    { header: '#', accessor: 'number' },
+                    { header: 'Condition', accessor: 'condition' },
+                    { header: 'Action Required', accessor: 'action' },
+                    { header: 'Owner', accessor: 'owner' },
+                  ]}
+                  data={[
+                    {
+                      number: '01',
+                      condition: 'Task remains in Orange or Red for 2 consecutive weeks',
+                      action: 'Scrum Master to escalate to Factory Lead.',
+                      owner: 'Scrum Master',
+                    },
+                    {
+                      number: '02',
+                      condition: 'Task remains in Red for 3+ weeks',
+                      action: 'Immediate review during UWS for rescoping or action plan.',
+                      owner: 'Factory Lead',
+                    },
+                    {
+                      number: '03',
+                      condition: 'By the 20th of each month',
+                      action: 'No associated task should remain in Red (Problem). Unresolved Problem status will affect payroll validation.',
+                      owner: 'Associate & Scrum Master',
+                    },
+                  ]}
+                  onViewFull={() => setEscalationModalOpen(true)}
+                />
+                <FullTableModal
+                  isOpen={escalationModalOpen}
+                  onClose={() => setEscalationModalOpen(false)}
+                  title="Escalation & Payroll Protocol"
+                  columns={[
+                    { header: '#', accessor: 'number' },
+                    { header: 'Condition', accessor: 'condition' },
+                    { header: 'Action Required', accessor: 'action' },
+                    { header: 'Owner', accessor: 'owner' },
+                  ]}
+                  data={[
+                    {
+                      number: '01',
+                      condition: 'Task remains in Orange or Red for 2 consecutive weeks',
+                      action: 'Scrum Master to escalate to Factory Lead.',
+                      owner: 'Scrum Master',
+                    },
+                    {
+                      number: '02',
+                      condition: 'Task remains in Red for 3+ weeks',
+                      action: 'Immediate review during UWS for rescoping or action plan.',
+                      owner: 'Factory Lead',
+                    },
+                    {
+                      number: '03',
+                      condition: 'By the 20th of each month',
+                      action: 'No associated task should remain in Red (Problem). Unresolved Problem status will affect payroll validation.',
+                      owner: 'Associate & Scrum Master',
                     },
                   ]}
                 />

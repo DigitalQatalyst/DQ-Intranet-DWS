@@ -487,7 +487,13 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       if (isGuides) {
         setLoading(true);
         try {
+          // Exclude removed guidelines from frontend
+          const excludedSlugs = ['atp-guidelines', 'agile-working-guidelines', 'client-session-guidelines', 'dbp-support-guidelines'];
+          
           let q = supabaseClient.from('guides').select(GUIDE_LIST_SELECT, { count: 'exact' });
+          excludedSlugs.forEach(slug => {
+            q = q.neq('slug', slug);
+          });
 
           const qStr = queryParams.get('q') || '';
           const domains     = parseFilterValues(queryParams, 'domain');
@@ -591,10 +597,14 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           // When fetching all, we need to set a high limit (Supabase default is 1000)
           const listPromise = needsClientSideFiltering ? q.limit(10000) : q.range(from, to);
           
+          // Exclude removed guidelines from facets
           let facetQ = supabaseClient
             .from('guides')
             .select('domain,sub_domain,guide_type,function_area,unit,location,status')
             .eq('status', 'Approved');
+          excludedSlugs.forEach(slug => {
+            facetQ = facetQ.neq('slug', slug);
+          });
 
           // Facets should show ALL available options for the current tab, not filtered by selected filters
           // This ensures filter options don't disappear when other filters are selected

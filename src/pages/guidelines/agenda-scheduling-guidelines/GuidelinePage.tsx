@@ -223,32 +223,29 @@ function GuidelinePage() {
             <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12">
               {/* Context Section */}
               <GuidelineSection id="context" title="Context">
-                <p className="mb-4">
-                  Effective agenda planning and scheduling ensure DQ operates with discipline, alignment, and efficiency.
-                </p>
                 <p>
-                  These guidelines standardize how agendas are built and sessions are scheduled to maximize productivity and create clarity for all participants.
+                  Effective agenda planning and scheduling are essential to ensuring Digital Qatalyst (DQ) operates with discipline, alignment, and efficiency. By standardizing how agendas are built and sessions are scheduled, we maximize productivity, minimize wasted time, and create clarity for all participants. These guidelines establish a common framework that reflects DQ&apos;s culture of operational excellence, enabling associates to prepare, engage, and deliver meaningful outcomes in every interaction.
                 </p>
               </GuidelineSection>
 
               {/* Definition Section */}
               <GuidelineSection id="definition" title="Definition">
                 <p>
-                  Agenda and scheduling practices define the structured approach for planning, organizing, and executing meetings, workshops, and sessions. This includes setting clear objectives, sharing preparatory material in advance, aligning schedules to participant availability, and ensuring each session is purposeful, time-bound, and outcome-oriented.
+                  In the context of Digital Qatalyst (DQ), agenda and scheduling practices define the structured approach for planning, organizing, and executing meetings, workshops, and sessions. This includes setting clear objectives, sharing preparatory material in advance, aligning schedules to participant availability, and ensuring that each session is purposeful, time-bound, and outcome-oriented.
                 </p>
               </GuidelineSection>
 
               {/* Purpose Section */}
               <GuidelineSection id="purpose" title="Purpose">
                 <p>
-                  Bring order, clarity, and predictability to DQ&apos;s working rhythm. Ensure time is respected, objectives are achieved, and every session contributes to progress.
+                  The primary purpose of agenda and scheduling guidelines is to bring order, clarity, and predictability to DQ&apos;s working rhythm. By following these practices, teams ensure that time is respected, objectives are achieved, and every session contributes to progress.
                 </p>
               </GuidelineSection>
 
               {/* Key Characteristics Section */}
               <GuidelineSection id="key-characteristics" title="Key Characteristics">
                 <p className="mb-6">
-                  The following key characteristics define how agendas and schedules are structured and managed across DQ to ensure consistency, alignment, and value delivery.
+                  The following characteristics define how agendas and scheduling should be approached across DQ:
                 </p>
                 <SummaryTable
                   title="Key Characteristics"
@@ -261,12 +258,27 @@ function GuidelinePage() {
                     {
                       number: '01',
                       item: 'Clear and Purposeful',
-                      description: 'Agendas are drafted with well-defined context, purpose, and logical flow.',
+                      description: 'Agendas are drafted with well-defined context, purpose and logical flow.',
                     },
                     {
                       number: '02',
                       item: 'Transparent and Accessible',
                       description: 'Agendas and schedules are shared in advance, ensuring participants can prepare.',
+                    },
+                    {
+                      number: '03',
+                      item: 'Time-Disciplined',
+                      description: 'Sessions are scheduled within reasonable timeframes and strictly managed against overruns.',
+                    },
+                    {
+                      number: '04',
+                      item: 'Inclusive and Aligned',
+                      description: 'Scheduling ensures that all relevant participants can join, using tools like Teams scheduling assistant.',
+                    },
+                    {
+                      number: '05',
+                      item: 'Documented and Traceable',
+                      description: 'Agendas, schedules, and related updates are recorded for future reference and accountability.',
                     },
                   ]}
                   onViewFull={() => setKeyCharacteristicsModalOpen(true)}
@@ -284,7 +296,7 @@ function GuidelinePage() {
                     {
                       number: '01',
                       item: 'Clear and Purposeful',
-                      description: 'Agendas are drafted with well-defined context, purpose, and logical flow.',
+                      description: 'Agendas are drafted with well-defined context, purpose and logical flow.',
                     },
                     {
                       number: '02',
@@ -299,7 +311,7 @@ function GuidelinePage() {
                     {
                       number: '04',
                       item: 'Inclusive and Aligned',
-                      description: 'Scheduling ensures all relevant participants can join, using tools like Teams scheduling assistant.',
+                      description: 'Scheduling ensures that all relevant participants can join, using tools like Teams scheduling assistant.',
                     },
                     {
                       number: '05',
@@ -313,7 +325,7 @@ function GuidelinePage() {
               {/* Types of Scheduling Practices Section */}
               <GuidelineSection id="scheduling-practices" title="Types of Scheduling Practices">
                 <p className="mb-6">
-                  Different scheduling practices serve specific purposes to maximize efficiency and ensure proper coordination.
+                  This table highlights the different scheduling practices used within DQ. Each practice ensures meetings are planned with purpose, while balancing flexibility for urgent needs.
                 </p>
                 <SummaryTable
                   title="Types of Scheduling Practices"
@@ -332,6 +344,21 @@ function GuidelinePage() {
                       number: '02',
                       guideline: 'Urgent Session Setup',
                       action: 'Allow for flexibility in scheduling urgent sessions (exception to the 24-hour rule).',
+                    },
+                    {
+                      number: '03',
+                      guideline: 'Recurring Meetings',
+                      action: 'Establish recurring schedules for regular Forums (e.g., Scrums, Retros) to reduce ad-hoc bookings.',
+                    },
+                    {
+                      number: '04',
+                      guideline: 'Time-Zone Sensitivity',
+                      action: 'Account for global time differences when inviting associates from multiple regions.',
+                    },
+                    {
+                      number: '05',
+                      guideline: 'Conflict Management',
+                      action: 'An intensive, time-boxed session designed to rapidly complete a set of tasks or meet a pressing deadline, often involving cross-functional collaboration.',
                     },
                   ]}
                   onViewFull={() => setSchedulingPracticesModalOpen(true)}
@@ -369,7 +396,7 @@ function GuidelinePage() {
                     {
                       number: '05',
                       guideline: 'Conflict Management',
-                      action: 'Use scheduling tools to identify and resolve calendar conflicts proactively.',
+                      action: 'An intensive, time-boxed session designed to rapidly complete a set of tasks or meet a pressing deadline, often involving cross-functional collaboration.',
                     },
                   ]}
                 />
@@ -378,7 +405,7 @@ function GuidelinePage() {
               {/* Roles & Responsibilities Section */}
               <GuidelineSection id="roles" title="Roles & Responsibilities">
                 <p className="mb-6">
-                  Clear definition of roles ensures effective coordination and accountability during agenda planning and session execution.
+                  The table below defines the key roles in agenda and scheduling, along with their responsibilities. Clear ownership ensures accountability and effective session delivery.
                 </p>
                 <SummaryTable
                   title="Roles & Responsibilities"
@@ -397,6 +424,16 @@ function GuidelinePage() {
                       number: '02',
                       role: 'Note-taker',
                       action: 'Captures key points, decisions, and action items in real time and ensures proper documentation.',
+                    },
+                    {
+                      number: '03',
+                      role: 'Organizer',
+                      action: 'Sends invites, checks availability, shares preparatory material, and manages scheduling logistics.',
+                    },
+                    {
+                      number: '04',
+                      role: 'Participants',
+                      action: 'Prepare in advance, actively engage during the session, and respect agenda and time boundaries.',
                     },
                   ]}
                   onViewFull={() => setRolesModalOpen(true)}
@@ -438,14 +475,17 @@ function GuidelinePage() {
               {/* Agenda Design Guidelines Section */}
               <GuidelineSection id="agenda-design" title="Agenda Design Guidelines">
                 <p className="mb-6">
-                  Effective agenda design ensures sessions are purposeful, well-structured, and outcome-oriented.
+                  A well-structured agenda is the foundation of every effective session. It ensures discussions stay focused, objectives are clear, and participants come prepared. The guidelines below establish a consistent approach to designing agendas at DQ, aligning sessions with strategic goals while promoting efficiency, accountability, and meaningful outcomes.
                 </p>
 
                 {/* Context Subsection */}
                 <div className="mb-8">
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">Context</h3>
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">2.1 Context</h3>
+                  <p className="mb-6">
+                    The table below highlights how context should be articulated when drafting an agenda. Providing a clear backdrop ensures that all participants understand the strategic drivers behind the session. (Reference attached below)
+                  </p>
                   <SummaryTable
-                    title="Context Guidelines"
+                    title="2.1 Context"
                     columns={[
                       { header: '#', accessor: 'number' },
                       { header: 'Guideline', accessor: 'guideline' },
@@ -462,13 +502,18 @@ function GuidelinePage() {
                         guideline: 'Link to Strategic Objectives',
                         action: 'Clearly connect the agenda to broader organizational goals (e.g., visibility, governance, delivery performance).',
                       },
+                      {
+                        number: '03',
+                        guideline: 'Define the Forum',
+                        action: 'Specify why the session exists and how it contributes to ongoing governance or operational improvement.',
+                      },
                     ]}
                     onViewFull={() => setAgendaContextModalOpen(true)}
                   />
                   <FullTableModal
                     isOpen={agendaContextModalOpen}
                     onClose={() => setAgendaContextModalOpen(false)}
-                    title="Context Guidelines"
+                    title="2.1 Context"
                     columns={[
                       { header: '#', accessor: 'number' },
                       { header: 'Guideline', accessor: 'guideline' },
@@ -496,9 +541,12 @@ function GuidelinePage() {
 
                 {/* Purpose Subsection */}
                 <div className="mb-8">
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">Purpose</h3>
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">2.2 Purpose</h3>
+                  <p className="mb-6">
+                    This table outlines how to frame the purpose of a session agenda. The purpose should define intended outcomes and areas of review. (Reference attached below)
+                  </p>
                   <SummaryTable
-                    title="Purpose Guidelines"
+                    title="2.2 Purpose"
                     columns={[
                       { header: '#', accessor: 'number' },
                       { header: 'Guideline', accessor: 'guideline' },
@@ -508,12 +556,17 @@ function GuidelinePage() {
                       {
                         number: '01',
                         guideline: 'State the Why (Intended Impact)',
-                        action: 'Explain why the session exists and the value it must create (e.g., "Align governance to sustain growth").',
+                        action: 'Explain why the session exists and the value it must create (e.g., "Align governance to sustain growth")',
                       },
                       {
                         number: '02',
                         guideline: 'Make Outcomes Explicit',
                         action: 'Name the concrete outcomes/decisions expected (approve plan, confirm KPIs, assign owners & dates) rather than "discuss."',
+                      },
+                      {
+                        number: '03',
+                        guideline: 'Keep Purpose Concise & Action-Led',
+                        action: 'Use 1–3 verb-led bullets that directly shape agenda sequencing and time-boxing.',
                       },
                     ]}
                     onViewFull={() => setAgendaPurposeModalOpen(true)}
@@ -521,7 +574,7 @@ function GuidelinePage() {
                   <FullTableModal
                     isOpen={agendaPurposeModalOpen}
                     onClose={() => setAgendaPurposeModalOpen(false)}
-                    title="Purpose Guidelines"
+                    title="2.2 Purpose"
                     columns={[
                       { header: '#', accessor: 'number' },
                       { header: 'Guideline', accessor: 'guideline' },
@@ -531,7 +584,7 @@ function GuidelinePage() {
                       {
                         number: '01',
                         guideline: 'State the Why (Intended Impact)',
-                        action: 'Explain why the session exists and the value it must create (e.g., "Align governance to sustain growth").',
+                        action: 'Explain why the session exists and the value it must create (e.g., "Align governance to sustain growth")',
                       },
                       {
                         number: '02',
@@ -549,9 +602,12 @@ function GuidelinePage() {
 
                 {/* Agenda Structure Subsection */}
                 <div className="mb-8">
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">Agenda Structure</h3>
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">2.3 Agenda</h3>
+                  <p className="mb-6">
+                    The following table sets best practices for structuring the actual agenda items. Agenda items should be actionable, sequenced logically, and time boxed. (Reference attached below)
+                  </p>
                   <SummaryTable
-                    title="Agenda Structure Guidelines"
+                    title="2.3 Agenda"
                     columns={[
                       { header: '#', accessor: 'number' },
                       { header: 'Guideline', accessor: 'guideline' },
@@ -568,13 +624,23 @@ function GuidelinePage() {
                         guideline: 'Sequence Logically',
                         action: 'Group items by related themes to ensure structured discussion.',
                       },
+                      {
+                        number: '03',
+                        guideline: 'Allow for Open Items',
+                        action: 'Include AoB (Any other Business) to capture additional, non-planned topics.',
+                      },
+                      {
+                        number: '04',
+                        guideline: 'Keep Agenda Time-Boxed',
+                        action: 'Allocate time for each section to prevent overruns and ensure coverage of all topics.',
+                      },
                     ]}
                     onViewFull={() => setAgendaStructureModalOpen(true)}
                   />
                   <FullTableModal
                     isOpen={agendaStructureModalOpen}
                     onClose={() => setAgendaStructureModalOpen(false)}
-                    title="Agenda Structure Guidelines"
+                    title="2.3 Agenda"
                     columns={[
                       { header: '#', accessor: 'number' },
                       { header: 'Guideline', accessor: 'guideline' },
@@ -607,9 +673,12 @@ function GuidelinePage() {
 
                 {/* Related Materials Subsection */}
                 <div>
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">Related Materials</h3>
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">2.4 Related Materials</h3>
+                  <p className="mb-6">
+                    The table below defines how related materials (documents, dashboards, trackers, or references) should be managed in relation to the agenda. (Reference attached below)
+                  </p>
                   <SummaryTable
-                    title="Related Materials Guidelines"
+                    title="2.4 Related Materials"
                     columns={[
                       { header: '#', accessor: 'number' },
                       { header: 'Guideline', accessor: 'guideline' },
@@ -619,12 +688,17 @@ function GuidelinePage() {
                       {
                         number: '01',
                         guideline: 'Attach Relevant Documents',
-                        action: 'Link supporting materials (e.g., trackers, governance decks) directly in the invite or agenda.',
+                        action: 'Link supporting materials (e.g. trackers, governance decks) directly in the invite or agenda.',
                       },
                       {
                         number: '02',
                         guideline: 'Keep Materials Updated',
                         action: 'Ensure related documents are refreshed before each session to avoid outdated or conflicting information.',
+                      },
+                      {
+                        number: '03',
+                        guideline: 'Capture Outcomes in Same Space',
+                        action: 'Store meeting notes, updated trackers, and decisions in the same repository to create a single source of truth.',
                       },
                     ]}
                     onViewFull={() => setRelatedMaterialsModalOpen(true)}
@@ -632,7 +706,7 @@ function GuidelinePage() {
                   <FullTableModal
                     isOpen={relatedMaterialsModalOpen}
                     onClose={() => setRelatedMaterialsModalOpen(false)}
-                    title="Related Materials Guidelines"
+                    title="2.4 Related Materials"
                     columns={[
                       { header: '#', accessor: 'number' },
                       { header: 'Guideline', accessor: 'guideline' },
@@ -642,7 +716,7 @@ function GuidelinePage() {
                       {
                         number: '01',
                         guideline: 'Attach Relevant Documents',
-                        action: 'Link supporting materials (e.g., trackers, governance decks) directly in the invite or agenda.',
+                        action: 'Link supporting materials (e.g. trackers, governance decks) directly in the invite or agenda.',
                       },
                       {
                         number: '02',

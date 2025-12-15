@@ -8,12 +8,12 @@ interface SideNavProps {
 const sections = [
   { id: 'context', label: 'Context' },
   { id: 'purpose', label: 'Purpose' },
-  { id: 'how-it-works', label: 'How It Works' },
-  { id: 'planning-process', label: 'Planning Process' },
-  { id: 'during-shift', label: 'During the Rescue Shift' },
+  { id: 'structure-overview', label: 'Structure Overview' },
+  { id: 'planning-process', label: 'Rescue Shift Planning Process' },
+  { id: 'during-shift', label: 'Process During the Rescue Shift' },
   { id: 'roles-responsibilities', label: 'Roles & Responsibilities' },
-  { id: 'wfh-during-shift', label: 'Working from Home' },
-  { id: 'payroll', label: 'Payroll' },
+  { id: 'remote-working', label: 'Remote Working in Rescue Shift' },
+  { id: 'payroll-compliance', label: 'Payroll Compliance' },
 ]
 
 export function SideNav({ activeSection, onSectionClick }: SideNavProps) {

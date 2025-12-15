@@ -24,10 +24,6 @@ const AgendaSchedulingGuidelinePage = React.lazy(() => import('../guidelines/age
 const FunctionalTrackerGuidelinePage = React.lazy(() => import('../guidelines/functional-tracker-guidelines/GuidelinePage'))
 const ScrumMasterGuidelinePage = React.lazy(() => import('../guidelines/scrum-master-guidelines/GuidelinePage'))
 const QForumGuidelinePage = React.lazy(() => import('../guidelines/qforum-guidelines/GuidelinePage'))
-const ATPGuidelinePage = React.lazy(() => import('../guidelines/atp-guidelines/GuidelinePage'))
-const AgileWorkingGuidelinePage = React.lazy(() => import('../guidelines/agile-working-guidelines/GuidelinePage'))
-const ClientSessionGuidelinePage = React.lazy(() => import('../guidelines/client-session-guidelines/GuidelinePage'))
-const DBPSupportGuidelinePage = React.lazy(() => import('../guidelines/dbp-support-guidelines/GuidelinePage'))
 
 const Markdown = React.lazy(() => import('../../components/guides/MarkdownRenderer'))
 
@@ -104,31 +100,11 @@ const GuideDetailPage: React.FC = () => {
     const title = (guide?.title || '').toLowerCase()
     return slug === 'forum-guidelines' || slug === 'dq-forum-guidelines' || slug === 'qforum-guidelines' || title.includes('forum guidelines')
   }, [guide?.slug, guide?.title])
-  const isATP = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'atp-guidelines' || title.includes('atp guidelines')
-  }, [guide?.slug, guide?.title])
-  const isAgileWorking = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'agile-working-guidelines' || title.includes('agile working')
-  }, [guide?.slug, guide?.title])
-  const isClientSession = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'client-session-guidelines' || title.includes('client session')
-  }, [guide?.slug, guide?.title])
-  const isDBPSupport = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dbp-support-guidelines' || title.includes('dbp support')
-  }, [guide?.slug, guide?.title])
   
   // Check if this guide should use a custom GuidelinePage
   const hasCustomGuidelinePage = useMemo(() => {
-    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isATP || isAgileWorking || isClientSession || isDBPSupport
-  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isATP, isAgileWorking, isClientSession, isDBPSupport])
+    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum
+  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum])
   const featuredClientTestimonials = [
     {
       id: 'khalifa',
@@ -914,21 +890,6 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
       return <SuspenseWrapper><QForumGuidelinePage /></SuspenseWrapper>
     }
 
-    if (isATP) {
-      return <SuspenseWrapper><ATPGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isAgileWorking) {
-      return <SuspenseWrapper><AgileWorkingGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isClientSession) {
-      return <SuspenseWrapper><ClientSessionGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isDBPSupport) {
-      return <SuspenseWrapper><DBPSupportGuidelinePage /></SuspenseWrapper>
-    }
   }
 
 

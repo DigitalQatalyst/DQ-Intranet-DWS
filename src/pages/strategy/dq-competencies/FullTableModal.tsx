@@ -141,4 +141,3 @@ export function FullTableModal({ isOpen, onClose, title, columns, data, descript
     </div>
   )
 }
-

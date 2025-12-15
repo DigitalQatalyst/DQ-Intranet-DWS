@@ -32,9 +32,12 @@ function GuidelinePage() {
   const currentSlug = 'dq-rescue-shift-guidelines'
   
   // Modal state management
+  const [structureOverviewModalOpen, setStructureOverviewModalOpen] = useState(false)
   const [planningModalOpen, setPlanningModalOpen] = useState(false)
   const [duringShiftModalOpen, setDuringShiftModalOpen] = useState(false)
   const [rolesModalOpen, setRolesModalOpen] = useState(false)
+  const [remoteWorkingModalOpen, setRemoteWorkingModalOpen] = useState(false)
+  const [payrollComplianceModalOpen, setPayrollComplianceModalOpen] = useState(false)
   
   // Related guides state
   const [relatedGuides, setRelatedGuides] = useState<RelatedGuide[]>([])
@@ -216,94 +219,144 @@ function GuidelinePage() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12">
               <GuidelineSection id="context" title="Context">
-                <p className="mb-4">
-                  Rescue shifts help complete high-volume backlog work by allowing associates to work extra hours outside normal working time.
-                </p>
                 <p>
-                  These guidelines apply to all associates, project managers, scrum masters, line managers, and HR involved in coordinating and executing rescue shifts.
+                  The Rescue Shift Guidelines are being created to ensure the completion of high volume backlog work items by allocating additional resources outside of normal working hours. These shifts are necessary to address periods of high workload, enabling associates to contribute extra hours to clear critical tasks. The guidelines apply to all associates, project managers, scrum masters, line managers, and HR involved in coordinating and executing rescue shifts.
                 </p>
               </GuidelineSection>
 
               <GuidelineSection id="purpose" title="Purpose">
-                <p className="mb-4">These guidelines ensure:</p>
-                <ul className="list-disc list-inside space-y-2 text-gray-700">
-                  <li>Clear and consistent scheduling, tracking, and compensation</li>
-                  <li>Clear task specifications and time estimates</li>
-                  <li>Clear roles, responsibilities, and expectations</li>
-                  <li>Smooth coordination between associates, managers, and HR</li>
-                  <li>Timely completion of backlog tasks</li>
+                <p className="mb-6">
+                  The primary goal of these guidelines is to:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-gray-700 mb-6">
+                  <li>Ensure clarity and consistency in how rescue shifts are scheduled, tracked, and compensated.</li>
+                  <li>Provide clear specifications and estimate time effort for each task.</li>
+                  <li>Provide accountability by clearly outlining roles, responsibilities, and expectations for all involved.</li>
+                  <li>Enhance alignment between associates, project managers, scrum masters, and HR to ensure smooth operations.</li>
+                  <li>Ensure timely completion of backlog tasks, thereby improving project delivery and operational efficiency.</li>
                 </ul>
               </GuidelineSection>
 
-              <GuidelineSection id="how-it-works" title="How It Works">
-                <div className="mb-4">
-                  <p className="font-semibold mb-2">Shift Types:</p>
-                  <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                    <li><strong>Weekday:</strong> 4 hours after normal working hours</li>
-                    <li><strong>Weekend:</strong> Hours agreed in advance</li>
-                  </ul>
-                </div>
-                <div>
-                  <p className="font-semibold mb-2">Process Overview:</p>
-                  <ol className="list-decimal list-inside space-y-1 text-gray-700 ml-4">
-                    <li><strong>Planning</strong> - Backlog compilation, effort estimates, approvals</li>
-                    <li><strong>Execution</strong> - Associates work during rescue hours with check-ins</li>
-                    <li><strong>Payroll</strong> - Payment only after task completion and manager confirmation</li>
-                  </ol>
-                </div>
-              </GuidelineSection>
-
-              <GuidelineSection id="planning-process" title="Planning Process">
+              <GuidelineSection id="structure-overview" title="Structure Overview">
                 <p className="mb-6">
-                  The planning process involves several steps to ensure proper coordination, approval, and assignment of rescue shift work.
+                  The Rescue Shift process consists of the following main components:
                 </p>
                 <SummaryTable
-                  title="Planning Process Steps"
+                  title="Structure Overview"
                   columns={[
                     { header: '#', accessor: 'number' },
-                    { header: 'Step', accessor: 'step' },
+                    { header: 'Items', accessor: 'item' },
                     { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
                       number: '01',
-                      step: 'Backlog Compilation',
-                      description: 'Project Manager/Coordinator compiles outstanding work items with:\n- Clear specifications\n- Estimated effort for each task',
+                      item: 'Shift Types',
+                      description: 'Weekday (4 hours post-working hours) and Weekend (agreed hours).',
                     },
                     {
                       number: '02',
-                      step: 'Check Availability',
-                      description: 'Project Manager/Coordinator coordinates with Scrum Master to:\n- Confirm associate availability\n- Agree on suitable timeslots',
+                      item: 'Shift Planning',
+                      description: 'Involves backlog & specs compilation along with effort estimate and coordination with scrum masters, and approvals from line managers and HR.',
                     },
                     {
                       number: '03',
-                      step: 'Link Tasks',
-                      description: 'All work items must link back to associate tasks/CLIs for tracking and visibility.',
+                      item: 'Execution',
+                      description: 'Associates work during their designated rescue hours, attending check-ins, providing progress updates, and completing tasks.',
                     },
                     {
                       number: '04',
-                      step: 'Get Line Manager Approval',
-                      description: 'Project Manager/Coordinator sends the proposed list (associates + tasks) to Line Manager for approval.',
+                      item: 'Payroll Confirmation',
+                      description: 'Payment is processed only after task completion and manager confirmation.',
+                    },
+                  ]}
+                  onViewFull={() => setStructureOverviewModalOpen(true)}
+                />
+                <FullTableModal
+                  isOpen={structureOverviewModalOpen}
+                  onClose={() => setStructureOverviewModalOpen(false)}
+                  title="Structure Overview"
+                  columns={[
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Description', accessor: 'description' },
+                  ]}
+                  data={[
+                    {
+                      number: '01',
+                      item: 'Shift Types',
+                      description: 'Weekday (4 hours post-working hours) and Weekend (agreed hours).',
+                    },
+                    {
+                      number: '02',
+                      item: 'Shift Planning',
+                      description: 'Involves backlog & specs compilation along with effort estimate and coordination with scrum masters, and approvals from line managers and HR.',
+                    },
+                    {
+                      number: '03',
+                      item: 'Execution',
+                      description: 'Associates work during their designated rescue hours, attending check-ins, providing progress updates, and completing tasks.',
+                    },
+                    {
+                      number: '04',
+                      item: 'Payroll Confirmation',
+                      description: 'Payment is processed only after task completion and manager confirmation.',
+                    },
+                  ]}
+                />
+              </GuidelineSection>
+
+              <GuidelineSection id="planning-process" title="Rescue Shift Planning Process">
+                <p className="mb-6">
+                  The Rescue Shift Planning process consists of the following main components:
+                </p>
+                <SummaryTable
+                  title="Rescue Shift Planning Process"
+                  columns={[
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Action Point', accessor: 'action' },
+                  ]}
+                  data={[
+                    {
+                      number: '01',
+                      item: 'Backlog Compilation',
+                      action: 'The Project Manager/Coordinator compiles a list of outstanding work items, including clear specifications and estimated effort required for completion.',
+                    },
+                    {
+                      number: '02',
+                      item: 'Associate Availability Check',
+                      action: 'The Project Manager/Coordinator coordinates with the relevant Scrum Master to confirm the availability and suitable timeslots for associates who will be assigned the tasks.',
+                    },
+                    {
+                      number: '03',
+                      item: 'Task Linkage',
+                      action: 'All work items assigned to associates must link back to their tasks/CLIs to track and provide visibility on the rescue shift.',
+                    },
+                    {
+                      number: '04',
+                      item: 'Shift List Approval',
+                      action: 'Once availability is confirmed, the Project Manager/Coordinator sends the proposed list of associates and tasks to the Line Manager for approval.',
                     },
                     {
                       number: '05',
-                      step: 'Get HR Approval',
-                      description: 'After Line Manager approval, send the list to HR for final validation.',
+                      item: 'HR Approval',
+                      action: 'After receiving approval from the Line Manager, the list is sent to HR for final validation and approval.',
                     },
                     {
                       number: '06',
-                      step: 'Assign Moderator',
-                      description: 'Project Manager/Coordinator assigns a Moderator for each rescue shift to:\n- Oversee progress\n- Provide support when needed',
+                      item: 'Moderator Appointment',
+                      action: 'The Project Manager/Coordinator assigns a Moderator for each rescue shift to oversee progress and provide support where necessary.',
                     },
                     {
                       number: '07',
-                      step: 'Confirm Timing',
-                      description: '- Confirm rescue shifts at the start of the week\n- For urgent cases: confirm at least 2 days before the shift',
+                      item: 'Confirmation Timing',
+                      action: 'The rescue shift for the week should be confirmed at the start of the week, or in urgent cases, at least 2 days prior to the scheduled shift.',
                     },
                     {
                       number: '08',
-                      step: 'Notify Associates',
-                      description: 'Officially notify associates about their scheduled shifts and tasks well in advance.',
+                      item: 'Official Notification',
+                      action: 'Associates are officially notified of their scheduled rescue shifts and tasks, ensuring they are informed well in advance.',
                     },
                   ]}
                   onViewFull={() => setPlanningModalOpen(true)}
@@ -311,87 +364,93 @@ function GuidelinePage() {
                 <FullTableModal
                   isOpen={planningModalOpen}
                   onClose={() => setPlanningModalOpen(false)}
-                  title="Planning Process Steps"
+                  title="Rescue Shift Planning Process"
                   columns={[
                     { header: '#', accessor: 'number' },
-                    { header: 'Step', accessor: 'step' },
-                    { header: 'Description', accessor: 'description' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Action Point', accessor: 'action' },
                   ]}
                   data={[
                     {
                       number: '01',
-                      step: 'Backlog Compilation',
-                      description: 'Project Manager/Coordinator compiles outstanding work items with:\n- Clear specifications\n- Estimated effort for each task',
+                      item: 'Backlog Compilation',
+                      action: 'The Project Manager/Coordinator compiles a list of outstanding work items, including clear specifications and estimated effort required for completion.',
                     },
                     {
                       number: '02',
-                      step: 'Check Availability',
-                      description: 'Project Manager/Coordinator coordinates with Scrum Master to:\n- Confirm associate availability\n- Agree on suitable timeslots',
+                      item: 'Associate Availability Check',
+                      action: 'The Project Manager/Coordinator coordinates with the relevant Scrum Master to confirm the availability and suitable timeslots for associates who will be assigned the tasks.',
                     },
                     {
                       number: '03',
-                      step: 'Link Tasks',
-                      description: 'All work items must link back to associate tasks/CLIs for tracking and visibility.',
+                      item: 'Task Linkage',
+                      action: 'All work items assigned to associates must link back to their tasks/CLIs to track and provide visibility on the rescue shift.',
                     },
                     {
                       number: '04',
-                      step: 'Get Line Manager Approval',
-                      description: 'Project Manager/Coordinator sends the proposed list (associates + tasks) to Line Manager for approval.',
+                      item: 'Shift List Approval',
+                      action: 'Once availability is confirmed, the Project Manager/Coordinator sends the proposed list of associates and tasks to the Line Manager for approval.',
                     },
                     {
                       number: '05',
-                      step: 'Get HR Approval',
-                      description: 'After Line Manager approval, send the list to HR for final validation.',
+                      item: 'HR Approval',
+                      action: 'After receiving approval from the Line Manager, the list is sent to HR for final validation and approval.',
                     },
                     {
                       number: '06',
-                      step: 'Assign Moderator',
-                      description: 'Project Manager/Coordinator assigns a Moderator for each rescue shift to:\n- Oversee progress\n- Provide support when needed',
+                      item: 'Moderator Appointment',
+                      action: 'The Project Manager/Coordinator assigns a Moderator for each rescue shift to oversee progress and provide support where necessary.',
                     },
                     {
                       number: '07',
-                      step: 'Confirm Timing',
-                      description: '- Confirm rescue shifts at the start of the week\n- For urgent cases: confirm at least 2 days before the shift',
+                      item: 'Confirmation Timing',
+                      action: 'The rescue shift for the week should be confirmed at the start of the week, or in urgent cases, at least 2 days prior to the scheduled shift.',
                     },
                     {
                       number: '08',
-                      step: 'Notify Associates',
-                      description: 'Officially notify associates about their scheduled shifts and tasks well in advance.',
+                      item: 'Official Notification',
+                      action: 'Associates are officially notified of their scheduled rescue shifts and tasks, ensuring they are informed well in advance.',
                     },
                   ]}
                 />
               </GuidelineSection>
 
-              <GuidelineSection id="during-shift" title="During the Rescue Shift">
+              <GuidelineSection id="during-shift" title="Process During the Rescue Shift">
                 <p className="mb-6">
-                  Associates must follow these guidelines during their rescue shift to ensure effective execution and communication.
+                  The process during the rescue shift consists of the following main components:
                 </p>
                 <SummaryTable
-                  title="During the Rescue Shift Guidelines"
+                  title="Process During the Rescue Shift"
                   columns={[
-                    { header: 'Guideline', accessor: 'guideline' },
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
                     { header: 'Action Point', accessor: 'action' },
                   ]}
                   data={[
                     {
-                      guideline: 'Join the Collab Call',
-                      action: 'Check in on your HR channel and join the Collab Call during your rescue hours.',
+                      number: '01',
+                      item: 'Join the Collab Call',
+                      action: 'Check in on your respective HR channel and join the Collab Call to continue working during your designated rescue hours.',
                     },
                     {
-                      guideline: 'Confirm Your Tasks',
-                      action: 'Make sure you understand what you\'ll be working on. If unclear, ask the Moderator or your squad lead.',
+                      number: '02',
+                      item: 'Task Alignment:',
+                      action: 'Confirm alignment on the tasks you will be working on. If any tasks are unclear, reach out to the Moderator or your squad lead (if they are on rescue) for clarification.',
                     },
                     {
-                      guideline: 'Track Your Progress',
-                      action: 'Keep the team updated on your progress throughout the shift.',
+                      number: '03',
+                      item: 'Progress Tracking',
+                      action: 'Provide clear visibility on your progress throughout the shift by updating the team on the status of your assigned tasks.',
                     },
                     {
-                      guideline: 'Attend Check-ins',
-                      action: '- There are 3 check-ins per day in the Collab Call\n- You must attend at least one check-in during your shift',
+                      number: '04',
+                      item: 'Mandatory Check-ins',
+                      action: 'There will be 3 check-ins per day in the Collab Call to align on progress. Associates are mandatory to attend at least one check-in during the shift.',
                     },
                     {
-                      guideline: 'Shift Cancellation',
-                      action: 'If you don\'t join the rescue shift within one hour of start time, the shift will be canceled.',
+                      number: '05',
+                      item: 'Shift Cancellation',
+                      action: 'If an associate fails to join the rescue shift one hour after its start time, the shift will be canceled.',
                     },
                   ]}
                   onViewFull={() => setDuringShiftModalOpen(true)}
@@ -399,31 +458,37 @@ function GuidelinePage() {
                 <FullTableModal
                   isOpen={duringShiftModalOpen}
                   onClose={() => setDuringShiftModalOpen(false)}
-                  title="During the Rescue Shift Guidelines"
+                  title="Process During the Rescue Shift"
                   columns={[
-                    { header: 'Guideline', accessor: 'guideline' },
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
                     { header: 'Action Point', accessor: 'action' },
                   ]}
                   data={[
                     {
-                      guideline: 'Join the Collab Call',
-                      action: 'Check in on your HR channel and join the Collab Call during your rescue hours.',
+                      number: '01',
+                      item: 'Join the Collab Call',
+                      action: 'Check in on your respective HR channel and join the Collab Call to continue working during your designated rescue hours.',
                     },
                     {
-                      guideline: 'Confirm Your Tasks',
-                      action: 'Make sure you understand what you\'ll be working on. If unclear, ask the Moderator or your squad lead.',
+                      number: '02',
+                      item: 'Task Alignment:',
+                      action: 'Confirm alignment on the tasks you will be working on. If any tasks are unclear, reach out to the Moderator or your squad lead (if they are on rescue) for clarification.',
                     },
                     {
-                      guideline: 'Track Your Progress',
-                      action: 'Keep the team updated on your progress throughout the shift.',
+                      number: '03',
+                      item: 'Progress Tracking',
+                      action: 'Provide clear visibility on your progress throughout the shift by updating the team on the status of your assigned tasks.',
                     },
                     {
-                      guideline: 'Attend Check-ins',
-                      action: '- There are 3 check-ins per day in the Collab Call\n- You must attend at least one check-in during your shift',
+                      number: '04',
+                      item: 'Mandatory Check-ins',
+                      action: 'There will be 3 check-ins per day in the Collab Call to align on progress. Associates are mandatory to attend at least one check-in during the shift.',
                     },
                     {
-                      guideline: 'Shift Cancellation',
-                      action: 'If you don\'t join the rescue shift within one hour of start time, the shift will be canceled.',
+                      number: '05',
+                      item: 'Shift Cancellation',
+                      action: 'If an associate fails to join the rescue shift one hour after its start time, the shift will be canceled.',
                     },
                   ]}
                 />
@@ -431,34 +496,40 @@ function GuidelinePage() {
 
               <GuidelineSection id="roles-responsibilities" title="Roles & Responsibilities">
                 <p className="mb-6">
-                  Clear definition of roles and responsibilities ensures effective coordination and accountability during rescue shifts.
+                  This section defines the responsibilities of all roles involved to ensure accountability and effective governance.
                 </p>
                 <SummaryTable
                   title="Roles & Responsibilities"
                   columns={[
+                    { header: '#', accessor: 'number' },
                     { header: 'Role', accessor: 'role' },
-                    { header: 'Responsibilities', accessor: 'responsibilities' },
+                    { header: 'Key Responsibilities', accessor: 'responsibilities' },
                   ]}
                   data={[
                     {
+                      number: '01',
                       role: 'Project Manager/Coordinator',
-                      responsibilities: '- Compile backlog items and estimate effort\n- Coordinate with scrum masters for availability\n- Get approvals from line managers and HR\n- Notify associates about shifts\n- Appoint moderators\n- Confirm associate participation for payroll',
+                      responsibilities: '- Compile backlog items/specs and estimate effort.\n- Coordinate with scrum masters for availability.\n- Obtain approvals from line managers and HR.\n- Notify associates about their shifts and appoint moderators.\n- Confirm associate participation and provide confirmation for payroll',
                     },
                     {
+                      number: '02',
                       role: 'Scrum Master',
-                      responsibilities: '- Confirm associate availability and timeslots\n- Ensure tasks match associate skills and availability',
+                      responsibilities: '- Confirm associate availability and provide timeslots.\n- Ensure associates are assigned tasks aligned with their skills and availability.',
                     },
                     {
+                      number: '03',
                       role: 'Line Manager',
-                      responsibilities: '- Review and approve rescue shift lists\n- Confirm associate participation and task progress',
+                      responsibilities: '- Review and approve the rescue shift list.\n- Confirm associate participation and progress of the task',
                     },
                     {
+                      number: '04',
                       role: 'HR',
-                      responsibilities: '- Approve and validate rescue shift assignments\n- Ensure payroll compliance',
+                      responsibilities: '- Approve and validate rescue shift assignments.\n- Ensure compliance with payroll requirements.',
                     },
                     {
+                      number: '05',
                       role: 'Associates',
-                      responsibilities: '- Confirm participation in rescue shifts\n- Complete assigned tasks and report progress\n- Attend at least one check-in per shift\n- Follow up on issues with moderator or squad lead',
+                      responsibilities: '- Confirm participation in the rescue shift.\n- Complete assigned tasks and report progress.\n- Attend at least one check-in per shift and follow up on issues with the moderator or squad lead.',
                     },
                   ]}
                   onViewFull={() => setRolesModalOpen(true)}
@@ -468,69 +539,156 @@ function GuidelinePage() {
                   onClose={() => setRolesModalOpen(false)}
                   title="Roles & Responsibilities"
                   columns={[
+                    { header: '#', accessor: 'number' },
                     { header: 'Role', accessor: 'role' },
-                    { header: 'Responsibilities', accessor: 'responsibilities' },
+                    { header: 'Key Responsibilities', accessor: 'responsibilities' },
                   ]}
                   data={[
                     {
+                      number: '01',
                       role: 'Project Manager/Coordinator',
-                      responsibilities: '- Compile backlog items and estimate effort\n- Coordinate with scrum masters for availability\n- Get approvals from line managers and HR\n- Notify associates about shifts\n- Appoint moderators\n- Confirm associate participation for payroll',
+                      responsibilities: '- Compile backlog items/specs and estimate effort.\n- Coordinate with scrum masters for availability.\n- Obtain approvals from line managers and HR.\n- Notify associates about their shifts and appoint moderators.\n- Confirm associate participation and provide confirmation for payroll',
                     },
                     {
+                      number: '02',
                       role: 'Scrum Master',
-                      responsibilities: '- Confirm associate availability and timeslots\n- Ensure tasks match associate skills and availability',
+                      responsibilities: '- Confirm associate availability and provide timeslots.\n- Ensure associates are assigned tasks aligned with their skills and availability.',
                     },
                     {
+                      number: '03',
                       role: 'Line Manager',
-                      responsibilities: '- Review and approve rescue shift lists\n- Confirm associate participation and task progress',
+                      responsibilities: '- Review and approve the rescue shift list.\n- Confirm associate participation and progress of the task',
                     },
                     {
+                      number: '04',
                       role: 'HR',
-                      responsibilities: '- Approve and validate rescue shift assignments\n- Ensure payroll compliance',
+                      responsibilities: '- Approve and validate rescue shift assignments.\n- Ensure compliance with payroll requirements.',
                     },
                     {
+                      number: '05',
                       role: 'Associates',
-                      responsibilities: '- Confirm participation in rescue shifts\n- Complete assigned tasks and report progress\n- Attend at least one check-in per shift\n- Follow up on issues with moderator or squad lead',
+                      responsibilities: '- Confirm participation in the rescue shift.\n- Complete assigned tasks and report progress.\n- Attend at least one check-in per shift and follow up on issues with the moderator or squad lead.',
                     },
                   ]}
                 />
               </GuidelineSection>
 
-              <GuidelineSection id="wfh-during-shift" title="Working from Home During Rescue Shifts">
-                <p className="mb-4">
-                  When associates need to work from home during rescue shifts, specific procedures must be followed.
+              <GuidelineSection id="remote-working" title="Remote Working in Rescue Shift">
+                <p className="mb-6">
+                  This section defines Remote working in the recue shift.
                 </p>
-                <ul className="list-disc list-inside space-y-2 text-gray-700">
-                  <li><strong>Submit WFH Request:</strong> Project Coordinator/Manager must submit a formal WFH request together with the rescue shift approval if associates need to work from home due to logistical concerns.</li>
-                  <li><strong>Confirm Operational Capability:</strong> The request must confirm that the associate can perform all required activities effectively while working remotely.</li>
-                  <li><strong>Follow Guidelines:</strong> Remote-working associates must follow all rescue shift guidelines: stay responsive, deliver tasks on time, and remain available throughout the shift.</li>
-                </ul>
+                <SummaryTable
+                  title="Remote Working in Rescue Shift"
+                  columns={[
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Action Point', accessor: 'action' },
+                  ]}
+                  data={[
+                    {
+                      number: '01',
+                      item: 'WFH Request Submission',
+                      action: 'The Project Coordinator/Manager must submit a formal request for associates who need to work from home due to logistical concerns, together with the rescue shift approval.',
+                    },
+                    {
+                      number: '02',
+                      item: 'Operational Confirmation',
+                      action: 'The Project Coordinator/Manager must confirm in the request that the associate is capable of performing all required activities effectively while working remotely during the rescue shift.',
+                    },
+                    {
+                      number: '03',
+                      item: 'Guidelines Compliance',
+                      action: 'Remote-working associates are required to follow all rescue shift guidelines, ensuring responsiveness, task delivery, and availability throughout the shift.',
+                    },
+                  ]}
+                  onViewFull={() => setRemoteWorkingModalOpen(true)}
+                />
+                <FullTableModal
+                  isOpen={remoteWorkingModalOpen}
+                  onClose={() => setRemoteWorkingModalOpen(false)}
+                  title="Remote Working in Rescue Shift"
+                  columns={[
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Action Point', accessor: 'action' },
+                  ]}
+                  data={[
+                    {
+                      number: '01',
+                      item: 'WFH Request Submission',
+                      action: 'The Project Coordinator/Manager must submit a formal request for associates who need to work from home due to logistical concerns, together with the rescue shift approval.',
+                    },
+                    {
+                      number: '02',
+                      item: 'Operational Confirmation',
+                      action: 'The Project Coordinator/Manager must confirm in the request that the associate is capable of performing all required activities effectively while working remotely during the rescue shift.',
+                    },
+                    {
+                      number: '03',
+                      item: 'Guidelines Compliance',
+                      action: 'Remote-working associates are required to follow all rescue shift guidelines, ensuring responsiveness, task delivery, and availability throughout the shift.',
+                    },
+                  ]}
+                />
               </GuidelineSection>
 
-              <GuidelineSection id="payroll" title="Payroll">
-                <p className="mb-4">Payment is processed based on the following requirements:</p>
-                <div className="space-y-4">
-                  <div>
-                    <p className="font-semibold mb-2">Payment Requirements:</p>
-                    <p className="text-gray-700">Payment is processed only if:</p>
-                    <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                      <li>Associate completes all assigned tasks</li>
-                      <li>Project Manager or Line Manager verifies completion</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <p className="font-semibold mb-2">Non-Completion:</p>
-                    <p className="text-gray-700">If expectations are not met, the shift will not be compensated.</p>
-                  </div>
-                  <div>
-                    <p className="font-semibold mb-2">Cancellation:</p>
-                    <p className="text-gray-700">If an associate doesn&apos;t join within one hour of start time:</p>
-                    <ul className="list-disc list-inside space-y-1 text-gray-700 ml-4">
-                      <li>The shift is canceled</li>
-                      <li>No payment will be made</li>
-                    </ul>
-                  </div>
-                </div>
+              <GuidelineSection id="payroll-compliance" title="Payroll Compliance">
+                <p className="mb-6">
+                  This section defines the payroll compliance and protocol for the recue shift.
+                </p>
+                <SummaryTable
+                  title="Payroll Compliance"
+                  columns={[
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Action Point', accessor: 'action' },
+                  ]}
+                  data={[
+                    {
+                      number: '01',
+                      item: 'Task Completion Confirmation',
+                      action: 'Payment will only be processed if the associate completes all assigned tasks and the Project Manager or Line Manager verifies the completion.',
+                    },
+                    {
+                      number: '02',
+                      item: 'Non-Completion Consequence',
+                      action: 'If expectations are not met, the shift will not be compensated.',
+                    },
+                    {
+                      number: '03',
+                      item: 'Shift Cancellation',
+                      action: 'If an associate does not join the rescue shift within one hour of the start time, the shift will be canceled, and no payment will be made.',
+                    },
+                  ]}
+                  onViewFull={() => setPayrollComplianceModalOpen(true)}
+                />
+                <FullTableModal
+                  isOpen={payrollComplianceModalOpen}
+                  onClose={() => setPayrollComplianceModalOpen(false)}
+                  title="Payroll Compliance"
+                  columns={[
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Action Point', accessor: 'action' },
+                  ]}
+                  data={[
+                    {
+                      number: '01',
+                      item: 'Task Completion Confirmation',
+                      action: 'Payment will only be processed if the associate completes all assigned tasks and the Project Manager or Line Manager verifies the completion.',
+                    },
+                    {
+                      number: '02',
+                      item: 'Non-Completion Consequence',
+                      action: 'If expectations are not met, the shift will not be compensated.',
+                    },
+                    {
+                      number: '03',
+                      item: 'Shift Cancellation',
+                      action: 'If an associate does not join the rescue shift within one hour of the start time, the shift will be canceled, and no payment will be made.',
+                    },
+                  ]}
+                />
               </GuidelineSection>
             </div>
 

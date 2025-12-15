@@ -222,47 +222,68 @@ function GuidelinePage() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Left Column - Content Area */}
             <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12">
-              {/* Overview Section */}
-              <GuidelineSection id="overview" title="Overview">
+              {/* Context Section */}
+              <GuidelineSection id="context" title="Context">
+                <p>
+                  DQ is deploying a unified Scrum Master Framework where every associate functions as a Scrum Master at different levels, depending on their position and responsibilities.
+                </p>
+                <p className="mt-4">
+                  This adds to the previous structure of Sector Leads, Factory Leads, Tower Leads, and traditional Scrum Masters with a streamlined 5-type Scrum Master model that enhances agility, alignment, accountability, and delivery momentum across all units.
+                </p>
+              </GuidelineSection>
+
+              {/* Purpose Section */}
+              <GuidelineSection id="purpose" title="Purpose">
                 <p className="mb-4">
-                  Digital Qatalyst is implementing a comprehensive Scrum Master Framework that empowers every associate to function as a Scrum Master, with responsibilities tailored to their organizational level and role.
+                  These guidelines define the structure, roles, responsibilities, and governance expectations of the new Scrum Master Framework.
                 </p>
                 <p>
-                  This innovative approach replaces traditional hierarchical structures—including Sector Leads, Factory Leads, Tower Leads, and conventional Scrum Masters—with a streamlined, five-tier Scrum Master model designed to enhance organizational agility, strategic alignment, accountability, and delivery velocity across all business units.
+                  They ensure standardization across all units, clarity of responsibilities, and alignment to DQ&apos;s culture of execution, visibility, and accountability.
                 </p>
               </GuidelineSection>
 
-              {/* Framework Purpose Section */}
-              <GuidelineSection id="framework-purpose" title="Framework Purpose">
-                <p className="mb-4">
-                  This framework establishes clear guidelines that define the organizational structure, role definitions, responsibility matrices, and governance expectations for the new Scrum Master Framework. These guidelines ensure:
-                </p>
-                <ul className="list-disc list-inside space-y-2">
-                  <li><strong>Standardization</strong>: Consistent application across all organizational units</li>
-                  <li><strong>Clarity</strong>: Well-defined responsibilities and expectations</li>
-                  <li><strong>Alignment</strong>: Integration with DQ&apos;s core values of execution excellence, transparency, and accountability</li>
-                </ul>
-              </GuidelineSection>
-
-              {/* Position vs. Role Section */}
-              <GuidelineSection id="position-vs-role" title="Position vs. Role: Key Distinctions">
+              {/* Understanding Position SM vs Role SM Section */}
+              <GuidelineSection id="position-vs-role" title="Understanding Position SM vs Role SM">
                 <p className="mb-6">
-                  Understanding the difference between Position Scrum Masters and Role Scrum Masters is fundamental to the framework&apos;s implementation.
+                  Below is the difference between Position SM and Role SM.
                 </p>
                 <SummaryTable
-                  title="Position vs. Role: Key Distinctions"
+                  title="Understanding Position SM vs Role SM"
                   columns={[
-                    { header: 'Category', accessor: 'category' },
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
                     { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
-                      category: 'Position SM',
-                      description: 'A formal organizational role located within the Center of Excellence (EVMO)',
+                      number: '01',
+                      item: 'Position SM',
+                      description: 'Located in CoE(EVMO)',
                     },
                     {
-                      category: 'Position Examples',
-                      description: 'SM (CoE), SM (Unit), SM (Delivery)',
+                      number: '02',
+                      item: 'Position Examples',
+                      description: 'SM (CoE), SM (Unit), SM (Delivery).',
+                    },
+                    {
+                      number: '03',
+                      item: 'Multi-role Execution',
+                      description: 'Position SMs may take on additional roles such as SM (Working Room).',
+                    },
+                    {
+                      number: '04',
+                      item: 'Role SM',
+                      description: 'A functional responsibility performed when required.',
+                    },
+                    {
+                      number: '05',
+                      item: 'Role Examples',
+                      description: 'SM (Working Room), SM (ATP).',
+                    },
+                    {
+                      number: '06',
+                      item: 'Universality',
+                      description: 'SM(ATP) applies to all associates',
                     },
                   ]}
                   onViewFull={() => setPositionVsRoleModalOpen(true)}
@@ -270,59 +291,99 @@ function GuidelinePage() {
                 <FullTableModal
                   isOpen={positionVsRoleModalOpen}
                   onClose={() => setPositionVsRoleModalOpen(false)}
-                  title="Position vs. Role: Key Distinctions"
+                  title="Understanding Position SM vs Role SM"
                   columns={[
-                    { header: 'Category', accessor: 'category' },
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
                     { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
-                      category: 'Position SM',
-                      description: 'A formal organizational role located within the Center of Excellence (EVMO)',
+                      number: '01',
+                      item: 'Position SM',
+                      description: 'Located in CoE(EVMO)',
                     },
                     {
-                      category: 'Position Examples',
-                      description: 'SM (CoE), SM (Unit), SM (Delivery)',
+                      number: '02',
+                      item: 'Position Examples',
+                      description: 'SM (CoE), SM (Unit), SM (Delivery).',
                     },
                     {
-                      category: 'Multi-role Capability',
-                      description: 'Position SMs may assume additional functional roles, such as SM (Working Room), as operational needs require',
+                      number: '03',
+                      item: 'Multi-role Execution',
+                      description: 'Position SMs may take on additional roles such as SM (Working Room).',
                     },
                     {
-                      category: 'Role SM',
-                      description: 'A functional responsibility assigned and executed on an as-needed basis',
+                      number: '04',
+                      item: 'Role SM',
+                      description: 'A functional responsibility performed when required.',
                     },
                     {
-                      category: 'Role Examples',
-                      description: 'SM (Working Room), SM (ATP)',
+                      number: '05',
+                      item: 'Role Examples',
+                      description: 'SM (Working Room), SM (ATP).',
                     },
                     {
-                      category: 'Universal Application',
-                      description: 'SM (ATP) applies to all associates regardless of position or level',
+                      number: '06',
+                      item: 'Universality',
+                      description: 'SM(ATP) applies to all associates',
                     },
                   ]}
                 />
               </GuidelineSection>
 
               {/* SM (CoE) Section */}
-              <GuidelineSection id="sm-coe" title="SM (CoE) - Center of Excellence Position">
+              <GuidelineSection id="sm-coe" title="SM (CoE) - Position">
                 <p className="mb-6">
-                  The Center of Excellence Scrum Master serves as the governance and compliance anchor for the framework across the organization.
+                  The below table showcases the roles and responsibilities of CoE Scrum Master
                 </p>
                 <SummaryTable
-                  title="SM (CoE) Responsibilities"
+                  title="SM (CoE) - Position"
                   columns={[
-                    { header: 'Responsibility Area', accessor: 'area' },
-                    { header: 'Detailed Description', accessor: 'description' },
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
-                      area: 'Organizational Location',
-                      description: 'Positioned within the CoE (EVMO) unit, serving as the central governance hub',
+                      number: '01',
+                      item: 'Location',
+                      description: 'Sits in the CoE (EVMO) unit.',
                     },
                     {
-                      area: 'Primary Function',
-                      description: 'Oversee governance, ensure compliance, and maintain adherence to DQ\'s L24 Working Room guidelines',
+                      number: '02',
+                      item: 'Core Function',
+                      description: 'Governance, compliance, and ensuring adherence to DQ\'s L24 WR guidelines.',
+                    },
+                    {
+                      number: '03',
+                      item: 'Deployment Involvement',
+                      description: 'Highly involved in the initial deployment phase to onboard SM (Working Room) and activate each Working Room.',
+                    },
+                    {
+                      number: '04',
+                      item: 'Stabilization Activities',
+                      description: 'Conduct high-level scans across all Working Rooms once operational to ensure guidelines and the WR essence are intact.',
+                    },
+                    {
+                      number: '05',
+                      item: 'Gap Resolution',
+                      description: 'Identify gaps in WR performance/compliance and ensure corrective action via Unit/Factory/Tower SMs.',
+                    },
+                    {
+                      number: '06',
+                      item: 'Standards Creation',
+                      description: 'Develop and maintain Working Room guidelines (structure, flow, expectations).',
+                    },
+                    {
+                      number: '07',
+                      item: 'Compliance Assurance',
+                      description: 'Ensure guideline deployment and associate compliance across all units.',
+                    },
+                    {
+                      number: '08',
+                      item: 'Continuous Optimization',
+                      description: 'Optimize guidelines weekly based on observations, WR performance, and feedback.',
                     },
                   ]}
                   onViewFull={() => setSmCoeModalOpen(true)}
@@ -330,74 +391,109 @@ function GuidelinePage() {
                 <FullTableModal
                   isOpen={smCoeModalOpen}
                   onClose={() => setSmCoeModalOpen(false)}
-                  title="SM (CoE) - Center of Excellence Position"
+                  title="SM (CoE) - Position"
                   columns={[
-                    { header: 'Responsibility Area', accessor: 'area' },
-                    { header: 'Detailed Description', accessor: 'description' },
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
-                      area: 'Organizational Location',
-                      description: 'Positioned within the CoE (EVMO) unit, serving as the central governance hub',
+                      number: '01',
+                      item: 'Location',
+                      description: 'Sits in the CoE (EVMO) unit.',
                     },
                     {
-                      area: 'Primary Function',
-                      description: 'Oversee governance, ensure compliance, and maintain adherence to DQ\'s L24 Working Room guidelines',
+                      number: '02',
+                      item: 'Core Function',
+                      description: 'Governance, compliance, and ensuring adherence to DQ\'s L24 WR guidelines.',
                     },
                     {
-                      area: 'Deployment Leadership',
-                      description: 'Actively participate in initial deployment phases, onboarding SM (Working Room) personnel and activating each Working Room',
+                      number: '03',
+                      item: 'Deployment Involvement',
+                      description: 'Highly involved in the initial deployment phase to onboard SM (Working Room) and activate each Working Room.',
                     },
                     {
-                      area: 'Operational Monitoring',
-                      description: 'Conduct comprehensive assessments across all Working Rooms post-deployment to verify guideline adherence and preserve Working Room operational integrity',
+                      number: '04',
+                      item: 'Stabilization Activities',
+                      description: 'Conduct high-level scans across all Working Rooms once operational to ensure guidelines and the WR essence are intact.',
                     },
                     {
-                      area: 'Performance Management',
-                      description: 'Identify performance gaps, compliance issues, and operational deficiencies, ensuring corrective actions through Unit/Factory/Tower SMs',
+                      number: '05',
+                      item: 'Gap Resolution',
+                      description: 'Identify gaps in WR performance/compliance and ensure corrective action via Unit/Factory/Tower SMs.',
                     },
                     {
-                      area: 'Standards Development',
-                      description: 'Create, maintain, and evolve Working Room guidelines covering structure, workflow, and performance expectations',
+                      number: '06',
+                      item: 'Standards Creation',
+                      description: 'Develop and maintain Working Room guidelines (structure, flow, expectations).',
                     },
                     {
-                      area: 'Compliance Oversight',
-                      description: 'Guarantee guideline deployment and associate compliance across all organizational units',
+                      number: '07',
+                      item: 'Compliance Assurance',
+                      description: 'Ensure guideline deployment and associate compliance across all units.',
                     },
                     {
-                      area: 'Continuous Improvement',
-                      description: 'Weekly optimization of guidelines based on operational observations, Working Room performance metrics, and stakeholder feedback',
+                      number: '08',
+                      item: 'Continuous Optimization',
+                      description: 'Optimize guidelines weekly based on observations, WR performance, and feedback.',
                     },
                   ]}
                 />
               </GuidelineSection>
 
               {/* SM (Unit) Section */}
-              <GuidelineSection id="sm-unit" title="SM (Unit) - Organizational Unit Position">
+              <GuidelineSection id="sm-unit" title="SM (Unit) — Position">
                 <p className="mb-6">
-                  Unit Scrum Masters operate at three distinct organizational levels—Sector, Factory, and Tower—ensuring cohesive operations within their respective units.
+                  The below table showcases the roles and responsibilities of Unit Scrum Masters: SM (Unit) represents the Scrum Masters operating at the Sector, Factory, and Tower levels within each unit.
+                </p>
+                <p className="mb-6">
+                  They ensure that all parts of the unit function efficiently, align with DQ&apos;s delivery structure, and maintain consistent performance.
                 </p>
 
                 {/* SM (Sector) Subsection */}
                 <div className="mb-8">
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">SM (Sector) - Sector Level</h3>
-                  <p className="mb-4">
-                    Sector Scrum Masters oversee multiple factories and ensure sector-wide operational excellence.
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">1.4.1 SM (Sector)</h3>
+                  <p className="mb-6">
+                    The below table showcases the roles and responsibilities of Sector level Scrum Master:
                   </p>
                   <SummaryTable
-                    title="SM (Sector) Responsibilities"
+                    title="SM (Sector)"
                     columns={[
-                      { header: 'Responsibility Area', accessor: 'area' },
-                      { header: 'Detailed Description', accessor: 'description' },
+                      { header: '#', accessor: 'number' },
+                      { header: 'Items', accessor: 'item' },
+                      { header: 'Description', accessor: 'description' },
                     ]}
                     data={[
                       {
-                        area: 'Operational Scope',
-                        description: 'DCO Operations, DBP Platform, and DBP Delivery sectors',
+                        number: '01',
+                        item: 'Scope',
+                        description: 'DCO Operations, DBP Platform, DBP Delivery sectors.',
                       },
                       {
-                        area: 'Working Room Support',
-                        description: 'Provide SM (Working Room) services when operational requirements demand',
+                        number: '02',
+                        item: 'Working Room Support',
+                        description: 'Act as SM (Working Room) when required.',
+                      },
+                      {
+                        number: '03',
+                        item: 'Factory Oversight',
+                        description: 'Ensure factories under the sector operate efficiently.',
+                      },
+                      {
+                        number: '04',
+                        item: 'Unit Health',
+                        description: 'Maintain visibility on sector-level performance and health.',
+                      },
+                      {
+                        number: '05',
+                        item: 'Tracker Accuracy',
+                        description: 'Ensure sector functional trackers are accurate and updated.',
+                      },
+                      {
+                        number: '06',
+                        item: 'Gap Escalation',
+                        description: 'Flag gaps to Factory SMs and drive resolution.',
                       },
                     ]}
                     onViewFull={() => setSmSectorModalOpen(true)}
@@ -405,35 +501,42 @@ function GuidelinePage() {
                   <FullTableModal
                     isOpen={smSectorModalOpen}
                     onClose={() => setSmSectorModalOpen(false)}
-                    title="SM (Sector) - Sector Level"
+                    title="SM (Sector)"
                     columns={[
-                      { header: 'Responsibility Area', accessor: 'area' },
-                      { header: 'Detailed Description', accessor: 'description' },
+                      { header: '#', accessor: 'number' },
+                      { header: 'Items', accessor: 'item' },
+                      { header: 'Description', accessor: 'description' },
                     ]}
                     data={[
                       {
-                        area: 'Operational Scope',
-                        description: 'DCO Operations, DBP Platform, and DBP Delivery sectors',
+                        number: '01',
+                        item: 'Scope',
+                        description: 'DCO Operations, DBP Platform, DBP Delivery sectors.',
                       },
                       {
-                        area: 'Working Room Support',
-                        description: 'Provide SM (Working Room) services when operational requirements demand',
+                        number: '02',
+                        item: 'Working Room Support',
+                        description: 'Act as SM (Working Room) when required.',
                       },
                       {
-                        area: 'Factory Governance',
-                        description: 'Ensure factories within the sector operate at optimal efficiency and alignment',
+                        number: '03',
+                        item: 'Factory Oversight',
+                        description: 'Ensure factories under the sector operate efficiently.',
                       },
                       {
-                        area: 'Performance Visibility',
-                        description: 'Maintain comprehensive visibility into sector-level performance metrics and organizational health',
+                        number: '04',
+                        item: 'Unit Health',
+                        description: 'Maintain visibility on sector-level performance and health.',
                       },
                       {
-                        area: 'Data Integrity',
-                        description: 'Ensure sector functional trackers are accurate, current, and reflective of actual performance',
+                        number: '05',
+                        item: 'Tracker Accuracy',
+                        description: 'Ensure sector functional trackers are accurate and updated.',
                       },
                       {
-                        area: 'Issue Management',
-                        description: 'Identify operational gaps, escalate to Factory SMs, and drive resolution to completion',
+                        number: '06',
+                        item: 'Gap Escalation',
+                        description: 'Flag gaps to Factory SMs and drive resolution.',
                       },
                     ]}
                   />
@@ -441,24 +544,52 @@ function GuidelinePage() {
 
                 {/* SM (Factory) Subsection */}
                 <div className="mb-8">
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">SM (Factory) - Factory Level</h3>
-                  <p className="mb-4">
-                    Factory Scrum Masters manage tower operations and ensure factory-level execution excellence.
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">1.4.2 SM (Factory)</h3>
+                  <p className="mb-6">
+                    The below table showcases the roles and responsibilities of Factory level Scrum Master:
                   </p>
                   <SummaryTable
-                    title="SM (Factory) Responsibilities"
+                    title="SM (Factory)"
                     columns={[
-                      { header: 'Responsibility Area', accessor: 'area' },
-                      { header: 'Detailed Description', accessor: 'description' },
+                      { header: '#', accessor: 'number' },
+                      { header: 'Items', accessor: 'item' },
+                      { header: 'Description', accessor: 'description' },
                     ]}
                     data={[
                       {
-                        area: 'Operational Scope',
-                        description: 'Examples include Finance Factory, Deals Factory, Solution Factory, and other factory-level units',
+                        number: '01',
+                        item: 'Scope',
+                        description: 'Eg. Finance Factory, Deals Factory, Solution Factory, etc.',
                       },
                       {
-                        area: 'Working Room Support',
-                        description: 'Provide SM (Working Room) services when operational needs arise',
+                        number: '02',
+                        item: 'Working Room Support',
+                        description: 'Act as SM (Working Room) when required.',
+                      },
+                      {
+                        number: '03',
+                        item: 'Tower Oversight',
+                        description: 'Ensure all towers under the factory operate effectively.',
+                      },
+                      {
+                        number: '04',
+                        item: 'Planning',
+                        description: 'Establish clear monthly, weekly, and daily plans for each tower.',
+                      },
+                      {
+                        number: '05',
+                        item: 'Plan Monitoring',
+                        description: 'Track progress against plans and maintain factory-level trackers.',
+                      },
+                      {
+                        number: '06',
+                        item: 'ATP Review',
+                        description: 'Review and validate ATPs of all factory associates.',
+                      },
+                      {
+                        number: '07',
+                        item: 'Blocker Resolution',
+                        description: 'Identify and proactively resolve blockers.',
                       },
                     ]}
                     onViewFull={() => setSmFactoryModalOpen(true)}
@@ -466,39 +597,47 @@ function GuidelinePage() {
                   <FullTableModal
                     isOpen={smFactoryModalOpen}
                     onClose={() => setSmFactoryModalOpen(false)}
-                    title="SM (Factory) - Factory Level"
+                    title="SM (Factory)"
                     columns={[
-                      { header: 'Responsibility Area', accessor: 'area' },
-                      { header: 'Detailed Description', accessor: 'description' },
+                      { header: '#', accessor: 'number' },
+                      { header: 'Items', accessor: 'item' },
+                      { header: 'Description', accessor: 'description' },
                     ]}
                     data={[
                       {
-                        area: 'Operational Scope',
-                        description: 'Examples include Finance Factory, Deals Factory, Solution Factory, and other factory-level units',
+                        number: '01',
+                        item: 'Scope',
+                        description: 'Eg. Finance Factory, Deals Factory, Solution Factory, etc.',
                       },
                       {
-                        area: 'Working Room Support',
-                        description: 'Provide SM (Working Room) services when operational needs arise',
+                        number: '02',
+                        item: 'Working Room Support',
+                        description: 'Act as SM (Working Room) when required.',
                       },
                       {
-                        area: 'Tower Oversight',
-                        description: 'Ensure all towers within the factory operate effectively and meet performance standards',
+                        number: '03',
+                        item: 'Tower Oversight',
+                        description: 'Ensure all towers under the factory operate effectively.',
                       },
                       {
-                        area: 'Strategic Planning',
-                        description: 'Establish clear, actionable plans at monthly, weekly, and daily intervals for each tower',
+                        number: '04',
+                        item: 'Planning',
+                        description: 'Establish clear monthly, weekly, and daily plans for each tower.',
                       },
                       {
-                        area: 'Progress Monitoring',
-                        description: 'Track execution progress against established plans and maintain accurate factory-level performance trackers',
+                        number: '05',
+                        item: 'Plan Monitoring',
+                        description: 'Track progress against plans and maintain factory-level trackers.',
                       },
                       {
-                        area: 'ATP Validation',
-                        description: 'Review and validate Associate Task Plans (ATPs) for all factory associates',
+                        number: '06',
+                        item: 'ATP Review',
+                        description: 'Review and validate ATPs of all factory associates.',
                       },
                       {
-                        area: 'Blockage Resolution',
-                        description: 'Proactively identify and resolve operational blockers before they impact delivery',
+                        number: '07',
+                        item: 'Blocker Resolution',
+                        description: 'Identify and proactively resolve blockers.',
                       },
                     ]}
                   />
@@ -506,24 +645,52 @@ function GuidelinePage() {
 
                 {/* SM (Tower) Subsection */}
                 <div>
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">SM (Tower) - Tower Level</h3>
-                  <p className="mb-4">
-                    Tower Scrum Masters focus on tactical execution and day-to-day operational management.
+                  <h3 className="text-2xl font-semibold text-gray-900 mb-4">1.4.3 SM (Tower)</h3>
+                  <p className="mb-6">
+                    The below table showcases the roles and responsibilities of Tower level Scrum Master:
                   </p>
                   <SummaryTable
-                    title="SM (Tower) Responsibilities"
+                    title="SM (Tower)"
                     columns={[
-                      { header: 'Responsibility Area', accessor: 'area' },
-                      { header: 'Detailed Description', accessor: 'description' },
+                      { header: '#', accessor: 'number' },
+                      { header: 'Items', accessor: 'item' },
+                      { header: 'Description', accessor: 'description' },
                     ]}
                     data={[
                       {
-                        area: 'Operational Scope',
-                        description: 'Examples include GPRC, Payables & Receivables, and other tower-level units',
+                        number: '01',
+                        item: 'Scope',
+                        description: 'E.g. GPRC, Payables & Receivables, etc.',
                       },
                       {
-                        area: 'Target Establishment',
-                        description: 'Set clear, measurable targets at monthly, weekly, and daily intervals',
+                        number: '02',
+                        item: 'Target Setting',
+                        description: 'Set monthly/weekly/daily tower targets.',
+                      },
+                      {
+                        number: '03',
+                        item: 'Task Specification',
+                        description: 'Ensure all tasks under the towers have specifications and dates which the monthly/weekly targets will be derived from',
+                      },
+                      {
+                        number: '04',
+                        item: 'Performance Tracking',
+                        description: 'Track progress against plans and maintain factory-level trackers.',
+                      },
+                      {
+                        number: '05',
+                        item: 'Blocker Handling',
+                        description: 'Resolve blockers or escalate when necessary.',
+                      },
+                      {
+                        number: '06',
+                        item: 'Visibility',
+                        description: 'Review and validate ATPs of all factory associates.',
+                      },
+                      {
+                        number: '07',
+                        item: 'Blocker Resolution',
+                        description: 'Communicate plan, progress, and blockers on team channels.',
                       },
                     ]}
                     onViewFull={() => setSmTowerModalOpen(true)}
@@ -531,35 +698,47 @@ function GuidelinePage() {
                   <FullTableModal
                     isOpen={smTowerModalOpen}
                     onClose={() => setSmTowerModalOpen(false)}
-                    title="SM (Tower) - Tower Level"
+                    title="SM (Tower)"
                     columns={[
-                      { header: 'Responsibility Area', accessor: 'area' },
-                      { header: 'Detailed Description', accessor: 'description' },
+                      { header: '#', accessor: 'number' },
+                      { header: 'Items', accessor: 'item' },
+                      { header: 'Description', accessor: 'description' },
                     ]}
                     data={[
                       {
-                        area: 'Operational Scope',
-                        description: 'Examples include GPRC, Payables & Receivables, and other tower-level units',
+                        number: '01',
+                        item: 'Scope',
+                        description: 'E.g. GPRC, Payables & Receivables, etc.',
                       },
                       {
-                        area: 'Target Establishment',
-                        description: 'Set clear, measurable targets at monthly, weekly, and daily intervals',
+                        number: '02',
+                        item: 'Target Setting',
+                        description: 'Set monthly/weekly/daily tower targets.',
                       },
                       {
-                        area: 'Task Specification',
-                        description: 'Ensure all tower tasks have detailed specifications and deadlines that align with monthly and weekly target objectives',
+                        number: '03',
+                        item: 'Task Specification',
+                        description: 'Ensure all tasks under the towers have specifications and dates which the monthly/weekly targets will be derived from',
                       },
                       {
-                        area: 'Performance Tracking',
-                        description: 'Monitor progress against plans and maintain accurate tower-level performance trackers',
+                        number: '04',
+                        item: 'Performance Tracking',
+                        description: 'Track progress against plans and maintain factory-level trackers.',
                       },
                       {
-                        area: 'Blockage Management',
-                        description: 'Resolve operational blockers independently or escalate when resolution requires higher-level intervention',
+                        number: '05',
+                        item: 'Blocker Handling',
+                        description: 'Resolve blockers or escalate when necessary.',
                       },
                       {
-                        area: 'Communication',
-                        description: 'Maintain transparent communication of plans, progress, and blockers through appropriate team channels',
+                        number: '06',
+                        item: 'Visibility',
+                        description: 'Review and validate ATPs of all factory associates.',
+                      },
+                      {
+                        number: '07',
+                        item: 'Blocker Resolution',
+                        description: 'Communicate plan, progress, and blockers on team channels.',
                       },
                     ]}
                   />
@@ -567,24 +746,57 @@ function GuidelinePage() {
               </GuidelineSection>
 
               {/* SM (Working Room) Section */}
-              <GuidelineSection id="sm-working-room" title="SM (Working Room) - Functional Role">
+              <GuidelineSection id="sm-working-room" title="SM (Working Room) - Role">
                 <p className="mb-6">
-                  Working Room Scrum Masters facilitate daily operational sessions and ensure focused execution.
+                  The below table showcases the responsibilities of Working Room Scrum Master:
                 </p>
                 <SummaryTable
-                  title="SM (Working Room) Responsibilities"
+                  title="SM (Working Room) - Role"
                   columns={[
-                    { header: 'Responsibility Area', accessor: 'area' },
-                    { header: 'Detailed Description', accessor: 'description' },
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
-                      area: 'Session Facilitation',
-                      description: 'Lead Daily Working Room sessions with clear structure and purpose',
+                      number: '01',
+                      item: 'Scope Session Leadership',
+                      description: 'Facilitate Daily Working Room sessions.',
                     },
                     {
-                      area: 'Focus Management',
-                      description: 'Maintain session focus on execution and measurable outcomes, minimizing distractions',
+                      number: '02',
+                      item: 'Focus Enforcement',
+                      description: 'Keep sessions focused on execution and measurable outcomes.',
+                    },
+                    {
+                      number: '03',
+                      item: 'Monitor Engagement',
+                      description: 'Track attendance, engagement, and task progress.',
+                    },
+                    {
+                      number: '04',
+                      item: 'Blocker Resolution',
+                      description: 'Pull in resources/support in real time to resolve blockers.',
+                    },
+                    {
+                      number: '05',
+                      item: 'Routine Management',
+                      description: 'Conduct CWS and Retros as per weekly agenda.',
+                    },
+                    {
+                      number: '06',
+                      item: 'Culture Alignment',
+                      description: 'Uphold DQ culture: accountability, collaboration, delivery momentum.',
+                    },
+                    {
+                      number: '07',
+                      item: 'Reporting',
+                      description: 'Post daily progress and unresolved items on relevant channels.',
+                    },
+                    {
+                      number: '08',
+                      item: 'Context & Purpose Enablement',
+                      description: 'Understanding of overall context & purpose of the task enabling associates to make meaningful, effective progress that delivers real value.',
                     },
                   ]}
                   onViewFull={() => setSmWorkingRoomModalOpen(true)}
@@ -592,67 +804,99 @@ function GuidelinePage() {
                 <FullTableModal
                   isOpen={smWorkingRoomModalOpen}
                   onClose={() => setSmWorkingRoomModalOpen(false)}
-                  title="SM (Working Room) - Functional Role"
+                  title="SM (Working Room) - Role"
                   columns={[
-                    { header: 'Responsibility Area', accessor: 'area' },
-                    { header: 'Detailed Description', accessor: 'description' },
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
-                      area: 'Session Facilitation',
-                      description: 'Lead Daily Working Room sessions with clear structure and purpose',
+                      number: '01',
+                      item: 'Scope Session Leadership',
+                      description: 'Facilitate Daily Working Room sessions.',
                     },
                     {
-                      area: 'Focus Management',
-                      description: 'Maintain session focus on execution and measurable outcomes, minimizing distractions',
+                      number: '02',
+                      item: 'Focus Enforcement',
+                      description: 'Keep sessions focused on execution and measurable outcomes.',
                     },
                     {
-                      area: 'Engagement Monitoring',
-                      description: 'Track participant attendance, engagement levels, and task progress throughout sessions',
+                      number: '03',
+                      item: 'Monitor Engagement',
+                      description: 'Track attendance, engagement, and task progress.',
                     },
                     {
-                      area: 'Real-time Support',
-                      description: 'Mobilize resources and support in real-time to resolve blockers as they arise',
+                      number: '04',
+                      item: 'Blocker Resolution',
+                      description: 'Pull in resources/support in real time to resolve blockers.',
                     },
                     {
-                      area: 'Routine Execution',
-                      description: 'Conduct Collaborative Working Sessions (CWS) and Retrospectives according to weekly agenda',
+                      number: '05',
+                      item: 'Routine Management',
+                      description: 'Conduct CWS and Retros as per weekly agenda.',
                     },
                     {
-                      area: 'Cultural Alignment',
-                      description: 'Uphold DQ\'s core cultural values: accountability, collaboration, and delivery momentum',
+                      number: '06',
+                      item: 'Culture Alignment',
+                      description: 'Uphold DQ culture: accountability, collaboration, delivery momentum.',
                     },
                     {
-                      area: 'Progress Reporting',
-                      description: 'Post daily progress updates and unresolved items on relevant communication channels',
+                      number: '07',
+                      item: 'Reporting',
+                      description: 'Post daily progress and unresolved items on relevant channels.',
                     },
                     {
-                      area: 'Context Enablement',
-                      description: 'Ensure associates understand the broader context and purpose of tasks, enabling meaningful progress that delivers tangible value',
+                      number: '08',
+                      item: 'Context & Purpose Enablement',
+                      description: 'Understanding of overall context & purpose of the task enabling associates to make meaningful, effective progress that delivers real value.',
                     },
                   ]}
                 />
               </GuidelineSection>
 
               {/* SM (Delivery) Section */}
-              <GuidelineSection id="sm-delivery" title="SM (Delivery) - Project-Specific Position">
+              <GuidelineSection id="sm-delivery" title="SM (Delivery) - Position">
                 <p className="mb-6">
-                  Delivery Scrum Masters provide dedicated support for specific projects, ensuring cross-functional coordination.
+                  The below table showcases the roles & responsibilities of Delivery Scrum Master
                 </p>
                 <SummaryTable
-                  title="SM (Delivery) Responsibilities"
+                  title="SM (Delivery) - Position"
                   columns={[
-                    { header: 'Responsibility Area', accessor: 'area' },
-                    { header: 'Detailed Description', accessor: 'description' },
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
-                      area: 'Project Scope',
-                      description: 'Serve as dedicated Scrum Master for assigned projects',
+                      number: '01',
+                      item: 'Scope',
+                      description: 'Dedicated Scrum Master for specific projects.',
                     },
                     {
-                      area: 'Cross-functional Participation',
-                      description: 'Operate across all Working Rooms where the project is active (e.g., DFSA Project spans WR/Breakout rooms for DevOps and WR/Breakout rooms for Solution)',
+                      number: '02',
+                      item: 'Multi-WR Participation',
+                      description: 'Move across all Working Rooms where the project is active.',
+                    },
+                    {
+                      number: '03',
+                      item: 'Delivery Flow',
+                      description: 'Ensure project tasks progress smoothly across units.',
+                    },
+                    {
+                      number: '04',
+                      item: 'Control Tower',
+                      description: 'Conduct Control Tower for respective projects weekly',
+                    },
+                    {
+                      number: '05',
+                      item: 'Visibility',
+                      description: 'Maintain visibility and alignment across all WRs tied to the project.',
+                    },
+                    {
+                      number: '06',
+                      item: 'Escalation',
+                      description: 'Proactively escalate risks, delays, or blockers and ensure resolution takes place.',
                     },
                   ]}
                   onViewFull={() => setSmDeliveryModalOpen(true)}
@@ -660,59 +904,89 @@ function GuidelinePage() {
                 <FullTableModal
                   isOpen={smDeliveryModalOpen}
                   onClose={() => setSmDeliveryModalOpen(false)}
-                  title="SM (Delivery) - Project-Specific Position"
+                  title="SM (Delivery) - Position"
                   columns={[
-                    { header: 'Responsibility Area', accessor: 'area' },
-                    { header: 'Detailed Description', accessor: 'description' },
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
-                      area: 'Project Scope',
-                      description: 'Serve as dedicated Scrum Master for assigned projects',
+                      number: '01',
+                      item: 'Scope',
+                      description: 'Dedicated Scrum Master for specific projects.',
                     },
                     {
-                      area: 'Cross-functional Participation',
-                      description: 'Operate across all Working Rooms where the project is active (e.g., DFSA Project spans WR/Breakout rooms for DevOps and WR/Breakout rooms for Solution)',
+                      number: '02',
+                      item: 'Multi-WR Participation',
+                      description: 'Move across all Working Rooms where the project is active.',
                     },
                     {
-                      area: 'Delivery Coordination',
-                      description: 'Ensure project tasks progress smoothly across all organizational units',
+                      number: '03',
+                      item: 'Delivery Flow',
+                      description: 'Ensure project tasks progress smoothly across units.',
                     },
                     {
-                      area: 'Control Tower Management',
-                      description: 'Conduct weekly Control Tower sessions for respective projects',
+                      number: '04',
+                      item: 'Control Tower',
+                      description: 'Conduct Control Tower for respective projects weekly',
                     },
                     {
-                      area: 'Visibility Maintenance',
-                      description: 'Maintain comprehensive visibility and alignment across all Working Rooms connected to the project',
+                      number: '05',
+                      item: 'Visibility',
+                      description: 'Maintain visibility and alignment across all WRs tied to the project.',
                     },
                     {
-                      area: 'Risk Management',
-                      description: 'Proactively identify, escalate, and ensure resolution of risks, delays, and blockers',
+                      number: '06',
+                      item: 'Escalation',
+                      description: 'Proactively escalate risks, delays, or blockers and ensure resolution takes place.',
                     },
                   ]}
                 />
               </GuidelineSection>
 
               {/* SM (ATP) Section */}
-              <GuidelineSection id="sm-atp" title="SM (ATP - Associate) - Universal Role">
+              <GuidelineSection id="sm-atp" title="SM (ATP- Associate) - Role">
                 <p className="mb-6">
-                  Every associate functions as their own Scrum Master, taking personal ownership of their work and delivery.
+                  The below table showcases the responsibilities of Associate Scrum Master
                 </p>
                 <SummaryTable
-                  title="SM (ATP - Associate) Responsibilities"
+                  title="SM (ATP- Associate) - Role"
                   columns={[
-                    { header: 'Responsibility Area', accessor: 'area' },
-                    { header: 'Detailed Description', accessor: 'description' },
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
-                      area: 'Universal Application',
-                      description: 'Every associate acts as their own Scrum Master, regardless of position or level',
+                      number: '01',
+                      item: 'Universal Responsibility',
+                      description: 'Every associate act as their own Scrum Master.',
                     },
                     {
-                      area: 'Planning Discipline',
-                      description: 'Ensure each ATP task is linked to Planner with comprehensive context, clear purpose, defined approach, and specified Command Line Interfaces (CLIs)',
+                      number: '02',
+                      item: 'Planner Discipline',
+                      description: 'Ensure each ATP task is linked to Planner with clear context, purpose, approach, and CLIs.',
+                    },
+                    {
+                      number: '03',
+                      item: 'Specification Clarity',
+                      description: 'Define detailed specs and deadlines for each task.',
+                    },
+                    {
+                      number: '04',
+                      item: 'Progress Visibility',
+                      description: 'Maintain daily and weekly visibility on progress.',
+                    },
+                    {
+                      number: '05',
+                      item: 'Self-Management',
+                      description: 'Manage blockers independently and escalate when required.',
+                    },
+                    {
+                      number: '06',
+                      item: 'Discipline',
+                      description: 'Manage blockers independently and escalate when required.',
                     },
                   ]}
                   onViewFull={() => setSmAtpModalOpen(true)}
@@ -720,52 +994,45 @@ function GuidelinePage() {
                 <FullTableModal
                   isOpen={smAtpModalOpen}
                   onClose={() => setSmAtpModalOpen(false)}
-                  title="SM (ATP - Associate) - Universal Role"
+                  title="SM (ATP- Associate) - Role"
                   columns={[
-                    { header: 'Responsibility Area', accessor: 'area' },
-                    { header: 'Detailed Description', accessor: 'description' },
+                    { header: '#', accessor: 'number' },
+                    { header: 'Items', accessor: 'item' },
+                    { header: 'Description', accessor: 'description' },
                   ]}
                   data={[
                     {
-                      area: 'Universal Application',
-                      description: 'Every associate acts as their own Scrum Master, regardless of position or level',
+                      number: '01',
+                      item: 'Universal Responsibility',
+                      description: 'Every associate act as their own Scrum Master.',
                     },
                     {
-                      area: 'Planning Discipline',
-                      description: 'Ensure each ATP task is linked to Planner with comprehensive context, clear purpose, defined approach, and specified Command Line Interfaces (CLIs)',
+                      number: '02',
+                      item: 'Planner Discipline',
+                      description: 'Ensure each ATP task is linked to Planner with clear context, purpose, approach, and CLIs.',
                     },
                     {
-                      area: 'Specification Excellence',
-                      description: 'Define detailed specifications and realistic deadlines for each assigned task',
+                      number: '03',
+                      item: 'Specification Clarity',
+                      description: 'Define detailed specs and deadlines for each task.',
                     },
                     {
-                      area: 'Progress Transparency',
-                      description: 'Maintain daily and weekly visibility on personal progress and task completion',
+                      number: '04',
+                      item: 'Progress Visibility',
+                      description: 'Maintain daily and weekly visibility on progress.',
                     },
                     {
-                      area: 'Self-management',
-                      description: 'Independently manage blockers and escalate only when resolution requires additional support or resources',
+                      number: '05',
+                      item: 'Self-Management',
+                      description: 'Manage blockers independently and escalate when required.',
                     },
                     {
-                      area: 'Accountability Standards',
-                      description: 'Uphold personal accountability and meet delivery expectations consistently',
+                      number: '06',
+                      item: 'Discipline',
+                      description: 'Manage blockers independently and escalate when required.',
                     },
                   ]}
                 />
-              </GuidelineSection>
-
-              {/* Implementation Benefits Section */}
-              <GuidelineSection id="implementation-benefits" title="Implementation Benefits">
-                <p className="mb-4">
-                  This framework delivers significant organizational advantages:
-                </p>
-                <ul className="list-disc list-inside space-y-2">
-                  <li><strong>Enhanced Agility</strong>: Faster response to changing business needs</li>
-                  <li><strong>Improved Alignment</strong>: Better coordination across organizational levels</li>
-                  <li><strong>Increased Accountability</strong>: Clear ownership and responsibility at every level</li>
-                  <li><strong>Accelerated Delivery</strong>: Streamlined processes that reduce friction and increase velocity</li>
-                  <li><strong>Cultural Consistency</strong>: Unified approach to execution across all units</li>
-                </ul>
               </GuidelineSection>
             </div>
 

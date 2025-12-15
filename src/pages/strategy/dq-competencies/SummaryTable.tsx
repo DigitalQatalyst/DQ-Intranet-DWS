@@ -18,6 +18,7 @@ export function SummaryTable({ columns, data, title, onViewFull, getSummary }: S
     if (getSummary) return getSummary(value)
     
     if (typeof value === 'string') {
+      // Extract first 2 bullet points
       const lines = value.split('\n').filter(line => line.trim())
       const bulletPoints = lines.filter(line => line.trim().startsWith('-') || line.trim().startsWith('•'))
       
@@ -25,11 +26,13 @@ export function SummaryTable({ columns, data, title, onViewFull, getSummary }: S
         return bulletPoints.slice(0, 2).join('\n')
       }
       
+      // If no bullet points, take first 2 sentences
       const sentences = value.split(/[.!?]+/).filter(s => s.trim())
       if (sentences.length > 0) {
         return sentences.slice(0, 2).join('. ').trim() + (sentences.length > 2 ? '...' : '')
       }
       
+      // Fallback: truncate to first 2 lines or 150 chars
       const firstTwoLines = lines.slice(0, 2).join('\n')
       return firstTwoLines.length > 150 ? firstTwoLines.substring(0, 150) + '...' : firstTwoLines
     }
@@ -57,7 +60,7 @@ export function SummaryTable({ columns, data, title, onViewFull, getSummary }: S
             </tr>
           </thead>
           <tbody className="bg-white">
-            {data.slice(0, 2).map((row, rowIdx) => (
+            {data.map((row, rowIdx) => (
               <tr key={rowIdx} className="bg-white">
                 {columns.map((col, colIdx) => {
                   const value = row[col.accessor]
@@ -78,7 +81,7 @@ export function SummaryTable({ columns, data, title, onViewFull, getSummary }: S
           </tbody>
         </table>
       </div>
-      {onViewFull && data.length > 2 && (
+      {onViewFull && (
         <div className="mt-4 text-right">
           <button
             onClick={onViewFull}
@@ -94,4 +97,3 @@ export function SummaryTable({ columns, data, title, onViewFull, getSummary }: S
     </div>
   )
 }
-

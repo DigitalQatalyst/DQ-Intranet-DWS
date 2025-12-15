@@ -202,7 +202,7 @@ function GuidelinePage() {
               <li aria-current="page">
                 <div className="flex items-center">
                   <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2">Q Forum Guidelines</span>
+                  <span className="ml-1 text-gray-500 md:ml-2">DQ Forum Guidelines</span>
                 </div>
               </li>
             </ol>
@@ -263,6 +263,16 @@ function GuidelinePage() {
                       item: 'Collaborative Environment',
                       description: 'Forums encourage open participation, respectful dialogue, and constructive feedback among all participants.',
                     },
+                    {
+                      number: '03',
+                      item: 'Aligned to DQ Objectives',
+                      description: 'Each Forum serves a specific role in advancing DQ\'s projects, products, or strategic initiatives.',
+                    },
+                    {
+                      number: '04',
+                      item: 'Documented Outcomes',
+                      description: 'Forums produce records such as minutes, action items, or decisions, which are archived for transparency and future reference.',
+                    },
                   ]}
                   onViewFull={() => setKeyCharacteristicsModalOpen(true)}
                 />
@@ -322,6 +332,26 @@ function GuidelinePage() {
                       number: '02',
                       guideline: 'Control Tower',
                       action: 'A review session focused on the overall status and health of a project or initiative, ensuring alignment with timelines and strategic goals.',
+                    },
+                    {
+                      number: '03',
+                      guideline: 'Collaborative Working Session (CWS)',
+                      action: 'A planned, hands-on session where participants work together in real-time to solve problems, develop deliverables, or progress specific tasks.',
+                    },
+                    {
+                      number: '04',
+                      guideline: 'Urgent Working Session (UWS)',
+                      action: 'A quickly organized session to address critical issues or urgent matters that require immediate discussion and resolution.',
+                    },
+                    {
+                      number: '05',
+                      guideline: 'Blitz Working Session (BWS)',
+                      action: 'An intensive, time-boxed session designed to rapidly complete a set of tasks or meet a pressing deadline, often involving cross-functional collaboration.',
+                    },
+                    {
+                      number: '06',
+                      guideline: 'Retrospective (Retro)',
+                      action: 'A reflective session held after a sprint, project phase, or major activity to evaluate what went well, what could be improved, and how to apply lessons learned moving forward.',
                     },
                   ]}
                   onViewFull={() => setTypesOfForumsModalOpen(true)}
@@ -393,6 +423,21 @@ function GuidelinePage() {
                       guideline: 'Ensure All Relevant Participants Are Invited',
                       action: 'Identify and invite all associates who need to be part of the Forum, ensuring they receive timely notification.',
                     },
+                    {
+                      number: '03',
+                      guideline: 'Check Participants\' Availability',
+                      action: 'Review participant calendars to confirm availability and avoid double booking expect in case of an UWS. (Use Scheduling Assistance on teams)',
+                    },
+                    {
+                      number: '04',
+                      guideline: 'Book Sessions in Advance',
+                      action: 'Schedule all Forum sessions at least 24 hours before the meeting time. The only exception to this is UWS.',
+                    },
+                    {
+                      number: '05',
+                      guideline: 'Assign Roles in Advance',
+                      action: 'Clearly assign who will serve as the facilitator, note-taker, and presenters for the Forum before the meeting is held.',
+                    },
                   ]}
                   onViewFull={() => setPreparationModalOpen(true)}
                 />
@@ -457,6 +502,41 @@ function GuidelinePage() {
                       number: '02',
                       guideline: 'Start on Time',
                       action: 'Begin the Forum promptly to respect participants\' schedules and maintain time discipline.',
+                    },
+                    {
+                      number: '03',
+                      guideline: 'Reconfirm Context, Purpose, and Agenda',
+                      action: 'Open the session by restating the Forum\'s context, purpose, and agenda to align all participants.',
+                    },
+                    {
+                      number: '04',
+                      guideline: 'Facilitate Structured Discussion',
+                      action: 'The facilitator should guide the discussion, ensuring each agenda item is addressed without deviation.',
+                    },
+                    {
+                      number: '05',
+                      guideline: 'Encourage Active Participation',
+                      action: 'Create space for all relevant participants to contribute ideas, feedback, and updates.',
+                    },
+                    {
+                      number: '06',
+                      guideline: 'Manage Time per Agenda Item',
+                      action: 'Allocate appropriate time to each topic and prevent prolonged discussion on non-critical points.',
+                    },
+                    {
+                      number: '07',
+                      guideline: 'Capture Decisions and Action Items in Real Time',
+                      action: 'The note-taker should record decisions, assigned owners, and deadlines as they are agreed upon.',
+                    },
+                    {
+                      number: '08',
+                      guideline: 'Address Blockers Promptly',
+                      action: 'Identify and discuss blockers, escalating unresolved issues if necessary',
+                    },
+                    {
+                      number: '09',
+                      guideline: 'Summarize Before Closing',
+                      action: 'Recap the key points, decisions, and next steps before ending the Forum.',
                     },
                   ]}
                   onViewFull={() => setDuringForumModalOpen(true)}
@@ -542,6 +622,21 @@ function GuidelinePage() {
                       number: '02',
                       type: 'Confirm Action Item Ownership',
                       example: 'Ensure all assigned owners acknowledge their responsibilities and deadlines.',
+                    },
+                    {
+                      number: '03',
+                      type: 'Follow Up on Outstanding Items',
+                      example: 'Monitor progress on agreed actions and address delays before the next scheduled Forum.',
+                    },
+                    {
+                      number: '04',
+                      type: 'Document Lessons Learned',
+                      example: 'Capture insights, improvement points, and good practices for future Forums.',
+                    },
+                    {
+                      number: '05',
+                      type: 'Close the Loop with Associates',
+                      example: 'Share key outcomes with stakeholders who were not present but are impacted by the decisions made.',
                     },
                   ]}
                   onViewFull={() => setAfterForumModalOpen(true)}

@@ -14,18 +14,21 @@ export interface FullTableModalProps {
   description?: string
 }
 
+// Helper function to render cell content with orange bullets for bullet points
 function renderCellContent(value: string | number): React.ReactNode {
   if (typeof value !== 'string') {
     return value
   }
 
+  // Check if the content contains bullet points (lines starting with "- ")
   const lines = value.split('\n').filter(line => line.trim())
   const hasBullets = lines.some(line => line.trim().startsWith('-'))
 
   if (hasBullets) {
+    // Extract bullet points
     const bulletItems = lines
       .filter(line => line.trim().startsWith('-'))
-      .map(line => line.trim().substring(1).trim())
+      .map(line => line.trim().substring(1).trim()) // Remove "- " prefix
 
     if (bulletItems.length > 0) {
       return (
@@ -41,6 +44,7 @@ function renderCellContent(value: string | number): React.ReactNode {
     }
   }
 
+  // If no bullets, return as plain text
   return <span className="text-gray-700 whitespace-pre-line">{value}</span>
 }
 
@@ -58,6 +62,7 @@ export function FullTableModal({ isOpen, onClose, title, columns, data, descript
 
   if (!isOpen) return null
 
+  // Filter out empty columns (columns with empty header or empty accessor)
   const filteredColumns = columns.filter(col => col.header.trim() !== '' && col.accessor.trim() !== '')
 
   return (
@@ -69,6 +74,7 @@ export function FullTableModal({ isOpen, onClose, title, columns, data, descript
         className="bg-white rounded-xl shadow-lg w-full max-w-5xl max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
           <button
@@ -93,6 +99,7 @@ export function FullTableModal({ isOpen, onClose, title, columns, data, descript
           </button>
         </div>
 
+        {/* Scrollable Content */}
         <div className="overflow-y-auto flex-1 p-6">
           {description && (
             <p className="mb-6 text-gray-700">{description}</p>
@@ -134,4 +141,3 @@ export function FullTableModal({ isOpen, onClose, title, columns, data, descript
     </div>
   )
 }
-

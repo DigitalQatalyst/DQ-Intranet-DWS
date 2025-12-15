@@ -6,19 +6,18 @@ interface SideNavProps {
 }
 
 const sections = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'framework-purpose', label: 'Framework Purpose' },
-  { id: 'position-vs-role', label: 'Position vs. Role' },
-  { id: 'sm-coe', label: 'SM (CoE)' },
-  { id: 'sm-unit', label: 'SM (Unit)' },
-  { id: 'sm-working-room', label: 'SM (Working Room)' },
-  { id: 'sm-delivery', label: 'SM (Delivery)' },
-  { id: 'sm-atp', label: 'SM (ATP - Associate)' },
-  { id: 'implementation-benefits', label: 'Implementation Benefits' },
+  { id: 'context', label: 'Context' },
+  { id: 'purpose', label: 'Purpose' },
+  { id: 'position-vs-role', label: 'Understanding Position SM vs Role SM' },
+  { id: 'sm-coe', label: 'SM (CoE) - Position' },
+  { id: 'sm-unit', label: 'SM (Unit) — Position' },
+  { id: 'sm-working-room', label: 'SM (Working Room) - Role' },
+  { id: 'sm-delivery', label: 'SM (Delivery) - Position' },
+  { id: 'sm-atp', label: 'SM (ATP- Associate) - Role' },
 ]
 
 export function SideNav({ activeSection, onSectionClick }: SideNavProps) {
-  const [currentSection, setCurrentSection] = useState(activeSection || 'overview')
+  const [currentSection, setCurrentSection] = useState(activeSection || 'context')
 
   useEffect(() => {
     const observerOptions = {

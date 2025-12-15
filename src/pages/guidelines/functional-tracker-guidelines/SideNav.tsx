@@ -10,6 +10,9 @@ const sections = [
   { id: 'purpose', label: 'Purpose' },
   { id: 'tracker-structure', label: 'Functional Tracker Structure' },
   { id: 'task-structure', label: 'Task Structure (Planner)' },
+  { id: 'progress-status', label: 'Progress Status Definitions' },
+  { id: 'roles-responsibilities', label: 'Roles & Responsibilities' },
+  { id: 'escalation-payroll', label: 'Escalation & Payroll Protocol' },
 ]
 
 export function SideNav({ activeSection, onSectionClick }: SideNavProps) {
