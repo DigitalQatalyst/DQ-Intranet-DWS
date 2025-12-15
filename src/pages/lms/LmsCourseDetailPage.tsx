@@ -472,7 +472,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                   </div>
                 )}
                 
-                <div className="flex flex-wrap gap-2 mb-5">
+                <div className="flex flex-wrap gap-2 mb-6">
                   {chipData.map((chip, index) => {
                     const Icon = resolveChipIcon(chip.key, chip.iconValue ?? chip.label);
                     return (
