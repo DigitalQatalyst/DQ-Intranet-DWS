@@ -1,23 +1,61 @@
 /**
  * LMS Service for fetching data from Supabase
+ * Updated for new schema: learning_paths, courses, modules, lessons, quizzes
  */
 
-import { supabaseClient } from '../lib/supabaseClient';
+import { lmsSupabaseClient } from '../lib/lmsSupabaseClient';
 import type {
   LmsCourseRow,
   LmsCourseWithRelations,
-  LmsReviewRow,
-  LmsCaseStudyRow,
-  LmsReferenceRow,
-  LmsFaqRow,
-  LmsCurriculumItemRow,
-  LmsCurriculumTopicRow,
-  LmsCurriculumLessonRow,
-  LmsCurriculumItemWithRelations,
-  LmsCurriculumTopicWithRelations,
+  LmsModuleRow,
+  LmsModuleWithRelations,
+  LmsLessonRow,
+  LmsQuizRow,
+  LmsLearningPathRow,
 } from '../types/lmsSupabase';
 import type { LmsDetail, LmsCard } from '../data/lmsCourseDetails';
 import { levelLabelFromCode, levelShortLabelFromCode } from '../lms/levels';
+import { LOCATION_ALLOW, LevelCode } from '../lms/config';
+
+// Helper to convert minutes to duration enum
+function minutesToDuration(minutes: number): 'Bite-size' | 'Short' | 'Medium' | 'Long' {
+  if (minutes <= 15) return 'Bite-size';
+  if (minutes <= 60) return 'Short';
+  if (minutes <= 180) return 'Medium';
+  return 'Long';
+}
+
+// Helper to convert duration enum to minutes (for display)
+function durationToMinutes(duration: string): string {
+  return `${duration}`;
+}
+
+// Helper to normalize level code
+function normalizeLevelCode(code: string | null): LevelCode {
+  if (!code) return 'L1';
+  const normalized = code.toUpperCase() as LevelCode;
+  const validCodes: LevelCode[] = ['L0', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'];
+  return validCodes.includes(normalized) ? normalized : 'L1';
+}
+
+// Helper to convert status
+function normalizeStatus(status: string): 'live' | 'coming-soon' {
+  if (status === 'published') return 'live';
+  if (status === 'draft') return 'coming-soon';
+  return 'live';
+}
+
+// Helper to parse department/audience from TEXT to array
+function parseTextToArray(text: string | null): string[] {
+  if (!text) return [];
+  // If it's already an array-like string, parse it
+  try {
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed : [text];
+  } catch {
+    return text.split(',').map(s => s.trim()).filter(Boolean);
+  }
+}
 
 /**
  * Transform Supabase course row to LmsDetail type
@@ -25,98 +63,89 @@ import { levelLabelFromCode, levelShortLabelFromCode } from '../lms/levels';
 function transformCourseToLmsDetail(
   course: LmsCourseWithRelations
 ): LmsDetail {
-  // Transform curriculum structure based on course type
-  const curriculum: LmsDetail['curriculum'] = course.curriculum_items
-    ?.map((item) => {
+  // Transform modules and lessons into curriculum structure
+  const curriculum: LmsDetail['curriculum'] = [];
+
+  if (course.modules && course.modules.length > 0) {
+    // Course has modules (Multi-Lessons course)
+    curriculum.push(...course.modules.map((module) => {
       const curriculumItem: LmsDetail['curriculum'][0] = {
-        id: item.id,
-        title: item.title,
-        description: item.description || undefined,
-        duration: item.duration || undefined,
-        order: item.order_index,
-        isLocked: item.is_locked,
-        courseSlug: item.course_slug || undefined,
+        id: module.id,
+        title: module.title,
+        description: module.description || undefined,
+        duration: module.duration ? durationToMinutes(`${module.duration}`) : undefined,
+        order: module.item_order,
+        isLocked: module.is_locked,
       };
 
-      // If course has topics, add them
-      if (item.topics && item.topics.length > 0) {
-        curriculumItem.topics = item.topics.map((topic) => ({
-          id: topic.id,
-          title: topic.title,
-          description: topic.description || undefined,
-          duration: topic.duration || undefined,
-          order: topic.order_index,
-          isLocked: topic.is_locked,
-          lessons: topic.lessons.map((lesson) => ({
-            id: lesson.id,
-            title: lesson.title,
-            description: lesson.description || undefined,
-            duration: lesson.duration || undefined,
-            type: lesson.lesson_type,
-            order: lesson.order_index,
-            isLocked: lesson.is_locked,
-          })),
-        }));
-      } else if (item.lessons && item.lessons.length > 0) {
-        // If course has lessons directly (single lesson course)
-        curriculumItem.lessons = item.lessons.map((lesson) => ({
+      // Add lessons from module
+      if (module.lessons && module.lessons.length > 0) {
+        curriculumItem.lessons = module.lessons.map((lesson) => ({
           id: lesson.id,
           title: lesson.title,
           description: lesson.description || undefined,
-          duration: lesson.duration || undefined,
-          type: lesson.lesson_type,
-          order: lesson.order_index,
+          duration: lesson.duration ? durationToMinutes(`${lesson.duration}`) : undefined,
+          type: lesson.video_url ? 'video' : (lesson.content ? 'guide' : 'reading') as 'video' | 'guide' | 'quiz' | 'workshop' | 'assignment' | 'reading',
+          order: lesson.item_order,
           isLocked: lesson.is_locked,
+          videoUrl: lesson.video_url || undefined,
+          content: lesson.content || undefined,
         }));
       }
 
       return curriculumItem;
-    })
-    .sort((a, b) => a.order - b.order);
+    }));
+  } else if (course.lessons && course.lessons.length > 0) {
+    // Course has lessons directly (Single Lesson course)
+    curriculum.push({
+      id: course.id,
+      title: course.title,
+      description: course.description || undefined,
+      order: 0,
+      lessons: course.lessons.map((lesson) => ({
+        id: lesson.id,
+        title: lesson.title,
+        description: lesson.description || undefined,
+        duration: lesson.duration ? durationToMinutes(`${lesson.duration}`) : undefined,
+        type: lesson.video_url ? 'video' : (lesson.content ? 'guide' : 'reading') as 'video' | 'guide' | 'quiz' | 'workshop' | 'assignment' | 'reading',
+        order: lesson.item_order,
+        isLocked: lesson.is_locked,
+        videoUrl: lesson.video_url || undefined,
+        content: lesson.content || undefined,
+      })),
+    });
+  }
+
+  // Parse FAQ from JSONB
+  const faq = Array.isArray(course.faq) ? course.faq.map((item: any) => ({
+    question: item.question || '',
+    answer: item.answer || '',
+  })) : undefined;
 
   return {
     id: course.id,
     slug: course.slug,
     title: course.title,
     provider: course.provider,
-    courseCategory: course.course_category,
-    deliveryMode: course.delivery_mode,
-    duration: course.duration,
-    levelCode: course.level_code,
-    department: course.department,
-    locations: course.locations,
-    audience: course.audience,
-    status: course.status,
-    summary: course.summary,
-    highlights: course.highlights,
-    outcomes: course.outcomes,
+    courseCategory: course.category,
+    deliveryMode: course.delivery_mode || 'Online',
+    duration: minutesToDuration(course.duration),
+    durationMinutes: course.duration, // Store actual minutes
+    levelCode: normalizeLevelCode(course.level_code),
+    department: parseTextToArray(course.department),
+    locations: ['Riyadh'], // Default location since not in schema
+    audience: parseTextToArray(course.audience) as Array<'Associate' | 'Lead'>,
+    status: normalizeStatus(course.status),
+    summary: course.description || course.title,
+    highlights: course.highlights || [],
+    outcomes: course.outcomes || [],
     courseType: course.course_type || undefined,
     track: course.track || undefined,
-    rating: course.rating || undefined,
-    reviewCount: course.review_count || undefined,
-    testimonials: course.reviews?.map((review) => ({
-      author: review.author,
-      role: review.role,
-      text: review.text,
-      rating: review.rating,
-    })),
-    caseStudies: course.case_studies?.map((cs) => ({
-      title: cs.title,
-      description: cs.description,
-      link: cs.link || undefined,
-    })),
-    references: course.references?.map((ref) => ({
-      title: ref.title,
-      description: ref.description,
-      link: ref.link || undefined,
-    })),
-    faq: course.faqs
-      ?.sort((a, b) => a.order_index - b.order_index)
-      .map((faq) => ({
-        question: faq.question,
-        answer: faq.answer,
-      })),
-    curriculum,
+    rating: course.rating > 0 ? course.rating : undefined,
+    reviewCount: course.review_count > 0 ? course.review_count : undefined,
+    faq,
+    imageUrl: course.image_url || undefined,
+    curriculum: curriculum.length > 0 ? curriculum : undefined,
   };
 }
 
@@ -124,24 +153,27 @@ function transformCourseToLmsDetail(
  * Transform Supabase course row to LmsCard type
  */
 function transformCourseToLmsCard(course: LmsCourseRow): LmsCard {
+  const levelCode = normalizeLevelCode(course.level_code);
   return {
     id: course.id,
     slug: course.slug,
     title: course.title,
     provider: course.provider,
-    courseCategory: course.course_category,
-    deliveryMode: course.delivery_mode,
-    duration: course.duration,
-    levelCode: course.level_code,
-    levelLabel: levelLabelFromCode(course.level_code),
-    levelShortLabel: levelShortLabelFromCode(course.level_code),
-    locations: course.locations,
-    audience: course.audience,
-    status: course.status,
-    summary: course.summary,
-    department: course.department,
+    courseCategory: course.category,
+    deliveryMode: course.delivery_mode || 'Online',
+    duration: minutesToDuration(course.duration),
+    durationMinutes: course.duration, // Store actual minutes
+    levelCode,
+    levelLabel: levelLabelFromCode(levelCode),
+    levelShortLabel: levelShortLabelFromCode(levelCode),
+    locations: ['Riyadh'], // Default location
+    audience: parseTextToArray(course.audience),
+    status: normalizeStatus(course.status),
+    summary: course.description || course.title,
+    department: parseTextToArray(course.department),
     courseType: course.course_type || undefined,
     track: course.track || undefined,
+    imageUrl: course.image_url || undefined,
   };
 }
 
@@ -149,10 +181,10 @@ function transformCourseToLmsCard(course: LmsCourseRow): LmsCard {
  * Fetch all courses (for listing page)
  */
 export async function fetchAllCourses(): Promise<LmsCard[]> {
-  const { data, error } = await supabaseClient
+  const { data, error } = await lmsSupabaseClient
     .from('lms_courses')
     .select('*')
-    .eq('status', 'live')
+    .eq('status', 'published')
     .order('title');
 
   if (error) {
@@ -167,8 +199,8 @@ export async function fetchAllCourses(): Promise<LmsCard[]> {
  * Fetch course by slug (for detail page)
  */
 export async function fetchCourseBySlug(slug: string): Promise<LmsDetail | null> {
-  // Fetch course with all related data
-  const { data: course, error: courseError } = await supabaseClient
+  // Fetch course
+  const { data: course, error: courseError } = await lmsSupabaseClient
     .from('lms_courses')
     .select('*')
     .eq('slug', slug)
@@ -179,89 +211,40 @@ export async function fetchCourseBySlug(slug: string): Promise<LmsDetail | null>
     return null;
   }
 
-  // Fetch reviews
-  const { data: reviews } = await supabaseClient
-    .from('lms_reviews')
+  // Fetch modules for this course
+  const { data: modules } = await lmsSupabaseClient
+    .from('lms_modules')
     .select('*')
     .eq('course_id', course.id)
-    .order('created_at', { ascending: false });
+    .order('item_order');
 
-  // Fetch case studies
-  const { data: caseStudies } = await supabaseClient
-    .from('lms_case_studies')
-    .select('*')
-    .eq('course_id', course.id)
-    .order('created_at');
-
-  // Fetch references
-  const { data: references } = await supabaseClient
-    .from('lms_references')
-    .select('*')
-    .eq('course_id', course.id)
-    .order('created_at');
-
-  // Fetch FAQs
-  const { data: faqs } = await supabaseClient
-    .from('lms_faqs')
-    .select('*')
-    .eq('course_id', course.id)
-    .order('order_index');
-
-  // Fetch curriculum items
-  const { data: curriculumItems } = await supabaseClient
-    .from('lms_curriculum_items')
-    .select('*')
-    .eq('course_id', course.id)
-    .order('order_index');
-
-  // Fetch curriculum topics and lessons
-  const curriculumItemsWithRelations: LmsCurriculumItemWithRelations[] = [];
-
-  for (const item of curriculumItems || []) {
-    // Fetch topics for this curriculum item
-    const { data: topics } = await supabaseClient
-      .from('lms_curriculum_topics')
+  // Fetch lessons for modules
+  const modulesWithLessons: LmsModuleWithRelations[] = [];
+  for (const module of modules || []) {
+    const { data: lessons } = await lmsSupabaseClient
+      .from('lms_lessons')
       .select('*')
-      .eq('curriculum_item_id', item.id)
-      .order('order_index');
+      .eq('module_id', module.id)
+      .order('item_order');
 
-    // Fetch lessons for topics
-    const topicsWithLessons: LmsCurriculumTopicWithRelations[] = [];
-    for (const topic of topics || []) {
-      const { data: lessons } = await supabaseClient
-        .from('lms_curriculum_lessons')
-        .select('*')
-        .eq('curriculum_topic_id', topic.id)
-        .order('order_index');
-
-      topicsWithLessons.push({
-        ...topic,
+    modulesWithLessons.push({
+      ...module,
         lessons: lessons || [],
       });
     }
 
-    // Fetch lessons directly for curriculum item (if no topics)
-    const { data: directLessons } = await supabaseClient
-      .from('lms_curriculum_lessons')
+  // Fetch lessons directly on course (not in modules)
+  const { data: directLessons } = await lmsSupabaseClient
+    .from('lms_lessons')
       .select('*')
-      .eq('curriculum_item_id', item.id)
-      .is('curriculum_topic_id', null)
-      .order('order_index');
-
-    curriculumItemsWithRelations.push({
-      ...item,
-      topics: topicsWithLessons.length > 0 ? topicsWithLessons : undefined,
-      lessons: directLessons && directLessons.length > 0 ? directLessons : undefined,
-    });
-  }
+    .eq('course_id', course.id)
+    .is('module_id', null)
+    .order('item_order');
 
   const courseWithRelations: LmsCourseWithRelations = {
     ...course,
-    reviews: reviews || [],
-    case_studies: caseStudies || [],
-    references: references || [],
-    faqs: faqs || [],
-    curriculum_items: curriculumItemsWithRelations,
+    modules: modulesWithLessons.length > 0 ? modulesWithLessons : undefined,
+    lessons: directLessons && directLessons.length > 0 ? directLessons : undefined,
   };
 
   return transformCourseToLmsDetail(courseWithRelations);
@@ -279,14 +262,14 @@ export async function fetchCoursesByFilters(filters: {
   sfiaRating?: string[];
   searchQuery?: string;
 }): Promise<LmsCard[]> {
-  let query = supabaseClient
+  let query = lmsSupabaseClient
     .from('lms_courses')
     .select('*')
-    .eq('status', 'live');
+    .eq('status', 'published');
 
   // Apply filters
   if (filters.category && filters.category.length > 0) {
-    query = query.in('course_category', filters.category);
+    query = query.in('category', filters.category);
   }
 
   if (filters.provider && filters.provider.length > 0) {
@@ -297,12 +280,9 @@ export async function fetchCoursesByFilters(filters: {
     query = query.in('course_type', filters.courseType);
   }
 
-  if (filters.location && filters.location.length > 0) {
-    query = query.overlaps('locations', filters.location);
-  }
-
   if (filters.audience && filters.audience.length > 0) {
-    query = query.overlaps('audience', filters.audience);
+    // Since audience is TEXT, we need to filter client-side
+    // Or use text search if Supabase supports it
   }
 
   if (filters.sfiaRating && filters.sfiaRating.length > 0) {
@@ -317,6 +297,13 @@ export async function fetchCoursesByFilters(filters: {
   }
 
   let courses = data.map(transformCourseToLmsCard);
+
+  // Apply client-side filters
+  if (filters.audience && filters.audience.length > 0) {
+    courses = courses.filter(course =>
+      course.audience.some(aud => filters.audience!.includes(aud))
+    );
+  }
 
   // Apply search query filter (client-side for text search)
   if (filters.searchQuery) {
@@ -334,6 +321,7 @@ export async function fetchCoursesByFilters(filters: {
 
 /**
  * Fetch all reviews (for reviews tab)
+ * Note: Reviews are no longer in separate table, return empty array
  */
 export async function fetchAllReviews(): Promise<
   Array<{
@@ -350,45 +338,14 @@ export async function fetchAllReviews(): Promise<
     audience?: string[];
   }>
 > {
-  const { data, error } = await supabaseClient
-    .from('lms_reviews')
-    .select(`
-      *,
-      course:lms_courses (
-        id,
-        slug,
-        title,
-        course_type,
-        provider,
-        audience
-      )
-    `)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error('Error fetching reviews:', error);
-    throw error;
-  }
-
-  return (
-    data?.map((review) => ({
-      id: review.id,
-      author: review.author,
-      role: review.role,
-      text: review.text,
-      rating: review.rating,
-      courseId: (review.course as any)?.id || '',
-      courseSlug: (review.course as any)?.slug || '',
-      courseTitle: (review.course as any)?.title || '',
-      courseType: (review.course as any)?.course_type || undefined,
-      provider: (review.course as any)?.provider || undefined,
-      audience: (review.course as any)?.audience || undefined,
-    })) || []
-  );
+  // Reviews are now stored in course.faq or testimonials JSONB
+  // Return empty array for now - can be extended later
+  return [];
 }
 
 /**
  * Create a new review
+ * Note: Reviews are no longer in separate table
  */
 export async function createReview(
   courseId: string,
@@ -398,21 +355,245 @@ export async function createReview(
     text: string;
     rating: number;
   }
-): Promise<LmsReviewRow> {
-  const { data, error } = await supabaseClient
-    .from('lms_reviews')
-    .insert({
-      course_id: courseId,
-      ...review,
-    })
-    .select()
+): Promise<any> {
+  // Reviews are now stored in course JSONB fields
+  // This would need to update the course record
+  throw new Error('Review creation not implemented - reviews are stored in course JSONB');
+}
+
+/**
+ * Fetch quiz for a lesson
+ */
+export async function fetchQuizByLessonId(lessonId: string): Promise<LmsQuizRow | null> {
+  const { data, error } = await lmsSupabaseClient
+    .from('lms_quizzes')
+    .select('*')
+    .eq('lesson_id', lessonId)
     .single();
 
   if (error) {
-    console.error('Error creating review:', error);
+    if (error.code === 'PGRST116') {
+      // No quiz found for this lesson
+      return null;
+    }
+    console.error('Error fetching quiz:', error);
     throw error;
   }
 
   return data;
 }
 
+/**
+ * Fetch quiz for a course
+ */
+export async function fetchQuizByCourseId(courseId: string): Promise<LmsQuizRow | null> {
+  const { data, error } = await lmsSupabaseClient
+    .from('lms_quizzes')
+    .select('*')
+    .eq('course_id', courseId)
+    .is('lesson_id', null)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      // No quiz found for this course
+      return null;
+    }
+    console.error('Error fetching quiz:', error);
+    throw error;
+  }
+
+  return data;
+}
+
+/**
+ * Fetch all learning paths
+ */
+export async function fetchAllLearningPaths(): Promise<LmsCard[]> {
+  const { data, error } = await lmsSupabaseClient
+    .from('lms_learning_paths')
+    .select('*')
+    .eq('status', 'published')
+    .order('title');
+
+  if (error) {
+    console.error('Error fetching learning paths:', error);
+    throw error;
+  }
+
+  return data.map((path) => ({
+    id: path.id,
+    slug: path.slug,
+    title: path.title,
+    provider: path.provider,
+    courseCategory: path.category,
+    deliveryMode: 'Online' as const,
+    duration: minutesToDuration(path.duration),
+    levelCode: normalizeLevelCode(path.level_code),
+    levelLabel: levelLabelFromCode(normalizeLevelCode(path.level_code)),
+    levelShortLabel: levelShortLabelFromCode(normalizeLevelCode(path.level_code)),
+    locations: ['Riyadh'],
+    audience: parseTextToArray(path.audience),
+    status: normalizeStatus(path.status),
+    summary: path.description || path.title,
+    department: parseTextToArray(path.department),
+    courseType: undefined,
+    track: undefined,
+    imageUrl: path.image_url || undefined,
+    rating: path.rating > 0 ? path.rating : undefined,
+    reviewCount: path.review_count > 0 ? path.review_count : undefined,
+  }));
+}
+
+/**
+ * Fetch learning path by slug with courses
+ */
+export async function fetchLearningPathBySlug(slug: string): Promise<LmsDetail | null> {
+  // Fetch learning path
+  const { data: path, error: pathError } = await lmsSupabaseClient
+    .from('lms_learning_paths')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (pathError || !path) {
+    console.error('Error fetching learning path:', pathError);
+    return null;
+  }
+
+  // Fetch path items (courses in this path)
+  const { data: pathItems } = await lmsSupabaseClient
+    .from('lms_path_items')
+    .select('*')
+    .eq('path_id', path.id)
+    .order('position');
+
+  // Fetch course details for each course in the path
+  const courseIds = pathItems?.map(item => item.course_id) || [];
+  const courses: LmsCourseRow[] = [];
+  
+  if (courseIds.length > 0) {
+    const { data: pathCourses } = await lmsSupabaseClient
+      .from('lms_courses')
+      .select('*')
+      .in('id', courseIds);
+
+    if (pathCourses) {
+      // Sort courses by their position in the path
+      const coursesMap = new Map(pathCourses.map(c => [c.id, c]));
+      courses.push(...courseIds.map(id => coursesMap.get(id)).filter(Boolean) as LmsCourseRow[]);
+    }
+  }
+
+  // Build curriculum structure from courses
+  const curriculum = courses.map((course, index) => ({
+    id: course.id,
+    title: course.title,
+    description: course.description || undefined,
+    order: index,
+    courseSlug: course.slug,
+  }));
+
+  // Parse FAQ from JSONB
+  const faq = Array.isArray(path.faq) ? path.faq.map((item: any) => ({
+    question: item.question || '',
+    answer: item.answer || '',
+  })) : undefined;
+
+  return {
+    id: path.id,
+    slug: path.slug,
+    title: path.title,
+    provider: path.provider,
+    courseCategory: path.category,
+    deliveryMode: 'Online',
+    duration: minutesToDuration(path.duration),
+    levelCode: normalizeLevelCode(path.level_code),
+    department: parseTextToArray(path.department),
+    locations: ['Riyadh'],
+    audience: parseTextToArray(path.audience) as Array<'Associate' | 'Lead'>,
+    status: normalizeStatus(path.status),
+    summary: path.description || path.title,
+    highlights: path.highlights || [],
+    outcomes: path.outcomes || [],
+    courseType: 'Course (Bundles)' as const,
+    track: undefined,
+    rating: path.rating > 0 ? path.rating : undefined,
+    reviewCount: path.review_count > 0 ? path.review_count : undefined,
+    faq,
+    imageUrl: path.image_url || undefined,
+    curriculum: curriculum.length > 0 ? curriculum : undefined,
+  };
+}
+
+/**
+ * Find learning paths that contain a specific course
+ */
+export async function findLearningPathsForCourse(courseId: string): Promise<Array<{
+  pathId: string;
+  pathSlug: string;
+  pathTitle: string;
+  position: number;
+}>> {
+  const { data: pathItems, error } = await lmsSupabaseClient
+    .from('lms_path_items')
+    .select(`
+      path_id,
+      position,
+      lms_learning_paths!inner (
+        id,
+        slug,
+        title
+      )
+    `)
+    .eq('course_id', courseId)
+    .order('position');
+
+  if (error) {
+    console.error('Error finding learning paths for course:', error);
+    return [];
+  }
+
+  return (pathItems || []).map((item: any) => ({
+    pathId: item.path_id,
+    pathSlug: item.lms_learning_paths?.slug || '',
+    pathTitle: item.lms_learning_paths?.title || '',
+    position: item.position,
+  }));
+}
+
+/**
+ * Fetch all courses in a learning path (for displaying "Part of Track" section)
+ */
+export async function fetchCoursesInLearningPath(pathId: string): Promise<Array<{
+  id: string;
+  slug: string;
+  title: string;
+  position: number;
+}>> {
+  const { data: pathItems, error } = await lmsSupabaseClient
+    .from('lms_path_items')
+    .select(`
+      course_id,
+      position,
+      lms_courses!inner (
+        id,
+        slug,
+        title
+      )
+    `)
+    .eq('path_id', pathId)
+    .order('position');
+
+  if (error) {
+    console.error('Error fetching courses in learning path:', error);
+    return [];
+  }
+
+  return (pathItems || []).map((item: any) => ({
+    id: item.lms_courses?.id || '',
+    slug: item.lms_courses?.slug || '',
+    title: item.lms_courses?.title || '',
+    position: item.position,
+  }));
+}

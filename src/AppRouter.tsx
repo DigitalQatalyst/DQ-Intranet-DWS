@@ -9,6 +9,8 @@ import { App } from './App';
 import MarketplaceDetailsPage from "./pages/marketplace/MarketplaceDetailsPage";
 import LmsCourseDetailPage from "./pages/lms/LmsCourseDetailPage";
 import LmsCourseReviewsPage from "./pages/lms/LmsCourseReviewsPage";
+import LmsLessonPage from "./pages/lms/LmsLessonPage";
+import MyLearningDashboard from "./pages/lms/MyLearningDashboard";
 
 // Wrapper component to force remount on slug change
 const LmsCourseDetailPageWrapper = () => {
@@ -75,6 +77,8 @@ export function AppRouter() {
             <Route path="/*" element={<App />} />
             <Route path="/courses/:itemId" element={<LmsCourseDetailPage />} />
             <Route path="/lms" element={<LmsCourses />} />
+            <Route path="/lms/my-learning" element={<MyLearningDashboard />} />
+            <Route path="/lms/:courseSlug/lesson/:lessonId" element={<LmsLessonPage />} />
             <Route path="/lms/:slug/reviews" element={<LmsCourseReviewsPage />} />
             <Route 
               path="/lms/:slug" 

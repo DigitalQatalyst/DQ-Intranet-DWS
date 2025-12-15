@@ -8,6 +8,7 @@ import {
 import { LOCATION_ALLOW } from '@/lms/config';
 import { useNavigate } from 'react-router-dom';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
+import { formatDurationFromMinutes } from '../../utils/durationFormatter';
 export interface MarketplaceItemProps {
   item: {
     id: string;
@@ -133,11 +134,13 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
     // For courses: only show duration and modules count with separator
     const chips: Array<{ key: string; label: string; iconValue?: string }> = [];
     
-    // 1. duration
-    const durationValue = item.duration || item.durationBucket || item.durationLabel;
-    const durationLabel = item.durationLabel || durationValue;
+    // 1. duration - use actual duration in minutes if available
+    const durationMinutes = item.durationMinutes;
+    const durationLabel = durationMinutes !== undefined 
+      ? formatDurationFromMinutes(durationMinutes)
+      : (item.duration || item.durationBucket || item.durationLabel || '');
     if (durationLabel) {
-      chips.push({ key: 'duration', label: durationLabel, iconValue: durationValue });
+      chips.push({ key: 'duration', label: durationLabel, iconValue: durationLabel });
     }
     
     // 2. modules count (only modules, not lessons)

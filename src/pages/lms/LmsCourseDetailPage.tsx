@@ -31,6 +31,9 @@ import {
   resolveChipIcon
 } from '../../utils/lmsIcons';
 import { LEVELS, LOCATION_ALLOW } from '@/lms/config';
+import { formatDurationFromMinutes } from '../../utils/durationFormatter';
+import { findLearningPathsForCourse, fetchCoursesInLearningPath } from '../../services/lmsService';
+import { useQuery } from '@tanstack/react-query';
 
 const formatChips = (course: LmsDetail) => {
   try {
@@ -117,6 +120,21 @@ export const LmsCourseDetailPage: React.FC = () => {
   const { data: course, isLoading: courseLoading, isFetching: courseFetching, error: courseError } = useLmsCourse(slug || '');
   const { data: allCourses = [] } = useLmsCourseDetails();
 
+  // Find learning paths that contain this course
+  const { data: learningPaths = [] } = useQuery({
+    queryKey: ['learning-paths-for-course', course?.id],
+    queryFn: () => course?.id ? findLearningPathsForCourse(course.id) : Promise.resolve([]),
+    enabled: !!course?.id,
+  });
+
+  // Fetch courses in the first learning path (if course is part of a track)
+  const firstPath = learningPaths[0];
+  const { data: pathCourses = [] } = useQuery({
+    queryKey: ['courses-in-path', firstPath?.pathId],
+    queryFn: () => firstPath?.pathId ? fetchCoursesInLearningPath(firstPath.pathId) : Promise.resolve([]),
+    enabled: !!firstPath?.pathId,
+  });
+
   // Track previous slug to detect navigation
   const prevSlugRef = React.useRef<string | undefined>(slug);
   const [isNavigating, setIsNavigating] = React.useState(false);
@@ -152,6 +170,8 @@ export const LmsCourseDetailPage: React.FC = () => {
         id: course.id,
         slug: course.slug,
         title: course.title,
+        duration: course.duration,
+        durationMinutes: course.durationMinutes,
         hasHighlights: !!course.highlights,
         hasOutcomes: !!course.outcomes,
         hasCurriculum: !!course.curriculum,
@@ -215,6 +235,37 @@ export const LmsCourseDetailPage: React.FC = () => {
     });
     
     return { totalLessons, totalModules };
+  }, [curriculum]);
+
+  // Get first lesson for "Start Lesson" button
+  const firstLesson = useMemo(() => {
+    if (!curriculum || curriculum.length === 0) return null;
+    
+    // Sort curriculum by order
+    const sortedCurriculum = [...curriculum].sort((a, b) => a.order - b.order);
+    
+    // Find first lesson
+    for (const item of sortedCurriculum) {
+      if (item.lessons && item.lessons.length > 0) {
+        const sortedLessons = [...item.lessons].sort((a, b) => a.order - b.order);
+        if (sortedLessons.length > 0 && !sortedLessons[0].isLocked) {
+          return sortedLessons[0];
+        }
+      }
+      if (item.topics && item.topics.length > 0) {
+        const sortedTopics = [...item.topics].sort((a, b) => a.order - b.order);
+        for (const topic of sortedTopics) {
+          if (topic.lessons && topic.lessons.length > 0) {
+            const sortedLessons = [...topic.lessons].sort((a, b) => a.order - b.order);
+            if (sortedLessons.length > 0 && !sortedLessons[0].isLocked) {
+              return sortedLessons[0];
+            }
+          }
+        }
+      }
+    }
+    
+    return null;
   }, [curriculum]);
 
   const relatedCourses = useMemo(() => {
@@ -337,28 +388,40 @@ export const LmsCourseDetailPage: React.FC = () => {
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
       <main className="flex-grow">
         {/* Hero Section */}
-        <div className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
-          <div className="container mx-auto px-4 md:px-6 max-w-7xl py-8">
+        <div 
+          className="w-full border-b border-gray-200 relative"
+          style={{
+            backgroundImage: course?.imageUrl 
+              ? `url(${course.imageUrl})` 
+              : 'linear-gradient(to right, rgb(239 246 255), rgb(243 232 255))',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+          }}
+        >
+          <div className="absolute inset-0" style={{ backgroundColor: 'rgba(26, 46, 110, 0.6)' }}></div>
+          <div className="relative z-10">
+          <div className="container mx-auto px-4 md:px-6 max-w-7xl py-12">
             <nav className="flex mb-6" aria-label="Breadcrumb">
               <ol className="inline-flex items-center space-x-1 md:space-x-2">
                 <li className="inline-flex items-center">
-                  <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
+                  <Link to="/" className="text-white/80 hover:text-white inline-flex items-center">
                     <HomeIcon size={16} className="mr-1" />
                     <span>Home</span>
                   </Link>
                 </li>
                 <li>
                   <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-gray-400" />
-                    <Link to="/lms" className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">
+                    <ChevronRightIcon size={16} className="text-white/60" />
+                    <Link to="/lms" className="ml-1 text-white/80 hover:text-white md:ml-2">
                       courses
                     </Link>
                   </div>
                 </li>
                 <li aria-current="page">
                   <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-gray-400" />
-                    <span className="ml-1 text-gray-500 md:ml-2 truncate max-w-[200px]">
+                    <ChevronRightIcon size={16} className="text-white/60" />
+                    <span className="ml-1 text-white/80 md:ml-2 truncate max-w-[200px]">
                       {course.title}
                     </span>
                   </div>
@@ -369,17 +432,17 @@ export const LmsCourseDetailPage: React.FC = () => {
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
               <div className="max-w-3xl">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm text-gray-600 font-medium">{course.provider}</span>
+                  <span className="text-sm text-white font-medium">{course.provider}</span>
                   {course.track && (
                     <>
                       <span className="text-gray-400">•</span>
-                      <span className="text-sm font-medium" style={{ color: '#030F35' }}>{course.track}</span>
+                      <span className="text-sm font-medium" style={{ color: '#fcfcfc' }}>{course.track}</span>
                     </>
                   )}
                 </div>
                 <div className="flex items-center gap-2 mb-4">
-                  <HeroIcon className="h-6 w-6 shrink-0" style={{ color: '#030F35' }} aria-hidden="true" />
-                  <h1 className="text-2xl md:text-3xl font-bold leading-tight text-gray-900">
+                  <HeroIcon className="h-6 w-6 shrink-0" style={{ color: '#fff' }} aria-hidden="true" />
+                  <h1 className="text-2xl md:text-3xl font-bold leading-tight text-white">
                     {course.title}
                   </h1>
                 </div>
@@ -393,16 +456,15 @@ export const LmsCourseDetailPage: React.FC = () => {
                           <Star
                             key={i}
                             size={20}
-                            className={i < Math.floor(averageRating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
+                            className={i < Math.floor(averageRating) ? 'text-yellow-400 fill-yellow-400' : 'text-white/40'}
                           />
                         ))}
                       </div>
-                      <span className="ml-2 text-lg font-semibold text-gray-900">{averageRating.toFixed(1)}</span>
+                      <span className="ml-2 text-lg font-semibold text-white">{averageRating.toFixed(1)}</span>
                     </div>
                     <Link
                       to={`/lms/${course.slug}/reviews`}
-                      className="font-medium flex items-center gap-1 hover:underline"
-                      style={{ color: '#030F35' }}
+                      className="font-medium flex items-center gap-1 hover:underline text-white"
                     >
                       <MessageSquare size={16} />
                       <span>{reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</span>
@@ -416,8 +478,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                     return (
                       <span
                         key={`${chip.key}-${chip.label}-${index}`}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border bg-blue-50 border-blue-200"
-                        style={{ color: '#030F35' }}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border bg-white/20 backdrop-blur-sm border-white/30 text-white"
                       >
                       {Icon ? <Icon className="h-4 w-4 mr-1.5" /> : null}
                       {chip.label}
@@ -425,7 +486,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                     );
                 })}
                 </div>
-                <p className="text-gray-700 text-lg leading-relaxed">
+                <p className="text-white text-lg leading-relaxed">
                   {course.summary}
                 </p>
               </div>
@@ -433,6 +494,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${statusClass}`}>
                   {statusLabel}
                 </span>
+              </div>
               </div>
             </div>
           </div>
@@ -478,6 +540,46 @@ export const LmsCourseDetailPage: React.FC = () => {
                     </div>
                   ))}
                 </div>
+
+                {/* Part of Track Section - Show if course is part of a learning path */}
+                {firstPath && pathCourses.length > 0 && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
+                    <h3 className="text-lg font-semibold mb-2" style={{ color: '#030F35' }}>
+                      Part of {firstPath.pathTitle}
+                    </h3>
+                    <p className="text-gray-700 mb-4 text-sm">
+                      This course is part of a larger learning track. Explore other courses in this track to complete your learning journey.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {pathCourses.map((pathCourse, index) => {
+                        const isCurrentCourse = pathCourse.slug === course?.slug;
+                        return (
+                          <React.Fragment key={pathCourse.id}>
+                            {index > 0 && (
+                              <span className="text-gray-400" style={{ color: '#030F35' }}>→</span>
+                            )}
+                            {isCurrentCourse ? (
+                              <span 
+                                className="font-medium text-sm"
+                                style={{ color: '#030F35' }}
+                              >
+                                {pathCourse.title}
+                              </span>
+                            ) : (
+                              <Link
+                                to={`/lms/${pathCourse.slug}`}
+                                className="font-medium text-sm hover:underline"
+                                style={{ color: '#030F35' }}
+                              >
+                                {pathCourse.title}
+                              </Link>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </section>
               )}
 
@@ -575,7 +677,17 @@ export const LmsCourseDetailPage: React.FC = () => {
                         <div className="flex items-center">
                           <Clock size={16} className="mr-2" style={{ color: '#030F35' }} />
                           <span className="text-gray-600">
-                            Duration: <span className="font-medium text-gray-900">{course.duration}</span>
+                            Duration: <span className="font-medium text-gray-900">
+                              {course.durationMinutes !== undefined && course.durationMinutes > 0
+                                ? formatDurationFromMinutes(course.durationMinutes)
+                                : course.duration || 'N/A'}
+                            </span>
+                          </span>
+                        </div>
+                        <div className="flex items-center">
+                          <CheckCircleIcon size={16} className="mr-2" style={{ color: '#030F35' }} />
+                          <span className="text-gray-600">
+                            Level: <span className="font-medium text-gray-900">{course.levelCode}</span>
                           </span>
                         </div>
                         <div className="flex items-center">
@@ -585,15 +697,9 @@ export const LmsCourseDetailPage: React.FC = () => {
                           </span>
                         </div>
                         <div className="flex items-center">
-                          <MapPin size={16} className="mr-2" style={{ color: '#030F35' }} />
+                          <BookOpen size={16} className="mr-2" style={{ color: '#030F35' }} />
                           <span className="text-gray-600">
-                            Location: <span className="font-medium text-gray-900">{locationsLabel}</span>
-                          </span>
-                        </div>
-                        <div className="flex items-center">
-                          <CheckCircleIcon size={16} className="mr-2" style={{ color: '#030F35' }} />
-                          <span className="text-gray-600">
-                            Level: <span className="font-medium text-gray-900">{course.levelCode}</span>
+                            Lessons: <span className="font-medium text-gray-900">{courseStats.totalLessons}</span>
                           </span>
                         </div>
                       </div>
@@ -1132,6 +1238,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                                 </div>
 
                                 {/* Topics within this section */}
+                                {item.topics && Array.isArray(item.topics) && item.topics.length > 0 ? (
                                 <div className="divide-y divide-gray-200">
                                   {item.topics
                                     .sort((a, b) => a.order - b.order)
@@ -1246,6 +1353,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                                       );
                                     })}
                                 </div>
+                                ) : null}
                               </div>
                             );
                           }
@@ -1262,6 +1370,11 @@ export const LmsCourseDetailPage: React.FC = () => {
                                     return (
                                       <div
                                         key={lesson.id}
+                                        onClick={() => {
+                                          if (!isLocked) {
+                                            navigate(`/lms/${course.slug}/lesson/${lesson.id}`);
+                                          }
+                                        }}
                                         className={`bg-white border rounded-lg p-4 transition-all ${
                                           isLocked
                                             ? 'border-gray-200 opacity-60 cursor-not-allowed'
@@ -1525,7 +1638,11 @@ export const LmsCourseDetailPage: React.FC = () => {
                 <div className="p-4 space-y-4">
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>Duration</span>
-                    <span className="font-medium text-gray-900">{course.duration || 'N/A'}</span>
+                    <span className="font-medium text-gray-900">
+                      {course.durationMinutes !== undefined && course.durationMinutes > 0
+                        ? formatDurationFromMinutes(course.durationMinutes)
+                        : course.duration || 'N/A'}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>Lessons</span>
@@ -1548,7 +1665,15 @@ export const LmsCourseDetailPage: React.FC = () => {
                     </div>
                   )}
                   <button 
-                    className="w-full px-4 py-3 text-white font-semibold rounded-md transition-colors shadow-md hover:opacity-90" 
+                    onClick={() => {
+                      if (firstLesson) {
+                        navigate(`/lms/${course.slug}/lesson/${firstLesson.id}`);
+                      }
+                    }}
+                    disabled={!firstLesson}
+                    className={`w-full px-4 py-3 text-white font-semibold rounded-md transition-colors shadow-md ${
+                      firstLesson ? 'hover:opacity-90' : 'opacity-50 cursor-not-allowed'
+                    }`}
                     style={{ backgroundColor: '#030F35' }}
                   >
                     Start Lesson
