@@ -410,24 +410,24 @@ export const HomePage: React.FC = () => {
         title: 'Units',
         description: 'Explore sectors, units, mandates, priorities, and performance metrics.',
         icon: <Building />,
-        path: '/directory/units',
-        isActive: false
+        path: '/marketplace/work-directory?tab=units',
+        isActive: true
       },
       {
         id: 'directory-positions',
         title: 'Positions',
         description: 'Browse DQ positions, role descriptions, and key responsibilities.',
         icon: <Briefcase />,
-        path: '/directory/positions',
-        isActive: false
+        path: '/marketplace/work-directory?tab=positions',
+        isActive: true
       },
       {
         id: 'directory-associates',
         title: 'Associates',
         description: 'View associate profiles, contacts, skills, and performance details.',
         icon: <Users />,
-        path: '/directory/associates',
-        isActive: false
+        path: '/marketplace/work-directory?tab=associates',
+        isActive: true
       },
       {
         id: 'jobs-openings',
