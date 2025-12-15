@@ -275,11 +275,11 @@ export const getLeadApplyCards = (navigate: (path: string) => void): LeadApplyCa
     iconComponent: Briefcase,
     iconSize: 28,
     iconClassName: "text-[#FB5535]",
-    title: "Become a Lead",
+    title: "Become a Scrum Master",
     description:
-      "Co-work — take the next step in your DQ journey, mentor peers, and help shape how we grow.",
+      "Co-work — take the next step in your DQ journey. Apply for a Scrum Master role, facilitate agile practices, and help teams deliver value effectively.",
     cta: "Apply Now →",
-    onClick: () => window.dispatchEvent(new Event("open-lead-popup")),
+    onClick: () => navigate('/scrum-master-space'),
   },
 ];
 
