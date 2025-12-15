@@ -4,7 +4,6 @@ export const annualLeaveStages: ProcedureStagesConfig = {
   title: 'Annual Leave Procedure',
   stages: [
     {
-      stageNumber: 'STAGE 01',
       stageTitle: '4 WEEKS PRIOR',
       items: [
         { text: 'Confirm leave eligibility' },
@@ -14,7 +13,6 @@ export const annualLeaveStages: ProcedureStagesConfig = {
       ],
     },
     {
-      stageNumber: 'STAGE 02',
       stageTitle: '2 WEEKS PRIOR',
       items: [
         { text: 'Notify senior management' },
@@ -23,7 +21,6 @@ export const annualLeaveStages: ProcedureStagesConfig = {
       ],
     },
     {
-      stageNumber: 'STAGE 03',
       stageTitle: '1 WEEK PRIOR',
       items: [
         { text: 'Publish handover catalog' },

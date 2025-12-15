@@ -748,7 +748,7 @@ export const mockNonFinancialServices = [
     id: '10',
     title: 'Cursor AI',
     description:
-      'Cursor AI is an advanced AI-powered code editor built on VS Code that transforms how developers write code. At DQ, we use Cursor to accelerate software development through intelligent code completion, natural language editing, and AI-assisted debugging—helping our teams ship features faster with fewer errors.',
+      'Cursor AI is an advanced AI-powered code editor built on VS Code that transforms how developers write code. At DQ, we use Cursor to accelerate software development through intelligent code completion, natural language editing, and AI-assisted debugging, helping our teams ship features faster with fewer errors.',
     category: 'AI Tools',
     serviceType: 'Requisition',
     deliveryMode: 'Online',
@@ -814,7 +814,7 @@ export const mockNonFinancialServices = [
     id: '12',
     title: 'ChatGPT',
     description:
-      'ChatGPT is OpenAI\'s advanced conversational AI assistant powered by GPT-4, capable of understanding and generating human-like text. DQ uses ChatGPT to enhance productivity across content creation, research, coding assistance, data analysis, and problem-solving—empowering teams to work smarter and faster.',
+      'ChatGPT is OpenAI\'s advanced conversational AI assistant powered by GPT-4, capable of understanding and generating human-like text. DQ uses ChatGPT to enhance productivity across content creation, research, coding assistance, data analysis, and problem-solving, empowering teams to work smarter and faster.',
     category: 'AI Tools',
     serviceType: 'Requisition',
     deliveryMode: 'Online',

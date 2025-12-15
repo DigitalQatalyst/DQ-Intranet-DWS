@@ -3,7 +3,7 @@ export interface StageItem {
 }
 
 export interface Stage {
-  stageNumber: string;
+  stageNumber?: string;
   stageTitle: string;
   items: StageItem[];
 }

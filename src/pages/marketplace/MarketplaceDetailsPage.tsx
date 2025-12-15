@@ -15,6 +15,7 @@ import { getDigitalWorkerServiceById } from '../../utils/digitalWorkerData';
 import { ProcedureStages, procedureStagesConfigs } from '../../components/ProcedureStages';
 import RequestForm from '../../components/marketplace/RequestForm';
 import { INITIAL_APPROVERS } from '../../utils/mockApprovers';
+import { ServiceHeroSection } from '../../components/marketplace/ServiceHeroSection';
 interface MarketplaceDetailsPageProps {
   marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding';
   bookmarkedItems?: string[];
@@ -1741,11 +1742,10 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       `}</style>
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
       <main className="flex-grow">
-        {/* Hero Banner - consistent header layout */}
-        <div ref={heroRef} className="w-full bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
+        {/* Breadcrumbs (outside hero) */}
+        <div className="w-full bg-white">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
-            {/* Breadcrumbs */}
-            <nav className="flex pt-4" aria-label="Breadcrumb">
+            <nav className="flex pt-4 pb-2" aria-label="Breadcrumb">
               <ol className="inline-flex items-center space-x-1 md:space-x-2">
                 <li className="inline-flex items-center">
                   <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
@@ -1771,28 +1771,15 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                 </li>
               </ol>
             </nav>
-            <div className="flex flex-col items-start max-w-3xl py-4">
-              {/* Ratings and bookmark row - Now in a single row with proper alignment */}
-              {/* <div className="flex items-center justify-between w-full mb-4">
-                <div className="flex items-center">
-                  {marketplaceType === 'courses' && <div className="flex items-center">
-                      <div className="flex items-center">
-                        {[1, 2, 3, 4, 5].map(star => <StarIcon key={star} size={16} className={`${parseFloat(rating) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />)}
-                      </div>
-                      <span className="ml-2 text-sm font-medium text-gray-700">
-                        {rating}
-                      </span>
-                      <span className="mx-1.5 text-gray-500">·</span>
-                      <span className="text-sm text-gray-500">
-                        {reviewCount} reviews
-                      </span>
-                    </div>}
-                </div>
-                <button onClick={handleToggleBookmark} className={`p-1.5 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} ml-2`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'} title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
-                  <BookmarkIcon size={18} className={isBookmarked ? 'fill-yellow-600' : ''} />
-                </button>
-              </div> */}
-            </div>
+          </div>
+        </div>
+
+        {/* Hero Section */}
+        <div ref={heroRef} className="w-full py-4 bg-gray-50">
+          <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+            <ServiceHeroSection 
+              item={item}
+            />
           </div>
         </div>
         {/* Tabs Navigation */}

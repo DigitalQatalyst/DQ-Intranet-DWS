@@ -21,7 +21,7 @@ export function ProcedureStages({ config, className = '' }: ProcedureStagesProps
               <div className="relative z-10 flex-shrink-0">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-md" style={{ backgroundColor: '#030F35' }}>
                   <span className="text-white font-bold text-lg">
-                    {stage.stageNumber.replace(/\D/g, '')}
+                    {stage.stageNumber ? stage.stageNumber.replace(/\D/g, '') : (index + 1).toString().padStart(2, '0')}
                   </span>
                 </div>
               </div>
@@ -31,9 +31,11 @@ export function ProcedureStages({ config, className = '' }: ProcedureStagesProps
                 <div className="bg-white rounded-lg border border-gray-200 shadow-md p-6">
                   {/* Stage header */}
                   <div className="mb-4">
-                    <div className="text-sm font-medium text-gray-500 mb-1">
-                      {stage.stageNumber}
-                    </div>
+                    {stage.stageNumber && (
+                      <div className="text-sm font-medium text-gray-500 mb-1">
+                        {stage.stageNumber}
+                      </div>
+                    )}
                     <h3 className="text-xl font-body font-bold text-dq-navy">
                       {stage.stageTitle}
                     </h3>

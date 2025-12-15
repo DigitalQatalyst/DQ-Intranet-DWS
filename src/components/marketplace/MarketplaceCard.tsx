@@ -3,7 +3,7 @@ import { Clock, Layers } from 'lucide-react';
 import {
   resolveChipIcon
 } from '../../utils/lmsIcons';
-import { LOCATION_ALLOW } from '@/lms/config';
+// import { LOCATION_ALLOW } from '@/lms/config';
 import { useNavigate } from 'react-router-dom';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 import { resolveServiceImage } from '../../utils/serviceCardImages';
@@ -41,16 +41,17 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
   const getItemRoute = () => {
     return `${config.route}/${item.id}`;
   };
-  const handleViewDetails = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (marketplaceType === 'courses') {
-      // Use slug if available, otherwise fall back to id
-      const slug = item.slug || item.id;
-      navigate(`/lms/${slug}`);
-      return;
-    }
-    onQuickView();
-  };
+  // View Details handler - DISABLED
+  // const handleViewDetails = (e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   if (marketplaceType === 'courses') {
+  //     // Use slug if available, otherwise fall back to id
+  //     const slug = item.slug || item.id;
+  //     navigate(`/lms/${slug}`);
+  //     return;
+  //   }
+  //   onQuickView();
+  // };
   const handlePrimaryAction = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (item.lmsUrl) {
@@ -234,7 +235,8 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       {/* Card Footer - with two buttons */}
       <div className="mt-auto border-t border-gray-100 p-4 pt-5">
         <div className="flex justify-between gap-2">
-          <button 
+          {/* View Details button - HIDDEN */}
+          {/* <button 
             onClick={handleViewDetails} 
             className="px-4 py-2 text-sm font-medium bg-white border rounded-md hover:opacity-90 transition-colors whitespace-nowrap min-w-[120px] flex-1"
             style={{ 
@@ -243,7 +245,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
             }}
           >
             {config.secondaryCTA}
-          </button>
+          </button> */}
           <button 
             onClick={handlePrimaryAction} 
             className="px-4 py-2 text-sm font-bold text-white rounded-md hover:opacity-90 transition-colors whitespace-nowrap flex-1"
