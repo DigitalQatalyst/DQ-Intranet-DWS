@@ -14,6 +14,7 @@ import { getAIToolDataById } from '../../utils/aiToolsData';
 import { getDigitalWorkerServiceById } from '../../utils/digitalWorkerData';
 import { ProcedureStages, procedureStagesConfigs } from '../../components/ProcedureStages';
 import RequestForm from '../../components/marketplace/RequestForm';
+import { TechSupportForm } from '../../components/marketplace/TechSupportForm';
 import { INITIAL_APPROVERS } from '../../utils/mockApprovers';
 import { ServiceHeroSection } from '../../components/marketplace/ServiceHeroSection';
 interface MarketplaceDetailsPageProps {
@@ -51,6 +52,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const [headerHeight, setHeaderHeight] = useState(80);
   const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout | null>(null);
   const [isRequestFormOpen, setIsRequestFormOpen] = useState(false);
+  const [isTechSupportFormOpen, setIsTechSupportFormOpen] = useState(false);
   const mainContentRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -195,6 +197,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           // Use fetched related items if available, otherwise use fallback
           setRelatedItems(relatedItemsData && relatedItemsData.length > 0 ? relatedItemsData : getFallbackItems(marketplaceType));
           // If the action parameter is true, scroll to the action section
+          // and open the appropriate request modal when applicable
           if (shouldTakeAction) {
             setTimeout(() => {
               const actionSection = document.getElementById('action-section');
@@ -204,6 +207,14 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                 });
               }
             }, 100);
+
+            if (finalItemData.id === '13') {
+              // Leave application
+              setIsRequestFormOpen(true);
+            } else if (marketplaceType === 'non-financial' && ['1', '2', '3'].includes(finalItemData.id)) {
+              // IT Support Form, Support Charter Template, IT Support Walkthrough
+              setIsTechSupportFormOpen(true);
+            }
           }
         } else {
           // Item not found - use generic fallback
@@ -320,6 +331,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const isAITool = item.category === 'AI Tools';
   const isDigitalWorker = item.category === 'Digital Worker';
   const isLeaveApplication = item.id === '13';
+  const isITSupportService = marketplaceType === 'non-financial' && ['1', '2', '3'].includes(item.id);
   const primaryAction = isLeaveApplication ? 'Apply For Leave' : isPromptLibrary ? 'Visit Page' : isAITool ? 'Request Access' : isDigitalWorker ? 'Request Service' : config.primaryCTA;
   // const secondaryAction = config.secondaryCTA;
   // Extract details for the sidebar
@@ -1162,7 +1174,13 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   style={{ backgroundColor: '#030F35' }} 
                   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#020a23')} 
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#030F35')} 
-                  onClick={() => window.open(computedUrl, '_blank', 'noopener')}
+                  onClick={() => {
+                    if (isITSupportService) {
+                      setIsTechSupportFormOpen(true);
+                    } else {
+                      window.open(computedUrl, '_blank', 'noopener');
+                    }
+                  }}
                 >
                   {content.action.label || 'Submit Request'}
                 </button>
@@ -1696,10 +1714,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             // Check if this is Leave Application service (id '13')
             if (isLeaveApplication) {
               setIsRequestFormOpen(true);
+            } else if (isITSupportService) {
+              setIsTechSupportFormOpen(true);
             } else if (isPromptLibrary && item.sourceUrl) {
               window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
             } else if (isAITool) {
-              window.open('https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl', '_blank', 'noopener,noreferrer');
+              setIsTechSupportFormOpen(true);
             }
           }}
         >
@@ -1907,10 +1927,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   // Check if this is Leave Application service (id '13')
                   if (isLeaveApplication) {
                     setIsRequestFormOpen(true);
+                  } else if (isITSupportService) {
+                    setIsTechSupportFormOpen(true);
                   } else if (isPromptLibrary && item.sourceUrl) {
                     window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
                   } else if (isAITool) {
-                    window.open('https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl', '_blank', 'noopener,noreferrer');
+                    setIsTechSupportFormOpen(true);
                   }
                 }}
               >
@@ -1935,6 +1957,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         isOpen={isRequestFormOpen} 
         onClose={() => setIsRequestFormOpen(false)}
         initialApprovers={INITIAL_APPROVERS}
+      />
+
+      {/* Technology Support Form Modal (IT Support service) */}
+      <TechSupportForm 
+        isOpen={isTechSupportFormOpen}
+        onClose={() => setIsTechSupportFormOpen(false)}
       />
     </div>;
 };

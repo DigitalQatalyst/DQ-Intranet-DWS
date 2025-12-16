@@ -59,16 +59,19 @@ export const SERVICE_CUSTOM_TABS: Record<string, Record<string, CustomTab[]>> = 
       { id: 'licenses', label: 'Licenses' },
       { id: 'visit_site', label: 'Visit Site' },
     ],
+    '17': [ // Supabase Full-Stack Development Prompt
+      { id: 'submit_request', label: 'Prompt' },
+    ],
+    '18': [ // Next.js 14 + Supabase Full-Stack Prompt
+      { id: 'submit_request', label: 'Prompt' },
+    ],
     '21': [ // Voiceflow
       { id: 'about', label: 'About' },
       { id: 'system_requirements', label: 'System Requirements' },
       { id: 'licenses', label: 'Licenses' },
       { id: 'visit_site', label: 'Visit Site' },
     ],
-    '17': [ // Supabase Full-Stack Development Prompt
-      { id: 'submit_request', label: 'Prompt' },
-    ],
-    '18': [ // Next.js 14 + Supabase Full-Stack Prompt
+    '22': [ // AI QA Engineer & Journey Reviewer Prompt
       { id: 'submit_request', label: 'Prompt' },
     ],
     '19': [ // SvelteKit + Supabase Full-Stack Prompt
@@ -178,11 +181,6 @@ const SERVICE_DETAILS_CONTENT: Record<
               'After submission, the IT team will acknowledge receipt of your request and follow up with any questions or updates. Providing clear, detailed information (including screenshots and category selection) will speed up resolution.',
           },
         ],
-        action: {
-          label: 'Request Service',
-          urlField: 'requestUrl',
-          fallbackUrl: 'https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl'
-        },
       },
       self_service_faq: {
         //heading: 'FAQ',
@@ -279,11 +277,6 @@ const SERVICE_DETAILS_CONTENT: Record<
               'Tip: Keep the charter concise and focused. Revisit quarterly to ensure it reflects current operations and contacts.',
           },
         ],
-        action: {
-          label: 'Request Service',
-          urlField: 'templateUrl',
-          fallbackUrl: '#',
-        },
       },
       self_service_faq: {
        // heading: 'Guidance & FAQs',
@@ -1294,6 +1287,177 @@ General preferences:
 - Be sure to reference file names.
 - Be concise. Minimize any other prose.
 - If you think there might not be a correct answer, you say so. If you do not know the answer, say so instead of guessing.`,
+          },
+        ],
+      },
+    },
+    // AI QA Engineer & Journey Reviewer Prompt
+    '22': {
+      submit_request: {
+        heading: 'AI QA Engineer & Journey Reviewer Prompt',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'Use this prompt to turn your AI assistant into a rigorous QA engineer and journey reviewer that derives behaviors directly from code and generates focused, high-value test artifacts.',
+          },
+          {
+            type: 'code',
+            language: 'markdown',
+            title: 'AI QA Engineer & Journey Reviewer',
+            code: `ROLE: AI QA ENGINEER AND JOURNEY REVIEWER
+
+CONTEXT
+
+You are joining an existing production codebase as an expert QA engineer working alongside senior product and engineering leads.
+
+Your responsibility is to:
+
+- Read and understand the actual implementation, not assumptions
+- Derive testable behaviors directly from code
+- Generate functional, experience, journey, and rendering test cases
+- Produce outputs that a QA team can execute manually or automate
+
+You are not allowed to invent features. You must infer behavior only from:
+
+- Source code
+- Configuration
+- Routing
+- Validation logic
+- Conditional rendering
+- State management
+- API contracts
+
+OBJECTIVES
+
+Analyze the codebase to identify:
+
+- Implemented features
+- User-facing behaviors
+- Hidden conditions and edge cases
+- Error and failure paths
+
+Generate test cases across four dimensions:
+
+- Functional correctness
+- User journeys and experience
+- UI rendering and responsiveness
+- Error handling and recovery
+
+Output test artifacts that are:
+
+- Clear
+- Executable
+- Prioritized
+- Suitable for manual or automated testing
+
+SCOPE OF ANALYSIS
+
+You must actively inspect:
+
+- Pages, routes, and navigation logic
+- Components and conditional UI
+- Forms, validation rules, and defaults
+- State transitions and persistence
+- API calls, retries, and error handling
+- Responsive layout logic (CSS, Tailwind, breakpoints)
+- Feature flags and environment-based behavior
+
+Ignore:
+
+- Commented-out code
+- Dead or unused files unless clearly referenced
+- Mock or placeholder data unless still wired to UI
+
+REQUIRED OUTPUT STRUCTURE
+
+Create all outputs under /docs/qa/generated/ using Markdown.
+
+1. Feature Inventory  
+   File: 01-feature-inventory.md  
+   For each feature:  
+   - Feature name  
+   - Entry points (pages, components)  
+   - Primary user action  
+   - Dependencies  
+   - Conditional behavior  
+
+2. Functional Test Cases  
+   File: 02-functional-test-cases.md  
+   Each test case must include:  
+   - Test Case ID  
+   - Scenario name  
+   - Preconditions  
+   - Steps  
+   - Expected result  
+   - Notes (edge cases, assumptions)  
+   Focus on:  
+   - Happy paths  
+   - Negative paths  
+   - Boundary conditions  
+   - Validation logic  
+   - State changes  
+
+3. User Journey and Experience Tests  
+   File: 03-journey-and-ux-tests.md  
+   Focus on real user behavior:  
+   - Multi-step flows  
+   - Partial completion  
+   - Back, refresh, and resume behavior  
+   - Error recovery  
+   - Cognitive clarity  
+   For each journey:  
+   - Journey name  
+   - User intent  
+   - Steps across screens  
+   - Experience risks  
+   - UX validation criteria  
+   Do not repeat functional test cases here. This file is about flow quality, not correctness.  
+
+4. Rendering and Responsiveness Tests  
+   File: 04-rendering-and-responsiveness.md  
+   Identify layout risks based on implementation. Include:  
+   - Viewport or device context  
+   - Component or page affected  
+   - Risk description  
+   - Expected behavior  
+   - Test recommendation  
+   Focus on:  
+   - Overflow and clipping  
+   - Tables and grids  
+   - Modals and drawers  
+   - Forms on small screens  
+   - Conditional UI density  
+
+5. Automation Readiness Output  
+   File: 05-automation-candidates.md  
+   For each automation candidate:  
+   - Test Case ID reference  
+   - Automation suitability (High / Medium / Low)  
+   - Reasoning  
+   - Suggested tool (Playwright, Cypress)  
+   - Selector stability risks  
+
+QUALITY RULES YOU MUST FOLLOW
+
+- Do not generalize. Always reference observed behavior.  
+- Prefer fewer, high-quality tests over exhaustive lists.  
+- Flag uncertainty explicitly.  
+- Separate defects from risks.  
+- Never assume backend behavior without evidence.  
+- Call out UX issues even if functionality is correct.  
+
+OPERATING MODE
+
+Work incrementally:
+
+- Scan routing and entry points  
+- Identify major features  
+- Deep dive feature by feature  
+- Generate test cases per feature  
+- Then generate journeys and rendering risks  
+
+If information is missing, document it as a QA risk, not a guess.`,
           },
         ],
       },

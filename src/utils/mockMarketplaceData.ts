@@ -682,7 +682,7 @@ export const mockNonFinancialServices = [
     ],
     tags: [ 'Hybrid', 'Technology'],
     featuredImageUrl: '/images/services/IT-support.jpg',
-    requestUrl: 'https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl',
+    //requestUrl: 'https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl',
   },
   {
     id: '2',
@@ -1130,6 +1130,36 @@ export const mockNonFinancialServices = [
     tags: ['Prompt Library', 'SvelteKit', 'Supabase', 'TypeScript', 'Full-Stack'],
     featuredImageUrl: '/images/services/supabase.png',
     sourceUrl: 'https://cursor.directory/rules/sveltekit',
+  },
+  {
+    id: '22',
+    title: 'AI QA Engineer & Journey Reviewer Prompt',
+    description:
+      'A specialized prompt for an AI QA engineer that reads real implementation, derives behaviors from code, and generates focused test plans across functional, journey, rendering, and error-handling dimensions.',
+    category: 'Prompt Library',
+    serviceType: 'Self-Service',
+    deliveryMode: 'Online',
+    businessStage: 'All Stages',
+    promptType: 'qa_prompts',
+    technologies: ['React', 'TypeScript', 'TailwindCSS', 'Vite'],
+    provider: {
+      name: 'Digital Innovation',
+      logoUrl: '/DWS-Logo.png',
+      description:
+        'Digital Innovation team curates and maintains a library of AI prompts and development guidelines to accelerate project delivery and ensure consistent code quality.',
+    },
+    duration: 'Immediate',
+    price: 'Free',
+    details: [
+      'Analyze production code to infer actual implemented behavior',
+      'Generate structured feature inventories from real routes, components, and APIs',
+      'Create functional, journey, rendering, and error-handling test cases',
+      'Focus on observable behavior instead of assumptions or undocumented intent',
+      'Produce QA deliverables suitable for manual or automated execution',
+    ],
+    tags: ['Prompt Library', 'QA', 'Testing', 'Journeys'],
+    featuredImageUrl: '/images/services/qa-testing.jpg',
+    sourceUrl: '#',
   },
   {
     id: 'dw-001',

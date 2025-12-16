@@ -60,18 +60,6 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
         return 'Get Started';
     }
   };
-  const handleViewDetails = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // For AI Tools and Digital Worker, open the request form in a new tab
-    if (item.category === 'AI Tools' || item.category === 'Digital Worker') {
-      const requestUrl = item.requestUrl || 'https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl';
-      window.open(requestUrl, '_blank', 'noopener,noreferrer');
-    } else {
-      navigate(`${getItemRoute()}?action=true`);
-    }
-  };
   const handlePrimaryAction = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -128,7 +116,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
           </p>
         </div>
       </div>
-      {/* Card Footer - with two buttons */}
+    
       <div className="mt-auto border-t border-gray-100 px-4 py-2.5">
         <div className="flex justify-between gap-2">
           {/* View Details button - HIDDEN */}

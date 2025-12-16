@@ -121,13 +121,32 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
                   </li>)}
               </ul>
             </div>}
-          {/* Action Buttons */}
+          {/* Action Button */}
           <div className="flex flex-col sm:flex-row gap-3 justify-end">
-            <button onClick={onViewDetails} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors border ${config.id === 'non-financial' ? 'bg-white' : 'text-blue-700 bg-blue-50 border-blue-200 hover:bg-blue-100'}`} style={config.id === 'non-financial' ? { color: '#030F35', borderColor: '#030F35' } : {}} onMouseEnter={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = '#f0f4f8'; }} onMouseLeave={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = 'white'; }}>
+            <button
+              onClick={onViewDetails}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors border ${
+                config.id === 'non-financial'
+                  ? 'bg-white'
+                  : 'text-blue-700 bg-blue-50 border-blue-200 hover:bg-blue-100'
+              }`}
+              style={
+                config.id === 'non-financial'
+                  ? { color: '#030F35', borderColor: '#030F35' }
+                  : {}
+              }
+              onMouseEnter={(e) => {
+                if (config.id === 'non-financial') {
+                  e.currentTarget.style.backgroundColor = '#f0f4f8';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (config.id === 'non-financial') {
+                  e.currentTarget.style.backgroundColor = 'white';
+                }
+              }}
+            >
               View Full Details
-            </button>
-            <button className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${config.id === 'non-financial' ? '' : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'}`} style={config.id === 'non-financial' ? { backgroundColor: '#030F35' } : {}} onMouseEnter={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = '#030F35'; }} onMouseLeave={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = '#030F35'; }}>
-              {config.primaryCTA}
             </button>
           </div>
         </div>
