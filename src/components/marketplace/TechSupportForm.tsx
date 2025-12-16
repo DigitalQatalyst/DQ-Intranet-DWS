@@ -23,7 +23,14 @@ const CATEGORY_OPTIONS = [
 
 type CategoryOption = (typeof CATEGORY_OPTIONS)[number];
 
+// Email validation helper
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
+};
+
 export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
+  const [email, setEmail] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryOption | ''>('');
   const [issueDescription, setIssueDescription] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
@@ -32,16 +39,18 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
 
   useEffect(() => {
     const isValid =
+      isValidEmail(email) &&
       selectedCategory !== '' &&
       issueDescription.trim().length > 0 &&
       issueDescription.trim().length <= MAX_DESCRIPTION_LENGTH;
 
     setIsFormValid(isValid);
-  }, [selectedCategory, issueDescription]);
+  }, [email, selectedCategory, issueDescription]);
 
   // Reset state when the modal is closed
   useEffect(() => {
     if (!isOpen) {
+      setEmail('');
       setSelectedCategory('');
       setIssueDescription('');
       setUploadedFiles([]);
@@ -69,6 +78,7 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
     // The actual submission can be wired to an API or integration later.
     // eslint-disable-next-line no-console
     console.log('Tech support request submitted', {
+      email,
       selectedCategory,
       issueDescription,
       uploadedFiles,
@@ -125,10 +135,33 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
 
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto custom-scrollbar px-6 sm:px-8 py-4 space-y-8">
-          {/* Question 1: Category */}
+          {/* Email Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+             1. Your Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="your.email@example.com"
+              className={`w-full bg-gray-100 border-none text-gray-700 p-4 rounded focus:outline-none focus:ring-2 transition-colors ${
+                email && !isValidEmail(email)
+                  ? 'focus:ring-red-500 border-red-300'
+                  : 'focus:ring-indigo-500'
+              }`}
+            />
+            {email && !isValidEmail(email) && (
+              <p className="mt-1 text-xs text-red-600">
+                Please enter a valid email address
+              </p>
+            )}
+          </div>
+
+          {/* Question 2: Category */}
           <div>
             <p className="block text-sm font-medium text-gray-700 mb-2">
-              1. What do you need help with? <span className="text-red-500">*</span>
+              2. What do you need help with? <span className="text-red-500">*</span>
             </p>
             <p className="text-xs text-gray-500 mb-3">
               Select the most appropriate option
@@ -156,7 +189,7 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
           {/* Question 2: Issue description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              2. What is the issue? <span className="text-red-500">*</span>
+              3. What is the issue? <span className="text-red-500">*</span>
             </label>
             <p className="text-xs text-gray-500 mb-2">
               Please provide as much detail as possible
@@ -177,7 +210,7 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
           {/* Question 3: Upload files */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              3. Do you want to add any screenshots?{' '}
+              4. Do you want to add any screenshots?{' '}
               <span className="text-xs text-gray-500">(Optional)</span>
             </label>
             <p className="text-xs text-gray-500 mb-3">
