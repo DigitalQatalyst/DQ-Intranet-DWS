@@ -376,7 +376,7 @@ export const HomePage: React.FC = () => {
         title: 'News & Announcements',
         description: 'View official DQ news, platform releases, and important organizational updates.',
         icon: <Newspaper />,
-        path: '/marketplace/guides',
+        path: '/marketplace/opportunities',
         isActive: true
       },
       {
@@ -392,7 +392,7 @@ export const HomePage: React.FC = () => {
         title: 'Blogs & Stories',
         description: 'Read stories, updates, and perspectives from teams and leaders across DQ.',
         icon: <BookIcon />,
-        path: '/updates/blogs',
+        path: '/marketplace/opportunities?tab=insights',
         isActive: true
       },
       {
@@ -411,7 +411,7 @@ export const HomePage: React.FC = () => {
         description: 'Explore sectors, units, mandates, priorities, and performance metrics.',
         icon: <Building />,
         path: '/marketplace/work-directory?tab=units',
-        isActive: true
+        isActive: false
       },
       {
         id: 'directory-positions',
@@ -419,7 +419,7 @@ export const HomePage: React.FC = () => {
         description: 'Browse DQ positions, role descriptions, and key responsibilities.',
         icon: <Briefcase />,
         path: '/marketplace/work-directory?tab=positions',
-        isActive: true
+        isActive: false
       },
       {
         id: 'directory-associates',
@@ -427,15 +427,15 @@ export const HomePage: React.FC = () => {
         description: 'View associate profiles, contacts, skills, and performance details.',
         icon: <Users />,
         path: '/marketplace/work-directory?tab=associates',
-        isActive: true
+        isActive: false
       },
       {
         id: 'jobs-openings',
-        title: 'Jobs Opening',
+        title: 'Job Openings',
         description: 'Browse open roles and internal opportunities across DQ.',
         icon: <JobIcon />,
-        path: '/updates/jobs',
-        isActive: false
+        path: '/marketplace/opportunities?tab=opportunities',
+        isActive: true
       }
     ]
   };

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { FadeInUpOnScroll } from './AnimationUtils';
+import { fetchAllNews, fetchAllJobs } from '@/services/mediaCenterService';
+import type { NewsItem } from '@/data/media/news';
+import type { JobItem } from '@/data/media/jobs';
 
 interface FeaturedProgram {
   id: string;
@@ -13,69 +16,87 @@ interface FeaturedProgram {
   tags?: string[];
 }
 
-const featuredPrograms: FeaturedProgram[] = [
-  {
-    id: 'scrum-structure-update',
-    partnership: 'DQ Operations',
-    title: 'New Update | Scrum Master Structure Changes',
-    description:
-      'We’ve introduced updates to the Scrum Master leadership structure to improve clarity, accountability, and delivery efficiency across teams.',
-    learnMoreHref: '#',
-    backgroundImage:
-      'url(https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1920&q=80)',
-    tags: ['Corporate Announcements', 'DQ Operations', 'DWS'],
-  },
-  {
-    id: 'dq-storybook-release',
-    partnership: 'DQ Communications',
-    title: 'New Release | Updated DQ Storybook Available',
-    description:
-      'The latest DQ Storybook is now available with refreshed links across Vision, HoV, Personas, Agile TMS/SOS/Flows, and 6xD.',
-    learnMoreHref: '#',
-    backgroundImage:
-      'url(https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1920&q=80)',
-    tags: ['Corporate Announcements', 'DQ Communications', 'GHC'],
-  },
-  {
-    id: 'product-designer-role',
-    partnership: 'Delivery — Designs',
-    title: 'Now Hiring | Product Designer (Remote)',
-    description:
-      'A new Product Designer role is open to help shape impactful digital experiences across DQ platforms.',
-    learnMoreHref: '#',
-    applyNowHref: '#',
-    backgroundImage:
-      'url(https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1920&q=80)',
-    tags: ['Delivery — Designs', 'Remote', 'Careers'],
-  },
-  {
-    id: 'devops-engineer-role',
-    partnership: 'SecDevOps',
-    title: 'Now Hiring | DevOps Engineer (Tech)',
-    description:
-      'We’re hiring a DevOps Engineer to strengthen our cloud infrastructure, automation, and deployment pipelines.',
-    learnMoreHref: '#',
-    applyNowHref: '#',
-    backgroundImage:
-      'url(https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80)',
-    tags: ['SecDevOps', 'Tech', 'Careers'],
-  },
-];
+function mapNewsToFeatured(item: NewsItem): FeaturedProgram {
+  const isBlog = item.type === 'Thought Leadership';
+  const partnership = item.byline || item.author || 'DQ Communications';
+  return {
+    id: `news-${item.id}`,
+    partnership,
+    title: isBlog ? `Blog | ${item.title}` : `Update | ${item.title}`,
+    description: item.excerpt,
+    learnMoreHref: `/marketplace/news/${item.id}`,
+    backgroundImage: item.image
+      ? `url(${item.image})`
+      : 'url(https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1920&q=80)',
+    tags: [
+      item.newsType || 'Corporate Announcements',
+      partnership,
+      ...(item.focusArea ? [item.focusArea] : []),
+    ],
+  };
+}
+
+function mapJobToFeatured(job: JobItem): FeaturedProgram {
+  return {
+    id: `job-${job.id}`,
+    partnership: job.department,
+    title: `Now Hiring | ${job.title}`,
+    description: job.summary,
+    learnMoreHref: `/marketplace/opportunities/${job.id}`,
+    applyNowHref: `/marketplace/opportunities/${job.id}/apply`,
+    backgroundImage: job.image
+      ? `url(${job.image})`
+      : 'url(https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80)',
+    tags: [job.department, job.location, 'Careers'],
+  };
+}
 
 export const FeaturedNationalProgram: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const activeProgram = featuredPrograms[activeIndex];
-  const hasImage = Boolean(activeProgram.backgroundImage);
+  const [programs, setPrograms] = useState<FeaturedProgram[]>([]);
+  const activeProgram = programs[activeIndex] ?? null;
+  const hasImage = Boolean(activeProgram?.backgroundImage);
 
   // Auto-advance carousel
   useEffect(() => {
-    if (featuredPrograms.length <= 1) return;
+    if (!programs || programs.length <= 1) return;
 
     const interval = setInterval(() => {
-      setActiveIndex((prevIndex) => (prevIndex + 1) % featuredPrograms.length);
+      setActiveIndex((prevIndex) => (prevIndex + 1) % programs.length);
     }, 5000); // Change every 5 seconds
 
     return () => clearInterval(interval);
+  }, [programs]);
+
+  // Load latest items from DQ Media Center (news + jobs)
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadFeatured() {
+      try {
+        const [newsItems, jobItems] = await Promise.all([fetchAllNews(), fetchAllJobs()]);
+
+        if (!isMounted) return;
+
+        const topNews = (newsItems ?? []).slice(0, 2).map(mapNewsToFeatured);
+        const topJobs = (jobItems ?? []).slice(0, 2).map(mapJobToFeatured);
+
+        const combined = [...topNews, ...topJobs];
+
+        if (combined.length > 0) {
+          setPrograms(combined);
+          setActiveIndex(0);
+        }
+      } catch (error) {
+        console.error('Failed to load featured updates from media center', error);
+      }
+    }
+
+    loadFeatured();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
@@ -92,21 +113,16 @@ export const FeaturedNationalProgram: React.FC = () => {
       </FadeInUpOnScroll>
 
       <div className="relative rounded-2xl overflow-hidden shadow-lg w-full max-w-[1248px] mx-auto">
-        <div 
-          key={activeIndex}
+        {activeProgram && (
+        <div
+          key={activeProgram.id}
           className={`h-[359px] p-8 flex flex-col justify-between relative animate-fade-in ${
             activeProgram.backgroundImage ? '' : 'bg-gradient-to-r from-green-400 via-green-300 to-yellow-300'
           }`}
           style={
             activeProgram.backgroundImage
               ? {
-                  backgroundImage: `${
-                    activeProgram.id === 'scrum-structure-update' || activeProgram.id === 'dq-storybook-release'
-                      // Cool blue/teal gradient for update/release cards
-                      ? 'linear-gradient(90deg, rgba(15,118,210,0.9) 0%, rgba(14,165,233,0.8) 45%, rgba(56,189,248,0.8) 100%)'
-                      // Vibrant purple/indigo gradient for hiring cards
-                      : 'linear-gradient(90deg, rgba(109,40,217,0.9) 0%, rgba(147,51,234,0.85) 45%, rgba(79,70,229,0.9) 100%)'
-                  }, ${activeProgram.backgroundImage}`,
+                  backgroundImage: activeProgram.backgroundImage,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }
@@ -155,8 +171,8 @@ export const FeaturedNationalProgram: React.FC = () => {
               <ArrowRight size={18} className={`${hasImage ? 'text-blue-700' : 'text-white'}`} />
             </a>
             {activeProgram.applyNowHref && (
-              <a
-                href={activeProgram.applyNowHref}
+            <a
+              href={activeProgram.applyNowHref}
                 className={`px-6 py-3 font-semibold rounded-lg border transition-colors flex items-center gap-2 ${
                   hasImage
                     ? 'border-white/80 text-white hover:bg-white/10'
@@ -168,14 +184,15 @@ export const FeaturedNationalProgram: React.FC = () => {
             )}
           </div>
         </div>
+        )}
       </div>
 
       {/* Navigation dots */}
-      {featuredPrograms.length > 1 && (
+      {programs.length > 1 && (
         <div className="flex justify-center gap-2 mt-6">
-          {featuredPrograms.map((_, index) => (
+          {programs.map((program, index) => (
             <button
-              key={index}
+              key={program.id}
               onClick={() => setActiveIndex(index)}
               className={`rounded-full transition-all duration-300 ${
                 index === activeIndex 
