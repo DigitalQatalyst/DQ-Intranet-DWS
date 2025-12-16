@@ -29,7 +29,6 @@ export const SFIA_LEVELS: Record<JobItem['sfiaLevel'], { label: string; detail: 
 };
 
 export const JOBS: JobItem[] = [
-  /*
   {
     id: 'hr-lead-o2p',
     title: 'HR Lead O2P',
@@ -62,9 +61,7 @@ export const JOBS: JobItem[] = [
     postedOn: '2025-11-18',
     applyUrl: 'https://dq.example.com/jobs/hr-lead-o2p',
     image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80'
-  }
-  */
-  /*
+  },
   {
     id: 'senior-delivery-lead',
     title: 'Senior Delivery Lead – Riyadh Customer Squad',
@@ -200,7 +197,7 @@ export const JOBS: JobItem[] = [
     sfiaLevel: 'L4',
     summary: 'Rotate into Studio Ops to run rituals, budgets, and people programs for a new studio without leaving DQ.',
     description:
-      'Lead the makers behind each studio launch. You'll inherit an existing playbook and evolve it as you keep the studio humming.',
+      "Lead the makers behind each studio launch. You'll inherit an existing playbook and evolve it as you keep the studio humming.",
     responsibilities: [
       'Own the Studio Scorecard and cadence reviews',
       'Coach coordinators on rituals, playbooks, and governance',
@@ -313,5 +310,4 @@ export const JOBS: JobItem[] = [
     applyUrl: 'https://dq.example.com/jobs/riyadh-customer-journey-lead',
     image: 'https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80'
   }
-  */
 ];

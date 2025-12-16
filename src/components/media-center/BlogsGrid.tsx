@@ -34,6 +34,8 @@ export default function BlogsGrid({ query, items }: GridProps) {
         );
       })
       .filter((item) => {
+        const format = query.filters?.format;
+        const source = query.filters?.source;
         const department = query.filters?.department;
         const location = query.filters?.location;
         const domain = query.filters?.domain;
@@ -42,6 +44,8 @@ export default function BlogsGrid({ query, items }: GridProps) {
 
         const matches = (val?: string, sel?: string[]) => !sel?.length || (val && sel.includes(val));
         return (
+          matches(item.format, format) &&
+          matches(item.source, source) &&
           matches(item.department, department) &&
           matches(item.location, location) &&
           matches(item.domain, domain) &&

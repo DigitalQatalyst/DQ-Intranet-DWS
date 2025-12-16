@@ -14,18 +14,37 @@ const fallbackImages = [
   'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80'
 ];
 
-const statusColor: Record<NewsItem['type'], string> = {
-  Announcement: '#16A34A',
-  Guidelines: '#0EA5E9',
-  Notice: '#F97316',
-  'Thought Leadership': '#8B5CF6'
+// Color and label mappings for newsType categories
+const newsTypeColor: Record<NonNullable<NewsItem['newsType']>, string> = {
+  'Policy Update': '#0EA5E9',      // Blue for policy/guidelines
+  'Upcoming Events': '#16A34A',    // Green for events
+  'Company News': '#8B5CF6',        // Purple for company news
+  'Holidays': '#F97316'             // Orange for holidays/notices
 };
 
-const statusLabel: Record<NewsItem['type'], string> = {
-  Announcement: 'Announcement',
-  Guidelines: 'Guideline',
-  Notice: 'Notice',
-  'Thought Leadership': 'Thought Leadership'
+const newsTypeLabel: Record<NonNullable<NewsItem['newsType']>, string> = {
+  'Policy Update': 'Policy Update',
+  'Upcoming Events': 'Upcoming Events',
+  'Company News': 'Company News',
+  'Holidays': 'Holidays'
+};
+
+// Fallback for items without newsType (shouldn't happen, but for safety)
+const getNewsTypeDisplay = (item: NewsItem) => {
+  if (item.newsType) {
+    return {
+      label: newsTypeLabel[item.newsType],
+      color: newsTypeColor[item.newsType]
+    };
+  }
+  // Fallback to type if newsType is missing
+  const typeFallback: Record<NewsItem['type'], { label: string; color: string }> = {
+    Announcement: { label: 'Company News', color: '#8B5CF6' },
+    Guidelines: { label: 'Policy Update', color: '#0EA5E9' },
+    Notice: { label: 'Holidays', color: '#F97316' },
+    'Thought Leadership': { label: 'Company News', color: '#8B5CF6' }
+  };
+  return typeFallback[item.type];
 };
 
 const formatDate = (input: string) =>
@@ -53,14 +72,15 @@ export function NewsCard({ item, href }: NewsCardProps) {
   };
   
   const displayTitle = getDisplayTitle();
+  const newsTypeDisplay = getNewsTypeDisplay(item);
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className="relative">
         <img src={imageSrc} alt={displayTitle} className="h-40 w-full object-cover" loading="lazy" />
         <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/40 bg-white/80 px-3 py-1 text-xs font-semibold text-gray-700 backdrop-blur">
-          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: statusColor[item.type] }} />
-          {statusLabel[item.type]}
+          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: newsTypeDisplay.color }} />
+          {newsTypeDisplay.label}
         </div>
       </div>
 

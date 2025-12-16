@@ -14,14 +14,15 @@ export type NewsItem = {
   theme?: 'Leadership' | 'Delivery' | 'Culture' | 'DTMF';
   tags?: string[];
   readingTime?: '<5' | '5–10' | '10–20' | '20+';
-  newsType?: 'Corporate Announcements' | 'Product / Project Updates' | 'Events & Campaigns' | 'Digital Tech News';
+  newsType?: 'Policy Update' | 'Upcoming Events' | 'Company News' | 'Holidays';
   newsSource?: 'DQ Leadership' | 'DQ Operations' | 'DQ Communications';
   focusArea?: 'GHC' | 'DWS' | 'Culture & People';
   content?: string; // Full article content for detail pages
+  format?: 'Blog' | 'Article' | 'Research Report'; // Format type for blogs
+  source?: string; // Source/provider name (e.g., DigitalQatalyst, ADGM Academy)
 };
 
 export const NEWS: NewsItem[] = [
-  /*
   {
     id: 'dq-townhall-meeting-agenda',
     title: 'DQ Townhall Meeting Agenda',
@@ -38,7 +39,7 @@ export const NEWS: NewsItem[] = [
     domain: 'Operations',
     tags: ['townhall', 'meeting', 'agenda', 'framework'],
     readingTime: '5–10',
-    newsType: 'Corporate Announcements',
+    newsType: 'Upcoming Events',
     newsSource: 'DQ Operations',
     focusArea: 'Culture & People',
     content: `# DQ Townhall Meeting Agenda
@@ -98,7 +99,7 @@ This townhall aims to:
     domain: 'People',
     tags: ['leave', 'guidelines', 'policy', 'HRA'],
     readingTime: '5–10',
-    newsType: 'Corporate Announcements',
+    newsType: 'Policy Update',
     newsSource: 'DQ Operations',
     focusArea: 'Culture & People',
     content: `# DQ Leave Process Guideline
@@ -139,131 +140,79 @@ Three violations may result in termination of employment.
 ## Important Reminder
 **Approval Requirement**: All leave must be approved by HRA and Management to ensure fairness and compliance with company policies.`
   },
+  // Blog and Article items from screenshots
   {
-    id: 'leadership-principles',
-    title: "Leadership Principles | What’s Your Leadership Superpower?",
+    id: 'compute-nationalism-rise',
+    title: 'Are We Watching the Rise of Compute Nationalism?',
     type: 'Thought Leadership',
-    date: '2024-08-19',
-    author: 'Leads',
-    byline: 'Stephanie Kioko',
-    views: 47,
-    excerpt:
-      'Researchers have identified more than 1,000 leadership traits, but only a handful consistently drive real impact…',
-    department: 'Stories',
-    location: 'Remote',
-    theme: 'Leadership',
-    tags: ['Playbook', 'EJP'],
+    date: '2025-12-15',
+    author: 'DigitalQatalyst',
+    byline: 'DigitalQatalyst',
+    views: 124,
+    excerpt: 'As nations compete for AI supremacy, compute resources are becoming the new strategic battleground. What does this mean for global innovation and digital sovereignty?',
+    image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80',
+    format: 'Blog',
+    source: 'DigitalQatalyst',
     readingTime: '10–20',
-    newsType: 'Digital Tech News',
+    newsType: 'Company News',
     newsSource: 'DQ Leadership',
-    focusArea: 'Culture & People',
-    content: `# Leadership Principles | What's Your Leadership Superpower?
+    focusArea: 'GHC',
+    content: `# Are We Watching the Rise of Compute Nationalism?
 
-## The Research Behind Leadership Excellence
+## The New Strategic Battleground
 
-Researchers have identified more than **1,000 leadership traits**, but only a handful consistently drive real impact. This deep dive explores the core leadership principles that separate high-performing teams from the rest.
+As artificial intelligence becomes the defining technology of our era, a new form of geopolitical competition is emerging: **compute nationalism**. Nations are increasingly viewing computational resources—the infrastructure that powers AI—as strategic assets, much like oil reserves or military capabilities.
 
-## The Five Core Leadership Superpowers
+## What is Compute Nationalism?
 
-### 1. Visionary Thinking
-- **What it is**: The ability to see beyond current constraints and articulate a compelling future
-- **Why it matters**: Teams need direction and purpose to perform at their best
-- **How to develop**: Practice scenario planning, engage in strategic conversations, and regularly communicate the "why" behind decisions
+Compute nationalism refers to the trend where countries prioritize building, controlling, and protecting their own computational infrastructure and AI capabilities. This includes:
 
-### 2. Adaptive Resilience
-- **What it is**: Maintaining effectiveness while navigating uncertainty and change
-- **Why it matters**: Modern organizations face constant disruption and complexity
-- **How to develop**: Embrace experimentation, learn from failures quickly, and build systems that can evolve
+- **Data Centers**: Massive facilities housing AI training infrastructure
+- **Semiconductor Manufacturing**: Control over chip production
+- **AI Research**: National investments in AI development
+- **Data Sovereignty**: Policies ensuring data stays within national borders
 
-### 3. Empathetic Intelligence
-- **What it is**: Understanding and responding to the emotional and motivational needs of your team
-- **Why it matters**: People perform best when they feel understood and valued
-- **How to develop**: Practice active listening, seek to understand before being understood, and invest in one-on-one relationships
+## The Global Landscape
 
-### 4. Decision Velocity
-- **What it is**: Making quality decisions quickly with incomplete information
-- **Why it matters**: Speed of decision-making often determines competitive advantage
-- **How to develop**: Establish decision frameworks, delegate appropriately, and accept that perfect information rarely exists
+### United States
+The U.S. maintains dominance through companies like NVIDIA, Google, and Microsoft, but faces challenges in semiconductor manufacturing and increasing competition from China.
 
-### 5. Growth Catalyst
-- **What it is**: Actively developing others and creating opportunities for team growth
-- **Why it matters**: Sustainable success requires building capability in others
-- **How to develop**: Mentor regularly, provide stretch assignments, and celebrate learning over perfection
+### China
+China is investing heavily in domestic AI infrastructure, with companies like Alibaba and Tencent building massive compute clusters. The country aims for AI self-sufficiency by 2030.
 
-## The DQ Leadership Framework
+### European Union
+The EU is pursuing "digital sovereignty" through initiatives like the European AI Act and investments in homegrown AI capabilities, though it lags behind in compute infrastructure.
 
-At DQ, we've integrated these superpowers into our **Everyday Journey Playbook (EJP)**:
+### Emerging Economies
+Countries in Africa, Southeast Asia, and Latin America face the risk of being left behind, unable to afford the massive investments required for AI infrastructure.
 
-### **Morning Rituals**
-- **Vision Check**: Start each day by connecting work to larger purpose
-- **Team Pulse**: Quick emotional intelligence check-in with your squad
-- **Priority Clarity**: Use decision velocity to focus on what matters most
+## Implications for Innovation
 
-### **Throughout the Day**
-- **Adaptive Responses**: When plans change, model resilience and help others navigate
-- **Growth Moments**: Look for opportunities to coach and develop team members
-- **Empathetic Leadership**: Practice understanding before directing
+### Positive Aspects
+- **National Security**: Reduced dependence on foreign technology
+- **Economic Development**: Job creation and technological advancement
+- **Strategic Autonomy**: Ability to develop AI aligned with national values
 
-### **Evening Reflection**
-- **Impact Assessment**: What leadership superpower did you use most today?
-- **Growth Planning**: How can you develop your weaker superpowers tomorrow?
-- **Team Development**: What growth opportunities can you create for others?
+### Challenges
+- **Fragmentation**: Risk of creating isolated AI ecosystems
+- **Inequality**: Widening gap between compute-rich and compute-poor nations
+- **Innovation Slowdown**: Reduced collaboration across borders
 
-## Measuring Leadership Impact
+## The Path Forward
 
-### **Individual Metrics**
-- **Decision Speed**: Time from problem identification to resolution
-- **Team Engagement**: Regular pulse surveys and feedback sessions
-- **Growth Outcomes**: Number of team members promoted or developed
+The rise of compute nationalism is inevitable, but its impact depends on how nations balance competition with collaboration. The challenge is ensuring that AI development benefits humanity as a whole, not just the nations that can afford it.
 
-### **Team Metrics**
-- **Delivery Velocity**: Consistent improvement in team output quality and speed
-- **Innovation Rate**: Number of new ideas generated and implemented
-- **Retention**: Team members choosing to stay and grow with the organization
+## Key Takeaways
 
-## Your Leadership Development Plan
-
-### **Week 1-2: Assessment**
-1. Take the DQ Leadership Superpower Assessment
-2. Gather 360-degree feedback from peers and team members
-3. Identify your strongest and weakest superpowers
-
-### **Week 3-4: Focus Area Selection**
-1. Choose one superpower to develop intensively
-2. Create specific, measurable development goals
-3. Find an accountability partner or mentor
-
-### **Month 2-3: Practice and Application**
-1. Apply your chosen superpower daily
-2. Track progress and gather feedback
-3. Adjust approach based on results
-
-### **Month 4+: Integration and Expansion**
-1. Integrate the developed superpower into your natural leadership style
-2. Begin developing the next superpower
-3. Start mentoring others in leadership development
-
-## Resources for Continued Growth
-
-### **DQ Internal Resources**
-- **Leadership Guild**: Monthly sessions with senior leaders
-- **EJP Toolkit**: Practical exercises and frameworks
-- **Mentorship Program**: Pairing with experienced leaders
-
-### **External Learning**
-- **Recommended Reading**: Curated list of leadership books and articles
-- **Conference Attendance**: Support for relevant leadership conferences
-- **Executive Coaching**: Access to professional development coaching
-
-## The Ripple Effect
-
-Remember: **Leadership is not about being perfect—it's about being intentional**. Every interaction is an opportunity to model the behaviors you want to see in your team and organization.
-
-When you develop your leadership superpowers, you don't just improve your own effectiveness—you create a ripple effect that elevates everyone around you.
+1. Compute resources are becoming as strategically important as energy resources
+2. Nations are investing heavily in domestic AI infrastructure
+3. This trend risks creating a "compute divide" between nations
+4. International cooperation remains essential for addressing global challenges
+5. Emerging economies need support to participate in the AI revolution
 
 ---
 
-*What's your leadership superpower? Take the assessment and start your development journey today.*`
+*The future of AI will be shaped not just by algorithms, but by who controls the computational infrastructure that powers them.*`
   },
   {
     id: 'dq-storybook-live',
@@ -276,104 +225,487 @@ When you develop your leadership superpowers, you don't just improve your own ef
     department: 'Products',
     location: 'Dubai',
     domain: 'Business',
-    newsType: 'Corporate Announcements',
+    newsType: 'Company News',
     newsSource: 'DQ Communications',
     focusArea: 'GHC'
   },
   {
-    id: 'dq-persona-mindset',
-    title: 'DQ Persona | Not Just a Role – It’s a Qatalyst Mindset',
+    id: 'beijing-ai-superstate',
+    title: "Is Beijing Building the World's First AI Superstate?",
     type: 'Thought Leadership',
-    date: '2024-08-12',
-    author: 'DQ Associates',
-    byline: 'Stephanie Kioko',
-    views: 55,
-    excerpt:
-      'Culture eats strategy for breakfast—why a Qatalyst mindset matters for how we work and deliver…',
-    department: 'Stories',
-    location: 'Remote',
-    theme: 'Culture',
-    tags: ['QMS'],
-    readingTime: '5–10',
-    newsType: 'Events & Campaigns',
-    newsSource: 'DQ Leadership',
-    focusArea: 'Culture & People'
-  },
-  {
-    id: 'growth-emotional-intelligence',
-    title: 'Grounded in Growth and Emotional Intelligence',
-    type: 'Thought Leadership',
-    date: '2024-08-08',
-    author: 'Leads',
-    byline: 'Stephanie Kioko',
-    views: 79,
-    excerpt:
-      'People with a Growth Mindset are twice as likely to take on challenges and push through obstacles…',
-    department: 'Intelligence',
-    location: 'Dubai',
-    theme: 'Leadership',
-    tags: ['EJP', 'Playbook'],
+    date: '2025-12-12',
+    author: 'DigitalQatalyst',
+    byline: 'DigitalQatalyst',
+    views: 98,
+    excerpt: 'China is integrating AI into every aspect of governance, from traffic management to social credit systems. Is this the future of statecraft?',
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
+    format: 'Blog',
+    source: 'DigitalQatalyst',
     readingTime: '10–20',
-    newsType: 'Digital Tech News',
+    newsType: 'Company News',
     newsSource: 'DQ Leadership',
-    focusArea: 'Culture & People'
+    focusArea: 'GHC',
+    content: `# Is Beijing Building the World's First AI Superstate?
+
+## The Vision of AI-Integrated Governance
+
+China is pursuing an ambitious vision: integrating artificial intelligence into every layer of government and society. From smart city infrastructure to social credit systems, Beijing is building what some call the world's first "AI superstate."
+
+## What Makes an AI Superstate?
+
+An AI superstate is characterized by:
+
+- **Comprehensive Data Collection**: Sensors and systems gathering data on every aspect of life
+- **AI-Driven Decision Making**: Algorithms making or influencing policy decisions
+- **Predictive Governance**: Using AI to anticipate and prevent problems
+- **Integrated Systems**: AI connecting all aspects of government and society
+
+## China's AI Infrastructure
+
+### Smart Cities
+Chinese cities are deploying thousands of cameras, sensors, and AI systems to manage traffic, monitor public safety, and optimize urban services.
+
+### Social Credit System
+A controversial system that uses AI to score citizens based on behavior, affecting access to services and opportunities.
+
+### AI in Healthcare
+Massive deployment of AI for medical diagnosis, drug discovery, and public health monitoring.
+
+### Economic Planning
+AI systems analyzing economic data to guide policy decisions and resource allocation.
+
+## The Global Response
+
+### Concerns
+- **Privacy**: Massive surveillance and data collection
+- **Autonomy**: Reduced individual freedom and choice
+- **Bias**: AI systems reflecting and amplifying existing biases
+- **Control**: Centralized power in the hands of the state
+
+### Opportunities
+- **Efficiency**: Optimized resource allocation and service delivery
+- **Innovation**: Rapid deployment of new technologies
+- **Problem-Solving**: AI helping address complex societal challenges
+
+## The Future of Governance
+
+The question isn't whether AI will transform governance—it's how. China's experiment with AI superstate governance offers both a vision and a warning. The challenge for democracies is to harness AI's benefits while preserving individual rights and democratic values.
+
+## Key Takeaways
+
+1. China is integrating AI into governance at an unprecedented scale
+2. This raises questions about privacy, autonomy, and democratic values
+3. Other nations are watching and learning from China's approach
+4. The balance between efficiency and freedom is the central challenge
+5. The future of governance will be shaped by how we deploy AI
+
+---
+
+*The AI superstate may be coming. The question is: what kind of superstate do we want?*`
   },
   {
-    id: 'one-vision',
-    title: 'The One Vision We All Build Toward',
+    id: 'traditional-business-models-doomed',
+    title: "Why Traditional Business Models Are Doomed in the Age of Cognitive...",
     type: 'Thought Leadership',
-    date: '2024-08-04',
-    author: 'Partners',
-    byline: 'Stephanie Kioko',
-    views: 50,
-    excerpt:
-      'At DQ, we all share a single powerful vision that guides how we build and deliver value…',
-    department: 'Solutions',
-    location: 'Remote',
-    theme: 'Delivery',
-    tags: ['Playbook', 'QMS'],
-    readingTime: '5–10',
-    newsType: 'Product / Project Updates',
-    newsSource: 'DQ Leadership',
-    focusArea: 'GHC'
-  },
-  {
-    id: 'life-transactions',
-    title: 'DQ’s Path to Perfect Life Transactions',
-    type: 'Thought Leadership',
-    date: '2024-08-01',
-    author: 'Leads',
-    byline: 'Stephanie Kioko',
-    views: 49,
-    excerpt:
-      'Every day we make thousands of transactions—here’s how we design for clarity and flow…',
-    department: 'Delivery — Deploys',
-    location: 'Remote',
-    theme: 'DTMF',
-    tags: ['QMS', 'EJP'],
+    date: '2025-12-10',
+    author: 'DigitalQatalyst',
+    byline: 'DigitalQatalyst',
+    views: 156,
+    excerpt: 'As AI and cognitive technologies reshape industries, traditional business models built on linear processes and human-only decision-making are becoming obsolete.',
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80',
+    format: 'Article',
+    source: 'DigitalQatalyst',
     readingTime: '10–20',
-    newsType: 'Product / Project Updates',
-    newsSource: 'DQ Operations',
-    focusArea: 'GHC'
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'GHC',
+    content: `# Why Traditional Business Models Are Doomed in the Age of Cognitive Technologies
+
+## The Cognitive Revolution
+
+We're entering an era where AI and cognitive technologies are not just tools, but fundamental components of how businesses operate. Traditional business models, built for a pre-AI world, are struggling to adapt.
+
+## What Makes Traditional Models Obsolete?
+
+### Linear Processes
+Traditional businesses rely on sequential, linear processes. AI enables parallel, adaptive workflows that can respond in real-time to changing conditions.
+
+### Human-Only Decision Making
+Decisions were made by humans based on limited information. AI systems can process vast amounts of data and identify patterns humans cannot see.
+
+### Fixed Structures
+Traditional organizations have rigid hierarchies and fixed roles. Cognitive technologies enable fluid, adaptive organizational structures.
+
+### Reactive Operations
+Businesses react to problems after they occur. AI enables predictive and proactive operations.
+
+## The New Business Model
+
+### Cognitive-Augmented Operations
+Every process enhanced by AI, from customer service to supply chain management.
+
+### Data-Driven Everything
+Decisions based on real-time data analysis, not intuition or tradition.
+
+### Continuous Adaptation
+Organizations that learn and evolve continuously, not just during annual planning cycles.
+
+### Human-AI Collaboration
+Humans and AI working together, each doing what they do best.
+
+## Industries at Risk
+
+- **Retail**: Traditional stores vs. AI-powered e-commerce
+- **Finance**: Human advisors vs. robo-advisors
+- **Healthcare**: Doctor-only diagnosis vs. AI-assisted medicine
+- **Manufacturing**: Fixed production lines vs. adaptive AI systems
+
+## The Path Forward
+
+Organizations must:
+1. **Embrace AI**: Not as a tool, but as a core capability
+2. **Rethink Processes**: Design for AI-human collaboration
+3. **Cultivate Learning**: Become organizations that learn continuously
+4. **Focus on Value**: Use AI to create new value, not just automate old processes
+
+## Key Takeaways
+
+1. Traditional business models are incompatible with cognitive technologies
+2. AI requires fundamental rethinking of how businesses operate
+3. The most successful organizations will be those that adapt fastest
+4. Human-AI collaboration is the future, not human replacement
+5. Continuous learning and adaptation are now competitive advantages
+
+---
+
+*The question isn't whether your business model will change—it's whether you'll lead that change or be left behind.*`
   },
   {
-    id: 'agile-way-week',
-    title: 'Your Week, the Agile Way',
+    id: 'digital-transformation-dead',
+    title: 'Traditional Digital Transformation is Dead: Meet the Future of Business',
     type: 'Thought Leadership',
-    date: '2024-07-28',
-    author: 'DQ Associates',
-    byline: 'Stephanie Kioko',
-    views: 69,
-    excerpt:
-      'Practical ways to plan your week with agile habits—focus, alignment, and iterative delivery…',
-    department: 'Delivery — Designs',
-    location: 'Nairobi',
-    theme: 'Delivery',
-    tags: ['Playbook'],
-    readingTime: '<5',
-    newsType: 'Events & Campaigns',
-    newsSource: 'DQ Operations',
-    focusArea: 'DWS'
+    date: '2025-12-08',
+    author: 'DigitalQatalyst',
+    byline: 'DigitalQatalyst',
+    views: 142,
+    excerpt: 'The old approach to digital transformation—digitizing existing processes—is obsolete. The future belongs to organizations that fundamentally reimagine their business models.',
+    image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80',
+    format: 'Article',
+    source: 'DigitalQatalyst',
+    readingTime: '10–20',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'GHC',
+    content: `# Traditional Digital Transformation is Dead: Meet the Future of Business
+
+## The End of Digitization
+
+For decades, "digital transformation" meant taking existing processes and making them digital. This approach is now obsolete. Simply digitizing old ways of working doesn't create competitive advantage—it creates digital versions of obsolete processes.
+
+## Why Traditional Digital Transformation Fails
+
+### Incremental Thinking
+Traditional transformation focuses on incremental improvements to existing processes, missing opportunities for fundamental innovation.
+
+### Technology-First Approach
+Organizations invest in technology without rethinking their business model, leading to expensive systems that don't deliver value.
+
+### Resistance to Change
+Employees and processes resist new technologies because they're designed to replace, not enhance, human work.
+
+### Siloed Implementation
+Digital initiatives happen in isolation, creating disconnected systems and missed opportunities.
+
+## The New Approach: Business Model Innovation
+
+### Start with Value
+Begin by asking: What value can we create that wasn't possible before? Not: How do we digitize what we do now?
+
+### Reimagine Processes
+Don't digitize existing processes—design new processes that leverage digital capabilities.
+
+### Human-Centric Design
+Design systems that enhance human capabilities, not replace them.
+
+### Ecosystem Thinking
+Think beyond your organization to the entire ecosystem of partners, customers, and stakeholders.
+
+## Examples of True Transformation
+
+### Netflix
+Didn't digitize video rental—reimagined entertainment consumption entirely.
+
+### Amazon
+Didn't digitize retail—created a new model of commerce and logistics.
+
+### Tesla
+Didn't digitize car manufacturing—reimagined transportation and energy.
+
+## The Transformation Framework
+
+1. **Vision**: What's the future state we're creating?
+2. **Value**: What unique value can we deliver?
+3. **Model**: What business model enables this value?
+4. **Capabilities**: What capabilities do we need?
+5. **Technology**: What technology enables these capabilities?
+
+## Key Takeaways
+
+1. Traditional digital transformation is obsolete
+2. Success requires reimagining business models, not digitizing processes
+3. Start with value creation, not technology implementation
+4. Design for human-AI collaboration
+5. Think in ecosystems, not silos
+
+---
+
+*The future belongs to organizations that don't just transform digitally, but fundamentally reimagine what's possible.*`
+  },
+  {
+    id: 'traditional-organizations-obsolete',
+    title: "Why Traditional Organizations Are Obsolete in Today's Digital Economy",
+    type: 'Thought Leadership',
+    date: '2025-12-05',
+    author: 'DigitalQatalyst',
+    byline: 'DigitalQatalyst',
+    views: 118,
+    excerpt: 'Hierarchical, siloed organizations designed for the industrial age cannot compete in a world of rapid change, AI, and digital ecosystems.',
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80',
+    format: 'Article',
+    source: 'DigitalQatalyst',
+    readingTime: '10–20',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'GHC',
+    content: `# Why Traditional Organizations Are Obsolete in Today's Digital Economy
+
+## The Industrial Age Organization
+
+Traditional organizations were designed for the industrial age: stable markets, predictable demand, and linear processes. They're hierarchical, siloed, and optimized for efficiency in a world that no longer exists.
+
+## Why They're Obsolete
+
+### Too Slow
+Hierarchical decision-making processes can't keep up with the pace of change in digital markets.
+
+### Too Rigid
+Fixed structures and processes can't adapt to rapidly changing conditions and opportunities.
+
+### Too Siloed
+Departmental boundaries prevent the cross-functional collaboration needed for innovation.
+
+### Too Focused on Efficiency
+Optimizing for efficiency in stable conditions misses opportunities for innovation and growth.
+
+## The New Organizational Model
+
+### Networks, Not Hierarchies
+Organizations structured as networks of teams, not top-down hierarchies.
+
+### Adaptive, Not Fixed
+Structures that can reorganize quickly in response to opportunities and challenges.
+
+### Collaborative, Not Siloed
+Cross-functional teams working together on shared goals.
+
+### Innovation-Focused
+Optimizing for learning, experimentation, and innovation, not just efficiency.
+
+## Characteristics of Modern Organizations
+
+### Agile and Responsive
+Able to pivot quickly in response to market changes and new opportunities.
+
+### Data-Driven
+Decisions based on real-time data and insights, not just experience and intuition.
+
+### Customer-Centric
+Organized around customer needs and experiences, not internal functions.
+
+### Learning-Oriented
+Designed to learn continuously and adapt based on what they discover.
+
+## The Transformation Challenge
+
+Most organizations face a fundamental challenge: they need to operate like a startup (agile, innovative) while maintaining the scale and resources of an established company.
+
+## Key Takeaways
+
+1. Traditional organizational structures are incompatible with digital economy
+2. Success requires networks, not hierarchies
+3. Adaptability is more important than efficiency
+4. Collaboration across boundaries is essential
+5. Continuous learning is a competitive advantage
+
+---
+
+*The organizations that thrive in the digital economy are those that can learn, adapt, and innovate faster than their competitors.*`
+  },
+  {
+    id: 'europe-ethical-ai-compute',
+    title: "Europe Wants Ethical AI. But Without Compute, Can It Compete?",
+    type: 'Thought Leadership',
+    date: '2025-12-03',
+    author: 'DigitalQatalyst',
+    byline: 'DigitalQatalyst',
+    views: 89,
+    excerpt: 'The EU has positioned itself as a leader in ethical AI regulation, but faces a critical challenge: can it compete globally without the compute infrastructure of the US and China?',
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
+    format: 'Blog',
+    source: 'DigitalQatalyst',
+    readingTime: '10–20',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'GHC',
+    content: `# Europe Wants Ethical AI. But Without Compute, Can It Compete?
+
+## The European AI Paradox
+
+The European Union has positioned itself as a global leader in ethical AI regulation through initiatives like the AI Act. However, Europe faces a critical challenge: it lacks the computational infrastructure needed to compete with the United States and China in AI development.
+
+## The Compute Gap
+
+### United States
+Dominates through companies like Google, Microsoft, and NVIDIA, with massive data centers and AI research capabilities.
+
+### China
+Investing heavily in domestic AI infrastructure, with companies like Alibaba and Tencent building world-class compute capabilities.
+
+### Europe
+Lags significantly behind in compute infrastructure, despite having strong AI research institutions and regulatory frameworks.
+
+## The Ethical AI Vision
+
+Europe's approach emphasizes:
+- **Human Rights**: AI systems that respect fundamental rights
+- **Transparency**: Explainable and accountable AI
+- **Privacy**: Strong data protection (GDPR)
+- **Safety**: AI systems that are safe and reliable
+
+## The Competitive Challenge
+
+### The Dilemma
+Can Europe maintain its ethical standards while competing globally? Or will it be forced to compromise ethics for competitiveness?
+
+### The Risk
+Without competitive AI capabilities, Europe risks:
+- Economic dependence on US and Chinese AI
+- Loss of technological sovereignty
+- Inability to shape global AI standards
+
+## Potential Solutions
+
+### Investment in Compute
+Massive investment in European AI infrastructure and data centers.
+
+### Strategic Partnerships
+Collaboration between European companies and institutions to pool resources.
+
+### Focus on Niche Excellence
+Specializing in areas where Europe has advantages (e.g., industrial AI, healthcare).
+
+### Regulatory Leverage
+Using market size to influence global AI development through regulation.
+
+## The Path Forward
+
+Europe faces a critical choice: invest heavily in compute infrastructure to compete globally, or accept a secondary role in AI development while maintaining ethical leadership.
+
+## Key Takeaways
+
+1. Europe leads in AI ethics but lags in compute infrastructure
+2. The compute gap threatens European competitiveness
+3. Investment in infrastructure is essential but expensive
+4. Strategic partnerships and niche specialization offer alternatives
+5. The balance between ethics and competitiveness is the central challenge
+
+---
+
+*Europe's AI future depends on whether it can bridge the compute gap while maintaining its ethical vision.*`
+  },
+  {
+    id: 'ai-without-compute-global-south',
+    title: 'AI Without Compute: Is the Global South Being Left Out of the New Digital...',
+    type: 'Thought Leadership',
+    date: '2025-12-08',
+    author: 'DigitalQatalyst',
+    byline: 'DigitalQatalyst',
+    views: 203,
+    excerpt: "There's a growing fear across Africa, Southeast Asia, and parts of Latin America: Is the AI revolution leaving them behind due to lack of computational resources?",
+    image: 'https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=1200&q=80',
+    format: 'Blog',
+    source: 'DigitalQatalyst',
+    readingTime: '10–20',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'GHC',
+    content: `# AI Without Compute: Is the Global South Being Left Out of the New Digital Revolution?
+
+## The Compute Divide
+
+As artificial intelligence becomes the defining technology of our era, a new divide is emerging: between nations that have access to massive computational resources and those that don't. This "compute divide" threatens to leave the Global South—Africa, Southeast Asia, and parts of Latin America—behind in the AI revolution.
+
+## The Scale of the Challenge
+
+### The Cost Barrier
+Training modern AI models requires:
+- **Massive Data Centers**: Facilities costing billions of dollars
+- **Specialized Hardware**: GPUs and TPUs that are expensive and in short supply
+- **Energy Infrastructure**: Reliable, high-capacity power grids
+- **Technical Expertise**: Teams of AI researchers and engineers
+
+### The Reality
+Most countries in the Global South lack:
+- Sufficient capital for infrastructure investment
+- Reliable energy infrastructure
+- Access to cutting-edge hardware
+- Large pools of AI talent
+
+## The Consequences
+
+### Economic Exclusion
+Without AI capabilities, countries risk:
+- Missing out on economic opportunities
+- Becoming dependent on foreign AI services
+- Losing technological sovereignty
+- Falling further behind economically
+
+### Innovation Gap
+The inability to develop AI locally means:
+- Limited ability to solve local problems with AI
+- Dependence on solutions designed for other contexts
+- Reduced innovation and entrepreneurship
+- Brain drain as talent moves to compute-rich regions
+
+## Potential Solutions
+
+### Cloud-Based Access
+Using cloud computing services to access AI capabilities without building infrastructure.
+
+### Regional Collaboration
+Countries pooling resources to build shared AI infrastructure.
+
+### Focus on Applications
+Concentrating on AI applications rather than model development.
+
+### International Support
+Development aid and partnerships to build AI capabilities.
+
+## The Path Forward
+
+The Global South faces a critical challenge: how to participate in the AI revolution without the massive resources available to the US, China, and Europe. The answer may lie in creative approaches that leverage cloud computing, regional collaboration, and a focus on solving local problems.
+
+## Key Takeaways
+
+1. The compute divide threatens to exclude the Global South from AI
+2. Infrastructure costs are prohibitive for most developing countries
+3. Economic and innovation consequences are severe
+4. Creative solutions are needed to bridge the gap
+5. International cooperation is essential
+
+---
+
+*The AI revolution must be global, or it will deepen existing inequalities.*`
   },
   {
     id: 'riyadh-horizon-hub',
@@ -387,7 +719,7 @@ When you develop your leadership superpowers, you don't just improve your own ef
     department: 'Delivery — Deploys',
     location: 'Riyadh',
     domain: 'Business',
-    newsType: 'Corporate Announcements',
+    newsType: 'Company News',
     newsSource: 'DQ Leadership',
     focusArea: 'GHC'
   },
@@ -405,7 +737,7 @@ When you develop your leadership superpowers, you don't just improve your own ef
     domain: 'People',
     tags: ['shifts', 'allocation', 'scheduling', 'guidelines'],
     readingTime: '5–10',
-    newsType: 'Corporate Announcements',
+    newsType: 'Policy Update',
     newsSource: 'DQ Operations',
     focusArea: 'DWS'
   },
@@ -421,7 +753,7 @@ When you develop your leadership superpowers, you don't just improve your own ef
     department: 'HRA (People)',
     location: 'Dubai',
     domain: 'People',
-    newsType: 'Events & Campaigns',
+    newsType: 'Holidays',
     newsSource: 'DQ Communications',
     focusArea: 'Culture & People'
   },
@@ -437,7 +769,7 @@ When you develop your leadership superpowers, you don't just improve your own ef
     department: 'Products',
     location: 'Remote',
     domain: 'Technology',
-    newsType: 'Corporate Announcements',
+    newsType: 'Company News',
     newsSource: 'DQ Communications',
     focusArea: 'DWS'
   },
@@ -453,28 +785,9 @@ When you develop your leadership superpowers, you don't just improve your own ef
     department: 'DBP Delivery',
     location: 'Dubai',
     domain: 'Operations',
-    newsType: 'Product / Project Updates',
+    newsType: 'Policy Update',
     newsSource: 'DQ Operations',
     focusArea: 'DWS'
-  },
-  {
-    id: 'riyadh-designing-at-scale',
-    title: 'Designing at Scale for Riyadh Citizen Services',
-    type: 'Thought Leadership',
-    date: '2024-06-15',
-    author: 'Leads',
-    byline: 'Yara Al Harthy',
-    views: 52,
-    excerpt:
-      'How the Riyadh studio co-created digital citizen services with local regulators—pairing delivery playbooks with cultural fluency.',
-    department: 'Delivery — Designs',
-    location: 'Riyadh',
-    theme: 'Delivery',
-    tags: ['Playbook', 'EJP'],
-    readingTime: '10–20',
-    newsType: 'Product / Project Updates',
-    newsSource: 'DQ Operations',
-    focusArea: 'GHC'
   },
   {
     id: 'azure-devops-task-guidelines',
@@ -488,7 +801,7 @@ When you develop your leadership superpowers, you don't just improve your own ef
     department: 'SecDevOps',
     location: 'Remote',
     domain: 'Technology',
-    newsType: 'Digital Tech News',
+    newsType: 'Policy Update',
     newsSource: 'DQ Operations',
     focusArea: 'DWS'
   },
@@ -504,7 +817,7 @@ When you develop your leadership superpowers, you don't just improve your own ef
     department: 'HRA (People)',
     location: 'Nairobi',
     domain: 'People',
-    newsType: 'Events & Campaigns',
+    newsType: 'Holidays',
     newsSource: 'DQ Communications',
     focusArea: 'Culture & People'
   }
@@ -523,7 +836,7 @@ When you develop your leadership superpowers, you don't just improve your own ef
     location: 'Dubai',
     tags: ['policy', 'schedule', 'collaboration'],
     readingTime: '5–10',
-    newsType: 'Corporate Announcements',
+    newsType: 'Policy Update',
     newsSource: 'DQ Communications',
     focusArea: 'Culture & People',
     content: `# Enhancing Collaboration Through Unified Scheduling
@@ -573,7 +886,7 @@ Thank you for your cooperation in helping us build a more synchronized and effic
     image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80',
     tags: ['SFIA', 'grading', 'capability'],
     readingTime: '10–20',
-    newsType: 'Corporate Announcements',
+    newsType: 'Company News',
     newsSource: 'DQ Communications',
     focusArea: 'Culture & People',
     content: `# DQ Associate Grade Review Program Launch
@@ -661,7 +974,7 @@ We are committed to maintaining transparent, fair, and consistent grading standa
     domain: 'People',
     tags: ['WFH', 'guidelines', 'policy'],
     readingTime: '10–20',
-    newsType: 'Corporate Announcements',
+    newsType: 'Policy Update',
     newsSource: 'DQ Operations',
     focusArea: 'Culture & People',
     content: `# DQ Work From Home (WFH) Guidelines
@@ -778,7 +1091,7 @@ The **Work From Home (WFH) Guidelines** provide a clear framework for how remote
     domain: 'People',
     tags: ['dress code', 'guidelines', 'policy'],
     readingTime: '10–20',
-    newsType: 'Corporate Announcements',
+    newsType: 'Policy Update',
     newsSource: 'DQ Operations',
     focusArea: 'Culture & People',
     content: `# DQ Dress Code Guideline (Version 1.0)
@@ -895,7 +1208,7 @@ Where in doubt, associates should choose the more professional option and consul
     domain: 'Business',
     tags: ['story', 'GHC', 'references'],
     readingTime: '5–10',
-    newsType: 'Corporate Announcements',
+    newsType: 'Company News',
     newsSource: 'DQ Communications',
     focusArea: 'GHC',
     content: `# DQ Storybook — Latest Version and Quick Reference Links
@@ -990,6 +1303,37 @@ For questions about any of these resources or to request additional documentatio
 ---
 
 *Keep this reference handy for quick access to all DQ frameworks and methodologies. Together, we continue to build excellence through shared knowledge and consistent application of our proven approaches.*`
+  },
+  {
+    id: 'dq-scrum-master-structure-update',
+    title: 'DQ Changes: Updated Scrum Master Structure',
+    type: 'Announcement',
+    date: '2025-11-27',
+    author: 'Felicia Araba',
+    views: 0,
+    excerpt:
+      'As part of our organizational optimization, we are updating the Scrum Master structure to better align with our delivery framework and enhance team effectiveness.',
+    department: 'Operations',
+    location: 'Remote',
+    domain: 'Operations',
+    theme: 'Delivery',
+    tags: ['Scrum Master', 'Organizational Structure', 'Leadership'],
+    readingTime: '10–20',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    content: `# DQ Changes: Updated Scrum Master Structure
+
+## Overview
+As part of our organizational optimization, we are updating the Scrum Master structure to better align with our delivery framework and enhance team effectiveness.
+
+## Key Changes
+- Updated Scrum Master roles and responsibilities
+- Enhanced alignment with delivery framework
+- Improved team collaboration and effectiveness
+- Streamlined organizational structure
+
+## Impact
+This update will help us better serve our teams and improve our overall delivery capabilities.`
   }
-  */
 ];

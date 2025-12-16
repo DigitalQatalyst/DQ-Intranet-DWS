@@ -28,4 +28,10 @@ console.log('✅ Supabase Media Center client configured:', {
   hasAnonKey: !!anon
 })
 
-export const mediaSupabaseClient = createClient(url, anon)
+export const mediaSupabaseClient = createClient(url, anon, {
+  auth: {
+    storageKey: 'supabase-auth-media',
+    persistSession: true,
+    autoRefreshToken: true
+  }
+})

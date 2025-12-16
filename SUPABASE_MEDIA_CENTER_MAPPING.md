@@ -209,3 +209,4 @@ ALTER TABLE public.news
 
 The current schema in `supabase/marketplace-schema.sql` contains all necessary fields for the Media Center details page. You can run this schema directly in Supabase without any modifications.
 
+

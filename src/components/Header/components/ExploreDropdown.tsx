@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CalendarIcon, ChevronDownIcon } from 'lucide-react';
-import { BuildingIcon, CreditCardIcon, NewspaperIcon, UsersIcon, GraduationCapIcon, TrendingUpIcon, SparklesIcon, FileText, LucideProps, BookOpen } from 'lucide-react';
+import { ChevronDownIcon, BuildingIcon, NewspaperIcon, UsersIcon, GraduationCapIcon, TrendingUpIcon, LucideProps, BookOpen } from 'lucide-react';
 
 interface Marketplace {
   id: string;
@@ -14,81 +13,53 @@ interface Marketplace {
 
 const marketplaces: Marketplace[] = [
   {
-    id: 'discover-dq',
-    name: 'Discover DQ',
-    description: 'Tour the digital workspace zones and teams across DQ.',
-    icon: SparklesIcon,
-    href: '/discover-dq',
-  },
-  {
-    id: 'non-financial',
-    name: 'IT & Systems Support',
-    description: 'Helpdesk, access requests, device & app support.',
-    icon: BuildingIcon,
-    href: '/marketplace/non-financial',
-  },
-  {
-    id: 'finance',
-    name: 'HR & Finance Services',
-    description: 'Leave, payroll, benefits, and reimbursements.',
-    icon: CreditCardIcon,
-    href: '/marketplace/financial',
-  },
-  {
-    id: 'media',
-    name: 'Facilities & Logistics',
-    description: 'Office access, seating, travel, and logistics.',
-    icon: NewspaperIcon,
-    href: '/marketplace/media',
-  },
-  {
-    id: 'community',
-    name: 'Associates Directory',
-    description: 'Find people, teams, and contacts across DQ.',
-    icon: UsersIcon,
-    href: '/marketplace/community',
-  },
-  {
-    id: 'course',
-    name: 'DQ LMS Courses',
-    description: '7x GHC, 6x Digital, 12x HoV, 1x Day in DQ, Key Tools.',
+    id: 'learning-center',
+    name: 'DQ Learning Center',
+    description: 'Explore LMS courses, onboarding tracks, and learning resources across GHC, 6xD, DWS, and DXP.',
     icon: GraduationCapIcon,
-    href: '/marketplace/courses',
+    href: '#',
   },
   {
-    id: 'investment',
-    name: 'Certifications & Onboarding',
-    description: 'Mandatory training and new associate onboarding.',
+    id: 'services-center',
+    name: 'DQ Services Center',
+    description: 'Submit technology requests, business services, and access digital worker tools for delivery.',
+    icon: BuildingIcon,
+    href: '#',
+  },
+  {
+    id: 'work-center',
+    name: 'DQ Work Center',
+    description: 'Run work sessions, manage projects & tasks, and track performance across workflows.',
     icon: TrendingUpIcon,
-    href: '/marketplace/investment',
+    href: '#',
   },
   {
-    id: 'calendar',
-    name: 'Calendar & Events',
-    description: 'Digital platform that connects event organizers with attendees, vendors, and service providers.',
-    icon: CalendarIcon,
-    href: '/events',
-  },
-  {
-    id: 'guidelines',
-    name: 'DQ Media Center',
-    description: 'Stories, highlights, and resources from across DQ.',
-    icon: BookOpen,
-    href: '/marketplace/guides',
-  },
-  {
-    id: 'asset-library',
-    name: 'Asset Library',
-    description: 'Shared design, deployment and marketing artefacts.',
-    icon: FileText,
-    href: '/marketplace/asset-library',
-  },
-  {
-    id: 'communities',
-    name: 'DQ Communities',
-    description: 'Connect, collaborate, and engage with peers in vibrant communities.',
+    id: 'work-directory',
+    name: 'DQ Work Directory',
+    description: 'Explore sectors, units, positions, and associates across DQ to connect and collaborate.',
     icon: UsersIcon,
-    href: '/communities',
+    href: '#',
+  },
+  {
+    id: 'media-center',
+    name: 'DQ Media Center',
+    description: 'View DQ updates, corporate news, blogs, job openings, and essential announcements.',
+    icon: NewspaperIcon,
+    href: '/marketplace/opportunities',
+  },
+  {
+    id: 'work-communities',
+    name: 'DQ Work Communities',
+    description: 'Connect, collaborate, and engage with peers in vibrant communities across DQ.',
+    icon: UsersIcon,
+    href: '#',
+  },
+  {
+    id: 'knowledge-center',
+    name: 'DQ Knowledge Center',
+    description: 'Access strategy guides, operational guidelines, knowledge library, and reference resources.',
+    icon: BookOpen,
+    href: '#',
   },
 ];
 
@@ -170,6 +141,7 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
   const handleItemClick = (href: string) => {
     setIsOpen(false);
     setFocusedIndex(-1);
+    if (href === "#" || !href) return; // Don't navigate if path is # or empty
     navigate(href); // Use React Router's navigate function
   };
 
@@ -204,13 +176,13 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
               Explore Marketplaces
             </h3>
             <p className="text-xs text-gray-500 mt-1">
-              Discover opportunities across Abu Dhabi's business ecosystem
+              Discover the tools, services, and spaces across DQ's Digital Workspace
             </p>
           </div>
           <div className="max-h-96 overflow-y-auto">
             {marketplaces.map((marketplace, index) => {
               const Icon = marketplace.icon;
-              const isActive = marketplace.id === 'guides' && (location.pathname.startsWith('/marketplace/guides') || location.pathname.startsWith('/marketplace/knowledge-hub'));
+              const isActive = marketplace.id === 'media-center' && (location.pathname.startsWith('/marketplace/opportunities') || location.pathname.startsWith('/marketplace/news'));
               return (
                 <a
                   key={marketplace.id}

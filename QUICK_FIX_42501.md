@@ -77,3 +77,4 @@ This includes all the same commands plus verification queries.
 2. Policies exist: Check in **Authentication** → **Policies** in Supabase dashboard
 3. Permissions granted: Run the GRANT statements again
 
+

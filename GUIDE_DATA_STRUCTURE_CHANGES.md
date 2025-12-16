@@ -241,3 +241,4 @@ const [comments, setComments] = useState(guide?.comments ?? 0)
 
 The current implementation already uses existing database fields, so **no database changes are required** for the current page structure. If you want to add new features (like storing likes/comments), follow the example above.
 
+

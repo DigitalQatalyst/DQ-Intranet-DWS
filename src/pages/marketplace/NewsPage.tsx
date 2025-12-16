@@ -61,8 +61,13 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
     { key: 'location', label: 'Location', options: ['Dubai', 'Nairobi', 'Riyadh', 'Remote'] },
     {
       key: 'newsType',
-      label: 'News Type',
-      options: ['Corporate Announcements', 'Product / Project Updates', 'Events & Campaigns', 'Digital Tech News']
+      label: 'Type',
+      options: [
+        'Policy Update',
+        'Upcoming Events',
+        'Company News',
+        'Holidays'
+      ]
     },
     {
       key: 'newsSource',
@@ -86,6 +91,16 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
     }
   ],
   insights: [
+    {
+      key: 'format',
+      label: 'Format',
+      options: ['Blog', 'Article', 'Research Report']
+    },
+    {
+      key: 'source',
+      label: 'Category',
+      options: ['DigitalQatalyst', 'ADGM Academy', 'Abu Dhabi Export Office', 'Khalifa Fund']
+    },
     {
       key: 'department',
       label: 'Department',
