@@ -1774,13 +1774,11 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           </div>
         </div>
 
-        {/* Hero Section */}
-        <div ref={heroRef} className="w-full py-4 bg-gray-50">
-          <div className="container mx-auto px-4 md:px-6 max-w-7xl">
-            <ServiceHeroSection 
-              item={item}
-            />
-          </div>
+        {/* Hero Section - full-width background */}
+        <div ref={heroRef} className="w-full bg-gray-50">
+          <ServiceHeroSection 
+            item={item}
+          />
         </div>
         {/* Tabs Navigation */}
         <div className="border-b border-gray-200 w-full bg-white">
