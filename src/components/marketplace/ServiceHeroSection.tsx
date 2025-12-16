@@ -1,6 +1,4 @@
 import React from 'react';
-import { MapPin } from 'lucide-react';
-
 export interface ServiceHeroSectionProps {
   item: {
     title: string;
@@ -13,7 +11,6 @@ export interface ServiceHeroSectionProps {
     tags?: string[];
     featuredImageUrl?: string;
     lastUpdated?: string;
-    location?: string;
   };
 }
 
@@ -23,13 +20,6 @@ export function ServiceHeroSection({
   // Use featured image or default workplace image
   const backgroundImage = item.featuredImageUrl || '/images/services/IT-support.jpg';
   
-  // Format last updated date
-  const lastUpdated = item.lastUpdated || new Date().toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-  
   // Handle image load error with gradient fallback
   const handleImageError = (e: React.SyntheticEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
@@ -38,10 +28,7 @@ export function ServiceHeroSection({
 
   return (
     <div 
-      className="w-full relative overflow-hidden rounded-2xl mx-auto"
-      style={{ 
-        maxWidth: 'calc(100vw - 2rem)',
-      }}
+      className="w-full relative overflow-hidden lg:min-h-[400px]"
     >
       {/* Background Image */}
       <div 
@@ -62,61 +49,34 @@ export function ServiceHeroSection({
         }}
       />
       
-      {/* Content */}
-      <div className="relative z-10 px-6 md:px-10 lg:px-14 py-8 md:py-10 lg:py-12">
-
-        {/* Metadata Pills Row */}
+      {/* Content - fixed 96px (6rem) left margin on desktop, 117px gap above title on desktop */}
+      <div className="relative z-10 px-4 md:px-6 lg:px-24 pt-10 md:pt-12 lg:pt-[117px] pb-10 md:pb-12 lg:pb-16 flex flex-col items-start text-left h-full">
+        {/* Category pill */}
         <div className="flex flex-wrap items-center gap-2 mb-4">
-          {item.provider?.name && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 text-white backdrop-blur-sm border border-white/30">
-              UNIT: {item.provider.name}
-            </span>
-          )}
           {item.category && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 text-white backdrop-blur-sm border border-white/30">
-              {item.category.toUpperCase()}
-            </span>
-          )}
-          {item.serviceType && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 text-white backdrop-blur-sm border border-white/30">
-              {item.serviceType}
-            </span>
-          )}
-          {item.deliveryMode && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 text-white backdrop-blur-sm border border-white/30">
-              {item.deliveryMode}
-            </span>
-          )}
-          {item.location && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/20 text-white backdrop-blur-sm border border-white/30">
-              <MapPin size={12} className="mr-1" />
-              {item.location}
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs md:text-sm font-semibold bg-white/15 text-white border border-white/30">
+              {item.category}
             </span>
           )}
         </div>
 
+        {/* Date / secondary line */}
+        {item.lastUpdated && (
+          <p className="text-xs md:text-sm text-white/80 mb-2">
+            {item.lastUpdated}
+          </p>
+        )}
+
         {/* Main Title */}
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-display font-bold text-white mb-2.5 leading-tight max-w-4xl">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight font-inter text-white max-w-4xl">
           {item.title}
         </h1>
 
-        {/* Last Updated */}
-        <p className="text-white/75 text-xs md:text-sm mb-5">
-          Last updated: {lastUpdated}
-        </p>
-
-        {/* Tags */}
+        {/* Meta line with tags, separated by dot (no provider name) */}
         {item.tags && item.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {item.tags.map((tag, index) => (
-              <span 
-                key={index}
-                className="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium bg-white/15 text-white backdrop-blur-sm border border-white/25 hover:bg-white/25 transition-colors"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+          <p className="text-sm md:text-base text-white/85">
+            {item.tags.join(' · ')}
+          </p>
         )}
       </div>
     </div>

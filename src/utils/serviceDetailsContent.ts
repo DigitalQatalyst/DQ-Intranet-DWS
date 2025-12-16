@@ -153,7 +153,7 @@ const SERVICE_DETAILS_CONTENT: Record<
     // IT Support Form
     '1': {
       submit_request: {
-        heading: 'Submit Request',
+        //heading: 'Submit Request',
         blocks: [
        
           {
@@ -185,7 +185,7 @@ const SERVICE_DETAILS_CONTENT: Record<
         },
       },
       self_service_faq: {
-        heading: 'FAQ',
+        //heading: 'FAQ',
         blocks: [
           {
             type: 'p',
@@ -224,7 +224,7 @@ const SERVICE_DETAILS_CONTENT: Record<
         ],
       },
       contact_sla: {
-        heading: 'Contacts',
+        //heading: 'Contacts',
         blocks: [
           {
             type: 'p',
@@ -257,7 +257,7 @@ const SERVICE_DETAILS_CONTENT: Record<
     // Support Charter Template
     '2': {
       submit_request: {
-        heading: 'Use the Support Charter Template',
+        //heading: 'Use the Support Charter Template',
         blocks: [
           {
             type: 'p',
@@ -286,7 +286,7 @@ const SERVICE_DETAILS_CONTENT: Record<
         },
       },
       self_service_faq: {
-        heading: 'Guidance & FAQs',
+       // heading: 'Guidance & FAQs',
         blocks: [
           {
             type: 'ul',
@@ -299,7 +299,7 @@ const SERVICE_DETAILS_CONTENT: Record<
         ],
       },
       contact_sla: {
-        heading: 'Contacts',
+       // heading: 'Contacts',
         blocks: [
           { type: 'p', text: 'For help shaping the charter, contact IT Admin or your department lead.' },
           {

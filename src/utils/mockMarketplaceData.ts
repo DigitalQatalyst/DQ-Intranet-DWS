@@ -666,7 +666,7 @@ export const mockNonFinancialServices = [
     technicalCategory: ['Hardware', 'Software', 'Network'],
     deviceOwnership: ['Company Device', 'Personal Device (BYOD)'],
     provider: {
-      name: 'IT Support',
+      name: '',
       logoUrl: '/DWS-Logo.png',
       description:
         'DQ IT Support provides technical assistance and support for all technology-related issues and requests.',
@@ -680,7 +680,7 @@ export const mockNonFinancialServices = [
       'Track support request progress',
       'Get timely assistance from our technical team',
     ],
-    tags: ['IT Support', 'Hybrid', 'Technology'],
+    tags: [ 'Hybrid', 'Technology'],
     featuredImageUrl: '/images/services/IT-support.jpg',
     requestUrl: 'https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl',
   },
@@ -711,7 +711,7 @@ export const mockNonFinancialServices = [
       'Create formal support agreements',
       'Access structured documentation templates',
     ],
-    tags: ['IT Support', 'Hybrid', 'Technology'],
+    tags: ['Online', 'Technology'],
     featuredImageUrl: '/images/services/tech-support.jpg',
   },
   {
