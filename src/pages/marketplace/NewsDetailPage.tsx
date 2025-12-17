@@ -322,6 +322,106 @@ const parseBold = (text: string) => {
   return parts.length > 0 ? parts : [text];
 };
 
+// Render full content for blog articles, preserving all formatting exactly as provided
+const renderFullContent = (content: string) => {
+  if (!content) return null;
+  
+  const lines = content.split('\n');
+  const elements: JSX.Element[] = [];
+  let currentParagraph: string[] = [];
+  let listItems: string[] = [];
+  let inList = false;
+  let keyCounter = 0;
+
+  const flushParagraph = () => {
+    if (currentParagraph.length > 0) {
+      const paraText = currentParagraph.join(' ').trim();
+      if (paraText) {
+        elements.push(
+          <p key={keyCounter++} className="text-gray-700 text-sm leading-relaxed mb-4">
+            {parseBold(paraText)}
+          </p>
+        );
+      }
+      currentParagraph = [];
+    }
+  };
+
+  const flushList = () => {
+    if (listItems.length > 0) {
+      elements.push(
+        <ul key={keyCounter++} className="list-disc list-inside space-y-2 mb-4 ml-4">
+          {listItems.map((item, idx) => (
+            <li key={idx} className="text-gray-700 text-sm leading-relaxed">
+              {parseBold(item.trim())}
+            </li>
+          ))}
+        </ul>
+      );
+      listItems = [];
+      inList = false;
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    
+    // Empty line - flush current paragraph or list
+    if (!trimmed) {
+      if (inList) {
+        flushList();
+      } else {
+        flushParagraph();
+      }
+      continue;
+    }
+
+    // Check for headings (## or ###)
+    const headingMatch = trimmed.match(/^(##+)\s+(.+)$/);
+    if (headingMatch) {
+      flushList();
+      flushParagraph();
+      const level = headingMatch[1].length;
+      const headingText = headingMatch[2].trim();
+      if (level === 2) {
+        elements.push(
+          <h2 key={keyCounter++} className="text-xl font-bold text-gray-900 mt-6 mb-4">
+            {parseBold(headingText)}
+          </h2>
+        );
+      } else {
+        elements.push(
+          <h3 key={keyCounter++} className="text-lg font-bold text-gray-900 mt-6 mb-4">
+            {parseBold(headingText)}
+          </h3>
+        );
+      }
+      continue;
+    }
+
+    // Check for list items (-, *, or numbered)
+    const listMatch = trimmed.match(/^[-*]\s+(.+)$/) || trimmed.match(/^\d+\.\s+(.+)$/);
+    if (listMatch) {
+      flushParagraph();
+      inList = true;
+      listItems.push(listMatch[1]);
+      continue;
+    }
+
+    // Regular paragraph text - preserve all content
+    if (inList) {
+      flushList();
+    }
+    currentParagraph.push(trimmed);
+  }
+
+  // Flush any remaining content
+  flushList();
+  flushParagraph();
+
+  return elements.length > 0 ? <div className="space-y-4">{elements}</div> : null;
+};
+
 
 const NewsDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -342,6 +442,7 @@ const NewsDetailPage: React.FC = () => {
   };
 
   const overview = article ? buildOverview(article) : [];
+  const isBlogArticle = article?.type === 'Thought Leadership';
 
   useEffect(() => {
     if (!id) return;
@@ -537,23 +638,29 @@ const NewsDetailPage: React.FC = () => {
                   </div>
                 </header>
 
-                {/* Announcement Overview - Brief 4-paragraph summary */}
+                {/* Article Content - Full content for blogs, overview for announcements */}
                 <article className="bg-white rounded-lg shadow p-6 space-y-4">
-                  <div className="space-y-3">
-                    {overview.map((paragraph, index) => {
-                      const trimmed = paragraph.trim();
-                      if (!trimmed) return null;
-                      
-                      // Parse bold text in the paragraph
-                      const boldText = parseBold(trimmed);
-                      
-                      return (
-                        <p key={index} className="text-gray-700 text-sm leading-relaxed">
-                          {boldText}
-                        </p>
-                      );
-                    })}
-                  </div>
+                  {isBlogArticle && article.content ? (
+                    <div className="prose prose-sm max-w-none">
+                      {renderFullContent(article.content)}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {overview.map((paragraph, index) => {
+                        const trimmed = paragraph.trim();
+                        if (!trimmed) return null;
+                        
+                        // Parse bold text in the paragraph
+                        const boldText = parseBold(trimmed);
+                        
+                        return (
+                          <p key={index} className="text-gray-700 text-sm leading-relaxed">
+                            {boldText}
+                          </p>
+                        );
+                      })}
+                    </div>
+                  )}
                 </article>
 
                 {/* COMPANY NEWS DETAILS Section */}
