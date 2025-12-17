@@ -5,13 +5,13 @@ import ApproverList from './ApproverList';
 import ConfirmationModal from './ConfirmationModal';
 import { addLeaveRequest } from '../../utils/userRequests';
 
-interface RequestFormProps {
+interface LeaveRequestFormProps {
   isOpen: boolean;
   onClose: () => void;
   initialApprovers: User[];
 }
 
-const RequestForm: React.FC<RequestFormProps> = ({ isOpen, onClose, initialApprovers }) => {
+const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose, initialApprovers }) => {
   const [requestName, setRequestName] = useState('');
   const [approvers, setApprovers] = useState<User[]>(initialApprovers);
   const [selectedLeaveType, setSelectedLeaveType] = useState<string>('');
@@ -272,4 +272,4 @@ const RequestForm: React.FC<RequestFormProps> = ({ isOpen, onClose, initialAppro
   );
 };
 
-export default RequestForm;
+export default LeaveRequestForm;

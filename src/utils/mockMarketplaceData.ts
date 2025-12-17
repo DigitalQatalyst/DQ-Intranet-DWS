@@ -928,7 +928,7 @@ export const mockNonFinancialServices = [
     documentType: ['Policies', 'Forms'],
     provider: {
       name: 'HR',
-      logoUrl: '/DWS-Logo.png',
+      logoUrl: '/leave.jpg',
       description:
         'DQ Human Resources manages leave policies and ensures fair, consistent application of leave rules across all departments and business units.',
     },
@@ -943,7 +943,7 @@ export const mockNonFinancialServices = [
       'Complete handover catalog for leaves exceeding one day',
     ],
     tags: ['HR', 'Online', 'Business'],
-    featuredImageUrl: '/images/services/out-office.jpg',
+    featuredImageUrl: '/images/services/leave.jpg',
     requestUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
   },
   {
@@ -1158,8 +1158,8 @@ export const mockNonFinancialServices = [
       'Produce QA deliverables suitable for manual or automated execution',
     ],
     tags: ['Prompt Library', 'QA', 'Testing', 'Journeys'],
-    featuredImageUrl: '/images/services/qa-testing.jpg',
-    sourceUrl: '#',
+    featuredImageUrl: '/images/services/ai.jpg',
+    sourceUrl: null,
   },
   {
     id: 'dw-001',

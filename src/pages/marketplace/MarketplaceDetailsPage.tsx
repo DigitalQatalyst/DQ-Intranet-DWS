@@ -13,10 +13,11 @@ import { getFallbackItemDetails, getFallbackItems } from '../../utils/fallbackDa
 import { getAIToolDataById } from '../../utils/aiToolsData';
 import { getDigitalWorkerServiceById } from '../../utils/digitalWorkerData';
 import { ProcedureStages, procedureStagesConfigs } from '../../components/ProcedureStages';
-import RequestForm from '../../components/marketplace/RequestForm';
+import LeaveRequestForm from '../../components/marketplace/LeaveRequestForm';
 import { TechSupportForm } from '../../components/marketplace/TechSupportForm';
 import { INITIAL_APPROVERS } from '../../utils/mockApprovers';
 import { ServiceHeroSection } from '../../components/marketplace/ServiceHeroSection';
+import { ServiceDetailsSidebar } from '../../components/marketplace/ServiceDetailsSidebar';
 interface MarketplaceDetailsPageProps {
   marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding';
   bookmarkedItems?: string[];
@@ -37,7 +38,29 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const shouldTakeAction = searchParams.get('action') === 'true';
+  const serviceTab = searchParams.get('tab'); // Get tab from URL for Services Center
   const config = getMarketplaceConfig(marketplaceType);
+  
+  // Helper to get tab label
+  const getTabLabel = (tab: string | null): string => {
+    if (!tab) return '';
+    const tabMap: Record<string, string> = {
+      'technology': 'Technology',
+      'business': 'Employee Services',
+      'digital_worker': 'Digital Worker',
+      'prompt_library': 'Prompt Library',
+      'ai_tools': 'AI Tools'
+    };
+    return tabMap[tab] || '';
+  };
+  
+  // Helper to get back URL with tab preserved
+  const getBackUrl = (): string => {
+    if (marketplaceType === 'non-financial' && serviceTab) {
+      return `${config.route}?tab=${serviceTab}`;
+    }
+    return config.route;
+  };
   const [item, setItem] = useState<any | null>(null);
   const [relatedItems, setRelatedItems] = useState<any[]>([]);
   const [_isBookmarked, _setIsBookmarked] = useState(false);
@@ -46,10 +69,14 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showTabsMenu, setShowTabsMenu] = useState(false);
   const [showNavigation, setShowNavigation] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [isFloatingCardVisible, setIsFloatingCardVisible] = useState(true);
   const [showStickyBottomCTA, setShowStickyBottomCTA] = useState(false);
-  const [headerHeight, setHeaderHeight] = useState(80);
+  // FLOATING CARD STATE REMOVED:
+  // Removed isVisible, isFloatingCardVisible, and headerHeight state variables
+  // as they were only used for the floating sidebar behavior which has been removed.
+  // To restore floating behavior, add back:
+  // const [isVisible, setIsVisible] = useState(false);
+  // const [isFloatingCardVisible, setIsFloatingCardVisible] = useState(true);
+  // const [headerHeight, setHeaderHeight] = useState(80);
   const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout | null>(null);
   const [isRequestFormOpen, setIsRequestFormOpen] = useState(false);
   const [isTechSupportFormOpen, setIsTechSupportFormOpen] = useState(false);
@@ -74,36 +101,11 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     }
     return () => resizeObserver.disconnect();
   }, [item]);
-  // Update floating card visibility based on scroll position
-  useEffect(() => {
-    const handleScroll = () => {
-      // Get header height dynamically
-      const header = document.querySelector('header');
-      const headerHeight = header ? header.offsetHeight : 80;
-      setHeaderHeight(headerHeight);
-      if (heroRef.current && mainContentRef.current) {
-        const heroRect = heroRef.current.getBoundingClientRect();
-        const heroBottom = heroRect.bottom;
-        // Show floating card when hero section is scrolled past the header
-        setIsVisible(heroBottom <= headerHeight + 16); // Add small margin
-        // For mobile, we'll handle this differently with the sticky bottom CTA
-        if (window.innerWidth < 1024) {
-          const summaryCardBottom = summaryCardRef.current?.getBoundingClientRect().bottom || 0;
-          setShowStickyBottomCTA(summaryCardBottom < 0);
-        } else {
-          setShowStickyBottomCTA(false);
-        }
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
-    // Initial check
-    handleScroll();
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, []);
+  // FLOATING CARD SCROLL HANDLER REMOVED:
+  // Previously, this handler managed floating card visibility based on scroll position.
+  // The floating card behavior has been removed, so this handler is no longer needed.
+  // The sticky bottom CTA is now handled by the handler below.
+  // To restore floating behavior, add back the scroll detection logic that sets isVisible state.
   // Handle scroll for sticky bottom CTA on mobile
   useEffect(() => {
     const handleScroll = () => {
@@ -196,8 +198,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           }
           // Use fetched related items if available, otherwise use fallback
           setRelatedItems(relatedItemsData && relatedItemsData.length > 0 ? relatedItemsData : getFallbackItems(marketplaceType));
-          // If the action parameter is true, scroll to the action section
-          // and open the appropriate request modal when applicable
           if (shouldTakeAction) {
             setTimeout(() => {
               const actionSection = document.getElementById('action-section');
@@ -208,13 +208,17 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               }
             }, 100);
 
-            if (finalItemData.id === '13') {
-              // Leave application
-              setIsRequestFormOpen(true);
-            } else if (marketplaceType === 'non-financial' && ['1', '2', '3'].includes(finalItemData.id)) {
-              // IT Support Form, Support Charter Template, IT Support Walkthrough
-              setIsTechSupportFormOpen(true);
-            }
+            // REMOVED: Auto-open Leave Application form
+            // if (finalItemData.id === '13') {
+            //   // Leave application
+            //   setIsRequestFormOpen(true);
+            // }
+
+            // REMOVED: Auto-open TechSupportForm
+            // else if (marketplaceType === 'non-financial' && ['1', '2', '3'].includes(finalItemData.id)) {
+            //   // IT Support Form, Support Charter Template, IT Support Walkthrough
+            //   setIsTechSupportFormOpen(true);
+            // }
           }
         } else {
           // Item not found - use generic fallback
@@ -240,17 +244,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     };
     fetchItemDetails();
   }, [itemId, marketplaceType, bookmarkedItems, shouldTakeAction, navigate, config]);
-  // const handleToggleBookmark = () => {
-  //   if (item) {
-  //     onToggleBookmark(item.id);
-  //     setIsBookmarked(!isBookmarked);
-  //   }
-  // };
-  // const handleAddToComparison = () => {
-  //   if (item) {
-  //     onAddToComparison(item);
-  //   }
-  // };
+
   const retryFetch = () => {
     setError(null);
     // Re-fetch by triggering the useEffect
@@ -285,11 +279,21 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               <li>
                 <div className="flex items-center">
                   <ChevronRightIcon size={16} className="text-gray-400" />
-                  <Link to={config.route} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">
+                  <Link to={getBackUrl()} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">
                     {config.itemNamePlural}
                   </Link>
                 </div>
               </li>
+              {marketplaceType === 'non-financial' && serviceTab && getTabLabel(serviceTab) && (
+                <li>
+                  <div className="flex items-center">
+                    <ChevronRightIcon size={16} className="text-gray-400" />
+                    <Link to={getBackUrl()} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">
+                      {getTabLabel(serviceTab)}
+                    </Link>
+                  </div>
+                </li>
+              )}
               <li aria-current="page">
                 <div className="flex items-center">
                   <ChevronRightIcon size={16} className="text-gray-400" />
@@ -332,7 +336,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const isDigitalWorker = item.category === 'Digital Worker';
   const isLeaveApplication = item.id === '13';
   const isITSupportService = marketplaceType === 'non-financial' && ['1', '2', '3'].includes(item.id);
-  const primaryAction = isLeaveApplication ? 'Apply For Leave' : isPromptLibrary ? 'Visit Page' : isAITool ? 'Request Access' : isDigitalWorker ? 'Request Service' : config.primaryCTA;
+  const primaryAction =
+    isLeaveApplication ? 'Apply For Leave'
+    : isPromptLibrary ? 'View Prompt'
+    : isDigitalWorker ? 'View Details'
+    : isAITool ? 'Request Tool'
+    : config.primaryCTA;
   // const secondaryAction = config.secondaryCTA;
   // Extract details for the sidebar
   const detailItems = config.attributes.map(attr => ({
@@ -1661,81 +1670,19 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           </div>;
     }
   };
-  // Combined SummaryCard component that works for both desktop and mobile
-  const SummaryCard = ({
-    isFloating = false
-  }) => <div ref={isFloating ? null : summaryCardRef} className={`
-        bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden
-        ${isFloating ? 'fixed z-[1000]' : ''}
-      `} style={isFloating ? {
-    top: `${headerHeight + 20}px`,
-    right: '2rem',
-    width: '340px',
-    maxHeight: 'calc(100vh - 120px)',
-    overflowY: 'auto'
-  } : {}}>
-      <div className="bg-gray-50 p-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <h3 className="font-medium text-lg text-gray-900">
-            Service Details
-          </h3>
-          {isFloating && <button onClick={() => setIsFloatingCardVisible(false)} className="p-1 hover:bg-gray-200 rounded transition-colors text-gray-600" aria-label="Hide card">
-              <XIcon size={16} />
-            </button>}
-        </div>
-      </div>
-      <div className="p-4">
-        <div className="space-y-2 mb-4">
-          {detailItems.map((detail, index) => <div key={index} className="flex justify-between items-center">
-              <span className="text-sm text-gray-500">{detail.label}:</span>
-              <span className="text-sm font-medium text-gray-900">
-                {detail.value || 'N/A'}
-              </span>
-            </div>)}
-        </div>
-        <div className="border-t border-gray-200 pt-4 mb-4">
-          <h4 className="text-sm font-medium text-gray-800 mb-3">
-            {marketplaceType === 'courses' ? 'This course includes:' : marketplaceType === 'financial' ? 'This service includes:' : 'This service includes:'}
-          </h4>
-          <ul className="space-y-2">
-            {highlights.slice(0, 4).map((highlight, index) => <li key={index} className="flex items-start">
-                <CheckCircleIcon size={14} className="text-dqYellow mr-2 mt-1 flex-shrink-0" />
-                <span className="text-sm text-gray-700">{highlight}</span>
-              </li>)}
-          </ul>
-        </div>
-        <button 
-          id="action-section" 
-          className="w-full px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md mb-3 flex items-center justify-center gap-2"
-          style={{ backgroundColor: '#030F35' }} 
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#020a23')} 
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#030F35')}
-          onClick={() => {
-            // Check if this is Leave Application service (id '13')
-            if (isLeaveApplication) {
-              setIsRequestFormOpen(true);
-            } else if (isITSupportService) {
-              setIsTechSupportFormOpen(true);
-            } else if (isPromptLibrary && item.sourceUrl) {
-              window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
-            } else if (isAITool) {
-              setIsTechSupportFormOpen(true);
-            }
-          }}
-        >
-          {isPromptLibrary ? (
-            <>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-              Visit Page
-            </>
-          ) : (
-            primaryAction
-          )}
-        </button>
-      </div>
-    </div>;
+  // Handle primary action button click
+  const handlePrimaryActionClick = () => {
+    // Check if this is Leave Application service (id '13')
+    if (isLeaveApplication) {
+      setIsRequestFormOpen(true);
+    } else if (isITSupportService) {
+      setIsTechSupportFormOpen(true);
+    } else if (isPromptLibrary && item.sourceUrl) {
+      window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
+    } else if (isAITool) {
+      setIsTechSupportFormOpen(true);
+    }
+  };
   return <div className="bg-white min-h-screen flex flex-col">
       <style>{`
         @keyframes pulse {
@@ -1776,11 +1723,21 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                 <li>
                   <div className="flex items-center">
                     <ChevronRightIcon size={16} className="text-gray-400" />
-                    <Link to={config.route} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">
+                    <Link to={getBackUrl()} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">
                       {config.itemNamePlural}
                     </Link>
                   </div>
                 </li>
+                {marketplaceType === 'non-financial' && serviceTab && getTabLabel(serviceTab) && (
+                  <li>
+                    <div className="flex items-center">
+                      <ChevronRightIcon size={16} className="text-gray-400" />
+                      <Link to={getBackUrl()} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">
+                        {getTabLabel(serviceTab)}
+                      </Link>
+                    </div>
+                  </li>
+                )}
                 <li aria-current="page">
                   <div className="flex items-center">
                     <ChevronRightIcon size={16} className="text-gray-400" />
@@ -1854,19 +1811,37 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               </div>
               {/* Mobile/Tablet Summary Card - only visible on mobile/tablet */}
               <div className="lg:hidden mt-8">
-                <SummaryCard isFloating={false} />
+                <ServiceDetailsSidebar
+                  detailItems={detailItems}
+                  highlights={highlights}
+                  marketplaceType={marketplaceType}
+                  primaryAction={primaryAction}
+                  onPrimaryActionClick={handlePrimaryActionClick}
+                  isPromptLibrary={isPromptLibrary}
+                  isDigitalWorker={isDigitalWorker}
+                  sourceUrl={item?.sourceUrl}
+                  summaryCardRef={summaryCardRef}
+                />
               </div>
             </div>
             {/* Summary card column (~4 columns) - visible only on desktop */}
             <div className="hidden lg:block lg:col-span-4">
               <div className="sticky top-[96px]">
-                {!isVisible && isFloatingCardVisible && <SummaryCard isFloating={false} />}
+                <ServiceDetailsSidebar
+                  detailItems={detailItems}
+                  highlights={highlights}
+                  marketplaceType={marketplaceType}
+                  primaryAction={primaryAction}
+                  onPrimaryActionClick={handlePrimaryActionClick}
+                  isPromptLibrary={isPromptLibrary}
+                  isDigitalWorker={isDigitalWorker}
+                  sourceUrl={item?.sourceUrl}
+                  summaryCardRef={summaryCardRef}
+                />
               </div>
             </div>
           </div>
         </div>
-        {/* Floating card - visible when scrolled past hero section */}
-        {isVisible && isFloatingCardVisible && <SummaryCard isFloating={true} />}
         {/* Related Items */}
         <section className="bg-gray-50 py-10 border-t border-gray-200">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
@@ -1953,7 +1928,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       <Footer isLoggedIn={false} />
       
       {/* Request Form Modal */}
-      <RequestForm 
+      <LeaveRequestForm 
         isOpen={isRequestFormOpen} 
         onClose={() => setIsRequestFormOpen(false)}
         initialApprovers={INITIAL_APPROVERS}

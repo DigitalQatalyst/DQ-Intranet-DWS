@@ -41,6 +41,26 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
   const getItemRoute = () => {
     return `${config.route}/${item.id}`;
   };
+
+  // Compute primary CTA text (can vary by category)
+  const getPrimaryCTAText = () => {
+    // Service Center / Prompt Library items
+    if (marketplaceType === 'non-financial' && item.category === 'Prompt Library') {
+      return 'View Prompt';
+    }
+
+    // Service Center / Digital Worker items
+    if (marketplaceType === 'non-financial' && item.category === 'Digital Worker') {
+      return 'View Details';
+    }
+
+    if (marketplaceType === 'non-financial' && item.category === 'AI Tools') {
+      return 'Request Tool';
+    }
+
+    // Fallback to marketplace-level default
+    return config.primaryCTA;
+  };
   // View Details handler - DISABLED
   // const handleViewDetails = (e: React.MouseEvent) => {
   //   e.stopPropagation();
@@ -68,7 +88,14 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       navigate(`/lms/${item.slug}`);
       return;
     }
-    navigate(`${getItemRoute()}?action=true`);
+    
+    // Preserve tab parameter when navigating to detail pages for Services Center
+    const currentUrl = new URL(window.location.href);
+    const tabParam = currentUrl.searchParams.get('tab');
+    const detailUrl = tabParam && marketplaceType === 'non-financial' 
+      ? `${getItemRoute()}?action=true&tab=${tabParam}`
+      : `${getItemRoute()}?action=true`;
+    navigate(detailUrl);
   };
   // Display tags if available, otherwise use category and deliveryMode
   
@@ -251,7 +278,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
             className="px-4 py-2 text-sm font-bold text-white rounded-md hover:opacity-90 transition-colors whitespace-nowrap flex-1"
             style={{ backgroundColor: '#030F35' }}
           >
-            {config.primaryCTA}
+            {getPrimaryCTAText()}
           </button>
         </div>
       </div>
