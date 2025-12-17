@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from './FilterSidebar.js';
 import { MarketplaceGrid } from './MarketplaceGrid.js';
@@ -24,8 +24,11 @@ import {
 import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters';
 import GuidesGrid from '../guides/GuidesGrid';
 import TestimonialsGrid from '../guides/TestimonialsGrid';
+import GlossaryGrid from '../guides/GlossaryGrid';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { track } from '../../utils/analytics';
+import FAQsPageContent from '../../pages/guides/FAQsPageContent';
+import { glossaryTerms, GlossaryTerm, CATEGORIES } from '../../pages/guides/glossaryData';
 const LEARNING_TYPE_FILTER: FilterConfig = {
   id: 'learningType',
   title: 'Learning Type',
@@ -186,10 +189,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [facets, setFacets] = useState<GuidesFacets>({});
   const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
   const searchStartRef = useRef<number | null>(null);
-type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 'resources';
+type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 'glossary' | 'faqs';
   const getTabFromParams = useCallback((params: URLSearchParams): WorkGuideTab => {
     const tab = params.get('tab');
-    return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' || tab === 'resources' ? tab : 'guidelines';
+    return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' || tab === 'glossary' || tab === 'faqs' ? tab : 'guidelines';
   }, []);
   const [activeTab, setActiveTab] = useState<WorkGuideTab>(() => getTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()));
 
@@ -198,7 +201,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     guidelines: 'Guidelines',
     blueprints: 'Blueprints',
     testimonials: 'Testimonials',
-    resources: 'Library'
+    glossary: 'Glossary',
+    faqs: 'FAQs'
   };
 
   const TAB_DESCRIPTIONS: Record<WorkGuideTab, { description: string; author?: string }> = {
@@ -218,8 +222,12 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       description: 'Success stories, case studies, and reflections that capture lessons learned, celebrate achievements, and share insights from real-world experiences and transformations.',
       author: 'Authored by DQ Teams, Clients, and Partners'
     },
-    resources: {
-      description: 'Library of reference materials, glossaries, and FAQs that help you navigate DQ terminology, processes, and best practices.',
+    glossary: {
+      description: 'Comprehensive dictionary of DQ terminology, acronyms, and key concepts to help you understand our language and processes.',
+      author: 'Maintained by DQ Knowledge Management Team'
+    },
+    faqs: {
+      description: 'Frequently asked questions about DQ processes, tools, workflows, and best practices with detailed answers and guidance.',
       author: 'Maintained by DQ Knowledge Management Team'
     }
   };
@@ -248,8 +256,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         // Keep 'unit' and 'location' for Blueprints; delete incompatible filters
         const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_sector'];
         keysToDelete.forEach(key => next.delete(key));
-      } else if (tab === 'resources') {
-        // For Resources tab, delete all incompatible filters
+      } else if (tab === 'glossary' || tab === 'faqs') {
+        // For Glossary and FAQs tabs, delete all incompatible filters
         const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'testimonials') {
@@ -303,8 +311,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     } else if (activeTab === 'testimonials') {
       // For Testimonials, delete all incompatible filters
       keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector'];
-    } else if (activeTab === 'resources') {
-      // For Resources, delete all incompatible filters
+    } else if (activeTab === 'glossary' || activeTab === 'faqs') {
+      // For Glossary and FAQs, delete all incompatible filters
       keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
     } else {
       // For Guidelines, delete Strategy and Blueprint-specific filters
@@ -395,6 +403,95 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       })
     : lmsFilteredItems;
   
+  // Filter glossary terms based on two-level filter structure
+  const filteredGlossaryTerms = useMemo(() => {
+    if (!isGuides || activeTab !== 'glossary') {
+      return [];
+    }
+    
+    // PRIMARY FILTER: Knowledge System
+    const knowledgeSystems = parseFilterValues(queryParams, 'glossary_knowledge_system');
+    
+    // SECONDARY FILTERS: GHC
+    const ghcDimensions = parseFilterValues(queryParams, 'glossary_ghc_dimension');
+    const ghcTermTypes = parseFilterValues(queryParams, 'glossary_ghc_term_type');
+    
+    // SECONDARY FILTERS: 6xD
+    const sixXdDimensions = parseFilterValues(queryParams, 'glossary_6xd_dimension');
+    const sixXdTermTypes = parseFilterValues(queryParams, 'glossary_6xd_term_type');
+    
+    // SHARED FILTERS
+    const termOrigins = parseFilterValues(queryParams, 'glossary_term_origin');
+    const usedIn = parseFilterValues(queryParams, 'glossary_used_in');
+    const whoUsesIt = parseFilterValues(queryParams, 'glossary_who_uses_it');
+    const letters = parseFilterValues(queryParams, 'glossary_letter');
+    
+    // Search query
+    const searchQuery = queryParams.get('q') || '';
+    
+    return glossaryTerms.filter(term => {
+      // PRIMARY: Knowledge System filter
+      if (knowledgeSystems.length > 0) {
+        if (!term.knowledgeSystem || !knowledgeSystems.includes(term.knowledgeSystem)) return false;
+      }
+      
+      // SECONDARY: GHC filters (only if GHC is selected or no system filter)
+      if (term.knowledgeSystem === 'ghc') {
+        if (ghcDimensions.length > 0) {
+          if (!term.ghcDimension || !ghcDimensions.includes(term.ghcDimension)) return false;
+        }
+        if (ghcTermTypes.length > 0) {
+          if (!term.ghcTermType || !ghcTermTypes.includes(term.ghcTermType)) return false;
+        }
+      }
+      
+      // SECONDARY: 6xD filters (only if 6xD is selected or no system filter)
+      if (term.knowledgeSystem === '6xd') {
+        if (sixXdDimensions.length > 0) {
+          if (!term.sixXdDimension || !sixXdDimensions.includes(term.sixXdDimension)) return false;
+        }
+        if (sixXdTermTypes.length > 0) {
+          if (!term.sixXdTermType || !sixXdTermTypes.includes(term.sixXdTermType)) return false;
+        }
+      }
+      
+      // SHARED: Term Origin filter
+      if (termOrigins.length > 0) {
+        if (!term.termOrigin || !termOrigins.includes(term.termOrigin)) return false;
+      }
+      
+      // SHARED: Used In filter
+      if (usedIn.length > 0) {
+        if (!term.usedIn || !term.usedIn.some(ui => usedIn.includes(ui))) return false;
+      }
+      
+      // SHARED: Who Uses It filter
+      if (whoUsesIt.length > 0) {
+        if (!term.whoUsesIt || !term.whoUsesIt.some(wui => whoUsesIt.includes(wui))) return false;
+      }
+      
+      // SHARED: Letter filter (A-Z)
+      if (letters.length > 0) {
+        const termLetter = term.letter.toUpperCase();
+        const matchesLetter = letters.some(l => l.toUpperCase() === termLetter);
+        if (!matchesLetter) return false;
+      }
+      
+      // Search filter (works across all terms, no category needed)
+      if (searchQuery) {
+        const searchLower = searchQuery.toLowerCase();
+        const matchesSearch = 
+          term.term.toLowerCase().includes(searchLower) ||
+          (term.shortIntro && term.shortIntro.toLowerCase().includes(searchLower)) ||
+          term.explanation.toLowerCase().includes(searchLower) ||
+          term.tags.some(tag => tag.toLowerCase().includes(searchLower));
+        if (!matchesSearch) return false;
+      }
+      
+      return true;
+    });
+  }, [isGuides, activeTab, queryParams]);
+  
   // Compute filters from URL for courses
   const urlBasedFilters: Record<string, string[]> = isCourses
     ? {
@@ -483,8 +580,15 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         return;
       }
 
-      // GUIDES: Supabase query + facets
+      // GUIDES: Supabase query + facets (skip for glossary and faqs tabs)
       if (isGuides) {
+        if (activeTab === 'glossary' || activeTab === 'faqs') {
+          setLoading(false);
+          setItems([]);
+          setFilteredItems([]);
+          setTotalCount(0);
+          return;
+        }
         setLoading(true);
         try {
           // Exclude removed guidelines from frontend
@@ -514,9 +618,10 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           const isStrategyTab = currentActiveTab === 'strategy';
           const isBlueprintTab = currentActiveTab === 'blueprints';
           const isTestimonialsTab = currentActiveTab === 'testimonials';
-          const isResourcesTab = currentActiveTab === 'resources';
+          const isGlossaryTab = currentActiveTab === 'glossary';
+          const isFAQsTab = currentActiveTab === 'faqs';
           const isGuidelinesTab = currentActiveTab === 'guidelines';
-          const isSpecialTab = isStrategyTab || isBlueprintTab || isTestimonialsTab || isResourcesTab;
+          const isSpecialTab = isStrategyTab || isBlueprintTab || isTestimonialsTab || isGlossaryTab || isFAQsTab;
 
           const allowed = new Set<string>();
           if (!isSpecialTab) {
@@ -1104,7 +1209,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             
             <div className="mb-6 border-b border-gray-200">
               <nav className="flex space-x-8" aria-label="Guides navigation">
-              {(['strategy', 'guidelines', 'blueprints', 'testimonials', 'resources'] as WorkGuideTab[]).map(tab => (
+                {/* Main tabs rendered as buttons */}
+                {(['strategy', 'guidelines', 'blueprints', 'testimonials', 'glossary', 'faqs'] as WorkGuideTab[]).map(tab => (
                   <button
                     key={tab}
                     onClick={() => handleGuidesTabChange(tab)}
@@ -1126,28 +1232,30 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           </>
         )}
 
-        {/* Search + Sort */}
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex-1">
-            <SearchBar
-              searchQuery={isGuides ? (queryParams.get('q') || '') : searchQuery}
-              placeholder={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
-              ariaLabel={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
-              setSearchQuery={(q: string) => {
-                if (isGuides) {
-                  const next = new URLSearchParams(queryParams.toString());
-                  next.delete('page');
-                  if (q) next.set('q', q); else next.delete('q');
-                  const qs = next.toString();
-                  window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
-                  setQueryParams(new URLSearchParams(next.toString()));
-                } else {
-                  setSearchQuery(q);
-                }
-              }}
-            />
+        {/* Search + Sort - Hide for Glossary tab (has its own search) */}
+        {!(isGuides && activeTab === 'glossary') && (
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex-1">
+              <SearchBar
+                searchQuery={isGuides ? (queryParams.get('q') || '') : searchQuery}
+                placeholder={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
+                ariaLabel={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
+                setSearchQuery={(q: string) => {
+                  if (isGuides) {
+                    const next = new URLSearchParams(queryParams.toString());
+                    next.delete('page');
+                    if (q) next.set('q', q); else next.delete('q');
+                    const qs = next.toString();
+                    window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+                    setQueryParams(new URLSearchParams(next.toString()));
+                  } else {
+                    setSearchQuery(q);
+                  }
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex flex-col xl:flex-row gap-6">
           {/* Mobile filter toggle */}
@@ -1270,110 +1378,50 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               />
             ) : isGuides ? (
               <>
-                {activeTab === 'resources' ? (
+                {activeTab === 'faqs' ? (
+                  <FAQsPageContent />
+                ) : activeTab === 'glossary' ? (
                   <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      {/* Glossary Card */}
-                      <Link 
-                        to="/marketplace/guides/glossary" 
-                        className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition-shadow cursor-pointer block"
-                      >
-                        {/* 16:9 Header Image */}
-                        <div className="relative w-full bg-gray-100 overflow-hidden rounded-t-2xl" style={{ aspectRatio: '16/9' }}>
-                          <img
-                            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3"
-                            alt="Glossary - Dictionary and terminology reference"
-                            className="absolute inset-0 w-full h-full object-cover"
-                            loading="lazy"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                        </div>
-                        
-                        {/* Content Section */}
-                        <div className="p-6 flex flex-col flex-grow">
-                          <h3 className="text-[20px] font-semibold text-gray-900">Glossary</h3>
-                          <p className="text-[15px] text-gray-600 mt-1 line-clamp-3">
-                            Comprehensive dictionary of DQ terminology, acronyms, and key concepts to help you understand our language and processes.
-                          </p>
-                          
-                          {/* CTA Button */}
-                          <div className="mt-auto pt-4">
-                            <div className="w-full bg-[#0A1433] text-white py-3 rounded-xl font-medium hover:bg-[#0A1433]/90 transition text-center">
-                              View Glossary
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-
-                      {/* FAQs Card */}
-                      <Link 
-                        to="/marketplace/guides/faqs" 
-                        className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition-shadow cursor-pointer block"
-                      >
-                        {/* 16:9 Header Image */}
-                        <div className="relative w-full bg-gray-100 overflow-hidden rounded-t-2xl" style={{ aspectRatio: '16/9' }}>
-                          <img
-                            src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3"
-                            alt="FAQs - Frequently asked questions and help"
-                            className="absolute inset-0 w-full h-full object-cover"
-                            loading="lazy"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                            }}
-                          />
-                        </div>
-                        
-                        {/* Content Section */}
-                        <div className="p-6 flex flex-col flex-grow">
-                          <h3 className="text-[20px] font-semibold text-gray-900">FAQs</h3>
-                          <p className="text-[15px] text-gray-600 mt-1 line-clamp-3">
-                            Frequently asked questions about DQ processes, tools, workflows, and best practices with detailed answers and guidance.
-                          </p>
-                          
-                          {/* CTA Button */}
-                          <div className="mt-auto pt-4">
-                            <div className="w-full bg-[#0A1433] text-white py-3 rounded-xl font-medium hover:bg-[#0A1433]/90 transition text-center">
-                              View FAQs
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    </div>
-                    <GuidesGrid
-                      items={filteredItems}
-                      hideEmptyState={activeTab === 'resources'}
-                      onClickGuide={(g) => {
-                        const qs = queryParams.toString();
-                        navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
-                          state: { fromQuery: qs, activeTab }
-                        });
-                      }}
-                    />
-                    {totalPages > 1 && (
-                      <div className="mt-6 flex items-center justify-center gap-4">
-                        <button
-                          type="button"
-                          onClick={() => goToPage(currentPage - 1)}
-                          disabled={currentPage === 1}
-                          className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    {/* Global Search Bar for Glossary */}
+                    <div className="mb-6">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={queryParams.get('q') || ''}
+                          onChange={(e) => {
+                            const next = new URLSearchParams(queryParams.toString());
+                            next.delete('page');
+                            if (e.target.value) {
+                              next.set('q', e.target.value);
+                            } else {
+                              next.delete('q');
+                            }
+                            const qs = next.toString();
+                            if (typeof window !== 'undefined') {
+                              window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+                            }
+                            setQueryParams(new URLSearchParams(next.toString()));
+                          }}
+                          placeholder="Search DQ terms (e.g. DWS, CWS, Agile TMS)"
+                          className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--guidelines-primary)] focus:border-[var(--guidelines-primary)] outline-none"
+                        />
+                        <svg
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          Previous
-                        </button>
-                        <span className="text-sm text-gray-600">
-                          Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => goToPage(currentPage + 1)}
-                          disabled={currentPage >= totalPages}
-                          className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Next
-                        </button>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                       </div>
-                    )}
+                    </div>
+                    <GlossaryGrid
+                      items={filteredGlossaryTerms}
+                      onClickTerm={(term) => {
+                        navigate(`/marketplace/guides/glossary/${term.id}`);
+                      }}
+                      hideEmptyState={false}
+                    />
                   </>
                 ) : activeTab === 'testimonials' ? (
                   <TestimonialsGrid
