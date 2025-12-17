@@ -27,8 +27,8 @@ import TestimonialsGrid from '../guides/TestimonialsGrid';
 import GlossaryGrid from '../guides/GlossaryGrid';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { track } from '../../utils/analytics';
-import FAQsPageContent from '@/pages/guides/FAQsPageContent';
-import { glossaryTerms, GlossaryTerm, CATEGORIES } from '@/pages/guides/glossaryData';
+import FAQsPageContent from '@/pages/guides/FAQsPageContent.tsx';
+import { glossaryTerms, GlossaryTerm, CATEGORIES } from '@/pages/guides/glossaryData.ts';
 const LEARNING_TYPE_FILTER: FilterConfig = {
   id: 'learningType',
   title: 'Learning Type',
