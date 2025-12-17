@@ -14,12 +14,12 @@ const fallbackImages = [
   'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80'
 ];
 
-// Color and label mappings for newsType categories
+// Color and label mappings for newsType categories (matching screenshot)
 const newsTypeColor: Record<NonNullable<NewsItem['newsType']>, string> = {
-  'Policy Update': '#0EA5E9',      // Blue for policy/guidelines
-  'Upcoming Events': '#16A34A',    // Green for events
-  'Company News': '#8B5CF6',        // Purple for company news
-  'Holidays': '#F97316'             // Orange for holidays/notices
+  'Policy Update': '#8B5CF6',        // Purple for policy/guidelines
+  'Upcoming Events': '#F97316',      // Orange for events
+  'Company News': '#0EA5E9',         // Blue for company news
+  'Holidays': '#16A34A'              // Green for holidays/notices
 };
 
 const newsTypeLabel: Record<NonNullable<NewsItem['newsType']>, string> = {
@@ -39,10 +39,10 @@ const getNewsTypeDisplay = (item: NewsItem) => {
   }
   // Fallback to type if newsType is missing
   const typeFallback: Record<NewsItem['type'], { label: string; color: string }> = {
-    Announcement: { label: 'Company News', color: '#8B5CF6' },
-    Guidelines: { label: 'Policy Update', color: '#0EA5E9' },
-    Notice: { label: 'Holidays', color: '#F97316' },
-    'Thought Leadership': { label: 'Company News', color: '#8B5CF6' }
+    Announcement: { label: 'Company News', color: '#0EA5E9' },      // Blue
+    Guidelines: { label: 'Policy Update', color: '#8B5CF6' },        // Purple
+    Notice: { label: 'Holidays', color: '#16A34A' },                  // Green
+    'Thought Leadership': { label: 'Blog', color: '#14B8A6' }         // Teal for blogs
   };
   return typeFallback[item.type];
 };

@@ -9,6 +9,9 @@ const fallbackImages = [
   'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80'
 ];
 
+// Unique color for Blog tag
+const BLOG_COLOR = '#14B8A6'; // Teal color for blogs
+
 const formatDate = (input: string) =>
   new Date(input).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -26,12 +29,11 @@ export function BlogCard({ item, href }: BlogCardProps) {
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className="relative">
         <img src={imageSrc} alt={item.title} className="h-40 w-full object-cover" loading="lazy" />
-        {item.format && (
-          <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/40 bg-white/80 px-3 py-1 text-xs font-semibold text-gray-700 backdrop-blur">
-            <span className="h-2 w-2 rounded-full bg-green-500" />
-            {item.format}
-          </div>
-        )}
+        {/* Blog tag with unique color */}
+        <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/40 bg-white/80 px-3 py-1 text-xs font-semibold text-gray-700 backdrop-blur">
+          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: BLOG_COLOR }} />
+          Blog
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col p-4">

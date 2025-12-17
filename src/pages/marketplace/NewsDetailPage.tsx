@@ -444,6 +444,46 @@ const NewsDetailPage: React.FC = () => {
   const overview = article ? buildOverview(article) : [];
   const isBlogArticle = article?.type === 'Thought Leadership';
 
+  // Color and label mappings for newsType categories (matching NewsCard)
+  const newsTypeColor: Record<NonNullable<NewsItem['newsType']>, string> = {
+    'Policy Update': '#8B5CF6',        // Purple for policy/guidelines
+    'Upcoming Events': '#F97316',      // Orange for events
+    'Company News': '#0EA5E9',         // Blue for company news
+    'Holidays': '#16A34A'              // Green for holidays/notices
+  };
+
+  const newsTypeLabel: Record<NonNullable<NewsItem['newsType']>, string> = {
+    'Policy Update': 'Policy Update',
+    'Upcoming Events': 'Upcoming Events',
+    'Company News': 'Company News',
+    'Holidays': 'Holidays'
+  };
+
+  // Get newsType display info (matching NewsCard logic)
+  const getNewsTypeDisplay = (item: NewsItem) => {
+    // For blog articles (Thought Leadership), always show "Blog" with unique color
+    if (item.type === 'Thought Leadership') {
+      return {
+        label: 'Blog',
+        color: '#14B8A6' // Teal color for blogs
+      };
+    }
+    if (item.newsType) {
+      return {
+        label: newsTypeLabel[item.newsType],
+        color: newsTypeColor[item.newsType]
+      };
+    }
+    // Fallback to type if newsType is missing
+    const typeFallback: Record<NewsItem['type'], { label: string; color: string }> = {
+      Announcement: { label: 'Company News', color: '#0EA5E9' },      // Blue
+      Guidelines: { label: 'Policy Update', color: '#8B5CF6' },        // Purple
+      Notice: { label: 'Holidays', color: '#16A34A' },                  // Green
+      'Thought Leadership': { label: 'Blog', color: '#14B8A6' }         // Teal for blogs
+    };
+    return typeFallback[item.type];
+  };
+
   useEffect(() => {
     if (!id) return;
     let isMounted = true;
@@ -581,11 +621,15 @@ const NewsDetailPage: React.FC = () => {
                   <div className="space-y-4">
                     {/* Category tag and date row */}
                     <div className="flex items-center gap-4 flex-wrap">
-                      {article.type && (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
-                          {article.type}
-                        </span>
-                      )}
+                      {(() => {
+                        const newsTypeDisplay = getNewsTypeDisplay(article);
+                        return (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-white border border-gray-200 text-gray-700">
+                            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: newsTypeDisplay.color }} />
+                            {newsTypeDisplay.label}
+                          </span>
+                        );
+                      })()}
                       <div className="flex items-center gap-2 text-gray-600 text-sm">
                         <Calendar size={16} className="text-gray-400" />
                         <span>{announcementDateShort}</span>
@@ -628,12 +672,24 @@ const NewsDetailPage: React.FC = () => {
 
                     {/* Hero Image if available */}
                     {getImageSrc(article) && (
-                      <img
-                        src={getImageSrc(article)}
-                        alt={article.title}
-                        className="w-full h-60 object-cover rounded mb-4"
-                        loading="lazy"
-                      />
+                      <div className="relative">
+                        <img
+                          src={getImageSrc(article)}
+                          alt={article.title}
+                          className="w-full h-60 object-cover rounded mb-4"
+                          loading="lazy"
+                        />
+                        {/* Badge overlay on image (matching NewsCard style) */}
+                        {(() => {
+                          const newsTypeDisplay = getNewsTypeDisplay(article);
+                          return (
+                            <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/40 bg-white/80 px-3 py-1 text-xs font-semibold text-gray-700 backdrop-blur">
+                              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: newsTypeDisplay.color }} />
+                              {newsTypeDisplay.label}
+                            </div>
+                          );
+                        })()}
+                      </div>
                     )}
                   </div>
                 </header>
@@ -764,14 +820,7 @@ const NewsDetailPage: React.FC = () => {
                       <div className="space-y-3">
                         {related.slice(0, 3).map((item) => {
                           const relatedDate = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                          const getTagColor = (type: string | undefined) => {
-                            if (!type) return 'bg-gray-100 text-gray-700';
-                            const lowerType = type.toLowerCase();
-                            if (lowerType.includes('event') || lowerType.includes('upcoming')) return 'bg-orange-100 text-orange-700';
-                            if (lowerType.includes('recognition') || lowerType.includes('employee')) return 'bg-green-100 text-green-700';
-                            if (lowerType.includes('policy') || lowerType.includes('update') || lowerType.includes('guideline')) return 'bg-purple-100 text-purple-700';
-                            return 'bg-blue-100 text-blue-700';
-                          };
+                          const newsTypeDisplay = getNewsTypeDisplay(item);
                           return (
                             <Link
                               key={item.id}
@@ -780,11 +829,10 @@ const NewsDetailPage: React.FC = () => {
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex-1 min-w-0">
-                                  {item.type && (
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium mb-1.5 ${getTagColor(item.type)}`}>
-                                      {item.type}
-                                    </span>
-                                  )}
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium mb-1.5 bg-white border border-gray-200 text-gray-700">
+                                    <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: newsTypeDisplay.color }} />
+                                    {newsTypeDisplay.label}
+                                  </span>
                                   <div className="text-xs text-gray-500 mb-1.5">{relatedDate}</div>
                                   <div className="text-sm font-medium text-gray-900 line-clamp-2 leading-snug" title={item.title}>{item.title}</div>
                                 </div>
