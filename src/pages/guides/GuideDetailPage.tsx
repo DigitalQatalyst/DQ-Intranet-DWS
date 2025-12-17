@@ -24,6 +24,11 @@ const AgendaSchedulingGuidelinePage = React.lazy(() => import('../guidelines/age
 const FunctionalTrackerGuidelinePage = React.lazy(() => import('../guidelines/functional-tracker-guidelines/GuidelinePage'))
 const ScrumMasterGuidelinePage = React.lazy(() => import('../guidelines/scrum-master-guidelines/GuidelinePage'))
 const QForumGuidelinePage = React.lazy(() => import('../guidelines/qforum-guidelines/GuidelinePage'))
+const DQCompetenciesPage = React.lazy(() => import('../strategy/dq-competencies/GuidelinePage'))
+const DQVisionMissionPage = React.lazy(() => import('../strategy/dq-vision-mission/GuidelinePage'))
+const DQGHCPage = React.lazy(() => import('../strategy/dq-ghc/GuidelinePage'))
+const DQProductsPage = React.lazy(() => import('../strategy/dq-products/GuidelinePage'))
+const BlueprintPage = React.lazy(() => import('../blueprints/detail/BlueprintPage'))
 
 const Markdown = React.lazy(() => import('../../components/guides/MarkdownRenderer'))
 
@@ -100,11 +105,35 @@ const GuideDetailPage: React.FC = () => {
     const title = (guide?.title || '').toLowerCase()
     return slug === 'forum-guidelines' || slug === 'dq-forum-guidelines' || slug === 'qforum-guidelines' || title.includes('forum guidelines')
   }, [guide?.slug, guide?.title])
+  const isDQCompetencies = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    // Exclude GHC - check for GHC first, then check for competencies
+    if (slug === 'dq-ghc' || slug === 'ghc' || slug === 'golden-honeycomb' || title.includes('ghc') || title.includes('golden honeycomb')) {
+      return false
+    }
+    return slug === 'dq-competencies' || title.toLowerCase().includes('dq competencies') || (title.toLowerCase().includes('competencies') && !title.includes('ghc'))
+  }, [guide?.slug, guide?.title])
+  const isDQVisionMission = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'dq-vision-and-mission' || slug === 'dq-vision-mission' || title.toLowerCase().includes('dq vision') && title.toLowerCase().includes('mission') || (title.toLowerCase().includes('vision') && title.toLowerCase().includes('mission'))
+  }, [guide?.slug, guide?.title])
+  const isDQGHC = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'dq-ghc' || slug === 'ghc' || slug === 'golden-honeycomb' || title.includes('ghc') || title.includes('golden honeycomb') || (title.includes('foundation') && title.includes('dna'))
+  }, [guide?.slug, guide?.title])
+  const isDQProducts = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'dq-products' || slug === 'dq-products' || title.toLowerCase().includes('dq products') || (title.toLowerCase().includes('products') && !title.toLowerCase().includes('6xd'))
+  }, [guide?.slug, guide?.title])
   
   // Check if this guide should use a custom GuidelinePage
   const hasCustomGuidelinePage = useMemo(() => {
-    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum
-  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum])
+    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isDQCompetencies || isDQVisionMission || isDQGHC || isDQProducts
+  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isDQCompetencies, isDQVisionMission, isDQGHC, isDQProducts])
   const featuredClientTestimonials = [
     {
       id: 'khalifa',
@@ -890,13 +919,39 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
       return <SuspenseWrapper><QForumGuidelinePage /></SuspenseWrapper>
     }
 
+    // Check GHC BEFORE DQ Competencies (GHC is more specific and its title contains "Competencies")
+    if (isDQGHC) {
+      return <SuspenseWrapper><DQGHCPage /></SuspenseWrapper>
+    }
+
+    if (isDQCompetencies) {
+      return <SuspenseWrapper><DQCompetenciesPage /></SuspenseWrapper>
+    }
+
+    if (isDQProducts) {
+      return <SuspenseWrapper><DQProductsPage /></SuspenseWrapper>
+    }
+
+    if (isDQVisionMission) {
+      return <SuspenseWrapper><DQVisionMissionPage /></SuspenseWrapper>
+    }
   }
 
 
 
 
-  // Render Blueprint with DQ Products layout (same as DQ Products)
+  // Route blueprints to the new BlueprintPage component (same format as DQ Competencies)
   if (actualIsBlueprintDomain) {
+    const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
+      <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div><p className="mt-4 text-gray-600">Loading...</p></div></div>}>
+        {children}
+      </React.Suspense>
+    )
+    return <SuspenseWrapper><BlueprintPage /></SuspenseWrapper>
+  }
+
+  // OLD Blueprint rendering - now replaced by BlueprintPage component above
+  if (false && actualIsBlueprintDomain) {
     return (
       <div className="min-h-screen flex flex-col guidelines-theme dq-products-bg" style={{ minHeight: '100vh' }}>
         <Header toggleSidebar={() => {}} sidebarOpen={false} />

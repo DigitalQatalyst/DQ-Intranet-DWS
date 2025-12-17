@@ -60,7 +60,7 @@ export function SummaryTable({ columns, data, title, onViewFull, getSummary }: S
             </tr>
           </thead>
           <tbody className="bg-white">
-            {data.map((row, rowIdx) => (
+            {data.slice(0, 2).map((row, rowIdx) => (
               <tr key={rowIdx} className="bg-white">
                 {columns.map((col, colIdx) => {
                   const value = row[col.accessor]

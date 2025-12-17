@@ -33,19 +33,33 @@ export const VisionMission: React.FC = () => {
               DQ Vision – Perfecting Life's Transactions
             </h3>
             
-            <div className="flex-1 mb-6">
-              <p className="text-base md:text-lg leading-relaxed clamp-2" style={{ color: 'var(--dws-text)' }}>
-                We empower associates to turn innovation into impact through seamless, dependable workflows that make collaboration effortless and progress meaningful.
+            <div className="flex-1 mb-6 space-y-4">
+              <p className="text-base md:text-lg leading-relaxed" style={{ color: 'var(--dws-text)' }}>
+                The <strong>DQ GHC</strong> is a comprehensive framework that informs all aspects of the DigitalQatalyst Organisation—from strategy to execution. At the center of the GHC lies <strong>The DQ Vision</strong>—a powerful articulation of why we exist.
+              </p>
+              <p className="text-base md:text-lg leading-relaxed" style={{ color: 'var(--dws-text)' }}>
+                We begin with something simple—a <strong>transaction</strong>. These moments are the <strong>threads that hold daily life together</strong>. <strong>Our Vision:</strong> "To perfect life's transactions" — enabling a <strong>Digital Cognitive Organisation (DCO)</strong>.
               </p>
             </div>
 
-            <div className="mt-auto">
-              <button
-                onClick={() => navigate('/strategy')}
+            <div className="mt-auto flex flex-col gap-3">
+              <a
+                href="https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="dws-btn-primary inline-flex items-center gap-2"
-                aria-label="Explore Strategy Center to learn more about DQ Vision"
+                aria-label="View full DQ Vision story"
               >
-                Explore Strategy Center
+                View Full Story
+                <ArrowRight size={16} aria-hidden="true" />
+              </a>
+              <button
+                onClick={() => navigate('/marketplace/guides?tab=strategy')}
+                className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full transition-colors hover:bg-gray-100"
+                style={{ color: 'var(--dws-text-strong)' }}
+                aria-label="Explore Foundation & DNA (Storybook)"
+              >
+                Foundation & DNA (Storybook)
                 <ArrowRight size={16} aria-hidden="true" />
               </button>
             </div>
@@ -54,24 +68,32 @@ export const VisionMission: React.FC = () => {
           {/* Mission Card */}
           <div className="dws-card bg-white flex flex-col h-full p-8 md:p-10" style={{ border: '1px solid var(--dws-line)' }}>
             <h3 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6" style={{ color: 'var(--dws-text-strong)' }}>
-              DQ Mission – Building a Smarter, Connected Future
+              DQ Mission – Our Raison D'être
             </h3>
             
-            <div className="flex-1 mb-6">
-              <p className="text-base md:text-lg leading-relaxed clamp-2" style={{ color: 'var(--dws-text)' }}>
-                We connect people, processes, and platforms to enable smarter work—helping every Qatalyst learn faster, collaborate better, and lead with purpose.
+            <div className="flex-1 mb-6 space-y-4">
+              <p className="text-base md:text-lg leading-relaxed" style={{ color: 'var(--dws-text)' }}>
+                <strong>Our Mission:</strong> "To accelerate the realisation of Digital Business Platform, using easy to implement blueprints"
+              </p>
+              <p className="text-base md:text-lg leading-relaxed" style={{ color: 'var(--dws-text)' }}>
+                We equip people and organisations with the <strong>thinking, tools</strong>, and <strong>capabilities</strong> to operate effectively and quickly adapt to the dynamic of the <strong>digital economy</strong>.
+              </p>
+              <p className="text-base md:text-lg leading-relaxed" style={{ color: 'var(--dws-text)' }}>
+                We build <strong>Digital Business Platforms (DBP) Blueprints</strong>—modular, adaptable systems that help organisations shift not just <strong>what they do</strong>, but <strong>how they do it</strong>.
               </p>
             </div>
 
             <div className="mt-auto">
-              <button
-                onClick={() => navigate('/mission')}
+              <a
+                href="https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="dws-btn-primary inline-flex items-center gap-2"
-                aria-label="View Mission Brief to understand DQ Mission"
+                aria-label="View full DQ Mission story"
               >
-                View Mission Brief
+                View Full Story
                 <ArrowRight size={16} aria-hidden="true" />
-              </button>
+              </a>
             </div>
           </div>
         </div>
