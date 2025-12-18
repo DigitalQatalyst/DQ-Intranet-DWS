@@ -21,6 +21,7 @@ import {
   BarChart,
   CircleDot,
   ClipboardList,
+  ScrollText,
 } from 'lucide-react';
 import {
   AnimatedCounter,
@@ -282,7 +283,7 @@ export const HomePage: React.FC = () => {
         title: 'Library',
         description: 'Browse glossaries, FAQs, playbooks, and reference resources for everyday work.',
         icon: <BookIcon />,
-        path: '/knowledge/library',
+        path: '/marketplace/guides?tab=glossary',
         isActive: true
       },
       {
@@ -290,7 +291,7 @@ export const HomePage: React.FC = () => {
         title: 'Testimonials',
         description: 'Read stories and testimonials from associates on their learning journeys.',
         icon: <HeartHandshake />,
-        path: '/resources/testimonials',
+        path: '/marketplace/guides?tab=testimonials',
         isActive: true
       },
     ],
@@ -321,10 +322,10 @@ export const HomePage: React.FC = () => {
       },
       {
         id: 'blueprints-library',
-        title: 'Work Guide – Blueprints',
+        title: 'Blueprints',
         description: 'Apply delivery blueprints for 6xD design, DevOps, DBP, DXP, and DWS execution.',
         icon: <Compass />,
-        path: '/resources/blueprints-library',
+        path: '/marketplace/guides?tab=blueprints',
         isActive: true
       }
     ],
@@ -396,11 +397,19 @@ export const HomePage: React.FC = () => {
         isActive: true
       },
       {
+        id: 'dq-guidelines',
+        title: 'DQ Guidelines',
+        description: 'Official standards, governance models, and ways of working that guide execution across DQ.',
+        icon: <ScrollText />,
+        path: '/marketplace/guides?tab=guidelines',
+        isActive: true
+      },
+      {
         id: 'work-guide-strategy',
-        title: 'Work Guide (Strategy)',
+        title: 'Strategy',
         description: "Understand DQ's journey, strategy, 6xD, initiatives, clients, and operating models.",
         icon: <BarChart />,
-        path: '/work-guides/strategy',
+        path: '/marketplace/guides?tab=strategy',
         isActive: true
       }
     ],
