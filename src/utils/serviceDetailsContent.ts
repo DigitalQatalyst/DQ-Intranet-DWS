@@ -4,8 +4,10 @@ export type ContentBlock =
   | { type: 'p'; text: string }
   | { type: 'ol'; items: string[] }
   | { type: 'ul'; items: string[] }
+  | { type: 'accordion'; items: Array<{ question: string; answer: string }> }
   | { type: 'iframe'; src: string; width?: string; height?: string; title?: string }
-  | { type: 'code'; code: string; language?: string; title?: string };
+  | { type: 'code'; code: string; language?: string; title?: string }
+  | { type: 'procedure_stages'; configKey: string };
 
 export interface TabContent {
   heading?: string;
@@ -57,16 +59,19 @@ export const SERVICE_CUSTOM_TABS: Record<string, Record<string, CustomTab[]>> = 
       { id: 'licenses', label: 'Licenses' },
       { id: 'visit_site', label: 'Visit Site' },
     ],
+    '17': [ // Supabase Full-Stack Development Prompt
+      { id: 'submit_request', label: 'Prompt' },
+    ],
+    '18': [ // Next.js 14 + Supabase Full-Stack Prompt
+      { id: 'submit_request', label: 'Prompt' },
+    ],
     '21': [ // Voiceflow
       { id: 'about', label: 'About' },
       { id: 'system_requirements', label: 'System Requirements' },
       { id: 'licenses', label: 'Licenses' },
       { id: 'visit_site', label: 'Visit Site' },
     ],
-    '17': [ // Supabase Full-Stack Development Prompt
-      { id: 'submit_request', label: 'Prompt' },
-    ],
-    '18': [ // Next.js 14 + Supabase Full-Stack Prompt
+    '22': [ // AI QA Engineer & Journey Reviewer Prompt
       { id: 'submit_request', label: 'Prompt' },
     ],
     '19': [ // SvelteKit + Supabase Full-Stack Prompt
@@ -151,13 +156,13 @@ const SERVICE_DETAILS_CONTENT: Record<
     // IT Support Form
     '1': {
       submit_request: {
-        heading: 'Submit Request',
+        //heading: 'Submit Request',
         blocks: [
        
           {
             type: 'p',
             text:
-              'This tab is where you log new support requests. Click the “Submit Request” button to open the support form. Note: currently this form opens in a new window (hosted externally); we plan to embed it directly on this page in the future for convenience.',
+              'Log your IT support requests here. Click Submit Request to open the form in a new window. Whenever you encounter a technical issue or need assistance, this is where you can reach out to the IT team. Sharing clear details about your situation helps them understand the problem and respond quickly.',
           },
           { type: 'p', text: 'Steps to submit a ticket:' },
           {
@@ -176,55 +181,58 @@ const SERVICE_DETAILS_CONTENT: Record<
               'After submission, the IT team will acknowledge receipt of your request and follow up with any questions or updates. Providing clear, detailed information (including screenshots and category selection) will speed up resolution.',
           },
         ],
-        action: {
-          label: 'Request Service',
-          urlField: 'requestUrl',
-          fallbackUrl: 'https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl'
-        },
       },
       self_service_faq: {
-        heading: 'Self-Service & FAQs',
+        //heading: 'FAQ',
         blocks: [
           {
             type: 'p',
             text:
-              'Purpose: Offer troubleshooting tips, common fixes, and resources so you can often resolve issues without submitting a ticket.',
+              'Before submitting a ticket, you can often resolve common issues on your own. The FAQs below highlight quick checks and troubleshooting steps that help address the most frequent problems employees encounter. Reviewing these can save time and get you back to work faster.',
           },
           {
-            type: 'p',
-            text:
-              'Before submitting a ticket, you may find answers to common problems through our self-help resources. Here are quick tips for frequent issues:',
-          },
-          {
-            type: 'ul',
+            type: 'accordion',
             items: [
-              'Account and Password Issues: Confirm correct DQ credentials. ',
-              'Network & Connectivity: Check cables/Wi‑Fi, restart your device, and check for broader outages.',
-              'Software Errors or Crashes: Restart the application and your computer, ensure updates are installed, and if needed reinstall or try another device.',
-              'Hardware & Peripherals: Verify power and connections; check drivers.',
-              'Microsoft Teams and Email: Sign out/in, try the web version.',
-              'General Tips: A quick restart often resolves minor glitches. Consider whether a recent update/installation changed behavior.',
+              {
+                question: 'Why can\'t I log in or access my account?',
+                answer: 'Make sure you are using the correct DQ credentials and that your password is up to date.',
+              },
+              {
+                question: 'What should I do if I have network or connectivity problems?',
+                answer: 'Check your Wi-Fi or cable connection, restart your device, and confirm whether the issue is affecting others.',
+              },
+              {
+                question: 'How do I fix software errors or application crashes?',
+                answer: 'Restart the application, reboot your computer, ensure all updates are installed, or reinstall the software if needed. You may also try accessing the tool on another device.',
+              },
+              {
+                question: 'How can I troubleshoot hardware or peripheral issues?',
+                answer: 'Verify power sources and cable connections, and ensure the correct drivers are installed or updated.',
+              },
+              {
+                question: 'Why are Microsoft Teams or email not working correctly?',
+                answer: 'Sign out and back in, restart the app, or try using the web version to confirm if the issue persists.',
+              },
+              {
+                question: 'What general troubleshooting steps should I try first?',
+                answer: 'A simple restart resolves many minor issues. Consider whether a recent update or installation could be affecting performance.',
+              },
             ],
-          },
-          {
-            type: 'p',
-            text:
-              'If these steps don’t resolve your issue, use the Submit Request tab to contact IT and include what you’ve already tried.',
           },
         ],
       },
       contact_sla: {
-        heading: 'Contact & SLAs',
+        //heading: 'Contacts',
         blocks: [
           {
             type: 'p',
             text:
-              'Purpose: Provide support contact methods, hours of operation, and expected response times (SLAs).',
+              '',
           },
           {
             type: 'p',
             text:
-              'Support Hours: Monday–Friday, 8:00 AM to 5:00 PM (Nairobi time). Outside these hours, responses may be delayed unless the issue is critical.',
+              'Support Hours: <strong>Monday–Friday, 8:00 AM to 5:00 PM (Nairobi time)</strong>. Outside these hours, responses may be delayed unless the issue is critical.',
           },
          
           {
@@ -247,18 +255,18 @@ const SERVICE_DETAILS_CONTENT: Record<
     // Support Charter Template
     '2': {
       submit_request: {
-        heading: 'Use the Support Charter Template',
+        //heading: 'Use the Support Charter Template',
         blocks: [
           {
             type: 'p',
             text:
-              'Purpose: Provide a clear, standardized support charter outlining scope, responsibilities, and expectations.',
+              'A Support Charter defines how support is structured, who is responsible for what, and how teams should engage when issues arise. Use this template to set clear expectations, ensure consistency, and create a shared understanding of your support processes.',
           },
           {
             type: 'ol',
             items: [
               'Download the template from the Resources section or request it from IT Admin if needed.',
-              'Fill out scope, roles/responsibilities, service hours, escalation paths, and SLAs.',
+              'Fill out scope, roles/responsibilities, service hours, and escalation paths.',
               'Review with your team and relevant stakeholders to confirm accuracy.',
               'Submit the finalized charter for approval and circulation.',
             ],
@@ -269,14 +277,9 @@ const SERVICE_DETAILS_CONTENT: Record<
               'Tip: Keep the charter concise and focused. Revisit quarterly to ensure it reflects current operations and contacts.',
           },
         ],
-        action: {
-          label: 'Request Service',
-          urlField: 'templateUrl',
-          fallbackUrl: '#',
-        },
       },
       self_service_faq: {
-        heading: 'Guidance & FAQs',
+       // heading: 'Guidance & FAQs',
         blocks: [
           {
             type: 'ul',
@@ -289,7 +292,7 @@ const SERVICE_DETAILS_CONTENT: Record<
         ],
       },
       contact_sla: {
-        heading: 'Contacts & Review',
+       // heading: 'Contacts',
         blocks: [
           { type: 'p', text: 'For help shaping the charter, contact IT Admin or your department lead.' },
           {
@@ -314,7 +317,7 @@ const SERVICE_DETAILS_CONTENT: Record<
           {
             type: 'p',
             text:
-              'Purpose: Quickly learn how to submit an IT support ticket correctly using a short walkthrough.',
+              'The IT support walkthrough provides a quick, step-by-step demonstration of how to submit a support ticket correctly. It is designed to help you understand what information to gather, how to document your issue, and how to follow the submission process with confidence.',
           },
           {
             type: 'ol',
@@ -347,41 +350,8 @@ const SERVICE_DETAILS_CONTENT: Record<
           },
           { type: 'p', text: 'Procedure:' },
           {
-            type: 'p',
-            text: 'STAGE 01: 4 WEEKS PRIOR',
-          },
-          {
-            type: 'ul',
-            items: [
-              'Confirm leave eligibility',
-              'Confirm departmental capacity',
-              'Apply on "Approvals" app',
-              'Update on HR Channel',
-            ],
-          },
-          {
-            type: 'p',
-            text: 'STAGE 02: 2 WEEKS PRIOR',
-          },
-          {
-            type: 'ul',
-            items: [
-              'Notify senior management',
-              'Update handover catalog',
-              'Capture sign-off',
-            ],
-          },
-          {
-            type: 'p',
-            text: 'STAGE 03: 1 WEEK PRIOR',
-          },
-          {
-            type: 'ul',
-            items: [
-              'Publish handover catalog',
-              'Update Leave and HR channel',
-              'Setup "Out-of-Office" reply',
-            ],
+            type: 'procedure_stages',
+            configKey: 'annualLeave',
           },
         ],
         action: {
@@ -419,7 +389,7 @@ const SERVICE_DETAILS_CONTENT: Record<
             items: [
               'Call respective line manager to inform them about your sick leave one day prior',
               'Provide a medical certificate to the line manager',
-              'Use the "Approvals" app to submit sick leave via your department\'s template',
+              'Fill the Leave Form by clicking the "Apply For Leave" button below',
               'Share an update on both the HR and Leave channels upon approval',
               'Capture the associate assigned as the task reliever with the line manager',
               'Capture and update the task handover catalog',
@@ -1149,7 +1119,7 @@ const SERVICE_DETAILS_CONTENT: Record<
         blocks: [
           {
             type: 'p',
-            text: 'This comprehensive prompt provides expert guidance for building modern full-stack applications with TypeScript, React, Next.js, Expo, and Supabase. Copy and use this prompt with your AI coding assistant to ensure consistent, high-quality code following industry best practices.',
+            text: 'This prompt delivers structured, expert-level guidance for developing modern full-stack applications using TypeScript, React, Next.js, Expo, and Supabase. Use it with your AI coding assistant to ensure consistent, high-quality output aligned with established engineering best practices.',
           },
           {
             type: 'code',
@@ -1317,6 +1287,177 @@ General preferences:
 - Be sure to reference file names.
 - Be concise. Minimize any other prose.
 - If you think there might not be a correct answer, you say so. If you do not know the answer, say so instead of guessing.`,
+          },
+        ],
+      },
+    },
+    // AI QA Engineer & Journey Reviewer Prompt
+    '22': {
+      submit_request: {
+        heading: 'AI QA Engineer & Journey Reviewer Prompt',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'Use this prompt to turn your AI assistant into a rigorous QA engineer and journey reviewer that derives behaviors directly from code and generates focused, high-value test artifacts.',
+          },
+          {
+            type: 'code',
+            language: 'markdown',
+            title: 'AI QA Engineer & Journey Reviewer',
+            code: `ROLE: AI QA ENGINEER AND JOURNEY REVIEWER
+
+CONTEXT
+
+You are joining an existing production codebase as an expert QA engineer working alongside senior product and engineering leads.
+
+Your responsibility is to:
+
+- Read and understand the actual implementation, not assumptions
+- Derive testable behaviors directly from code
+- Generate functional, experience, journey, and rendering test cases
+- Produce outputs that a QA team can execute manually or automate
+
+You are not allowed to invent features. You must infer behavior only from:
+
+- Source code
+- Configuration
+- Routing
+- Validation logic
+- Conditional rendering
+- State management
+- API contracts
+
+OBJECTIVES
+
+Analyze the codebase to identify:
+
+- Implemented features
+- User-facing behaviors
+- Hidden conditions and edge cases
+- Error and failure paths
+
+Generate test cases across four dimensions:
+
+- Functional correctness
+- User journeys and experience
+- UI rendering and responsiveness
+- Error handling and recovery
+
+Output test artifacts that are:
+
+- Clear
+- Executable
+- Prioritized
+- Suitable for manual or automated testing
+
+SCOPE OF ANALYSIS
+
+You must actively inspect:
+
+- Pages, routes, and navigation logic
+- Components and conditional UI
+- Forms, validation rules, and defaults
+- State transitions and persistence
+- API calls, retries, and error handling
+- Responsive layout logic (CSS, Tailwind, breakpoints)
+- Feature flags and environment-based behavior
+
+Ignore:
+
+- Commented-out code
+- Dead or unused files unless clearly referenced
+- Mock or placeholder data unless still wired to UI
+
+REQUIRED OUTPUT STRUCTURE
+
+Create all outputs under /docs/qa/generated/ using Markdown.
+
+1. Feature Inventory  
+   File: 01-feature-inventory.md  
+   For each feature:  
+   - Feature name  
+   - Entry points (pages, components)  
+   - Primary user action  
+   - Dependencies  
+   - Conditional behavior  
+
+2. Functional Test Cases  
+   File: 02-functional-test-cases.md  
+   Each test case must include:  
+   - Test Case ID  
+   - Scenario name  
+   - Preconditions  
+   - Steps  
+   - Expected result  
+   - Notes (edge cases, assumptions)  
+   Focus on:  
+   - Happy paths  
+   - Negative paths  
+   - Boundary conditions  
+   - Validation logic  
+   - State changes  
+
+3. User Journey and Experience Tests  
+   File: 03-journey-and-ux-tests.md  
+   Focus on real user behavior:  
+   - Multi-step flows  
+   - Partial completion  
+   - Back, refresh, and resume behavior  
+   - Error recovery  
+   - Cognitive clarity  
+   For each journey:  
+   - Journey name  
+   - User intent  
+   - Steps across screens  
+   - Experience risks  
+   - UX validation criteria  
+   Do not repeat functional test cases here. This file is about flow quality, not correctness.  
+
+4. Rendering and Responsiveness Tests  
+   File: 04-rendering-and-responsiveness.md  
+   Identify layout risks based on implementation. Include:  
+   - Viewport or device context  
+   - Component or page affected  
+   - Risk description  
+   - Expected behavior  
+   - Test recommendation  
+   Focus on:  
+   - Overflow and clipping  
+   - Tables and grids  
+   - Modals and drawers  
+   - Forms on small screens  
+   - Conditional UI density  
+
+5. Automation Readiness Output  
+   File: 05-automation-candidates.md  
+   For each automation candidate:  
+   - Test Case ID reference  
+   - Automation suitability (High / Medium / Low)  
+   - Reasoning  
+   - Suggested tool (Playwright, Cypress)  
+   - Selector stability risks  
+
+QUALITY RULES YOU MUST FOLLOW
+
+- Do not generalize. Always reference observed behavior.  
+- Prefer fewer, high-quality tests over exhaustive lists.  
+- Flag uncertainty explicitly.  
+- Separate defects from risks.  
+- Never assume backend behavior without evidence.  
+- Call out UX issues even if functionality is correct.  
+
+OPERATING MODE
+
+Work incrementally:
+
+- Scan routing and entry points  
+- Identify major features  
+- Deep dive feature by feature  
+- Generate test cases per feature  
+- Then generate journeys and rendering risks  
+
+If information is missing, document it as a QA risk, not a guess.`,
           },
         ],
       },
