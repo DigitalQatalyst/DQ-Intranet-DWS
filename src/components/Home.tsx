@@ -22,6 +22,8 @@ import {
   CircleDot,
   ClipboardList,
   ScrollText,
+  Wand2,
+  Bot,
 } from 'lucide-react';
 import {
   AnimatedCounter,
@@ -271,6 +273,14 @@ export const HomePage: React.FC = () => {
         isActive: false
       },
       {
+        id: 'prompt-library',
+        title: 'Prompt Library',
+        description: 'Curated, reusable AI prompts and patterns to accelerate delivery and decision-making.',
+        icon: <Wand2 />,
+        path: '/marketplace/services-center?tab=prompt_library',
+        isActive: true
+      },
+      {
         id: 'learning-reviews',
         title: 'Reviews',
         description: 'Capture feedback and reviews on courses, bootcamps, and learning experiences.',
@@ -301,15 +311,23 @@ export const HomePage: React.FC = () => {
         title: 'Technology',
         description: 'Request environments, access, support, and tooling for DQ technology platforms.',
         icon: <Globe />,
-        path: '/services/technology',
+        path: '/marketplace/services-center?tab=technology',
         isActive: true
       },
       {
         id: 'services-center-business',
-        title: 'Business',
+        title: 'Employee Services',
         description: 'Submit finance, HR, and admin requests through a single, trackable console.',
         icon: <Briefcase />,
-        path: '/services/business',
+        path: '/marketplace/services-center?tab=business',
+        isActive: true
+      },
+      {
+        id: 'ai-tools',
+        title: 'AI Tools',
+        description: 'AI-powered tools and copilots that support execution, automation, and delivery across DQ.',
+        icon: <Bot />,
+        path: '/marketplace/services-center?tab=ai_tools',
         isActive: true
       },
       {
@@ -317,7 +335,7 @@ export const HomePage: React.FC = () => {
         title: 'Digital Worker',
         description: 'Use Doc Writers, prompting kits, AI tools, agents, and BPM helpers to speed up delivery.',
         icon: <Lightbulb />,
-        path: '/services/digital-worker-tools',
+        path: '/marketplace/services-center?tab=digital_worker',
         isActive: true
       },
       {

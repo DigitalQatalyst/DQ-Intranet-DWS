@@ -35,7 +35,7 @@ const marketplaces: Marketplace[] = [
     name: 'DQ Services Center',
     description: 'Business services, technology services, and digital worker tools.',
     icon: BuildingIcon,
-    href: '/dq-services-center',
+    href: '/marketplace/services-center',
   },
   {
     id: 'work-center',
@@ -189,9 +189,11 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
               const Icon = marketplace.icon;
               const isComingSoon = marketplace.isComingSoon;
               const isActive =
-                marketplace.id === 'knowledge-center' &&
-                (location.pathname.startsWith('/marketplace/guides') ||
-                  location.pathname.startsWith('/marketplace/knowledge-hub'));
+                (marketplace.id === 'knowledge-center' &&
+                  (location.pathname.startsWith('/marketplace/guides') ||
+                    location.pathname.startsWith('/marketplace/knowledge-hub'))) ||
+                (marketplace.id === 'services-center' &&
+                  location.pathname.startsWith('/marketplace/services-center'));
               return (
                 <a
                   key={marketplace.id}
