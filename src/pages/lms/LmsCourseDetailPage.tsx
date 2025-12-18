@@ -480,9 +480,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                       );
                     })}
                   </div>
-                  <p className="text-white text-lg leading-relaxed">
-                    {course.summary}
-                  </p>
+
                 </div>
                 <div className="flex items-start gap-3">
                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${statusClass}`}>
