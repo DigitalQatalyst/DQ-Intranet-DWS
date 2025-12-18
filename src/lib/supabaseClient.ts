@@ -1,18 +1,20 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '@/communities/integrations/supabase/types'
 
-// Vite injects these at build time. They must be defined.
-const url = import.meta.env.VITE_SUPABASE_URL as string
-const anon = import.meta.env.VITE_SUPABASE_ANON_KEY as string
-const redirectUrl = import.meta.env.VITE_SUPABASE_REDIRECT_URL as string | undefined
-const siteUrl = import.meta.env.VITE_SUPABASE_SITE_URL as string | undefined
+// Vite injects these at build time. They must be defined
+
+const url = (window as any)._env_?.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL
+const anon = (window as any)._env_?.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY
+const redirectUrl = (window as any)._env_?.VITE_SUPABASE_REDIRECT_URL || import.meta.env.VITE_SUPABASE_REDIRECT_URL
+const siteUrl = (window as any)._env_?.VITE_SUPABASE_SITE_URL || import.meta.env.VITE_SUPABASE_SITE_URL
 
 if (!url || !anon) {
-  // Helps you catch misconfigured envs early during dev
-  // eslint-disable-next-line no-console
-  console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Check your .env and restart the dev server.')
-  throw new Error('Supabase env vars not set')
+  console.error('Missing Supabase environment variables')
+  console.error('VITE_SUPABASE_URL:', url)
+  console.error('VITE_SUPABASE_ANON_KEY:', anon ? 'exists' : 'missing')
+  throw new Error('Missing Supabase environment variables. Please check your .env file.')
 }
+
 
 // Create typed Supabase client for Communities feature
 export const supabaseClient = createClient<Database>(url, anon, {

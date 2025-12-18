@@ -5,11 +5,24 @@ import {
   LogLevel,
 } from "@azure/msal-browser";
 
+// Helper to get env vars from runtime (Docker) or build-time (local dev)
+const getEnv = (key: string): string | undefined => {
+  // First check runtime config (Docker)
+  if (typeof window !== 'undefined' && (window as any)._env_) {
+    const value = (window as any)._env_[key];
+    if (value) return value;
+  }
+  // Fallback to build-time config (local dev)
+  return (import.meta as any).env?.[key];
+};
+
 // Support both NEXT_PUBLIC_* and VITE_* envs
 const env = (import.meta as any).env as Record<string, string | undefined>;
+console.log('Build-time env:', env);
+console.log('Runtime env:', typeof window !== 'undefined' ? (window as any)._env_ : 'N/A');
 
 // Client ID must be provided via environment variable
-const CLIENT_ID = env.NEXT_PUBLIC_AAD_CLIENT_ID || env.VITE_AZURE_CLIENT_ID;
+const CLIENT_ID = getEnv('NEXT_PUBLIC_AAD_CLIENT_ID') || getEnv('VITE_AZURE_CLIENT_ID')
 if (!CLIENT_ID) {
   throw new Error(
     "Azure AD Client ID is required. Please set VITE_AZURE_CLIENT_ID or NEXT_PUBLIC_AAD_CLIENT_ID in your .env file.\n\n" +
@@ -17,14 +30,14 @@ if (!CLIENT_ID) {
   );
 }
 const REDIRECT_URI =
-  env.NEXT_PUBLIC_REDIRECT_URI ||
-  env.VITE_AZURE_REDIRECT_URI ||
-  window.location.origin;
+  getEnv('NEXT_PUBLIC_REDIRECT_URI') ||
+  getEnv('VITE_AZURE_REDIRECT_URI') ||
+  (typeof window !== 'undefined' ? window.location.origin : '');
 const POST_LOGOUT_REDIRECT_URI =
-  env.NEXT_PUBLIC_POST_LOGOUT_REDIRECT_URI ||
-  env.VITE_AZURE_POST_LOGOUT_REDIRECT_URI ||
+  getEnv('NEXT_PUBLIC_POST_LOGOUT_REDIRECT_URI') ||
+  getEnv('VITE_AZURE_POST_LOGOUT_REDIRECT_URI') ||
   REDIRECT_URI;
-const API_SCOPES = (env.NEXT_PUBLIC_API_SCOPES || env.VITE_AZURE_SCOPES || "")
+const API_SCOPES = (getEnv('NEXT_PUBLIC_API_SCOPES') || getEnv('VITE_AZURE_SCOPES') || "")
   .split(/[\s,]+/)
   .map((s) => s.trim())
   .filter(Boolean);
@@ -36,12 +49,11 @@ const DEFAULT_OIDC_SCOPES = ["openid", "profile", "email", "offline_access"] as 
 // Tenant ID is required for Entra ID authentication
 // Can be provided as either tenant ID (GUID) or verified domain name
 // Tenant ID or Domain must be provided via environment variable
-const TENANT_ID = env.NEXT_PUBLIC_TENANT_ID || env.VITE_AZURE_TENANT_ID;
-const TENANT_DOMAIN = env.NEXT_PUBLIC_TENANT_DOMAIN || env.VITE_AZURE_TENANT_DOMAIN;
+const TENANT_ID = getEnv('NEXT_PUBLIC_TENANT_ID') || getEnv('VITE_AZURE_TENANT_ID');
+const TENANT_DOMAIN = getEnv('NEXT_PUBLIC_TENANT_DOMAIN') || getEnv('VITE_AZURE_TENANT_DOMAIN');
 
 // Custom domain support (optional)
-const CUSTOM_DOMAIN = env.NEXT_PUBLIC_CIAM_CUSTOM_DOMAIN || env.VITE_AZURE_CUSTOM_DOMAIN;
-
+const CUSTOM_DOMAIN = getEnv('NEXT_PUBLIC_CIAM_CUSTOM_DOMAIN') || getEnv('VITE_AZURE_CUSTOM_DOMAIN');
 // Compute authority URL for Entra ID (Azure AD):
 // Priority:
 // 1. Custom domain + tenant ID (e.g. https://login.example.com/{tenantId})

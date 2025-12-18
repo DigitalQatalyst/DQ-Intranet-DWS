@@ -1,6 +1,6 @@
-namespace: staging
+namespace: dws
 
 resources:
   - ../../base
   - deployment.yaml
-  - staging-ingress.yaml
+  - ingress.yaml

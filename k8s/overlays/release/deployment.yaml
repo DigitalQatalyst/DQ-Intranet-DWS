@@ -13,92 +13,19 @@ spec:
       labels:
         app: frontend
     spec:
+      imagePullSecrets:
+      - name: registrycred  # Make sure the secret is created as mentioned before
       containers:
       - name: frontend
         image: u4c2j2w9.c1.gra9.container-registry.ovh.net/dws/frontend:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
-        env:
-            - name: VITE_AZURE_SUBDOMAIN
-              valueFrom:
-                configMapKeyRef:
-                  name: kf-frontend-config
-                  key: VITE_AZURE_SUBDOMAIN
-                  
-            - name: VITE_AZURE_REDIRECT_URI
-              valueFrom:
-                configMapKeyRef:
-                  name: kf-frontend-config
-                  key: VITE_AZURE_REDIRECT_URI  
-                  
-            - name: VITE_AZURE_POST_LOGOUT_R
-              valueFrom:
-                configMapKeyRef:
-                  name: kf-frontend-config
-                  key: VITE_AZURE_POST_LOGOUT_R
-                  
-            - name: VITE_AZURE_SCOPES
-              valueFrom:
-                configMapKeyRef:
-                  name: kf-frontend-config
-                  key: VITE_AZURE_SCOPES
-                  
-            - name: VITE_IDENTITY_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: kf-frontend-config
-                  key: VITE_IDENTITY_HOST
-                  
-            - name: VITE_MSAL_ENABLE_GRAPH_FALLBACK
-              valueFrom:
-                configMapKeyRef:
-                  name: kf-frontend-config
-                  key: VITE_MSAL_ENABLE_GRAPH_FALLBACK     
-                  
-            - name: AZURE_STORAGE_CONTAINER
-              valueFrom:
-                configMapKeyRef:
-                  name: kf-frontend-config
-                  key: AZURE_STORAGE_CONTAINER   
-                  
-            - name: VITE_KNOWLEDGEHUB_GRAPHQL_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: kf-frontend-config
-                  key: VITE_KNOWLEDGEHUB_GRAPHQL_URL 
-                  
-            - name: VITE_SUPABASE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: kf-frontend-config
-                  key: VITE_SUPABASE_URL 
-                  
-            - name: AZURE_STORAGE_ACCOUNT
-              valueFrom:
-                configMapKeyRef:
-                  name: kf-frontend-config
-                  key: AZURE_STORAGE_ACCOUNT 
-                  
-            - name: VITE_AZURE_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: kf-frontend-secret
-                  key: VITE_AZURE_CLIENT_ID
-                  
-            - name: VITE_SUPABASE_ANON_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: kf-frontend-secret
-                  key: VITE_SUPABASE_ANON_KEY
-                  
-            - name: AZURE_STORAGE_CONNECTION_STRING
-              valueFrom:
-                secretKeyRef:
-                  name: kf-frontend-secret
-                  key: AZURE_STORAGE_CONNECTION_STRING                                                                      
-      imagePullSecrets:
-      - name: registrycred  # Make sure the secret is created as mentioned before
+        envFrom:
+          - configMapRef:
+              name: frontend-config
+          - secretRef:
+              name: frontend-secret                                                                     
 
 ---
 

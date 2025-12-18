@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kf-frontend-config
+  name: frontend-config
 data:
   VITE_AZURE_SUBDOMAIN: "dqproj"
   VITE_AZURE_REDIRECT_URI: "http://localhost:3000/dashboard"
