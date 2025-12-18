@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Award,
   Users,
@@ -10,15 +10,14 @@ import {
   Users2,
   Clock,
   BookOpen,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   AnimatedCounter,
   FadeInUpOnScroll,
   StaggeredFadeIn,
-  AutoScrollMarquee,
   HorizontalScrollReveal,
   useInView,
-} from "./AnimationUtils";
+} from './AnimationUtils';
 
 interface Testimonial {
   id: string;
@@ -133,20 +132,12 @@ const partnerCategories = [
   },
 ];
 
-const partnerLogos = [
-  { name: "Prodev", logo: "/logo/prodev.png" },
-  { name: "Soldev", logo: "/logo/soldev.png" },
-  { name: "Finance", logo: "/logo/finance.png" },
-  { name: "HRA", logo: "/logo/hra.png" },
-  { name: "Inteldev", logo: "/logo/inteldev.png" },
-];
-
-const strategicPartners = [
-  { name: "Prodev", logo: "/logo/prodev.png" },
-  { name: "Soldev", logo: "/logo/soldev.png" },
-  { name: "Finance", logo: "/logo/finance.png" },
-  { name: "HRA", logo: "/logo/hra.png" },
-  { name: "Inteldev", logo: "/logo/inteldev.png" },
+const featuredSectors = [
+  { id: 'ce', name: 'CE', logo: '/logo/prodev.png' },
+  { id: 'soldev', name: 'Soldev', logo: '/logo/soldev.png' },
+  { id: 'finance', name: 'Finance', logo: '/logo/finance.png' },
+  { id: 'hra', name: 'HRA', logo: '/logo/hra.png' },
+  { id: 'inteldev', name: 'IntelDev', logo: '/logo/inteldev.png' },
 ];
 
 /* =========================
@@ -154,29 +145,29 @@ const strategicPartners = [
    ========================= */
 const impactStats = [
   {
-    label: "Faster Task Closure",
+    label: 'Faster Task Closure',
     value: 80,
-    prefix: "Over",
-    suffix: "%",
+    prefix: 'Over',
+    suffix: '%',
     icon: <Users size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
   },
   {
-    label: "Focus Time Saved",
+    label: 'Focus Time Saved',
     value: 6,
-    prefix: "+",
-    suffix: "hrs",
+    prefix: '+',
+    suffix: 'hrs',
     icon: <Clock size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
   },
   {
-    label: "Concepts Learned Daily",
+    label: 'Concepts Learned Daily',
     value: 5,
-    prefix: "+",
+    prefix: '+',
     icon: <BookOpen size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
   },
   {
-    label: "Collaboration Growth Rate",
+    label: 'Collaboration Growth Rate',
     value: 87,
-    suffix: "%",
+    suffix: '%',
     icon: <Award size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
   },
 ];
@@ -256,8 +247,62 @@ const TestimonialsShowcase = () => {
   );
 };
 
+const VideoTestimonialCarousel = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedTestimonial, setSelectedTestimonial] =
+    useState<Testimonial | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (carouselRef.current) {
+      const scrollAmount =
+        activeIndex * (carouselRef.current.scrollWidth / testimonials.length);
+      carouselRef.current.scrollTo({ left: scrollAmount, behavior: "smooth" });
+    }
+  }, [activeIndex]);
+
+  const handlePrev = () =>
+    setActiveIndex(
+      (prev) => (prev - 1 + testimonials.length) % testimonials.length
+    );
+  const handleNext = () =>
+    setActiveIndex((prev) => (prev + 1) % testimonials.length);
+  const openModal = (testimonial: Testimonial) => {
+    setSelectedTestimonial(testimonial);
+    setIsModalOpen(true);
+  };
+
+  return (
+    <div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {testimonials.map((testimonial, index) => (
+          <FadeInUpOnScroll key={testimonial.id} delay={index * 0.08}>
+            <TestimonialCard testimonial={testimonial} />
+          </FadeInUpOnScroll>
+        ))}
+      </div>
+      <div className="flex justify-center mt-6">
+        <button
+          type="button"
+          className="px-5 py-2 text-sm font-semibold text-[var(--guidelines-primary-dark)] border border-gray-200 rounded-full bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
+        >
+          Show more stories
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Partner Category Card component
-const PartnerCategoryCard = ({ category, index }) => {
+const PartnerCategoryCard = ({ category }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const [ref, isInView] = useInView({ threshold: 0.1 });
@@ -317,19 +362,19 @@ const PartnerCategoryCard = ({ category, index }) => {
 };
 
 // Partner Logo
-const PartnerLogo = ({ partner, index }) => {
+const PartnerLogo = ({ sector }) => {
   const [isHovered, setIsHovered] = useState(false);
   return (
     <div
-      className={`relative mx-6 my-2 transition-all duration-300 ease-out transform ${
-        isHovered ? "scale-110" : ""
+      className={`relative mx-4 my-1 transition-all duration-300 ease-out transform ${
+        isHovered ? 'scale-110' : ''
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <img
-        src={partner.logo}
-        alt={partner.name}
+        src={sector.logo}
+        alt={sector.name}
         className="h-12 object-contain transition-all duration-500"
         style={{
           filter: isHovered ? "none" : "grayscale(100%)",
@@ -345,8 +390,7 @@ const PartnerLogo = ({ partner, index }) => {
 // Featured Partners Carousel
 const FeaturedPartnersCarousel = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const allPartners = [...strategicPartners, ...partnerLogos];
+  const sectors = featuredSectors;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -383,7 +427,7 @@ const FeaturedPartnersCarousel = () => {
   };
 
   return (
-    <div className="relative py-8">
+    <div className="relative pt-6 pb-4 md:pt-8 md:pb-6">
       <FadeInUpOnScroll className="text-center mb-6">
         <h3 className="text-2xl font-bold text-gray-900 mb-2">
           Featured Sectors
@@ -396,15 +440,11 @@ const FeaturedPartnersCarousel = () => {
       <div className="relative overflow-hidden">
         <div
           ref={carouselRef}
-          className="flex overflow-x-auto py-4 scrollbar-hide"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          className="flex overflow-x-auto py-2 scrollbar-hide gap-6"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {[...allPartners, ...allPartners].map((partner, index) => (
-            <PartnerLogo
-              key={`${partner.name}-${index}`}
-              partner={partner}
-              index={index}
-            />
+          {[...sectors, ...sectors].map((sector, index) => (
+            <PartnerLogo key={`${sector.id}-${index}`} sector={sector} />
           ))}
         </div>
 
@@ -518,7 +558,7 @@ const ProofAndTrust: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {partnerCategories.map((category, index) => (
               <FadeInUpOnScroll key={category.id} delay={index * 0.15}>
-                <PartnerCategoryCard category={category} index={index} />
+                <PartnerCategoryCard category={category} />
               </FadeInUpOnScroll>
             ))}
           </div>

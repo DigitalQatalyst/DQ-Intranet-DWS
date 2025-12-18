@@ -15,6 +15,11 @@ export const supabaseClient = createClient(url, anon, {
   auth: { persistSession: true, autoRefreshToken: true },
 })
 
+// Debug: Verify client is initialized (remove after confirming fix works)
+if (typeof window !== 'undefined') {
+  console.log('✅ supabaseClient initialized:', !!supabaseClient)
+}
+
 // Backwards compatibility: also export as 'supabase'
 export const supabase = supabaseClient
 export default supabaseClient
