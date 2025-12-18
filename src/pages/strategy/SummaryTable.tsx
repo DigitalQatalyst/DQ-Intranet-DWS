@@ -60,7 +60,7 @@ export function SummaryTable({ columns, data, title, onViewFull, getSummary }: S
             </tr>
           </thead>
           <tbody className="bg-white">
-            {data.map((row, rowIdx) => (
+            {data.slice(0, onViewFull ? 2 : data.length).map((row, rowIdx) => (
               <tr key={rowIdx} className="bg-white">
                 {columns.map((col, colIdx) => {
                   const value = row[col.accessor]
@@ -81,7 +81,7 @@ export function SummaryTable({ columns, data, title, onViewFull, getSummary }: S
           </tbody>
         </table>
       </div>
-      {onViewFull && (
+      {onViewFull && data.length > 2 && (
         <div className="mt-4 text-right">
           <button
             onClick={onViewFull}

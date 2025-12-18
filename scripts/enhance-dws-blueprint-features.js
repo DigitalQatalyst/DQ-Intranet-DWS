@@ -27,6 +27,19 @@ The DWS platform is built using the **Khalifa Fund EJP template**, providing a s
 
 The DWS platform consists of 10 core feature categories, each providing specialized functionality for different aspects of the digital workspace. These features work together to create a comprehensive digital ecosystem that supports organizational transformation, collaboration, and growth.
 
+| Feature | Key Components | Primary Purpose |
+|---------|---------------|-----------------|
+| **DWS Landing** | Home Dashboard, Discover DQ, Scrum Master Space, AI Working Space | Central command center and navigation hub for the entire platform |
+| **DQ Learning Center** | Courses & Curricula, Learning Tracks, Reviews & Feedback | Comprehensive learning ecosystem for continuous professional growth |
+| **DQ Services Center** | Technology Services, Business Services, Digital Worker Tools | Centralized service marketplace and hub |
+| **DQ Work Center** | Activities - Sessions, Activities - Tasks, Activities - Trackers | Activity management and execution hub |
+| **DQ Work Directory** | Units, Positions, Associates | Organizational intelligence and structure management |
+| **DQ Media Center** | News & Announcements, Job Openings, Blogs | Organizational communication and content management |
+| **DQ Work Communities** | Discussion Forums, Pulse Metrics, Events Management | Collaboration and engagement platform |
+| **DQ Knowledge Center** | Work Guide - Strategy, Testimonials, Work Guide - Guidelines, Work Guide - Blueprints, Resources | Centralized knowledge repository |
+| **DWS Transact Apps** | End User Applications, Processing Tools, Administrative Tools | Transaction processing suite |
+| **DQ Analytics Center** | Market Analytics, Strategy Analytics, Operational Analytics | Data-driven decision making platform |
+
 ### **1. DWS Landing**
 
 **The Central Command Center for Digital Workspace**
@@ -282,33 +295,31 @@ The DWS platform is built on a modern, scalable technology stack designed for pe
 
 ### **1. Frontend Framework & Build Tools**
 
-**React 18**: Modern UI library for building interactive user interfaces with component-based architecture, hooks, and concurrent rendering capabilities.
-
-**Vite 7**: Fast build tool and development server providing optimal developer experience with instant hot module replacement (HMR) and optimized production builds.
-
-**TypeScript 5**: Type-safe JavaScript superset that improves code quality, maintainability, and developer productivity through static type checking and advanced language features.
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| **React** | 18 | Modern UI library for building interactive user interfaces with component-based architecture, hooks, and concurrent rendering capabilities |
+| **Vite** | 7 | Fast build tool and development server providing optimal developer experience with instant hot module replacement (HMR) and optimized production builds |
+| **TypeScript** | 5 | Type-safe JavaScript superset that improves code quality, maintainability, and developer productivity through static type checking and advanced language features |
 
 
 ### **2. Authentication & Cloud Services**
 
-**Azure MSAL**: Microsoft Authentication Library providing seamless Azure AD integration for enterprise single sign-on (SSO).
-
-**Supabase JS**: Backend-as-a-Service client library for database access, real-time subscriptions, and authentication.
-
-**Azure Storage Blob SDK**: Cloud storage SDK for managing documents, media files, and other binary data.
+| Technology | Purpose |
+|-----------|---------|
+| **Azure MSAL** | Microsoft Authentication Library providing seamless Azure AD integration for enterprise single sign-on (SSO) |
+| **Supabase JS** | Backend-as-a-Service client library for database access, real-time subscriptions, and authentication |
+| **Azure Storage Blob SDK** | Cloud storage SDK for managing documents, media files, and other binary data |
 
 
 ### **3. Backend & Platform**
 
-**PostgreSQL (Supabase)**: Robust relational database management system providing ACID compliance and advanced features.
-
-**Vercel Serverless Functions**: Serverless API endpoints with @vercel/node runtime for scalable backend operations.
-
-**Azure AD (MSAL)**: Single Sign-On (SSO) authentication service for enterprise identity management.
-
-**Azure Blob Storage**: Document and media file storage service with global CDN distribution.
-
-**Vercel**: CI/CD pipeline and hosting platform providing edge-optimized deployment and automatic scaling.
+| Technology | Purpose |
+|-----------|---------|
+| **PostgreSQL (Supabase)** | Robust relational database management system providing ACID compliance and advanced features |
+| **Vercel Serverless Functions** | Serverless API endpoints with @vercel/node runtime for scalable backend operations |
+| **Azure AD (MSAL)** | Single Sign-On (SSO) authentication service for enterprise identity management |
+| **Azure Blob Storage** | Document and media file storage service with global CDN distribution |
+| **Vercel** | CI/CD pipeline and hosting platform providing edge-optimized deployment and automatic scaling |
 
 
 ## Architecture
@@ -335,9 +346,22 @@ The infrastructure layer utilizes Azure Blob Storage for document and media file
 
 The platform maintains three distinct environments to support the development lifecycle. The development environment provides a local development setup with hot reloading capabilities, enabling rapid iteration and testing. The staging environment serves as a pre-production space for comprehensive testing and validation before changes reach end users. The production environment is the live system with comprehensive monitoring and alerting to ensure reliability and performance.
 
+| Environment | Purpose | Key Characteristics |
+|------------|---------|---------------------|
+| **Development** | Local development and rapid iteration | Hot reloading, local setup, developer-focused |
+| **Staging** | Pre-production testing and validation | Production-like environment, comprehensive testing |
+| **Production** | Live system for end users | Monitoring, alerting, high availability |
+
 **CI/CD Pipeline:**
 
 The continuous integration and continuous deployment pipeline automates the entire software delivery process. Automated testing runs on every pull request, ensuring code quality before merging. Once code is merged, the pipeline automatically builds and deploys to the appropriate environment. Environment-specific configuration management ensures that each environment has the correct settings and secrets. Automated rollback capabilities provide safety nets for quick recovery from deployment issues.
+
+| Stage | Action | Purpose |
+|-------|--------|--------|
+| **Pull Request** | Automated testing | Ensure code quality before merging |
+| **Merge** | Automated build and deployment | Deploy to appropriate environment |
+| **Configuration** | Environment-specific settings | Ensure correct configuration per environment |
+| **Rollback** | Automated rollback capabilities | Quick recovery from deployment issues |
 
 **Version Control:**
 
@@ -347,27 +371,73 @@ Version control is managed through Git, with branch-based deployment strategies 
 
 The platform includes comprehensive rollback procedures to quickly address production issues. Quick rollback capabilities allow immediate reversion to previous stable versions when critical issues are detected. Database migration rollback support ensures that schema changes can be safely reversed without data loss. Configuration rollback procedures enable rapid restoration of previous system configurations. Communication protocols ensure that all stakeholders are promptly informed during rollback events.
 
+| Rollback Type | Capability | Purpose |
+|--------------|------------|---------|
+| **Code Rollback** | Immediate reversion to previous stable versions | Quick recovery from critical issues |
+| **Database Rollback** | Schema change reversal without data loss | Safe database migration rollback |
+| **Configuration Rollback** | Rapid restoration of previous configurations | Restore system settings |
+| **Communication** | Stakeholder notification protocols | Keep all parties informed during rollback |
+
 ### Security Architecture
 
 **Authentication:**
 
 Authentication is managed through Azure AD with multi-factor authentication (MFA) support, providing an additional layer of security beyond passwords. Single Sign-On (SSO) capabilities enable seamless user experience across integrated services while maintaining security. Robust session management and token refresh mechanisms ensure secure, continuous access without compromising security. Password policies and account lockout procedures protect against brute force attacks and unauthorized access attempts.
 
+| Security Measure | Implementation | Purpose |
+|-----------------|---------------|---------|
+| **Multi-Factor Authentication (MFA)** | Azure AD integration | Additional security layer beyond passwords |
+| **Single Sign-On (SSO)** | Azure AD SSO capabilities | Seamless user experience across services |
+| **Session Management** | Token refresh mechanisms | Secure, continuous access |
+| **Password Policies** | Strong password requirements | Protection against brute force attacks |
+| **Account Lockout** | Automatic lockout procedures | Prevent unauthorized access attempts |
+
 **Authorization:**
 
 Authorization is implemented through role-based access control (RBAC), enabling feature access based on user roles and responsibilities. Permission-based authorization provides fine-grained control over specific actions and resources within the platform. Resource-level access control ensures that users can only access data and functionality appropriate to their role. Comprehensive audit logging tracks all access events, providing visibility and accountability for security monitoring and compliance.
+
+| Authorization Type | Implementation | Purpose |
+|-------------------|----------------|---------|
+| **Role-Based Access Control (RBAC)** | Feature access based on roles | Structured permission management |
+| **Permission-Based Authorization** | Fine-grained control | Specific actions and resources |
+| **Resource-Level Access Control** | Data and functionality restrictions | Role-appropriate access |
+| **Audit Logging** | Comprehensive access event tracking | Security monitoring and compliance |
 
 **Data Protection:**
 
 Data protection is enforced through multiple layers of encryption. End-to-end encryption protects sensitive data throughout its lifecycle, from creation to deletion. Encryption at rest ensures that stored data remains protected even if storage systems are compromised. Encryption in transit via TLS/SSL secures all data communications between clients and servers. Key management and rotation procedures ensure that encryption keys remain secure and are regularly updated.
 
+| Protection Layer | Implementation | Purpose |
+|-----------------|---------------|---------|
+| **End-to-End Encryption** | Full lifecycle data protection | Protect sensitive data from creation to deletion |
+| **Encryption at Rest** | Stored data protection | Protect data even if storage is compromised |
+| **Encryption in Transit** | TLS/SSL for communications | Secure data transmission |
+| **Key Management** | Secure key storage and rotation | Maintain encryption key security |
+
 **API Security:**
 
 API security is maintained through multiple protective measures. Rate limiting prevents abuse and protects against denial-of-service attacks. Input validation and sanitization ensure that all user inputs are safe and properly formatted before processing. All API endpoints require authentication, ensuring that only authorized users can access services. CORS policy configuration controls cross-origin access, preventing unauthorized external access. API versioning and deprecation strategies enable safe evolution of APIs while maintaining backward compatibility.
 
+| Security Measure | Implementation | Purpose |
+|-----------------|---------------|---------|
+| **Rate Limiting** | Request throttling | Prevent abuse and DoS attacks |
+| **Input Validation** | Sanitization and validation | Safe, properly formatted inputs |
+| **Authentication Required** | All endpoints protected | Authorized access only |
+| **CORS Policy** | Cross-origin access control | Prevent unauthorized external access |
+| **API Versioning** | Version management and deprecation | Safe API evolution |
+
 **Compliance:**
 
 The platform adheres to multiple compliance standards to ensure data protection and security. GDPR compliance ensures that European data protection regulations are met, protecting user privacy and data rights. SOC 2 compliance demonstrates adherence to security controls and operational procedures. Industry-specific regulations such as HIPAA and PCI-DSS are followed where applicable. Data residency requirements ensure that data is stored in appropriate geographic locations. Privacy policy adherence ensures that all data handling practices are transparent and compliant with stated policies.
+
+| Compliance Standard | Scope | Purpose |
+|---------------------|-------|---------|
+| **GDPR** | European data protection | Protect user privacy and data rights |
+| **SOC 2** | Security controls and procedures | Demonstrate security adherence |
+| **HIPAA** | Healthcare data (where applicable) | Industry-specific regulations |
+| **PCI-DSS** | Payment card data (where applicable) | Financial data protection |
+| **Data Residency** | Geographic storage requirements | Appropriate data location |
+| **Privacy Policy** | Transparent data handling | Compliant data practices |
 
 ## Best Practices
 

@@ -47,7 +47,11 @@ function BlueprintPage() {
   
   const [guide, setGuide] = useState<GuideRecord | null>(null)
   const [loading, setLoading] = useState(true)
-  const [modalStates, setModalStates] = useState<Record<string, boolean>>({})
+  const [bestPracticesModalOpen, setBestPracticesModalOpen] = useState(false)
+  const [architectureModalOpen, setArchitectureModalOpen] = useState(false)
+  const [technologyStackModalOpen, setTechnologyStackModalOpen] = useState(false)
+  const [featuresModalOpen, setFeaturesModalOpen] = useState(false)
+  const [aiToolsModalOpen, setAiToolsModalOpen] = useState(false)
 
   // Parse blueprint body into sections
   const parseBlueprintSections = (body: string) => {
@@ -128,6 +132,77 @@ function BlueprintPage() {
       label: section.title
     }))
   }, [blueprintSections])
+
+  // Parse Best Practices table from markdown content
+  const parseBestPracticesTable = (content: string) => {
+    const lines = content.split('\n')
+    let overview = ''
+    let inTable = false
+    let tableHeaders: string[] = []
+    let tableRows: Record<string, string>[] = []
+    let foundFirstTableRow = false
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim()
+      
+      // Skip the section title
+      if (line.startsWith('##')) continue
+      
+      // Detect table start (first row with |)
+      if (line.startsWith('|') && !inTable) {
+        inTable = true
+        // Parse headers (remove leading/trailing | and split)
+        const cells = line.split('|').map(c => c.trim()).filter(c => c)
+        if (cells.length > 0 && !cells[0].includes('---')) {
+          tableHeaders = cells
+          foundFirstTableRow = true
+        }
+        continue
+      }
+      
+      // Skip separator row (|---|---|)
+      if (inTable && line.includes('---') && foundFirstTableRow) {
+        continue
+      }
+      
+      // Parse table data rows
+      if (inTable && line.startsWith('|') && foundFirstTableRow) {
+        const cells = line.split('|').map(c => c.trim()).filter(c => c)
+        if (cells.length === tableHeaders.length) {
+          const row: Record<string, string> = {}
+          tableHeaders.forEach((header, idx) => {
+            // Convert header to accessor (lowercase, replace spaces with hyphens)
+            const accessor = header.toLowerCase()
+              .replace(/\s+/g, '-')
+              .replace(/[^a-z0-9-]/g, '')
+              .replace(/\*\*/g, '') // Remove bold markers
+              .trim()
+            row[accessor] = (cells[idx] || '').replace(/\*\*/g, '').trim() // Remove bold markers from data
+          })
+          tableRows.push(row)
+        }
+      } else if (!inTable && line.length > 0) {
+        // Collect overview paragraph (before table)
+        overview += line + ' '
+      } else if (inTable && line.length === 0 && tableRows.length > 0) {
+        // End of table (empty line after table)
+        break
+      }
+    }
+
+    return {
+      overview: overview.trim(),
+      columns: tableHeaders.map(header => ({
+        header: header.replace(/\*\*/g, '').trim(), // Remove bold markers
+        accessor: header.toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
+          .replace(/\*\*/g, '')
+          .trim()
+      })),
+      data: tableRows
+    }
+  }
 
   // Fetch guide data - using same approach as GuideDetailPage
   useEffect(() => {
@@ -313,8 +388,21 @@ function BlueprintPage() {
     return 'blue'
   }
 
-  const backQuery = (location?.state && location.state.fromQuery) ? String(location.state.fromQuery) : ''
-  const backHref = `/marketplace/guides${backQuery ? `?${backQuery}` : ''}?tab=blueprints`
+  // Construct proper back URL with query parameters
+  const backSearchParams = new URLSearchParams()
+  
+  // Preserve existing query params from location.search if they exist
+  const currentSearchParams = new URLSearchParams(location.search)
+  currentSearchParams.forEach((value, key) => {
+    if (key !== 'tab') { // Don't preserve existing tab, we'll set it to blueprints
+      backSearchParams.set(key, value)
+    }
+  })
+  
+  // Always set tab=blueprints to ensure we go to blueprints tab
+  backSearchParams.set('tab', 'blueprints')
+  
+  const backHref = `/marketplace/guides?${backSearchParams.toString()}`
 
   if (loading) {
     return (
@@ -431,13 +519,132 @@ function BlueprintPage() {
               {blueprintSections.length > 0 ? (
                 blueprintSections.map((section, index) => {
                   const isOverview = section.id === 'overview' || section.title.toLowerCase() === 'overview'
+                  const isBestPractices = section.id === 'best-practices' || section.title.toLowerCase().includes('best practices')
+                  const isArchitecture = section.id === 'architecture' || section.title.toLowerCase().includes('architecture')
+                  const isTechnologyStack = section.id === 'technology-stack' || section.title.toLowerCase().includes('technology stack') || section.title.toLowerCase().includes('stack')
+                  const isFeatures = section.id === 'features' || section.title.toLowerCase().includes('features')
+                  const isAITools = section.id === 'ai-tools' || section.title.toLowerCase().includes('ai tools') || section.title.toLowerCase().includes('ai-tools')
+                  
+                  // Parse table data for sections that use SummaryTable
+                  const bestPracticesData = isBestPractices ? parseBestPracticesTable(section.content) : null
+                  const architectureData = isArchitecture ? parseBestPracticesTable(section.content) : null
+                  const technologyStackData = isTechnologyStack ? parseBestPracticesTable(section.content) : null
+                  const featuresData = isFeatures ? parseBestPracticesTable(section.content) : null
+                  const aiToolsData = isAITools ? parseBestPracticesTable(section.content) : null
                   
                   return (
                     <React.Fragment key={section.id}>
                       <GuidelineSection id={section.id} title={section.title}>
-                        <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                          <Markdown body={section.content} />
-                        </React.Suspense>
+                        {isBestPractices && bestPracticesData ? (
+                          <>
+                            {/* Overview paragraph */}
+                            {bestPracticesData.overview && (
+                              <p className="mb-6 text-gray-700">{bestPracticesData.overview}</p>
+                            )}
+                            {/* SummaryTable */}
+                            <SummaryTable
+                              columns={bestPracticesData.columns}
+                              data={bestPracticesData.data}
+                              onViewFull={() => setBestPracticesModalOpen(true)}
+                            />
+                            {/* FullTableModal */}
+                            <FullTableModal
+                              isOpen={bestPracticesModalOpen}
+                              onClose={() => setBestPracticesModalOpen(false)}
+                              title="Best Practices"
+                              columns={bestPracticesData.columns}
+                              data={bestPracticesData.data}
+                            />
+                          </>
+                        ) : isArchitecture && architectureData ? (
+                          <>
+                            {/* Overview paragraph */}
+                            {architectureData.overview && (
+                              <p className="mb-6 text-gray-700">{architectureData.overview}</p>
+                            )}
+                            {/* SummaryTable */}
+                            <SummaryTable
+                              columns={architectureData.columns}
+                              data={architectureData.data}
+                              onViewFull={() => setArchitectureModalOpen(true)}
+                            />
+                            {/* FullTableModal */}
+                            <FullTableModal
+                              isOpen={architectureModalOpen}
+                              onClose={() => setArchitectureModalOpen(false)}
+                              title="Architecture"
+                              columns={architectureData.columns}
+                              data={architectureData.data}
+                            />
+                          </>
+                        ) : isTechnologyStack && technologyStackData ? (
+                          <>
+                            {/* Overview paragraph */}
+                            {technologyStackData.overview && (
+                              <p className="mb-6 text-gray-700">{technologyStackData.overview}</p>
+                            )}
+                            {/* SummaryTable */}
+                            <SummaryTable
+                              columns={technologyStackData.columns}
+                              data={technologyStackData.data}
+                              onViewFull={() => setTechnologyStackModalOpen(true)}
+                            />
+                            {/* FullTableModal */}
+                            <FullTableModal
+                              isOpen={technologyStackModalOpen}
+                              onClose={() => setTechnologyStackModalOpen(false)}
+                              title="Technology Stack"
+                              columns={technologyStackData.columns}
+                              data={technologyStackData.data}
+                            />
+                          </>
+                        ) : isFeatures && featuresData ? (
+                          <>
+                            {/* Overview paragraph */}
+                            {featuresData.overview && (
+                              <p className="mb-6 text-gray-700">{featuresData.overview}</p>
+                            )}
+                            {/* SummaryTable */}
+                            <SummaryTable
+                              columns={featuresData.columns}
+                              data={featuresData.data}
+                              onViewFull={() => setFeaturesModalOpen(true)}
+                            />
+                            {/* FullTableModal */}
+                            <FullTableModal
+                              isOpen={featuresModalOpen}
+                              onClose={() => setFeaturesModalOpen(false)}
+                              title="Features"
+                              columns={featuresData.columns}
+                              data={featuresData.data}
+                            />
+                          </>
+                        ) : isAITools && aiToolsData ? (
+                          <>
+                            {/* Overview paragraph */}
+                            {aiToolsData.overview && (
+                              <p className="mb-6 text-gray-700">{aiToolsData.overview}</p>
+                            )}
+                            {/* SummaryTable */}
+                            <SummaryTable
+                              columns={aiToolsData.columns}
+                              data={aiToolsData.data}
+                              onViewFull={() => setAiToolsModalOpen(true)}
+                            />
+                            {/* FullTableModal */}
+                            <FullTableModal
+                              isOpen={aiToolsModalOpen}
+                              onClose={() => setAiToolsModalOpen(false)}
+                              title="AI Tools"
+                              columns={aiToolsData.columns}
+                              data={aiToolsData.data}
+                            />
+                          </>
+                        ) : (
+                          <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
+                            <Markdown body={section.content} />
+                          </React.Suspense>
+                        )}
                         {/* View Codebase button - only show for Overview section */}
                         {isOverview && (
                           <div className="mt-6 text-right">
