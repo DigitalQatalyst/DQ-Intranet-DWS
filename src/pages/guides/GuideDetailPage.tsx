@@ -28,6 +28,13 @@ const DQCompetenciesPage = React.lazy(() => import('../strategy/dq-competencies/
 const DQVisionMissionPage = React.lazy(() => import('../strategy/dq-vision-mission/GuidelinePage'))
 const DQGHCPage = React.lazy(() => import('../strategy/dq-ghc/GuidelinePage'))
 const DQProductsPage = React.lazy(() => import('../strategy/dq-products/GuidelinePage'))
+const DQVisionPage = React.lazy(() => import('../strategy/dq-vision/GuidelinePage'))
+const DQHoVPage = React.lazy(() => import('../strategy/dq-hov/GuidelinePage'))
+const DQPersonaPage = React.lazy(() => import('../strategy/dq-persona/GuidelinePage'))
+const DQAgileTMSPage = React.lazy(() => import('../strategy/dq-agile-tms/GuidelinePage'))
+const DQAgileSoSPage = React.lazy(() => import('../strategy/dq-agile-sos/GuidelinePage'))
+const DQAgileFlowsPage = React.lazy(() => import('../strategy/dq-agile-flows/GuidelinePage'))
+const DQAgile6xDPage = React.lazy(() => import('../strategy/dq-agile-6xd/GuidelinePage'))
 const BlueprintPage = React.lazy(() => import('../blueprints/detail/BlueprintPage'))
 
 const Markdown = React.lazy(() => import('../../components/guides/MarkdownRenderer'))
@@ -129,11 +136,39 @@ const GuideDetailPage: React.FC = () => {
     const title = (guide?.title || '').toLowerCase()
     return slug === 'dq-products' || slug === 'dq-products' || title.toLowerCase().includes('dq products') || (title.toLowerCase().includes('products') && !title.toLowerCase().includes('6xd'))
   }, [guide?.slug, guide?.title])
+  const isDQVision = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-vision' || slug === 'dq-vision-purpose'
+  }, [guide?.slug])
+  const isDQHoV = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-hov' || slug === 'hov' || slug === 'house-of-values'
+  }, [guide?.slug])
+  const isDQPersona = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-persona' || slug === 'persona-identity'
+  }, [guide?.slug])
+  const isDQAgileTMS = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-agile-tms' || slug === 'agile-tms'
+  }, [guide?.slug])
+  const isDQAgileSoS = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-agile-sos' || slug === 'agile-sos'
+  }, [guide?.slug])
+  const isDQAgileFlows = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-agile-flows' || slug === 'agile-flows'
+  }, [guide?.slug])
+  const isDQAgile6xD = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-agile-6xd' || slug === 'agile-6xd'
+  }, [guide?.slug])
   
   // Check if this guide should use a custom GuidelinePage
   const hasCustomGuidelinePage = useMemo(() => {
-    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isDQCompetencies || isDQVisionMission || isDQGHC || isDQProducts
-  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isDQCompetencies, isDQVisionMission, isDQGHC, isDQProducts])
+    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isDQCompetencies || isDQVisionMission || isDQGHC || isDQProducts || isDQVision || isDQHoV || isDQPersona || isDQAgileTMS || isDQAgileSoS || isDQAgileFlows || isDQAgile6xD
+  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isDQCompetencies, isDQVisionMission, isDQGHC, isDQProducts, isDQVision, isDQHoV, isDQPersona, isDQAgileTMS, isDQAgileSoS, isDQAgileFlows, isDQAgile6xD])
   const featuredClientTestimonials = [
     {
       id: 'khalifa',
@@ -934,6 +969,35 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
 
     if (isDQVisionMission) {
       return <SuspenseWrapper><DQVisionMissionPage /></SuspenseWrapper>
+    }
+
+    // GHC Core Elements
+    if (isDQVision) {
+      return <SuspenseWrapper><DQVisionPage /></SuspenseWrapper>
+    }
+
+    if (isDQHoV) {
+      return <SuspenseWrapper><DQHoVPage /></SuspenseWrapper>
+    }
+
+    if (isDQPersona) {
+      return <SuspenseWrapper><DQPersonaPage /></SuspenseWrapper>
+    }
+
+    if (isDQAgileTMS) {
+      return <SuspenseWrapper><DQAgileTMSPage /></SuspenseWrapper>
+    }
+
+    if (isDQAgileSoS) {
+      return <SuspenseWrapper><DQAgileSoSPage /></SuspenseWrapper>
+    }
+
+    if (isDQAgileFlows) {
+      return <SuspenseWrapper><DQAgileFlowsPage /></SuspenseWrapper>
+    }
+
+    if (isDQAgile6xD) {
+      return <SuspenseWrapper><DQAgile6xDPage /></SuspenseWrapper>
     }
   }
 

@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { createHash } from 'crypto';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -8,132 +7,61 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('❌ Missing Supabase credentials');
+  console.error('❌ Missing Supabase credentials in .env file');
   process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function fixCompetenciesFinal() {
-  console.log('🖼️  Fixing DQ Competencies image (final attempt)...\n');
+// COMPLETELY DIFFERENT image - team collaboration, values, culture - NOT dark laptop
+// Using a different Unsplash photo ID that shows people/team/values
+const VALUES_CULTURE_IMAGE = 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
 
-  // Get DQ Competencies
-  const { data: competencies, error } = await supabase
-    .from('guides')
-    .select('id, title, hero_image_url')
-    .eq('status', 'Approved')
-    .eq('domain', 'Strategy')
-    .ilike('title', '%Competencies%')
-    .single();
+async function fixCompetenciesImage() {
+  console.log('🔄 Fixing DQ Competencies image - replacing dark laptop with team/values image...\n');
 
-  if (error || !competencies) {
-    console.error('❌ Error finding guide:', error);
-    return;
+  const slug = 'dq-competencies';
+
+  try {
+    // First check current image
+    const { data: current } = await supabase
+      .from('guides')
+      .select('id, title, slug, hero_image_url')
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (!current) {
+      console.log(`⚠️  Guide not found: ${slug}`);
+      return;
+    }
+
+    console.log(`📋 Current: ${current.title}`);
+    console.log(`   Current image URL: ${current.hero_image_url?.substring(0, 80)}...\n`);
+
+    // Update to new image
+    const { data, error } = await supabase
+      .from('guides')
+      .update({
+        hero_image_url: VALUES_CULTURE_IMAGE,
+        last_updated_at: new Date().toISOString()
+      })
+      .eq('slug', slug)
+      .select('id, title, slug, hero_image_url');
+
+    if (error) {
+      console.error(`❌ Error updating:`, error.message);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      console.log(`✅ Successfully updated: ${data[0].title}`);
+      console.log(`   New image URL: ${data[0].hero_image_url?.substring(0, 80)}...`);
+      console.log(`\n   Image theme: Team collaboration/values (NOT dark laptop)`);
+      console.log(`   This is a completely different photo ID from Unsplash`);
+    }
+  } catch (err) {
+    console.error(`❌ Unexpected error:`, err);
   }
-
-  console.log(`Found: "${competencies.title}" (ID: ${competencies.id})`);
-  console.log(`Current image: ${competencies.hero_image_url || 'null'}\n`);
-
-  // Get a working guide to copy exact format
-  const { data: workingGuide } = await supabase
-    .from('guides')
-    .select('id, title, hero_image_url')
-    .eq('status', 'Approved')
-    .eq('domain', 'Strategy')
-    .neq('title', 'DQ Competencies')
-    .not('hero_image_url', 'is', null)
-    .limit(1)
-    .single();
-
-  if (!workingGuide) {
-    console.error('❌ No working guide found for reference');
-    return;
-  }
-
-  console.log(`Reference guide: "${workingGuide.title}"`);
-  console.log(`   Working URL: ${workingGuide.hero_image_url?.substring(0, 100)}...`);
-
-  // Extract the format from working guide
-  const workingUrl = workingGuide.hero_image_url || '';
-  const urlParts = workingUrl.split('?');
-  const baseUrl = urlParts[0];
-  const params = urlParts[1] || '';
-  
-  // Get base params (without u= and t=)
-  const paramParts = params.split('&');
-  const baseParams = paramParts.filter(p => !p.startsWith('u=') && !p.startsWith('t=')).join('&');
-
-  // Use a known working photo ID - let's use one from a working guide
-  const workingPhotoMatch = workingUrl.match(/photo-([a-z0-9-]+)/);
-  const workingPhotoId = workingPhotoMatch ? workingPhotoMatch[1] : '1460925895917-afdab827c52f';
-
-  // Use a different photo ID for competencies but same format
-  const competenciesPhotoId = '1522071820081-009f0129c71c'; // Team/skills image
-  const hash = createHash('md5').update(`${competencies.id}-competencies-working`).digest('hex');
-  const uniqueParam = hash.substring(0, 8);
-  
-  // Build URL in exact same format as working guide
-  const newImageUrl = `https://images.unsplash.com/photo-${competenciesPhotoId}?${baseParams}&u=${uniqueParam}`;
-
-  console.log(`\nUpdating image...`);
-  console.log(`   Photo ID: ${competenciesPhotoId}`);
-  console.log(`   Format: ${baseParams}`);
-  console.log(`   Unique param: ${uniqueParam}`);
-  console.log(`   New URL: ${newImageUrl.substring(0, 100)}...`);
-
-  const { error: updateError } = await supabase
-    .from('guides')
-    .update({
-      hero_image_url: newImageUrl,
-      last_updated_at: new Date().toISOString()
-    })
-    .eq('id', competencies.id);
-
-  if (updateError) {
-    console.error(`   ❌ Error: ${updateError.message}`);
-    return;
-  }
-
-  console.log(`   ✅ Updated`);
-
-  // Try alternative: use exact same photo ID as a working guide but different unique param
-  console.log(`\n🔄 Trying alternative: using working photo ID with different unique param...`);
-  const altHash = createHash('md5').update(`competencies-${Date.now()}`).digest('hex');
-  const altUniqueParam = altHash.substring(0, 8);
-  const altImageUrl = `https://images.unsplash.com/photo-${workingPhotoId}?${baseParams}&u=${altUniqueParam}`;
-
-  const { error: altError } = await supabase
-    .from('guides')
-    .update({
-      hero_image_url: altImageUrl,
-      last_updated_at: new Date().toISOString()
-    })
-    .eq('id', competencies.id);
-
-  if (altError) {
-    console.error(`   ❌ Error: ${altError.message}`);
-  } else {
-    console.log(`   ✅ Updated to alternative URL`);
-    console.log(`   URL: ${altImageUrl.substring(0, 100)}...`);
-  }
-
-  // Final verification
-  const { data: final } = await supabase
-    .from('guides')
-    .select('id, title, hero_image_url')
-    .eq('id', competencies.id)
-    .single();
-
-  if (final) {
-    console.log(`\n📊 Final status:`);
-    console.log(`   Title: ${final.title}`);
-    console.log(`   Image URL: ${final.hero_image_url?.substring(0, 120)}...`);
-    console.log(`   Valid: ${final.hero_image_url ? '✅ YES' : '❌ NO'}`);
-  }
-
-  console.log(`\n💡 If still no image, the issue might be frontend caching.`);
-  console.log(`   Try: Hard refresh (Ctrl+F5) or clear browser cache`);
 }
 
-fixCompetenciesFinal().catch(console.error);
-
+fixCompetenciesImage().catch(console.error);
