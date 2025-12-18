@@ -16,7 +16,7 @@ import {
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { useLmsCourse } from '../../hooks/useLmsCourses';
-import { fetchQuizByLessonId } from '../../services/lmsService';
+import { fetchQuizByLessonId, fetchQuizByCourseId } from '../../services/lmsService';
 import type { LmsQuizRow } from '../../types/lmsSupabase';
 import type { LmsDetail } from '../../data/lmsCourseDetails';
 import MarkdownRenderer from '../../components/guides/MarkdownRenderer';
@@ -101,6 +101,15 @@ export const LmsLessonPage: React.FC = () => {
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  const [courseQuiz, setCourseQuiz] = useState<LmsQuizRow | null>(null);
+
+  // Quiz Wizard State
+  const [showQuizOverlay, setShowQuizOverlay] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [isAnswerChecked, setIsAnswerChecked] = useState(false);
+  const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
+
   const { data: course, isLoading: courseLoading } = useLmsCourse(courseSlug || '');
 
   // Get all lessons from curriculum
@@ -174,6 +183,15 @@ export const LmsLessonPage: React.FC = () => {
       localStorage.setItem(`${COURSE_STARTED_PREFIX}${courseSlug}`, 'true');
     }
   }, [courseSlug]);
+
+  // Fetch course quiz (final assessment)
+  useEffect(() => {
+    if (course?.id) {
+      fetchQuizByCourseId(course.id)
+        .then(setCourseQuiz)
+        .catch(console.error);
+    }
+  }, [course?.id]);
 
   // Load progress and completion state
   useEffect(() => {
@@ -280,7 +298,59 @@ export const LmsLessonPage: React.FC = () => {
       markLessonCompleted(currentLesson.id);
       setVideoProgress(100);
       saveLessonProgress(currentLesson.id, 100);
+
+      // Trigger quiz if exists and not passed
+      if (quiz && !quizPassed) {
+        setShowQuizOverlay(true);
+        setCurrentQuestionIndex(0);
+        setSelectedOption(null);
+        setIsAnswerChecked(false);
+      }
     }
+  };
+
+  // Quiz Wizard Handlers
+  const handleOptionSelect = (optIndex: number) => {
+    if (isAnswerChecked || quizSubmitted) return;
+    setSelectedOption(optIndex);
+  };
+
+  const handleCheckAnswer = () => {
+    if (selectedOption === null || !quiz) return;
+    const currentQuestion = quiz.questions[currentQuestionIndex];
+    const correct = currentQuestion.correct_answer === selectedOption;
+
+    setIsAnswerCorrect(correct);
+    setIsAnswerChecked(true);
+
+    // Save answer
+    setQuizAnswers(prev => ({
+      ...prev,
+      [currentQuestionIndex]: selectedOption
+    }));
+  };
+
+  const handleNextQuestion = () => {
+    if (!quiz) return;
+    if (currentQuestionIndex < quiz.questions.length - 1) {
+      // Move to next question
+      setCurrentQuestionIndex(prev => prev + 1);
+      // Reset state, but check if we already have an answer for the next one (if reviewing?)
+      // For now, assuming linear forward progression
+      const nextAnswer = quizAnswers[currentQuestionIndex + 1];
+      setSelectedOption(nextAnswer !== undefined ? nextAnswer : null);
+      setIsAnswerChecked(nextAnswer !== undefined);
+    } else {
+      // Finished
+      handleQuizSubmit();
+    }
+  };
+
+  const handleRetryWizard = () => {
+    handleQuizRetake();
+    setCurrentQuestionIndex(0);
+    setSelectedOption(null);
+    setIsAnswerChecked(false);
   };
 
   const handleVideoPlay = () => {
@@ -293,13 +363,13 @@ export const LmsLessonPage: React.FC = () => {
 
   // Check if quiz is accessible (video/content must be completed)
   const isQuizAccessible = isVideoCompleted && !isLocked;
-  
+
   // Check if quiz exists and is passed for current lesson
   const currentLessonQuizPassed = useMemo(() => {
     if (!quiz || !lessonId) return true; // No quiz means can proceed
     return quizPassed;
   }, [quiz, lessonId, quizPassed]);
-  
+
   // Check if next lesson can be accessed (quiz must be passed if it exists)
   const canAccessNextLesson = useMemo(() => {
     if (!nextLesson) return false;
@@ -366,26 +436,29 @@ export const LmsLessonPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
-      
+
       <main className="flex-grow flex flex-col">
         {/* Top Navigation */}
-        <div className="bg-white border-b border-gray-200 px-4 py-3">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="bg-white border-b border-gray-200 px-6 py-3">
+          <div className="w-full flex items-center justify-between">
+            {/* Left: Back to Course */}
+            <div className="flex items-center">
               <Link
                 to={`/lms/${courseSlug}`}
-                className="flex items-center gap-1 text-gray-600 hover:text-gray-900 transition-colors"
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group"
               >
-                <ChevronLeft size={20} />
-                <span>Back to Course</span>
+                <div className="p-1 rounded-full group-hover:bg-gray-100 transition-colors">
+                  <ChevronLeft size={20} />
+                </div>
+                <span className="font-medium">Back to Course</span>
               </Link>
-              <span className="text-gray-400">|</span>
-              <span className="text-sm text-gray-600">Learning Page</span>
             </div>
+
+            {/* Right: My Learning */}
             <div className="flex items-center gap-4">
               <Link
                 to="/lms/my-learning"
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors font-medium"
               >
                 <FileText size={18} />
                 <span>My Learning</span>
@@ -403,9 +476,8 @@ export const LmsLessonPage: React.FC = () => {
         <div className="flex-grow flex">
           {/* Course Outline Sidebar */}
           <aside
-            className={`${
-              sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-30 w-80 bg-white border-r border-gray-200 overflow-y-auto transition-transform duration-300 ease-in-out`}
+            className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+              } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-30 w-80 bg-white border-r border-gray-200 overflow-y-auto transition-transform duration-300 ease-in-out`}
           >
             <div className="p-4 border-b border-gray-200 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Course Outline</h2>
@@ -433,13 +505,12 @@ export const LmsLessonPage: React.FC = () => {
                       }
                     }}
                     disabled={!canAccess}
-                    className={`w-full text-left p-3 rounded-lg transition-all ${
-                      isCurrent
-                        ? 'bg-blue-50 border-2 border-blue-500'
-                        : canAccess
+                    className={`w-full text-left p-3 rounded-lg transition-all ${isCurrent
+                      ? 'bg-blue-50 border-2 border-blue-500'
+                      : canAccess
                         ? 'hover:bg-gray-50 border-2 border-transparent'
                         : 'opacity-60 cursor-not-allowed border-2 border-gray-200'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-0.5">
@@ -466,9 +537,8 @@ export const LmsLessonPage: React.FC = () => {
                           )}
                         </div>
                         <h3
-                          className={`text-sm font-medium mb-1 ${
-                            isCurrent ? 'text-blue-900' : canAccess ? 'text-gray-900' : 'text-gray-500'
-                          }`}
+                          className={`text-sm font-medium mb-1 ${isCurrent ? 'text-blue-900' : canAccess ? 'text-gray-900' : 'text-gray-500'
+                            }`}
                         >
                           {lesson.title}
                         </h3>
@@ -498,8 +568,140 @@ export const LmsLessonPage: React.FC = () => {
                     <h2 className={`text-xl ${hasVideo ? 'text-gray-300' : 'text-gray-700'}`}>{currentLesson.title}</h2>
                   </div>
 
-                  {/* Video Player or Content */}
-                  {hasVideo ? (
+                  {/* Video Player or Content or Quiz Overlay */}
+                  {showQuizOverlay && quiz ? (
+                    <div className="bg-white rounded-lg border border-gray-200 p-8 min-h-[400px] flex flex-col justify-center overflow-y-auto">
+                      {!quizSubmitted ? (
+                        <div className="max-w-2xl mx-auto w-full">
+                          <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-lg font-semibold text-gray-900">Question {currentQuestionIndex + 1} of {quiz.questions.length}</h3>
+                            <button
+                              onClick={() => setShowQuizOverlay(false)}
+                              className="text-gray-500 hover:text-gray-700"
+                            >
+                              <X size={24} />
+                            </button>
+                          </div>
+
+                          <div className="mb-6">
+                            <h4 className="text-xl font-medium text-gray-900 mb-4">
+                              {quiz.questions[currentQuestionIndex].question || quiz.questions[currentQuestionIndex].text}
+                            </h4>
+
+                            <div className="space-y-3">
+                              {quiz.questions[currentQuestionIndex].options.map((option: string, index: number) => {
+                                const isSelected = selectedOption === index;
+                                return (
+                                  <button
+                                    key={index}
+                                    onClick={() => handleOptionSelect(index)}
+                                    disabled={isAnswerChecked}
+                                    className={`w-full text-left p-4 rounded-lg border-2 transition-all flex justify-between items-center ${isSelected
+                                      ? isAnswerChecked
+                                        ? isAnswerCorrect
+                                          ? 'border-green-500 bg-green-50'
+                                          : 'border-red-500 bg-red-50'
+                                        : 'border-blue-500 bg-blue-50'
+                                      : 'border-gray-200 hover:border-blue-300'
+                                      }`}
+                                  >
+                                    <span className={`${isSelected ? 'text-gray-900 font-medium' : 'text-gray-700'}`}>{option}</span>
+                                    {isSelected && isAnswerChecked && (
+                                      isAnswerCorrect
+                                        ? <CheckCircle2 className="text-green-500" size={20} />
+                                        : <X className="text-red-500" size={20} />
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Feedback Section */}
+                          {isAnswerChecked && (
+                            <div className={`p-4 rounded-lg mb-6 ${isAnswerCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                              <div className="flex items-center gap-2 font-bold mb-1">
+                                {isAnswerCorrect ? <CheckCircle2 size={20} /> : <X size={20} />}
+                                <span>{isAnswerCorrect ? 'Correct!' : 'Incorrect'}</span>
+                              </div>
+                              <p>{isAnswerCorrect ? 'Great job!' : 'Please review the video and try again.'}</p>
+                            </div>
+                          )}
+
+                          <div className="flex justify-end pt-4 border-t border-gray-100">
+                            {!isAnswerChecked ? (
+                              <button
+                                onClick={handleCheckAnswer}
+                                disabled={selectedOption === null}
+                                className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              >
+                                Check Answer
+                              </button>
+                            ) : (
+                              <button
+                                onClick={handleNextQuestion}
+                                className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                              >
+                                {currentQuestionIndex === quiz.questions.length - 1 ? 'Finish Quiz' : 'Next Question'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="max-w-md mx-auto text-center">
+                          <h3 className="text-2xl font-bold mb-4">{quizPassed ? 'Quiz Passed!' : 'Quiz Not Passed'}</h3>
+                          <div className="mb-6">
+                            <div className={`inline-flex items-center justify-center w-24 h-24 rounded-full mb-4 ${quizPassed ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                              {quizPassed ? <CheckCircle2 size={48} /> : <X size={48} />}
+                            </div>
+                            <p className="text-xl">
+                              You scored <span className="font-bold">{quizScore?.score}</span> out of <span className="font-bold">{quizScore?.total}</span>
+                            </p>
+                            <p className={`text-sm mt-2 ${quizPassed ? 'text-green-600' : 'text-red-600'}`}>
+                              {quizPassed
+                                ? 'Congratulations! You can proceed to the next lesson.'
+                                : `Score: ${Math.round((quizScore?.score || 0) / (quizScore?.total || 1) * 100)}% (Requires ${QUIZ_PASSING_SCORE}%)`
+                              }
+                            </p>
+                          </div>
+                          <div className="flex flex-col gap-3">
+                            {quizPassed ? (
+                              nextLesson ? (
+                                <button
+                                  onClick={() => {
+                                    navigate(`/lms/${courseSlug}/lesson/${nextLesson.id}`);
+                                  }}
+                                  className="w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                  Next Lesson
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => navigate(`/lms/${courseSlug}`)}
+                                  className="w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                                >
+                                  Back to Course
+                                </button>
+                              )
+                            ) : (
+                              <button
+                                onClick={handleRetryWizard}
+                                className="w-full px-6 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
+                              >
+                                Retake Quiz
+                              </button>
+                            )}
+                            <button
+                              onClick={() => setShowQuizOverlay(false)}
+                              className="text-gray-500 hover:text-gray-700 text-sm mt-2"
+                            >
+                              Close Quiz
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : hasVideo ? (
                     <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
                       <video
                         ref={videoRef}
@@ -511,7 +713,7 @@ export const LmsLessonPage: React.FC = () => {
                         onPlay={handleVideoPlay}
                         onPause={handleVideoPause}
                       />
-                      
+
                       {/* Completion Checkmark Overlay */}
                       {isVideoCompleted && (
                         <div className="absolute top-4 right-4 bg-green-500 rounded-full p-2">
@@ -588,11 +790,10 @@ export const LmsLessonPage: React.FC = () => {
                 <div className="flex border-b border-gray-200">
                   <button
                     onClick={() => setActiveTab('resources')}
-                    className={`px-6 py-4 font-medium text-sm border-b-2 transition-colors ${
-                      activeTab === 'resources'
-                        ? 'border-blue-600 text-blue-600'
-                        : 'border-transparent text-gray-600 hover:text-gray-900'
-                    }`}
+                    className={`px-6 py-4 font-medium text-sm border-b-2 transition-colors ${activeTab === 'resources'
+                      ? 'border-blue-600 text-blue-600'
+                      : 'border-transparent text-gray-600 hover:text-gray-900'
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       <FileText size={18} />
@@ -602,13 +803,12 @@ export const LmsLessonPage: React.FC = () => {
                   <button
                     onClick={() => setActiveTab('quiz')}
                     disabled={!isQuizAccessible}
-                    className={`px-6 py-4 font-medium text-sm border-b-2 transition-colors flex items-center gap-2 ${
-                      activeTab === 'quiz'
-                        ? 'border-blue-600 text-blue-600'
-                        : isQuizAccessible
+                    className={`px-6 py-4 font-medium text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'quiz'
+                      ? 'border-blue-600 text-blue-600'
+                      : isQuizAccessible
                         ? 'border-transparent text-gray-600 hover:text-gray-900'
                         : 'border-transparent text-gray-400 cursor-not-allowed opacity-50'
-                    }`}
+                      }`}
                   >
                     <HelpCircle size={18} />
                     <span>Quiz</span>
@@ -667,149 +867,35 @@ export const LmsLessonPage: React.FC = () => {
                           <p className="text-gray-600">Loading quiz...</p>
                         </div>
                       ) : quiz ? (
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-2">{quiz.title}</h3>
-                          {quiz.description && (
-                            <p className="text-gray-700 mb-6">{quiz.description}</p>
-                          )}
-                          {quizSubmitted && quizScore ? (
-                            <div className={`rounded-lg p-6 mb-6 border ${
-                              quizPassed 
-                                ? 'bg-green-50 border-green-200' 
-                                : 'bg-red-50 border-red-200'
-                            }`}>
-                              <div className="flex items-center gap-3 mb-4">
-                                {quizPassed ? (
-                                  <>
-                                    <CheckCircle2 className="text-green-600" size={24} />
-                                    <h4 className="text-lg font-semibold text-green-900">Quiz Passed!</h4>
-                                  </>
-                                ) : (
-                                  <>
-                                    <X className="text-red-600" size={24} />
-                                    <h4 className="text-lg font-semibold text-red-900">Quiz Not Passed</h4>
-                                  </>
-                                )}
-                              </div>
-                              <div className="space-y-3">
-                                <p className={`text-gray-700 ${quizPassed ? '' : 'font-medium'}`}>
-                                  You scored <span className={`font-bold ${quizPassed ? 'text-green-700' : 'text-red-700'}`}>
-                                    {quizScore.score}
-                                  </span> out of{' '}
-                                  <span className="font-bold">{quizScore.total}</span> questions.
-                                </p>
-                                <p className={`text-sm font-medium ${quizPassed ? 'text-green-700' : 'text-red-700'}`}>
-                                  Score: {Math.round((quizScore.score / quizScore.total) * 100)}% 
-                                  {!quizPassed && ` (Minimum ${QUIZ_PASSING_SCORE}% required to pass)`}
-                                </p>
-                                {!quizPassed && (
-                                  <div className="mt-4 pt-4 border-t border-red-200">
-                                    <p className="text-sm text-red-800 mb-3">
-                                      You need to score at least {QUIZ_PASSING_SCORE}% to proceed to the next lesson. 
-                                      Please review the material and retake the quiz.
-                                    </p>
-                                    <button
-                                      onClick={handleQuizRetake}
-                                      className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors"
-                                    >
-                                      Retake Quiz
-                                    </button>
-                                  </div>
-                                )}
-                                {quizPassed && (
-                                  <div className="mt-4 pt-4 border-t border-green-200">
-                                    <p className="text-sm text-green-800">
-                                      Congratulations! You can now proceed to the next lesson.
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          ) : null}
-                          {quiz.questions && Array.isArray(quiz.questions) && quiz.questions.length > 0 ? (
-                            <div className="space-y-6">
-                              {quiz.questions.map((question: any, index: number) => {
-                                const userAnswer = quizAnswers[index];
-                                const correctAnswer = question.correct_answer;
-                                const isAnswered = userAnswer !== undefined;
-                                const isCorrect = isAnswered && userAnswer === correctAnswer;
-
-                                return (
-                                  <div
-                                    key={index}
-                                    className={`rounded-lg p-4 ${
-                                      quizSubmitted
-                                        ? isCorrect
-                                          ? 'bg-green-50 border border-green-200'
-                                          : 'bg-red-50 border border-red-200'
-                                        : 'bg-gray-50'
-                                    }`}
-                                  >
-                                    <h4 className="font-medium text-gray-900 mb-3">
-                                      {index + 1}. {question.question || question.text || 'Question'}
-                                    </h4>
-                                    {question.options && Array.isArray(question.options) && (
-                                      <div className="space-y-2">
-                                        {question.options.map((option: string, optIndex: number) => {
-                                          const isSelected = userAnswer === optIndex;
-                                          const isCorrectOption = optIndex === correctAnswer;
-
-                                          return (
-                                            <label
-                                              key={optIndex}
-                                              className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${
-                                                quizSubmitted
-                                                  ? isCorrectOption
-                                                    ? 'bg-green-100'
-                                                    : isSelected && !isCorrectOption
-                                                    ? 'bg-red-100'
-                                                    : 'hover:bg-gray-100'
-                                                  : 'hover:bg-gray-100'
-                                              }`}
-                                            >
-                                              <input
-                                                type="radio"
-                                                name={`question-${index}`}
-                                                value={optIndex}
-                                                checked={isSelected}
-                                                onChange={() => {
-                                                  if (!quizSubmitted) {
-                                                    setQuizAnswers((prev) => ({
-                                                      ...prev,
-                                                      [index]: optIndex,
-                                                    }));
-                                                  }
-                                                }}
-                                                disabled={quizSubmitted}
-                                                className="text-blue-600"
-                                              />
-                                              <span className="text-gray-700 flex-1">{option}</span>
-                                              {quizSubmitted && isCorrectOption && (
-                                                <CheckCircle2 className="text-green-600" size={18} />
-                                              )}
-                                              {quizSubmitted && isSelected && !isCorrectOption && (
-                                                <X className="text-red-600" size={18} />
-                                              )}
-                                            </label>
-                                          );
-                                        })}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                              {!quizSubmitted ? (
+                        <div className="text-center py-8">
+                          {quizSubmitted ? (
+                            <div className="space-y-4">
+                              <h3 className="text-xl font-bold">Quiz Completed</h3>
+                              <p>Score: {quizScore?.score} / {quizScore?.total}</p>
+                              {quizPassed ? (
+                                <p className="text-green-600 font-bold">You passed!</p>
+                              ) : (
                                 <button
-                                  onClick={handleQuizSubmit}
-                                  disabled={Object.keys(quizAnswers).length < (quiz.questions?.length || 0)}
-                                  className="w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                  onClick={handleRetryWizard}
+                                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                                 >
-                                  Submit Quiz
+                                  Retake Quiz
                                 </button>
-                              ) : null}
+                              )}
                             </div>
                           ) : (
-                            <p className="text-gray-600">No questions available for this quiz.</p>
+                            <div>
+                              <p className="mb-4">Quiz is available.</p>
+                              <button
+                                onClick={() => {
+                                  setShowQuizOverlay(true);
+                                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
+                              >
+                                Start Quiz
+                              </button>
+                            </div>
                           )}
                         </div>
                       ) : (
@@ -830,11 +916,10 @@ export const LmsLessonPage: React.FC = () => {
                 <button
                   onClick={() => previousLesson && navigate(`/lms/${courseSlug}/lesson/${previousLesson.id}`)}
                   disabled={!previousLesson}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                    previousLesson
-                      ? 'text-gray-700 hover:bg-gray-100'
-                      : 'text-gray-400 cursor-not-allowed'
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${previousLesson
+                    ? 'text-gray-700 hover:bg-gray-100'
+                    : 'text-gray-400 cursor-not-allowed'
+                    }`}
                 >
                   <ChevronLeft size={20} />
                   <span>Previous</span>
@@ -845,21 +930,41 @@ export const LmsLessonPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col items-end gap-1">
-                  <button
-                    onClick={() => nextLesson && navigate(`/lms/${courseSlug}/lesson/${nextLesson.id}`)}
-                    disabled={!nextLesson || !canAccessNextLesson}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                      nextLesson && canAccessNextLesson
+                  {/* Final Assessment or Next Lesson logic */}
+                  {nextLesson ? (
+                    <button
+                      onClick={() => navigate(`/lms/${courseSlug}/lesson/${nextLesson.id}`)}
+                      disabled={!canAccessNextLesson}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${canAccessNextLesson
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    }`}
-                  >
-                    <span>Next Lesson</span>
-                    <ChevronRight size={20} />
-                  </button>
+                        }`}
+                    >
+                      <span>Next Lesson</span>
+                      <ChevronRight size={20} />
+                    </button>
+                  ) : courseQuiz ? (
+                    <button
+                      onClick={() => navigate(`/lms/${courseSlug}/assessment`)}
+                      disabled={quiz && !quizPassed} // Must pass current lesson quiz first
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${(!quiz || quizPassed)
+                        ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        }`}
+                    >
+                      <span>Final Assessment</span>
+                      <ChevronRight size={20} />
+                    </button>
+                  ) : null}
+
                   {nextLesson && !canAccessNextLesson && quiz && !quizPassed && (
                     <p className="text-xs text-red-600 mt-1 text-right">
                       Pass the quiz ({QUIZ_PASSING_SCORE}%+) to continue
+                    </p>
+                  )}
+                  {!nextLesson && courseQuiz && quiz && !quizPassed && (
+                    <p className="text-xs text-red-600 mt-1 text-right">
+                      Pass the quiz ({QUIZ_PASSING_SCORE}%+) to unlock assessment
                     </p>
                   )}
                 </div>

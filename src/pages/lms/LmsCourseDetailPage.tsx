@@ -37,24 +37,18 @@ import { useQuery } from '@tanstack/react-query';
 
 const formatChips = (course: LmsDetail) => {
   try {
-  const levelLabel = LEVELS.find(level => level.code === course.levelCode)?.label;
-  const chips: Array<{ key: string; label: string; iconValue?: string }> = [];
-    const locations = course.locations || [];
-    const location = locations.find(
-    loc => loc !== 'Global' && (LOCATION_ALLOW as readonly string[]).includes(loc)
-  );
-  if (location) {
-    chips.push({ key: 'location', label: location, iconValue: location });
-  }
+    const levelLabel = LEVELS.find(level => level.code === course.levelCode)?.label;
+    const chips: Array<{ key: string; label: string; iconValue?: string }> = [];
+
     const audience = course.audience || [];
     const isLeadOnly = audience.length === 1 && audience[0] === 'Lead';
-  if (isLeadOnly) {
-    chips.push({ key: 'audience', label: 'Lead-only', iconValue: 'Lead' });
-  }
-  if (course.courseType) {
-    chips.push({ key: 'courseType', label: course.courseType, iconValue: course.courseType });
-  }
-  return chips;
+    if (isLeadOnly) {
+      chips.push({ key: 'audience', label: 'Lead-only', iconValue: 'Lead' });
+    }
+    if (course.courseType) {
+      chips.push({ key: 'courseType', label: course.courseType, iconValue: course.courseType });
+    }
+    return chips;
   } catch (error) {
     console.error('[LMS] Error formatting chips:', error, course);
     return [];
@@ -138,7 +132,7 @@ export const LmsCourseDetailPage: React.FC = () => {
   // Track previous slug to detect navigation
   const prevSlugRef = React.useRef<string | undefined>(slug);
   const [isNavigating, setIsNavigating] = React.useState(false);
-  
+
   // Reset component state when slug changes (navigation to different course)
   React.useEffect(() => {
     if (prevSlugRef.current !== slug && prevSlugRef.current !== undefined) {
@@ -152,7 +146,7 @@ export const LmsCourseDetailPage: React.FC = () => {
       prevSlugRef.current = slug;
     }
   }, [slug]);
-  
+
   // Reset navigating state when course data is loaded and matches current slug
   React.useEffect(() => {
     if (course && !courseFetching) {
@@ -184,7 +178,7 @@ export const LmsCourseDetailPage: React.FC = () => {
       console.log('[LMS Detail Page] No course data found');
     }
   }, [course]);
-  
+
   // Log any errors
   React.useEffect(() => {
     if (courseError) {
@@ -197,7 +191,7 @@ export const LmsCourseDetailPage: React.FC = () => {
   const highlights = course?.highlights || [];
   const outcomes = course?.outcomes || [];
   const curriculum = course?.curriculum || [];
-  
+
   // Calculate all topics across all curriculum items for sequential module numbering
   const allTopics = useMemo(() => {
     const topics: Array<{ topic: any; curriculumItemId: string }> = [];
@@ -214,12 +208,12 @@ export const LmsCourseDetailPage: React.FC = () => {
       });
     return topics;
   }, [curriculum]);
-  
+
   // Calculate course stats for sidebar
   const courseStats = useMemo(() => {
     let totalLessons = 0;
     let totalModules = 0;
-    
+
     curriculum.forEach((item) => {
       if (item.topics && Array.isArray(item.topics)) {
         totalModules += item.topics.length;
@@ -233,17 +227,17 @@ export const LmsCourseDetailPage: React.FC = () => {
         totalLessons += item.lessons.length;
       }
     });
-    
+
     return { totalLessons, totalModules };
   }, [curriculum]);
 
   // Get first lesson for "Start Lesson" button
   const firstLesson = useMemo(() => {
     if (!curriculum || curriculum.length === 0) return null;
-    
+
     // Sort curriculum by order
     const sortedCurriculum = [...curriculum].sort((a, b) => a.order - b.order);
-    
+
     // Find first lesson
     for (const item of sortedCurriculum) {
       if (item.lessons && item.lessons.length > 0) {
@@ -264,7 +258,7 @@ export const LmsCourseDetailPage: React.FC = () => {
         }
       }
     }
-    
+
     return null;
   }, [curriculum]);
 
@@ -363,7 +357,7 @@ export const LmsCourseDetailPage: React.FC = () => {
       </div>
     );
   }
-  
+
   // Compute other values safely
   const HeroIcon = course ? (CARD_ICON_BY_ID[course.id] || DEFAULT_COURSE_ICON) : DEFAULT_COURSE_ICON;
   const statusLabel = course?.status === 'live' ? 'Live' : 'Coming Soon';
@@ -388,11 +382,11 @@ export const LmsCourseDetailPage: React.FC = () => {
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
       <main className="flex-grow">
         {/* Hero Section */}
-        <div 
+        <div
           className="w-full border-b border-gray-200 relative"
           style={{
-            backgroundImage: course?.imageUrl 
-              ? `url(${course.imageUrl})` 
+            backgroundImage: course?.imageUrl
+              ? `url(${course.imageUrl})`
               : 'linear-gradient(to right, rgb(239 246 255), rgb(243 232 255))',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
@@ -401,100 +395,100 @@ export const LmsCourseDetailPage: React.FC = () => {
         >
           <div className="absolute inset-0" style={{ backgroundColor: 'rgba(26, 46, 110, 0.6)' }}></div>
           <div className="relative z-10">
-          <div className="container mx-auto px-4 md:px-6 max-w-7xl py-12">
-            <nav className="flex mb-6" aria-label="Breadcrumb">
-              <ol className="inline-flex items-center space-x-1 md:space-x-2">
-                <li className="inline-flex items-center">
-                  <Link to="/" className="text-white/80 hover:text-white inline-flex items-center">
-                    <HomeIcon size={16} className="mr-1" />
-                    <span>Home</span>
-                  </Link>
-                </li>
-                <li>
-                  <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-white/60" />
-                    <Link to="/lms" className="ml-1 text-white/80 hover:text-white md:ml-2">
-                      courses
+            <div className="container mx-auto px-4 md:px-6 max-w-7xl py-12">
+              <nav className="flex mb-6" aria-label="Breadcrumb">
+                <ol className="inline-flex items-center space-x-1 md:space-x-2">
+                  <li className="inline-flex items-center">
+                    <Link to="/" className="text-white/80 hover:text-white inline-flex items-center">
+                      <HomeIcon size={16} className="mr-1" />
+                      <span>Home</span>
                     </Link>
-                  </div>
-                </li>
-                <li aria-current="page">
-                  <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-white/60" />
-                    <span className="ml-1 text-white/80 md:ml-2 truncate max-w-[200px]">
-                      {course.title}
-                    </span>
-                  </div>
-                </li>
-              </ol>
-            </nav>
-            
-            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
-              <div className="max-w-3xl">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm text-white font-medium">{course.provider}</span>
-                  {course.track && (
-                    <>
-                      <span className="text-gray-400">•</span>
-                      <span className="text-sm font-medium" style={{ color: '#fcfcfc' }}>{course.track}</span>
-                    </>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 mb-4">
-                  <HeroIcon className="h-6 w-6 shrink-0" style={{ color: '#fff' }} aria-hidden="true" />
-                  <h1 className="text-2xl md:text-3xl font-bold leading-tight text-white">
-                    {course.title}
-                  </h1>
-                </div>
-                
-                {/* Rating and Reviews */}
-                {averageRating > 0 && (
-                  <div className="flex items-center gap-4 mb-4">
+                  </li>
+                  <li>
                     <div className="flex items-center">
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            size={20}
-                            className={i < Math.floor(averageRating) ? 'text-yellow-400 fill-yellow-400' : 'text-white/40'}
-                          />
-                        ))}
-                      </div>
-                      <span className="ml-2 text-lg font-semibold text-white">{averageRating.toFixed(1)}</span>
+                      <ChevronRightIcon size={16} className="text-white/60" />
+                      <Link to="/lms" className="ml-1 text-white/80 hover:text-white md:ml-2">
+                        Courses
+                      </Link>
                     </div>
-                    <Link
-                      to={`/lms/${course.slug}/reviews`}
-                      className="font-medium flex items-center gap-1 hover:underline text-white"
-                    >
-                      <MessageSquare size={16} />
-                      <span>{reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</span>
-                    </Link>
-                  </div>
-                )}
-                
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {chipData.map((chip, index) => {
-                    const Icon = resolveChipIcon(chip.key, chip.iconValue ?? chip.label);
-                    return (
-                      <span
-                        key={`${chip.key}-${chip.label}-${index}`}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border bg-white/20 backdrop-blur-sm border-white/30 text-white"
-                      >
-                      {Icon ? <Icon className="h-4 w-4 mr-1.5" /> : null}
-                      {chip.label}
+                  </li>
+                  <li aria-current="page">
+                    <div className="flex items-center">
+                      <ChevronRightIcon size={16} className="text-white/60" />
+                      <span className="ml-1 text-white/80 md:ml-2 truncate max-w-[200px]">
+                        {course.title}
                       </span>
-                    );
-                })}
+                    </div>
+                  </li>
+                </ol>
+              </nav>
+
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+                <div className="max-w-3xl">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm text-white font-medium">{course.provider}</span>
+                    {course.track && (
+                      <>
+                        <span className="text-gray-400">•</span>
+                        <span className="text-sm font-medium" style={{ color: '#fcfcfc' }}>{course.track}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <HeroIcon className="h-6 w-6 shrink-0" style={{ color: '#fff' }} aria-hidden="true" />
+                    <h1 className="text-2xl md:text-3xl font-bold leading-tight text-white">
+                      {course.title}
+                    </h1>
+                  </div>
+
+                  {/* Rating and Reviews */}
+                  {averageRating > 0 && (
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="flex items-center">
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              size={20}
+                              className={i < Math.floor(averageRating) ? 'text-yellow-400 fill-yellow-400' : 'text-white/40'}
+                            />
+                          ))}
+                        </div>
+                        <span className="ml-2 text-lg font-semibold text-white">{averageRating.toFixed(1)}</span>
+                      </div>
+                      <Link
+                        to={`/lms/${course.slug}/reviews`}
+                        className="font-medium flex items-center gap-1 hover:underline text-white"
+                      >
+                        <MessageSquare size={16} />
+                        <span>{reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}</span>
+                      </Link>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {chipData.map((chip, index) => {
+                      const Icon = resolveChipIcon(chip.key, chip.iconValue ?? chip.label);
+                      return (
+                        <span
+                          key={`${chip.key}-${chip.label}-${index}`}
+                          className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border bg-white/20 backdrop-blur-sm border-white/30 text-white"
+                        >
+                          {Icon ? <Icon className="h-4 w-4 mr-1.5" /> : null}
+                          {chip.label}
+                        </span>
+                      );
+                    })}
+                  </div>
+                  <p className="text-white text-lg leading-relaxed">
+                    {course.summary}
+                  </p>
                 </div>
-                <p className="text-white text-lg leading-relaxed">
-                  {course.summary}
-                </p>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${statusClass}`}>
-                  {statusLabel}
-                </span>
-              </div>
+                <div className="flex items-start gap-3">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${statusClass}`}>
+                    {statusLabel}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -508,11 +502,10 @@ export const LmsCourseDetailPage: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                    activeTab === tab.id
-                      ? 'border-blue-600 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
                   style={activeTab === tab.id ? { borderColor: '#030F35', color: '#030F35' } : {}}
                 >
                   {tab.label}
@@ -529,74 +522,74 @@ export const LmsCourseDetailPage: React.FC = () => {
               {/* Track/Course Highlights Tab */}
               {activeTab === 'highlights' && (
                 <section className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid md:grid-cols-2 gap-4">
                     {highlights.map((highlight) => (
-                    <div
-                      key={highlight}
-                      className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200"
-                    >
-                      <CheckCircleIcon size={18} className="text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{highlight}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Part of Track Section - Show if course is part of a learning path */}
-                {firstPath && pathCourses.length > 0 && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
-                    <h3 className="text-lg font-semibold mb-2" style={{ color: '#030F35' }}>
-                      Part of {firstPath.pathTitle}
-                    </h3>
-                    <p className="text-gray-700 mb-4 text-sm">
-                      This course is part of a larger learning track. Explore other courses in this track to complete your learning journey.
-                    </p>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {pathCourses.map((pathCourse, index) => {
-                        const isCurrentCourse = pathCourse.slug === course?.slug;
-                        return (
-                          <React.Fragment key={pathCourse.id}>
-                            {index > 0 && (
-                              <span className="text-gray-400" style={{ color: '#030F35' }}>→</span>
-                            )}
-                            {isCurrentCourse ? (
-                              <span 
-                                className="font-medium text-sm"
-                                style={{ color: '#030F35' }}
-                              >
-                                {pathCourse.title}
-                              </span>
-                            ) : (
-                              <Link
-                                to={`/lms/${pathCourse.slug}`}
-                                className="font-medium text-sm hover:underline"
-                                style={{ color: '#030F35' }}
-                              >
-                                {pathCourse.title}
-                              </Link>
-                            )}
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
+                      <div
+                        key={highlight}
+                        className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200"
+                      >
+                        <CheckCircleIcon size={18} className="text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-700">{highlight}</span>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </section>
+
+                  {/* Part of Track Section - Show if course is part of a learning path */}
+                  {firstPath && pathCourses.length > 0 && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
+                      <h3 className="text-lg font-semibold mb-2" style={{ color: '#030F35' }}>
+                        Part of {firstPath.pathTitle}
+                      </h3>
+                      <p className="text-gray-700 mb-4 text-sm">
+                        This course is part of a larger learning track. Explore other courses in this track to complete your learning journey.
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {pathCourses.map((pathCourse, index) => {
+                          const isCurrentCourse = pathCourse.slug === course?.slug;
+                          return (
+                            <React.Fragment key={pathCourse.id}>
+                              {index > 0 && (
+                                <span className="text-gray-400" style={{ color: '#030F35' }}>→</span>
+                              )}
+                              {isCurrentCourse ? (
+                                <span
+                                  className="font-medium text-sm"
+                                  style={{ color: '#030F35' }}
+                                >
+                                  {pathCourse.title}
+                                </span>
+                              ) : (
+                                <Link
+                                  to={`/lms/${pathCourse.slug}`}
+                                  className="font-medium text-sm hover:underline"
+                                  style={{ color: '#030F35' }}
+                                >
+                                  {pathCourse.title}
+                                </Link>
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </section>
               )}
 
               {/* Learning Outcomes Tab */}
               {activeTab === 'outcomes' && (
                 <section className="space-y-6">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                  <ol className="space-y-4">
-                    {outcomes.map((outcome, index) => (
-                      <li key={outcome} className="flex items-start gap-3">
-                        <span className="font-semibold" style={{ color: '#030F35' }}>{index + 1}.</span>
-                        <p className="text-gray-700 leading-relaxed">{outcome}</p>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              </section>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                    <ol className="space-y-4">
+                      {outcomes.map((outcome, index) => (
+                        <li key={outcome} className="flex items-start gap-3">
+                          <span className="font-semibold" style={{ color: '#030F35' }}>{index + 1}.</span>
+                          <p className="text-gray-700 leading-relaxed">{outcome}</p>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </section>
               )}
 
               {/* Track/Course Details Tab */}
@@ -614,7 +607,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                         let videoCount = 0;
                         let articleCount = 0;
                         let labCount = 0;
-                        
+
                         if (curriculum && curriculum.length > 0) {
                           curriculum.forEach((item) => {
                             if (item.topics) {
@@ -630,7 +623,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                                     } else if (minsMatch) {
                                       totalHours += parseInt(minsMatch[1]) / 60;
                                     }
-                                    
+
                                     // Count by type
                                     if (lesson.type === 'video') videoCount++;
                                     else if (lesson.type === 'reading' || lesson.type === 'guide') articleCount++;
@@ -641,7 +634,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                             }
                           });
                         }
-                        
+
                         return (
                           <div className="grid sm:grid-cols-2 gap-4 text-sm">
                             <div className="flex items-center">
@@ -747,9 +740,8 @@ export const LmsCourseDetailPage: React.FC = () => {
                                 <div key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                                   {/* Course Header */}
                                   <div
-                                    className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                                      item.isLocked ? 'opacity-60' : ''
-                                    }`}
+                                    className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${item.isLocked ? 'opacity-60' : ''
+                                      }`}
                                     onClick={toggleCourse}
                                   >
                                     <div className="flex items-center justify-between">
@@ -785,135 +777,131 @@ export const LmsCourseDetailPage: React.FC = () => {
 
                                   {/* Topics and Lessons (Expandable) */}
                                   {isExpanded && (
-                                  <div className="border-t border-gray-200 bg-gray-50">
-                                    {item.topics
-                                      .sort((a, b) => a.order - b.order)
-                                      .map((topic, index) => {
-                                        const isTopicExpanded = expandedTopics.has(topic.id);
-                                        const toggleTopic = () => {
-                                          setExpandedTopics(prev => {
-                                            const next = new Set(prev);
-                                            if (next.has(topic.id)) {
-                                              next.delete(topic.id);
-                                            } else {
-                                              next.add(topic.id);
-                                            }
-                                            return next;
-                                          });
-                                        };
+                                    <div className="border-t border-gray-200 bg-gray-50">
+                                      {item.topics
+                                        .sort((a, b) => a.order - b.order)
+                                        .map((topic, index) => {
+                                          const isTopicExpanded = expandedTopics.has(topic.id);
+                                          const toggleTopic = () => {
+                                            setExpandedTopics(prev => {
+                                              const next = new Set(prev);
+                                              if (next.has(topic.id)) {
+                                                next.delete(topic.id);
+                                              } else {
+                                                next.add(topic.id);
+                                              }
+                                              return next;
+                                            });
+                                          };
 
-                                        const lessonCount = topic.lessons?.length || 0;
-                                        // Find the sequential module number across all topics
-                                        const topicIndex = allTopics.findIndex(t => t.topic.id === topic.id);
-                                        const moduleNumber = topicIndex >= 0 ? topicIndex + 1 : index + 1;
+                                          const lessonCount = topic.lessons?.length || 0;
+                                          // Find the sequential module number across all topics
+                                          const topicIndex = allTopics.findIndex(t => t.topic.id === topic.id);
+                                          const moduleNumber = topicIndex >= 0 ? topicIndex + 1 : index + 1;
 
-                                        return (
-                                          <div key={topic.id} className="border-b border-gray-200 last:border-b-0">
-                                            {/* Topic Header */}
-                                            <div
-                                              className="p-4 cursor-pointer hover:bg-gray-100 transition-colors"
-                                              onClick={toggleTopic}
-                                            >
-                                              <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-3 flex-1">
-                                                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                                    <FileText size={16} />
-                                                  </div>
-                                                  <div className="flex-1">
-                                                    <div className="flex items-center gap-2">
-                                                    <h4 className="font-medium text-gray-900">{topic.title}</h4>
-                                                      <span className="text-xs text-gray-500">
-                                                        Module {moduleNumber}. {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'}
-                                                      </span>
+                                          return (
+                                            <div key={topic.id} className="border-b border-gray-200 last:border-b-0">
+                                              {/* Topic Header */}
+                                              <div
+                                                className="p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+                                                onClick={toggleTopic}
+                                              >
+                                                <div className="flex items-center justify-between">
+                                                  <div className="flex items-center gap-3 flex-1">
+                                                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                                      <FileText size={16} />
                                                     </div>
-                                                    {topic.description && (
-                                                      <p className="text-xs text-gray-600 mt-1">{topic.description}</p>
-                                                    )}
+                                                    <div className="flex-1">
+                                                      <div className="flex items-center gap-2">
+                                                        <h4 className="font-medium text-gray-900">{topic.title}</h4>
+                                                        <span className="text-xs text-gray-500">
+                                                          Module {moduleNumber}. {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'}
+                                                        </span>
+                                                      </div>
+                                                      {topic.description && (
+                                                        <p className="text-xs text-gray-600 mt-1">{topic.description}</p>
+                                                      )}
+                                                    </div>
                                                   </div>
+                                                  <button className="ml-4 text-gray-400 hover:text-gray-600">
+                                                    {isTopicExpanded ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
+                                                  </button>
                                                 </div>
-                                                <button className="ml-4 text-gray-400 hover:text-gray-600">
-                                                  {isTopicExpanded ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
-                                                </button>
                                               </div>
-                                            </div>
 
-                                            {/* Lessons (Expandable) */}
-                                            {isTopicExpanded && topic.lessons && (
-                                              <div className="bg-white pl-12 pr-4 py-3 space-y-2">
-                                                {topic.lessons
-                                                  .sort((a, b) => a.order - b.order)
-                                                  .map((lesson) => {
-                                                    const LessonIcon = getLessonTypeIcon(lesson.type);
-                                                    const isLocked = lesson.isLocked;
-                                                    return (
-                                                      <div
-                                                        key={lesson.id}
-                                                        className={`p-3 rounded-lg border ${
-                                                          isLocked
+                                              {/* Lessons (Expandable) */}
+                                              {isTopicExpanded && topic.lessons && (
+                                                <div className="bg-white pl-12 pr-4 py-3 space-y-2">
+                                                  {topic.lessons
+                                                    .sort((a, b) => a.order - b.order)
+                                                    .map((lesson) => {
+                                                      const LessonIcon = getLessonTypeIcon(lesson.type);
+                                                      const isLocked = lesson.isLocked;
+                                                      return (
+                                                        <div
+                                                          key={lesson.id}
+                                                          className={`p-3 rounded-lg border ${isLocked
                                                             ? 'border-gray-200 opacity-60 bg-gray-50'
                                                             : 'border-gray-200 hover:border-blue-300 hover:shadow-sm bg-white'
-                                                        }`}
-                                                      >
-                                                        <div className="flex items-start gap-3">
-                                                          <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
-                                                            isLocked
+                                                            }`}
+                                                        >
+                                                          <div className="flex items-start gap-3">
+                                                            <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${isLocked
                                                               ? 'bg-gray-100 text-gray-400'
                                                               : 'bg-blue-50 text-blue-600'
-                                                          }`}>
-                                                            {isLocked ? (
-                                                              <Lock size={16} />
-                                                            ) : (
-                                                              <LessonIcon size={16} />
-                                                            )}
-                                                          </div>
-                                                          <div className="flex-1 min-w-0">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                              <span className="text-xs font-medium text-gray-500">
-                                                                Lesson {lesson.order}
-                                                              </span>
-                                                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
-                                                                {getLessonTypeLabel(lesson.type)}
-                                                              </span>
-                                                              {isLocked && (
-                                                                <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded">
-                                                                  Locked
-                                                                </span>
+                                                              }`}>
+                                                              {isLocked ? (
+                                                                <Lock size={16} />
+                                                              ) : (
+                                                                <LessonIcon size={16} />
                                                               )}
                                                             </div>
-                                                            <h5 className={`text-sm font-medium mb-1 ${
-                                                              isLocked ? 'text-gray-500' : 'text-gray-900'
-                                                            }`}>
-                                                              {lesson.title}
-                                                            </h5>
-                                                            {lesson.description && (
-                                                              <p className={`text-xs mb-2 ${
-                                                                isLocked ? 'text-gray-400' : 'text-gray-600'
-                                                              }`}>
-                                                                {lesson.description}
-                                                              </p>
-                                                            )}
-                                                            {lesson.duration && (
-                                                              <div className="flex items-center gap-1 text-xs text-gray-500">
-                                                                <Clock size={12} />
-                                                                <span>{lesson.duration}</span>
+                                                            <div className="flex-1 min-w-0">
+                                                              <div className="flex items-center gap-2 mb-1">
+                                                                <span className="text-xs font-medium text-gray-500">
+                                                                  Lesson {lesson.order}
+                                                                </span>
+                                                                <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                                                                  {getLessonTypeLabel(lesson.type)}
+                                                                </span>
+                                                                {isLocked && (
+                                                                  <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded">
+                                                                    Locked
+                                                                  </span>
+                                                                )}
                                                               </div>
-                                                            )}
+                                                              <h5 className={`text-sm font-medium mb-1 ${isLocked ? 'text-gray-500' : 'text-gray-900'
+                                                                }`}>
+                                                                {lesson.title}
+                                                              </h5>
+                                                              {lesson.description && (
+                                                                <p className={`text-xs mb-2 ${isLocked ? 'text-gray-400' : 'text-gray-600'
+                                                                  }`}>
+                                                                  {lesson.description}
+                                                                </p>
+                                                              )}
+                                                              {lesson.duration && (
+                                                                <div className="flex items-center gap-1 text-xs text-gray-500">
+                                                                  <Clock size={12} />
+                                                                  <span>{lesson.duration}</span>
+                                                                </div>
+                                                              )}
+                                                            </div>
                                                           </div>
                                                         </div>
-                                                      </div>
-                                                    );
-                                                  })}
-                                              </div>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
-                                  </div>
-                                )}
-                              </div>
-                            );
+                                                      );
+                                                    })}
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
+                                    </div>
+                                  )}
+                                </div>
+                              );
                             }
-                            
+
                             // Track (Bundles): Show course link only (no topics preview)
                             if (item.courseSlug && (!item.topics || item.topics.length === 0)) {
                               return (
@@ -937,7 +925,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                                         <Link
                                           to={`/lms/${item.courseSlug}`}
                                           className="px-4 py-2 text-sm font-medium rounded-md border transition-colors whitespace-nowrap ml-4"
-                                          style={{ 
+                                          style={{
                                             color: '#030F35',
                                             borderColor: '#030F35'
                                           }}
@@ -962,17 +950,17 @@ export const LmsCourseDetailPage: React.FC = () => {
                               // Check if section header title matches any topic title (to avoid duplicates)
                               const hasMatchingTopicTitle = item.topics.some(topic => topic.title === item.title);
                               const shouldShowSectionHeader = !hasMatchingTopicTitle && (item.topics.length > 1 || item.description);
-                              
+
                               return (
                                 <div key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                                   {/* Topic Section Header - Only show if title doesn't match topic titles */}
                                   {shouldShowSectionHeader && (
-                                  <div className="p-4 bg-gray-50 border-b border-gray-200">
-                                    <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-                                    {item.description && (
-                                      <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                                    )}
-                                  </div>
+                                    <div className="p-4 bg-gray-50 border-b border-gray-200">
+                                      <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+                                      {item.description && (
+                                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                                      )}
+                                    </div>
                                   )}
 
                                   {/* Topics within this section */}
@@ -1012,7 +1000,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                                                   </div>
                                                   <div className="flex-1">
                                                     <div className="flex items-center gap-2">
-                                                    <h4 className="font-medium text-gray-900">{topic.title}</h4>
+                                                      <h4 className="font-medium text-gray-900">{topic.title}</h4>
                                                       <span className="text-xs text-gray-500">
                                                         Module {moduleNumber}. {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'}
                                                       </span>
@@ -1039,18 +1027,18 @@ export const LmsCourseDetailPage: React.FC = () => {
                                                     return (
                                                       <div
                                                         key={lesson.id}
-                                                        className={`p-3 rounded-lg border ${
-                                                          isLocked
-                                                            ? 'border-gray-200 opacity-60 bg-gray-50'
-                                                            : 'border-gray-200 hover:border-blue-300 hover:shadow-sm bg-white'
-                                                        }`}
+                                                        onClick={() => !isLocked && navigate(`/lms/${course.slug}/lesson/${lesson.id}`)}
+                                                        title={isLocked ? "Must complete previous lessons" : undefined}
+                                                        className={`p-3 rounded-lg border transition-all ${isLocked
+                                                          ? 'border-gray-200 opacity-60 bg-gray-50 cursor-not-allowed'
+                                                          : 'border-gray-200 hover:border-blue-300 hover:shadow-sm bg-white cursor-pointer'
+                                                          }`}
                                                       >
                                                         <div className="flex items-start gap-3">
-                                                          <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
-                                                            isLocked
-                                                              ? 'bg-gray-100 text-gray-400'
-                                                              : 'bg-blue-50 text-blue-600'
-                                                          }`}>
+                                                          <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${isLocked
+                                                            ? 'bg-gray-100 text-gray-400'
+                                                            : 'bg-blue-50 text-blue-600'
+                                                            }`}>
                                                             {isLocked ? (
                                                               <Lock size={16} />
                                                             ) : (
@@ -1060,7 +1048,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                                                           <div className="flex-1 min-w-0">
                                                             <div className="flex items-center gap-2 mb-1">
                                                               <span className="text-xs font-medium text-gray-500">
-                                                                Lesson {lesson.order}
+                                                                Lesson {lesson.order + 1}
                                                               </span>
                                                               <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
                                                                 {getLessonTypeLabel(lesson.type)}
@@ -1071,15 +1059,13 @@ export const LmsCourseDetailPage: React.FC = () => {
                                                                 </span>
                                                               )}
                                                             </div>
-                                                            <h5 className={`text-sm font-medium mb-1 ${
-                                                              isLocked ? 'text-gray-500' : 'text-gray-900'
-                                                            }`}>
+                                                            <h5 className={`text-sm font-medium mb-1 ${isLocked ? 'text-gray-500' : 'text-gray-900'
+                                                              }`}>
                                                               {lesson.title}
                                                             </h5>
                                                             {lesson.description && (
-                                                              <p className={`text-xs mb-2 ${
-                                                                isLocked ? 'text-gray-400' : 'text-gray-600'
-                                                              }`}>
+                                                              <p className={`text-xs mb-2 ${isLocked ? 'text-gray-400' : 'text-gray-600'
+                                                                }`}>
                                                                 {lesson.description}
                                                               </p>
                                                             )}
@@ -1103,7 +1089,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                                 </div>
                               );
                             }
-                            
+
                             // Handle legacy structure with lessons directly (treat curriculum item as a topic)
                             if (item.lessons && item.lessons.length > 0) {
                               const isTopicExpanded = expandedTopics.has(item.id);
@@ -1136,7 +1122,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                                         </div>
                                         <div className="flex-1">
                                           <div className="flex items-center gap-2">
-                                          <h4 className="font-medium text-gray-900">{item.title}</h4>
+                                            <h4 className="font-medium text-gray-900">{item.title}</h4>
                                             <span className="text-xs text-gray-500">
                                               Module {moduleNumber}. {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'}
                                             </span>
@@ -1163,18 +1149,18 @@ export const LmsCourseDetailPage: React.FC = () => {
                                           return (
                                             <div
                                               key={lesson.id}
-                                              className={`p-3 rounded-lg border ${
-                                                isLocked
-                                                  ? 'border-gray-200 opacity-60 bg-gray-50'
-                                                  : 'border-gray-200 hover:border-blue-300 hover:shadow-sm bg-white'
-                                              }`}
+                                              onClick={() => !isLocked && navigate(`/lms/${course.slug}/lesson/${lesson.id}`)}
+                                              title={isLocked ? "Must complete previous lessons" : undefined}
+                                              className={`p-3 rounded-lg border transition-all ${isLocked
+                                                ? 'border-gray-200 opacity-60 bg-gray-50 cursor-not-allowed'
+                                                : 'border-gray-200 hover:border-blue-300 hover:shadow-sm bg-white cursor-pointer'
+                                                }`}
                                             >
                                               <div className="flex items-start gap-3">
-                                                <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
-                                                  isLocked
-                                                    ? 'bg-gray-100 text-gray-400'
-                                                    : 'bg-blue-50 text-blue-600'
-                                                }`}>
+                                                <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${isLocked
+                                                  ? 'bg-gray-100 text-gray-400'
+                                                  : 'bg-blue-50 text-blue-600'
+                                                  }`}>
                                                   {isLocked ? (
                                                     <Lock size={16} />
                                                   ) : (
@@ -1184,7 +1170,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                                                 <div className="flex-1 min-w-0">
                                                   <div className="flex items-center gap-2 mb-1">
                                                     <span className="text-xs font-medium text-gray-500">
-                                                      Lesson {lesson.order}
+                                                      Lesson {lesson.order + 1}
                                                     </span>
                                                     <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
                                                       {getLessonTypeLabel(lesson.type)}
@@ -1195,15 +1181,13 @@ export const LmsCourseDetailPage: React.FC = () => {
                                                       </span>
                                                     )}
                                                   </div>
-                                                  <h5 className={`text-sm font-medium mb-1 ${
-                                                    isLocked ? 'text-gray-500' : 'text-gray-900'
-                                                  }`}>
+                                                  <h5 className={`text-sm font-medium mb-1 ${isLocked ? 'text-gray-500' : 'text-gray-900'
+                                                    }`}>
                                                     {lesson.title}
                                                   </h5>
                                                   {lesson.description && (
-                                                    <p className={`text-xs mb-2 ${
-                                                      isLocked ? 'text-gray-400' : 'text-gray-600'
-                                                    }`}>
+                                                    <p className={`text-xs mb-2 ${isLocked ? 'text-gray-400' : 'text-gray-600'
+                                                      }`}>
                                                       {lesson.description}
                                                     </p>
                                                   )}
@@ -1239,120 +1223,116 @@ export const LmsCourseDetailPage: React.FC = () => {
 
                                 {/* Topics within this section */}
                                 {item.topics && Array.isArray(item.topics) && item.topics.length > 0 ? (
-                                <div className="divide-y divide-gray-200">
-                                  {item.topics
-                                    .sort((a, b) => a.order - b.order)
-                                    .map((topic) => {
-                                      const isTopicExpanded = expandedTopics.has(topic.id);
-                                      const toggleTopic = () => {
-                                        setExpandedTopics(prev => {
-                                          const next = new Set(prev);
-                                          if (next.has(topic.id)) {
-                                            next.delete(topic.id);
-                                          } else {
-                                            next.add(topic.id);
-                                          }
-                                          return next;
-                                        });
-                                      };
+                                  <div className="divide-y divide-gray-200">
+                                    {item.topics
+                                      .sort((a, b) => a.order - b.order)
+                                      .map((topic) => {
+                                        const isTopicExpanded = expandedTopics.has(topic.id);
+                                        const toggleTopic = () => {
+                                          setExpandedTopics(prev => {
+                                            const next = new Set(prev);
+                                            if (next.has(topic.id)) {
+                                              next.delete(topic.id);
+                                            } else {
+                                              next.add(topic.id);
+                                            }
+                                            return next;
+                                          });
+                                        };
 
-                                      return (
-                                        <div key={topic.id}>
-                                          {/* Topic Header */}
-                                          <div
-                                            className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                                            onClick={toggleTopic}
-                                          >
-                                            <div className="flex items-center justify-between">
-                                              <div className="flex items-center gap-3 flex-1">
-                                                <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                                  <FileText size={16} />
+                                        return (
+                                          <div key={topic.id}>
+                                            {/* Topic Header */}
+                                            <div
+                                              className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                                              onClick={toggleTopic}
+                                            >
+                                              <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3 flex-1">
+                                                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                                    <FileText size={16} />
+                                                  </div>
+                                                  <div className="flex-1">
+                                                    <h4 className="font-medium text-gray-900">{topic.title}</h4>
+                                                    {topic.description && (
+                                                      <p className="text-xs text-gray-600 mt-1">{topic.description}</p>
+                                                    )}
+                                                  </div>
                                                 </div>
-                                                <div className="flex-1">
-                                                  <h4 className="font-medium text-gray-900">{topic.title}</h4>
-                                                  {topic.description && (
-                                                    <p className="text-xs text-gray-600 mt-1">{topic.description}</p>
-                                                  )}
-                                                </div>
+                                                <button className="ml-4 text-gray-400 hover:text-gray-600">
+                                                  {isTopicExpanded ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
+                                                </button>
                                               </div>
-                                              <button className="ml-4 text-gray-400 hover:text-gray-600">
-                                                {isTopicExpanded ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
-                                              </button>
                                             </div>
-                                          </div>
 
-                                          {/* Lessons (Expandable) */}
-                                          {isTopicExpanded && topic.lessons && (
-                                            <div className="bg-gray-50 pl-12 pr-4 py-3 space-y-2">
-                                              {topic.lessons
-                                                .sort((a, b) => a.order - b.order)
-                                                .map((lesson) => {
-                                                  const LessonIcon = getLessonTypeIcon(lesson.type);
-                                                  const isLocked = lesson.isLocked;
-                                                  return (
-                                                    <div
-                                                      key={lesson.id}
-                                                      className={`p-3 rounded-lg border ${
-                                                        isLocked
+                                            {/* Lessons (Expandable) */}
+                                            {isTopicExpanded && topic.lessons && (
+                                              <div className="bg-gray-50 pl-12 pr-4 py-3 space-y-2">
+                                                {topic.lessons
+                                                  .sort((a, b) => a.order - b.order)
+                                                  .map((lesson) => {
+                                                    const LessonIcon = getLessonTypeIcon(lesson.type);
+                                                    const isLocked = lesson.isLocked;
+                                                    return (
+                                                      <div
+                                                        key={lesson.id}
+                                                        className={`p-3 rounded-lg border ${isLocked
                                                           ? 'border-gray-200 opacity-60 bg-gray-50'
                                                           : 'border-gray-200 hover:border-blue-300 hover:shadow-sm bg-white'
-                                                      }`}
-                                                    >
-                                                      <div className="flex items-start gap-3">
-                                                        <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${
-                                                          isLocked
+                                                          }`}
+                                                      >
+                                                        <div className="flex items-start gap-3">
+                                                          <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${isLocked
                                                             ? 'bg-gray-100 text-gray-400'
                                                             : 'bg-blue-50 text-blue-600'
-                                                        }`}>
-                                                          {isLocked ? (
-                                                            <Lock size={16} />
-                                                          ) : (
-                                                            <LessonIcon size={16} />
-                                                          )}
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                          <div className="flex items-center gap-2 mb-1">
-                                                            <span className="text-xs font-medium text-gray-500">
-                                                              Lesson {lesson.order}
-                                                            </span>
-                                                            <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
-                                                              {getLessonTypeLabel(lesson.type)}
-                                                            </span>
-                                                            {isLocked && (
-                                                              <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded">
-                                                                Locked
-                                                              </span>
+                                                            }`}>
+                                                            {isLocked ? (
+                                                              <Lock size={16} />
+                                                            ) : (
+                                                              <LessonIcon size={16} />
                                                             )}
                                                           </div>
-                                                          <h5 className={`text-sm font-medium mb-1 ${
-                                                            isLocked ? 'text-gray-500' : 'text-gray-900'
-                                                          }`}>
-                                                            {lesson.title}
-                                                          </h5>
-                                                          {lesson.description && (
-                                                            <p className={`text-xs mb-2 ${
-                                                              isLocked ? 'text-gray-400' : 'text-gray-600'
-                                                            }`}>
-                                                              {lesson.description}
-                                                            </p>
-                                                          )}
-                                                          {lesson.duration && (
-                                                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                                                              <Clock size={12} />
-                                                              <span>{lesson.duration}</span>
+                                                          <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                              <span className="text-xs font-medium text-gray-500">
+                                                                Lesson {lesson.order}
+                                                              </span>
+                                                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                                                                {getLessonTypeLabel(lesson.type)}
+                                                              </span>
+                                                              {isLocked && (
+                                                                <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded">
+                                                                  Locked
+                                                                </span>
+                                                              )}
                                                             </div>
-                                                          )}
+                                                            <h5 className={`text-sm font-medium mb-1 ${isLocked ? 'text-gray-500' : 'text-gray-900'
+                                                              }`}>
+                                                              {lesson.title}
+                                                            </h5>
+                                                            {lesson.description && (
+                                                              <p className={`text-xs mb-2 ${isLocked ? 'text-gray-400' : 'text-gray-600'
+                                                                }`}>
+                                                                {lesson.description}
+                                                              </p>
+                                                            )}
+                                                            {lesson.duration && (
+                                                              <div className="flex items-center gap-1 text-xs text-gray-500">
+                                                                <Clock size={12} />
+                                                                <span>{lesson.duration}</span>
+                                                              </div>
+                                                            )}
+                                                          </div>
                                                         </div>
                                                       </div>
-                                                    </div>
-                                                  );
-                                                })}
-                                            </div>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
-                                </div>
+                                                    );
+                                                  })}
+                                              </div>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                  </div>
                                 ) : null}
                               </div>
                             );
@@ -1375,18 +1355,17 @@ export const LmsCourseDetailPage: React.FC = () => {
                                             navigate(`/lms/${course.slug}/lesson/${lesson.id}`);
                                           }
                                         }}
-                                        className={`bg-white border rounded-lg p-4 transition-all ${
-                                          isLocked
-                                            ? 'border-gray-200 opacity-60 cursor-not-allowed'
-                                            : 'border-gray-200 hover:border-blue-300 hover:shadow-sm cursor-pointer'
-                                        }`}
+                                        title={isLocked ? "Must complete previous lessons" : undefined}
+                                        className={`bg-white border rounded-lg p-4 transition-all ${isLocked
+                                          ? 'border-gray-200 opacity-60 cursor-not-allowed'
+                                          : 'border-gray-200 hover:border-blue-300 hover:shadow-sm cursor-pointer'
+                                          }`}
                                       >
                                         <div className="flex items-start gap-4">
-                                          <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
-                                            isLocked
-                                              ? 'bg-gray-100 text-gray-400'
-                                              : 'bg-blue-50 text-blue-600'
-                                          }`}>
+                                          <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${isLocked
+                                            ? 'bg-gray-100 text-gray-400'
+                                            : 'bg-blue-50 text-blue-600'
+                                            }`}>
                                             {isLocked ? (
                                               <Lock size={20} />
                                             ) : (
@@ -1396,7 +1375,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                                           <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1">
                                               <span className="text-sm font-medium text-gray-500">
-                                                Lesson {lesson.order}
+                                                Lesson {lesson.order + 1}
                                               </span>
                                               <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
                                                 {getLessonTypeLabel(lesson.type)}
@@ -1407,15 +1386,13 @@ export const LmsCourseDetailPage: React.FC = () => {
                                                 </span>
                                               )}
                                             </div>
-                                            <h3 className={`text-lg font-semibold mb-1 ${
-                                              isLocked ? 'text-gray-500' : 'text-gray-900'
-                                            }`}>
+                                            <h3 className={`text-lg font-semibold mb-1 ${isLocked ? 'text-gray-500' : 'text-gray-900'
+                                              }`}>
                                               {lesson.title}
                                             </h3>
                                             {lesson.description && (
-                                              <p className={`text-sm mb-2 ${
-                                                isLocked ? 'text-gray-400' : 'text-gray-600'
-                                              }`}>
+                                              <p className={`text-sm mb-2 ${isLocked ? 'text-gray-400' : 'text-gray-600'
+                                                }`}>
                                                 {lesson.description}
                                               </p>
                                             )}
@@ -1657,29 +1634,28 @@ export const LmsCourseDetailPage: React.FC = () => {
                     </span>
                   </div>
                   {courseStats.totalModules > 0 && (
-                  <div className="flex justify-between text-sm text-gray-600">
+                    <div className="flex justify-between text-sm text-gray-600">
                       <span>Modules</span>
                       <span className="font-medium text-gray-900">
                         {courseStats.totalModules} {courseStats.totalModules === 1 ? 'module' : 'modules'}
                       </span>
                     </div>
                   )}
-                  <button 
+                  <button
                     onClick={() => {
                       if (firstLesson) {
                         navigate(`/lms/${course.slug}/lesson/${firstLesson.id}`);
                       }
                     }}
                     disabled={!firstLesson}
-                    className={`w-full px-4 py-3 text-white font-semibold rounded-md transition-colors shadow-md ${
-                      firstLesson ? 'hover:opacity-90' : 'opacity-50 cursor-not-allowed'
-                    }`}
+                    className={`w-full px-4 py-3 text-white font-semibold rounded-md transition-colors shadow-md ${firstLesson ? 'hover:opacity-90' : 'opacity-50 cursor-not-allowed'
+                      }`}
                     style={{ backgroundColor: '#030F35' }}
                   >
-                    Start Lesson
+                    Start Course
                   </button>
-                  <button 
-                    className="w-full px-4 py-2.5 font-medium bg-white border rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center" 
+                  <button
+                    className="w-full px-4 py-2.5 font-medium bg-white border rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center"
                     style={{ borderColor: '#030F35', color: '#030F35' }}
                   >
                     <BookmarkIcon size={16} className="mr-2" />
