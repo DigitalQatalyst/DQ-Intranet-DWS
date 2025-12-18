@@ -294,7 +294,7 @@ const NewsPage: React.FC = () => {
     }
     return 'announcements';
   });
-  const [queryText, setQueryText] = useState('');
+  const [queryText, setQueryText] = useState(() => searchParams.get('q') ?? '');
   const [filters, setFilters] = useState<FiltersValue>({});
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -332,6 +332,12 @@ const NewsPage: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Keep local search text in sync with URL ?q= from external entry points (e.g., hero search)
+  useEffect(() => {
+    const urlQuery = searchParams.get('q') ?? '';
+    setQueryText(urlQuery);
+  }, [searchParams]);
 
   useEffect(() => {
     let isMounted = true;

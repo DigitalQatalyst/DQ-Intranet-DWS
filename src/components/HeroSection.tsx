@@ -8,6 +8,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './Header';
 import { heroContent } from '../data/landingPageContent';
+import { getSearchMatches } from '@/utils/searchRouter';
 interface HeroSectionProps {
   "data-id"?: string;
 }
@@ -22,11 +23,45 @@ const HeroSection: React.FC<HeroSectionProps> = ({ "data-id": dataId }) => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const navigate = useNavigate();
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmed = prompt.trim();
     if (!trimmed) return;
-    navigate(`/search?query=${encodeURIComponent(trimmed)}`);
+
+    // 1) If Voiceflow chatbot is available, send the query there and open the assistant
+    const vfChat = window.voiceflow?.chat;
+    if (vfChat?.interact) {
+      try {
+        // Pass the user's question into the AI assistant
+        vfChat.interact({
+          type: 'text',
+          payload: {
+            message: trimmed,
+            // Optional metadata the bot can use to understand DWS context
+            metadata: {
+              source: 'dq-hero-search',
+              // High-level hint: treat this as help navigating the DWS platform
+              intent_hint: 'dws_navigation_help',
+            },
+          },
+        });
+        // Most Voiceflow widgets auto-open when they receive a message; if not,
+        // the widget configuration can be adjusted in the Voiceflow project.
+        setPrompt('');
+        return;
+      } catch {
+        // If something goes wrong, fall through to search hub routing
+      }
+    }
+
+    // 2) Fallback: if chatbot is not ready, route using our DWS search router
+    const matches = getSearchMatches(trimmed);
+    if (matches.length === 1) {
+      navigate(matches[0].href);
+    } else {
+      navigate(`/search?query=${encodeURIComponent(trimmed)}`);
+    }
     setPrompt('');
   };
   const scrollToMarketplaces = () => {
