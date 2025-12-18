@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { XIcon, BookmarkIcon, ScaleIcon, CheckCircleIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
+import { XIcon, CheckCircleIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 interface MarketplaceQuickViewModalProps {
   item: any;
@@ -9,16 +9,14 @@ interface MarketplaceQuickViewModalProps {
   onViewDetails: () => void;
   isBookmarked: boolean;
   onToggleBookmark: () => void;
-  onAddToComparison: () => void;
 }
 export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps> = ({
   item,
   marketplaceType,
   onClose,
   onViewDetails,
-  isBookmarked,
-  onToggleBookmark,
-  onAddToComparison
+  isBookmarked: _isBookmarked,
+  onToggleBookmark: _onToggleBookmark
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const config = getMarketplaceConfig(marketplaceType);
@@ -52,15 +50,12 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
       <div ref={modalRef} className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-900 truncate">
-            {config.itemName} Preview
+            {item.title}
           </h2>
           <div className="flex items-center space-x-3">
-            <button onClick={onToggleBookmark} className={`p-2 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
+            {/* <button onClick={onToggleBookmark} className={`p-2 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
               <BookmarkIcon size={18} className={isBookmarked ? 'fill-yellow-600' : ''} />
-            </button>
-            <button onClick={onAddToComparison} className="p-2 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200" aria-label="Add to comparison">
-              <ScaleIcon size={18} />
-            </button>
+            </button> */}
             <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
               <XIcon size={24} />
             </button>
@@ -94,28 +89,23 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
               </li>
             </ol>
           </nav>
-          {/* Provider Section */}
-          <div className="flex items-center mb-4">
-            <img src={item.provider.logoUrl} alt={`${item.provider.name} logo`} className="h-12 w-12 object-contain mr-4" />
+          {/* Provider Section - Logo removed */}
+          <div className="flex items-center mb-2">
             <div>
-              <span className="text-sm text-gray-500">Provided by</span>
+              <span className="text-sm text-gray-500">Department</span>
               <h3 className="text-lg font-medium text-gray-900">
                 {item.provider.name}
               </h3>
             </div>
           </div>
-          {/* Title */}
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">
-            {item.title}
-          </h1>
           {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {displayTags.map((tag: string, index: number) => <span key={index} className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${index % 3 === 0 ? 'bg-blue-50 text-blue-700 border border-blue-100' : index % 3 === 1 ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-purple-50 text-purple-700 border border-purple-100'}`}>
+          <div className="flex flex-wrap gap-2 mb-3">
+            {displayTags.map((tag: string, index: number) => <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-50 text-gray-700 border border-gray-200">
                 {tag}
               </span>)}
           </div>
           {/* Key Attributes */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             {config.attributes.slice(0, 4).map((attr, index) => {
             if (item[attr.key]) {
               return <div key={index} className="flex items-center text-gray-700">
@@ -143,17 +133,17 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
               </h3>
               <ul className="space-y-2">
                 {highlightItems.map((highlight: string, index: number) => <li key={index} className="flex items-start">
-                    <CheckCircleIcon size={18} className="text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <CheckCircleIcon size={18} className="text-dqYellow mr-2 mt-0.5 flex-shrink-0" />
                     <span className="text-gray-700">{highlight}</span>
                   </li>)}
               </ul>
             </div>}
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-end">
-            <button onClick={onViewDetails} className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 transition-colors">
+            <button onClick={onViewDetails} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors border ${config.id === 'non-financial' ? 'bg-white' : 'text-blue-700 bg-blue-50 border-blue-200 hover:bg-blue-100'}`} style={config.id === 'non-financial' ? { color: '#030F35', borderColor: '#030F35' } : {}} onMouseEnter={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = '#f0f4f8'; }} onMouseLeave={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = 'white'; }}>
               View Full Details
             </button>
-            <button className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-md hover:from-blue-700 hover:to-purple-700 transition-colors">
+            <button className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${config.id === 'non-financial' ? '' : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700'}`} style={config.id === 'non-financial' ? { backgroundColor: '#030F35' } : {}} onMouseEnter={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = '#030F35'; }} onMouseLeave={(e) => { if (config.id === 'non-financial') e.currentTarget.style.backgroundColor = '#030F35'; }}>
               {config.primaryCTA}
             </button>
           </div>
