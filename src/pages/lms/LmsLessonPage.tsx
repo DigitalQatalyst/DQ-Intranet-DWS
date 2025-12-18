@@ -21,7 +21,7 @@ import type { LmsQuizRow } from '../../types/lmsSupabase';
 import type { LmsDetail } from '../../data/lmsCourseDetails';
 import MarkdownRenderer from '../../components/guides/MarkdownRenderer';
 
-type TabType = 'resources' | 'quiz';
+type TabType = 'resources';
 
 // Progress storage key prefix
 const PROGRESS_STORAGE_PREFIX = 'lms_lesson_progress_';
@@ -584,34 +584,43 @@ export const LmsLessonPage: React.FC = () => {
                           </div>
 
                           <div className="mb-6">
-                            <h4 className="text-xl font-medium text-gray-900 mb-4">
+                            <h4 className="text-xl font-medium text-gray-900 mb-6">
                               {quiz.questions[currentQuestionIndex].question || quiz.questions[currentQuestionIndex].text}
                             </h4>
 
                             <div className="space-y-3">
                               {quiz.questions[currentQuestionIndex].options.map((option: string, index: number) => {
                                 const isSelected = selectedOption === index;
+                                const isCorrectAnswer = quiz.questions[currentQuestionIndex].correct_answer === index;
                                 return (
-                                  <button
+                                  <label
                                     key={index}
-                                    onClick={() => handleOptionSelect(index)}
-                                    disabled={isAnswerChecked}
-                                    className={`w-full text-left p-4 rounded-lg border-2 transition-all flex justify-between items-center ${isSelected
-                                      ? isAnswerChecked
+                                    className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all ${isAnswerChecked
+                                      ? isSelected
                                         ? isAnswerCorrect
                                           ? 'border-green-500 bg-green-50'
                                           : 'border-red-500 bg-red-50'
-                                        : 'border-blue-500 bg-blue-50'
-                                      : 'border-gray-200 hover:border-blue-300'
-                                      }`}
+                                        : 'border-gray-200 opacity-60'
+                                      : isSelected
+                                        ? 'border-blue-500 bg-blue-50'
+                                        : 'border-gray-200 hover:border-blue-300'
+                                      } ${isAnswerChecked ? 'pointer-events-none' : ''}`}
                                   >
-                                    <span className={`${isSelected ? 'text-gray-900 font-medium' : 'text-gray-700'}`}>{option}</span>
+                                    <input
+                                      type="radio"
+                                      name="quiz-option"
+                                      checked={isSelected}
+                                      onChange={() => handleOptionSelect(index)}
+                                      disabled={isAnswerChecked}
+                                      className="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                    />
+                                    <span className={`flex-1 ${isSelected ? 'text-gray-900 font-medium' : 'text-gray-700'}`}>{option}</span>
                                     {isSelected && isAnswerChecked && (
                                       isAnswerCorrect
                                         ? <CheckCircle2 className="text-green-500" size={20} />
                                         : <X className="text-red-500" size={20} />
                                     )}
-                                  </button>
+                                  </label>
                                 );
                               })}
                             </div>
@@ -624,7 +633,11 @@ export const LmsLessonPage: React.FC = () => {
                                 {isAnswerCorrect ? <CheckCircle2 size={20} /> : <X size={20} />}
                                 <span>{isAnswerCorrect ? 'Correct!' : 'Incorrect'}</span>
                               </div>
-                              <p>{isAnswerCorrect ? 'Great job!' : 'Please review the video and try again.'}</p>
+                              {isAnswerCorrect && quiz.questions[currentQuestionIndex].explanation ? (
+                                <p className="mt-2 text-green-700">{quiz.questions[currentQuestionIndex].explanation}</p>
+                              ) : isAnswerCorrect ? (
+                                <p>Great job!</p>
+                              ) : null}
                             </div>
                           )}
 
@@ -635,7 +648,7 @@ export const LmsLessonPage: React.FC = () => {
                                 disabled={selectedOption === null}
                                 className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                               >
-                                Check Answer
+                                Submit Answer
                               </button>
                             ) : (
                               <button
@@ -800,22 +813,6 @@ export const LmsLessonPage: React.FC = () => {
                       <span>Resources</span>
                     </div>
                   </button>
-                  <button
-                    onClick={() => setActiveTab('quiz')}
-                    disabled={!isQuizAccessible}
-                    className={`px-6 py-4 font-medium text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'quiz'
-                      ? 'border-blue-600 text-blue-600'
-                      : isQuizAccessible
-                        ? 'border-transparent text-gray-600 hover:text-gray-900'
-                        : 'border-transparent text-gray-400 cursor-not-allowed opacity-50'
-                      }`}
-                  >
-                    <HelpCircle size={18} />
-                    <span>Quiz</span>
-                    {!isQuizAccessible && (
-                      <Lock size={14} className="ml-1" />
-                    )}
-                  </button>
                 </div>
 
                 {/* Tab Content */}
@@ -859,53 +856,7 @@ export const LmsLessonPage: React.FC = () => {
                     </div>
                   )}
 
-                  {activeTab === 'quiz' && (
-                    <div>
-                      {quizLoading ? (
-                        <div className="text-center py-8">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                          <p className="text-gray-600">Loading quiz...</p>
-                        </div>
-                      ) : quiz ? (
-                        <div className="text-center py-8">
-                          {quizSubmitted ? (
-                            <div className="space-y-4">
-                              <h3 className="text-xl font-bold">Quiz Completed</h3>
-                              <p>Score: {quizScore?.score} / {quizScore?.total}</p>
-                              {quizPassed ? (
-                                <p className="text-green-600 font-bold">You passed!</p>
-                              ) : (
-                                <button
-                                  onClick={handleRetryWizard}
-                                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                                >
-                                  Retake Quiz
-                                </button>
-                              )}
-                            </div>
-                          ) : (
-                            <div>
-                              <p className="mb-4">Quiz is available.</p>
-                              <button
-                                onClick={() => {
-                                  setShowQuizOverlay(true);
-                                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                                }}
-                                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700"
-                              >
-                                Start Quiz
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <HelpCircle size={48} className="mx-auto text-gray-400 mb-4" />
-                          <p className="text-gray-600">No quiz available for this lesson.</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+
                 </div>
               </div>
             </div>

@@ -98,13 +98,13 @@ const getLessonTypeLabel = (type: string) => {
   }
 };
 
-type TabType = 'highlights' | 'outcomes' | 'details' | 'curriculum' | 'faq';
+type TabType = 'details' | 'outcomes' | 'curriculum' | 'reviews' | 'faq';
 
 export const LmsCourseDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>('highlights');
+  const [activeTab, setActiveTab] = useState<TabType>('details');
   // State for expanded sections in curriculum
   const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set());
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set());
@@ -370,10 +370,10 @@ export const LmsCourseDetailPage: React.FC = () => {
 
   const isTrack = course?.courseType === 'Course (Bundles)';
   const tabs = [
-    { id: 'highlights' as TabType, label: isTrack ? 'Track Highlights' : 'Course Highlights' },
-    { id: 'outcomes' as TabType, label: 'Learning Outcomes' },
     { id: 'details' as TabType, label: isTrack ? 'Track Details' : 'Course Details' },
-    { id: 'curriculum' as TabType, label: isTrack ? 'Track Curriculum' : 'Course Curriculum' },
+    { id: 'outcomes' as TabType, label: 'Learning Outcomes' },
+    { id: 'curriculum' as TabType, label: isTrack ? 'Track Curriculum' : 'Curriculum' },
+    { id: 'reviews' as TabType, label: 'Reviews' },
     ...(isTrack && course?.faq && Array.isArray(course.faq) && course.faq.length > 0 ? [{ id: 'faq' as TabType, label: 'FAQ' }] : []),
   ];
 
@@ -519,24 +519,107 @@ export const LmsCourseDetailPage: React.FC = () => {
         <div className="container mx-auto px-4 md:px-6 max-w-7xl py-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             <div className="lg:col-span-8">
-              {/* Track/Course Highlights Tab */}
-              {activeTab === 'highlights' && (
+
+
+              {/* Learning Outcomes Tab */}
+              {activeTab === 'outcomes' && (
                 <section className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {highlights.map((highlight) => (
-                      <div
-                        key={highlight}
-                        className="flex items-start p-4 bg-gray-50 rounded-lg border border-gray-200"
-                      >
-                        <CheckCircleIcon size={18} className="text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-700">{highlight}</span>
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-8 shadow-sm">
+                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                      <span className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                        <CheckCircleIcon size={18} className="text-white" />
+                      </span>
+                      What You'll Learn
+                    </h3>
+                    <ul className="space-y-4">
+                      {outcomes.map((outcome) => (
+                        <li key={outcome} className="flex items-start gap-4 group">
+                          <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 group-hover:scale-125 transition-transform" />
+                          <p className="text-gray-700 leading-relaxed">{outcome}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </section>
+              )}
+
+              {/* Track/Course Details Tab */}
+              {activeTab === 'details' && (
+                <section className="space-y-8">
+                  {/* Summary Cards */}
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
+                          <Clock size={24} className="text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase font-medium">Duration</p>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {courseStats.totalLessons} lessons
+                          </p>
+                        </div>
                       </div>
-                    ))}
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center">
+                          <Star size={24} className="text-amber-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase font-medium">Level</p>
+                          <p className="text-sm font-semibold text-gray-900">{course.levelCode}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center">
+                          <PlayCircleIcon size={24} className="text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase font-medium">Delivery Mode</p>
+                          <p className="text-sm font-semibold text-gray-900">{course.deliveryMode}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
+                          <BookOpen size={24} className="text-green-600" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase font-medium">Lessons</p>
+                          <p className="text-sm font-semibold text-gray-900">{courseStats.totalLessons} lessons</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Part of Track Section - Show if course is part of a learning path */}
+                  {/* Course Description */}
+                  <div>
+                    <p className="text-gray-700 leading-relaxed text-base">
+                      {course.summary}
+                    </p>
+                  </div>
+
+                  {/* Course Highlights */}
+                  {highlights.length > 0 && (
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">
+                        {isTrack ? 'Track Highlights' : 'Course Highlights'}
+                      </h3>
+                      <div className="space-y-3">
+                        {highlights.map((highlight) => (
+                          <div
+                            key={highlight}
+                            className="flex items-start gap-3"
+                          >
+                            <CheckCircleIcon size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-700">{highlight}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Part of Track Section */}
                   {firstPath && pathCourses.length > 0 && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                       <h3 className="text-lg font-semibold mb-2" style={{ color: '#030F35' }}>
                         Part of {firstPath.pathTitle}
                       </h3>
@@ -573,131 +656,6 @@ export const LmsCourseDetailPage: React.FC = () => {
                       </div>
                     </div>
                   )}
-                </section>
-              )}
-
-              {/* Learning Outcomes Tab */}
-              {activeTab === 'outcomes' && (
-                <section className="space-y-6">
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                    <ol className="space-y-4">
-                      {outcomes.map((outcome, index) => (
-                        <li key={outcome} className="flex items-start gap-3">
-                          <span className="font-semibold" style={{ color: '#030F35' }}>{index + 1}.</span>
-                          <p className="text-gray-700 leading-relaxed">{outcome}</p>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                </section>
-              )}
-
-              {/* Track/Course Details Tab */}
-              {activeTab === 'details' && (
-                <section className="space-y-6">
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                    <p className="text-gray-700 leading-relaxed mb-6">
-                      {course.summary}
-                    </p>
-                    {isTrack ? (
-                      // Track Details: Show total hours, videos, articles, labs
-                      (() => {
-                        // Calculate track stats from curriculum
-                        let totalHours = 0;
-                        let videoCount = 0;
-                        let articleCount = 0;
-                        let labCount = 0;
-
-                        if (curriculum && curriculum.length > 0) {
-                          curriculum.forEach((item) => {
-                            if (item.topics) {
-                              item.topics.forEach((topic) => {
-                                if (topic.lessons) {
-                                  topic.lessons.forEach((lesson) => {
-                                    // Parse duration (e.g., "15 min", "2 hours")
-                                    const duration = lesson.duration || '';
-                                    const hoursMatch = duration.match(/(\d+)\s*h/i);
-                                    const minsMatch = duration.match(/(\d+)\s*min/i);
-                                    if (hoursMatch) {
-                                      totalHours += parseInt(hoursMatch[1]);
-                                    } else if (minsMatch) {
-                                      totalHours += parseInt(minsMatch[1]) / 60;
-                                    }
-
-                                    // Count by type
-                                    if (lesson.type === 'video') videoCount++;
-                                    else if (lesson.type === 'reading' || lesson.type === 'guide') articleCount++;
-                                    else if (lesson.type === 'workshop' || lesson.type === 'assignment') labCount++;
-                                  });
-                                }
-                              });
-                            }
-                          });
-                        }
-
-                        return (
-                          <div className="grid sm:grid-cols-2 gap-4 text-sm">
-                            <div className="flex items-center">
-                              <Clock size={16} className="mr-2" style={{ color: '#030F35' }} />
-                              <span className="text-gray-600">
-                                Total Hours: <span className="font-medium text-gray-900">{totalHours.toFixed(1)} hours</span>
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <Video size={16} className="mr-2" style={{ color: '#030F35' }} />
-                              <span className="text-gray-600">
-                                Videos: <span className="font-medium text-gray-900">{videoCount}</span>
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <FileText size={16} className="mr-2" style={{ color: '#030F35' }} />
-                              <span className="text-gray-600">
-                                Articles: <span className="font-medium text-gray-900">{articleCount}</span>
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <Users size={16} className="mr-2" style={{ color: '#030F35' }} />
-                              <span className="text-gray-600">
-                                Labs: <span className="font-medium text-gray-900">{labCount}</span>
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })()
-                    ) : (
-                      // Course Details: Show regular course info
-                      <div className="grid sm:grid-cols-2 gap-4 text-sm">
-                        <div className="flex items-center">
-                          <Clock size={16} className="mr-2" style={{ color: '#030F35' }} />
-                          <span className="text-gray-600">
-                            Duration: <span className="font-medium text-gray-900">
-                              {course.durationMinutes !== undefined && course.durationMinutes > 0
-                                ? formatDurationFromMinutes(course.durationMinutes)
-                                : course.duration || 'N/A'}
-                            </span>
-                          </span>
-                        </div>
-                        <div className="flex items-center">
-                          <CheckCircleIcon size={16} className="mr-2" style={{ color: '#030F35' }} />
-                          <span className="text-gray-600">
-                            Level: <span className="font-medium text-gray-900">{course.levelCode}</span>
-                          </span>
-                        </div>
-                        <div className="flex items-center">
-                          <PlayCircleIcon size={16} className="mr-2" style={{ color: '#030F35' }} />
-                          <span className="text-gray-600">
-                            Delivery Mode: <span className="font-medium text-gray-900">{course.deliveryMode}</span>
-                          </span>
-                        </div>
-                        <div className="flex items-center">
-                          <BookOpen size={16} className="mr-2" style={{ color: '#030F35' }} />
-                          <span className="text-gray-600">
-                            Lessons: <span className="font-medium text-gray-900">{courseStats.totalLessons}</span>
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
                 </section>
               )}
 
@@ -1424,6 +1382,19 @@ export const LmsCourseDetailPage: React.FC = () => {
                       </p>
                     </div>
                   )}
+                </section>
+              )}
+
+              {/* Reviews Tab */}
+              {activeTab === 'reviews' && (
+                <section className="space-y-6">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+                    <MessageSquare size={48} className="mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Reviews Yet</h3>
+                    <p className="text-gray-600">
+                      Be the first to share your experience with this course. Reviews will appear here once available.
+                    </p>
+                  </div>
                 </section>
               )}
 
