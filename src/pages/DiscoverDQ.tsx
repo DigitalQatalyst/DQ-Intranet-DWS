@@ -7,34 +7,191 @@ import { Footer } from "../components/Footer/Footer";
 import Discover_VisionMissionSection from "../components/Discover/Discover_VisionMissionSection";
 import Discover_DNASection from "../components/Discover/Discover_DNASection";
 import Discover_SixDigitalSection from "../components/Discover/Discover_SixDigitalSection";
-import Discover_InsightsSection from "../components/Discover/Discover_InsightsSection";
 import Discover_DirectorySection from "../components/Discover/Discover_DirectorySection";
 import MapCard from "../components/map/MapCard";
-import {
-  DQ_LOCATIONS,
-  LOCATION_FILTERS,
-  type LocationCategory,
-  type LocationItem,
-} from "../api/MAPAPI";
+import type { LocationItem } from "../api/MAPAPI";
 import Discover_HeroSection from "../components/Discover/Discover_HeroSection";
 import styles from "./DiscoverDQ.module.css";
-
-const insightsData = [
-  { name: "The Vision", value: 92, previousValue: 84 },
-  { name: "The HoV", value: 88, previousValue: 81 },
-  { name: "The Personas", value: 85, previousValue: 79 },
-  { name: "Agile TMS", value: 78, previousValue: 68 },
-  { name: "Agile SOS", value: 90, previousValue: 83 },
-  { name: "Agile Flows", value: 86, previousValue: 80 },
-  { name: "Agile DTMF", value: 82, previousValue: 75 },
-];
 
 const DiscoverDQ: React.FC = () => {
   const navigate = useNavigate();
   const [supportOpen, setSupportOpen] = useState(false);
   const [supportStatus, setSupportStatus] = useState<string | null>(null);
   const [isSubmittingSupport, setSubmittingSupport] = useState(false);
-  const [selectedTypes, setSelectedTypes] = useState<Set<LocationCategory>>(new Set());
+  type ClientFilterKey =
+    | "STC"
+    | "SAIB"
+    | "NEOM"
+    | "ADIB"
+    | "Khalifa Fund"
+    | "Khalifa Fund EJ"
+    | "DEWA"
+    | "DFSA"
+    | "SCA"
+    | "MoI";
+
+  type ClientLocation = LocationItem & {
+    filterKey: ClientFilterKey;
+    markerColor: string;
+  };
+
+  const CLIENT_LOCATIONS: ClientLocation[] = [
+    {
+      id: "stc-riyadh",
+      name: "Saudi Telecom Company (stc)",
+      type: "Client",
+      address: "Saudi Telecom Company (stc)",
+      city: "Riyadh",
+      country: "Saudi Arabia",
+      coordinates: { lng: 46.6753, lat: 24.7136 },
+      markerColor: "#7C3AED", // purple
+      filterKey: "STC",
+      website: "https://www.stc.com.sa/",
+      description:
+        "A leading Saudi telecommunications and digital services group delivering connectivity, cloud, and enterprise solutions.",
+    },
+    {
+      id: "saib-riyadh",
+      name: "The Saudi Investment Bank (SAIB)",
+      type: "Client",
+      address: "The Saudi Investment Bank (SAIB)",
+      city: "Riyadh",
+      country: "Saudi Arabia",
+      coordinates: { lng: 46.6753, lat: 24.7136 },
+      markerColor: "#1F2933", // dark gray/black-gold vibe
+      filterKey: "SAIB",
+      website: "https://www.saib.com.sa/",
+      description:
+        "A Saudi financial institution providing corporate, retail, and investment banking services across the Kingdom.",
+    },
+    {
+      id: "neom-tabuk",
+      name: "NEOM",
+      type: "Client",
+      address: "NEOM",
+      city: "Tabuk Region",
+      country: "Saudi Arabia",
+      coordinates: { lng: 35.1128, lat: 28.1122 },
+      markerColor: "#D97706", // gold
+      filterKey: "NEOM",
+      website: "https://www.neom.com/",
+      description:
+        "A Saudi giga-project initiative applying advanced enterprise architecture to enable a future-ready smart city.",
+    },
+    {
+      id: "adib-abu-dhabi",
+      name: "Abu Dhabi Islamic Bank (ADIB)",
+      type: "Client",
+      address: "Abu Dhabi Islamic Bank (ADIB)",
+      city: "Abu Dhabi",
+      country: "United Arab Emirates",
+      coordinates: { lng: 54.3773, lat: 24.4539 },
+      markerColor: "#162862", // dark blue
+      filterKey: "ADIB",
+      website: "https://www.adib.ae/",
+      description:
+        "A UAE-based Sharia-compliant bank offering retail, corporate, and wholesale Islamic financial services.",
+    },
+    {
+      id: "kf-abu-dhabi",
+      name: "Khalifa Fund for Enterprise Development",
+      type: "Client",
+      address: "Khalifa Fund for Enterprise Development",
+      city: "Abu Dhabi",
+      country: "United Arab Emirates",
+      coordinates: { lng: 54.3773, lat: 24.4539 },
+      markerColor: "#16A34A", // green
+      filterKey: "Khalifa Fund",
+      website: "https://www.khalifafund.ae/",
+      description:
+        "A UAE government-backed entity supporting SMEs through funding, advisory services, and entrepreneurship programs.",
+    },
+    {
+      id: "kf-ej-abu-dhabi",
+      name: "Khalifa Fund – Enterprise Journey",
+      type: "Client",
+      address: "Khalifa Fund – Enterprise Journey",
+      city: "Abu Dhabi",
+      country: "United Arab Emirates",
+      coordinates: { lng: 54.3773, lat: 24.4539 },
+      markerColor: "#16A34A", // green
+      filterKey: "Khalifa Fund EJ",
+      website: "https://www.khalifafund.ae/",
+      description:
+        "A structured digital initiative supporting enterprise growth and governance within the UAE ecosystem.",
+    },
+    {
+      id: "dewa-dubai",
+      name: "Dubai Electricity & Water Authority (DEWA)",
+      type: "Client",
+      address: "Dubai Electricity & Water Authority (DEWA)",
+      city: "Dubai",
+      country: "United Arab Emirates",
+      coordinates: { lng: 55.2708, lat: 25.2048 },
+      markerColor: "#16A34A", // green (primary)
+      filterKey: "DEWA",
+      website: "https://www.dewa.gov.ae/",
+      description:
+        "Dubai's primary utility provider delivering electricity, water, and smart infrastructure services.",
+    },
+    {
+      id: "dfsa-dubai",
+      name: "Dubai Financial Services Authority (DFSA)",
+      type: "Client",
+      address: "Dubai Financial Services Authority (DFSA)",
+      city: "Dubai",
+      country: "United Arab Emirates",
+      coordinates: { lng: 55.2708, lat: 25.2048 },
+      markerColor: "#4B5563", // dark gray
+      filterKey: "DFSA",
+      website: "https://www.dfsa.ae/",
+      description:
+        "The independent regulator overseeing financial services conducted in or from the Dubai International Financial Centre.",
+    },
+    {
+      id: "sca-abu-dhabi",
+      name: "Securities & Commodities Authority (SCA)",
+      type: "Client",
+      address: "Securities & Commodities Authority (SCA)",
+      city: "Abu Dhabi",
+      country: "United Arab Emirates",
+      coordinates: { lng: 54.3773, lat: 24.4539 },
+      markerColor: "#D97706", // gold
+      filterKey: "SCA",
+      website: "https://www.sca.gov.ae/",
+      description:
+        "The UAE federal authority regulating securities markets and protecting investor interests.",
+    },
+    {
+      id: "moi-i360-abu-dhabi",
+      name: "UAE Ministry of Interior (MoI – I360)",
+      type: "Client",
+      address: "UAE Ministry of Interior (MoI – I360)",
+      city: "Abu Dhabi",
+      country: "United Arab Emirates",
+      coordinates: { lng: 54.3773, lat: 24.4539 },
+      markerColor: "#DC2626", // red accent
+      filterKey: "MoI",
+      website: "https://www.moi.gov.ae/",
+      description:
+        "A UAE Ministry of Interior initiative enabling integrated digital intelligence and data-driven security operations.",
+    },
+  ];
+
+  const CLIENT_FILTERS: { key: ClientFilterKey; label: string }[] = [
+    { key: "STC", label: "STC" },
+    { key: "SAIB", label: "SAIB" },
+    { key: "NEOM", label: "NEOM" },
+    { key: "ADIB", label: "ADIB" },
+    { key: "Khalifa Fund", label: "Khalifa Fund" },
+    { key: "Khalifa Fund EJ", label: "Khalifa Fund EJ" },
+    { key: "DEWA", label: "DEWA" },
+    { key: "DFSA", label: "DFSA" },
+    { key: "SCA", label: "SCA" },
+    { key: "MoI", label: "MoI" },
+  ];
+
+  const [selectedTypes, setSelectedTypes] = useState<Set<ClientFilterKey>>(new Set());
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null);
 
   const prefersReducedMotion = useMemo(
@@ -56,8 +213,8 @@ const DiscoverDQ: React.FC = () => {
   }, [supportOpen]);
 
   const filteredLocations = useMemo(() => {
-    if (!selectedTypes.size) return DQ_LOCATIONS;
-    return DQ_LOCATIONS.filter((location) => selectedTypes.has(location.type));
+    if (!selectedTypes.size) return CLIENT_LOCATIONS;
+    return CLIENT_LOCATIONS.filter((location) => selectedTypes.has(location.filterKey));
   }, [selectedTypes]);
 
   useEffect(() => {
@@ -123,46 +280,83 @@ const DiscoverDQ: React.FC = () => {
         <Discover_HeroSection />
 
         {/* Map Section */}
-        <section id="growth-areas" className="bg-[#F6FAFB] py-20 scroll-mt-[72px]">
-          <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 text-center sm:px-10 lg:px-12">
+        <section
+          id="growth-areas"
+          className="bg-white py-20 scroll-mt-[72px]"
+        >
+          <div className="mx-auto flex max-w-6xl flex-col px-6 text-center sm:px-10 lg:px-12">
             <h2
-              className="font-serif text-3xl font-bold tracking-[0.04em] text-[#030F35] sm:text-4xl"
-              style={{ fontFamily: '"Playfair Display", Georgia, "Times New Roman", serif' }}
+              className="font-bold text-center"
+              style={{
+                fontFamily:
+                  'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+                fontSize: "30px",
+                fontWeight: 700,
+                fontStyle: "normal",
+                textTransform: "none",
+                textAlign: "center",
+                color: "#162862", // DWS Primary Dark Blue
+                margin: 0,
+              }}
             >
-              Discover the DQ Ecosystem
+              Discover the DigitalQatalyst Ecosystem
             </h2>
-            <p className="mx-auto max-w-2xl text-dws-text-dim text-slate-600">
-              Explore DQ’s transformation network across UAE, KSA, and Kenya offices, clients, and partners.
+            <p
+              className="mx-auto max-w-[680px]"
+              style={{
+                fontFamily:
+                  'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+                fontSize: "16px",
+                fontWeight: 400,
+                fontStyle: "normal",
+                lineHeight: 1.5,
+                textAlign: "center",
+                textTransform: "none",
+                color: "#4B5563",
+                marginTop: "16px",
+                marginBottom: "24px",
+              }}
+            >
+              Explore DigitalQatalyst’s clients and partners through verified engagement locations across key regional markets.
             </p>
           </div>
 
-          <div className="mx-auto mt-10 max-w-[1200px] px-4 sm:px-6 lg:px-8">
-            <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
-              {LOCATION_FILTERS.map((label) => (
+          <div className="mx-auto mt-6 max-w-[1226px] px-4 sm:px-6 lg:px-8">
+            <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
+              {CLIENT_FILTERS.map(({ key, label }) => {
+                const location = CLIENT_LOCATIONS.find((loc) => loc.filterKey === key);
+                const color = location?.markerColor ?? "#162862";
+                const isActive = selectedTypes.has(key);
+
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => toggleType(key)}
+                    className="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:scale-105"
+                    style={{
+                      backgroundColor: isActive ? color : "#FFFFFF",
+                      border: `1.5px solid ${color}`,
+                      color: isActive ? "#FFFFFF" : color,
+                      boxShadow: isActive ? `0 4px 12px ${color}40` : "none",
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+              {selectedTypes.size > 0 && (
                 <button
-                  key={label}
                   type="button"
-                  onClick={() => toggleType(label)}
-                  className={clsx(
-                    "px-3 py-1 rounded-full text-sm font-semibold transition",
-                    selectedTypes.has(label)
-                      ? "bg-slate-900 text-white shadow-sm"
-                      : "bg-white ring-1 ring-slate-200 text-slate-700 hover:bg-slate-50",
-                  )}
+                  onClick={clearTypes}
+                  className="px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 border border-[#162862] text-[#162862] bg-white hover:bg-[#162862] hover:text-white"
                 >
-                  {label}
+                  Clear
                 </button>
-              ))}
-              <button
-                type="button"
-                onClick={clearTypes}
-                className="px-3 py-1 rounded-full text-sm bg-slate-100 text-slate-600 ring-1 ring-slate-200 hover:bg-white"
-              >
-                × Clear
-              </button>
+              )}
             </div>
 
-            <div className="relative z-0 h-[560px] sm:h-[600px] md:h-[640px] lg:h-[680px] overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
+            <div className="relative z-0 h-[420px] md:h-[520px] lg:h-[608px] xl:h-[608px] overflow-hidden rounded-2xl bg-white shadow-xl">
               <MapCard
                 className="h-full w-full"
                 locations={filteredLocations}
@@ -182,9 +376,6 @@ const DiscoverDQ: React.FC = () => {
           onExploreLearningCenter={handleExploreLearningCenter}
           onExploreKnowledgeCenter={handleExploreKnowledgeCenter}
         />
-
-        {/* Growth Potential */}
-        <Discover_InsightsSection data={insightsData} />
 
         {/* Six Digital Architecture */}
         <Discover_SixDigitalSection />

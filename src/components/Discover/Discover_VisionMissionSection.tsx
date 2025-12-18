@@ -1,18 +1,15 @@
 import React from 'react';
+import { DiscoverSectionTitle } from './DiscoverSectionTitle';
 
 export const Discover_VisionMissionSection: React.FC = () => {
   return (
     <section className="bg-gray-50 py-16 md:py-24" id="vision-mission" aria-labelledby="vm-heading">
-      <div className="dws-container max-w-[1200px] mx-auto px-6 md:px-8">
+      <div className="mx-auto px-6 md:px-8" style={{ maxWidth: '1120px' }}>
         {/* Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <h2
-            id="vm-heading"
-            className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold tracking-[0.04em] text-[#030F35] mb-3"
-            style={{ fontFamily: '"Playfair Display", Georgia, "Times New Roman", serif' }}
-          >
+        <div className="text-center" style={{ marginBottom: '48px' }}>
+          <DiscoverSectionTitle id="vm-heading">
             Vision &amp; Mission
-          </h2>
+          </DiscoverSectionTitle>
           <p
             className="text-base md:text-lg max-w-[780px] mx-auto leading-relaxed clamp-2"
             style={{ color: 'var(--dws-text-dim)' }}
@@ -21,39 +18,130 @@ export const Discover_VisionMissionSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-stretch">
+        {/* Cards Container - Centered with explicit gap */}
+        <div 
+          className="flex flex-col md:flex-row items-center justify-center"
+          style={{ gap: '32px' }}
+        >
           {/* Vision Card */}
-          <div className="dws-card bg-white flex flex-col h-full p-8 md:p-10" style={{ border: '1px solid var(--dws-line)' }}>
+          <div
+            className="vision-mission-card bg-white flex flex-col"
+            style={{
+              width: '500px',
+              maxWidth: '500px',
+              height: '406px',
+              minHeight: '406px',
+              borderRadius: '16px',
+              padding: '32px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              border: '1px solid rgba(0, 0, 0, 0.06)',
+            }}
+          >
             <h3
-              className="font-serif text-2xl md:text-3xl font-bold tracking-[0.03em] text-[#030F35] mb-4 md:mb-6"
-              style={{ fontFamily: '"Playfair Display", Georgia, "Times New Roman", serif', letterSpacing: '0.5px' }}
+              className="vision-mission-title"
+              style={{
+                fontSize: '22px',
+                fontWeight: 600,
+                lineHeight: 1.35,
+                maxWidth: '90%',
+                color: '#030F35',
+                margin: 0,
+                fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+              }}
             >
               DQ Vision – Perfecting Life's Transactions
             </h3>
 
-            <p className="text-base md:text-lg leading-relaxed" style={{ color: 'var(--dws-text)' }}>
+            <p
+              className="vision-mission-body"
+              style={{
+                fontSize: '15px',
+                lineHeight: 1.6,
+                color: '#4B5563',
+                maxWidth: '95%',
+                marginTop: '16px',
+                marginBottom: 0,
+                fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+              }}
+            >
               We empower associates to turn innovation into impact through seamless, dependable workflows that make
               collaboration effortless and progress meaningful.
             </p>
           </div>
 
           {/* Mission Card */}
-          <div className="dws-card bg-white flex flex-col h-full p-8 md:p-10" style={{ border: '1px solid var(--dws-line)' }}>
+          <div
+            className="vision-mission-card bg-white flex flex-col"
+            style={{
+              width: '500px',
+              maxWidth: '500px',
+              height: '406px',
+              minHeight: '406px',
+              borderRadius: '16px',
+              padding: '32px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              border: '1px solid rgba(0, 0, 0, 0.06)',
+            }}
+          >
             <h3
-              className="font-serif text-2xl md:text-3xl font-bold tracking-[0.03em] text-[#030F35] mb-4 md:mb-6"
-              style={{ fontFamily: '"Playfair Display", Georgia, "Times New Roman", serif', letterSpacing: '0.5px' }}
+              className="vision-mission-title"
+              style={{
+                fontSize: '22px',
+                fontWeight: 600,
+                lineHeight: 1.35,
+                maxWidth: '90%',
+                color: '#030F35',
+                margin: 0,
+                fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+              }}
             >
               DQ Mission – Building a Smarter, Connected Future
             </h3>
 
-            <p className="text-base md:text-lg leading-relaxed" style={{ color: 'var(--dws-text)' }}>
+            <p
+              className="vision-mission-body"
+              style={{
+                fontSize: '15px',
+                lineHeight: 1.6,
+                color: '#4B5563',
+                maxWidth: '95%',
+                marginTop: '16px',
+                marginBottom: 0,
+                fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+              }}
+            >
               We connect people, processes, and platforms to enable smarter work—helping every Qatalyst learn faster,
               collaborate better, and lead with purpose.
             </p>
           </div>
         </div>
       </div>
+
+      {/* Responsive Styles */}
+      <style>{`
+        @media (max-width: 1023px) {
+          .vision-mission-card {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            min-height: auto !important;
+          }
+        }
+        
+        @media (max-width: 767px) {
+          .vision-mission-card {
+            padding: 24px !important;
+          }
+          
+          .vision-mission-title {
+            font-size: 20px !important;
+          }
+          
+          .vision-mission-body {
+            font-size: 14px !important;
+          }
+        }
+      `}</style>
     </section>
   );
 };
