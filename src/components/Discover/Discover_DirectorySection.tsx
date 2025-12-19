@@ -290,7 +290,7 @@ const AssociateCard: React.FC<AssociateCardProps> = ({ associate, onOpen }) => {
 };
 
 const Discover_DirectorySection: React.FC<Discover_DirectorySectionProps> = ({
-  subtitle = 'Connect with DQ sectors, teams, and associates driving collaboration, delivery, and innovation across the Digital Workspace.',
+  subtitle = 'Explore DQ teams, capabilities, and factories delivering solutions, services, and innovation across the ecosystem.',
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
 

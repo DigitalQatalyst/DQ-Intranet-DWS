@@ -695,7 +695,7 @@ function Discover_DNASection({}: Discover_DNASectionProps) {
     >
       <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 24px" }}>
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "14px" }}>
+        <div style={{ textAlign: "center", marginBottom: "8px" }}>
           <DiscoverSectionTitle>
             Growth Dimensions
           </DiscoverSectionTitle>
@@ -708,9 +708,7 @@ function Discover_DNASection({}: Discover_DNASectionProps) {
               lineHeight: 1.5,
             }}
           >
-            Seven interconnected dimensions that define how DQ thinks, works, and evolves.
-            <br />
-            Together, they shape how we learn, collaborate, govern, and deliver value.
+            Seven interconnected dimensions defining how DQ thinks, works, governs, collaborates, and evolves continuously.
           </p>
         </div>
 
@@ -721,7 +719,7 @@ function Discover_DNASection({}: Discover_DNASectionProps) {
             maxWidth: "1400px",
             margin: "0 auto 24px auto",
             position: "relative",
-            marginTop: "0",
+            marginTop: "-8px",
           }}
         >
           <svg

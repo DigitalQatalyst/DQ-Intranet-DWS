@@ -171,8 +171,7 @@ const Discover_SixDigitalSection: React.FC = () => {
             Agile 6xD (Products)
           </DiscoverSectionTitle>
           <p className="mx-auto max-w-3xl text-lg text-gray-600">
-            Transformation isn’t something we talk about — it’s something we build.<br />
-            Agile 6xD is how DQ designs and scales digital transformation as a living, evolving system.
+            Six digital perspectives guiding how DQ designs, builds, and scales transformation as living systems.
           </p>
         </FadeInUpOnScroll>
 
