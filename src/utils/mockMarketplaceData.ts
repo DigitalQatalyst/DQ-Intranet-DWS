@@ -928,7 +928,7 @@ export const mockNonFinancialServices = [
     documentType: ['Policies', 'Forms'],
     provider: {
       name: 'HR',
-      logoUrl: '/leave.jpg',
+      logoUrl: '/leave.png',
       description:
         'DQ Human Resources manages leave policies and ensures fair, consistent application of leave rules across all departments and business units.',
     },
@@ -943,7 +943,7 @@ export const mockNonFinancialServices = [
       'Complete handover catalog for leaves exceeding one day',
     ],
     tags: ['HR', 'Online', 'Business'],
-    featuredImageUrl: '/images/services/leave.jpg',
+    featuredImageUrl: '/images/services/leave.png',
     requestUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
   },
   {
