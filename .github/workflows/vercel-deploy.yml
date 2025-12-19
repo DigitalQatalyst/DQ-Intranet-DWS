@@ -11,6 +11,8 @@ on:
       - "develop-staging"
       - "staging"
       - "release"
+      - "Stage00"
+      - "devlop-discover-dq"
   pull_request:
     branches:
       - main
