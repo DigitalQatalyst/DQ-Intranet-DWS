@@ -142,7 +142,7 @@ export const DirectoryCard: React.FC<DirectoryCardData> = ({
           <button
             type="button"
             onClick={onViewProfile}
-            className="w-full font-semibold transition-all"
+            className="mt-6 w-full font-semibold transition-all"
             style={{
               height: '48px',
               borderRadius: '12px',
