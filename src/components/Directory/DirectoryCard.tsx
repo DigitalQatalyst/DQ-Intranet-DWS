@@ -139,6 +139,7 @@ export const DirectoryCard: React.FC<DirectoryCardData> = ({
             <div className="rounded-2xl bg-slate-50 p-3">{renderInfoBlock()}</div>
           )}
 
+          {/* CTA Button (DQ Navy) */}
           <button
             type="button"
             onClick={onViewProfile}
