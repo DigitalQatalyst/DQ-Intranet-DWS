@@ -1,13 +1,12 @@
 import React, { useMemo } from 'react';
 import { BookmarkIcon, Clock, Layers } from 'lucide-react';
 import {
-  CARD_ICON_BY_ID,
-  DEFAULT_COURSE_ICON,
   resolveChipIcon
 } from '../../utils/lmsIcons';
 import { LOCATION_ALLOW } from '@/lms/config';
 import { useNavigate } from 'react-router-dom';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
+import { resolveServiceImage } from '../../utils/serviceCardImages';
 export interface MarketplaceItemProps {
   item: {
     id: string;
@@ -34,7 +33,6 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
   marketplaceType,
   isBookmarked,
   onToggleBookmark,
-  onAddToComparison,
   onQuickView
 }) => {
   const navigate = useNavigate();
@@ -72,7 +70,6 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
     navigate(`${getItemRoute()}?action=true`);
   };
   // Display tags if available, otherwise use category and deliveryMode
-  const IconComponent = CARD_ICON_BY_ID[item.id] || DEFAULT_COURSE_ICON;
   
   // Calculate lessons/modules count for courses
   const courseStats = useMemo(() => {
@@ -127,7 +124,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
             ]
           : [typeLabel, ...baseTags];
       }
-      return baseTags.map((label, index) => ({ key: `generic-${index}`, label }));
+      return baseTags.map((label, index) => ({ key: `generic-${index}`, label, iconValue: label }));
     }
     
     // For courses: only show duration and modules count with separator
@@ -149,33 +146,40 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
     }
     
     return chips;
-  }, [item, marketplaceType, courseStats]);
+  }, [item, marketplaceType]);
+  
+  // Prefer explicit featuredImageUrl, else mapped image by id/title, else default
+  const imageSrc =
+    item.featuredImageUrl ||
+    resolveServiceImage(item.id, item.title) ||
+    '/images/services/DTMP.jpg';
+  
   return <div className="flex flex-col min-h-[340px] bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200" onClick={onQuickView}>
-      {/* Course Image */}
-      {item.imageUrl && (
-        <div className="w-full h-40 bg-gray-200 overflow-hidden">
-          <img 
-            src={item.imageUrl} 
-            alt={item.title}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              // Hide image if it fails to load
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
-          />
-        </div>
-      )}
+      {/* Featured Image */}
+      <div className="relative h-48 bg-gray-200 overflow-hidden">
+        <img 
+          src={imageSrc}
+          alt={item.title}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            // Fallback to a gradient if image fails to load
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            if (target.parentElement) {
+              target.parentElement.className = 'relative h-48 bg-gradient-to-br from-gray-400 to-gray-600';
+            }
+          }}
+        />
+      </div>
+      
       {/* Card Header with fixed height for title and provider */}
-      <div className="px-4 py-5 flex-grow flex flex-col">
-        <div className="flex items-start mb-5">
-          <div className="flex-grow min-h-[72px] flex flex-col justify-center">
-            <div className="flex items-center gap-2 min-h-[48px]">
-              <IconComponent className="h-5 w-5 shrink-0" aria-hidden="true" />
-              <h3 className="font-bold text-gray-900 line-clamp-2 leading-snug">
-                {item.title}
-              </h3>
-            </div>
-            <p className="text-sm text-gray-500 min-h-[20px] mt-1">
+      <div className="px-4 pt-3 pb-2 flex-grow flex flex-col">
+        <div className="flex items-start mb-1">
+          <div className="flex-grow flex flex-col">
+            <h3 className="font-bold text-gray-900 line-clamp-2 leading-tight" style={{ margin: 0, lineHeight: 1.15 }}>
+              {item.title}
+            </h3>
+            <p className="text-sm text-gray-500 mt-0.5" style={{ marginTop: 2, marginBottom: 0 }}>
               {item.provider.name}
             </p>
           </div>

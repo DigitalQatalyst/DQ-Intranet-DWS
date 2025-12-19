@@ -10,11 +10,11 @@ interface MobileDrawerProps {
   isSignedIn: boolean;
 }
 const marketplaces = [{
-  id: 'non-financial',
-  name: 'IT & Systems Support',
+  id: 'service-center',
+  name: 'Services Center',
   description: 'Helpdesk, access requests, device & app support.',
   icon: BuildingIcon,
-  href: '/marketplace/non-financial'
+  href: '/marketplace/services-center'
 }, {
   id: 'finance',
   name: 'HR & Finance Services',
