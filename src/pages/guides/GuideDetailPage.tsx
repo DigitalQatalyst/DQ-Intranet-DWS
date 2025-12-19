@@ -963,7 +963,10 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
                   {parsedGuideSections.map((section, index) => (
                     <div key={index} className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
                       <div className="p-6 md:p-8">
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">{section.title}</h2>
+                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 pl-4 relative">
+                          <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] to-transparent"></span>
+                          {section.title}
+                        </h2>
                         <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed space-y-4">
                           <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
                             <Markdown body={section.content} />
@@ -1149,7 +1152,10 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
                   {parsedGuideSections.map((section, index) => (
                     <div key={index} className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
                       <div className="p-6 md:p-8">
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">{section.title}</h2>
+                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 pl-4 relative">
+                          <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] to-transparent"></span>
+                          {section.title}
+                        </h2>
                         <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed space-y-4">
                           <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
                             <Markdown body={section.content} />

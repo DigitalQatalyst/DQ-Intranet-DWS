@@ -322,8 +322,8 @@ const parseBold = (text: string) => {
   return parts.length > 0 ? parts : [text];
 };
 
-// Render full content for blog articles, preserving all formatting exactly as provided
-const renderFullContent = (content: string) => {
+// Render full content for blog articles, news, and announcements, preserving all formatting exactly as provided
+const renderFullContent = (content: string, isBlog: boolean = false, treatFirstLineAsHeading: boolean = false) => {
   if (!content) return null;
   
   const lines = content.split('\n');
@@ -332,6 +332,7 @@ const renderFullContent = (content: string) => {
   let listItems: string[] = [];
   let inList = false;
   let keyCounter = 0;
+  let firstLineProcessed = false;
 
   const flushParagraph = () => {
     if (currentParagraph.length > 0) {
@@ -376,26 +377,51 @@ const renderFullContent = (content: string) => {
       continue;
     }
 
+    // For blogs, news, and announcements: treat first non-empty line as a heading
+    if ((isBlog || treatFirstLineAsHeading) && !firstLineProcessed) {
+      flushList();
+      flushParagraph();
+      // Remove markdown heading markers if present, but keep the text
+      let cleanText = trimmed.replace(/^#+\s+/, '').trim();
+      // Remove pipe character (|) from the beginning if present
+      cleanText = cleanText.replace(/^\|\s*/, '');
+      if (cleanText) {
+        elements.push(
+          <h2 key={keyCounter++} className="text-xl font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0">
+            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+            {parseBold(cleanText)}
+          </h2>
+        );
+        firstLineProcessed = true;
+        continue;
+      }
+    }
+
     // Check for headings (## or ###)
     const headingMatch = trimmed.match(/^(##+)\s+(.+)$/);
     if (headingMatch) {
       flushList();
       flushParagraph();
       const level = headingMatch[1].length;
-      const headingText = headingMatch[2].trim();
+      let headingText = headingMatch[2].trim();
+      // Remove pipe character (|) from the beginning of heading text if present
+      headingText = headingText.replace(/^\|\s*/, '');
       if (level === 2) {
         elements.push(
-          <h2 key={keyCounter++} className="text-xl font-bold text-gray-900 mt-6 mb-4">
+          <h2 key={keyCounter++} className="text-xl font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0">
+            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
             {parseBold(headingText)}
           </h2>
         );
       } else {
         elements.push(
-          <h3 key={keyCounter++} className="text-lg font-bold text-gray-900 mt-6 mb-4">
+          <h3 key={keyCounter++} className="text-lg font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0">
+            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
             {parseBold(headingText)}
           </h3>
         );
       }
+      firstLineProcessed = true;
       continue;
     }
 
@@ -405,6 +431,7 @@ const renderFullContent = (content: string) => {
       flushParagraph();
       inList = true;
       listItems.push(listMatch[1]);
+      firstLineProcessed = true;
       continue;
     }
 
@@ -413,6 +440,7 @@ const renderFullContent = (content: string) => {
       flushList();
     }
     currentParagraph.push(trimmed);
+    firstLineProcessed = true;
   }
 
   // Flush any remaining content
@@ -692,8 +720,8 @@ const NewsDetailPage: React.FC = () => {
                 {/* Article Content - Full content for blogs, Scrum Master article, and Christmas schedule articles, overview for other announcements */}
                 <article className="bg-white rounded-lg shadow p-6 space-y-4">
                   {(isBlogArticle || isScrumMasterArticle || isChristmasScheduleArticle) && article.content ? (
-                    <div className="prose prose-sm max-w-none">
-                      {renderFullContent(article.content)}
+                    <div className="prose prose-sm max-w-none [&_h2]:border-l-0 [&_h2]:border-0 [&_h3]:border-l-0 [&_h3]:border-0 [&_h4]:border-l-0 [&_h4]:border-0 [&_h2_*]:border-0 [&_h3_*]:border-0 [&_h4_*]:border-0">
+                      {renderFullContent(article.content, isBlogArticle, true)}
                     </div>
                   ) : (
                     <div className="space-y-3">

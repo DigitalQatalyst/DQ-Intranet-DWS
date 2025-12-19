@@ -166,3 +166,4 @@
 - Await user feedback on blog card implementation
 - Address any additional styling or content requirements if needed
 
+

@@ -69,18 +69,16 @@ To ensure the date chosen is convenient for DXB Associates. I will be sharing a 
     newsType: 'Company News',
     newsSource: 'DQ Operations',
     focusArea: 'Culture & People',
-    content: `# DQ DXB & KSA | CHRISTMAS & NEW YEAR SCHEDULE AND WFH ARRANGEMENT
+    content: `In observance of the Christmas and New Year season, please note the following work arrangements and holiday schedule for DXB and KSA associates.
 
-In observance of the Christmas and New Year season, please note the following work arrangements and holiday schedule for DXB and KSA associates.
-
-## 1. Official Holidays
+## | Official Holidays
 
 The following days are designated as official holidays:
 
 - Thursday, 25th December 2025 – Christmas Day
 - Thursday, 1st January 2026 – New Year's Day
 
-## 2. Mandatory Work-From-Home (WFH) Days
+## | Mandatory Work-From-Home (WFH) Days
 
 All DXB and KSA associates are required to work from home on the following days:
 
@@ -88,7 +86,7 @@ All DXB and KSA associates are required to work from home on the following days:
 - Wednesday, 31st December 2025
 - Friday, 2nd January 2026
 
-## 3. WFH Daily Requirements
+## | WFH Daily Requirements
 
 To ensure productivity and visibility, please adhere to these daily requirements:
 
@@ -99,7 +97,7 @@ To ensure productivity and visibility, please adhere to these daily requirements
 
 **Failure to comply will result in the day being treated as unpaid work day.**
 
-## 4. Office Work Resumption
+## | Office Work Resumption
 
 All other weekdays outside the dates listed above will follow the standard office work policy.
 
@@ -124,11 +122,9 @@ We wish everyone a safe, joyful, and restful festive season.`
     newsType: 'Company News',
     newsSource: 'DQ Operations',
     focusArea: 'Culture & People',
-    content: `# DQ NBO | CHRISTMAS & NEW YEAR SCHEDULE AND WFH ARRANGEMENT
+    content: `In observance of the Christmas and New Year season, please note the following work arrangements and holiday schedule for NBO associates.
 
-In observance of the Christmas and New Year season, please note the following work arrangements and holiday schedule for NBO associates.
-
-## 1. Work-From-Home (WFH) Period
+## | Work-From-Home (WFH) Period
 
 All associates will work from home from Wednesday, 24th December 2025 through Friday, 2nd January 2026. To ensure productivity and collaboration during this period, please adhere to the following requirements:
 
@@ -139,18 +135,18 @@ All associates will work from home from Wednesday, 24th December 2025 through Fr
 
 Please note that non-compliance with these requirements will be considered unpaid.
 
-## 2. Official Paid Holidays
+## | Official Paid Holidays
 
 The following days are designated as official paid holidays:
 
 - Thursday, 25th December 2025 – Christmas Day
 - Thursday, 1st January 2026 – New Year's Day
 
-## 3. Rescue Work & Compensation
+## | Rescue Work & Compensation
 
 Associates required to work on the official paid holidays (25th December and/or 1st January) will receive rescue pay for those days, in addition to their standard daily compensation.
 
-## 4. Additional Holidays
+## | Additional Holidays
 
 NBO associates will also observe the following additional holiday observed as Utamaduni Day in Kenya:
 
@@ -2046,13 +2042,11 @@ For questions about any of these resources or to request additional documentatio
     newsType: 'Company News',
     newsSource: 'DQ Leadership',
     focusArea: 'Culture & People',
-    content: `# DQ Changes: Updated Scrum Master Structure
-
-As part of our organizational optimization, we are updating the leadership structure across functions to streamline responsibilities and enhance ownership.
+    content: `As part of our organizational optimization, we are updating the leadership structure across functions to streamline responsibilities and enhance ownership.
 
 Previously, our leadership structure included Sector Leads, Factory Leads, Tower Leads, and Scrum Masters. These have now been streamlined into 4 unified Scrum Master framework.
 
-## Updated Scrum Master Structure
+## | Updated Scrum Master Structure
 
 DQ will now operate under four defined Scrum Master categories:
 
@@ -2072,11 +2066,11 @@ DQ will now operate under four defined Scrum Master categories:
 - Factory Scrum Master
 - Tower Scrum Master
 
-## Purpose
+## | Purpose
 
 To maintain a streamlined, transparent, and consistent leadership structure that strengthens delivery ownership, enhances blocker resolution, and drives teams toward clear, measurable outcomes.
 
-## Role Expectation
+## | Role Expectation
 
 All Scrum Masters are expected to take full ownership of their unit, delivery area, or working room proactively identifying blockers, facilitating progress, and ensuring achievement of defined delivery targets.`
   }

@@ -530,7 +530,8 @@ const MediaDetailPage: React.FC = () => {
                 </p>
               </div>
             )}
-            <h2 className="text-xl font-bold text-gray-900 mt-6 mb-4">
+            <h2 className="text-xl font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0">
+              <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
               Key Developments
             </h2>
             <p className="text-gray-700 mb-6 leading-relaxed">
@@ -810,7 +811,8 @@ const MediaDetailPage: React.FC = () => {
                 </div>
                 {/* Video description */}
                 <div className="mb-8">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4 pl-4 relative border-0 border-l-0">
+                    <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
                     Video Description
                   </h2>
                   <p className="text-gray-700 mb-4">{item.description}</p>
@@ -1122,7 +1124,8 @@ const MediaDetailPage: React.FC = () => {
           <div>
             <div className="flex flex-col md:flex-row gap-6 mb-8">
               <div className="md:w-2/3">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 pl-4 relative border-0 border-l-0">
+                  <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
                   Overview
                 </h2>
                 <p className="text-gray-700 mb-4">{item.description}</p>
@@ -1437,7 +1440,8 @@ const MediaDetailPage: React.FC = () => {
                 in our ongoing efforts to support enterprise growth and
                 innovation.
               </p>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pl-4 relative border-0 border-l-0">
+                <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
                 What This Means For You
               </h3>
               <p className="text-gray-700 mb-4 leading-relaxed">
@@ -1452,7 +1456,8 @@ const MediaDetailPage: React.FC = () => {
                 During this transition period, additional resources will be
                 available to assist businesses with any adjustments needed.
               </p>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-4 pl-4 relative border-0 border-l-0">
+                <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
                 Next Steps
               </h3>
               <p className="text-gray-700 mb-4 leading-relaxed">
@@ -2063,7 +2068,8 @@ const MediaDetailPage: React.FC = () => {
                     </div>
                     {/* Video description */}
                     <div className="mb-8">
-                      <h2 className="text-xl font-bold text-gray-900 mb-4">
+                      <h2 className="text-xl font-bold text-gray-900 mb-4 pl-4 relative border-0 border-l-0">
+                        <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
                         Video Description
                       </h2>
                       <p className="text-gray-700 mb-4">{item.description}</p>
@@ -2162,7 +2168,8 @@ const MediaDetailPage: React.FC = () => {
                       <div className="md:col-span-8 lg:col-span-9">
                         {/* Event Description */}
                         <div className="mb-6">
-                          <h3 className="text-xl font-bold text-gray-900 mb-4">
+                          <h3 className="text-xl font-bold text-gray-900 mb-4 pl-4 relative border-0 border-l-0">
+                            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
                             Event Description
                           </h3>
                           <p className="text-gray-700 mb-4">
@@ -2289,7 +2296,8 @@ const MediaDetailPage: React.FC = () => {
                     </div>
                     {/* Event Agenda Section */}
                     <div className="mb-8">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4 pl-4 relative flex items-center border-0 border-l-0">
+                        <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
                         <Calendar size={20} className="mr-2 text-blue-600" />
                         Event Agenda
                       </h3>

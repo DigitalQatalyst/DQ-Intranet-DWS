@@ -41,11 +41,11 @@ const marketplaces: Marketplace[] = [
     href: '#',
   },
   {
-    id: 'media-center',
-    name: 'DQ Media Center',
+    id: 'news-center',
+    name: 'News Center',
     description: 'View DQ updates, corporate news, blogs, job openings, and essential announcements.',
     icon: NewspaperIcon,
-    href: '/marketplace/opportunities',
+    href: '/marketplace/opportunities?tab=announcements',
   },
   {
     id: 'work-communities',
@@ -182,7 +182,7 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
           <div className="max-h-96 overflow-y-auto">
             {marketplaces.map((marketplace, index) => {
               const Icon = marketplace.icon;
-              const isActive = marketplace.id === 'media-center' && (location.pathname.startsWith('/marketplace/opportunities') || location.pathname.startsWith('/marketplace/news'));
+              const isActive = marketplace.id === 'news-center' && (location.pathname.startsWith('/marketplace/opportunities') || location.pathname.startsWith('/marketplace/news'));
               return (
                 <a
                   key={marketplace.id}
