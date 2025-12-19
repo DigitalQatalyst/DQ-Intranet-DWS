@@ -8,6 +8,11 @@ on:
       - develop
       - "fix/**"
       - "hotfix/**"
+      - "develop-staging"
+      - "staging"
+      - "release"
+      - "Stage00"
+      - "devlop-discover-dq"
   pull_request:
     branches:
       - main
@@ -19,7 +24,7 @@ jobs:
       - name: 🧾 Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch full history for commit info
+          fetch-depth: 0
 
       - name: 📊 Extract commit info
         id: commit_info
@@ -34,26 +39,38 @@ jobs:
       - name: 🧰 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'npm'
 
       - name: 📦 Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: 🏗️ Build project
         run: npm run build
         env:
-          # Add any build-time environment variables here
           NODE_ENV: production
 
       - name: ⚙️ Install Vercel CLI
         run: npm install -g vercel@latest
 
+      # CRITICAL: Create .vercel directory with project linking BEFORE pulling
+      - name: 🔧 Link to Vercel Project
+        run: |
+          mkdir -p .vercel
+          echo "{\"projectId\":\"${{ secrets.VERCEL_PROJECT_ID }}\",\"orgId\":\"${{ secrets.VERCEL_ORG_ID }}\"}" > .vercel/project.json
+          cat .vercel/project.json
+          echo "✅ Linked to Vercel project: dq-intranet"
+
       - name: 🔗 Pull Vercel environment
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: 🏗️ Build with Vercel
-        run: vercel build ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          fi
 
       - name: 🌐 Deploy to Vercel
         id: deploy
@@ -67,6 +84,7 @@ jobs:
         run: |
           echo "🔍 Branch: $BRANCH_NAME"
           echo "👤 Deployed by: $AUTHOR_NAME ($AUTHOR_EMAIL)"
+          echo "📦 Project ID: $VERCEL_PROJECT_ID"
           
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "🚀 Deploying PRODUCTION build..."
