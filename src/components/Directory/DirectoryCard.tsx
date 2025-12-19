@@ -16,6 +16,10 @@ export type DirectoryCardData = {
 
 const getInitial = (title: string) => title?.[0]?.toUpperCase() ?? 'D';
 
+/**
+ * DQ-style unified directory card for Units and Associates
+ * Clean, professional layout with consistent spacing and navy-blue theme
+ */
 export const DirectoryCard: React.FC<DirectoryCardData> = ({
   logoUrl,
   title,
