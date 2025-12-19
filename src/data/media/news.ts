@@ -24,6 +24,143 @@ export type NewsItem = {
 
 export const NEWS: NewsItem[] = [
   {
+    id: 'dxb-eoy-event-postponement',
+    title: 'DXB EoY Event Postponement',
+    type: 'Announcement',
+    date: '2025-12-19',
+    author: 'Fadil A',
+    byline: 'DQ Operations',
+    views: 0,
+    excerpt:
+      'Due to unfavourable weather conditions, the DQ Studios Y/E Annual Gathering scheduled for 19.12.2025 has been rescheduled for everyone\'s safety.',
+    image: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Operations',
+    location: 'Dubai',
+    domain: 'Operations',
+    tags: ['event', 'postponement', 'annual gathering', 'weather'],
+    readingTime: '<5',
+    newsType: 'Company News',
+    newsSource: 'DQ Operations',
+    focusArea: 'Culture & People',
+    content: `# DXB EoY Event Postponement
+
+Due to unfavourable weather conditions, we regret to inform you that today's DQ Studios Y/E Annual Gathering (19.12.2025) will be rescheduled for everyone's safety.
+
+We sincerely apologise for the inconvenience and appreciate your understanding.
+
+To ensure the date chosen is convenient for DXB Associates. I will be sharing a poll shortly to confirm a date. Once confirmed, details regarding the rescheduled date will be shared after.`
+  },
+  {
+    id: 'dq-dxb-ksa-christmas-new-year-schedule',
+    title: 'DQ DXB & KSA | CHRISTMAS & NEW YEAR SCHEDULE AND WFH ARRANGEMENT',
+    type: 'Announcement',
+    date: '2025-12-15',
+    author: 'Irene M',
+    byline: 'DQ Operations',
+    views: 0,
+    excerpt:
+      'In observance of the Christmas and New Year season, please note the work arrangements and holiday schedule for DXB and KSA associates, including official holidays and mandatory WFH days.',
+    image: 'https://images.unsplash.com/photo-1482517967863-00e15c9b44be?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Operations',
+    location: 'Dubai',
+    domain: 'Operations',
+    tags: ['holiday', 'christmas', 'new year', 'WFH', 'schedule'],
+    readingTime: '5–10',
+    newsType: 'Company News',
+    newsSource: 'DQ Operations',
+    focusArea: 'Culture & People',
+    content: `# DQ DXB & KSA | CHRISTMAS & NEW YEAR SCHEDULE AND WFH ARRANGEMENT
+
+In observance of the Christmas and New Year season, please note the following work arrangements and holiday schedule for DXB and KSA associates.
+
+## 1. Official Holidays
+
+The following days are designated as official holidays:
+
+- Thursday, 25th December 2025 – Christmas Day
+- Thursday, 1st January 2026 – New Year's Day
+
+## 2. Mandatory Work-From-Home (WFH) Days
+
+All DXB and KSA associates are required to work from home on the following days:
+
+- Friday, 26th December 2025
+- Wednesday, 31st December 2025
+- Friday, 2nd January 2026
+
+## 3. WFH Daily Requirements
+
+To ensure productivity and visibility, please adhere to these daily requirements:
+
+- Log in to DQ Live.
+- Join your designated working rooms.
+- Share your morning activity.
+- Submit a clear end-of-day report.
+
+**Failure to comply will result in the day being treated as unpaid work day.**
+
+## 4. Office Work Resumption
+
+All other weekdays outside the dates listed above will follow the standard office work policy.
+
+We wish everyone a safe, joyful, and restful festive season.`
+  },
+  {
+    id: 'dq-nbo-christmas-new-year-schedule',
+    title: 'DQ NBO | CHRISTMAS & NEW YEAR SCHEDULE AND WFH ARRANGEMENT',
+    type: 'Announcement',
+    date: '2025-12-15',
+    author: 'Irene M',
+    byline: 'DQ Operations',
+    views: 0,
+    excerpt:
+      'In observance of the Christmas and New Year season, please note the work arrangements and holiday schedule for NBO associates, including WFH period, official holidays, and additional holidays.',
+    image: 'https://images.unsplash.com/photo-1482517967863-00e15c9b44be?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Operations',
+    location: 'Nairobi',
+    domain: 'Operations',
+    tags: ['holiday', 'christmas', 'new year', 'WFH', 'schedule', 'NBO'],
+    readingTime: '5–10',
+    newsType: 'Company News',
+    newsSource: 'DQ Operations',
+    focusArea: 'Culture & People',
+    content: `# DQ NBO | CHRISTMAS & NEW YEAR SCHEDULE AND WFH ARRANGEMENT
+
+In observance of the Christmas and New Year season, please note the following work arrangements and holiday schedule for NBO associates.
+
+## 1. Work-From-Home (WFH) Period
+
+All associates will work from home from Wednesday, 24th December 2025 through Friday, 2nd January 2026. To ensure productivity and collaboration during this period, please adhere to the following requirements:
+
+- Log in to DQ Live each working day.
+- Log in to your designated working rooms.
+- Share your morning daily activity.
+- Submit a clear end-of-day report.
+
+Please note that non-compliance with these requirements will be considered unpaid.
+
+## 2. Official Paid Holidays
+
+The following days are designated as official paid holidays:
+
+- Thursday, 25th December 2025 – Christmas Day
+- Thursday, 1st January 2026 – New Year's Day
+
+## 3. Rescue Work & Compensation
+
+Associates required to work on the official paid holidays (25th December and/or 1st January) will receive rescue pay for those days, in addition to their standard daily compensation.
+
+## 4. Additional Holidays
+
+NBO associates will also observe the following additional holiday observed as Utamaduni Day in Kenya:
+
+- Friday, 26th December 2025
+
+NBO team members will not be required to work on this date. Those who are required to work will receive additional compensation for this day.
+
+We wish everyone a safe and joyful festive season.`
+  },
+  {
     id: 'dq-townhall-meeting-agenda',
     title: 'DQ Townhall Meeting Agenda',
     type: 'Announcement',
@@ -1911,16 +2048,36 @@ For questions about any of these resources or to request additional documentatio
     focusArea: 'Culture & People',
     content: `# DQ Changes: Updated Scrum Master Structure
 
-## Overview
-As part of our organizational optimization, we are updating the Scrum Master structure to better align with our delivery framework and enhance team effectiveness.
+As part of our organizational optimization, we are updating the leadership structure across functions to streamline responsibilities and enhance ownership.
 
-## Key Changes
-- Updated Scrum Master roles and responsibilities
-- Enhanced alignment with delivery framework
-- Improved team collaboration and effectiveness
-- Streamlined organizational structure
+Previously, our leadership structure included Sector Leads, Factory Leads, Tower Leads, and Scrum Masters. These have now been streamlined into 4 unified Scrum Master framework.
 
-## Impact
-This update will help us better serve our teams and improve our overall delivery capabilities.`
+## Updated Scrum Master Structure
+
+DQ will now operate under four defined Scrum Master categories:
+
+### COE Scrum Masters
+(Existing position) – Supporting enterprise-wide capability excellence.
+
+### Delivery Scrum Masters
+(New role) – Driving end-to-end delivery flow, ensuring teams progress predictably from brief to outcome.
+
+### Working Room Scrum Masters
+(New role) – Managing daily execution within working rooms, resolving blockers, and ensuring day-to-day operational throughput.
+
+### Unit Scrum Masters
+(Updated position) – The former Sector, Factory, and Tower Lead positions redefined as:
+
+- Sector Scrum Master
+- Factory Scrum Master
+- Tower Scrum Master
+
+## Purpose
+
+To maintain a streamlined, transparent, and consistent leadership structure that strengthens delivery ownership, enhances blocker resolution, and drives teams toward clear, measurable outcomes.
+
+## Role Expectation
+
+All Scrum Masters are expected to take full ownership of their unit, delivery area, or working room proactively identifying blockers, facilitating progress, and ensuring achievement of defined delivery targets.`
   }
 ];

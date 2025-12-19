@@ -10,11 +10,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams, Link } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
-<<<<<<< HEAD
-import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Download, AlertTriangle, ExternalLink, Calendar, User, Building2, Heart, MessageCircle, BookmarkIcon, FileText } from 'lucide-react'
-=======
-import { ChevronRightIcon, HomeIcon, CheckCircle, Download, AlertTriangle, ExternalLink, ChevronDown } from 'lucide-react'
->>>>>>> f6fb1ac129b3e3742d8a1c3ecbd984d1c6a2f092
+import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Download, AlertTriangle, ExternalLink, Calendar, User, Building2, Heart, MessageCircle, BookmarkIcon, FileText, ChevronDown } from 'lucide-react'
 import { supabaseClient } from '../../lib/supabaseClient'
 import { getGuideImageUrl } from '../../utils/guideImageMap'
 import { track } from '../../utils/analytics'
@@ -66,11 +62,9 @@ const GuideDetailPage: React.FC = () => {
   const [previewUnavailable, setPreviewUnavailable] = useState(false)
   const articleRef = useRef<HTMLDivElement | null>(null)
   const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([])
-<<<<<<< HEAD
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [likes, setLikes] = useState(47) // Mock likes count
   const [comments, setComments] = useState(12) // Mock comments count
-=======
   const [activeContentTab, setActiveContentTab] = useState<string>('overview')
   const isClientTestimonials = useMemo(() => (guide?.slug || '').toLowerCase() === 'client-testimonials', [guide?.slug])
   const featuredClientTestimonials = [
@@ -99,7 +93,6 @@ const GuideDetailPage: React.FC = () => {
       avatar: 'https://randomuser.me/api/portraits/men/40.jpg'
     }
   ]
->>>>>>> f6fb1ac129b3e3742d8a1c3ecbd984d1c6a2f092
 
   const backQuery = (location?.state && location.state.fromQuery) ? String(location.state.fromQuery) : ''
   const initialBackHref = `/marketplace/guides${backQuery ? `?${backQuery}` : ''}`
@@ -780,12 +773,11 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
   const stepsCount = useMemo(() => guide?.steps?.length ?? 0, [guide?.steps])
   const hasSteps = useMemo(() => stepsCount > 0, [stepsCount])
   const showSteps = hasSteps
-<<<<<<< HEAD
-  const showTemplates = (guide?.templates && guide.templates.length > 0) || type === 'template'
-  const showAttachments = (guide?.attachments && guide.attachments.length > 0)
-  const isPractitionerType = ['best practice', 'best-practice', 'process', 'sop', 'procedure'].includes(type)
-  const showFallbackModule = isPractitionerType && !showTemplates && !showAttachments
-  const lastUpdated = guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null
+  const showTemplates = useMemo(() => (guide?.templates && guide.templates.length > 0) || type === 'template', [guide?.templates, type])
+  const showAttachments = useMemo(() => (guide?.attachments && guide.attachments.length > 0), [guide?.attachments])
+  const isPractitionerType = useMemo(() => ['best practice', 'best-practice', 'process', 'sop', 'procedure'].includes(type), [type])
+  const showFallbackModule = useMemo(() => isPractitionerType && !showTemplates && !showAttachments, [isPractitionerType, showTemplates, showAttachments])
+  const lastUpdated = useMemo(() => guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null, [guide?.lastUpdatedAt])
   const announcementDate = guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : null
   const announcementDateShort = guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null
   
@@ -807,20 +799,9 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
     }
     return 'DQ'
   }
-  const isApproved = ((guide?.status) || 'Approved') === 'Approved'
-  const documentUrl = (guide?.documentUrl || '').trim()
-  const hasDocument = documentUrl.length > 0
-  const isPolicy = type === 'policy'
-  const showPolicyCtas = isPolicy
-=======
-  const showTemplates = useMemo(() => (guide?.templates && guide.templates.length > 0) || type === 'template', [guide?.templates, type])
-  const showAttachments = useMemo(() => (guide?.attachments && guide.attachments.length > 0), [guide?.attachments])
-  const isPractitionerType = useMemo(() => ['best practice', 'best-practice', 'process', 'sop', 'procedure'].includes(type), [type])
-  const showFallbackModule = useMemo(() => isPractitionerType && !showTemplates && !showAttachments, [isPractitionerType, showTemplates, showAttachments])
-  const lastUpdated = useMemo(() => guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null, [guide?.lastUpdatedAt])
   const isApproved = useMemo(() => ((guide?.status) || 'Approved') === 'Approved', [guide?.status])
   const isPolicy = useMemo(() => type === 'policy', [type])
->>>>>>> f6fb1ac129b3e3742d8a1c3ecbd984d1c6a2f092
+  const showPolicyCtas = isPolicy
   const showDocumentActions = hasDocument
   const isPreviewableDocument = useMemo(() => {
     if (!isPolicy || !hasDocument) return false
@@ -1278,7 +1259,6 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
           </div>
         )}
 
-<<<<<<< HEAD
         {/* Header card - Updated to match screenshot styling */}
         <header className="bg-white rounded-lg shadow p-6 mb-6" aria-labelledby="guide-title">
           <div className="space-y-4">
@@ -1320,73 +1300,12 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
             {/* Image if available */}
             {imageUrl && (
               <img src={imageUrl} alt={guide.title} className="w-full h-60 object-cover rounded mb-4" loading="lazy" decoding="async" width={1200} height={320} />
-=======
-        {/* Header - Course-style format */}
-        <div className="bg-white rounded-lg shadow mb-6">
-          <div className="p-6">
-            {/* Title with icon + top-right CTA */}
-            <div className="flex items-center justify-between gap-4 mb-4">
-              <h1 id="guide-title" className="text-2xl md:text-3xl font-bold text-gray-900">
-                {guide.title}
-              </h1>
-              {actualIsBlueprintDomain && (
-                <a
-                  href={primaryDocUrl || '#templates'}
-                  target={primaryDocUrl ? '_blank' : undefined}
-                  rel={primaryDocUrl ? 'noopener noreferrer' : undefined}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full self-start text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] transition-all"
-                  style={{ backgroundColor: '#030E31' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#020A28'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030E31'}
-                >
-                  <span>View Blueprint</span>
-                  <ExternalLink size={16} className="opacity-90" />
-                </a>
-              )}
-              {actualIsGuidelinesDomain && (
-                <a
-                  href={primaryDocUrl || '#'}
-                  target={primaryDocUrl && primaryDocUrl !== '#' ? '_blank' : undefined}
-                  rel={primaryDocUrl && primaryDocUrl !== '#' ? 'noopener noreferrer' : undefined}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full self-start text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] transition-all"
-                  style={{ backgroundColor: '#030E31' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#020A28'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030E31'}
-                >
-                  <span>View Guideline</span>
-                  <ExternalLink size={16} className="opacity-90" />
-                </a>
-              )}
-              {actualIsStrategyDomain && (
-                <a
-                  href={primaryDocUrl || '#'}
-                  target={primaryDocUrl && primaryDocUrl !== '#' ? '_blank' : undefined}
-                  rel={primaryDocUrl && primaryDocUrl !== '#' ? 'noopener noreferrer' : undefined}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full self-start text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] transition-all"
-                  style={{ backgroundColor: '#030E31' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#020A28'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030E31'}
-                >
-                  <span>View Strategy</span>
-                  <ExternalLink size={16} className="opacity-90" />
-                </a>
-              )}
-              {actualIsTestimonialsDomain && (
-                <a
-                  href={primaryDocUrl || '#'}
-                  target={primaryDocUrl && primaryDocUrl !== '#' ? '_blank' : undefined}
-                  rel={primaryDocUrl && primaryDocUrl !== '#' ? 'noopener noreferrer' : undefined}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full self-start text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] transition-all"
-                  style={{ backgroundColor: '#030E31' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#020A28'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030E31'}
-                >
-                  <span>View Testimonial</span>
-                  <ExternalLink size={16} className="opacity-90" />
-                </a>
-              )}
-            </div>
-            
+            )}
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
             {/* Tags + View Blueprint (Blueprints) */}
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <div className="flex flex-wrap items-center gap-2">
@@ -1438,7 +1357,6 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
               <p className="text-gray-700 text-base leading-relaxed mb-4">
                 {guide.summary}
               </p>
->>>>>>> f6fb1ac129b3e3742d8a1c3ecbd984d1c6a2f092
             )}
           </div>
         </div>
@@ -1525,7 +1443,6 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
               />
             )}
 
-<<<<<<< HEAD
             {/* Announcement body content */}
             {guide.body && !isPolicy && (
               <section className="bg-white rounded-lg shadow p-6" aria-label="Content">
@@ -1537,12 +1454,8 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
               </section>
             )}
 
-            {/* CODEx: Concise Summary card for policy pages only */}
-            {isPolicy && (derivedSummary || guide.summary) && (
-=======
             {/* CODEx: Concise Summary card for policy pages only - hidden when tabs are present */}
             {isPolicy && (derivedSummary || guide.summary) && !hasTabsEffective && (
->>>>>>> f6fb1ac129b3e3742d8a1c3ecbd984d1c6a2f092
               <section className="bg-white rounded-lg shadow p-6" aria-label="Summary">
                 <h2 className="text-xl font-semibold mb-3">Summary</h2>
                 <p className="text-gray-700 leading-7">{derivedSummary || guide.summary}</p>
@@ -1658,9 +1571,6 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
             </div>
 
             {/* CODEx: For policy pages, long body behind a toggle; for others, show as usual */}
-<<<<<<< HEAD
-            {isPolicy && type !== 'template' && guide.body && (
-=======
             {isClientTestimonials && (
               <section className="bg-white rounded-2xl shadow p-6" aria-label="Client Feedback">
                 <div className="mb-5">
@@ -1696,7 +1606,6 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
             )}
 
             {!isClientTestimonials && type !== 'template' && guide.body && !hasTabsEffective && (
->>>>>>> f6fb1ac129b3e3742d8a1c3ecbd984d1c6a2f092
               <article
                 id="full-details"
                 ref={articleRef}
@@ -1821,16 +1730,12 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
             )}
           </div>
 
-<<<<<<< HEAD
           {/* Sidebar: Related Announcements - Updated to match screenshot */}
-=======
->>>>>>> f6fb1ac129b3e3742d8a1c3ecbd984d1c6a2f092
           <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-24" aria-label="Secondary">
             {related && related.length > 0 && (
               <section aria-labelledby="related-title" className="bg-white rounded-lg shadow p-6" id="related">
                 <h2 id="related-title" className="text-xl font-semibold mb-4">Related Announcements</h2>
                 <div className="space-y-3">
-<<<<<<< HEAD
                   {related.slice(0, 3).map((r) => {
                     const relatedDate = r.lastUpdatedAt ? new Date(r.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null
                     const getTagColor = (type: string | null | undefined) => {
@@ -1861,35 +1766,9 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
                             <div className="font-medium text-gray-900 line-clamp-2" title={r.title}>{r.title}</div>
                           </div>
                           <ChevronRightIcon size={18} className="text-gray-400 flex-shrink-0 mt-1" />
-=======
-                  {related.map((r) => (
-                    <Link
-                      key={r.slug || r.id}
-                      to={`/marketplace/guides/${encodeURIComponent(r.slug || r.id)}`}
-                      className="block border border-gray-200 rounded-lg p-3 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
-                      onClick={() => track('Guides.RelatedClick', { from: guide.slug || guide.id, to: r.slug || r.id })}
-                    >
-                      <div className="flex gap-3">
-                        <img
-                          src={getGuideImageUrl({
-                            heroImageUrl: r.heroImageUrl || undefined,
-                            domain: r.domain || undefined,
-                            guideType: r.guideType || undefined,
-                            id: r.id,
-                            slug: r.slug,
-                            title: r.title,
-                          })}
-                          alt={r.title}
-                          className="w-20 h-20 object-cover rounded"
-                          loading="lazy"
-                        />
-                        <div className="min-w-0">
-                          <div className="font-medium text-gray-900 truncate" title={r.title}>{r.title}</div>
-                          {r.summary && <div className="text-sm text-gray-600 line-clamp-2">{r.summary}</div>}
->>>>>>> f6fb1ac129b3e3742d8a1c3ecbd984d1c6a2f092
                         </div>
                       </Link>
-                    )
+                    );
                   })}
                 </div>
               </section>

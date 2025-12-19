@@ -443,6 +443,11 @@ const NewsDetailPage: React.FC = () => {
 
   const overview = article ? buildOverview(article) : [];
   const isBlogArticle = article?.type === 'Thought Leadership';
+  const isScrumMasterArticle = article?.id === 'dq-scrum-master-structure-update' || 
+                               article?.title.toLowerCase().includes('scrum master structure');
+  const isChristmasScheduleArticle = article?.id === 'dq-dxb-ksa-christmas-new-year-schedule' || 
+                                     article?.id === 'dq-nbo-christmas-new-year-schedule' ||
+                                     (article?.title.toLowerCase().includes('christmas') && article?.title.toLowerCase().includes('new year'));
 
   // Color and label mappings for newsType categories (matching NewsCard)
   const newsTypeColor: Record<NonNullable<NewsItem['newsType']>, string> = {
@@ -611,92 +616,82 @@ const NewsDetailPage: React.FC = () => {
           </div>
         </section>
 
+        {/* Hero Section with Blurred Background */}
+        <section className="relative min-h-[400px] flex items-center" aria-labelledby="article-title">
+          {/* Blurred Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${getImageSrc(article)})`,
+              filter: 'blur(4px)',
+            }}
+          />
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-800/70 to-slate-900/80" />
+          
+          {/* Content */}
+          <div className="relative z-10 mx-auto max-w-7xl px-6 py-16 w-full">
+            <div className="max-w-4xl">
+              {/* Category Tag */}
+              {(() => {
+                const newsTypeDisplay = getNewsTypeDisplay(article);
+                return (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-gray-200/90 text-gray-700 mb-4">
+                    {newsTypeDisplay.label}
+                  </span>
+                );
+              })()}
+              
+              {/* Date */}
+              <div className="text-white/90 text-sm mb-4">
+                {announcementDate}
+              </div>
+
+              {/* Title */}
+              <h1 id="article-title" className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
+                {(() => {
+                  if (article.id === 'dq-scrum-master-structure-update' || article.title.toLowerCase().includes('scrum master structure')) {
+                    return 'Updated Scrum Master Structure';
+                  }
+                  if (article.id === 'dq-townhall-meeting-agenda' || article.title.toLowerCase().includes('townhall meeting agenda')) {
+                    return 'DQ Townhall Meeting';
+                  }
+                  if (article.id === 'company-wide-lunch-break-schedule' || article.title.toLowerCase().includes('company-wide lunch break schedule') || article.title.toLowerCase().includes('lunch break schedule')) {
+                    return 'Company-Wide Lunch Break Schedule';
+                  }
+                  if (article.id === 'grading-review-program-grp' || article.title.toLowerCase().includes('grading review program') || article.title.toLowerCase().includes('grp')) {
+                    return 'Grading Review Program (GRP)';
+                  }
+                  return article.title;
+                })()}
+              </h1>
+
+              {/* Author Info */}
+              <div className="text-white/90 text-sm">
+                {(() => {
+                  const authorParts: string[] = [];
+                  if (article.newsSource || article.department) {
+                    authorParts.push(article.newsSource || article.department || '');
+                  }
+                  if (displayAuthor) {
+                    authorParts.push(displayAuthor);
+                  }
+                  return authorParts.length > 0 ? authorParts.join(' • ') : 'DQ Leadership • Digital Qatalyst';
+                })()}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="bg-gray-50 py-8">
           <div className="mx-auto max-w-7xl px-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Main Content Area */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Header Card - Updated to match Secret Santa structure */}
-                <header className="bg-white rounded-lg shadow p-6" aria-labelledby="article-title">
-                  <div className="space-y-4">
-                    {/* Category tag and date row */}
-                    <div className="flex items-center gap-4 flex-wrap">
-                      {(() => {
-                        const newsTypeDisplay = getNewsTypeDisplay(article);
-                        return (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-white border border-gray-200 text-gray-700">
-                            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: newsTypeDisplay.color }} />
-                            {newsTypeDisplay.label}
-                          </span>
-                        );
-                      })()}
-                      <div className="flex items-center gap-2 text-gray-600 text-sm">
-                        <Calendar size={16} className="text-gray-400" />
-                        <span>{announcementDateShort}</span>
-                      </div>
-                    </div>
 
-                    {/* Title */}
-                    <h1 id="article-title" className="text-2xl font-bold text-gray-900 leading-tight">
-                      {(() => {
-                        if (article.id === 'dq-scrum-master-structure-update' || article.title.toLowerCase().includes('scrum master structure')) {
-                          return 'Updated Scrum Master Structure';
-                        }
-                        if (article.id === 'dq-townhall-meeting-agenda' || article.title.toLowerCase().includes('townhall meeting agenda')) {
-                          return 'DQ Townhall Meeting';
-                        }
-                        if (article.id === 'company-wide-lunch-break-schedule' || article.title.toLowerCase().includes('company-wide lunch break schedule') || article.title.toLowerCase().includes('lunch break schedule')) {
-                          return 'Company-Wide Lunch Break Schedule';
-                        }
-                        if (article.id === 'grading-review-program-grp' || article.title.toLowerCase().includes('grading review program') || article.title.toLowerCase().includes('grp')) {
-                          return 'Grading Review Program (GRP)';
-                        }
-                        return article.title;
-                      })()}
-                    </h1>
-
-                    {/* Author info with circular icon */}
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-semibold">
-                        {getAuthorInitials()}
-                      </div>
-                      <div>
-                        {(article.newsSource || article.department) && (
-                          <div className="text-sm font-medium text-gray-900">{article.newsSource || article.department}</div>
-                        )}
-                        {displayAuthor && (
-                          <div className="text-xs text-gray-600">{displayAuthor}</div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Hero Image if available */}
-                    {getImageSrc(article) && (
-                      <div className="relative">
-                        <img
-                          src={getImageSrc(article)}
-                          alt={article.title}
-                          className="w-full h-60 object-cover rounded mb-4"
-                          loading="lazy"
-                        />
-                        {/* Badge overlay on image (matching NewsCard style) */}
-                        {(() => {
-                          const newsTypeDisplay = getNewsTypeDisplay(article);
-                          return (
-                            <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/40 bg-white/80 px-3 py-1 text-xs font-semibold text-gray-700 backdrop-blur">
-                              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: newsTypeDisplay.color }} />
-                              {newsTypeDisplay.label}
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    )}
-                  </div>
-                </header>
-
-                {/* Article Content - Full content for blogs, overview for announcements */}
+                {/* Article Content - Full content for blogs, Scrum Master article, and Christmas schedule articles, overview for other announcements */}
                 <article className="bg-white rounded-lg shadow p-6 space-y-4">
-                  {isBlogArticle && article.content ? (
+                  {(isBlogArticle || isScrumMasterArticle || isChristmasScheduleArticle) && article.content ? (
                     <div className="prose prose-sm max-w-none">
                       {renderFullContent(article.content)}
                     </div>

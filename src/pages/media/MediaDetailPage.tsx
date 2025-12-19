@@ -1597,118 +1597,203 @@ const MediaDetailPage: React.FC = () => {
         sidebarOpen={sidebarOpen}
       />
       <main className="flex-grow">
-        {/* Hero Section */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Hero Section - New layout for announcements and blogs */}
+        {(type?.toLowerCase() === 'announcement' || type?.toLowerCase() === 'blog') ? (
+          <>
             {/* Breadcrumbs */}
-            <nav className="flex mb-6" aria-label="Breadcrumb">
-              <ol className="inline-flex items-center space-x-1 md:space-x-2">
-                <li className="inline-flex items-center">
-                  <Link
-                    to="/"
-                    className="text-gray-600 hover:text-gray-900 inline-flex items-center"
-                  >
-                    <HomeIcon size={16} className="mr-1" />
-                    <span>Home</span>
-                  </Link>
-                </li>
-                <li>
-                  <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-gray-400" />
-                    <Link
-                      to="/marketplace/guides"
-                      className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
-                    >
-                      Guides
-                    </Link>
-                  </div>
-                </li>
-                <li>
-                  <div className="flex items-center">
-                    <ChevronRightIcon size={16} className="text-gray-400" />
-                    <span className="ml-1 text-gray-500 md:ml-2">
-                      {getMediaTypeLabel()}
-                    </span>
-                  </div>
-                </li>
-              </ol>
-            </nav>
-            {/* Full-width hero content */}
-            <div className="w-full">
-              {/* Media Type Badge */}
-              <div className="flex items-center mb-4">
-                <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                  {getMediaTypeIcon()}
-                  <span className="ml-1">{getMediaTypeLabel()}</span>
-                </span>
+            <div className="bg-white border-b border-gray-200">
+              <div className="container mx-auto px-4 py-4 max-w-7xl">
+                <nav className="flex" aria-label="Breadcrumb">
+                  <ol className="inline-flex items-center space-x-1 md:space-x-2">
+                    <li className="inline-flex items-center">
+                      <Link
+                        to="/"
+                        className="text-gray-600 hover:text-gray-900 inline-flex items-center"
+                      >
+                        <HomeIcon size={16} className="mr-1" />
+                        <span>Home</span>
+                      </Link>
+                    </li>
+                    <li>
+                      <div className="flex items-center">
+                        <ChevronRightIcon size={16} className="text-gray-400" />
+                        <Link
+                          to="/marketplace/guides"
+                          className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
+                        >
+                          Guides
+                        </Link>
+                      </div>
+                    </li>
+                    <li>
+                      <div className="flex items-center">
+                        <ChevronRightIcon size={16} className="text-gray-400" />
+                        <span className="ml-1 text-gray-500 md:ml-2">
+                          {getMediaTypeLabel()}
+                        </span>
+                      </div>
+                    </li>
+                  </ol>
+                </nav>
               </div>
-              {/* Title */}
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight max-w-4xl">
-                {item.title}
-              </h1>
-              {/* Provider information - moved from sidebar and made compact */}
-              <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 mb-4 flex items-center">
-                {item.provider?.logoUrl && (
-                  <img
-                    src={item.provider.logoUrl}
-                    alt={item.provider.name}
-                    className="h-10 w-10 object-contain rounded mr-3"
-                  />
-                )}
-                <div className="flex-grow">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900">
-                      {item.provider?.name || 'Unknown Provider'}
-                    </h3>
-                    <a
-                      href="#"
-                      className="text-blue-600 hover:text-blue-800 text-sm flex items-center ml-2"
-                    >
-                      View Profile
-                      <ChevronRightIcon size={14} className="ml-1" />
-                    </a>
-                  </div>
-                  <p className="text-gray-600 text-sm line-clamp-1">
-                    {item.provider?.description ||
-                      'Provider information not available.'}
-                  </p>
-                </div>
-              </div>
-              {/* Provider and metadata row - responsive layout */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-5">
-                {/* Metadata */}
-                <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-                  {item.date && (
-                    <div className="flex items-center">
-                      <Calendar size={16} className="mr-1 text-gray-500" />
-                      <span>{item.date}</span>
-                    </div>
-                  )}
-                  {item.duration && (
-                    <div className="flex items-center">
-                      <Clock size={16} className="mr-1 text-gray-500" />
-                      <span>{item.duration}</span>
-                    </div>
-                  )}
-                  {item.location && (
-                    <div className="flex items-center">
-                      <MapPin size={16} className="mr-1 text-gray-500" />
-                      <span>{item.location}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {(item.tags || []).map((tag, index) => (
-                  <span
-                    key={index}
-                    className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${index % 3 === 0 ? 'bg-blue-50 text-blue-700' : index % 3 === 1 ? 'bg-indigo-50 text-indigo-700' : 'bg-purple-50 text-purple-700'}`}
-                  >
-                    {tag}
+            </div>
+            {/* Hero Section with Blurred Background */}
+            <section className="relative min-h-[400px] flex items-center" aria-labelledby="article-title">
+              {/* Blurred Background Image */}
+              <div 
+                className="absolute inset-0 bg-cover bg-center"
+                style={{
+                  backgroundImage: `url(${item.imageUrl || 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1600&q=80'})`,
+                  filter: 'blur(4px)',
+                }}
+              />
+              {/* Dark Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-800/70 to-slate-900/80" />
+              
+              {/* Content */}
+              <div className="relative z-10 container mx-auto px-4 py-16 max-w-7xl w-full">
+                <div className="max-w-4xl">
+                  {/* Category Tag */}
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-gray-200/90 text-gray-700 mb-4">
+                    {getMediaTypeLabel()}
                   </span>
-                ))}
+                  
+                  {/* Date */}
+                  <div className="text-white/90 text-sm mb-4">
+                    {item.date ? (() => {
+                      try {
+                        return new Date(item.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                      } catch {
+                        return item.date;
+                      }
+                    })() : ''}
+                  </div>
+
+                  {/* Title */}
+                  <h1 id="article-title" className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
+                    {item.title}
+                  </h1>
+
+                  {/* Author Info */}
+                  <div className="text-white/90 text-sm">
+                    {item.provider?.name ? `${item.provider.name}${item.provider.description ? ' • ' + item.provider.description : ''}` : 'DQ Leadership • Digital Qatalyst'}
+                  </div>
+                </div>
               </div>
+            </section>
+          </>
+        ) : (
+          <div className="bg-white border-b border-gray-200">
+            <div className="container mx-auto px-4 py-8 max-w-7xl">
+              {/* Breadcrumbs */}
+              <nav className="flex mb-6" aria-label="Breadcrumb">
+                <ol className="inline-flex items-center space-x-1 md:space-x-2">
+                  <li className="inline-flex items-center">
+                    <Link
+                      to="/"
+                      className="text-gray-600 hover:text-gray-900 inline-flex items-center"
+                    >
+                      <HomeIcon size={16} className="mr-1" />
+                      <span>Home</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <div className="flex items-center">
+                      <ChevronRightIcon size={16} className="text-gray-400" />
+                      <Link
+                        to="/marketplace/guides"
+                        className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
+                      >
+                        Guides
+                      </Link>
+                    </div>
+                  </li>
+                  <li>
+                    <div className="flex items-center">
+                      <ChevronRightIcon size={16} className="text-gray-400" />
+                      <span className="ml-1 text-gray-500 md:ml-2">
+                        {getMediaTypeLabel()}
+                      </span>
+                    </div>
+                  </li>
+                </ol>
+              </nav>
+              {/* Full-width hero content */}
+              <div className="w-full">
+                {/* Media Type Badge */}
+                <div className="flex items-center mb-4">
+                  <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                    {getMediaTypeIcon()}
+                    <span className="ml-1">{getMediaTypeLabel()}</span>
+                  </span>
+                </div>
+                {/* Title */}
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 leading-tight max-w-4xl">
+                  {item.title}
+                </h1>
+                {/* Provider information - moved from sidebar and made compact */}
+                <div className="bg-gray-50 border border-gray-100 rounded-lg p-3 mb-4 flex items-center">
+                  {item.provider?.logoUrl && (
+                    <img
+                      src={item.provider.logoUrl}
+                      alt={item.provider.name}
+                      className="h-10 w-10 object-contain rounded mr-3"
+                    />
+                  )}
+                  <div className="flex-grow">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-gray-900">
+                        {item.provider?.name || 'Unknown Provider'}
+                      </h3>
+                      <a
+                        href="#"
+                        className="text-blue-600 hover:text-blue-800 text-sm flex items-center ml-2"
+                      >
+                        View Profile
+                        <ChevronRightIcon size={14} className="ml-1" />
+                      </a>
+                    </div>
+                    <p className="text-gray-600 text-sm line-clamp-1">
+                      {item.provider?.description ||
+                        'Provider information not available.'}
+                    </p>
+                  </div>
+                </div>
+                {/* Provider and metadata row - responsive layout */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-5">
+                  {/* Metadata */}
+                  <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                    {item.date && (
+                      <div className="flex items-center">
+                        <Calendar size={16} className="mr-1 text-gray-500" />
+                        <span>{item.date}</span>
+                      </div>
+                    )}
+                    {item.duration && (
+                      <div className="flex items-center">
+                        <Clock size={16} className="mr-1 text-gray-500" />
+                        <span>{item.duration}</span>
+                      </div>
+                    )}
+                    {item.location && (
+                      <div className="flex items-center">
+                        <MapPin size={16} className="mr-1 text-gray-500" />
+                        <span>{item.location}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {(item.tags || []).map((tag, index) => (
+                    <span
+                      key={index}
+                      className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${index % 3 === 0 ? 'bg-blue-50 text-blue-700' : index % 3 === 1 ? 'bg-indigo-50 text-indigo-700' : 'bg-purple-50 text-purple-700'}`}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               {/* Prominent Video Player - Only show for video type */}
               {type === 'video' && (
                 <div className="w-full mb-8 overflow-hidden rounded-xl shadow-lg">
@@ -1903,6 +1988,7 @@ const MediaDetailPage: React.FC = () => {
             </div>
           </div>
         </div>
+        )}
         {/* Main Content */}
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
