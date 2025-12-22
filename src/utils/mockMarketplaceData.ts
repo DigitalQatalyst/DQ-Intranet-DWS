@@ -660,7 +660,7 @@ export const mockNonFinancialServices = [
       "Please use this form to submit any support requests related to Technology at DQ. Be sure to include details about the problem you're experiencing, along with any error messages you see. The more information you provide, the faster our support team can assist you.",
     category: 'Technology',
     serviceType: 'Support',
-    deliveryMode: 'Hybrid',
+    deliveryMode: 'Online',
     businessStage: 'All Stages',
     userCategory: ['Employee', 'Contractor', 'Manager'],
     technicalCategory: ['Hardware', 'Software', 'Network'],
@@ -943,7 +943,7 @@ export const mockNonFinancialServices = [
       'Complete handover catalog for leaves exceeding one day',
     ],
     tags: ['HR', 'Online', 'Business'],
-    featuredImageUrl: '/images/services/leave.png',
+    featuredImageUrl: '/images/services/on-leave.png',
     requestUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
   },
   {
