@@ -36,6 +36,29 @@ const DQAgileSoSPage = React.lazy(() => import('../strategy/dq-agile-sos/Guideli
 const DQAgileFlowsPage = React.lazy(() => import('../strategy/dq-agile-flows/GuidelinePage'))
 const DQAgile6xDPage = React.lazy(() => import('../strategy/dq-agile-6xd/GuidelinePage'))
 const BlueprintPage = React.lazy(() => import('../blueprints/detail/BlueprintPage'))
+const WFHGuidelinePage = React.lazy(() => import('../guidelines/wfh-guidelines/GuidelinePage'))
+const AssetMaintenanceGuidelinePage = React.lazy(() => import('../guidelines/asset-maintenance-guidelines/GuidelinePage'))
+const DressCodeGuidelinePage = React.lazy(() => import('../guidelines/dress-code-guidelines/GuidelinePage'))
+const DealsBDGuidelinePage = React.lazy(() => import('../guidelines/deals-bd-guidelines/GuidelinePage'))
+const ATPStopScansGuidelinePage = React.lazy(() => import('../guidelines/atp-stop-scans-guidelines/GuidelinePage'))
+const AVRAwardsGuidelinePage = React.lazy(() => import('../guidelines/avr-awards-guidelines/GuidelinePage'))
+const AzureDevOpsTaskGuidelinePage = React.lazy(() => import('../guidelines/azure-devops-task-guidelines/GuidelinePage'))
+const BiometricSystemGuidelinePage = React.lazy(() => import('../guidelines/biometric-system-guidelines/GuidelinePage'))
+const WRAttendancePunctualityPolicyPage = React.lazy(() => import('../guidelines/wr-attendance-punctuality-policy/GuidelinePage'))
+const AssociateOwnedAssetGuidelinePage = React.lazy(() => import('../guidelines/associate-owned-asset-guidelines/GuidelinePage'))
+// 12 Guiding Values pages
+const EmotionalIntelligencePage = React.lazy(() => import('../strategy/dq-competencies-emotional-intelligence/GuidelinePage'))
+const GrowthMindsetPage = React.lazy(() => import('../strategy/dq-competencies-growth-mindset/GuidelinePage'))
+const PurposePage = React.lazy(() => import('../strategy/dq-competencies-purpose/GuidelinePage'))
+const PerceptivePage = React.lazy(() => import('../strategy/dq-competencies-perceptive/GuidelinePage'))
+const ProactivePage = React.lazy(() => import('../strategy/dq-competencies-proactive/GuidelinePage'))
+const PerseverancePage = React.lazy(() => import('../strategy/dq-competencies-perseverance/GuidelinePage'))
+const PrecisionPage = React.lazy(() => import('../strategy/dq-competencies-precision/GuidelinePage'))
+const CustomerPage = React.lazy(() => import('../strategy/dq-competencies-customer/GuidelinePage'))
+const LearningPage = React.lazy(() => import('../strategy/dq-competencies-learning/GuidelinePage'))
+const CollaborationPage = React.lazy(() => import('../strategy/dq-competencies-collaboration/GuidelinePage'))
+const ResponsibilityPage = React.lazy(() => import('../strategy/dq-competencies-responsibility/GuidelinePage'))
+const TrustPage = React.lazy(() => import('../strategy/dq-competencies-trust/GuidelinePage'))
 
 const Markdown = React.lazy(() => import('../../components/guides/MarkdownRenderer'))
 
@@ -164,11 +187,100 @@ const GuideDetailPage: React.FC = () => {
     const slug = (guide?.slug || '').toLowerCase()
     return slug === 'dq-agile-6xd' || slug === 'agile-6xd'
   }, [guide?.slug])
+  const isWFHGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-wfh-guidelines' || slug === 'wfh-guidelines'
+  }, [guide?.slug])
+  const isAssetMaintenanceGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-asset-maintenance-repair-disposal-guidelines' || slug === 'asset-maintenance-guidelines'
+  }, [guide?.slug])
+  const isDressCodeGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-dress-code-guideline' || slug === 'dress-code-guideline'
+  }, [guide?.slug])
+  const isDealsBDGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-deals-bd-guidelines' || slug === 'deals-bd-guidelines'
+  }, [guide?.slug])
+  const isATPStopScansGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-atp-stop-scans-guidelines' || slug === 'atp-stop-scans-guidelines'
+  }, [guide?.slug])
+  const isAVRAwardsGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-avr-awards-guidelines' || slug === 'avr-awards-guidelines'
+  }, [guide?.slug])
+  const isAzureDevOpsTaskGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-azure-devops-task-guidelines' || slug === 'azure-devops-task-guidelines'
+  }, [guide?.slug])
+  const isBiometricSystemGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-biometric-system-guidelines' || slug === 'biometric-system-guidelines'
+  }, [guide?.slug])
+  const isWRAttendancePunctualityPolicy = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-wr-attendance-punctuality-policy' || slug === 'wr-attendance-punctuality-policy'
+  }, [guide?.slug])
+  const isAssociateOwnedAssetGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-associate-owned-asset-guidelines' || slug === 'associate-owned-asset-guidelines'
+  }, [guide?.slug])
+  // 12 Guiding Values checks
+  const isEmotionalIntelligence = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-emotional-intelligence' || slug === 'emotional-intelligence'
+  }, [guide?.slug])
+  const isGrowthMindset = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-growth-mindset' || slug === 'growth-mindset'
+  }, [guide?.slug])
+  const isPurpose = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-purpose'
+  }, [guide?.slug])
+  const isPerceptive = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-perceptive'
+  }, [guide?.slug])
+  const isProactive = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-proactive'
+  }, [guide?.slug])
+  const isPerseverance = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-perseverance'
+  }, [guide?.slug])
+  const isPrecision = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-precision'
+  }, [guide?.slug])
+  const isCustomer = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-customer'
+  }, [guide?.slug])
+  const isLearning = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-learning'
+  }, [guide?.slug])
+  const isCollaboration = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-collaboration'
+  }, [guide?.slug])
+  const isResponsibility = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-responsibility'
+  }, [guide?.slug])
+  const isTrust = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-trust'
+  }, [guide?.slug])
   
   // Check if this guide should use a custom GuidelinePage
   const hasCustomGuidelinePage = useMemo(() => {
-    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isDQCompetencies || isDQVisionMission || isDQGHC || isDQProducts || isDQVision || isDQHoV || isDQPersona || isDQAgileTMS || isDQAgileSoS || isDQAgileFlows || isDQAgile6xD
-  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isDQCompetencies, isDQVisionMission, isDQGHC, isDQProducts, isDQVision, isDQHoV, isDQPersona, isDQAgileTMS, isDQAgileSoS, isDQAgileFlows, isDQAgile6xD])
+    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isWFHGuidelines || isAssetMaintenanceGuidelines || isDressCodeGuidelines || isDealsBDGuidelines || isATPStopScansGuidelines || isAVRAwardsGuidelines || isAzureDevOpsTaskGuidelines || isBiometricSystemGuidelines || isWRAttendancePunctualityPolicy || isAssociateOwnedAssetGuidelines || isDQCompetencies || isDQVisionMission || isDQGHC || isDQProducts || isDQVision || isDQHoV || isDQPersona || isDQAgileTMS || isDQAgileSoS || isDQAgileFlows || isDQAgile6xD || isEmotionalIntelligence || isGrowthMindset || isPurpose || isPerceptive || isProactive || isPerseverance || isPrecision || isCustomer || isLearning || isCollaboration || isResponsibility || isTrust
+  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isWFHGuidelines, isAssetMaintenanceGuidelines, isDressCodeGuidelines, isDealsBDGuidelines, isATPStopScansGuidelines, isAVRAwardsGuidelines, isAzureDevOpsTaskGuidelines, isBiometricSystemGuidelines, isWRAttendancePunctualityPolicy, isAssociateOwnedAssetGuidelines, isDQCompetencies, isDQVisionMission, isDQGHC, isDQProducts, isDQVision, isDQHoV, isDQPersona, isDQAgileTMS, isDQAgileSoS, isDQAgileFlows, isDQAgile6xD, isEmotionalIntelligence, isGrowthMindset, isPurpose, isPerceptive, isProactive, isPerseverance, isPrecision, isCustomer, isLearning, isCollaboration, isResponsibility, isTrust])
   const featuredClientTestimonials = [
     {
       id: 'khalifa',
@@ -954,6 +1066,46 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
       return <SuspenseWrapper><QForumGuidelinePage /></SuspenseWrapper>
     }
 
+    if (isWFHGuidelines) {
+      return <SuspenseWrapper><WFHGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isAssetMaintenanceGuidelines) {
+      return <SuspenseWrapper><AssetMaintenanceGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isDressCodeGuidelines) {
+      return <SuspenseWrapper><DressCodeGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isDealsBDGuidelines) {
+      return <SuspenseWrapper><DealsBDGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isATPStopScansGuidelines) {
+      return <SuspenseWrapper><ATPStopScansGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isAVRAwardsGuidelines) {
+      return <SuspenseWrapper><AVRAwardsGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isAzureDevOpsTaskGuidelines) {
+      return <SuspenseWrapper><AzureDevOpsTaskGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isBiometricSystemGuidelines) {
+      return <SuspenseWrapper><BiometricSystemGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isWRAttendancePunctualityPolicy) {
+      return <SuspenseWrapper><WRAttendancePunctualityPolicyPage /></SuspenseWrapper>
+    }
+
+    if (isAssociateOwnedAssetGuidelines) {
+      return <SuspenseWrapper><AssociateOwnedAssetGuidelinePage /></SuspenseWrapper>
+    }
+
     // Check GHC BEFORE DQ Competencies (GHC is more specific and its title contains "Competencies")
     if (isDQGHC) {
       return <SuspenseWrapper><DQGHCPage /></SuspenseWrapper>
@@ -998,6 +1150,55 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
 
     if (isDQAgile6xD) {
       return <SuspenseWrapper><DQAgile6xDPage /></SuspenseWrapper>
+    }
+
+    // 12 Guiding Values
+    if (isEmotionalIntelligence) {
+      return <SuspenseWrapper><EmotionalIntelligencePage /></SuspenseWrapper>
+    }
+
+    if (isGrowthMindset) {
+      return <SuspenseWrapper><GrowthMindsetPage /></SuspenseWrapper>
+    }
+
+    if (isPurpose) {
+      return <SuspenseWrapper><PurposePage /></SuspenseWrapper>
+    }
+
+    if (isPerceptive) {
+      return <SuspenseWrapper><PerceptivePage /></SuspenseWrapper>
+    }
+
+    if (isProactive) {
+      return <SuspenseWrapper><ProactivePage /></SuspenseWrapper>
+    }
+
+    if (isPerseverance) {
+      return <SuspenseWrapper><PerseverancePage /></SuspenseWrapper>
+    }
+
+    if (isPrecision) {
+      return <SuspenseWrapper><PrecisionPage /></SuspenseWrapper>
+    }
+
+    if (isCustomer) {
+      return <SuspenseWrapper><CustomerPage /></SuspenseWrapper>
+    }
+
+    if (isLearning) {
+      return <SuspenseWrapper><LearningPage /></SuspenseWrapper>
+    }
+
+    if (isCollaboration) {
+      return <SuspenseWrapper><CollaborationPage /></SuspenseWrapper>
+    }
+
+    if (isResponsibility) {
+      return <SuspenseWrapper><ResponsibilityPage /></SuspenseWrapper>
+    }
+
+    if (isTrust) {
+      return <SuspenseWrapper><TrustPage /></SuspenseWrapper>
     }
   }
 
