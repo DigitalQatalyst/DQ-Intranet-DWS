@@ -183,7 +183,7 @@ const SERVICE_DETAILS_CONTENT: Record<
         ],
       },
       self_service_faq: {
-        //heading: 'FAQ',
+        //headings : 'FAQ',
         blocks: [
           {
             type: 'p',
