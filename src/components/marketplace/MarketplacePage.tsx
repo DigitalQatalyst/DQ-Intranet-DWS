@@ -25,6 +25,7 @@ import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters';
 import GuidesGrid from '../guides/GuidesGrid';
 import TestimonialsGrid from '../guides/TestimonialsGrid';
 import GlossaryGrid from '../guides/GlossaryGrid';
+import { SixXDPerspectiveCards } from '../guides/SixXDPerspectiveCards';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { track } from '../../utils/analytics';
 import FAQsPageContent from '@/pages/guides/FAQsPageContent.tsx';
@@ -411,21 +412,16 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       return [];
     }
     
-    // PRIMARY FILTER: Knowledge System
+    // PRIMARY FILTER: Knowledge System (e.g., GHC, Agile 6xD)
     const knowledgeSystems = parseFilterValues(queryParams, 'glossary_knowledge_system');
     
-    // SECONDARY FILTERS: GHC
+    // SECONDARY FILTER: GHC Dimension (only when GHC is selected)
     const ghcDimensions = parseFilterValues(queryParams, 'glossary_ghc_dimension');
-    const ghcTermTypes = parseFilterValues(queryParams, 'glossary_ghc_term_type');
     
-    // SECONDARY FILTERS: 6xD
-    const sixXdDimensions = parseFilterValues(queryParams, 'glossary_6xd_dimension');
-    const sixXdTermTypes = parseFilterValues(queryParams, 'glossary_6xd_term_type');
-    
-    // SHARED FILTERS
-    const termOrigins = parseFilterValues(queryParams, 'glossary_term_origin');
-    const usedIn = parseFilterValues(queryParams, 'glossary_used_in');
-    const whoUsesIt = parseFilterValues(queryParams, 'glossary_who_uses_it');
+    // SECONDARY FILTER: 6xD Perspective (only when Agile 6xD is selected)
+    const sixXdPerspectives = parseFilterValues(queryParams, 'glossary_6xd_perspective');
+
+    // BROWSING FILTER: Alphabetical (A–Z)
     const letters = parseFilterValues(queryParams, 'glossary_letter');
     
     // Search query
@@ -437,42 +433,21 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         if (!term.knowledgeSystem || !knowledgeSystems.includes(term.knowledgeSystem)) return false;
       }
       
-      // SECONDARY: GHC filters (only if GHC is selected or no system filter)
+      // SECONDARY: GHC Dimension filter (only for GHC terms)
       if (term.knowledgeSystem === 'ghc') {
         if (ghcDimensions.length > 0) {
           if (!term.ghcDimension || !ghcDimensions.includes(term.ghcDimension)) return false;
         }
-        if (ghcTermTypes.length > 0) {
-          if (!term.ghcTermType || !ghcTermTypes.includes(term.ghcTermType)) return false;
-        }
       }
       
-      // SECONDARY: 6xD filters (only if 6xD is selected or no system filter)
+      // SECONDARY: 6xD Perspective filter (only for 6xD terms)
       if (term.knowledgeSystem === '6xd') {
-        if (sixXdDimensions.length > 0) {
-          if (!term.sixXdDimension || !sixXdDimensions.includes(term.sixXdDimension)) return false;
-        }
-        if (sixXdTermTypes.length > 0) {
-          if (!term.sixXdTermType || !sixXdTermTypes.includes(term.sixXdTermType)) return false;
+        if (sixXdPerspectives.length > 0) {
+          if (!term.sixXdPerspective || !sixXdPerspectives.includes(term.sixXdPerspective)) return false;
         }
       }
       
-      // SHARED: Term Origin filter
-      if (termOrigins.length > 0) {
-        if (!term.termOrigin || !termOrigins.includes(term.termOrigin)) return false;
-      }
-      
-      // SHARED: Used In filter
-      if (usedIn.length > 0) {
-        if (!term.usedIn || !term.usedIn.some(ui => usedIn.includes(ui))) return false;
-      }
-      
-      // SHARED: Who Uses It filter
-      if (whoUsesIt.length > 0) {
-        if (!term.whoUsesIt || !term.whoUsesIt.some(wui => whoUsesIt.includes(wui))) return false;
-      }
-      
-      // SHARED: Letter filter (A-Z)
+      // BROWSING: Letter filter (A–Z)
       if (letters.length > 0) {
         const termLetter = term.letter.toUpperCase();
         const matchesLetter = letters.some(l => l.toUpperCase() === termLetter);
@@ -559,7 +534,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         filterOptions.forEach(c => { initial[c.id] = ''; });
         setFilters(initial);
       } catch (err) {
-        console.error('Error fetching filter options:', err);
+        // Error handled by fallback to default filter config
         setFilterConfig(config.filterCategories);
         const initial: Record<string, string | string[]> = {};
         config.filterCategories.forEach(c => { initial[c.id] = ''; });
@@ -740,31 +715,13 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             facetQ,
           ]);
           if (error) {
-            console.error('Guides query error:', error);
             throw error;
           }
-          if (facetError) console.warn('Facet query failed', facetError);
-          
-          // Debug logging
-          if (isGuides) {
-            console.log('[Guides Debug]', {
-              activeTab,
-              currentActiveTab,
-              isStrategyTab,
-              isBlueprintTab,
-              isGuidelinesTab,
-              rowsCount: rows?.length || 0,
-              totalCount: count,
-              qStr,
-              hasError: !!error,
-              sampleRows: rows?.slice(0, 3).map((r: any) => ({ 
-                title: r.title, 
-                domain: r.domain, 
-                guide_type: r.guide_type,
-                status: r.status
-              }))
-            });
+          if (facetError) {
+            // Facet query failed, continue without facets
           }
+          
+          // Debug logging removed for production
 
           const mapped = (rows || []).map((r: any) => {
             const unitValue = r.unit ?? r.function_area ?? null;
@@ -1065,7 +1022,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           if (start) { const latency = Date.now() - start; track('Guides.Search', { q: qStr, latency_ms: latency }); searchStartRef.current = null; }
           track('Guides.ViewList', { q: qStr, sort, page: String(currentPage) });
         } catch (e) {
-          console.error('Error fetching guides:', e);
+          setError('Failed to load guides. Please try again.');
           setItems([]); setFilteredItems([]); setFacets({}); setTotalCount(0);
         } finally {
           setLoading(false);
@@ -1357,7 +1314,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         setFilteredItems(filtered);
         setTotalCount(filtered.length);
       } catch (err) {
-        console.error(`Error fetching ${marketplaceType} items:`, err);
         setError(`Failed to load ${marketplaceType}`);
         const fallbackItems = getFallbackItems(marketplaceType);
         setItems(fallbackItems);
@@ -1820,13 +1776,53 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                         </svg>
                       </div>
                     </div>
-                    <GlossaryGrid
-                      items={filteredGlossaryTerms}
-                      onClickTerm={(term) => {
-                        navigate(`/marketplace/guides/glossary/${term.id}`);
-                      }}
-                      hideEmptyState={false}
-                    />
+                    {/* Show 6xD Perspective Cards when Agile 6xD is selected */}
+                    {(() => {
+                      const selectedKnowledgeSystems = parseFilterValues(queryParams, 'glossary_knowledge_system');
+                      const has6xD = selectedKnowledgeSystems.includes('6xd');
+                      const selectedPerspectives = parseFilterValues(queryParams, 'glossary_6xd_perspective');
+                      
+                      // Always show cards when 6xD is selected
+                      if (has6xD) {
+                        return (
+                          <>
+                            <SixXDPerspectiveCards
+                              onCardClick={(perspectiveId) => {
+                                // Navigate to perspective detail page
+                                navigate(`/marketplace/guides/6xd-perspective/${perspectiveId}`);
+                                track('Glossary.6xDPerspectiveSelected', { perspective: perspectiveId });
+                              }}
+                            />
+                            {/* Show filtered terms below cards */}
+                            {filteredGlossaryTerms.length > 0 && (
+                              <div className="mt-8">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                                  {selectedPerspectives.length > 0 ? 'Terms in this perspective' : 'All 6xD terms'}
+                                </h3>
+                                <GlossaryGrid
+                                  items={filteredGlossaryTerms}
+                                  onClickTerm={(term) => {
+                                    navigate(`/marketplace/guides/glossary/${term.id}`);
+                                  }}
+                                  hideEmptyState={false}
+                                />
+                              </div>
+                            )}
+                          </>
+                        );
+                      }
+                      
+                      // Show regular glossary grid when 6xD is not selected
+                      return (
+                        <GlossaryGrid
+                          items={filteredGlossaryTerms}
+                          onClickTerm={(term) => {
+                            navigate(`/marketplace/guides/glossary/${term.id}`);
+                          }}
+                          hideEmptyState={false}
+                        />
+                      );
+                    })()}
                   </>
                 ) : activeTab === 'testimonials' ? (
                   <TestimonialsGrid
