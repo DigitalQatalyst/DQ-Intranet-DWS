@@ -33,7 +33,7 @@ export const NEWS: NewsItem[] = [
     views: 0,
     excerpt:
       'Due to unfavourable weather conditions, the DQ Studios Y/E Annual Gathering scheduled for 19.12.2025 has been rescheduled for everyone\'s safety.',
-    image: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80',
     department: 'DQ Operations',
     location: 'Dubai',
     domain: 'Operations',
@@ -113,7 +113,7 @@ We wish everyone a safe, joyful, and restful festive season.`
     views: 0,
     excerpt:
       'In observance of the Christmas and New Year season, please note the work arrangements and holiday schedule for NBO associates, including WFH period, official holidays, and additional holidays.',
-    image: 'https://images.unsplash.com/photo-1482517967863-00e15c9b44be?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&w=1200&q=80',
     department: 'DQ Operations',
     location: 'Nairobi',
     domain: 'Operations',
