@@ -1,11 +1,17 @@
-﻿import React, { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import AssetLibraryPage from '../assetLibrary';
 import { MarketplacePage } from '../../components/marketplace/MarketplacePage';
 import MarketplaceDetailsPage from './MarketplaceDetailsPage';
 import ActivitiesPage from './ActivitiesPage';
-import { DollarSign, Briefcase, Users, Calendar, Newspaper, BookOpen, Video } from 'lucide-react';
+import { DollarSign, Briefcase, Calendar, BookOpen } from 'lucide-react';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
+import NewsPage from './NewsPage';
+import NewsDetailPage from './NewsDetailPage';
+import { DQWorkDirectoryPage } from '../DQWorkDirectoryPage';
+import JobDetailPage from './JobDetailPage';
+import JobApplicationPage from './JobApplicationPage';
+const GrowthAreasPage = React.lazy(() => import('../GrowthAreasPage'));
 const GuideDetailPage = React.lazy(() => import('../guides/GuideDetailPage'));
 const GlossaryPage = React.lazy(() => import('../guides/GlossaryPage'));
 const FAQsPage = React.lazy(() => import('../guides/FAQsPage'));
@@ -86,7 +92,7 @@ const knowledgeHubPromoCards = [{
   gradientTo: 'to-indigo-700'
 }];
 export const MarketplaceRouter: React.FC = () => {
-  // Get configurations for each marketplace type
+  // Get configurations
   const coursesConfig = getMarketplaceConfig('courses');
   const financialConfig = getMarketplaceConfig('financial');
   const nonFinancialConfig = getMarketplaceConfig('non-financial');
@@ -97,9 +103,9 @@ export const MarketplaceRouter: React.FC = () => {
     courses: [],
     financial: [],
     'non-financial': [],
-    'knowledge-hub': [],
-    guides: []
+    'knowledge-hub': []
   });
+  
   // Toggle bookmark for an item
   const handleToggleBookmark = (marketplaceType: string, itemId: string) => {
     setBookmarkedItems(prev => {
@@ -111,28 +117,46 @@ export const MarketplaceRouter: React.FC = () => {
       };
     });
   };
+  
   return <Routes>
       {/* Courses Marketplace */}
-      <Route path="/courses" element={<MarketplacePage marketplaceType="courses" title={coursesConfig.title} description={coursesConfig.description} promoCards={[]} />} />
+      <Route path="/courses" element={<MarketplacePage marketplaceType="courses" title={coursesConfig.title} description={coursesConfig.description} promoCards={coursePromoCards} />} />
       <Route path="/courses/:itemId" element={<MarketplaceDetailsPage marketplaceType="courses" bookmarkedItems={bookmarkedItems.courses} onToggleBookmark={itemId => handleToggleBookmark('courses', itemId)} />} />
+      
       {/* Financial Services Marketplace */}
       <Route path="/financial" element={<MarketplacePage marketplaceType="financial" title={financialConfig.title} description={financialConfig.description} promoCards={financialPromoCards} />} />
       <Route path="/financial/:itemId" element={<MarketplaceDetailsPage marketplaceType="financial" bookmarkedItems={bookmarkedItems.financial} onToggleBookmark={itemId => handleToggleBookmark('financial', itemId)} />} />
-      {/* Non-Financial Services Marketplace */}
-      <Route path="/non-financial" element={<MarketplacePage marketplaceType="non-financial" title={nonFinancialConfig.title} description={nonFinancialConfig.description} promoCards={nonFinancialPromoCards} />} />
-      <Route path="/non-financial/:itemId" element={<MarketplaceDetailsPage marketplaceType="non-financial" bookmarkedItems={bookmarkedItems['non-financial']} onToggleBookmark={itemId => handleToggleBookmark('non-financial', itemId)} />} />
+      
+      {/* Services Center - Non-Financial Services Marketplace */}
+      <Route path="/services-center" element={<MarketplacePage marketplaceType="non-financial" title={nonFinancialConfig.title} description={nonFinancialConfig.description} promoCards={nonFinancialPromoCards} />} />
+      <Route path="/services-center/:itemId" element={<MarketplaceDetailsPage marketplaceType="non-financial" bookmarkedItems={bookmarkedItems['non-financial']} onToggleBookmark={itemId => handleToggleBookmark('non-financial', itemId)} />} />
+      
+      {/* Backward compatibility: /non-financial redirects to /services-center */}
+      <Route path="/non-financial" element={<Navigate to="/marketplace/services-center" replace />} />
+      <Route path="/non-financial/:itemId" element={<Navigate to="/marketplace/services-center/:itemId" replace />} />
+      
       {/* Guides Marketplace (canonical) */}
       <Route path="/guides" element={<MarketplacePage marketplaceType="guides" title={guidesConfig.title} description={guidesConfig.description} promoCards={knowledgeHubPromoCards} />} />
       <Route path="/guides/glossary" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><GlossaryPage /></React.Suspense>} />
       <Route path="/guides/faqs" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><FAQsPage /></React.Suspense>} />
       <Route path="/guides/testimonials" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><TestimonialsDetailPage /></React.Suspense>} />
       <Route path="/guides/:itemId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><GuideDetailPage /></React.Suspense>} />
+      
       {/* Backward compatibility: Knowledge Hub routes (aliased to Guides) */}
       <Route path="/knowledge-hub" element={<MarketplacePage marketplaceType="knowledge-hub" title={knowledgeHubConfig.title} description={knowledgeHubConfig.description} promoCards={knowledgeHubPromoCards} />} />
       <Route path="/knowledge-hub/:itemId" element={<MarketplaceDetailsPage marketplaceType="knowledge-hub" bookmarkedItems={bookmarkedItems['knowledge-hub']} onToggleBookmark={itemId => handleToggleBookmark('knowledge-hub', itemId)} />} />
-  {/* Asset Library */}
-  <Route path="/asset-library" element={<AssetLibraryPage />} />
-  <Route path="/marketplace/activities" element={<ActivitiesPage />} />
+
+      {/* News & Opportunities Marketplace - Redirected to /guides */}
+      <Route path="/news" element={<Navigate to="/marketplace/guides" replace />} />
+      <Route path="/news/:id" element={<NewsDetailPage />} />
+      <Route path="/opportunities" element={<NewsPage />} />
+      <Route path="/opportunities/:id" element={<JobDetailPage />} />
+      <Route path="/opportunities/:id/apply" element={<JobApplicationPage />} />
+      {/* DQ Work Directory */}
+      <Route path="/work-directory" element={<DQWorkDirectoryPage />} />
+      {/* Asset Library */}
+      <Route path="/asset-library" element={<AssetLibraryPage />} />
+      <Route path="/marketplace/activities" element={<ActivitiesPage />} />
     </Routes>;
 };
 

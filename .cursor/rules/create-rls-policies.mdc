@@ -1,87 +1,37 @@
-# Creating Row Level Security (RLS) Policies
+---
+description: Guidelines for writing Postgres Row Level Security policies
+alwaysApply: false
+---
 
-## RLS Basics
-- Enable RLS on tables containing sensitive data
-- Create policies for SELECT, INSERT, UPDATE, DELETE operations
-- Test policies thoroughly
+# Database: Create RLS policies
 
-## Policy Structure
+You are a Supabase Postgres expert writing RLS policies.
+
+- Output only CREATE POLICY or ALTER POLICY statements; valid SQL only.
+- Wrap SQL in ```sql fences when responding.
+- Use auth.uid() (via select) instead of current_user.
+- SELECT policies: USING only (no WITH CHECK).
+- INSERT policies: WITH CHECK only (no USING).
+- UPDATE policies: WITH CHECK and usually USING.
+- DELETE policies: USING only (no WITH CHECK).
+- Do not use FOR ALL; create separate policies per operation.
+- Policy names should be concise, descriptive, and quoted.
+- Explanations go in text, not inline SQL comments.
+- Prefer PERMISSIVE over RESTRICTIVE unless asked; explain why if restrictive is requested.
+
+Supabase roles: anon (unauthenticated), authenticated (logged-in). Use TO clause after the FOR clause.
+
+Examples (structure):
 ```sql
--- Enable RLS
-ALTER TABLE table_name ENABLE ROW LEVEL SECURITY;
-
--- Create policy
-CREATE POLICY policy_name
-ON table_name
-FOR operation -- SELECT, INSERT, UPDATE, DELETE, or ALL
-TO role -- authenticated, anon, or specific role
-USING (condition) -- for SELECT, UPDATE, DELETE
-WITH CHECK (condition); -- for INSERT, UPDATE
+create policy "Public profiles are viewable only by authenticated users"
+on profiles
+for select
+to authenticated
+using ( true );
 ```
 
-## Common Patterns
-
-### Public Read, Authenticated Write
-```sql
--- Allow anyone to read
-CREATE POLICY "Public read access"
-ON table_name
-FOR SELECT
-TO public
-USING (true);
-
--- Allow authenticated users to insert
-CREATE POLICY "Authenticated insert"
-ON table_name
-FOR INSERT
-TO authenticated
-WITH CHECK (true);
-```
-
-### User-Specific Access
-```sql
--- Users can only see their own data
-CREATE POLICY "Users see own data"
-ON table_name
-FOR SELECT
-TO authenticated
-USING (auth.uid() = user_id);
-
--- Users can only update their own data
-CREATE POLICY "Users update own data"
-ON table_name
-FOR UPDATE
-TO authenticated
-USING (auth.uid() = user_id)
-WITH CHECK (auth.uid() = user_id);
-```
-
-### Role-Based Access
-```sql
--- Admins have full access
-CREATE POLICY "Admin full access"
-ON table_name
-FOR ALL
-TO authenticated
-USING (
-  EXISTS (
-    SELECT 1 FROM user_roles
-    WHERE user_id = auth.uid()
-    AND role = 'admin'
-  )
-);
-```
-
-## Best Practices
-- Always test policies with different user roles
-- Use `auth.uid()` for user identification
-- Consider performance implications of policy checks
-- Document complex policies
-- Use policy names that clearly describe their purpose
-- Enable RLS before creating policies
-
-## Supabase-Specific
-- Use `auth.uid()` to get current user ID
-- Use `auth.role()` for role-based access
-- Consider service role for admin operations
-- Test with Supabase client libraries
+Performance tips:
+- Add indexes for columns used in policies.
+- Wrap functions in select to cache results per statement when safe.
+- Minimize joins; prefer IN/ANY on sets.
+- Specify roles in policies to avoid unnecessary execution for anon.

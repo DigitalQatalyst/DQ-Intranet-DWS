@@ -17,6 +17,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { FadeInUpOnScroll, StaggeredFadeIn, useInView } from "./AnimationUtils";
 import { EventCard, NewsCard, ResourceCard } from "./CardComponents";
+import { fetchAllNews } from '@/services/mediaCenterService';
+import type { NewsItem as MediaCenterNewsItem } from '@/data/media/news';
 
 interface NewsItem {
   id: string;
@@ -344,6 +346,7 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
   const [isTabChanging, setIsTabChanging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<{ message: string } | null>(null);
+  const [mediaCenterNews, setMediaCenterNews] = useState<MediaCenterNewsItem[]>([]);
 
   const tabs: TabItem[] = [
     {
@@ -373,8 +376,60 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
     }, 300);
   };
 
-  // Get data based on active tab
-  const getNewsData = () => newsItems;
+  // Fetch latest news from Media Center
+  useEffect(() => {
+    async function loadMediaCenterNews() {
+      if (activeTab !== "news") return;
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const allNews = await fetchAllNews();
+        
+        // Filter to only announcements and limit to 6
+        const announcements = allNews
+          .filter(item => 
+            item.type === 'Announcement' || 
+            item.newsType === 'Corporate Announcements' ||
+            item.newsType === 'Product / Project Updates' ||
+            item.newsType === 'Events & Campaigns'
+          )
+          .slice(0, 6);
+        
+        setMediaCenterNews(announcements);
+      } catch (err) {
+        console.error('Error loading Media Center news:', err);
+        setError({ 
+          message: 'Unable to load latest news. Showing cached content.' 
+        });
+        // Fallback to mock data on error
+        setMediaCenterNews([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadMediaCenterNews();
+  }, [activeTab]);
+
+  // Get data based on active tab - updated to use Media Center news
+  const getNewsData = () => {
+    // If we have Media Center news, use it; otherwise fallback to mock data
+    if (mediaCenterNews.length > 0) {
+      return mediaCenterNews.map(item => ({
+        id: item.id,
+        title: item.title,
+        excerpt: item.excerpt,
+        date: item.date,
+        category: item.department || item.newsType || 'News',
+        source: item.newsSource || item.byline || item.author || 'DQ Media Center',
+        imageUrl: item.image || undefined,
+      }));
+    }
+    // Fallback to mock data
+    return newsItems;
+  };
   const getEventsData = () => events;
   const getResourcesData = () => resources;
 
@@ -498,7 +553,8 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
                       date: item.date,
                       source: item.source,
                     }}
-                    onQuickView={() => navigate(`/news/${item.id}`)}
+                    onQuickView={() => navigate(`/marketplace/news/${item.id}`)}
+                    onReadMore={() => navigate(`/marketplace/news/${item.id}`)}
                   />
                 </div>
               ))}

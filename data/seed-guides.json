@@ -313,7 +313,8 @@
     "subDomain": "resources",
     "unit": "Intelligence",
     "location": "NBO"
-  }
+  },
+  {
     "summary": "Structured and standardized processes for the implementation, approval, and management of remote work across DQ.",
     "heroImageUrl": "https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=1470&auto=format&fit=crop",
     "domain": "Digital Backoffice",
@@ -331,7 +332,8 @@
     "subDomain": "journey",
     "unit": "HRA",
     "location": "NBO"
-  }
+  },
+  {
     "summary": "Comprehensive blueprint for Digital Workspace (DWS) implementation, covering architecture, deployment, configuration, operational guidelines, AI tools, model providers, complete technology stack, best practices, and maintenance procedures.",
     "heroImageUrl": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     "domain": "blueprints",

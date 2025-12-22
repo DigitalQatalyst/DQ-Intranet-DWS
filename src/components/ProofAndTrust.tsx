@@ -1,185 +1,25 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from 'react';
 import {
-  Award,
-  Users,
+  Star,
+  Play,
+  X,
   ChevronLeft,
   ChevronRight,
-  Building2,
-  Landmark,
-  Network,
-  Users2,
-  Clock,
-  BookOpen,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   AnimatedCounter,
   FadeInUpOnScroll,
   StaggeredFadeIn,
-  AutoScrollMarquee,
   HorizontalScrollReveal,
   useInView,
-} from "./AnimationUtils";
-
-interface Testimonial {
-  id: string;
-  name: string;
-  role: string;
-  context: string;
-  quote: string;
-  avatar: string;
-  note?: string;
-}
-
-const testimonials: Testimonial[] = [
-  {
-    id: "1",
-    name: "Salem Wasike",
-    role: "Product Owner - DQ Deploys",
-    context: "DQ teammate since 2018",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    quote:
-      "Agile Essentials and DTMF learning paths reduced blockers by 40% and sped up feature delivery.",
-  },
-  {
-    id: "2",
-    name: "Sharavi Chander",
-    role: "Head of DQ Deploys",
-    context: "Leading teams since 2019",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    quote:
-      "80+ team certifications built a learning culture that lifted consistency across releases.",
-  },
-  {
-    id: "3",
-    name: "Mohamed Thameez",
-    role: "Product Manager",
-    context: "DQ teammate since 2021",
-    avatar: "https://randomuser.me/api/portraits/men/22.jpg",
-    quote:
-      "Cross-unit learning spaces cut our feature turnaround time by 30% and kept teams in sync.",
-  },
-  {
-    id: "dfsa",
-    name: "Waleed Saeed Al Awadhi",
-    role: "Chief Operating Officer",
-    context: "DFSA",
-    avatar:
-      "https://ui-avatars.com/api/?name=Waleed+Saeed+Al+Awadhi&background=003049&color=ffffff",
-    quote:
-      "DQ was able to establish a practical transformation design and to realise this through an agile implementation. The results are moving DFSA towards a provider of intuitive services and provide a basis for AI and data-driven regulation.",
-    note: "Not approved for external publication",
-  },
-  {
-    id: "adib",
-    name: "Kamran Sheikh",
-    role: "Head of Enterprise Architecture & Analytics",
-    context: "ADIB",
-    avatar:
-      "https://ui-avatars.com/api/?name=Kamran+Sheikh&background=002b5b&color=ffffff",
-    quote:
-      "We worked with DQ to bring the ADIB EA function back into the heart of business technology decision making. DQ was able to bring a whole set of new perspectives on practical approaches to EA-driven transformation.",
-    note: "Not approved for external publication",
-  },
-  {
-    id: "khalifa-fund",
-    name: "Ali Al Jasmi",
-    role: "Head of Technology",
-    context: "Khalifa Fund",
-    avatar:
-      "https://ui-avatars.com/api/?name=Ali+Al+Jasmi&background=014f86&color=ffffff",
-    quote:
-      "DQ designed and implemented a multi-sided marketplace concept that stands to revitalise SME growth and expansion in Abu Dhabi. The approach was highly distinctive and enabled us to connect business vision with practical reality through one integrated transformation strategy.",
-    note: "Not approved for external publication",
-  },
-];
-
-// Partner categories for the grid
-const partnerCategories = [
-  {
-    id: "government",
-    title: "Governance Sector",
-    subtitle:
-      "Leadership, strategy, and value management for enterprise alignment",
-    icon: <Building2 size={28} />,
-    metric: "4+",
-    color: "indigo-600",
-  },
-  {
-    id: "financial",
-    title: "Operations Sector",
-    subtitle:
-      "HR, Finance, and Deals support factories for day-to-day enablement",
-    icon: <Landmark size={28} />,
-    metric: "5+",
-    color: "yellow-500",
-  },
-  {
-    id: "service",
-    title: "Platform Sector",
-    subtitle:
-      "Intelligence, Solutions, Security, and Products driving digital platforms",
-    icon: <Users2 size={28} />,
-    metric: "6+",
-    color: "blue-600",
-  },
-  {
-    id: "network",
-    title: "Delivery Sector",
-    subtitle:
-      "Design, Deploys, and Accounts teams ensuring outcomes and engagements",
-    icon: <Network size={28} />,
-    metric: "3+",
-    color: "orange-500",
-  },
-];
-
-const partnerLogos = [
-  { name: "Prodev", logo: "/logo/prodev.png" },
-  { name: "Soldev", logo: "/logo/soldev.png" },
-  { name: "Finance", logo: "/logo/finance.png" },
-  { name: "HRA", logo: "/logo/hra.png" },
-  { name: "Inteldev", logo: "/logo/inteldev.png" },
-];
-
-const strategicPartners = [
-  { name: "Prodev", logo: "/logo/prodev.png" },
-  { name: "Soldev", logo: "/logo/soldev.png" },
-  { name: "Finance", logo: "/logo/finance.png" },
-  { name: "HRA", logo: "/logo/hra.png" },
-  { name: "Inteldev", logo: "/logo/inteldev.png" },
-];
-
-/* =========================
-   ✅ UPDATED KPI CONTENT
-   ========================= */
-const impactStats = [
-  {
-    label: "Faster Task Closure",
-    value: 80,
-    prefix: "Over",
-    suffix: "%",
-    icon: <Users size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
-  },
-  {
-    label: "Focus Time Saved",
-    value: 6,
-    prefix: "+",
-    suffix: "hrs",
-    icon: <Clock size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
-  },
-  {
-    label: "Concepts Learned Daily",
-    value: 5,
-    prefix: "+",
-    icon: <BookOpen size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
-  },
-  {
-    label: "Collaboration Growth Rate",
-    value: 87,
-    suffix: "%",
-    icon: <Award size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
-  },
-];
+} from './AnimationUtils';
+import {
+  testimonials,
+  partnerCategories,
+  featuredSectors,
+  impactStats,
+  type Testimonial,
+} from '../data/landingPageContent';
 
 const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
   const disclaimer = '(not approved for external publication)'
@@ -256,8 +96,345 @@ const TestimonialsShowcase = () => {
   );
 };
 
+const VideoTestimonialCard = ({
+  testimonial,
+  onClick,
+}: {
+  testimonial: Testimonial;
+  onClick: () => void;
+}) => {
+  const [isHovering, setIsHovering] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isHovering) {
+        videoRef.current
+          .play()
+          .catch((error) => console.error("Video play error:", error));
+      } else {
+        videoRef.current.pause();
+        videoRef.current.currentTime = 0;
+      }
+    }
+  }, [isHovering]);
+
+  return (
+    <div
+      className="relative rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 h-[300px] cursor-pointer group"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      onClick={onClick}
+    >
+      {/* Video/Thumbnail Background */}
+      <div className="absolute inset-0 bg-gray-900 overflow-hidden">
+        <img
+          src={testimonial.videoThumbnail}
+          alt={`${testimonial.name} from ${testimonial.company}`}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${
+            isHovering ? "opacity-0" : "opacity-100"
+          }`}
+        />
+        <video
+          ref={videoRef}
+          src={testimonial.videoUrl}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+            isHovering ? "opacity-100" : "opacity-0"
+          }`}
+          muted
+          playsInline
+          loop
+        />
+      </div>
+
+      {/* Overlay with content */}
+      <div
+        className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30 p-6 flex flex-col transition-all duration-300 ${
+          isHovering ? "bg-black/60" : ""
+        }`}
+      >
+        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm overflow-hidden mb-4">
+          <img
+            src={testimonial.companyLogo}
+            alt={testimonial.company}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        <div className="mt-auto">
+          <div
+            className={`text-2xl font-bold mb-1 ${
+              testimonial.metricColor === "green"
+                ? "text-green-500"
+                : testimonial.metricColor === "orange"
+                ? "text-orange-500"
+                : testimonial.metricColor === "red"
+                ? "text-red-500"
+                : "text-dq-coral"
+            }`}
+          >
+            {testimonial.metric}{" "}
+            <span className="text-white text-lg font-medium">
+              {testimonial.metricLabel}
+            </span>
+          </div>
+
+          <p className="text-white/90 text-sm line-clamp-2 mb-3">
+            "{testimonial.quote}"
+          </p>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <img
+                src={testimonial.avatar}
+                alt={testimonial.name}
+                className="w-8 h-8 rounded-full mr-2 border border-white/30"
+              />
+              <div>
+                <p className="text-white text-sm font-medium">
+                  {testimonial.name}
+                </p>
+                <p className="text-white/70 text-xs">
+                  {testimonial.position}, {testimonial.company}
+                </p>
+              </div>
+            </div>
+            <div
+              className={`w-10 h-10 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center transition-all duration-300 ${
+                isHovering ? "animate-pulse bg-white/50" : ""
+              }`}
+            >
+              <Play size={18} className="text-white ml-1" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TestimonialModal = ({
+  testimonial,
+  isOpen,
+  onClose,
+}: {
+  testimonial: Testimonial | null;
+  isOpen: boolean;
+  onClose: () => void;
+}) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !testimonial) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all duration-300">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] shadow-2xl transform transition-all duration-300 animate-fadeIn flex flex-col overflow-hidden"
+      >
+        <div className="relative flex-shrink-0">
+          <div className="w-full aspect-video bg-gray-900">
+            <video
+              src={testimonial.videoUrl}
+              controls
+              autoPlay
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <button
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-all"
+            onClick={onClose}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto flex-1 min-h-0">
+          <div className="flex items-center mb-4">
+            <img
+              src={testimonial.companyLogo}
+              alt={testimonial.company}
+              className="w-12 h-12 rounded-full object-cover mr-4"
+            />
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">
+                How {testimonial.company} scaled with Enterprise Journey
+              </h3>
+              <div className="flex items-center mt-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    size={16}
+                    className={
+                      i < testimonial.rating
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-gray-300"
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-start mb-6">
+            <img
+              src={testimonial.avatar}
+              alt={testimonial.name}
+              className="w-12 h-12 rounded-full object-cover mr-4 mt-1"
+            />
+            <div>
+              <p className="text-gray-700 italic mb-3">
+                "{testimonial.fullQuote}"
+              </p>
+              <div>
+                <p className="font-medium text-gray-900">{testimonial.name}</p>
+                <p className="text-sm text-gray-600">
+                  {testimonial.position}, {testimonial.company}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">
+                  {testimonial.metric} {testimonial.metricLabel}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Impact achieved through DQ Workspace
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const VideoTestimonialCarousel = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedTestimonial, setSelectedTestimonial] =
+    useState<Testimonial | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (carouselRef.current) {
+      const scrollAmount =
+        activeIndex * (carouselRef.current.scrollWidth / testimonials.length);
+      carouselRef.current.scrollTo({ left: scrollAmount, behavior: "smooth" });
+    }
+  }, [activeIndex]);
+
+  const handlePrev = () =>
+    setActiveIndex(
+      (prev) => (prev - 1 + testimonials.length) % testimonials.length
+    );
+  const handleNext = () =>
+    setActiveIndex((prev) => (prev + 1) % testimonials.length);
+  const openModal = (testimonial: Testimonial) => {
+    setSelectedTestimonial(testimonial);
+    setIsModalOpen(true);
+  };
+
+  return (
+    <div className="relative">
+      <div
+        ref={carouselRef}
+        className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth gap-6 pb-8"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        {testimonials.map((testimonial, index) => (
+          <div
+            key={testimonial.id}
+            className="min-w-full sm:min-w-[calc(100%/2-12px)] lg:min-w-[calc(100%/3-16px)] flex-shrink-0 snap-center"
+          >
+            <FadeInUpOnScroll delay={index * 0.1}>
+              <VideoTestimonialCard
+                testimonial={testimonial}
+                onClick={() => openModal(testimonial)}
+              />
+            </FadeInUpOnScroll>
+          </div>
+        ))}
+      </div>
+
+      <div className="absolute top-1/2 left-0 right-0 flex justify-between items-center transform -translate-y-1/2 pointer-events-none px-4">
+        <button
+          className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-white pointer-events-auto flex items-center justify-center transition-all"
+          onClick={handlePrev}
+          aria-label="Previous testimonial"
+        >
+          <ChevronLeft size={24} />
+        </button>
+        <button
+          className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-white pointer-events-auto flex items-center justify-center transition-all"
+          onClick={handleNext}
+          aria-label="Next testimonial"
+        >
+          <ChevronRight size={24} />
+        </button>
+      </div>
+
+      <div className="flex justify-center mt-4 gap-2">
+        {testimonials.map((_, index) => (
+          <button
+            key={index}
+            className={`w-2 h-2 rounded-full transition-all ${
+              activeIndex === index ? "bg-dq-coral w-6" : "bg-gray-300"
+            }`}
+            onClick={() => setActiveIndex(index)}
+            aria-label={`Go to testimonial ${index + 1}`}
+          />
+        ))}
+      </div>
+
+      <TestimonialModal
+        testimonial={selectedTestimonial}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+      `}</style>
+    </div>
+  );
+};
+
 // Partner Category Card component
-const PartnerCategoryCard = ({ category, index }) => {
+const PartnerCategoryCard = ({ category }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const [ref, isInView] = useInView({ threshold: 0.1 });
@@ -294,7 +471,7 @@ const PartnerCategoryCard = ({ category, index }) => {
             isHovered ? "animate-bounce-subtle" : ""
           }`}
         >
-          {category.icon}
+          {React.createElement(category.iconComponent, { size: category.iconSize || 28 })}
         </div>
       </div>
 
@@ -317,19 +494,19 @@ const PartnerCategoryCard = ({ category, index }) => {
 };
 
 // Partner Logo
-const PartnerLogo = ({ partner, index }) => {
+const PartnerLogo = ({ sector }) => {
   const [isHovered, setIsHovered] = useState(false);
   return (
     <div
-      className={`relative mx-6 my-2 transition-all duration-300 ease-out transform ${
-        isHovered ? "scale-110" : ""
+      className={`relative mx-4 my-1 transition-all duration-300 ease-out transform ${
+        isHovered ? 'scale-110' : ''
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <img
-        src={partner.logo}
-        alt={partner.name}
+        src={sector.logo}
+        alt={sector.name}
         className="h-12 object-contain transition-all duration-500"
         style={{
           filter: isHovered ? "none" : "grayscale(100%)",
@@ -345,8 +522,7 @@ const PartnerLogo = ({ partner, index }) => {
 // Featured Partners Carousel
 const FeaturedPartnersCarousel = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const allPartners = [...strategicPartners, ...partnerLogos];
+  const sectors = featuredSectors;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -383,7 +559,7 @@ const FeaturedPartnersCarousel = () => {
   };
 
   return (
-    <div className="relative py-8">
+    <div className="relative h-auto pt-6 pb-2 md:pt-8 md:pb-3">
       <FadeInUpOnScroll className="text-center mb-6">
         <h3 className="text-2xl font-bold text-gray-900 mb-2">
           Featured Sectors
@@ -393,18 +569,14 @@ const FeaturedPartnersCarousel = () => {
         </p>
       </FadeInUpOnScroll>
 
-      <div className="relative overflow-hidden">
+      <div className="relative h-auto overflow-visible">
         <div
           ref={carouselRef}
-          className="flex overflow-x-auto py-4 scrollbar-hide"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          className="flex overflow-x-auto py-2 scrollbar-hide gap-6"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {[...allPartners, ...allPartners].map((partner, index) => (
-            <PartnerLogo
-              key={`${partner.name}-${index}`}
-              partner={partner}
-              index={index}
-            />
+          {[...sectors, ...sectors].map((sector, index) => (
+            <PartnerLogo key={`${sector.id}-${index}`} sector={sector} />
           ))}
         </div>
 
@@ -463,14 +635,19 @@ const ProofAndTrust: React.FC = () => {
                 >
                   <div className="flex justify-center mb-4">
                     <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#FB5535]/10 text-[#FB5535]">
-                      {stat.icon}
+                      {React.createElement(stat.iconComponent, {
+                        size: stat.iconSize || 20,
+                        strokeWidth: 2.5,
+                        className: stat.iconClassName,
+                      })}
                     </span>
                   </div>
                   <div className="text-3xl font-bold text-dq-navy mb-1 flex items-baseline justify-center">
                     {stat.prefix && <span className="mr-1">{stat.prefix}</span>}
                     <span className="inline-flex items-baseline tabular-nums">
-                      <AnimatedCounter value={stat.value} />
-                      <span>{stat.suffix ?? ""}</span>
+                      <AnimatedCounter value={stat.value} />{stat.suffix ? (
+                        <span>{stat.suffix}</span>
+                      ) : null}
                     </span>
                   </div>
                   <div className="text-sm text-gray-600 text-center leading-tight mt-1 whitespace-normal break-words [text-overflow:clip] [overflow:visible] [display:block]">
@@ -495,11 +672,11 @@ const ProofAndTrust: React.FC = () => {
               </p>
             </div>
           </FadeInUpOnScroll>
-            <TestimonialsShowcase />
+            <VideoTestimonialCarousel />
           </div>
 
         {/* Powered by Strategic Partnerships - NEW SECTION */}
-        <div className="mb-16 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 md:p-12 overflow-hidden relative">
+        <div className="mb-16 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 md:p-12 overflow-visible relative">
           <HorizontalScrollReveal
             direction="left"
             className="text-center mb-10 relative z-10"
@@ -518,7 +695,7 @@ const ProofAndTrust: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {partnerCategories.map((category, index) => (
               <FadeInUpOnScroll key={category.id} delay={index * 0.15}>
-                <PartnerCategoryCard category={category} index={index} />
+                <PartnerCategoryCard category={category} />
               </FadeInUpOnScroll>
             ))}
           </div>
