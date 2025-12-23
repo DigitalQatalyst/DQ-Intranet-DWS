@@ -322,7 +322,7 @@ export default function Community() {
                     </div>
                     <div className="mt-6 md:mt-0 md:ml-8">
                       <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
-                        {!user ? <Button onClick={() => {}} className="bg-white text-blue-600 hover:bg-gray-100" disabled={true}>
+                        {!user ? <Button onClick={() => undefined} className="bg-white text-blue-600 hover:bg-gray-100" disabled={true}>
                             Login to Join
                           </Button> : isMember ? <Button onClick={handleJoinLeave} variant="outline" className="bg-white text-blue-600 border-blue-200 hover:bg-blue-50" disabled={joinLoading}>
                             {joinLoading ? 'Processing...' : 'Leave Community'}

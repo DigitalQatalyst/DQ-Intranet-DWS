@@ -997,9 +997,9 @@ export const LmsCourses: React.FC = () => {
                     }}
                     marketplaceType="courses"
                     isBookmarked={false}
-                    onToggleBookmark={() => {}}
-                    onAddToComparison={() => {}}
-                    onQuickView={() => {}}
+                    onToggleBookmark={() => undefined}
+                    onAddToComparison={() => undefined}
+                    onQuickView={() => undefined}
                   />
                 );
               })}

@@ -225,8 +225,9 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
           if (!cancelled) setGuide(data)
         } else {
           const key = String(itemId || '')
-          let { data: row, error: err1 } = await supabaseClient.from('guides').select('*').eq('slug', key).maybeSingle()
+          const { data: slugRow, error: err1 } = await supabaseClient.from('guides').select('*').eq('slug', key).maybeSingle()
           if (err1) throw err1
+          let row = slugRow
           if (!row) {
             const { data: row2, error: err2 } = await supabaseClient.from('guides').select('*').eq('id', key).maybeSingle()
             if (err2) throw err2
@@ -284,7 +285,9 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
           const full = await res.json()
           if (!cancelled) setGuide({ ...guide, body: full.body || null })
         }
-      } catch {}
+      } catch (error) {
+        console.error('GuideDetailPage: failed to load full guide body', error)
+      }
     })()
     return () => { cancelled = true }
   }, [guide?.id, guide?.slug])
@@ -889,7 +892,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
-        <Header toggleSidebar={() => {}} sidebarOpen={false} />
+        <Header toggleSidebar={() => undefined} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl"><div className="bg-white rounded shadow p-8 text-center text-gray-500">Loading…</div></main>
         <Footer isLoggedIn={!!user} />
       </div>
@@ -899,7 +902,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   if (error || !guide) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
-        <Header toggleSidebar={() => {}} sidebarOpen={false} />
+        <Header toggleSidebar={() => undefined} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl">
           <nav className="flex mb-4" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
@@ -1018,7 +1021,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   if (false && actualIsBlueprintDomain) {
     return (
       <div className="min-h-screen flex flex-col guidelines-theme dq-products-bg" style={{ minHeight: '100vh' }}>
-        <Header toggleSidebar={() => {}} sidebarOpen={false} />
+        <Header toggleSidebar={() => undefined} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl" role="main" style={{ backgroundColor: 'transparent' }}>
           <nav className="flex mb-6" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
@@ -1204,7 +1207,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   if (!actualIsBlueprintDomain) {
     return (
       <div className="min-h-screen flex flex-col guidelines-theme dq-products-bg" style={{ minHeight: '100vh' }}>
-        <Header toggleSidebar={() => {}} sidebarOpen={false} />
+        <Header toggleSidebar={() => undefined} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl" role="main" style={{ backgroundColor: 'transparent' }}>
           <nav className="flex mb-6" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
@@ -1387,7 +1390,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
-      <Header toggleSidebar={() => {}} sidebarOpen={false} />
+      <Header toggleSidebar={() => undefined} sidebarOpen={false} />
       <main className="container mx-auto px-4 py-8 flex-grow guide-detail max-w-7xl" role="main">
         <nav className="flex mb-4" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
@@ -1841,7 +1844,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   // Final safety fallback - should never reach here, but ensures something always renders
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
-      <Header toggleSidebar={() => {}} sidebarOpen={false} />
+      <Header toggleSidebar={() => undefined} sidebarOpen={false} />
       <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl">
         <div className="bg-white rounded shadow p-8 text-center">
           <h2 className="text-xl font-medium text-gray-900 mb-2">Unable to load guide</h2>

@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { KnowledgeHubCard } from './KnowledgeHubCard'
-import { useMediaSearch } from '../../hooks/UseMediaSearch'
+import { useMediaSearch } from '../../hooks/useMediaSearch'
 interface KnowledgeHubGridProps {
   bookmarkedItems: string[]
   onToggleBookmark: (itemId: string) => void

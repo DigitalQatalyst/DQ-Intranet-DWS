@@ -279,7 +279,7 @@ const NewsDetailPage: React.FC = () => {
   if (!article) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header toggleSidebar={() => {}} sidebarOpen={false} />
+        <Header toggleSidebar={() => undefined} sidebarOpen={false} />
         <main className="flex flex-1 flex-col items-center justify-center text-center px-4">
           <h1 className="text-2xl font-semibold text-gray-900 mb-2">
             {isLoading ? 'Loading article' : 'Article not found'}
@@ -311,7 +311,7 @@ const NewsDetailPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F3F6FB]">
-      <Header toggleSidebar={() => {}} sidebarOpen={false} />
+      <Header toggleSidebar={() => undefined} sidebarOpen={false} />
       <main className="flex-1">
         <section className="border-b border-gray-200 bg-white">
           <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
@@ -529,9 +529,9 @@ const NewsDetailPage: React.FC = () => {
                             title: article.title,
                             text: article.excerpt,
                             url: window.location.href,
-                          }).catch(() => {});
+                          }).catch(() => undefined);
                         } else {
-                          navigator.clipboard.writeText(window.location.href).catch(() => {});
+                          navigator.clipboard.writeText(window.location.href).catch(() => undefined);
                         }
                       }}
                       className="w-full rounded-xl bg-[#030f35] px-6 py-3 text-sm font-semibold text-white hover:opacity-90 transition-colors shadow-sm inline-flex items-center justify-center gap-2"

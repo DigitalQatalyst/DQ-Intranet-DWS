@@ -23,7 +23,7 @@ const GlossaryTermDetailPage: React.FC = () => {
   if (!term) {
     return (
       <div className="min-h-screen flex flex-col bg-white guidelines-theme">
-        <Header toggleSidebar={() => {}} sidebarOpen={false} />
+        <Header toggleSidebar={() => undefined} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl">
           <div className="text-center py-12">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Term not found</h1>
@@ -69,7 +69,7 @@ const GlossaryTermDetailPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-white guidelines-theme">
-      <Header toggleSidebar={() => {}} sidebarOpen={false} />
+      <Header toggleSidebar={() => undefined} sidebarOpen={false} />
       <main className="container mx-auto px-4 py-8 flex-grow max-w-4xl">
         {/* Back Button - Light gray style */}
         <button

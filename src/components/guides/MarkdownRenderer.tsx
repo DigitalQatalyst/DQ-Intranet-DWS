@@ -45,7 +45,9 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
   const rehypeStripListIcons = React.useMemo(() => {
     const stripText = (s: string) => {
       return (s || '')
+        // eslint-disable-next-line no-misleading-character-class
         .replace(/^(?:[\u25A0-\u25FF]\uFE0F?\s*)+/, '') // geometric arrows
+        // eslint-disable-next-line no-misleading-character-class
         .replace(/^[\u200d\ufe0f\uFE0F\u2060\s]*[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}]+\s*/u, '') // emoji
     }
     const containsImage = (node: any): boolean => {
@@ -95,8 +97,10 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
       const prefix = m ? m[1] : ''
       if (prefix) line = line.slice(prefix.length)
       // Remove leading geometric-shape arrows/bullets (includes ▶, ►, ▸ and many others)
+      // eslint-disable-next-line no-misleading-character-class
       line = line.replace(/^(?:[\u25A0-\u25FF]\uFE0F?\s*)+/, '')
       // Remove leading emoji pictographs
+      // eslint-disable-next-line no-misleading-character-class
       line = line.replace(/^[\u200d\ufe0f\uFE0F\u2060\s]*[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}]+\s*/u, '')
       // Replace leading markdown/HTML image icons with their alt text (to keep names)
       line = line

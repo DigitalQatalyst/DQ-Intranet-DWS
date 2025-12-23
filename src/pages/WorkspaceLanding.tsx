@@ -351,7 +351,7 @@ const WorkspaceLanding = () => {
                       variant="outline"
                       size="lg"
                       className="border-[#030F35]/20 text-[#030F35] hover:bg-[#030F35]/5 focus-visible:ring-[#FB5535]"
-                      onClick={() => {}}
+                      onClick={() => undefined}
                     >
                       {action.label}
                     </Button>

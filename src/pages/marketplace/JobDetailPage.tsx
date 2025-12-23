@@ -95,7 +95,7 @@ const JobDetailPage: React.FC = () => {
   if (!job) {
     return (
       <div className="flex min-h-screen flex-col bg-gray-50">
-        <Header toggleSidebar={() => {}} sidebarOpen={false} />
+        <Header toggleSidebar={() => undefined} sidebarOpen={false} />
         <main className="flex flex-1 flex-col items-center justify-center px-4 text-center">
           <h1 className="mb-2 text-2xl font-semibold text-gray-900">
             {isLoading ? 'Loading role' : 'Role not found'}
@@ -137,7 +137,7 @@ const JobDetailPage: React.FC = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F3F6FB]">
-      <Header toggleSidebar={() => {}} sidebarOpen={false} />
+      <Header toggleSidebar={() => undefined} sidebarOpen={false} />
       <main className="flex-1">
         <section className="border-b border-gray-200 bg-white">
           <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
