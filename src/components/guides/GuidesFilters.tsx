@@ -1,16 +1,11 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { parseCsv, toCsv } from '../../utils/guides'
 import { ChevronDown, ChevronRight } from 'lucide-react'
-import { 
-  KNOWLEDGE_SYSTEMS, 
-  GHC_DIMENSIONS, 
-  GHC_TERM_TYPES, 
-  SIX_XD_DIMENSIONS, 
-  SIX_XD_TERM_TYPES,
-  TERM_ORIGINS,
-  USED_IN, 
-  WHO_USES_IT, 
-  ALPHABET 
+import {
+  KNOWLEDGE_SYSTEMS,
+  GHC_DIMENSIONS,
+  SIX_XD_PERSPECTIVES,
+  ALPHABET
 } from '../../pages/guides/glossaryFilters'
 
 type Facet = { id: string; name: string; count?: number }
@@ -332,89 +327,108 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
         const selectedKnowledgeSystems = parseCsv(query.get('glossary_knowledge_system'))
         const hasGHC = selectedKnowledgeSystems.includes('ghc')
         const has6xD = selectedKnowledgeSystems.includes('6xd')
-        const hasAnySystem = hasGHC || has6xD
 
         return (
           <>
-            {/* PRIMARY FILTER: Knowledge System */}
-            <Section idPrefix={instanceId} title="Knowledge System" category="glossary_knowledge_system" collapsed={collapsedSet.has('glossary_knowledge_system')} onToggle={toggleCollapsed}>
-              <CheckboxList idPrefix={instanceId} name="glossary_knowledge_system" options={KNOWLEDGE_SYSTEMS} query={query} onChange={onChange} />
+            {/* PRIMARY FILTER: Knowledge System (e.g., GHC, Agile 6xD) */}
+            <Section
+              idPrefix={instanceId}
+              title="Knowledge System"
+              category="glossary_knowledge_system"
+              collapsed={collapsedSet.has('glossary_knowledge_system')}
+              onToggle={toggleCollapsed}
+            >
+              <CheckboxList
+                idPrefix={instanceId}
+                name="glossary_knowledge_system"
+                options={KNOWLEDGE_SYSTEMS}
+                query={query}
+                onChange={onChange}
+              />
             </Section>
 
-            {/* SECONDARY FILTERS: GHC (shown only when GHC is selected) */}
-            {hasGHC && (
-              <>
-                <Section idPrefix={instanceId} title="GHC Dimension" category="glossary_ghc_dimension" collapsed={collapsedSet.has('glossary_ghc_dimension')} onToggle={toggleCollapsed}>
-                  <CheckboxList idPrefix={instanceId} name="glossary_ghc_dimension" options={GHC_DIMENSIONS} query={query} onChange={onChange} />
-                </Section>
-                <Section idPrefix={instanceId} title="GHC Term Type" category="glossary_ghc_term_type" collapsed={collapsedSet.has('glossary_ghc_term_type')} onToggle={toggleCollapsed}>
-                  <CheckboxList idPrefix={instanceId} name="glossary_ghc_term_type" options={GHC_TERM_TYPES} query={query} onChange={onChange} />
-                </Section>
-              </>
+            {/* SECONDARY FILTER: GHC Dimension (shown only when GHC is selected AND 6xD is NOT selected) */}
+            {hasGHC && !has6xD && (
+              <Section
+                idPrefix={instanceId}
+                title="GHC Dimension"
+                category="glossary_ghc_dimension"
+                collapsed={collapsedSet.has('glossary_ghc_dimension')}
+                onToggle={toggleCollapsed}
+              >
+                <CheckboxList
+                  idPrefix={instanceId}
+                  name="glossary_ghc_dimension"
+                  options={GHC_DIMENSIONS}
+                  query={query}
+                  onChange={onChange}
+                />
+              </Section>
             )}
 
-            {/* SECONDARY FILTERS: 6xD (shown only when 6xD is selected) */}
+            {/* SECONDARY FILTER: 6xD Perspective (shown only when Agile 6xD is selected) */}
             {has6xD && (
-              <>
-                <Section idPrefix={instanceId} title="6xD Dimension" category="glossary_6xd_dimension" collapsed={collapsedSet.has('glossary_6xd_dimension')} onToggle={toggleCollapsed}>
-                  <CheckboxList idPrefix={instanceId} name="glossary_6xd_dimension" options={SIX_XD_DIMENSIONS} query={query} onChange={onChange} />
-                </Section>
-                <Section idPrefix={instanceId} title="6xD Term Type" category="glossary_6xd_term_type" collapsed={collapsedSet.has('glossary_6xd_term_type')} onToggle={toggleCollapsed}>
-                  <CheckboxList idPrefix={instanceId} name="glossary_6xd_term_type" options={SIX_XD_TERM_TYPES} query={query} onChange={onChange} />
-                </Section>
-              </>
+              <Section
+                idPrefix={instanceId}
+                title="6xD Perspective"
+                category="glossary_6xd_perspective"
+                collapsed={collapsedSet.has('glossary_6xd_perspective')}
+                onToggle={toggleCollapsed}
+              >
+                <CheckboxList
+                  idPrefix={instanceId}
+                  name="glossary_6xd_perspective"
+                  options={SIX_XD_PERSPECTIVES}
+                  query={query}
+                  onChange={onChange}
+                />
+              </Section>
             )}
 
-            {/* SHARED FILTERS (visible after GHC or 6xD selected) */}
-            {hasAnySystem && (
-              <>
-                <Section idPrefix={instanceId} title="Term Origin" category="glossary_term_origin" collapsed={collapsedSet.has('glossary_term_origin')} onToggle={toggleCollapsed}>
-                  <CheckboxList idPrefix={instanceId} name="glossary_term_origin" options={TERM_ORIGINS} query={query} onChange={onChange} />
-                </Section>
-                <Section idPrefix={instanceId} title="Used In" category="glossary_used_in" collapsed={collapsedSet.has('glossary_used_in')} onToggle={toggleCollapsed}>
-                  <CheckboxList idPrefix={instanceId} name="glossary_used_in" options={USED_IN} query={query} onChange={onChange} />
-                </Section>
-                <Section idPrefix={instanceId} title="Who Uses It" category="glossary_who_uses_it" collapsed={collapsedSet.has('glossary_who_uses_it')} onToggle={toggleCollapsed}>
-                  <CheckboxList idPrefix={instanceId} name="glossary_who_uses_it" options={WHO_USES_IT} query={query} onChange={onChange} />
-                </Section>
-                <Section idPrefix={instanceId} title="Alphabetical" category="glossary_letter" collapsed={collapsedSet.has('glossary_letter')} onToggle={toggleCollapsed}>
-                  <div className="flex flex-wrap gap-2">
-                    {ALPHABET.map(letter => {
-                      const selected = parseCsv(query.get('glossary_letter')).includes(letter)
-                      return (
-                        <button
-                          key={letter}
-                          onClick={() => {
-                            const next = new URLSearchParams(query.toString())
-                            const values = new Set(parseCsv(next.get('glossary_letter')))
-                            if (values.has(letter)) {
-                              values.delete(letter)
-                            } else {
-                              values.add(letter)
-                            }
-                            if (values.size > 0) {
-                              next.set('glossary_letter', toCsv(Array.from(values)))
-                            } else {
-                              next.delete('glossary_letter')
-                            }
-                            onChange(next)
-                          }}
-                          className={`
-                            w-8 h-8 rounded text-xs font-medium transition-colors
-                            ${selected 
-                              ? 'bg-[var(--guidelines-primary)] text-white' 
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }
-                          `}
-                        >
-                          {letter}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </Section>
-              </>
-            )}
+            {/* ALPHABETICAL FILTER: A–Z browsing for fast scanning */}
+            <Section
+              idPrefix={instanceId}
+              title="Alphabetical"
+              category="glossary_letter"
+              collapsed={collapsedSet.has('glossary_letter')}
+              onToggle={toggleCollapsed}
+            >
+              <div className="flex flex-wrap gap-2">
+                {ALPHABET.map(letter => {
+                  const selected = parseCsv(query.get('glossary_letter')).includes(letter)
+                  return (
+                    <button
+                      key={letter}
+                      onClick={() => {
+                        const next = new URLSearchParams(query.toString())
+                        const values = new Set(parseCsv(next.get('glossary_letter')))
+                        if (values.has(letter)) {
+                          values.delete(letter)
+                        } else {
+                          values.add(letter)
+                        }
+                        if (values.size > 0) {
+                          next.set('glossary_letter', toCsv(Array.from(values)))
+                        } else {
+                          next.delete('glossary_letter')
+                        }
+                        onChange(next)
+                      }}
+                      className={`
+                        w-8 h-8 rounded text-xs font-medium transition-colors
+                        ${
+                          selected
+                            ? 'bg-[var(--guidelines-primary)] text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }
+                      `}
+                    >
+                      {letter}
+                    </button>
+                  )
+                })}
+              </div>
+            </Section>
           </>
         )
       })() : isBlueprintSelected ? (
