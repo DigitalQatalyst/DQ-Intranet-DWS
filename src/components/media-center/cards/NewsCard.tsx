@@ -54,21 +54,95 @@ export function NewsCard({ item, href }: NewsCardProps) {
   const imageIndex = Math.abs(item.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0));
   const imageSrc = item.image || fallbackImages[imageIndex % fallbackImages.length];
   
+  // Generate an appropriate title for news items that don't have one
+  const generateTitle = (item: NewsItem): string => {
+    // If title exists and is not empty, use it
+    if (item.title && item.title.trim()) {
+      // Check for specific article title updates
+      if (item.id === 'dq-scrum-master-structure-update' || item.title.toLowerCase().includes('scrum master structure')) {
+        return 'Updated Scrum Master Structure';
+      }
+      if (item.id === 'dq-townhall-meeting-agenda' || item.title.toLowerCase().includes('townhall meeting agenda')) {
+        return 'DQ Townhall Meeting';
+      }
+      if (item.id === 'company-wide-lunch-break-schedule' || item.title.toLowerCase().includes('company-wide lunch break schedule') || item.title.toLowerCase().includes('lunch break schedule')) {
+        return 'Company-Wide Lunch Break Schedule';
+      }
+      if (item.id === 'grading-review-program-grp' || item.title.toLowerCase().includes('grading review program') || item.title.toLowerCase().includes('grp')) {
+        return 'Grading Review Program (GRP)';
+      }
+      return item.title;
+    }
+
+    // Generate title based on available information
+    const parts: string[] = [];
+
+    // Add location prefix if available
+    if (item.location) {
+      const locationMap: Record<string, string> = {
+        'Dubai': 'DXB',
+        'Nairobi': 'NBO',
+        'Riyadh': 'KSA',
+        'Remote': 'Remote'
+      };
+      parts.push(locationMap[item.location] || item.location);
+    }
+
+    // Add type/newsType information
+    if (item.newsType) {
+      parts.push(item.newsType);
+    } else if (item.type) {
+      if (item.type === 'Thought Leadership') {
+        parts.push('Blog');
+      } else {
+        parts.push(item.type);
+      }
+    }
+
+    // Try to extract title from excerpt
+    if (item.excerpt && item.excerpt.trim()) {
+      const excerptWords = item.excerpt.trim().split(' ');
+      if (excerptWords.length > 0) {
+        // Take first 8 words and capitalize
+        const titleFromExcerpt = excerptWords.slice(0, 8).join(' ');
+        if (titleFromExcerpt.length > 20) {
+          return parts.length > 0 ? `${parts.join(' | ')} | ${titleFromExcerpt}` : titleFromExcerpt;
+        }
+      }
+    }
+
+    // Try to extract from content if available
+    if (item.content) {
+      const firstLine = item.content.split('\n').find(line => line.trim() && !line.trim().startsWith('#'));
+      if (firstLine) {
+        const cleanLine = firstLine.trim().replace(/^#+\s+/, '').replace(/\*\*/g, '').substring(0, 60);
+        if (cleanLine.length > 15) {
+          return parts.length > 0 ? `${parts.join(' | ')} | ${cleanLine}` : cleanLine;
+        }
+      }
+    }
+
+    // Fallback based on ID patterns
+    if (item.id) {
+      const idParts = item.id.split('-');
+      const meaningfulParts = idParts
+        .filter(part => part.length > 2 && !['dq', 'the', 'and', 'for'].includes(part.toLowerCase()))
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1));
+      
+      if (meaningfulParts.length > 0) {
+        const idTitle = meaningfulParts.join(' ');
+        return parts.length > 0 ? `${parts.join(' | ')} | ${idTitle}` : idTitle;
+      }
+    }
+
+    // Final fallback
+    const typeLabel = item.type === 'Thought Leadership' ? 'Blog' : (item.newsType || item.type || 'Announcement');
+    return parts.length > 0 ? `${parts.join(' | ')} | ${typeLabel}` : typeLabel;
+  };
+
   // Update title for specific articles
   const getDisplayTitle = () => {
-    if (item.id === 'dq-scrum-master-structure-update' || item.title.toLowerCase().includes('scrum master structure')) {
-      return 'Updated Scrum Master Structure';
-    }
-    if (item.id === 'dq-townhall-meeting-agenda' || item.title.toLowerCase().includes('townhall meeting agenda')) {
-      return 'DQ Townhall Meeting';
-    }
-    if (item.id === 'company-wide-lunch-break-schedule' || item.title.toLowerCase().includes('company-wide lunch break schedule') || item.title.toLowerCase().includes('lunch break schedule')) {
-      return 'Company-Wide Lunch Break Schedule';
-    }
-    if (item.id === 'grading-review-program-grp' || item.title.toLowerCase().includes('grading review program') || item.title.toLowerCase().includes('grp')) {
-      return 'Grading Review Program (GRP)';
-    }
-    return item.title;
+    return generateTitle(item);
   };
   
   const displayTitle = getDisplayTitle();

@@ -18,8 +18,9 @@ export type NewsItem = {
   newsSource?: 'DQ Leadership' | 'DQ Operations' | 'DQ Communications';
   focusArea?: 'GHC' | 'DWS' | 'Culture & People';
   content?: string; // Full article content for detail pages
-  format?: 'Blog' | 'Article' | 'Research Report'; // Format type for blogs
+  format?: 'Blog' | 'Article' | 'Research Report' | 'Podcast'; // Format type for blogs and podcasts
   source?: string; // Source/provider name (e.g., DigitalQatalyst, ADGM Academy)
+  audioUrl?: string; // Audio file URL for podcasts
 };
 
 export const NEWS: NewsItem[] = [
@@ -44,7 +45,7 @@ export const NEWS: NewsItem[] = [
     focusArea: 'Culture & People',
     content: `# DXB EoY Event Postponement
 
-Due to unfavourable weather conditions, we regret to inform you that today's DQ Studios Y/E Annual Gathering (19.12.2025) will be rescheduled for everyone's safety.
+Due to unfavourable weather conditions, the DQ Studios Y/E Annual Gathering scheduled for 19.12.2025 has been rescheduled for everyone's safety.
 
 We sincerely apologise for the inconvenience and appreciate your understanding.
 
@@ -69,7 +70,9 @@ To ensure the date chosen is convenient for DXB Associates. I will be sharing a 
     newsType: 'Company News',
     newsSource: 'DQ Operations',
     focusArea: 'Culture & People',
-    content: `In observance of the Christmas and New Year season, please note the following work arrangements and holiday schedule for DXB and KSA associates.
+    content: `# Christmas & New Year Schedule
+
+In observance of the Christmas and New Year season, please note the work arrangements and holiday schedule for DXB and KSA associates, including official holidays and mandatory WFH days.
 
 ## | Official Holidays
 
@@ -122,7 +125,9 @@ We wish everyone a safe, joyful, and restful festive season.`
     newsType: 'Company News',
     newsSource: 'DQ Operations',
     focusArea: 'Culture & People',
-    content: `In observance of the Christmas and New Year season, please note the following work arrangements and holiday schedule for NBO associates.
+    content: `# Christmas & New Year Schedule
+
+In observance of the Christmas and New Year season, please note the work arrangements and holiday schedule for NBO associates, including the mandatory WFH period and requirements.
 
 ## | Work-From-Home (WFH) Period
 
@@ -176,6 +181,8 @@ We wish everyone a safe and joyful festive season.`
     newsSource: 'DQ Operations',
     focusArea: 'Culture & People',
     content: `# DQ Townhall Meeting Agenda
+
+Join us for the upcoming DQ Townhall meeting featuring working room guidelines, Scrum Master framework discussions, and important organizational updates.
 
 ## Welcome & Introduction
 
@@ -237,6 +244,8 @@ This townhall aims to:
     focusArea: 'Culture & People',
     content: `# DQ Leave Process Guideline
 
+Complete guide to the leave approval process, including required steps, notification procedures, and consequences for non-compliance.
+
 ## Leave Process
 
 ### Step 1: Obtain Approval from HRA & Management
@@ -291,9 +300,9 @@ Three violations may result in termination of employment.
     newsSource: 'DQ Leadership',
     focusArea: 'GHC',
     tags: ['Geopolitics & Technology'],
-    content: `Geopolitics & Technology
+    content: `# Are We Watching the Rise of Compute Nationalism?
 
-Are We Watching the Rise of Compute Nationalism?
+Geopolitics & Technology
 
 As nations race to control AI infrastructure and computing resources, we explore how geopolitical tensions are reshaping the global technology landscape and what it means for businesses.
 
@@ -510,7 +519,7 @@ The question now is: Who gets left behind?`
     newsSource: 'DQ Leadership',
     focusArea: 'GHC',
     tags: ['Geopolitics & Technology'],
-    content: `Is Beijing Building the World's First AI Superstate?
+    content: `# Is Beijing Building the World's First AI Superstate?
 
 While the U.S. pushes a loud "compute nationalism" agenda, China is quietly executing a parallel strategy that is more coordinated, vertically integrated, and harder to track.
 
@@ -627,7 +636,7 @@ In that contest, China is not behind. It's simply quiet.
     newsSource: 'DQ Leadership',
     focusArea: 'GHC',
     tags: ['Geopolitics & Technology'],
-    content: `Europe Wants Ethical AI. But Without Compute, Can It Compete?
+    content: `# Europe Wants Ethical AI. But Without Compute, Can It Compete?
 
 The European Union has positioned itself as the global moral compass on AI—privacy, ethics, regulation, digital rights, and responsible innovation.
 
@@ -749,7 +758,7 @@ Until Europe builds the latter, the former will not shape the future.`
     newsSource: 'DQ Leadership',
     focusArea: 'GHC',
     tags: ['Geopolitics & Technology'],
-    content: `AI Without Compute: Is the Global South Being Left Out of the New Digital Economy?
+    content: `# AI Without Compute: Is the Global South Being Left Out of the New Digital Economy?
 
 There's a growing fear across Africa, Southeast Asia, and parts of Latin America: Is the AI revolution about to leave the Global South behind?
 
@@ -883,7 +892,7 @@ Because in the AI age:
     newsSource: 'DQ Leadership',
     focusArea: 'GHC',
     tags: ['Digital Warfare'],
-    content: `How Nations Weaponize Attention Before Missiles
+    content: `# How Nations Weaponize Attention Before Missiles
 
 When influence campaigns, coordinated misinformation, and AI-generated narratives shape public sentiment and global alliances before any physical conflict begins.
 
@@ -1050,7 +1059,7 @@ And the battlefield is us.`
     newsSource: 'DQ Leadership',
     focusArea: 'Culture & People',
     tags: ['Digital Worker'],
-    content: `The Rise of the Half-Attention Worker
+    content: `# The Rise of the Half-Attention Worker
 
 Why digital environments hardwire workers into split-attention behaviors that harm quality, and how Digital Cognitive Organizations can reclaim the conditions for full attention.
 
@@ -1242,7 +1251,7 @@ The workers and workplaces that learn to protect human attention will unlock lev
     newsSource: 'DQ Leadership',
     focusArea: 'Culture & People',
     tags: ['Social Media & Behavioral Design'],
-    content: `The Architecture of Addiction: How Interface Design Creates Digital Habits
+    content: `# The Architecture of Addiction: How Interface Design Creates Digital Habits
 
 Small triggers, frictionless actions, and micro-gratifications engineered into UI patterns — and why they matter in the Digital Cognitive era.
 
@@ -1561,8 +1570,9 @@ The real question is whether we'll sculpt technology into a tool of clarity; or 
     focusArea: 'Culture & People',
     content: `# Enhancing Collaboration Through Unified Scheduling
 
-## Overview
 To enhance collaboration and synchronize workflows across all studios, we are implementing a unified company-wide lunch break schedule.
+
+## Overview
 
 ## New Schedule Details
 **Effective immediately**, the designated lunch break for all associates will be:
@@ -1611,8 +1621,9 @@ Thank you for your cooperation in helping us build a more synchronized and effic
     focusArea: 'Culture & People',
     content: `# DQ Associate Grade Review Program Launch
 
-## Program Overview
 We are pleased to announce the launch of the **DQ Associate Grade Review Program (GRP)**. This comprehensive initiative aims to ensure all associates are aligned to the DQ SFIA-based grading scale, reflecting both their competence levels and scope of responsibility.
+
+## Program Overview This comprehensive initiative aims to ensure all associates are aligned to the DQ SFIA-based grading scale, reflecting both their competence levels and scope of responsibility.
 
 ## Leadership Team
 The review will be led by:
@@ -1698,6 +1709,8 @@ We are committed to maintaining transparent, fair, and consistent grading standa
     newsSource: 'DQ Operations',
     focusArea: 'Culture & People',
     content: `# DQ Work From Home (WFH) Guidelines
+
+Work From Home (WFH) guidelines outlining purpose, roles, processes, tools, KPIs, and compliance for remote work across DQ.
 
 ## WFH Guideline Overview
 The **Work From Home (WFH) Guidelines** provide a clear framework for how remote work is requested, approved, executed, and monitored across DQ. Each section below is designed to keep productivity, accountability, and culture intact while associates are working remotely.
@@ -1816,6 +1829,8 @@ The **Work From Home (WFH) Guidelines** provide a clear framework for how remote
     focusArea: 'Culture & People',
     content: `# DQ Dress Code Guideline (Version 1.0)
 
+Professional appearance guidelines that set expectations for attire at DigitalQatalyst, balancing professionalism with comfort and supporting our brand perception.
+
 ## Context
 At **DigitalQatalyst (DQ)**, professional appearance shapes how our brand is perceived, supports personal confidence, and creates an environment where associates feel comfortable and productive. This guideline sets expectations for attire so we strike the right balance between professionalism and comfort.
 
@@ -1933,6 +1948,8 @@ Where in doubt, associates should choose the more professional option and consul
     focusArea: 'GHC',
     content: `# DQ Storybook — Latest Version and Quick Reference Links
 
+Explore the latest DQ Storybook and quick links to GHC elements including Vision, HoV, Persona, Agile TMS/SoS/Flows, and 6xD.
+
 ## Introduction
 Here's the latest version of the **DQ Storybook** — our evolving narrative that brings the Golden Honeycomb of Competencies (GHC) to life. We're continuing to shape and refine this Storybook, so keep an eye out for new updates and deep dives in the coming weeks.
 
@@ -2042,7 +2059,9 @@ For questions about any of these resources or to request additional documentatio
     newsType: 'Company News',
     newsSource: 'DQ Leadership',
     focusArea: 'Culture & People',
-    content: `As part of our organizational optimization, we are updating the leadership structure across functions to streamline responsibilities and enhance ownership.
+    content: `# DQ Changes: Updated Scrum Master Structure
+
+As part of our organizational optimization, we are updating the leadership structure across functions to streamline responsibilities and enhance ownership.
 
 Previously, our leadership structure included Sector Leads, Factory Leads, Tower Leads, and Scrum Masters. These have now been streamlined into 4 unified Scrum Master framework.
 
@@ -2073,5 +2092,261 @@ To maintain a streamlined, transparent, and consistent leadership structure that
 ## | Role Expectation
 
 All Scrum Masters are expected to take full ownership of their unit, delivery area, or working room proactively identifying blockers, facilitating progress, and ensuring achievement of defined delivery targets.`
+  },
+  {
+    id: 'why-execution-beats-intelligence',
+    title: 'Why Execution Beats Intelligence: The Real Driver of Growth in DQ',
+    type: 'Thought Leadership',
+    date: '2025-12-20',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt: 'Explore how execution and consistent action drive real growth at DQ, and why intelligence alone isn\'t enough to achieve organizational success.',
+    image: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Leadership',
+    domain: 'Business',
+    theme: 'Leadership',
+    tags: ['podcast', 'execution', 'growth', 'leadership', 'strategy'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl: '/Podcasts/Execution_Beats_Intelligence__Why_Action_Wins.m4a',
+    content: `# Why Execution Beats Intelligence: The Real Driver of Growth in DQ
+
+## Focus of the Episode
+
+Promoting execution over intelligence, stressing why getting things done is more powerful than just knowing the best approach. Advocates for consistent, purposeful action and momentum over waiting for the perfect strategy or plan, emphasizing the importance of learning and refining by doing.
+
+## Intended Impact
+
+The episode aims to inspire listeners to take action, encouraging them to "take that next step, start that project, or refine that idea in action", which means prioritizing progress over staying stuck in analysis paralysis.
+
+The intended impact is to compel listeners to shift their focus from developing the "perfect strategy" to creating momentum through consistent, purposeful action.
+
+The ultimate goal is to reinforce the core belief that Execution beats intelligence every single time, making execution the core element of DQ's identity and the driver of real, sustainable growth and impact within the company.`
+  },
+  {
+    id: 'why-we-misdiagnose-problems',
+    title: 'Why We Misdiagnose Problems — And How to Stop It',
+    type: 'Thought Leadership',
+    date: '2025-12-18',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt: 'Learn why teams often misdiagnose problems and discover practical frameworks to identify root causes and implement effective solutions.',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Leadership',
+    domain: 'Business',
+    theme: 'Delivery',
+    tags: ['podcast', 'problem-solving', 'diagnosis', 'root-cause', 'analysis'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl: '/Podcasts/Why We Misdiagnose Problems — And How to Stop It.m4a',
+    content: `# Why We Misdiagnose Problems — And How to Stop It
+
+## Goal of This Episode
+
+Help us recognise when we're reacting to symptoms instead of diagnosing the real issue. Improve the quality of action, not reduce action. Encourage clearer problem framing before fixes are introduced. Reinforce simple, practical questions (e.g. "What does 'done' actually mean here?") that can be used immediately in day-to-day work.
+
+## Intended Impact
+
+Shift teams from activity-driven responses to problem-driven action. Reinforce solver behaviour as diagnose → act → learn, rather than act → adjust → repeat. Shorten feedback loops by catching misdiagnosis earlier, before effort compounds in the wrong direction. Strengthen individual and collective solver behaviour—spotting, naming, and addressing the real blocker rather than defaulting to familiar fixes.`
+  },
+  {
+    id: 'turning-conversations-into-action',
+    title: 'Turning Every Conversation Into Action',
+    type: 'Thought Leadership',
+    date: '2025-12-16',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt: 'Discover how to transform meetings and discussions into concrete actions that drive progress and deliver results.',
+    image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Leadership',
+    domain: 'Business',
+    theme: 'Delivery',
+    tags: ['podcast', 'conversation', 'action', 'meetings', 'productivity'],
+    readingTime: '10–20',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl: '/Podcasts/Turning_Every_Conversation _Into _Action.m4a',
+    content: `# Turning Every Conversation Into Action
+
+## Focus of the Episode
+
+Why conversations feel satisfying even when nothing moves (the psychological reward of clarity and alignment). The role of active listening in turning updates and narratives into signals that shape direction. Shifting from "what we should do" to "what has already started" as the trigger for momentum.
+
+## Intended Impact
+
+Shift mindset from "good conversations" to "conversations that move work". Encourage sharper listening and questioning that surfaces what actually matters for progress. Make momentum and visible movement the default expectation after discussions. Reinforce the idea that conversations are most valuable when they set direction and immediately enable the next move.`
+  },
+  {
+    id: 'why-tasks-dont-close-at-dq',
+    title: 'Why Tasks Don\'t Close at DQ — And How to Fix It',
+    type: 'Thought Leadership',
+    date: '2025-12-14',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt: 'An in-depth analysis of why tasks remain open and practical solutions to improve task completion rates across DQ teams.',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Leadership',
+    domain: 'Operations',
+    theme: 'Delivery',
+    tags: ['podcast', 'tasks', 'productivity', 'project-management', 'execution'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl: '/Podcasts/Why_Smart_Teams_Fail_To_Finish.m4a',
+    content: `# Why Tasks Don't Close at DQ — And How to Fix It
+
+This episode examines the systemic reasons why tasks remain open and provides actionable strategies to improve closure rates.
+
+## Key Topics Covered
+
+- Root causes of task stagnation
+- The impact of open tasks on team performance
+- Strategies for improving task completion
+- Tools and processes that work
+- Building a culture of task completion
+
+Listen to understand the challenges and learn proven methods to ensure tasks get completed on time.`
+  },
+  {
+    id: 'happy-talkers-why-talking-feels-productive',
+    title: 'Happy Talkers: Why Talking Feels Productive but Isn\'t',
+    type: 'Thought Leadership',
+    date: '2025-12-12',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt: 'Explore the phenomenon of "happy talking" and why excessive discussion can create an illusion of productivity without delivering real results.',
+    image: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Leadership',
+    domain: 'Business',
+    theme: 'Culture',
+    tags: ['podcast', 'communication', 'productivity', 'meetings', 'culture'],
+    readingTime: '10–20',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl: '/Podcasts/Stop_Happy_Talk_and_Start_Executing.m4a',
+    content: `# Happy Talkers: Why Talking Feels Productive but Isn't
+
+## Focus of the Episode
+
+Identifying and examining "happy talk," which feels energizing but is low consequence because they give the feeling of progress without requiring commitment, decisions, or accountability. Exploring the negative consequences of this behavior (such as the erosion of trust and stalled innovation) and offering practical strategies for moving from discussion to action.
+
+## Intended Impact
+
+To encourage listeners to assess whether their conversations and meetings produce clarity—or just comfort, helping them identify and unpack "happy talk," which consists of high-energy, low-consequence discussions that feel productive but ultimately fail to move work forward. To equip listeners with practical strategies for breaking the habit of avoiding commitment, such as ending conversations with decisions and naming an owner and a timeline, thereby ensuring that conversations lead somewhere and mitigate the negative costs associated with stalled execution and the erosion of trust.`
+  },
+  {
+    id: 'execution-styles-why-teams-work-differently',
+    title: 'Execution Styles: Why Teams Work Differently and How to Align Them',
+    type: 'Thought Leadership',
+    date: '2025-12-10',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt: 'Understand different execution styles across teams and learn how to align diverse approaches for maximum effectiveness.',
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Leadership',
+    domain: 'People',
+    theme: 'Leadership',
+    tags: ['podcast', 'execution', 'teams', 'collaboration', 'alignment'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl: '/Podcasts/Stop_Judging_Intent_Coordinate_Work_Styles.m4a',
+    content: `# Execution Styles: Why Teams Work Differently and How to Align Them
+
+## Focus of the Episode
+
+Establishing tasks as the fundamental "heartbeat" and smallest unit of value. Defining the practical requirements for successful task management.
+
+## Intended Impact
+
+Shift the organizational mindset from performing Agile "rituals" to achieving actual work "flow". Increase team momentum and psychological safety through transparency and trust. Drive daily operational discipline and clarity by encouraging staff to break work into small, actionable pieces and maintain honest communication.`
+  },
+  {
+    id: 'agile-the-dq-way-tasks-core-work-system',
+    title: 'Agile the DQ Way: Why Tasks Are the Core of Our Work System',
+    type: 'Thought Leadership',
+    date: '2025-12-08',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt: 'Learn how DQ implements Agile principles with tasks as the fundamental unit of work, driving clarity and accountability.',
+    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Leadership',
+    domain: 'Operations',
+    theme: 'Delivery',
+    tags: ['podcast', 'agile', 'tasks', 'work-system', 'methodology'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl: '/Podcasts/Agile_is_Task_Movement_Not_Ceremony.m4a',
+    content: `# Agile the DQ Way: Why Tasks Are the Core of Our Work System
+
+## Focus of the Episode
+
+Establishing tasks as the fundamental "heartbeat" and smallest unit of value. Defining the practical requirements for successful task management.
+
+## Intended Impact
+
+Shift the organizational mindset from performing Agile "rituals" to achieving actual work "flow". Increase team momentum and psychological safety through transparency and trust. Drive daily operational discipline and clarity by encouraging staff to break work into small, actionable pieces and maintain honest communication.`
+  },
+  {
+    id: 'leaders-as-multipliers-accelerate-execution',
+    title: 'Leaders as Multipliers: How to Accelerate Team Execution',
+    type: 'Thought Leadership',
+    date: '2025-12-06',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt: 'Discover how leaders can act as multipliers, accelerating team execution and amplifying results through effective leadership practices.',
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Leadership',
+    domain: 'People',
+    theme: 'Leadership',
+    tags: ['podcast', 'leadership', 'multipliers', 'execution', 'team-performance'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl: '/Podcasts/Execution_Beats_Intelligence__Why_Action_Wins (1).m4a',
+    content: `# Leaders as Multipliers: How to Accelerate Team Execution
+
+## Focus of the Episode
+
+The podcast highlights that workplace conflict is often stylistic rather than personal, arising when teams misinterpret different ways of working, such as speed being seen as reckless or caution as slow. The discussion emphasizes that alignment does not mean forcing everyone to work the same way, but rather agreeing on how to move together by making individual styles explicit.
+
+## Intended Impact
+
+By making execution styles explicit, the episode aims to stop team members from judging one another and misinterpreting different approaches—such as viewing speed as reckless or caution as slow. The episode seeks to move teams away from the assumption that everyone works the same way and toward a model of agreeing on "how we move together". Rather than forcing uniformity, the episode intends to show how different styles—like Sprinters and Architects—can coexist and support one another. When goals, timelines, and the definition of "done" are clear, these different execution methods can work in harmony to move a project forward without unnecessary friction.`
   }
 ];

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { HomeIcon, ChevronRightIcon, Share2, BookmarkIcon, Calendar, User, Building2, Heart, MessageCircle, FileText } from 'lucide-react';
+import { HomeIcon, ChevronRightIcon, Share2, BookmarkIcon, Calendar, User, Building2, Heart, MessageCircle, FileText, Play, Pause } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
 import { fetchAllNews, fetchNewsById } from '@/services/mediaCenterService';
 
@@ -42,6 +42,83 @@ const markMediaItemSeen = (kind: 'news' | 'job', id: string) => {
   } catch {
     // Ignore storage errors
   }
+};
+
+// Convert text to title case (not all caps)
+const toTitleCase = (text: string): string => {
+  // If already in title case or mixed case, return as is (but ensure not all caps)
+  if (text === text.toUpperCase() && text.length > 3) {
+    // Convert all caps to title case
+    return text
+      .toLowerCase()
+      .split(' ')
+      .map(word => {
+        // Handle special cases like "WFH", "DXB", "KSA", "NBO", "EoY"
+        const acronyms = ['wfh', 'dxb', 'ksa', 'nbo', 'eoy', 'dq', 'hr', 'hra'];
+        if (acronyms.includes(word.toLowerCase())) {
+          return word.toUpperCase();
+        }
+        // Capitalize first letter
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      })
+      .join(' ');
+  }
+  return text;
+};
+
+// Generate a short, relevant heading for announcements
+const generateAnnouncementHeading = (article: NewsItem & { content?: string }): string => {
+  // If the article has a title, use it (but make it shorter if needed)
+  if (article.title && article.title.trim()) {
+    // For very long titles, try to create a shorter version
+    let title = article.title.trim();
+    if (title.length > 80) {
+      // Try to extract the main part before any separators
+      const parts = title.split('|').map(p => p.trim());
+      if (parts.length > 1) {
+        title = parts[0]; // Use the first part before |
+      } else {
+        // Try to get first sentence or meaningful phrase
+        const sentences = title.split(/[.:]/);
+        if (sentences[0] && sentences[0].length > 20 && sentences[0].length < 80) {
+          title = sentences[0].trim();
+        }
+      }
+    }
+    return toTitleCase(title);
+  }
+  
+  // If no title, try to extract from content
+  if (article.content) {
+    const lines = article.content.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      // Look for the first heading
+      const headingMatch = trimmed.match(/^#+\s+(.+)$/);
+      if (headingMatch) {
+        const headingText = headingMatch[1].trim().replace(/\*\*/g, '').replace(/\*/g, '');
+        if (headingText.length > 10 && headingText.length < 100) {
+          return toTitleCase(headingText);
+        }
+      }
+    }
+    // If no heading found, try first meaningful line
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.match(/^#+\s+/) && trimmed.length > 20 && trimmed.length < 100) {
+        const cleanLine = trimmed.replace(/\*\*/g, '').replace(/\*/g, '').substring(0, 80);
+        return toTitleCase(cleanLine);
+      }
+    }
+  }
+  
+  // Fallback to excerpt if available
+  if (article.excerpt && article.excerpt.length > 20 && article.excerpt.length < 100) {
+    return article.excerpt;
+  }
+  
+  // Final fallback
+  return 'Announcement Details';
 };
 
 // Generate a brief 4-paragraph overview for the details page
@@ -386,10 +463,11 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
       // Remove pipe character (|) from the beginning if present
       cleanText = cleanText.replace(/^\|\s*/, '');
       if (cleanText) {
+        const titleCaseText = toTitleCase(cleanText);
         elements.push(
           <h2 key={keyCounter++} className="text-xl font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0">
             <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
-            {parseBold(cleanText)}
+            {parseBold(titleCaseText)}
           </h2>
         );
         firstLineProcessed = true;
@@ -406,18 +484,19 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
       let headingText = headingMatch[2].trim();
       // Remove pipe character (|) from the beginning of heading text if present
       headingText = headingText.replace(/^\|\s*/, '');
+      const titleCaseHeading = toTitleCase(headingText);
       if (level === 2) {
         elements.push(
           <h2 key={keyCounter++} className="text-xl font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0">
             <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
-            {parseBold(headingText)}
+            {parseBold(titleCaseHeading)}
           </h2>
         );
       } else {
         elements.push(
           <h3 key={keyCounter++} className="text-lg font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0">
             <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
-            {parseBold(headingText)}
+            {parseBold(titleCaseHeading)}
           </h3>
         );
       }
@@ -450,6 +529,78 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
   return elements.length > 0 ? <div className="space-y-4">{elements}</div> : null;
 };
 
+// Generate an appropriate title for news items that don't have one
+const generateTitle = (item: NewsItem): string => {
+  // If title exists and is not empty, return it
+  if (item.title && item.title.trim()) {
+    return item.title;
+  }
+
+  // Generate title based on available information
+  const parts: string[] = [];
+
+  // Add location prefix if available
+  if (item.location) {
+    const locationMap: Record<string, string> = {
+      'Dubai': 'DXB',
+      'Nairobi': 'NBO',
+      'Riyadh': 'KSA',
+      'Remote': 'Remote'
+    };
+    parts.push(locationMap[item.location] || item.location);
+  }
+
+  // Add type/newsType information
+  if (item.newsType) {
+    parts.push(item.newsType);
+  } else if (item.type) {
+    if (item.type === 'Thought Leadership') {
+      parts.push('Blog');
+    } else {
+      parts.push(item.type);
+    }
+  }
+
+  // Try to extract title from excerpt
+  if (item.excerpt && item.excerpt.trim()) {
+    const excerptWords = item.excerpt.trim().split(' ');
+    if (excerptWords.length > 0) {
+      // Take first 8 words and capitalize
+      const titleFromExcerpt = excerptWords.slice(0, 8).join(' ');
+      if (titleFromExcerpt.length > 20) {
+        return parts.length > 0 ? `${parts.join(' | ')} | ${titleFromExcerpt}` : titleFromExcerpt;
+      }
+    }
+  }
+
+  // Try to extract from content if available
+  if (item.content) {
+    const firstLine = item.content.split('\n').find(line => line.trim() && !line.trim().startsWith('#'));
+    if (firstLine) {
+      const cleanLine = firstLine.trim().replace(/^#+\s+/, '').replace(/\*\*/g, '').substring(0, 60);
+      if (cleanLine.length > 15) {
+        return parts.length > 0 ? `${parts.join(' | ')} | ${cleanLine}` : cleanLine;
+      }
+    }
+  }
+
+  // Fallback based on ID patterns
+  if (item.id) {
+    const idParts = item.id.split('-');
+    const meaningfulParts = idParts
+      .filter(part => part.length > 2 && !['dq', 'the', 'and', 'for'].includes(part.toLowerCase()))
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1));
+    
+    if (meaningfulParts.length > 0) {
+      const idTitle = meaningfulParts.join(' ');
+      return parts.length > 0 ? `${parts.join(' | ')} | ${idTitle}` : idTitle;
+    }
+  }
+
+  // Final fallback
+  const typeLabel = item.type === 'Thought Leadership' ? 'Blog' : (item.newsType || item.type || 'Announcement');
+  return parts.length > 0 ? `${parts.join(' | ')} | ${typeLabel}` : typeLabel;
+};
 
 const NewsDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -462,6 +613,12 @@ const NewsDetailPage: React.FC = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [likes] = useState(47); // Mock likes count - can be replaced with actual data
   const [comments] = useState(12); // Mock comments count - can be replaced with actual data
+  
+  // Audio player state for podcasts
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const getImageSrc = (item: NewsItem) => {
     if (item.image) return item.image;
@@ -476,6 +633,7 @@ const NewsDetailPage: React.FC = () => {
   const isChristmasScheduleArticle = article?.id === 'dq-dxb-ksa-christmas-new-year-schedule' || 
                                      article?.id === 'dq-nbo-christmas-new-year-schedule' ||
                                      (article?.title.toLowerCase().includes('christmas') && article?.title.toLowerCase().includes('new year'));
+  const isDXBEOYArticle = article?.id === 'dxb-eoy-event-postponement';
 
   // Color and label mappings for newsType categories (matching NewsCard)
   const newsTypeColor: Record<NonNullable<NewsItem['newsType']>, string> = {
@@ -494,6 +652,14 @@ const NewsDetailPage: React.FC = () => {
 
   // Get newsType display info (matching NewsCard logic)
   const getNewsTypeDisplay = (item: NewsItem) => {
+    // Check if this is a podcast first
+    const isPodcast = item.format === 'Podcast' || item.tags?.some(tag => tag.toLowerCase().includes('podcast'));
+    if (isPodcast) {
+      return {
+        label: 'Podcast',
+        color: '#8B5CF6' // Purple color for podcasts
+      };
+    }
     // For blog articles (Thought Leadership), always show "Blog" with unique color
     if (item.type === 'Thought Leadership') {
       return {
@@ -551,6 +717,47 @@ const NewsDetailPage: React.FC = () => {
     };
   }, [id]);
 
+  // Audio player useEffect - must be before early return
+  useEffect(() => {
+    if (!article) {
+      setIsPlaying(false);
+      setCurrentTime(0);
+      setDuration(0);
+      return;
+    }
+    
+    const isPodcast = article.format === 'Podcast' || article.tags?.some(tag => tag.toLowerCase().includes('podcast'));
+    const hasAudio = isPodcast && article.audioUrl;
+    
+    if (!hasAudio) {
+      setIsPlaying(false);
+      setCurrentTime(0);
+      setDuration(0);
+      return;
+    }
+
+    if (!audioRef.current) return;
+
+    const audio = audioRef.current;
+
+    const updateTime = () => setCurrentTime(audio.currentTime);
+    const updateDuration = () => setDuration(audio.duration);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+    };
+
+    audio.addEventListener('timeupdate', updateTime);
+    audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('timeupdate', updateTime);
+      audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, [article?.id, article?.format, article?.tags, article?.audioUrl]);
+
   if (!article) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
@@ -568,7 +775,14 @@ const NewsDetailPage: React.FC = () => {
             <p className="text-sm text-red-600 mb-4">{loadError}</p>
           )}
           <button
-            onClick={() => navigate(`/marketplace/guides${location.search || ''}`)}
+            onClick={() => {
+              // Preserve the tab parameter from the current location
+              const params = new URLSearchParams(location.search);
+              const tab = params.get('tab');
+              // Navigate to opportunities with the tab preserved
+              const backUrl = tab ? `/marketplace/opportunities?tab=${tab}` : '/marketplace/opportunities';
+              navigate(backUrl);
+            }}
             className="rounded-lg bg-[#030f35] px-6 py-3 text-sm font-semibold text-white"
           >
             Back to Media Center
@@ -613,6 +827,48 @@ const NewsDetailPage: React.FC = () => {
   const announcementDate = article.date ? formatDate(article.date) : '';
   const announcementDateShort = article.date ? new Date(article.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
 
+  // Check if this is a podcast with audio
+  const isPodcast = article.format === 'Podcast' || article.tags?.some(tag => tag.toLowerCase().includes('podcast'));
+  const hasAudio = isPodcast && article.audioUrl;
+
+  // Format time helper for audio player
+  const formatTime = (seconds: number): string => {
+    if (isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const togglePlayPause = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef.current || !duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    const newTime = percentage * duration;
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const skipForward = (seconds: number) => {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = Math.min(audioRef.current.currentTime + seconds, duration);
+  };
+
+  const skipBackward = (seconds: number) => {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = Math.max(audioRef.current.currentTime - seconds, 0);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#F3F6FB]">
       <Header toggleSidebar={() => {}} sidebarOpen={false} />
@@ -625,7 +881,14 @@ const NewsDetailPage: React.FC = () => {
                 Home
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
-              <Link to={`/marketplace/guides${location.search || ''}`} className="hover:text-[#1A2E6E]">
+              <Link 
+                to={(() => {
+                  const params = new URLSearchParams(location.search);
+                  const tab = params.get('tab');
+                  return tab ? `/marketplace/opportunities?tab=${tab}` : '/marketplace/opportunities';
+                })()}
+                className="hover:text-[#1A2E6E]"
+              >
                 DQ Media Center
               </Link>
               <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
@@ -717,14 +980,96 @@ const NewsDetailPage: React.FC = () => {
               {/* Main Content Area */}
               <div className="lg:col-span-2 space-y-6">
 
-                {/* Article Content - Full content for blogs, Scrum Master article, and Christmas schedule articles, overview for other announcements */}
+                {/* Audio Player for Podcasts */}
+                {hasAudio && (
+                  <div className="bg-white rounded-lg shadow p-6">
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Listen to Podcast</h2>
+                    <audio ref={audioRef} src={article.audioUrl} preload="metadata" />
+                    <div className="flex flex-col items-center space-y-4">
+                      {/* Play/Pause Button */}
+                      <button
+                        onClick={togglePlayPause}
+                        className="w-16 h-16 bg-[#030f35] hover:bg-[#021028] text-white rounded-full flex items-center justify-center shadow-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#030f35] focus:ring-offset-2"
+                        aria-label={isPlaying ? 'Pause podcast' : 'Play podcast'}
+                      >
+                        {isPlaying ? (
+                          <Pause size={24} fill="currentColor" />
+                        ) : (
+                          <Play size={24} fill="currentColor" />
+                        )}
+                      </button>
+                      
+                      {/* Time Display */}
+                      <div className="text-gray-700 text-sm font-medium">
+                        <span>{formatTime(currentTime)}</span> / <span>{formatTime(duration)}</span>
+                      </div>
+                      
+                      {/* Progress Bar */}
+                      <div className="w-full max-w-2xl">
+                        <div
+                          className="h-2 bg-gray-200 rounded-full cursor-pointer relative"
+                          onClick={handleProgressClick}
+                          role="slider"
+                          aria-label="Audio progress"
+                          aria-valuemin={0}
+                          aria-valuemax={duration || 100}
+                          aria-valuenow={currentTime}
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'ArrowRight') {
+                              e.preventDefault();
+                              skipForward(10);
+                            } else if (e.key === 'ArrowLeft') {
+                              e.preventDefault();
+                              skipBackward(10);
+                            }
+                          }}
+                        >
+                          <div
+                            className="h-2 bg-[#030f35] rounded-full transition-all"
+                            style={{
+                              width: `${duration ? (currentTime / duration) * 100 : 0}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Skip Controls */}
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={() => skipBackward(15)}
+                          className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                          aria-label="Rewind 15 seconds"
+                        >
+                          -15s
+                        </button>
+                        <button
+                          onClick={() => skipForward(15)}
+                          className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                          aria-label="Forward 15 seconds"
+                        >
+                          +15s
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Article Content - Full content for blogs, Scrum Master article, Christmas schedule articles, and DXB EoY Event, overview for other announcements */}
                 <article className="bg-white rounded-lg shadow p-6 space-y-4">
-                  {(isBlogArticle || isScrumMasterArticle || isChristmasScheduleArticle) && article.content ? (
+                  {(isBlogArticle || isScrumMasterArticle || isChristmasScheduleArticle || isDXBEOYArticle) && article.content ? (
                     <div className="prose prose-sm max-w-none [&_h2]:border-l-0 [&_h2]:border-0 [&_h3]:border-l-0 [&_h3]:border-0 [&_h4]:border-l-0 [&_h4]:border-0 [&_h2_*]:border-0 [&_h3_*]:border-0 [&_h4_*]:border-0">
                       {renderFullContent(article.content, isBlogArticle, true)}
                     </div>
                   ) : (
                     <div className="space-y-3">
+                      {/* Short heading for announcements */}
+                      {article && !isBlogArticle && (
+                        <h2 className="text-2xl font-bold text-gray-900 mb-4 pl-4 relative">
+                          <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+                          {generateAnnouncementHeading(article)}
+                        </h2>
+                      )}
                       {overview.map((paragraph, index) => {
                         const trimmed = paragraph.trim();
                         if (!trimmed) return null;
@@ -774,15 +1119,17 @@ const NewsDetailPage: React.FC = () => {
                   </div>
                 </section>
 
-                {/* NEXT STEPS Section */}
-                <section className="bg-white rounded-lg shadow p-6" aria-label="Next Steps">
-                  <h2 className="text-sm font-bold mb-4 uppercase tracking-wide">NEXT STEPS</h2>
-                  <div className="flex flex-wrap gap-3">
-                    <button className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
-                      <FileText size={14} /> Read Full Policy
-                    </button>
-                  </div>
-                </section>
+                {/* NEXT STEPS Section - Only show for Guidelines */}
+                {article.type === 'Guidelines' && (
+                  <section className="bg-white rounded-lg shadow p-6" aria-label="Next Steps">
+                    <h2 className="text-sm font-bold mb-4 uppercase tracking-wide">NEXT STEPS</h2>
+                    <div className="flex flex-wrap gap-3">
+                      <button className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-[#030f35] text-white rounded-lg hover:opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-[#030f35]">
+                        <FileText size={14} /> Read Full Policy
+                      </button>
+                    </div>
+                  </section>
+                )}
 
                 {/* Engagement Metrics and Actions */}
                 <div className="bg-white rounded-lg shadow p-6">
@@ -857,7 +1204,7 @@ const NewsDetailPage: React.FC = () => {
                                     {newsTypeDisplay.label}
                                   </span>
                                   <div className="text-xs text-gray-500 mb-1.5">{relatedDate}</div>
-                                  <div className="text-sm font-medium text-gray-900 line-clamp-2 leading-snug" title={item.title}>{item.title}</div>
+                                  <div className="text-sm font-medium text-gray-900 line-clamp-2 leading-snug" title={generateTitle(item)}>{generateTitle(item)}</div>
                                 </div>
                                 <ChevronRightIcon size={16} className="text-gray-400 flex-shrink-0 mt-0.5" />
                               </div>

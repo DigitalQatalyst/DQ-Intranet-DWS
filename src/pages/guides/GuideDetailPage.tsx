@@ -1519,7 +1519,7 @@ const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
                 {hasDocument && (
                   <button
                     onClick={openMainDocument}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#030f35] text-white rounded-lg hover:opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-[#030f35]"
                   >
                     <FileText size={16} /> Read Full Policy
                   </button>

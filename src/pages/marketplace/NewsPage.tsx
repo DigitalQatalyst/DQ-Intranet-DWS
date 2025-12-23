@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import FiltersPanel from '@/components/media-center/FiltersPanel';
 import AnnouncementsGrid from '@/components/media-center/AnnouncementsGrid';
 import BlogsGrid from '@/components/media-center/BlogsGrid';
+import PodcastsGrid from '@/components/media-center/PodcastsGrid';
 import JobsGrid from '@/components/media-center/JobsGrid';
 import type { FacetConfig, FiltersValue, MediaCenterTabKey } from '@/components/media-center/types';
 import type { NewsItem } from '@/data/media/news';
@@ -134,6 +135,53 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
     {
       key: 'readingTime',
       label: 'Reading Time',
+      options: ['<5', '5–10', '10–20', '20+']
+    }
+  ],
+  podcasts: [
+    {
+      key: 'format',
+      label: 'Format',
+      options: ['Podcast']
+    },
+    {
+      key: 'source',
+      label: 'Category',
+      options: ['DigitalQatalyst', 'ADGM Academy', 'Abu Dhabi Export Office', 'Khalifa Fund']
+    },
+    {
+      key: 'department',
+      label: 'Department',
+      options: [
+        'HRA (People)',
+        'Finance',
+        'Deals',
+        'Stories',
+        'Intelligence',
+        'Solutions',
+        'SecDevOps',
+        'Products',
+        'Delivery — Deploys',
+        'Delivery — Designs',
+        'DCO Operations',
+        'DBP Platform',
+        'DBP Delivery'
+      ]
+    },
+    { key: 'location', label: 'Location', options: ['Dubai', 'Nairobi', 'Riyadh', 'Remote'] },
+    {
+      key: 'domain',
+      label: 'Domain',
+      options: ['Technology', 'Business', 'People', 'Operations']
+    },
+    {
+      key: 'theme',
+      label: 'Theme',
+      options: ['Leadership', 'Delivery', 'Culture', 'DTMF']
+    },
+    {
+      key: 'readingTime',
+      label: 'Duration',
       options: ['<5', '5–10', '10–20', '20+']
     }
   ],
@@ -286,6 +334,12 @@ const TAB_SUMMARIES: Record<
       'Long-form blogs and thought-leadership pieces that codify craft, behaviours, and delivery lessons from across chapters.',
     meta: 'Authored by DQ Associates, Leads, and Partners.'
   },
+  podcasts: {
+    title: 'Podcasts',
+    description:
+      'Audio content featuring interviews, discussions, and insights from DQ leaders, associates, and industry experts.',
+    meta: 'Listen to conversations that matter.'
+  },
   opportunities: {
     title: 'Job Openings',
     description:
@@ -301,7 +355,7 @@ const NewsPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tab, setTab] = useState<MediaCenterTabKey>(() => {
     const paramTab = searchParams.get('tab');
-    if (paramTab === 'announcements' || paramTab === 'insights' || paramTab === 'opportunities') {
+    if (paramTab === 'announcements' || paramTab === 'insights' || paramTab === 'podcasts' || paramTab === 'opportunities') {
       return paramTab;
     }
     if (location.pathname.includes('/opportunities')) {
@@ -394,6 +448,8 @@ const NewsPage: React.FC = () => {
         return 'Search announcements and updates… e.g., townhall, product update';
       case 'insights':
         return 'Search blogs and insights… e.g., case study, delivery lessons';
+      case 'podcasts':
+        return 'Search podcasts… e.g., interview, discussion, insights';
       case 'opportunities':
         return 'Search jobs and roles… e.g., SFIA L3, frontend developer';
       default:
@@ -524,6 +580,12 @@ const NewsPage: React.FC = () => {
                 Blogs
               </TabsTrigger>
               <TabsTrigger
+                value="podcasts"
+                className="rounded-none border-b-2 border-transparent px-0 py-2 justify-start text-left text-gray-700 transition-colors duration-200 data-[state=active]:border-[#1A2E6E] data-[state=active]:font-medium data-[state=active]:text-[#1A2E6E]"
+              >
+                Podcasts
+              </TabsTrigger>
+              <TabsTrigger
                 value="opportunities"
                 className="rounded-none border-b-2 border-transparent px-0 py-2 justify-start text-left text-gray-700 transition-colors duration-200 data-[state=active]:border-[#1A2E6E] data-[state=active]:font-medium data-[state=active]:text-[#1A2E6E]"
               >
@@ -651,6 +713,9 @@ const NewsPage: React.FC = () => {
               </TabsContent>
               <TabsContent value="insights">
                 <BlogsGrid query={query} items={newsItems} />
+              </TabsContent>
+              <TabsContent value="podcasts">
+                <PodcastsGrid query={query} items={newsItems} />
               </TabsContent>
               <TabsContent value="opportunities">
                 <JobsGrid query={query} jobs={jobItems} />

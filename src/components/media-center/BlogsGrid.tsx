@@ -26,6 +26,11 @@ export default function BlogsGrid({ query, items }: GridProps) {
     return sourceItems
       .filter((item) => item.type === 'Thought Leadership')
       .filter((item) => {
+        // Exclude podcasts - they should only appear in the Podcasts tab
+        const isPodcast = item.format === 'Podcast' || item.tags?.some(tag => tag.toLowerCase().includes('podcast'));
+        return !isPodcast;
+      })
+      .filter((item) => {
         if (!search) return true;
         return (
           item.title.toLowerCase().includes(search) ||
