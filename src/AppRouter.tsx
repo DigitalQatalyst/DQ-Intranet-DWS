@@ -33,6 +33,7 @@ import UnitProfilePage from "./pages/UnitProfilePage";
 import WorkPositionProfilePage from "./pages/WorkPositionProfilePage";
 import RoleProfilePage from "./pages/RoleProfilePage";
 import WomenEntrepreneursPage from "./pages/WomenEntrepreneursPage";
+import OnboardingLanding from "./pages/OnboardingLanding";
 
 export function AppRouter() {
 
@@ -60,6 +61,7 @@ export function AppRouter() {
               path="/lms/:slug" 
               element={<LmsCourseDetailPageWrapper />} 
             />
+            <Route path="/onboarding/welcome" element={<OnboardingLanding />} />
             <Route
               path="/onboarding/:itemId"
               element={
