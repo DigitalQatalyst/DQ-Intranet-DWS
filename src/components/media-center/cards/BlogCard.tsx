@@ -126,7 +126,7 @@ export function BlogCard({ item, href }: BlogCardProps) {
           <p className="mt-2 text-sm text-gray-700 line-clamp-3">{item.excerpt}</p>
 
           <div className="mt-3 text-xs text-gray-500">
-            {item.views} views
+            {isPodcast ? `${item.views || 0} listens` : `${item.views || 0} views`}
           </div>
 
           {item.source && (
