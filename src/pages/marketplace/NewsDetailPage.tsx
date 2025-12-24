@@ -400,7 +400,7 @@ const parseBold = (text: string) => {
 };
 
 // Render full content for blog articles, news, and announcements, preserving all formatting exactly as provided
-const renderFullContent = (content: string, isBlog: boolean = false, treatFirstLineAsHeading: boolean = false) => {
+const renderFullContent = (content: string, isBlog: boolean = false, treatFirstLineAsHeading: boolean = false, isPodcast: boolean = false) => {
   if (!content) return null;
   
   const lines = content.split('\n');
@@ -410,6 +410,7 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
   let inList = false;
   let keyCounter = 0;
   let firstLineProcessed = false;
+  let firstHeadingSkipped = false; // For podcasts, skip the first heading (main title)
 
   const flushParagraph = () => {
     if (currentParagraph.length > 0) {
@@ -455,6 +456,7 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
     }
 
     // For blogs, news, and announcements: treat first non-empty line as a heading
+    // For podcasts, skip the first heading (main title) - only show "Focus of the Episode" and "Intended Impact"
     if ((isBlog || treatFirstLineAsHeading) && !firstLineProcessed) {
       flushList();
       flushParagraph();
@@ -463,6 +465,12 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
       // Remove pipe character (|) from the beginning if present
       cleanText = cleanText.replace(/^\|\s*/, '');
       if (cleanText) {
+        // For podcasts, skip the first heading (main title)
+        if (isPodcast) {
+          firstHeadingSkipped = true;
+          firstLineProcessed = true;
+          continue; // Skip rendering the main title
+        }
         const titleCaseText = toTitleCase(cleanText);
         elements.push(
           <h2 key={keyCounter++} className="text-xl font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0">
@@ -484,6 +492,23 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
       let headingText = headingMatch[2].trim();
       // Remove pipe character (|) from the beginning of heading text if present
       headingText = headingText.replace(/^\|\s*/, '');
+      
+      // For podcasts, only show "Focus of the Episode"/"Goal of This Episode" and "Intended Impact" headings
+      if (isPodcast) {
+        const normalizedHeading = headingText.toLowerCase();
+        const isFocusOfEpisode = normalizedHeading.includes('focus of the episode') || 
+                                 normalizedHeading.includes('focus of episode') ||
+                                 normalizedHeading.includes('goal of this episode') ||
+                                 normalizedHeading.includes('goal of episode');
+        const isIntendedImpact = normalizedHeading.includes('intended impact');
+        
+        // Skip if it's not one of the allowed headings
+        if (!isFocusOfEpisode && !isIntendedImpact) {
+          firstLineProcessed = true;
+          continue;
+        }
+      }
+      
       const titleCaseHeading = toTitleCase(headingText);
       if (level === 2) {
         elements.push(
@@ -1055,11 +1080,11 @@ const NewsDetailPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Article Content - Full content for blogs, Scrum Master article, Christmas schedule articles, and DXB EoY Event, overview for other announcements */}
+                {/* Article Content - Full content for blogs, Scrum Master article, Christmas schedule articles, DXB EoY Event, and podcasts, overview for other announcements */}
                 <article className="bg-white rounded-lg shadow p-6 space-y-4">
-                  {(isBlogArticle || isScrumMasterArticle || isChristmasScheduleArticle || isDXBEOYArticle) && article.content ? (
+                  {(isBlogArticle || isScrumMasterArticle || isChristmasScheduleArticle || isDXBEOYArticle || hasAudio) && article.content ? (
                     <div className="prose prose-sm max-w-none [&_h2]:border-l-0 [&_h2]:border-0 [&_h3]:border-l-0 [&_h3]:border-0 [&_h4]:border-l-0 [&_h4]:border-0 [&_h2_*]:border-0 [&_h3_*]:border-0 [&_h4_*]:border-0">
-                      {renderFullContent(article.content, isBlogArticle, true)}
+                      {renderFullContent(article.content, isBlogArticle, true, hasAudio)}
                     </div>
                   ) : (
                     <div className="space-y-3">

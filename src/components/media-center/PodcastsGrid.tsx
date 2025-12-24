@@ -41,20 +41,13 @@ export default function PodcastsGrid({ query, items }: GridProps) {
         );
       })
       .filter((item) => {
-        const format = query.filters?.format;
-        const source = query.filters?.source;
-        const department = query.filters?.department;
-        const location = query.filters?.location;
+        // Only check filters that are available for podcasts: domain, theme, readingTime
         const domain = query.filters?.domain;
         const theme = query.filters?.theme;
         const readingTime = query.filters?.readingTime;
 
         const matches = (val?: string, sel?: string[]) => !sel?.length || (val && sel.includes(val));
         return (
-          matches(item.format, format) &&
-          matches(item.source, source) &&
-          matches(item.department, department) &&
-          matches(item.location, location) &&
           matches(item.domain, domain) &&
           matches(item.theme, theme) &&
           matches(item.readingTime, readingTime)

@@ -2213,17 +2213,13 @@ Shift mindset from "good conversations" to "conversations that move work". Encou
     audioUrl: '/Podcasts/Why_Smart_Teams_Fail_To_Finish.m4a',
     content: `# Why Tasks Don't Close at DQ — And How to Fix It
 
-This episode examines the systemic reasons why tasks remain open and provides actionable strategies to improve closure rates.
+## Focus of the Episode
 
-## Key Topics Covered
+This episode examines the systemic reasons why tasks remain open and provides actionable strategies to improve closure rates. It explores root causes of task stagnation, the impact of open tasks on team performance, strategies for improving task completion, tools and processes that work, and building a culture of task completion.
 
-- Root causes of task stagnation
-- The impact of open tasks on team performance
-- Strategies for improving task completion
-- Tools and processes that work
-- Building a culture of task completion
+## Intended Impact
 
-Listen to understand the challenges and learn proven methods to ensure tasks get completed on time.`
+Listeners will understand the challenges and learn proven methods to ensure tasks get completed on time. The episode aims to help teams identify why tasks remain open and implement practical solutions to improve closure rates and overall productivity.`
   },
   {
     id: 'happy-talkers-why-talking-feels-productive',

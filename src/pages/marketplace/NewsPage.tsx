@@ -140,49 +140,19 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
   ],
   podcasts: [
     {
-      key: 'format',
-      label: 'Format',
-      options: ['Podcast']
-    },
-    {
-      key: 'source',
-      label: 'Category',
-      options: ['DigitalQatalyst', 'ADGM Academy', 'Abu Dhabi Export Office', 'Khalifa Fund']
-    },
-    {
-      key: 'department',
-      label: 'Department',
-      options: [
-        'HRA (People)',
-        'Finance',
-        'Deals',
-        'Stories',
-        'Intelligence',
-        'Solutions',
-        'SecDevOps',
-        'Products',
-        'Delivery — Deploys',
-        'Delivery — Designs',
-        'DCO Operations',
-        'DBP Platform',
-        'DBP Delivery'
-      ]
-    },
-    { key: 'location', label: 'Location', options: ['Dubai', 'Nairobi', 'Riyadh', 'Remote'] },
-    {
       key: 'domain',
       label: 'Domain',
-      options: ['Technology', 'Business', 'People', 'Operations']
+      options: ['Business', 'People', 'Operations']
     },
     {
       key: 'theme',
       label: 'Theme',
-      options: ['Leadership', 'Delivery', 'Culture', 'DTMF']
+      options: ['Leadership', 'Delivery', 'Culture']
     },
     {
       key: 'readingTime',
       label: 'Duration',
-      options: ['<5', '5–10', '10–20', '20+']
+      options: ['10–20', '20+']
     }
   ],
   opportunities: [
