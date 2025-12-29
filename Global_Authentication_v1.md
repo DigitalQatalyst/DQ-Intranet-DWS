@@ -62,36 +62,36 @@ Build a single, standardized authentication + RBAC framework for the full DWS pl
 
 (DWS does not have a preexisting full auth module — these rules define how new auth logic must be integrated.)
 
-1. **Non-destructive integration**
+1. Non-destructive integration
    - Add authentication without altering or restructuring the existing app architecture.
 
-2. **Centralized authentication logic**
+2. Centralized authentication logic
    - Authentication state must live in a single AuthContext with one source of truth.
 
-3. **Use a single ProtectedLayout**
+3. Use a single ProtectedLayout
    - All authenticated pages must live inside a (protected) layout.
    - Avoid per-page or per-component auth checks.
 
-4. **Middleware as the authoritative gate**
+4. Middleware as the authoritative gate
    - Middleware must validate the token, enforce RBAC, and block external access before rendering.
 
-5. **Follow DWS naming and coding conventions**
+5. Follow DWS naming and coding conventions
    - Use the same folder, naming, and hook patterns already used in the project.
 
-6. **Extend existing apiClient**
+6. Extend existing apiClient
    - All token injection and refresh behavior must happen inside a single, existing API client pattern.
 
-7. **No mock auth**
+7. No mock auth
    - Remove all placeholder user values, test roles, or fake tokens.
 
-8. **Provider-agnostic**
+8. Provider-agnostic
    - Abstract identity provider calls into a service layer so implementation can be swapped.
 
-9. **UI integration**
+9. UI integration
    - Existing Navigation/Header components must reflect user roles and session state via hooks, not new UI shells.
 
-10. **Consistent RBAC across app**
-    - Only `useAuthorization()` may be used to check permissions client-side.
+10. Consistent RBAC across app
+    - Only useAuthorization() may be used to check permissions client-side.
     - No inline role conditions scattered around UI.
 
 ---
@@ -100,22 +100,22 @@ Build a single, standardized authentication + RBAC framework for the full DWS pl
 
 ### 2.1 Frontend
 
-**Tech Stack:**
+**Tech stack:**
+- Next.js (App Router)
 - React + TypeScript
-- React Router (existing)
-- Internal identity provider (e.g., Entra ID / Microsoft Azure AD via MSAL or Supabase Auth)
+- Internal identity provider (e.g., Entra ID or Supabase Auth)
 - Middleware for server-side route protection
 - Context + hooks for session and roles
 
-**Key Patterns:**
-- `AuthContext` + `useAuth()` for session state
-- `useAuthorization()` for role and permission checks
-- `ProtectedLayout` for gating authenticated modules
-- `apiClient` for token-secured API calls
+**Key patterns:**
+- AuthContext + useAuth() for session state
+- useAuthorization() for role and permission checks
+- ProtectedLayout for gating authenticated modules
+- apiClient for token-secured API calls
 
 **Constraints:**
 - Only internal DQ users may authenticate
-- All pages except `/login` require authentication
+- All pages except /login require authentication
 - Power User and Admin routes require explicit RBAC
 - New Joiners must trigger an onboarding redirect
 
@@ -128,23 +128,22 @@ Build a single, standardized authentication + RBAC framework for the full DWS pl
 - Detect New Joiner status and redirect to onboarding
 - Map token claims into request context
 
-**Middleware Outcomes:**
-- No token → redirect `/login`
-- Invalid token → clear session + redirect `/login`
-- New Joiner → redirect `/onboarding`
+**Middleware outcomes:**
+- No token → redirect /login
+- Invalid token → clear session + redirect /login
+- New Joiner → redirect /onboarding
 - Role mismatch → HTTP 403 with "Not Authorized" page
 
 ### 2.3 Identity Claims Model
 
 Token must include:
-```typescript
+```json
 {
   "sub": "<employee_id>",
   "email": "<dq_email>",
   "name": "<employee_name>",
   "roles": [
     "employee",
-    // optional power user roles:
     "service_owner",
     "content_publisher",
     "moderator",
@@ -167,18 +166,18 @@ Token must include:
 ### 3.1 AuthContext
 
 **Must provide:**
-- `user` - User profile object
-- `roles: string[]` - Array of user roles
-- `newJoiner: boolean` - New joiner status flag
+- user
+- roles: string[]
+- newJoiner: boolean
 - Boolean helpers:
-  - `isEmployee`
-  - `isServiceOwner`
-  - `isContentPublisher`
-  - `isModerator`
-  - `isDirectoryMaintainer`
-  - `isSystemAdmin`
-- `loading` - Loading state
-- `login()` / `logout()` - Authentication methods
+  - isEmployee
+  - isServiceOwner
+  - isContentPublisher
+  - isModerator
+  - isDirectoryMaintainer
+  - isSystemAdmin
+- loading
+- login() / logout()
 
 **Responsibilities:**
 - Initialize session on app load
@@ -191,22 +190,22 @@ Token must include:
 **Must:**
 - Wrap all authenticated content
 - Show loading UI while auth resolves
-- Redirect `newJoiner` → `/onboarding`
-- Redirect unauthenticated users → `/login`
+- Redirect newJoiner → /onboarding
+- Redirect unauthenticated users → /login
 - Prevent partial rendering until session is resolved
 
 ### 3.3 useAuthorization()
 
 **Must provide:**
-- `hasRole(role: string): boolean`
-- `hasAnyRole(roles: string[]): boolean`
-- `isNewJoiner`
-- `isEmployee`
-- `isServiceOwner`
-- `isContentPublisher`
-- `isModerator`
-- `isDirectoryMaintainer`
-- `isSystemAdmin`
+- hasRole(role: string): boolean
+- hasAnyRole(roles: string[]): boolean
+- isNewJoiner
+- isEmployee
+- isServiceOwner
+- isContentPublisher
+- isModerator
+- isDirectoryMaintainer
+- isSystemAdmin
 
 **Used for:**
 - Navigation visibility
@@ -227,45 +226,44 @@ Token must include:
 ### 3.5 Login
 
 - Completes identity provider login
-- Calls `/api/auth/me` to retrieve roles + newJoiner flag
-- Redirects to `/onboarding` or home depending on status
+- Calls /api/auth/me to retrieve roles + newJoiner flag
+- Redirects to /onboarding or home depending on status
 
 ### 3.6 Logout
 
-- Calls `/api/auth/logout`
+- Calls /api/auth/logout
 - Clears session
-- Redirects `/login`
+- Redirects /login
 
 ---
 
 ## SECTION 4 — REQUIRED MIDDLEWARE ROUTES
 
 ### Core
-
-- `GET /api/auth/me` → user profile, roles, newJoiner
-- `POST /api/auth/logout` → terminates session
+- GET /api/auth/me → user profile, roles, newJoiner
+- POST /api/auth/logout → terminates session
 
 ### Authenticated Routes (all user types except unauthenticated)
 
 Middleware must protect:
-- `/marketplace/**`
-- `/services/**`
-- `/communities/**`
-- `/work/**`
-- `/directory/**`
-- `/knowledge/**`
-- `/media/**`
+- /marketplace/**
+- /services/**
+- /communities/**
+- /work/**
+- /directory/**
+- /knowledge/**
+- /media/**
 
 ### Power-User & Admin Routes (RBAC Required)
 
 | Path | Required Role |
 |------|--------------|
-| `/services/manage/**` | `service_owner` |
-| `/media/admin/**` | `content_publisher` |
-| `/knowledge/manage/**` | `content_publisher` |
-| `/communities/moderation/**` | `moderator` |
-| `/directory/manage/**` | `directory_maintainer` |
-| `/admin/**` | `system_admin` |
+| /services/manage/** | service_owner |
+| /media/admin/** | content_publisher |
+| /knowledge/manage/** | content_publisher |
+| /communities/moderation/** | moderator |
+| /directory/manage/** | directory_maintainer |
+| /admin/** | system_admin |
 
 **Note:**
 - An Existing Employee never has edit rights unless explicitly assigned one of the Power User roles.
@@ -275,7 +273,6 @@ Middleware must protect:
 ## SECTION 5 — MIDDLEWARE BUSINESS LOGIC
 
 ### Core Logic
-
 1. Validate token & extract user context
 2. Enforce internal-only email domain
 3. Redirect New Joiners until onboarding completed
@@ -283,7 +280,6 @@ Middleware must protect:
 5. Return 401/403 appropriately
 
 ### Forbidden
-
 - Anonymous access
 - External identities
 - Existing employees attempting admin or content-editing actions
@@ -293,12 +289,12 @@ Middleware must protect:
 
 ## SECTION 6 — REQUIRED HOOKS
 
-- `useAuthQuery()` → fetches `/api/auth/me`
-- `useLogin()`
-- `useLogout()`
-- `useAccessToken()`
-- `useRequireAuth()`
-- `useAuthorization()` → for all role checks
+- useAuthQuery() → fetches /api/auth/me
+- useLogin()
+- useLogout()
+- useAccessToken()
+- useRequireAuth()
+- useAuthorization() → for all role checks
 
 ---
 
@@ -306,8 +302,8 @@ Middleware must protect:
 
 Auth module does not manage storage.
 
-**If profile avatars are added:**
-- `org/dq/employees/{employeeId}/avatar/`
+If profile avatars are added:
+- org/dq/employees/{employeeId}/avatar/
 
 ---
 
@@ -343,8 +339,8 @@ Auth module does not manage storage.
 - Manage roles, audits, settings
 
 ### Enforcement
-- **Server-side** → authoritative
-- **Client-side** → UI gating only
+- Server-side → authoritative
+- Client-side → UI gating only
 - Audit log for all content edits, moderation, or RBAC changes
 
 ---
@@ -352,19 +348,16 @@ Auth module does not manage storage.
 ## SECTION 9 — TESTING REQUIREMENTS
 
 ### Unit Tests
-
 - AuthContext role decoding
-- `useAuthorization()` role checks
+- useAuthorization role checks
 - New Joiner onboarding enforcement
 
 ### Integration Tests
-
 - Power-user RBAC tests
 - 401/403 enforcement
 - apiClient token renewal behavior
 
 ### E2E Tests
-
 - New Joiner onboarding flow
 - Existing Employee read-only behavior
 - Content Publisher edit-publish flows
@@ -375,130 +368,10 @@ Auth module does not manage storage.
 
 ## SECTION 10 — EXECUTION RULES FOR CURSOR
 
-1. **Use existing architecture; do not refactor core structure**
-2. **Extend existing AuthContext; do not recreate**
-3. **Implement middleware before UI integration**
-4. **Centralize RBAC in `useAuthorization()`**
-5. **Replace all mock auth data**
-6. **Enforce internal-only access**
-7. **Follow this spec exactly**
-
-### Implementation Order
-
-1. **Phase 1: Core Auth Infrastructure**
-   - Consolidate existing AuthContext implementations into a single source of truth
-   - Implement token validation and refresh logic
-   - Create unified `apiClient` with token injection
-   - Build `/api/auth/me` and `/api/auth/logout` endpoints
-
-2. **Phase 2: RBAC Foundation**
-   - Implement `useAuthorization()` hook
-   - Define role types and permission helpers
-   - Add role extraction from token claims
-   - Create role-based boolean helpers
-
-3. **Phase 3: Route Protection**
-   - Implement middleware for route protection
-   - Create `ProtectedLayout` component
-   - Add RBAC enforcement for power-user routes
-   - Integrate New Joiner onboarding redirects
-
-4. **Phase 4: Integration**
-   - Wrap authenticated routes with `ProtectedLayout`
-   - Update Navigation/Header to use `useAuthorization()`
-   - Remove all mock auth logic
-   - Update existing protected routes to use new system
-
-5. **Phase 5: Testing & Validation**
-   - Write unit tests for auth logic
-   - Write integration tests for RBAC
-   - Write E2E tests for user flows
-   - Validate internal-only access enforcement
-
-### File Structure (Recommended)
-
-```
-src/
-  context/
-    AuthContext.tsx          # Single source of truth for auth state
-  hooks/
-    useAuth.ts              # Main auth hook
-    useAuthorization.ts     # RBAC hook
-    useAuthQuery.ts         # Query hook for /api/auth/me
-    useRequireAuth.ts       # Route protection hook
-  components/
-    ProtectedLayout.tsx     # Protected layout wrapper
-    ProtectedRoute.tsx      # Individual route protection (if needed)
-  lib/
-    apiClient.ts            # Unified API client with token handling
-    authService.ts          # Abstracted identity provider service
-  pages/
-    Login.tsx               # Login page
-    Onboarding.tsx          # New joiner onboarding flow
-api/
-  auth/
-    me.ts                   # GET /api/auth/me
-    logout.ts               # POST /api/auth/logout
-  middleware/
-    authMiddleware.ts       # Route protection middleware
-```
-
-### Key Integration Points
-
-- **Existing MSAL Integration**: The codebase already uses MSAL for Microsoft authentication. The new auth module should integrate with this rather than replacing it.
-- **Existing ProtectedRoute**: There is a `ProtectedRoute` component that should be extended or replaced by the new `ProtectedLayout`.
-- **Multiple AuthContext Instances**: There are currently multiple AuthContext implementations that need to be consolidated.
-- **Communities Module**: Has its own auth context that needs to be integrated into the unified system.
-
-### Acceptance Criteria
-
-1. ✅ Single AuthContext provides all auth state and methods
-2. ✅ All DWS modules require authentication
-3. ✅ New Joiners are redirected to onboarding
-4. ✅ Power-user routes enforce RBAC
-5. ✅ All mock auth logic is removed
-6. ✅ Token handling is unified in apiClient
-7. ✅ Internal-only email domains are enforced
-8. ✅ Role checks use only `useAuthorization()` hook
-9. ✅ Middleware enforces protection before rendering
-10. ✅ All tests pass
-
----
-
-## APPENDIX A — Token Claims Reference
-
-```typescript
-interface TokenClaims {
-  sub: string;              // Employee ID
-  email: string;            // DQ email address (internal domain only)
-  name: string;             // Employee full name
-  roles: Role[];            // Array of role strings
-  new_joiner: boolean;      // New joiner status
-  iat?: number;             // Issued at (timestamp)
-  exp?: number;             // Expiration (timestamp)
-}
-
-type Role = 
-  | 'employee'
-  | 'service_owner'
-  | 'content_publisher'
-  | 'moderator'
-  | 'directory_maintainer'
-  | 'system_admin';
-```
-
-## APPENDIX B — Email Domain Validation
-
-Internal DQ email domains (examples - validate against actual allowed domains):
-- `@dq.com`
-- `@digitalquartz.com`
-- Other internal domains as configured
-
-External domains must be rejected at both middleware and identity provider level.
-
----
-
-**Document Version:** 1.0  
-**Last Updated:** 2025-01-XX  
-**Status:** Draft — Ready for Implementation
-
+1. Use existing architecture; do not refactor core structure
+2. Extend existing AuthContext; do not recreate
+3. Implement middleware before UI integration
+4. Centralize RBAC in useAuthorization()
+5. Replace all mock auth data
+6. Enforce internal-only access
+7. Follow this spec exactly
