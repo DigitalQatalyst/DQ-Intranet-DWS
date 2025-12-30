@@ -88,7 +88,7 @@ export type LmsDetail = {
         title: string;
         description?: string;
         duration?: string;
-        type: 'video' | 'guide' | 'quiz' | 'workshop' | 'assignment' | 'reading';
+        type: 'video' | 'guide' | 'quiz' | 'workshop' | 'assignment' | 'reading' | 'final-assessment';
         order: number;
         isLocked?: boolean;
         videoUrl?: string;
@@ -101,7 +101,7 @@ export type LmsDetail = {
       title: string;
       description?: string;
       duration?: string;
-      type: 'video' | 'guide' | 'quiz' | 'workshop' | 'assignment' | 'reading';
+      type: 'video' | 'guide' | 'quiz' | 'workshop' | 'assignment' | 'reading' | 'final-assessment';
       order: number;
       isLocked?: boolean;
       videoUrl?: string;
@@ -163,6 +163,18 @@ type DBLesson = {
   updated_at: string;
 };
 
+// Quiz types
+type DBQuiz = {
+  id: string;
+  course_id: string;
+  lesson_id: string | null;
+  title: string;
+  description: string | null;
+  questions: any[];
+  created_at: string;
+  updated_at: string;
+};
+
 /**
  * Fetches all courses from Supabase
  * Uses 'lms_courses' table
@@ -170,7 +182,7 @@ type DBLesson = {
 async function fetchCourses(): Promise<DBCourse[]> {
   try {
     console.log('[LMS] Fetching courses from Supabase (lms_courses table)...');
-    
+
     const { data, error } = await lmsSupabaseClient
       .from('lms_courses')
       .select('*')
@@ -262,6 +274,27 @@ async function fetchLessons(courseIds: string[], moduleIds: string[]): Promise<D
   return allLessons;
 }
 
+/**
+ * Fetches all quizzes for given course IDs
+ */
+async function fetchQuizzes(courseIds: string[]): Promise<DBQuiz[]> {
+  if (courseIds.length === 0) return [];
+
+  const { data, error } = await lmsSupabaseClient
+    .from('lms_quizzes')
+    .select('*')
+    .in('course_id', courseIds)
+    .is('lesson_id', null);
+
+  if (error) {
+    console.error('Error fetching quizzes:', error);
+    // Don't throw, just return empty
+    return [];
+  }
+
+  return data || [];
+}
+
 // Helper to convert minutes to duration enum
 function minutesToDuration(minutes: number): 'Bite-size' | 'Short' | 'Medium' | 'Long' {
   if (minutes <= 15) return 'Bite-size';
@@ -294,7 +327,8 @@ function normalizeStatus(status: string): 'live' | 'coming-soon' {
 function transformCourseToLmsDetail(
   course: DBCourse,
   modules: DBModule[],
-  lessons: DBLesson[]
+  lessons: DBLesson[],
+  quizzes: DBQuiz[] = []
 ): LmsDetail {
   // Get modules for this course
   const courseModules = modules.filter(m => m.course_id === course.id);
@@ -304,7 +338,7 @@ function transformCourseToLmsDetail(
     // Get lessons for this module
     const moduleLessons = lessons.filter(l => l.module_id === module.id);
 
-    const curriculumItem: LmsDetail['curriculum'][0] = {
+    const curriculumItem: any = {
       id: module.id,
       title: module.title,
       description: module.description || undefined,
@@ -358,6 +392,25 @@ function transformCourseToLmsDetail(
     }
   }
 
+  // Add Final Assessment if present
+  const courseQuiz = quizzes.find(q => q.course_id === course.id && !q.lesson_id);
+  if (courseQuiz) {
+    curriculum.push({
+      id: courseQuiz.id,
+      title: 'Final Assessment',
+      description: courseQuiz.description || 'Complete the final assessment to finish the course.',
+      order: Number.MAX_SAFE_INTEGER, // Ensure it is always last
+      lessons: [{
+        id: courseQuiz.id,
+        title: courseQuiz.title,
+        description: courseQuiz.description || undefined,
+        type: 'final-assessment',
+        order: 1,
+        isLocked: false
+      }]
+    });
+  }
+
   // Parse FAQ from JSONB
   const faq = Array.isArray(course.faq) ? course.faq.map((item: any) => ({
     question: item.question || '',
@@ -371,10 +424,10 @@ function transformCourseToLmsDetail(
     title: course.title,
     provider: course.provider,
     courseCategory: course.category,
-    deliveryMode: course.delivery_mode || 'Online',
+    deliveryMode: (course.delivery_mode === 'online' ? 'Online' : (course.delivery_mode === 'hybrid' ? 'Hybrid' : 'Online')),
     duration: minutesToDuration(course.duration),
     durationMinutes: course.duration, // Store actual minutes from database
-    levelCode: L(course.level_code),
+    levelCode: L(course.level_code || 'L1'),
     department: parseTextToArray(course.department),
     locations: ['Riyadh'], // Default location
     audience: parseTextToArray(course.audience) as Array<'Associate' | 'Lead'>,
@@ -404,7 +457,7 @@ function transformCourseToLmsDetail(
 export async function fetchLmsCourseDetails(): Promise<LmsDetail[]> {
   try {
     console.log('[LMS] Starting to fetch course details...');
-    
+
     // Fetch all courses
     const courses = await fetchCourses();
     console.log(`[LMS] Found ${courses.length} courses`);
@@ -420,7 +473,7 @@ export async function fetchLmsCourseDetails(): Promise<LmsDetail[]> {
     // Fetch modules first
     const modules = await fetchModules(courseIds);
     console.log(`[LMS] Found ${modules.length} modules`);
-    
+
     const moduleIds = modules.map(m => m.id);
 
     // Fetch lessons for modules and courses
@@ -428,10 +481,15 @@ export async function fetchLmsCourseDetails(): Promise<LmsDetail[]> {
     const lessons = await fetchLessons(courseIds, moduleIds);
     console.log(`[LMS] Found ${lessons.length} lessons`);
 
+    // Fetch quizzes
+    console.log(`[LMS] Fetching quizzes (final assessments) for ${courseIds.length} courses...`);
+    const quizzes = await fetchQuizzes(courseIds);
+    console.log(`[LMS] Found ${quizzes.length} quizzes`);
+
     // Transform all courses
     console.log('[LMS] Transforming courses to LmsDetail format...');
     const lmsDetails = courses.map(course =>
-      transformCourseToLmsDetail(course, modules, lessons)
+      transformCourseToLmsDetail(course, modules, lessons, quizzes)
     );
 
     // Apply location cleaning

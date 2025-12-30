@@ -116,6 +116,24 @@ function transformCourseToLmsDetail(
     });
   }
 
+  // Add Final Assessment if present
+  if (course.quiz) {
+    curriculum.push({
+      id: course.quiz.id,
+      title: 'Final Assessment',
+      description: course.quiz.description || 'Complete the final assessment to finish the course.',
+      order: 9999,
+      lessons: [{
+        id: course.quiz.id, // Using quiz ID, handled specially in rendering
+        title: course.quiz.title,
+        description: course.quiz.description || undefined,
+        type: 'final-assessment',
+        order: 1,
+        isLocked: false // Could be based on progress
+      }]
+    });
+  }
+
   // Parse FAQ from JSONB
   const faq = Array.isArray(course.faq) ? course.faq.map((item: any) => ({
     question: item.question || '',
@@ -229,14 +247,14 @@ export async function fetchCourseBySlug(slug: string): Promise<LmsDetail | null>
 
     modulesWithLessons.push({
       ...module,
-        lessons: lessons || [],
-      });
-    }
+      lessons: lessons || [],
+    });
+  }
 
   // Fetch lessons directly on course (not in modules)
   const { data: directLessons } = await lmsSupabaseClient
     .from('lms_lessons')
-      .select('*')
+    .select('*')
     .eq('course_id', course.id)
     .is('module_id', null)
     .order('item_order');
@@ -245,6 +263,7 @@ export async function fetchCourseBySlug(slug: string): Promise<LmsDetail | null>
     ...course,
     modules: modulesWithLessons.length > 0 ? modulesWithLessons : undefined,
     lessons: directLessons && directLessons.length > 0 ? directLessons : undefined,
+    quiz: await fetchQuizByCourseId(course.id) // Fetch final assessment
   };
 
   return transformCourseToLmsDetail(courseWithRelations);
@@ -471,7 +490,7 @@ export async function fetchLearningPathBySlug(slug: string): Promise<LmsDetail |
   // Fetch course details for each course in the path
   const courseIds = pathItems?.map(item => item.course_id) || [];
   const courses: LmsCourseRow[] = [];
-  
+
   if (courseIds.length > 0) {
     const { data: pathCourses } = await lmsSupabaseClient
       .from('lms_courses')

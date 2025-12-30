@@ -74,6 +74,8 @@ const getLessonTypeIcon = (type: string) => {
       return FileCheck;
     case 'reading':
       return FileText;
+    case 'final-assessment':
+      return CheckCircleIcon;
     default:
       return BookOpen;
   }
@@ -93,6 +95,8 @@ const getLessonTypeLabel = (type: string) => {
       return 'Assignment';
     case 'reading':
       return 'Reading';
+    case 'final-assessment':
+      return 'Final Assessment';
     default:
       return type;
   }

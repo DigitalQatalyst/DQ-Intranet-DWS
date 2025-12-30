@@ -151,7 +151,7 @@ export const LmsLessonPage: React.FC = () => {
       }
     });
 
-    return lessons.sort((a, b) => a.order - b.order);
+    return lessons;
   }, [course]);
 
   // Find current lesson
@@ -211,15 +211,30 @@ export const LmsLessonPage: React.FC = () => {
       setQuizSubmitted(false);
       setQuizScore(null);
       setQuizPassed(isQuizPassed(lessonId));
-      fetchQuizByLessonId(lessonId)
-        .then(setQuiz)
+      setQuizPassed(isQuizPassed(lessonId));
+
+      const isFinalAssessment = allLessons.find(l => l.id === lessonId)?.type === 'final-assessment';
+
+      let promise;
+      if (isFinalAssessment && course?.id) {
+        promise = fetchQuizByCourseId(course.id);
+      } else {
+        promise = fetchQuizByLessonId(lessonId);
+      }
+
+      promise
+        .then((data) => {
+          setQuiz(data);
+          // If it's a final assessment, we might want to automatically show it
+          // OR valid strategy: if it's final assessment, we treat the main view as the quiz start page
+        })
         .catch((error) => {
           console.error('Error fetching quiz:', error);
           setQuiz(null);
         })
         .finally(() => setQuizLoading(false));
     }
-  }, [lessonId]);
+  }, [lessonId, course?.id, allLessons]);
 
   // Handle quiz submission
   const handleQuizSubmit = () => {
@@ -762,6 +777,72 @@ export const LmsLessonPage: React.FC = () => {
                           <CheckCircle2 size={20} />
                           <span className="font-medium">Lesson Completed</span>
                         </div>
+                      )}
+                    </div>
+                  ) : currentLesson.type === 'final-assessment' ? (
+                    // Final Assessment Start View
+                    <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+                      <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 text-blue-600 rounded-full mb-6">
+                        <CheckCircle2 size={40} />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900 mb-4">Final Assessment</h2>
+                      <p className="text-gray-600 mb-8 max-w-lg mx-auto">
+                        You have reached the final assessment for this course. Complete this assessment to transform your knowledge into a verified achievement.
+                      </p>
+
+                      {quiz ? (
+                        <div className="space-y-4">
+                          <div className="flex justify-center gap-8 text-sm text-gray-500 mb-8">
+                            <div className="flex items-center gap-2">
+                              <HelpCircle size={18} />
+                              <span>{quiz.questions?.length || 0} Questions</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle2 size={18} />
+                              <span>80% Passing Score</span>
+                            </div>
+                          </div>
+
+                          {quizSubmitted && quizPassed ? (
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-6 max-w-md mx-auto mb-6">
+                              <p className="text-green-800 font-medium flex items-center justify-center gap-2">
+                                <CheckCircle2 size={20} />
+                                Assessment Passed
+                              </p>
+                              <p className="text-green-600 text-sm mt-1">
+                                Score: {quizScore?.score}/{quizScore?.total}
+                              </p>
+                            </div>
+                          ) : quizSubmitted ? (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto mb-6">
+                              <p className="text-red-800 font-medium flex items-center justify-center gap-2">
+                                <X size={20} />
+                                Assessment Not Passed
+                              </p>
+                              <p className="text-red-600 text-sm mt-1">
+                                Score: {quizScore?.score}/{quizScore?.total}
+                              </p>
+                              <button
+                                onClick={() => {
+                                  handleQuizRetake();
+                                  setShowQuizOverlay(true);
+                                }}
+                                className="mt-4 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                              >
+                                Retake Assessment
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => setShowQuizOverlay(true)}
+                              className="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                            >
+                              Start Assessment
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-gray-500">Loading assessment...</div>
                       )}
                     </div>
                   ) : (

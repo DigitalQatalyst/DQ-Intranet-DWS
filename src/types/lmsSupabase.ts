@@ -111,6 +111,7 @@ export interface LmsQuizRow {
 export interface LmsCourseWithRelations extends LmsCourseRow {
   modules?: LmsModuleWithRelations[];
   lessons?: LmsLessonRow[]; // Lessons directly on course (not in modules)
+  quiz?: LmsQuizRow | null; // Course-level quiz (Final Assessment)
 }
 
 export interface LmsModuleWithRelations extends LmsModuleRow {
