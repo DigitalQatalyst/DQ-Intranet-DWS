@@ -2,9 +2,12 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, ChevronDown } from 'lucide-react';
+import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, ChevronDown, Share2, Download, Bookmark } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
 import { fetchAllNews } from '@/services/mediaCenterService';
+
+const PODCAST_IMAGE =
+  'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=1600&q=80';
 
 const formatDate = (input: string) => {
   const date = new Date(input);
@@ -333,66 +336,47 @@ export default function PodcastSeriesPage() {
 
         <div className="mx-auto max-w-7xl px-6 py-8">
           {/* Podcast Header */}
-          <div className="mb-8 flex gap-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+          <div className="mb-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             {/* Cover Art */}
-            <div className="relative h-48 w-48 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
-              {/* Abstract wave shapes */}
-              <div className="absolute right-0 top-0 h-full w-2/3">
-                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 200 200" preserveAspectRatio="none">
-                  <path
-                    d="M 0 80 Q 50 40, 100 60 T 200 50 L 200 200 L 0 200 Z"
-                    fill="rgba(249, 115, 22, 0.4)"
-                    className="blur-sm"
-                  />
-                  <path
-                    d="M 0 100 Q 60 60, 120 80 T 200 70 L 200 200 L 0 200 Z"
-                    fill="rgba(239, 68, 68, 0.35)"
-                    className="blur-sm"
-                  />
-                  <path
-                    d="M 0 120 Q 70 80, 140 100 T 200 90 L 200 200 L 0 200 Z"
-                    fill="rgba(251, 146, 60, 0.3)"
-                    className="blur-sm"
-                  />
-                </svg>
-              </div>
-              
-              {/* PODCAST overlay */}
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                <div className="rounded bg-gray-200/90 px-4 py-2 backdrop-blur-sm">
-                  <span className="text-sm font-semibold text-gray-800 tracking-wide">PODCAST</span>
-                </div>
-              </div>
+            <div className="relative h-56 w-full">
+              <img
+                src={PODCAST_IMAGE}
+                alt="Action-Solver Podcast cover art"
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
             </div>
 
             {/* Podcast Info */}
-            <div className="flex-1">
-              <div className="mb-2">
-                <span className="inline-flex items-center rounded-full bg-teal-500 px-3 py-1 text-xs font-semibold text-white">
-                  Action-Solver Series
-                </span>
-              </div>
-              <h1 className="mb-2 text-4xl font-bold text-gray-900">Action-Solver Podcast</h1>
-              <p className="mb-4 text-gray-600">Short conversations that solve real work problems at DQ</p>
-              
-              {/* Metadata */}
-              <div className="mb-6 flex flex-wrap items-center gap-6 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <Radio size={16} />
-                  <span>{episodes.length} episodes</span>
+            <div className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between">
+              <div className="flex-1">
+                <div className="mb-2">
+                  <span className="inline-flex items-center rounded-full bg-teal-500 px-3 py-1 text-xs font-semibold text-white">
+                    Action-Solver Series
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock size={16} />
-                  <span>~{averageDuration} min avg</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar size={16} />
-                  <span>Weekly</span>
+                <h1 className="mb-2 text-4xl font-bold text-gray-900">Action-Solver Podcast</h1>
+                <p className="mb-4 text-gray-600">Short conversations that solve real work problems at DQ</p>
+                
+                {/* Metadata */}
+                <div className="mb-6 flex flex-wrap items-center gap-6 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <Radio size={16} />
+                    <span>{episodes.length} episodes</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock size={16} />
+                    <span>~{averageDuration} min avg</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar size={16} />
+                    <span>Weekly</span>
+                  </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3">
+              <div className="flex gap-3 md:self-start">
                 <button
                   onClick={handlePlayLatest}
                   className="flex items-center gap-2 rounded-lg bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600"
@@ -421,7 +405,7 @@ export default function PodcastSeriesPage() {
             {/* Tags */}
             <div className="mt-4 flex flex-wrap gap-2">
               <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
-                Ghc
+                GHC
               </span>
               <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-700">
                 Execution
@@ -432,9 +416,7 @@ export default function PodcastSeriesPage() {
             </div>
 
             {/* Hosted By */}
-            <div className="mt-4 text-sm text-gray-600">
-              Hosted by Sarah Chen, Marcus Johnson
-            </div>
+            
           </div>
 
           {/* Episodes Section */}
@@ -576,6 +558,20 @@ export default function PodcastSeriesPage() {
                           <span>{formatDuration(episode.readingTime)}</span>
                           <span>{formatDate(episode.date)}</span>
                           <span>{formatListens(episode.views || 0)}</span>
+                        </div>
+                        <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-600">
+                          <button className="inline-flex items-center gap-1 rounded-full border border-gray-300 bg-white px-3 py-1 hover:bg-gray-50">
+                            <Share2 size={14} />
+                            <span>Share</span>
+                          </button>
+                          <button className="inline-flex items-center gap-1 rounded-full border border-gray-300 bg-white px-3 py-1 hover:bg-gray-50">
+                            <Download size={14} />
+                            <span>Download</span>
+                          </button>
+                          <button className="inline-flex items-center gap-1 rounded-full border border-gray-300 bg-white px-3 py-1 hover:bg-gray-50">
+                            <Bookmark size={14} />
+                            <span>Save</span>
+                          </button>
                         </div>
                         
                         {/* Audio Player Controls - shown when this episode is playing */}
