@@ -143,13 +143,36 @@ export const LmsCourseDetailPage: React.FC = () => {
       setIsNavigating(true);
       setExpandedCourses(new Set());
       setExpandedTopics(new Set());
-      setActiveTab('highlights');
+      setActiveTab('details'); // Reset to details tab on navigation
       setRenderError(null);
       prevSlugRef.current = slug;
     } else if (prevSlugRef.current === undefined) {
       prevSlugRef.current = slug;
     }
   }, [slug]);
+
+  // Helper to check lesson completion (copied from LmsLessonPage for consistency)
+  const isLessonCompleted = (lessonId: string): boolean => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem(`lms_lesson_completed_${lessonId}`) === 'true';
+  };
+
+  // Helper check all previous lessons
+  const arePreviousLessonsCompleted = (
+    allLessons: Array<{ id: string; order: number }>,
+    currentLessonId: string
+  ): boolean => {
+    const currentLesson = allLessons.find(l => l.id === currentLessonId);
+    if (!currentLesson) return true;
+
+    // Find index
+    const currentIndex = allLessons.findIndex(l => l.id === currentLessonId);
+    if (currentIndex <= 0) return true; // First lesson is distinct
+
+    // Check all previous
+    const previousLessons = allLessons.slice(0, currentIndex);
+    return previousLessons.every(l => isLessonCompleted(l.id));
+  };
 
   // Reset navigating state when course data is loaded and matches current slug
   React.useEffect(() => {
@@ -211,6 +234,32 @@ export const LmsCourseDetailPage: React.FC = () => {
         }
       });
     return topics;
+  }, [curriculum]);
+
+  // Flatten all lessons for lock logic
+  const allFlattenedLessons = useMemo(() => {
+    const lessons: Array<{ id: string; order: number; type: string }> = [];
+    const sortedCurriculum = [...curriculum].sort((a, b) => a.order - b.order);
+
+    sortedCurriculum.forEach(item => {
+      // If item has topics (old structure)
+      if (item.topics && item.topics.length > 0) {
+        item.topics.sort((a, b) => a.order - b.order).forEach(topic => {
+          if (topic.lessons) {
+            topic.lessons.sort((a, b) => a.order - b.order).forEach(l => {
+              lessons.push({ id: l.id, order: lessons.length, type: l.type });
+            });
+          }
+        });
+      }
+      // If item has direct lessons (new structure / simple courses)
+      else if (item.lessons && item.lessons.length > 0) {
+        item.lessons.sort((a, b) => a.order - b.order).forEach(l => {
+          lessons.push({ id: l.id, order: lessons.length, type: l.type });
+        });
+      }
+    });
+    return lessons;
   }, [curriculum]);
 
   // Calculate course stats for sidebar
@@ -676,704 +725,121 @@ export const LmsCourseDetailPage: React.FC = () => {
                       {curriculum
                         .sort((a, b) => a.order - b.order)
                         .map((item, curriculumIndex) => {
-                          const isCourse = course.courseType === 'Course (Multi-Lessons)';
-                          const isSingleLesson = course.courseType === 'Course (Single Lesson)';
+// Unified Module Rendering
 
-                          // Track (Bundles): Show courses with topics and lessons, or just course links if no topics
-                          if (isTrack) {
-                            // If it has topics, show expandable section
-                            if (item.topics && item.topics.length > 0) {
-                              const isExpanded = expandedCourses.has(item.id);
-                              const toggleCourse = () => {
-                                setExpandedCourses(prev => {
-                                  const next = new Set(prev);
-                                  if (next.has(item.id)) {
-                                    next.delete(item.id);
-                                  } else {
-                                    next.add(item.id);
-                                  }
-                                  return next;
-                                });
-                              };
+// Determine lessons for this module
+let moduleLessons: any[] = [];
+if (item.topics && item.topics.length > 0) {
+    // Flatten topics lessons
+    item.topics.sort((a: any, b: any) => a.order - b.order).forEach((t: any) => {
+        if (t.lessons) moduleLessons = [...moduleLessons, ...t.lessons];
+    });
+} else if (item.lessons) {
+    moduleLessons = item.lessons;
+}
+moduleLessons.sort((a, b) => a.order - b.order);
 
-                              return (
-                                <div key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                  {/* Course Header */}
-                                  <div
-                                    className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${item.isLocked ? 'opacity-60' : ''
-                                      }`}
-                                    onClick={toggleCourse}
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-3 flex-1">
-                                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-                                          <BookOpen size={20} />
-                                        </div>
-                                        <div className="flex-1">
-                                          <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-                                            {item.courseSlug && (
-                                              <Link
-                                                to={`/lms/${item.courseSlug}`}
-                                                onClick={(e) => e.stopPropagation()}
-                                                className="text-sm font-medium flex items-center hover:underline"
-                                                style={{ color: '#030F35' }}
-                                              >
-                                                View Course
-                                                <ChevronRightIcon size={14} className="ml-1" />
-                                              </Link>
-                                            )}
-                                          </div>
-                                          {item.description && (
-                                            <p className="text-sm text-gray-600">{item.description}</p>
-                                          )}
-                                        </div>
-                                      </div>
-                                      <button className="ml-4 text-gray-400 hover:text-gray-600">
-                                        {isExpanded ? <ChevronUpIcon size={20} /> : <ChevronDownIcon size={20} />}
-                                      </button>
-                                    </div>
-                                  </div>
+const isExpanded = expandedCourses.has(item.id) || (expandedCourses.size === 0 && curriculumIndex === 0);
 
-                                  {/* Topics and Lessons (Expandable) */}
-                                  {isExpanded && (
-                                    <div className="border-t border-gray-200 bg-gray-50">
-                                      {item.topics
-                                        .sort((a, b) => a.order - b.order)
-                                        .map((topic, index) => {
-                                          const isTopicExpanded = expandedTopics.has(topic.id);
-                                          const toggleTopic = () => {
-                                            setExpandedTopics(prev => {
-                                              const next = new Set(prev);
-                                              if (next.has(topic.id)) {
-                                                next.delete(topic.id);
-                                              } else {
-                                                next.add(topic.id);
-                                              }
-                                              return next;
-                                            });
-                                          };
+const toggleExpand = () => {
+    setExpandedCourses(prev => {
+        const next = new Set(prev);
+        if (next.has(item.id)) next.delete(item.id);
+        else next.add(item.id);
+        return next;
+    });
+};
 
-                                          const lessonCount = topic.lessons?.length || 0;
-                                          // Find the sequential module number across all topics
-                                          const topicIndex = allTopics.findIndex(t => t.topic.id === topic.id);
-                                          const moduleNumber = topicIndex >= 0 ? topicIndex + 1 : index + 1;
+// Check if this is Final Assessment module
+const isFinalAssessmentModule = moduleLessons.some(l => l.type === 'final-assessment');
 
-                                          return (
-                                            <div key={topic.id} className="border-b border-gray-200 last:border-b-0">
-                                              {/* Topic Header */}
-                                              <div
-                                                className="p-4 cursor-pointer hover:bg-gray-100 transition-colors"
-                                                onClick={toggleTopic}
-                                              >
-                                                <div className="flex items-center justify-between">
-                                                  <div className="flex items-center gap-3 flex-1">
-                                                    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                                      <FileText size={16} />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                      <div className="flex items-center gap-2">
-                                                        <h4 className="font-medium text-gray-900">{topic.title}</h4>
-                                                        <span className="text-xs text-gray-500">
-                                                          Module {moduleNumber}. {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'}
-                                                        </span>
-                                                      </div>
-                                                      {topic.description && (
-                                                        <p className="text-xs text-gray-600 mt-1">{topic.description}</p>
-                                                      )}
-                                                    </div>
-                                                  </div>
-                                                  <button className="ml-4 text-gray-400 hover:text-gray-600">
-                                                    {isTopicExpanded ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
-                                                  </button>
-                                                </div>
-                                              </div>
+return (
+    <div key={item.id} className={`bg-white border rounded-lg overflow-hidden transition-all ${isFinalAssessmentModule ? 'border-gray-200 mt-8' : 'border-gray-200'}`}>
+        {/* Module Header */}
+        <div
+            className={`p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors ${isExpanded ? 'bg-gray-50' : ''}`}
+            onClick={toggleExpand}
+        >
+            <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${isFinalAssessmentModule ? 'bg-blue-100 text-blue-600' : 'bg-blue-50 text-blue-600'}`}>
+                    {isFinalAssessmentModule ? <CheckCircleIcon size={20} /> : <FileText size={20} />}
+                </div>
+                <div>
+                    <h3 className="font-bold text-gray-900 text-lg">
+                        {item.title}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                        {isFinalAssessmentModule
+                            ? `Module ${curriculumIndex + 1}. 1 lesson`
+                            : `Module ${curriculumIndex + 1}. ${moduleLessons.length} lessons`
+                        }
+                    </p>
+                </div>
+            </div>
+            <button className="text-gray-400">
+                {isExpanded ? <ChevronUpIcon size={20} /> : <ChevronDownIcon size={20} />}
+            </button>
+        </div>
 
-                                              {/* Lessons (Expandable) */}
-                                              {isTopicExpanded && topic.lessons && (
-                                                <div className="bg-white pl-12 pr-4 py-3 space-y-2">
-                                                  {topic.lessons
-                                                    .sort((a, b) => a.order - b.order)
-                                                    .map((lesson) => {
-                                                      const LessonIcon = getLessonTypeIcon(lesson.type);
-                                                      const isLocked = lesson.isLocked;
-                                                      return (
-                                                        <div
-                                                          key={lesson.id}
-                                                          className={`p-3 rounded-lg border ${isLocked
-                                                            ? 'border-gray-200 opacity-60 bg-gray-50'
-                                                            : 'border-gray-200 hover:border-blue-300 hover:shadow-sm bg-white'
-                                                            }`}
-                                                        >
-                                                          <div className="flex items-start gap-3">
-                                                            <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${isLocked
-                                                              ? 'bg-gray-100 text-gray-400'
-                                                              : 'bg-blue-50 text-blue-600'
-                                                              }`}>
-                                                              {isLocked ? (
-                                                                <Lock size={16} />
-                                                              ) : (
-                                                                <LessonIcon size={16} />
-                                                              )}
-                                                            </div>
-                                                            <div className="flex-1 min-w-0">
-                                                              <div className="flex items-center gap-2 mb-1">
-                                                                <span className="text-xs font-medium text-gray-500">
-                                                                  Lesson {lesson.order}
-                                                                </span>
-                                                                <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
-                                                                  {getLessonTypeLabel(lesson.type)}
-                                                                </span>
-                                                                {isLocked && (
-                                                                  <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded">
-                                                                    Locked
-                                                                  </span>
-                                                                )}
-                                                              </div>
-                                                              <h5 className={`text-sm font-medium mb-1 ${isLocked ? 'text-gray-500' : 'text-gray-900'
-                                                                }`}>
-                                                                {lesson.title}
-                                                              </h5>
-                                                              {lesson.description && (
-                                                                <p className={`text-xs mb-2 ${isLocked ? 'text-gray-400' : 'text-gray-600'
-                                                                  }`}>
-                                                                  {lesson.description}
-                                                                </p>
-                                                              )}
-                                                              {lesson.duration && (
-                                                                <div className="flex items-center gap-1 text-xs text-gray-500">
-                                                                  <Clock size={12} />
-                                                                  <span>{lesson.duration}</span>
-                                                                </div>
-                                                              )}
-                                                            </div>
-                                                          </div>
-                                                        </div>
-                                                      );
-                                                    })}
-                                                </div>
-                                              )}
-                                            </div>
-                                          );
-                                        })}
-                                    </div>
-                                  )}
+        {/* Lessons List */}
+        {isExpanded && (
+            <div className="p-4 space-y-3 bg-white border-t border-gray-100">
+                {moduleLessons.map((lesson, lIndex) => {
+                    const LessonIcon = getLessonTypeIcon(lesson.type);
+                    // Dynamic Lock Check
+                    const isLocked = !arePreviousLessonsCompleted(allFlattenedLessons, lesson.id);
+                    // const isCompleted = isLessonCompleted(lesson.id);
+
+                    return (
+                        <div
+                            key={lesson.id}
+                            onClick={() => !isLocked && navigate(`/lms/${course.slug}/lesson/${lesson.id}`)}
+                            className={`flex items-start p-4 rounded-xl border transition-all ${isLocked
+                                    ? 'bg-gray-50 border-gray-100 cursor-not-allowed opacity-70'
+                                    : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-sm cursor-pointer'
+                                }`}
+                        >
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 ${isLocked ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 text-blue-600'
+                                }`}>
+                                {isLocked ? <Lock size={18} /> : <LessonIcon size={18} />}
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-sm font-medium text-gray-500">
+                                        Lesson {curriculumIndex + 1}.{lIndex + 1}
+                                    </span>
+                                    <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                                        {getLessonTypeLabel(lesson.type)}
+                                    </span>
+                                    {isLocked && (
+                                        <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded">
+                                            Locked
+                                        </span>
+                                    )}
                                 </div>
-                              );
-                            }
-
-                            // Track (Bundles): Show course link only (no topics preview)
-                            if (item.courseSlug && (!item.topics || item.topics.length === 0)) {
-                              return (
-                                <div key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                  <div className="p-4">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-3 flex-1">
-                                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-                                          <BookOpen size={20} />
-                                        </div>
-                                        <div className="flex-1">
-                                          <div className="flex items-center gap-2 mb-1">
-                                            <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-                                          </div>
-                                          {item.description && (
-                                            <p className="text-sm text-gray-600">{item.description}</p>
-                                          )}
-                                        </div>
-                                      </div>
-                                      {item.courseSlug && (
-                                        <Link
-                                          to={`/lms/${item.courseSlug}`}
-                                          className="px-4 py-2 text-sm font-medium rounded-md border transition-colors whitespace-nowrap ml-4"
-                                          style={{
-                                            color: '#030F35',
-                                            borderColor: '#030F35'
-                                          }}
-                                        >
-                                          View Course
-                                          <ChevronRightIcon size={14} className="inline ml-1" />
-                                        </Link>
-                                      )}
+                                <h4 className={`text-base font-semibold mb-1 ${isLocked ? 'text-gray-500' : 'text-gray-900'}`}>
+                                    {lesson.title}
+                                </h4>
+                                {lesson.description && (
+                                    <p className="text-sm text-gray-500 line-clamp-2">
+                                        {lesson.description}
+                                    </p>
+                                )}
+                                {lesson.duration && (
+                                    <div className="flex items-center gap-1.5 mt-2 text-xs text-gray-400">
+                                        <Clock size={14} />
+                                        <span>{lesson.duration}</span>
                                     </div>
-                                  </div>
-                                </div>
-                              );
-                            }
-                          }
-
-                          // Course (Multi-Lessons): Show topics with lessons
-                          // Each curriculum item represents a topic, and each topic has nested topics with lessons
-                          // OR curriculum item has lessons directly (legacy structure)
-                          if (isCourse) {
-                            // Handle structure with topics array
-                            if (item.topics && item.topics.length > 0) {
-                              // Check if section header title matches any topic title (to avoid duplicates)
-                              const hasMatchingTopicTitle = item.topics.some(topic => topic.title === item.title);
-                              const shouldShowSectionHeader = !hasMatchingTopicTitle && (item.topics.length > 1 || item.description);
-
-                              return (
-                                <div key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                  {/* Topic Section Header - Only show if title doesn't match topic titles */}
-                                  {shouldShowSectionHeader && (
-                                    <div className="p-4 bg-gray-50 border-b border-gray-200">
-                                      <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-                                      {item.description && (
-                                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                                      )}
-                                    </div>
-                                  )}
-
-                                  {/* Topics within this section */}
-                                  <div className={shouldShowSectionHeader ? "divide-y divide-gray-200" : ""}>
-                                    {item.topics
-                                      .sort((a, b) => a.order - b.order)
-                                      .map((topic, index) => {
-                                        const isTopicExpanded = expandedTopics.has(topic.id);
-                                        const toggleTopic = () => {
-                                          setExpandedTopics(prev => {
-                                            const next = new Set(prev);
-                                            if (next.has(topic.id)) {
-                                              next.delete(topic.id);
-                                            } else {
-                                              next.add(topic.id);
-                                            }
-                                            return next;
-                                          });
-                                        };
-
-                                        const lessonCount = topic.lessons?.length || 0;
-                                        // Find the sequential module number across all topics
-                                        const topicIndex = allTopics.findIndex(t => t.topic.id === topic.id);
-                                        const moduleNumber = topicIndex >= 0 ? topicIndex + 1 : index + 1;
-
-                                        return (
-                                          <div key={topic.id}>
-                                            {/* Topic Header */}
-                                            <div
-                                              className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                                              onClick={toggleTopic}
-                                            >
-                                              <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-3 flex-1">
-                                                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                                    <FileText size={16} />
-                                                  </div>
-                                                  <div className="flex-1">
-                                                    <div className="flex items-center gap-2">
-                                                      <h4 className="font-medium text-gray-900">{topic.title}</h4>
-                                                      <span className="text-xs text-gray-500">
-                                                        Module {moduleNumber}. {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'}
-                                                      </span>
-                                                    </div>
-                                                    {topic.description && (
-                                                      <p className="text-xs text-gray-600 mt-1">{topic.description}</p>
-                                                    )}
-                                                  </div>
-                                                </div>
-                                                <button className="ml-4 text-gray-400 hover:text-gray-600">
-                                                  {isTopicExpanded ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
-                                                </button>
-                                              </div>
-                                            </div>
-
-                                            {/* Lessons (Expandable) */}
-                                            {isTopicExpanded && topic.lessons && (
-                                              <div className="bg-gray-50 pl-12 pr-4 py-3 space-y-2">
-                                                {topic.lessons
-                                                  .sort((a, b) => a.order - b.order)
-                                                  .map((lesson) => {
-                                                    const LessonIcon = getLessonTypeIcon(lesson.type);
-                                                    const isLocked = lesson.isLocked;
-                                                    return (
-                                                      <div
-                                                        key={lesson.id}
-                                                        onClick={() => !isLocked && navigate(`/lms/${course.slug}/lesson/${lesson.id}`)}
-                                                        title={isLocked ? "Must complete previous lessons" : undefined}
-                                                        className={`p-3 rounded-lg border transition-all ${isLocked
-                                                          ? 'border-gray-200 opacity-60 bg-gray-50 cursor-not-allowed'
-                                                          : 'border-gray-200 hover:border-blue-300 hover:shadow-sm bg-white cursor-pointer'
-                                                          }`}
-                                                      >
-                                                        <div className="flex items-start gap-3">
-                                                          <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${isLocked
-                                                            ? 'bg-gray-100 text-gray-400'
-                                                            : 'bg-blue-50 text-blue-600'
-                                                            }`}>
-                                                            {isLocked ? (
-                                                              <Lock size={16} />
-                                                            ) : (
-                                                              <LessonIcon size={16} />
-                                                            )}
-                                                          </div>
-                                                          <div className="flex-1 min-w-0">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                              <span className="text-xs font-medium text-gray-500">
-                                                                Lesson {lesson.order + 1}
-                                                              </span>
-                                                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
-                                                                {getLessonTypeLabel(lesson.type)}
-                                                              </span>
-                                                              {isLocked && (
-                                                                <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded">
-                                                                  Locked
-                                                                </span>
-                                                              )}
-                                                            </div>
-                                                            <h5 className={`text-sm font-medium mb-1 ${isLocked ? 'text-gray-500' : 'text-gray-900'
-                                                              }`}>
-                                                              {lesson.title}
-                                                            </h5>
-                                                            {lesson.description && (
-                                                              <p className={`text-xs mb-2 ${isLocked ? 'text-gray-400' : 'text-gray-600'
-                                                                }`}>
-                                                                {lesson.description}
-                                                              </p>
-                                                            )}
-                                                            {lesson.duration && (
-                                                              <div className="flex items-center gap-1 text-xs text-gray-500">
-                                                                <Clock size={12} />
-                                                                <span>{lesson.duration}</span>
-                                                              </div>
-                                                            )}
-                                                          </div>
-                                                        </div>
-                                                      </div>
-                                                    );
-                                                  })}
-                                              </div>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
-                                  </div>
-                                </div>
-                              );
-                            }
-
-                            // Handle legacy structure with lessons directly (treat curriculum item as a topic)
-                            if (item.lessons && item.lessons.length > 0) {
-                              const isTopicExpanded = expandedTopics.has(item.id);
-                              const toggleTopic = () => {
-                                setExpandedTopics(prev => {
-                                  const next = new Set(prev);
-                                  if (next.has(item.id)) {
-                                    next.delete(item.id);
-                                  } else {
-                                    next.add(item.id);
-                                  }
-                                  return next;
-                                });
-                              };
-
-                              const lessonCount = item.lessons?.length || 0;
-                              const moduleNumber = curriculumIndex + 1;
-
-                              return (
-                                <div key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                  {/* Topic Header */}
-                                  <div
-                                    className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                                    onClick={toggleTopic}
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-3 flex-1">
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                          <FileText size={16} />
-                                        </div>
-                                        <div className="flex-1">
-                                          <div className="flex items-center gap-2">
-                                            <h4 className="font-medium text-gray-900">{item.title}</h4>
-                                            <span className="text-xs text-gray-500">
-                                              Module {moduleNumber}. {lessonCount} {lessonCount === 1 ? 'lesson' : 'lessons'}
-                                            </span>
-                                          </div>
-                                          {item.description && (
-                                            <p className="text-xs text-gray-600 mt-1">{item.description}</p>
-                                          )}
-                                        </div>
-                                      </div>
-                                      <button className="ml-4 text-gray-400 hover:text-gray-600">
-                                        {isTopicExpanded ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
-                                      </button>
-                                    </div>
-                                  </div>
-
-                                  {/* Lessons (Expandable) */}
-                                  {isTopicExpanded && (
-                                    <div className="bg-gray-50 pl-12 pr-4 py-3 space-y-2">
-                                      {item.lessons
-                                        .sort((a, b) => a.order - b.order)
-                                        .map((lesson) => {
-                                          const LessonIcon = getLessonTypeIcon(lesson.type);
-                                          const isLocked = lesson.isLocked;
-                                          return (
-                                            <div
-                                              key={lesson.id}
-                                              onClick={() => !isLocked && navigate(`/lms/${course.slug}/lesson/${lesson.id}`)}
-                                              title={isLocked ? "Must complete previous lessons" : undefined}
-                                              className={`p-3 rounded-lg border transition-all ${isLocked
-                                                ? 'border-gray-200 opacity-60 bg-gray-50 cursor-not-allowed'
-                                                : 'border-gray-200 hover:border-blue-300 hover:shadow-sm bg-white cursor-pointer'
-                                                }`}
-                                            >
-                                              <div className="flex items-start gap-3">
-                                                <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${isLocked
-                                                  ? 'bg-gray-100 text-gray-400'
-                                                  : 'bg-blue-50 text-blue-600'
-                                                  }`}>
-                                                  {isLocked ? (
-                                                    <Lock size={16} />
-                                                  ) : (
-                                                    <LessonIcon size={16} />
-                                                  )}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                  <div className="flex items-center gap-2 mb-1">
-                                                    <span className="text-xs font-medium text-gray-500">
-                                                      Lesson {lesson.order + 1}
-                                                    </span>
-                                                    <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
-                                                      {getLessonTypeLabel(lesson.type)}
-                                                    </span>
-                                                    {isLocked && (
-                                                      <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded">
-                                                        Locked
-                                                      </span>
-                                                    )}
-                                                  </div>
-                                                  <h5 className={`text-sm font-medium mb-1 ${isLocked ? 'text-gray-500' : 'text-gray-900'
-                                                    }`}>
-                                                    {lesson.title}
-                                                  </h5>
-                                                  {lesson.description && (
-                                                    <p className={`text-xs mb-2 ${isLocked ? 'text-gray-400' : 'text-gray-600'
-                                                      }`}>
-                                                      {lesson.description}
-                                                    </p>
-                                                  )}
-                                                  {lesson.duration && (
-                                                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                                                      <Clock size={12} />
-                                                      <span>{lesson.duration}</span>
-                                                    </div>
-                                                  )}
-                                                </div>
-                                              </div>
-                                            </div>
-                                          );
-                                        })}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            }
-                          }
-
-                          // Legacy code kept for reference but replaced above
-                          if (false && isCourse && item.topics) {
-                            return (
-                              <div key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                {/* Topic Section Header */}
-                                <div className="p-4 bg-gray-50 border-b border-gray-200">
-                                  <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-                                  {item.description && (
-                                    <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                                  )}
-                                </div>
-
-                                {/* Topics within this section */}
-                                {item.topics && Array.isArray(item.topics) && item.topics.length > 0 ? (
-                                  <div className="divide-y divide-gray-200">
-                                    {item.topics
-                                      .sort((a, b) => a.order - b.order)
-                                      .map((topic) => {
-                                        const isTopicExpanded = expandedTopics.has(topic.id);
-                                        const toggleTopic = () => {
-                                          setExpandedTopics(prev => {
-                                            const next = new Set(prev);
-                                            if (next.has(topic.id)) {
-                                              next.delete(topic.id);
-                                            } else {
-                                              next.add(topic.id);
-                                            }
-                                            return next;
-                                          });
-                                        };
-
-                                        return (
-                                          <div key={topic.id}>
-                                            {/* Topic Header */}
-                                            <div
-                                              className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                                              onClick={toggleTopic}
-                                            >
-                                              <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-3 flex-1">
-                                                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                                    <FileText size={16} />
-                                                  </div>
-                                                  <div className="flex-1">
-                                                    <h4 className="font-medium text-gray-900">{topic.title}</h4>
-                                                    {topic.description && (
-                                                      <p className="text-xs text-gray-600 mt-1">{topic.description}</p>
-                                                    )}
-                                                  </div>
-                                                </div>
-                                                <button className="ml-4 text-gray-400 hover:text-gray-600">
-                                                  {isTopicExpanded ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
-                                                </button>
-                                              </div>
-                                            </div>
-
-                                            {/* Lessons (Expandable) */}
-                                            {isTopicExpanded && topic.lessons && (
-                                              <div className="bg-gray-50 pl-12 pr-4 py-3 space-y-2">
-                                                {topic.lessons
-                                                  .sort((a, b) => a.order - b.order)
-                                                  .map((lesson) => {
-                                                    const LessonIcon = getLessonTypeIcon(lesson.type);
-                                                    const isLocked = lesson.isLocked;
-                                                    return (
-                                                      <div
-                                                        key={lesson.id}
-                                                        className={`p-3 rounded-lg border ${isLocked
-                                                          ? 'border-gray-200 opacity-60 bg-gray-50'
-                                                          : 'border-gray-200 hover:border-blue-300 hover:shadow-sm bg-white'
-                                                          }`}
-                                                      >
-                                                        <div className="flex items-start gap-3">
-                                                          <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${isLocked
-                                                            ? 'bg-gray-100 text-gray-400'
-                                                            : 'bg-blue-50 text-blue-600'
-                                                            }`}>
-                                                            {isLocked ? (
-                                                              <Lock size={16} />
-                                                            ) : (
-                                                              <LessonIcon size={16} />
-                                                            )}
-                                                          </div>
-                                                          <div className="flex-1 min-w-0">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                              <span className="text-xs font-medium text-gray-500">
-                                                                Lesson {lesson.order}
-                                                              </span>
-                                                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
-                                                                {getLessonTypeLabel(lesson.type)}
-                                                              </span>
-                                                              {isLocked && (
-                                                                <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded">
-                                                                  Locked
-                                                                </span>
-                                                              )}
-                                                            </div>
-                                                            <h5 className={`text-sm font-medium mb-1 ${isLocked ? 'text-gray-500' : 'text-gray-900'
-                                                              }`}>
-                                                              {lesson.title}
-                                                            </h5>
-                                                            {lesson.description && (
-                                                              <p className={`text-xs mb-2 ${isLocked ? 'text-gray-400' : 'text-gray-600'
-                                                                }`}>
-                                                                {lesson.description}
-                                                              </p>
-                                                            )}
-                                                            {lesson.duration && (
-                                                              <div className="flex items-center gap-1 text-xs text-gray-500">
-                                                                <Clock size={12} />
-                                                                <span>{lesson.duration}</span>
-                                                              </div>
-                                                            )}
-                                                          </div>
-                                                        </div>
-                                                      </div>
-                                                    );
-                                                  })}
-                                              </div>
-                                            )}
-                                          </div>
-                                        );
-                                      })}
-                                  </div>
-                                ) : null}
-                              </div>
-                            );
-                          }
-
-                          // Single Lesson: Show lessons directly
-                          if (isSingleLesson && item.lessons) {
-                            return (
-                              <div key={item.id} className="space-y-3">
-                                {item.lessons
-                                  .sort((a, b) => a.order - b.order)
-                                  .map((lesson) => {
-                                    const LessonIcon = getLessonTypeIcon(lesson.type);
-                                    const isLocked = lesson.isLocked;
-                                    return (
-                                      <div
-                                        key={lesson.id}
-                                        onClick={() => {
-                                          if (!isLocked) {
-                                            navigate(`/lms/${course.slug}/lesson/${lesson.id}`);
-                                          }
-                                        }}
-                                        title={isLocked ? "Must complete previous lessons" : undefined}
-                                        className={`bg-white border rounded-lg p-4 transition-all ${isLocked
-                                          ? 'border-gray-200 opacity-60 cursor-not-allowed'
-                                          : 'border-gray-200 hover:border-blue-300 hover:shadow-sm cursor-pointer'
-                                          }`}
-                                      >
-                                        <div className="flex items-start gap-4">
-                                          <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${isLocked
-                                            ? 'bg-gray-100 text-gray-400'
-                                            : 'bg-blue-50 text-blue-600'
-                                            }`}>
-                                            {isLocked ? (
-                                              <Lock size={20} />
-                                            ) : (
-                                              <LessonIcon size={20} />
-                                            )}
-                                          </div>
-                                          <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
-                                              <span className="text-sm font-medium text-gray-500">
-                                                Lesson {lesson.order + 1}
-                                              </span>
-                                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
-                                                {getLessonTypeLabel(lesson.type)}
-                                              </span>
-                                              {isLocked && (
-                                                <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded">
-                                                  Locked
-                                                </span>
-                                              )}
-                                            </div>
-                                            <h3 className={`text-lg font-semibold mb-1 ${isLocked ? 'text-gray-500' : 'text-gray-900'
-                                              }`}>
-                                              {lesson.title}
-                                            </h3>
-                                            {lesson.description && (
-                                              <p className={`text-sm mb-2 ${isLocked ? 'text-gray-400' : 'text-gray-600'
-                                                }`}>
-                                                {lesson.description}
-                                              </p>
-                                            )}
-                                            <div className="flex items-center gap-4 text-xs text-gray-500">
-                                              {lesson.duration && (
-                                                <div className="flex items-center gap-1">
-                                                  <Clock size={14} />
-                                                  <span>{lesson.duration}</span>
-                                                </div>
-                                              )}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-                              </div>
-                            );
-                          }
-
-                          return null;
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        )}
+    </div>
+);
                         })}
                     </div>
                   ) : (

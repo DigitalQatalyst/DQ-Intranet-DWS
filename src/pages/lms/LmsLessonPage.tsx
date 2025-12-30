@@ -12,6 +12,10 @@ import {
   HelpCircle,
   Clock,
   HomeIcon,
+  BookOpen,
+  ChevronUp,
+  ChevronDown,
+  CheckCircle,
 } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -32,6 +36,35 @@ const QUIZ_PASSED_PREFIX = 'lms_quiz_passed_';
 
 // Quiz passing threshold (80%)
 const QUIZ_PASSING_SCORE = 80;
+
+// Helper icons/labels
+const getLessonTypeIcon = (type: string) => {
+  switch (type) {
+    case 'video': return Play; // Sidebar reused Play for video often, but let's stick to standard map
+    case 'guide': return BookOpen;
+    case 'quiz': return HelpCircle;
+    case 'workshop': return FileText; // Users icon in detail page, but FileText is imported here
+    case 'assignment': return FileText;
+    case 'reading': return FileText;
+    case 'final-assessment': return CheckCircle;
+    default: return BookOpen;
+  }
+};
+
+const getLessonTypeLabel = (type: string) => {
+  switch (type) {
+    case 'video': return 'Video';
+    case 'guide': return 'Guide';
+    case 'quiz': return 'Quiz';
+    case 'workshop': return 'Workshop';
+    case 'assignment': return 'Assignment';
+    case 'reading': return 'Reading';
+    case 'final-assessment': return 'Final Assessment';
+    default: return type;
+  }
+};
+
+// Progress storage key prefix
 
 // Helper to get progress from localStorage
 function getLessonProgress(lessonId: string): number {
@@ -75,13 +108,11 @@ function arePreviousLessonsCompleted(
   allLessons: Array<{ id: string; order: number }>,
   currentLessonId: string
 ): boolean {
-  const currentLesson = allLessons.find(l => l.id === currentLessonId);
-  if (!currentLesson) return true;
+  const currentIndex = allLessons.findIndex(l => l.id === currentLessonId);
+  if (currentIndex <= 0) return true; // First lesson (or not found) is accessible
 
-  const previousLessons = allLessons.filter(
-    l => l.order < currentLesson.order
-  );
-
+  // Check all lessons appearing BEFORE this one in the order
+  const previousLessons = allLessons.slice(0, currentIndex);
   return previousLessons.every(l => isLessonCompleted(l.id));
 }
 
@@ -89,6 +120,10 @@ export const LmsLessonPage: React.FC = () => {
   const { courseSlug, lessonId } = useParams<{ courseSlug: string; lessonId: string }>();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+
+
+
   const [activeTab, setActiveTab] = useState<TabType>('resources');
   const [quiz, setQuiz] = useState<LmsQuizRow | null>(null);
   const [quizLoading, setQuizLoading] = useState(false);
@@ -112,6 +147,31 @@ export const LmsLessonPage: React.FC = () => {
 
   const { data: course, isLoading: courseLoading } = useLmsCourse(courseSlug || '');
 
+  // Auto-expand the module containing the current lesson
+  useEffect(() => {
+    if (lessonId && course?.curriculum) {
+      const parentModuleId = course.curriculum.find(item => {
+        // Check flattened lessons (curriculum items usually have 'topics' or 'lessons')
+        let hasIt = false;
+        if (item.topics) {
+          hasIt = item.topics.some(t => t.lessons && t.lessons.some(l => l.id === lessonId));
+        }
+        if (!hasIt && item.lessons) {
+          hasIt = item.lessons.some(l => l.id === lessonId);
+        }
+        return hasIt;
+      })?.id;
+
+      if (parentModuleId) {
+        setExpandedModules(prev => {
+          const next = new Set(prev);
+          next.add(parentModuleId);
+          return next;
+        });
+      }
+    }
+  }, [lessonId, course]);
+
   // Get all lessons from curriculum
   const allLessons = useMemo(() => {
     if (!course?.curriculum) return [];
@@ -128,19 +188,24 @@ export const LmsLessonPage: React.FC = () => {
       content?: string;
     }> = [];
 
-    course.curriculum.forEach((item) => {
-      if (item.lessons) {
-        item.lessons.forEach((lesson) => {
+    // Sort to ensure correct sequential order
+    const sortedCurriculum = [...course.curriculum].sort((a, b) => a.order - b.order);
+
+    sortedCurriculum.forEach((item) => {
+      // Logic for legacy 'lessons' per item
+      if (item.lessons && item.lessons.length > 0) {
+        item.lessons.sort((a, b) => a.order - b.order).forEach((lesson) => {
           lessons.push({
             ...lesson,
             moduleId: item.id,
           });
         });
       }
-      if (item.topics) {
-        item.topics.forEach((topic) => {
+      // Logic for new 'topics' -> 'lessons'
+      if (item.topics && item.topics.length > 0) {
+        item.topics.sort((a, b) => a.order - b.order).forEach((topic) => {
           if (topic.lessons) {
-            topic.lessons.forEach((lesson) => {
+            topic.lessons.sort((a, b) => a.order - b.order).forEach((lesson) => {
               lessons.push({
                 ...lesson,
                 moduleId: topic.id,
@@ -280,6 +345,7 @@ export const LmsLessonPage: React.FC = () => {
       // Store quiz passed status
       if (passed) {
         markQuizPassed(lessonId);
+        markLessonCompleted(lessonId);
       }
     }
   };
@@ -300,8 +366,9 @@ export const LmsLessonPage: React.FC = () => {
     setVideoProgress(progress);
     saveLessonProgress(currentLesson.id, progress);
 
-    // Mark as completed if watched >= 90%
-    if (progress >= 90 && !isVideoCompleted) {
+    // Mark as completed if watched >= 90% AND there is no quiz
+    // If there is a quiz, completion depends on passing it.
+    if (progress >= 90 && !isVideoCompleted && !quiz) {
       setIsVideoCompleted(true);
       markLessonCompleted(currentLesson.id);
     }
@@ -309,8 +376,11 @@ export const LmsLessonPage: React.FC = () => {
 
   const handleVideoEnded = () => {
     if (currentLesson) {
-      setIsVideoCompleted(true);
-      markLessonCompleted(currentLesson.id);
+      // If there is a quiz, do NOT mark complete just by finishing video.
+      if (!quiz) {
+        setIsVideoCompleted(true);
+        markLessonCompleted(currentLesson.id);
+      }
       setVideoProgress(100);
       saveLessonProgress(currentLesson.id, 100);
 
@@ -504,68 +574,112 @@ export const LmsLessonPage: React.FC = () => {
               </button>
             </div>
             <div className="p-4 space-y-2">
-              {allLessons.map((lesson, index) => {
-                const isCurrent = lesson.id === lessonId;
-                const isCompleted = isLessonCompleted(lesson.id);
-                const lessonIsLocked = lesson.isLocked && !arePreviousLessonsCompleted(allLessons, lesson.id);
-                const canAccess = !lessonIsLocked;
+              {course?.curriculum?.sort((a, b) => a.order - b.order).map((item, index) => {
+                // Determine lessons for this module (flatten logic)
+                let moduleLessons: any[] = [];
+                if (item.topics && item.topics.length > 0) {
+                  item.topics.sort((a: any, b: any) => a.order - b.order).forEach((t: any) => {
+                    if (t.lessons) moduleLessons = [...moduleLessons, ...t.lessons];
+                  });
+                } else if (item.lessons) {
+                  moduleLessons = item.lessons;
+                }
+                moduleLessons.sort((a, b) => a.order - b.order);
+
+                const isExpanded = expandedModules.has(item.id);
+                const toggleExpand = () => {
+                  setExpandedModules(prev => {
+                    const next = new Set(prev);
+                    if (next.has(item.id)) next.delete(item.id);
+                    else next.add(item.id);
+                    return next;
+                  });
+                };
+
+                const isFinalAssessmentModule = moduleLessons.some(l => l.type === 'final-assessment');
 
                 return (
-                  <button
-                    key={lesson.id}
-                    onClick={() => {
-                      if (canAccess) {
-                        navigate(`/lms/${courseSlug}/lesson/${lesson.id}`);
-                        setSidebarOpen(false);
-                      }
-                    }}
-                    disabled={!canAccess}
-                    className={`w-full text-left p-3 rounded-lg transition-all ${isCurrent
-                      ? 'bg-blue-50 border-2 border-blue-500'
-                      : canAccess
-                        ? 'hover:bg-gray-50 border-2 border-transparent'
-                        : 'opacity-60 cursor-not-allowed border-2 border-gray-200'
-                      }`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 mt-0.5">
-                        {isCompleted ? (
-                          <CheckCircle2 size={20} className="text-green-500" />
-                        ) : lessonIsLocked ? (
-                          <Lock size={20} className="text-gray-400" />
-                        ) : (
-                          <div className="w-5 h-5 rounded-full border-2 border-gray-300"></div>
+                  <div key={item.id} className={`mb-3 ${isFinalAssessmentModule ? 'mt-6' : ''}`}>
+                    {/* Module Header */}
+                    <div
+                      onClick={toggleExpand}
+                      className={`flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors ${isExpanded ? 'bg-gray-50' : ''}`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-bold ${isFinalAssessmentModule ? 'text-blue-600' : 'text-gray-700'}`}>
+                          {isFinalAssessmentModule ? 'FINAL ASSESSMENT' : `MODULE ${index + 1}`}
+                        </span>
+                        {!isFinalAssessmentModule && (
+                          <span className="text-xs text-gray-400">({moduleLessons.length})</span>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-medium text-gray-500">{index + 1}</span>
-                          {isCurrent && (
-                            <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded">
-                              NOW PLAYING
-                            </span>
-                          )}
-                          {isCompleted && !isCurrent && (
-                            <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded">
-                              COMPLETED
-                            </span>
-                          )}
-                        </div>
-                        <h3
-                          className={`text-sm font-medium mb-1 ${isCurrent ? 'text-blue-900' : canAccess ? 'text-gray-900' : 'text-gray-500'
-                            }`}
-                        >
-                          {lesson.title}
-                        </h3>
-                        {lesson.duration && (
-                          <div className="flex items-center gap-1 text-xs text-gray-500">
-                            <Clock size={12} />
-                            <span>{lesson.duration}</span>
-                          </div>
-                        )}
-                      </div>
+                      {isExpanded ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
                     </div>
-                  </button>
+
+                    {/* Lessons List - Only if expanded */}
+                    {isExpanded && (
+                      <div className="mt-1 space-y-1 pl-2">
+                        {moduleLessons.map((lesson, lIndex) => {
+                          // Global Index for numbering
+                          const globalIndex = allLessons.findIndex(l => l.id === lesson.id) + 1;
+
+                          const isCurrent = lesson.id === lessonId;
+                          const isCompleted = isLessonCompleted(lesson.id);
+                          // STRICT LOCKING: Locked if previous lessons are NOT completed.
+                          // We ignore the lesson.isLocked flag from DB if it conflicts with sequential order.
+                          const lessonIsLocked = !arePreviousLessonsCompleted(allLessons, lesson.id);
+                          const canAccess = !lessonIsLocked;
+                          const LessonIcon = getLessonTypeIcon(lesson.type);
+
+                          return (
+                            <button
+                              key={lesson.id}
+                              onClick={() => {
+                                if (canAccess) {
+                                  navigate(`/lms/${courseSlug}/lesson/${lesson.id}`);
+                                  if (window.innerWidth < 1024) setSidebarOpen(false);
+                                }
+                              }}
+                              disabled={!canAccess}
+                              className={`w-full text-left p-2 pl-3 rounded-lg transition-all flex items-start gap-3 ${isCurrent
+                                ? 'bg-blue-50 border border-blue-200 shadow-sm'
+                                : canAccess
+                                  ? 'hover:bg-gray-50 border border-transparent'
+                                  : 'opacity-60 cursor-not-allowed'
+                                }`}
+                            >
+                              <div className={`mt-0.5 flex-shrink-0 ${isCurrent ? 'text-blue-600' : isCompleted ? 'text-green-500' : 'text-gray-400'}`}>
+                                {isCompleted ? (
+                                  <CheckCircle2 size={16} />
+                                ) : lessonIsLocked ? (
+                                  <Lock size={16} />
+                                ) : (
+                                  <LessonIcon size={16} />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className={`text-sm font-medium leading-snug flex gap-1 ${isCurrent ? 'text-blue-900' : 'text-gray-700'}`}>
+                                  <span className="opacity-70">{globalIndex}.</span>
+                                  <span>{lesson.title}</span>
+                                </div>
+                                <div className="text-xs text-gray-400 mt-0.5 flex items-center gap-2">
+                                  {lesson.duration && (
+                                    <div className="flex items-center gap-1">
+                                      <Clock size={12} />
+                                      {/* Ensure 'min' is displayed. If duration is number-like string, append min */}
+                                      <span>{lesson.duration}{/^\d+$/.test(lesson.duration) ? ' min' : ''}</span>
+                                    </div>
+                                  )}
+                                  {isCurrent && <span className="text-blue-600 font-semibold">• Now Playing</span>}
+                                  {lessonIsLocked && <span className="text-yellow-600 ml-1">• Locked</span>}
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>

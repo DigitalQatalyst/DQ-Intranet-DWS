@@ -406,7 +406,7 @@ function transformCourseToLmsDetail(
         description: courseQuiz.description || undefined,
         type: 'final-assessment',
         order: 1,
-        isLocked: false
+        isLocked: true
       }]
     });
   }
