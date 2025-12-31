@@ -677,12 +677,12 @@ const NewsDetailPage: React.FC = () => {
 
   // Get newsType display info (matching NewsCard logic)
   const getNewsTypeDisplay = (item: NewsItem) => {
-    // Check if this is a podcast first
+    // Check if this is a podcast first - podcasts should match blog styling
     const isPodcast = item.format === 'Podcast' || item.tags?.some(tag => tag.toLowerCase().includes('podcast'));
     if (isPodcast) {
       return {
         label: 'Podcast',
-        color: '#8B5CF6' // Purple color for podcasts
+        color: '#14B8A6' // Use same teal color as blogs for consistency
       };
     }
     // For blog articles (Thought Leadership), always show "Blog" with unique color
@@ -933,7 +933,7 @@ const NewsDetailPage: React.FC = () => {
         </section>
 
         {/* Hero Section with Blurred Background */}
-        <section className="relative min-h-[400px] flex items-center" aria-labelledby="article-title">
+        <section className="relative min-h-[500px] md:min-h-[600px] flex items-center" aria-labelledby="article-title">
           {/* Blurred Background Image */}
           <div 
             className="absolute inset-0 bg-cover bg-center"
@@ -946,13 +946,13 @@ const NewsDetailPage: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-800/70 to-slate-900/80" />
           
           {/* Content */}
-          <div className="relative z-10 mx-auto max-w-7xl px-6 py-16 w-full">
+          <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-24 w-full">
             <div className="max-w-4xl">
               {/* Category Tag */}
               {(() => {
                 const newsTypeDisplay = getNewsTypeDisplay(article);
                 return (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-gray-200/90 text-gray-700 mb-4">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-white/20 backdrop-blur-sm text-white mb-4">
                     {newsTypeDisplay.label}
                   </span>
                 );

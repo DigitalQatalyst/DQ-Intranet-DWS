@@ -72,7 +72,7 @@ export function PodcastSeriesCard({ href }: PodcastSeriesCardProps) {
             <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700">
               GHC
             </span>
-            <span className="rounded-full bg-orange-100 px-2.5 py-1 text-xs font-medium text-orange-700">
+            <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700">
               Execution
             </span>
             <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
@@ -89,13 +89,13 @@ export function PodcastSeriesCard({ href }: PodcastSeriesCardProps) {
           {href ? (
             <Link
               to={href}
-              className="flex h-9 items-center justify-center gap-2 rounded-xl bg-orange-500 text-sm font-semibold text-white transition hover:bg-orange-600"
+              className="flex h-9 items-center justify-center gap-2 rounded-xl bg-[#030f35] text-sm font-semibold text-white transition hover:opacity-90"
             >
               <Play size={16} />
               <span>Play Series</span>
             </Link>
           ) : (
-            <button className="flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-orange-500 text-sm font-semibold text-white transition hover:bg-orange-600">
+            <button className="flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-[#030f35] text-sm font-semibold text-white transition hover:opacity-90">
               <Play size={16} />
               <span>Play Series</span>
             </button>

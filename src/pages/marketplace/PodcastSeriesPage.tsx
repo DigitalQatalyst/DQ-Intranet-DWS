@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, ChevronDown, Share2, Download, Bookmark } from 'lucide-react';
+import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, ChevronDown, Share2, Download, Bookmark, HomeIcon, ChevronRightIcon, BookmarkIcon } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
 import { fetchAllNews } from '@/services/mediaCenterService';
 
@@ -50,10 +50,34 @@ export default function PodcastSeriesPage() {
   
   // Expanded episode state
   const [expandedEpisode, setExpandedEpisode] = useState<string | null>(null);
+  const [savedEpisodes, setSavedEpisodes] = useState<Set<string>>(new Set());
+  const [shareSuccess, setShareSuccess] = useState<string | null>(null);
 
   // Get tab parameter from URL
   const searchParams = new URLSearchParams(location.search);
   const tabParam = searchParams.get('tab') || 'podcasts';
+
+  // Load saved episodes from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('podcast-saved-episodes');
+    if (saved) {
+      try {
+        const savedIds = JSON.parse(saved);
+        setSavedEpisodes(new Set(savedIds));
+      } catch (e) {
+        console.error('Error loading saved episodes:', e);
+      }
+    }
+  }, []);
+
+  // Save episodes to localStorage whenever savedEpisodes changes
+  useEffect(() => {
+    if (savedEpisodes.size > 0) {
+      localStorage.setItem('podcast-saved-episodes', JSON.stringify(Array.from(savedEpisodes)));
+    } else {
+      localStorage.removeItem('podcast-saved-episodes');
+    }
+  }, [savedEpisodes]);
 
   React.useEffect(() => {
     const loadEpisodes = async () => {
@@ -110,8 +134,16 @@ export default function PodcastSeriesPage() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration);
+    const updateTime = () => {
+      if (!isNaN(audio.currentTime)) {
+        setCurrentTime(audio.currentTime);
+      }
+    };
+    const updateDuration = () => {
+      if (!isNaN(audio.duration) && audio.duration > 0) {
+        setDuration(audio.duration);
+      }
+    };
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentlyPlaying(null);
@@ -119,23 +151,37 @@ export default function PodcastSeriesPage() {
     };
     const handlePlay = () => setIsPlaying(true);
     const handlePause = () => setIsPlaying(false);
+    const handleLoadedData = () => {
+      updateDuration();
+    };
+    const handleCanPlay = () => {
+      updateDuration();
+    };
 
-    audio.addEventListener('timeupdate', updateTime);
+    // Update time more frequently for smoother progress
+    const timeInterval = setInterval(updateTime, 100);
+
     audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('loadeddata', handleLoadedData);
+    audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
 
     return () => {
-      audio.removeEventListener('timeupdate', updateTime);
+      clearInterval(timeInterval);
       audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('loadeddata', handleLoadedData);
+      audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
     };
   }, []);
 
-  const handlePlayEpisode = (episode: NewsItem, e?: React.MouseEvent) => {
+  const handlePlayEpisode = async (episode: NewsItem, e?: React.MouseEvent) => {
     if (e) {
       e.stopPropagation();
     }
@@ -149,17 +195,28 @@ export default function PodcastSeriesPage() {
     if (currentlyPlaying === episode.id) {
       if (isPlaying) {
         audio.pause();
+        setIsPlaying(false);
       } else {
-        audio.play();
+        try {
+          await audio.play();
+          setIsPlaying(true);
+        } catch (error) {
+          console.error('Error playing audio:', error);
+        }
       }
       return;
     }
 
     // Play new episode
-    audio.src = episode.audioUrl;
-    setCurrentlyPlaying(episode.id);
-    setIsPlaying(true);
-    audio.play();
+    try {
+      audio.src = episode.audioUrl;
+      setCurrentlyPlaying(episode.id);
+      setCurrentTime(0);
+      await audio.play();
+      setIsPlaying(true);
+    } catch (error) {
+      console.error('Error loading/playing audio:', error);
+    }
   };
 
   const handlePlayLatest = () => {
@@ -189,6 +246,89 @@ export default function PodcastSeriesPage() {
       return;
     }
     setExpandedEpisode(expandedEpisode === episodeId ? null : episodeId);
+  };
+
+  // Share functionality
+  const handleShare = async (episode: NewsItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/marketplace/news/${episode.id}`;
+    const shareData = {
+      title: episode.title,
+      text: episode.excerpt || '',
+      url: shareUrl,
+    };
+
+    try {
+      // Try Web Share API first (mobile devices)
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        setShareSuccess(episode.id);
+        setTimeout(() => setShareSuccess(null), 2000);
+      } else {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(shareUrl);
+        setShareSuccess(episode.id);
+        setTimeout(() => setShareSuccess(null), 2000);
+      }
+    } catch (error) {
+      // User cancelled or error occurred
+      if ((error as Error).name !== 'AbortError') {
+        console.error('Error sharing:', error);
+        // Fallback to clipboard if Web Share fails
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          setShareSuccess(episode.id);
+          setTimeout(() => setShareSuccess(null), 2000);
+        } catch (clipboardError) {
+          console.error('Error copying to clipboard:', clipboardError);
+        }
+      }
+    }
+  };
+
+  // Download functionality
+  const handleDownload = async (episode: NewsItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!episode.audioUrl) {
+      alert('Audio file not available for download');
+      return;
+    }
+
+    try {
+      // Fetch the audio file
+      const response = await fetch(episode.audioUrl);
+      if (!response.ok) {
+        throw new Error('Failed to fetch audio file');
+      }
+      const blob = await response.blob();
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${episode.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading audio:', error);
+      alert('Failed to download audio file. Please try again.');
+    }
+  };
+
+  // Save/Bookmark functionality
+  const handleSave = (episode: NewsItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSavedEpisodes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(episode.id)) {
+        newSet.delete(episode.id);
+      } else {
+        newSet.add(episode.id);
+      }
+      return newSet;
+    });
   };
 
   // Parse bold text in markdown
@@ -322,75 +462,121 @@ export default function PodcastSeriesPage() {
       <audio ref={audioRef} preload="metadata" />
       
       <main className="flex-1">
-        {/* Back Navigation */}
-        <div className="border-b border-gray-200 bg-white px-6 py-4">
-          <div className="mx-auto max-w-7xl">
-            <Link
-              to={`/marketplace/opportunities?tab=${tabParam}`}
-              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              &lt; Back to Marketplace
-            </Link>
-          </div>
-        </div>
-
-        <div className="mx-auto max-w-7xl px-6 py-8">
-          {/* Podcast Header */}
-          <div className="mb-8 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-            {/* Cover Art */}
-            <div className="relative h-56 w-full">
-              <img
-                src={PODCAST_IMAGE}
-                alt="Action-Solver Podcast cover art"
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
+        {/* Breadcrumb Navigation and Action Buttons */}
+        <section className="border-b border-gray-200 bg-white">
+          <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
+            <nav className="flex items-center text-sm text-gray-600" aria-label="Breadcrumb">
+              <Link to="/" className="inline-flex items-center gap-1 hover:text-[#1A2E6E]">
+                <HomeIcon size={16} />
+                Home
+              </Link>
+              <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
+              <Link 
+                to={`/marketplace/opportunities?tab=${tabParam}`}
+                className="hover:text-[#1A2E6E]"
+              >
+                DQ Media Center
+              </Link>
+              <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
+              <span className="text-gray-900 line-clamp-1">Action-Solver Podcast</span>
+            </nav>
+            <div className="flex gap-2 text-sm text-gray-500">
+              <button 
+                onClick={() => {
+                  const shareUrl = window.location.href;
+                  if (navigator.share) {
+                    navigator.share({ title: 'Action-Solver Podcast', url: shareUrl }).catch(() => {
+                      navigator.clipboard.writeText(shareUrl);
+                    });
+                  } else {
+                    navigator.clipboard.writeText(shareUrl);
+                  }
+                }}
+                className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 hover:text-[#1A2E6E]"
+              >
+                <Share2 size={16} />
+                Share
+              </button>
+              <button 
+                onClick={() => {
+                  const saved = localStorage.getItem('podcast-series-saved');
+                  const isSaved = saved === 'true';
+                  localStorage.setItem('podcast-series-saved', (!isSaved).toString());
+                }}
+                className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 hover:text-[#1A2E6E]"
+              >
+                <BookmarkIcon size={16} />
+                Save
+              </button>
             </div>
+          </div>
+        </section>
 
-            {/* Podcast Info */}
-            <div className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between">
-              <div className="flex-1">
-                <div className="mb-2">
-                  <span className="inline-flex items-center rounded-full bg-teal-500 px-3 py-1 text-xs font-semibold text-white">
-                    Action-Solver Series
-                  </span>
+        {/* Hero Section with Blurred Background - Matching Blog Style - Full Width */}
+        <section className="relative min-h-[500px] md:min-h-[600px] flex items-center" aria-labelledby="podcast-title">
+          {/* Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${PODCAST_IMAGE})`,
+            }}
+          />
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-800/70 to-slate-900/80" />
+          
+          {/* Content */}
+          <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-24 w-full">
+            <div className="max-w-4xl">
+              {/* Category Tag */}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-white/20 backdrop-blur-sm text-white mb-4">
+                Action-Solver Series
+              </span>
+              
+              {/* Title */}
+              <h1 id="podcast-title" className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
+                Action-Solver Podcast
+              </h1>
+
+              {/* Description */}
+              <p className="text-white/90 text-lg mb-6">
+                Short conversations that solve real work problems at DQ
+              </p>
+
+              {/* Metadata */}
+              <div className="flex flex-wrap items-center gap-6 text-white/90 text-sm mb-6">
+                <div className="flex items-center gap-2">
+                  <Radio size={16} />
+                  <span>{episodes.length} episodes</span>
                 </div>
-                <h1 className="mb-2 text-4xl font-bold text-gray-900">Action-Solver Podcast</h1>
-                <p className="mb-4 text-gray-600">Short conversations that solve real work problems at DQ</p>
-                
-                {/* Metadata */}
-                <div className="mb-6 flex flex-wrap items-center gap-6 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <Radio size={16} />
-                    <span>{episodes.length} episodes</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock size={16} />
-                    <span>~{averageDuration} min avg</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} />
-                    <span>Weekly</span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Clock size={16} />
+                  <span>~{averageDuration} min avg</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar size={16} />
+                  <span>Weekly</span>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 md:self-start">
+              <div className="flex flex-wrap gap-3">
                 <button
                   onClick={handlePlayLatest}
-                  className="flex items-center gap-2 rounded-lg bg-orange-500 px-6 py-3 font-semibold text-white transition hover:bg-orange-600"
+                  className="flex items-center gap-2 rounded-lg bg-[#030f35] px-6 py-3 font-semibold text-white transition hover:opacity-90"
                 >
                   <Play size={20} />
                   <span>Play Latest Episode</span>
                 </button>
-                <button className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-3 font-semibold text-gray-700 transition hover:bg-gray-50">
+                <button className="flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 backdrop-blur-sm px-6 py-3 font-semibold text-white transition hover:bg-white/20">
                   <Plus size={20} />
                   <span>Follow</span>
                 </button>
               </div>
             </div>
           </div>
+        </section>
+
+        <div className="mx-auto max-w-7xl px-6 py-8">
 
           {/* About Section */}
           <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -398,7 +584,7 @@ export default function PodcastSeriesPage() {
             <p className="mb-4 text-gray-700 leading-relaxed">
               The Action-Solver Podcast delivers concise, actionable insights for busy professionals. Each episode tackles a specific challenge faced by DQ teams, providing practical frameworks and strategies you can implement immediately. Perfect for your commute, lunch break, or quick learning moment.
             </p>
-            <button className="text-sm text-orange-500 hover:text-orange-600 transition-colors">
+            <button className="text-sm text-[#030f35] hover:opacity-80 transition-colors">
               Read more
             </button>
             
@@ -407,7 +593,7 @@ export default function PodcastSeriesPage() {
               <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
                 GHC
               </span>
-              <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-700">
+              <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
                 Execution
               </span>
               <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
@@ -511,7 +697,7 @@ export default function PodcastSeriesPage() {
                     key={episode.id}
                     className={`group flex flex-col gap-4 rounded-lg border p-4 transition ${
                       isCurrentlyPlaying
-                        ? 'border-orange-500 bg-orange-50/50'
+                        ? 'border-[#030f35] bg-[#030f35]/5'
                         : 'border-gray-200 bg-gray-50 hover:bg-white hover:border-gray-300'
                     }`}
                   >
@@ -520,8 +706,8 @@ export default function PodcastSeriesPage() {
                         onClick={(e) => handlePlayEpisode(episode, e)}
                         className={`mt-1 flex-shrink-0 rounded-full p-2 transition ${
                           isCurrentlyPlaying
-                            ? 'bg-orange-500 text-white'
-                            : 'bg-gray-200 text-gray-600 group-hover:bg-orange-500 group-hover:text-white'
+                            ? 'bg-[#030f35] text-white'
+                            : 'bg-gray-200 text-gray-600 group-hover:bg-[#030f35] group-hover:text-white'
                         }`}
                       >
                         {isCurrentlyPlaying && isPlaying ? (
@@ -537,7 +723,7 @@ export default function PodcastSeriesPage() {
                         <div className="mb-2 flex items-center gap-2">
                           <span className="text-sm font-medium text-gray-600">EP {episodeNumber}</span>
                           {isNew && (
-                            <span className="rounded-full bg-orange-500 px-2 py-0.5 text-xs font-semibold text-white">
+                            <span className="rounded-full bg-[#030f35] px-2 py-0.5 text-xs font-semibold text-white">
                               New
                             </span>
                           )}
@@ -545,7 +731,7 @@ export default function PodcastSeriesPage() {
                         <h3 className={`mb-1 text-lg font-semibold transition ${
                           isCurrentlyPlaying
                             ? 'text-gray-900'
-                            : 'text-gray-900 group-hover:text-orange-600'
+                            : 'text-gray-900 group-hover:text-[#030f35]'
                         }`}>
                           {episode.title}
                         </h3>
@@ -560,17 +746,42 @@ export default function PodcastSeriesPage() {
                           <span>{formatListens(episode.views || 0)}</span>
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-600">
-                          <button className="inline-flex items-center gap-1 rounded-full border border-gray-300 bg-white px-3 py-1 hover:bg-gray-50">
+                          <button 
+                            onClick={(e) => handleShare(episode, e)}
+                            className={`inline-flex items-center gap-1 rounded-full border border-gray-300 bg-white px-3 py-1 transition-colors ${
+                              shareSuccess === episode.id 
+                                ? 'bg-green-50 border-green-300 text-green-700' 
+                                : 'hover:bg-gray-50'
+                            }`}
+                            title="Share episode"
+                          >
                             <Share2 size={14} />
-                            <span>Share</span>
+                            <span>{shareSuccess === episode.id ? 'Copied!' : 'Share'}</span>
                           </button>
-                          <button className="inline-flex items-center gap-1 rounded-full border border-gray-300 bg-white px-3 py-1 hover:bg-gray-50">
+                          <button 
+                            onClick={(e) => handleDownload(episode, e)}
+                            disabled={!episode.audioUrl}
+                            className={`inline-flex items-center gap-1 rounded-full border border-gray-300 bg-white px-3 py-1 transition-colors ${
+                              !episode.audioUrl 
+                                ? 'opacity-50 cursor-not-allowed' 
+                                : 'hover:bg-gray-50'
+                            }`}
+                            title={episode.audioUrl ? 'Download episode' : 'Audio not available'}
+                          >
                             <Download size={14} />
                             <span>Download</span>
                           </button>
-                          <button className="inline-flex items-center gap-1 rounded-full border border-gray-300 bg-white px-3 py-1 hover:bg-gray-50">
-                            <Bookmark size={14} />
-                            <span>Save</span>
+                          <button 
+                            onClick={(e) => handleSave(episode, e)}
+                            className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 transition-colors ${
+                              savedEpisodes.has(episode.id)
+                                ? 'bg-blue-50 border-blue-300 text-blue-700'
+                                : 'border-gray-300 bg-white hover:bg-gray-50'
+                            }`}
+                            title={savedEpisodes.has(episode.id) ? 'Remove from saved' : 'Save episode'}
+                          >
+                            <Bookmark size={14} fill={savedEpisodes.has(episode.id) ? 'currentColor' : 'none'} />
+                            <span>{savedEpisodes.has(episode.id) ? 'Saved' : 'Save'}</span>
                           </button>
                         </div>
                         
@@ -584,7 +795,7 @@ export default function PodcastSeriesPage() {
                                 max={duration || 0}
                                 value={currentTime}
                                 onChange={handleSeek}
-                                className="h-1 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-200 accent-orange-500"
+                                className="h-1 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#030f35]"
                               />
                               <span className="text-xs text-gray-500">
                                 {formatTime(currentTime)} / {formatTime(duration)}
