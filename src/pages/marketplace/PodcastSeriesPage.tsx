@@ -129,18 +129,18 @@ export default function PodcastSeriesPage() {
       }, 0) / episodes.length)
     : 13;
 
-  // Audio player event handlers
+  // Audio player event handlers - re-run when currentlyPlaying changes
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
     const updateTime = () => {
-      if (!isNaN(audio.currentTime)) {
+      if (!isNaN(audio.currentTime) && isFinite(audio.currentTime)) {
         setCurrentTime(audio.currentTime);
       }
     };
     const updateDuration = () => {
-      if (!isNaN(audio.duration) && audio.duration > 0) {
+      if (!isNaN(audio.duration) && isFinite(audio.duration) && audio.duration > 0) {
         setDuration(audio.duration);
       }
     };
@@ -149,37 +149,64 @@ export default function PodcastSeriesPage() {
       setCurrentlyPlaying(null);
       setCurrentTime(0);
     };
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
+    const handlePlay = () => {
+      setIsPlaying(true);
+    };
+    const handlePause = () => {
+      setIsPlaying(false);
+    };
     const handleLoadedData = () => {
       updateDuration();
     };
     const handleCanPlay = () => {
       updateDuration();
     };
+    const handleLoadedMetadata = () => {
+      updateDuration();
+    };
+    const handleProgress = () => {
+      // Update duration if available
+      if (audio.buffered.length > 0 && audio.duration) {
+        updateDuration();
+      }
+    };
 
-    // Update time more frequently for smoother progress
-    const timeInterval = setInterval(updateTime, 100);
+    // Update time frequently for smooth progress bar
+    const timeInterval = setInterval(() => {
+      if (audio && !audio.paused && !audio.ended) {
+        updateTime();
+      }
+    }, 100);
 
-    audio.addEventListener('loadedmetadata', updateDuration);
+    // Add all event listeners
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('loadeddata', handleLoadedData);
     audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('progress', handleProgress);
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
+    audio.addEventListener('seeked', updateTime);
+
+    // Initial duration check
+    if (audio.readyState >= 1) {
+      updateDuration();
+    }
 
     return () => {
       clearInterval(timeInterval);
-      audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('loadeddata', handleLoadedData);
       audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('progress', handleProgress);
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('seeked', updateTime);
     };
-  }, []);
+  }, [currentlyPlaying]); // Re-run when currentlyPlaying changes
 
   const handlePlayEpisode = async (episode: NewsItem, e?: React.MouseEvent) => {
     if (e) {
@@ -209,13 +236,38 @@ export default function PodcastSeriesPage() {
 
     // Play new episode
     try {
-      audio.src = episode.audioUrl;
-      setCurrentlyPlaying(episode.id);
+      // Reset time and duration
       setCurrentTime(0);
-      await audio.play();
-      setIsPlaying(true);
+      setDuration(0);
+      
+      // Set source and load
+      audio.src = episode.audioUrl;
+      audio.load();
+      
+      setCurrentlyPlaying(episode.id);
+      
+      // Wait for metadata to load before playing
+      audio.addEventListener('loadedmetadata', async () => {
+        if (audio.duration) {
+          setDuration(audio.duration);
+        }
+        try {
+          await audio.play();
+          setIsPlaying(true);
+        } catch (playError) {
+          console.error('Error playing audio:', playError);
+          setIsPlaying(false);
+        }
+      }, { once: true });
+      
+      // Also try to play immediately if already loaded
+      if (audio.readyState >= 2) {
+        await audio.play();
+        setIsPlaying(true);
+      }
     } catch (error) {
       console.error('Error loading/playing audio:', error);
+      setIsPlaying(false);
     }
   };
 
@@ -236,8 +288,32 @@ export default function PodcastSeriesPage() {
     const audio = audioRef.current;
     if (!audio) return;
     const newTime = parseFloat(e.target.value);
-    audio.currentTime = newTime;
-    setCurrentTime(newTime);
+    if (!isNaN(newTime) && isFinite(newTime)) {
+      audio.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  const handleSeekMouseDown = () => {
+    // Pause updates while dragging to prevent jitter
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+    }
+  };
+
+  const handleSeekMouseUp = (e: React.MouseEvent<HTMLInputElement>) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const newTime = parseFloat((e.target as HTMLInputElement).value);
+    if (!isNaN(newTime) && isFinite(newTime)) {
+      audio.currentTime = newTime;
+      setCurrentTime(newTime);
+      // Resume playing if it was playing before
+      if (isPlaying) {
+        audio.play().catch(console.error);
+      }
+    }
   };
 
   const handleEpisodeCardClick = (episodeId: string, e: React.MouseEvent) => {
@@ -793,12 +869,18 @@ export default function PodcastSeriesPage() {
                                 type="range"
                                 min="0"
                                 max={duration || 0}
-                                value={currentTime}
+                                step="0.1"
+                                value={currentTime || 0}
                                 onChange={handleSeek}
+                                onMouseDown={handleSeekMouseDown}
+                                onMouseUp={handleSeekMouseUp}
                                 className="h-1 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#030f35]"
+                                style={{
+                                  background: `linear-gradient(to right, #030f35 0%, #030f35 ${((currentTime || 0) / (duration || 1)) * 100}%, #e5e7eb ${((currentTime || 0) / (duration || 1)) * 100}%, #e5e7eb 100%)`
+                                }}
                               />
-                              <span className="text-xs text-gray-500">
-                                {formatTime(currentTime)} / {formatTime(duration)}
+                              <span className="text-xs text-gray-500 whitespace-nowrap">
+                                {formatTime(currentTime || 0)} / {formatTime(duration || 0)}
                               </span>
                             </div>
                           </div>
