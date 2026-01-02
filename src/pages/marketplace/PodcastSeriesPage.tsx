@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, ChevronDown, Share2, Download, Bookmark, HomeIcon, ChevronRightIcon, BookmarkIcon } from 'lucide-react';
@@ -8,6 +8,20 @@ import { fetchAllNews } from '@/services/mediaCenterService';
 
 const PODCAST_IMAGE =
   'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=1600&q=80';
+
+// Explicit canonical order of Action-Solver podcast episodes (EP1..EP10)
+const PODCAST_EPISODE_ORDER: string[] = [
+  'why-execution-beats-intelligence',
+  'why-we-misdiagnose-problems',
+  'turning-conversations-into-action',
+  'why-tasks-dont-close-at-dq',
+  'happy-talkers-why-talking-feels-productive',
+  'execution-styles-why-teams-work-differently',
+  'agile-the-dq-way-tasks-core-work-system',
+  'leaders-as-multipliers-accelerate-execution',
+  'energy-management-for-high-action-days',
+  'execution-metrics-that-drive-movement',
+];
 
 const formatDate = (input: string) => {
   const date = new Date(input);
@@ -36,10 +50,12 @@ const formatListens = (views: number): string => {
 
 export default function PodcastSeriesPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [episodes, setEpisodes] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<'latest' | 'most-listened'>('latest');
   const [durationFilter, setDurationFilter] = useState<'all' | 'short' | 'medium' | 'long'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Audio player state
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -52,6 +68,7 @@ export default function PodcastSeriesPage() {
   const [expandedEpisode, setExpandedEpisode] = useState<string | null>(null);
   const [savedEpisodes, setSavedEpisodes] = useState<Set<string>>(new Set());
   const [shareSuccess, setShareSuccess] = useState<string | null>(null);
+  const [targetEpisodeId, setTargetEpisodeId] = useState<string | null>(null);
 
   // Get tab parameter from URL
   const searchParams = new URLSearchParams(location.search);
@@ -70,6 +87,19 @@ export default function PodcastSeriesPage() {
     }
   }, []);
 
+  // When a target episode is specified and episodes are loaded, scroll to and expand it
+  useEffect(() => {
+    if (!targetEpisodeId || episodes.length === 0) return;
+    if (!episodes.some((ep) => ep.id === targetEpisodeId)) return;
+
+    setExpandedEpisode(targetEpisodeId);
+
+    const el = document.getElementById(`episode-${targetEpisodeId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [targetEpisodeId, episodes]);
+
   // Save episodes to localStorage whenever savedEpisodes changes
   useEffect(() => {
     if (savedEpisodes.size > 0) {
@@ -78,6 +108,13 @@ export default function PodcastSeriesPage() {
       localStorage.removeItem('podcast-saved-episodes');
     }
   }, [savedEpisodes]);
+
+  // Track targeted episode from URL query (for deep links / search navigation)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const episodeId = params.get('episode');
+    setTargetEpisodeId(episodeId);
+  }, [location.search]);
 
   React.useEffect(() => {
     const loadEpisodes = async () => {
@@ -112,13 +149,50 @@ export default function PodcastSeriesPage() {
 
     // Apply sorting
     if (sortBy === 'latest') {
-      filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      // Sort by explicit episode number (EP10 at top, EP1 at bottom)
+      const orderMap = new Map<string, number>(
+        PODCAST_EPISODE_ORDER.map((id, index) => [id, index + 1])
+      );
+
+      filtered.sort((a, b) => {
+        const numA = orderMap.get(a.id) ?? 0;
+        const numB = orderMap.get(b.id) ?? 0;
+
+        if (numA !== numB) {
+          // Higher episode number first
+          return numB - numA;
+        }
+
+        // Fallback: newer date first
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      });
     } else if (sortBy === 'most-listened') {
       filtered.sort((a, b) => (b.views || 0) - (a.views || 0));
     }
 
     return filtered;
   }, [episodes, sortBy, durationFilter]);
+
+  const episodeNumberMap = useMemo(() => {
+    const map = new Map<string, number>();
+
+    // Assign numbers based on the explicit canonical order first
+    PODCAST_EPISODE_ORDER.forEach((id, index) => {
+      if (episodes.some(ep => ep.id === id)) {
+        map.set(id, index + 1);
+      }
+    });
+
+    // If any additional podcast episodes exist, number them after the known series
+    let nextNumber = PODCAST_EPISODE_ORDER.length + 1;
+    episodes.forEach(ep => {
+      if (!map.has(ep.id)) {
+        map.set(ep.id, nextNumber++);
+      }
+    });
+
+    return map;
+  }, [episodes]);
 
   const latestEpisode = episodes.length > 0 ? episodes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0] : null;
   const averageDuration = episodes.length > 0
@@ -297,8 +371,8 @@ export default function PodcastSeriesPage() {
   const handleSeekMouseDown = () => {
     // Pause updates while dragging to prevent jitter
     const audio = audioRef.current;
-    if (audio) {
-      audio.pause();
+    if (!audio) {
+      return;
     }
   };
 
@@ -322,6 +396,26 @@ export default function PodcastSeriesPage() {
       return;
     }
     setExpandedEpisode(expandedEpisode === episodeId ? null : episodeId);
+  };
+
+  const searchResults = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return [];
+
+    return episodes.filter((episode) =>
+      episode.title.toLowerCase().includes(query)
+    );
+  }, [episodes, searchQuery]);
+
+  const handleSelectEpisodeFromSearch = (episodeId: string) => {
+    setSearchQuery('');
+
+    // Ensure URL always points to the series page with tab=podcasts & the specific episode
+    const params = new URLSearchParams(location.search);
+    params.set('tab', 'podcasts');
+    params.set('episode', episodeId);
+
+    navigate(`/marketplace/news/action-solver-podcast?${params.toString()}`);
   };
 
   // Share functionality
@@ -687,70 +781,96 @@ export default function PodcastSeriesPage() {
               <h2 className="text-xl font-bold text-gray-900">Episodes ({filteredAndSortedEpisodes.length})</h2>
               
               {/* Sorting and Filtering */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setSortBy('latest')}
-                  className={`flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                    sortBy === 'latest'
-                      ? 'border-gray-300 bg-gray-100 text-gray-900'
-                      : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  <ArrowUpDown size={14} />
-                  Latest
-                </button>
-                <button
-                  onClick={() => setSortBy('most-listened')}
-                  className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                    sortBy === 'most-listened'
-                      ? 'border-gray-300 bg-gray-100 text-gray-900'
-                      : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
-                  }`}
-                >
-                  Most Listened
-                </button>
+              <div className="flex items-center gap-3">
+                <div className="relative w-48">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search episodes"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#030f35]"
+                  />
+                  {searchQuery && searchResults.length > 0 && (
+                    <div className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                      {searchResults.map((result) => (
+                        <button
+                          key={result.id}
+                          type="button"
+                          onClick={() => handleSelectEpisodeFromSearch(result.id)}
+                          className="flex w-full flex-col items-start px-3 py-2 text-left text-sm hover:bg-gray-50"
+                        >
+                          <span className="font-medium text-gray-900 line-clamp-1">{result.title}</span>
+                          <span className="text-xs text-gray-500">EP {episodeNumberMap.get(result.id)}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setDurationFilter('all')}
+                    onClick={() => setSortBy('latest')}
                     className={`flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                      durationFilter === 'all'
+                      sortBy === 'latest'
                         ? 'border-gray-300 bg-gray-100 text-gray-900'
                         : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
                     }`}
                   >
-                    <ChevronDown size={14} />
-                    All
+                    <ArrowUpDown size={14} />
+                    Latest
                   </button>
                   <button
-                    onClick={() => setDurationFilter('short')}
+                    onClick={() => setSortBy('most-listened')}
                     className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                      durationFilter === 'short'
+                      sortBy === 'most-listened'
                         ? 'border-gray-300 bg-gray-100 text-gray-900'
                         : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
                     }`}
                   >
-                    Short
+                    Most Listened
                   </button>
-                  <button
-                    onClick={() => setDurationFilter('medium')}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                      durationFilter === 'medium'
-                        ? 'border-gray-300 bg-gray-100 text-gray-900'
-                        : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    Medium
-                  </button>
-                  <button
-                    onClick={() => setDurationFilter('long')}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                      durationFilter === 'long'
-                        ? 'border-gray-300 bg-gray-100 text-gray-900'
-                        : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
-                    }`}
-                  >
-                    Long
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setDurationFilter('all')}
+                      className={`flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                        durationFilter === 'all'
+                          ? 'border-gray-300 bg-gray-100 text-gray-900'
+                          : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      <ChevronDown size={14} />
+                      All
+                    </button>
+                    <button
+                      onClick={() => setDurationFilter('short')}
+                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                        durationFilter === 'short'
+                          ? 'border-gray-300 bg-gray-100 text-gray-900'
+                          : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      Short
+                    </button>
+                    <button
+                      onClick={() => setDurationFilter('medium')}
+                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                        durationFilter === 'medium'
+                          ? 'border-gray-300 bg-gray-100 text-gray-900'
+                          : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      Medium
+                    </button>
+                    <button
+                      onClick={() => setDurationFilter('long')}
+                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                        durationFilter === 'long'
+                          ? 'border-gray-300 bg-gray-100 text-gray-900'
+                          : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      Long
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -760,9 +880,11 @@ export default function PodcastSeriesPage() {
               {filteredAndSortedEpisodes.map((episode, index) => {
                 // EP 1 is the latest when sorted by latest, otherwise use reverse index
                 const isNew = index === 0 && sortBy === 'latest';
-                const episodeNumber = sortBy === 'latest' 
-                  ? filteredAndSortedEpisodes.length - index 
-                  : index + 1;
+                const episodeNumber = episodeNumberMap.get(episode.id) ?? (
+                  sortBy === 'latest'
+                    ? filteredAndSortedEpisodes.length - index
+                    : index + 1
+                );
                 
                 const isCurrentlyPlaying = currentlyPlaying === episode.id;
                 
@@ -771,6 +893,7 @@ export default function PodcastSeriesPage() {
                 return (
                   <div
                     key={episode.id}
+                    id={`episode-${episode.id}`}
                     className={`group flex flex-col gap-4 rounded-lg border p-4 transition ${
                       isCurrentlyPlaying
                         ? 'border-[#030f35] bg-[#030f35]/5'

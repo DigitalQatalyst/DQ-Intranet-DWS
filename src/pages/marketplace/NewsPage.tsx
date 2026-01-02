@@ -412,6 +412,21 @@ const NewsPage: React.FC = () => {
     [tab, queryText, filters]
   );
 
+  // Podcast episode search results for the Podcasts tab
+  const podcastSearchResults = useMemo(() => {
+    if (tab !== 'podcasts') return [] as NewsItem[];
+    const search = queryText.trim().toLowerCase();
+    if (!search) return [] as NewsItem[];
+
+    return newsItems
+      .filter(
+        (item) =>
+          item.format === 'Podcast' ||
+          item.tags?.some((tag) => tag.toLowerCase().includes('podcast'))
+      )
+      .filter((item) => item.title.toLowerCase().includes(search));
+  }, [tab, queryText, newsItems]);
+
   const searchPlaceholder = useMemo(() => {
     switch (tab) {
       case 'announcements':
@@ -573,6 +588,33 @@ const NewsPage: React.FC = () => {
                 placeholder={searchPlaceholder}
                 className="h-11 pl-10 w-full"
               />
+              {tab === 'podcasts' && queryText.trim() && (
+                <div className="absolute z-20 mt-1 w-full max-h-64 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                  {podcastSearchResults.length === 0 ? (
+                    <div className="px-3 py-2 text-sm text-gray-500">
+                      No podcast episodes found.
+                    </div>
+                  ) : (
+                    podcastSearchResults.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          setQueryText('');
+                          const params = new URLSearchParams(location.search);
+                          params.set('tab', 'podcasts');
+                          params.set('episode', item.id);
+                          navigate(`/marketplace/news/action-solver-podcast?${params.toString()}`);
+                        }}
+                        className="flex w-full flex-col items-start px-3 py-2 text-left text-sm hover:bg-gray-50"
+                      >
+                        <span className="font-medium text-gray-900 line-clamp-1">{item.title}</span>
+                        <span className="text-xs text-gray-500">Podcast episode</span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3 md:hidden">
               <button

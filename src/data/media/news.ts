@@ -2344,5 +2344,79 @@ The podcast highlights that workplace conflict is often stylistic rather than pe
 ## Intended Impact
 
 By making execution styles explicit, the episode aims to stop team members from judging one another and misinterpreting different approaches—such as viewing speed as reckless or caution as slow. The episode seeks to move teams away from the assumption that everyone works the same way and toward a model of agreeing on "how we move together". Rather than forcing uniformity, the episode intends to show how different styles—like Sprinters and Architects—can coexist and support one another. When goals, timelines, and the definition of "done" are clear, these different execution methods can work in harmony to move a project forward without unnecessary friction.`
+  },
+  {
+    id: 'energy-management-for-high-action-days',
+    title: 'How to Manage Your Energy for High-Action Days',
+    type: 'Thought Leadership',
+    date: '2025-12-04',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt: 'Learn how managing usable mental, emotional, and physical energy—not just time blocks—creates sustainable high-action days and reduces invisible stress.',
+    image: 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Leadership',
+    domain: 'People',
+    theme: 'Leadership',
+    tags: ['podcast', 'energy', 'performance', 'productivity', 'stress'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl: '/Podcasts/Stop_Clock_Watching_Start_Managing_Energy.m4a',
+    content: `# Energy Beats Time: Designing High-Action Days
+
+## Focus of the Episode
+
+Prioritizing energy management over time management by recognizing that execution fails not because of a lack of time, but due to a lack of usable mental, emotional, and physical energy.
+
+Designing high-action days through intentional practices such as limiting execution priorities, protecting peak energy windows from administrative tasks, and closing mental loops to prevent invisible stress and preserve future energy.
+
+## Intended Impact
+
+Transform intention into execution by shifting the mindset from managing time blocks to strategically managing and protecting usable energy, which is the true constraint of high-action days.
+
+Reduce "invisible stress" and mental fatigue by training listeners to identify and eliminate hidden drains, such as unclear tasks, constant re-prioritization, and the lack of recovery between meetings.
+
+Empower sustainable high performance through actionable rules, such as building momentum with early wins and closing mental loops to ensure energy is not just spent, but sustained for the following day.`
+  },
+  {
+    id: 'execution-metrics-that-drive-movement',
+    title: 'Execution Metrics: How to Measure the Only Things That Matter',
+    type: 'Thought Leadership',
+    date: '2025-12-02',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt: 'Explore how to replace vanity metrics with execution metrics like Task Closure Rate, Time to First Action, and Blocker Age to drive real movement, unblock teams, and build a culture of improvement.',
+    image: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80',
+    department: 'DQ Leadership',
+    domain: 'Operations',
+    theme: 'Delivery',
+    tags: ['podcast', 'metrics', 'execution', 'performance', 'blockers'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl: '/Podcasts/The_Four_Metrics_That_Drive_Execution_Speed.m4a',
+    content: `# Execution Metrics That Actually Move Work
+
+## Focus of the Episode
+
+Distinguishing execution metrics from mere activity or vanity metrics by focusing on tangible movement.
+
+Utilizing specific metrics such as Task Closure Rate, Time to First Action, and Blocker Age to identify bottlenecks and foster a culture of continuous improvement rather than fear.
+
+## Intended Impact
+
+Shift the organizational focus from mere "activity" to "tangible progress" by encouraging the use of metrics that drive actual movement.
+
+Foster a culture of improvement and transparency over fear and defense, by making metrics visible to the people doing the work.
+
+Refine the role of leadership to prioritize "unblocking" over "micromanagement". The impact is to empower leaders to use execution data—like "Blocker Age"—to know exactly when to step in to simplify decisions or reduce scope, ensuring that the metrics used align with and signal a core value for execution.`
   }
 ];
