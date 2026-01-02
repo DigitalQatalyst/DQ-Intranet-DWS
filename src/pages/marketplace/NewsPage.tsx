@@ -419,7 +419,7 @@ const NewsPage: React.FC = () => {
       case 'insights':
         return 'Search blogs and insights… e.g., case study, delivery lessons';
       case 'podcasts':
-        return 'Search podcasts… e.g., interview, discussion, insights';
+        return 'Search podcast titles… e.g., Execution Beats Intelligence';
       case 'opportunities':
         return 'Search jobs and roles… e.g., SFIA L3, frontend developer';
       default:
