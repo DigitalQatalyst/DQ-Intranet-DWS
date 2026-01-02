@@ -4,9 +4,10 @@ interface HeroSectionProps {
   title: string
   subtitle?: string
   imageUrl?: string
+  badge?: string
 }
 
-export function HeroSection({ title, subtitle, imageUrl }: HeroSectionProps) {
+export function HeroSection({ title, subtitle, imageUrl, badge }: HeroSectionProps) {
   return (
     <div className="relative w-full h-[500px] overflow-hidden">
       <div 
@@ -20,9 +21,11 @@ export function HeroSection({ title, subtitle, imageUrl }: HeroSectionProps) {
 
       <div className="relative z-10 h-full flex flex-col justify-center px-6 md:px-12 lg:px-24 text-white">
         <div className="max-w-4xl">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium mb-4">
-            Strategy Framework
-          </span>
+          {badge && (
+            <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium mb-4">
+              {badge}
+            </span>
+          )}
 
           <div className="text-sm text-white/90 mb-6 font-inter">
             {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}

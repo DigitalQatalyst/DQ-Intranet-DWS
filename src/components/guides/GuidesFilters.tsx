@@ -123,6 +123,24 @@ const BLUEPRINT_LOCATIONS: Facet[] = [
   { id: 'NBO', name: 'NBO' }
 ]
 
+const PRODUCT_TYPES: Facet[] = [
+  { id: 'platform', name: 'Platform' },
+  { id: 'academy', name: 'Academy' },
+  { id: 'framework', name: 'Framework' },
+  { id: 'tooling', name: 'Tooling' },
+  { id: 'marketplace', name: 'Marketplace' },
+  { id: 'enablement-product', name: 'Enablement Product' }
+]
+
+const PRODUCT_STAGES: Facet[] = [
+  { id: 'concept', name: 'Concept' },
+  { id: 'mvp', name: 'MVP' },
+  { id: 'live', name: 'Live' },
+  { id: 'scaling', name: 'Scaling' },
+  { id: 'enterprise-ready', name: 'Enterprise-ready' }
+]
+
+// Keep legacy framework filters for backward compatibility (mapped to product domains)
 const BLUEPRINT_FRAMEWORKS: Facet[] = [
   { id: 'devops', name: 'DevOps' },
   { id: 'dbp', name: 'DBP' },
@@ -132,16 +150,12 @@ const BLUEPRINT_FRAMEWORKS: Facet[] = [
   { id: 'projects', name: 'Projects' }
 ]
 
-const BLUEPRINT_SECTORS: Facet[] = [
-  { id: 'farming-4.0', name: 'Farming 4.0' },
+const PRODUCT_SECTORS: Facet[] = [
   { id: 'government-4.0', name: 'Government 4.0' },
-  { id: 'hospitality-4.0', name: 'Hospitality 4.0' },
   { id: 'infrastructure-4.0', name: 'Infrastructure 4.0' },
-  { id: 'logistics-4.0', name: 'Logistics 4.0' },
   { id: 'plant-4.0', name: 'Plant 4.0' },
-  { id: 'retail-4.0', name: 'Retail 4.0' },
-  { id: 'service-4.0', name: 'Service 4.0' },
-  { id: 'wellness-4.0', name: 'Wellness 4.0' }
+  { id: 'logistics-4.0', name: 'Logistics 4.0' },
+  { id: 'service-4.0', name: 'Service 4.0' }
 ]
 
 const STRATEGY_LOCATIONS: Facet[] = [
@@ -433,11 +447,14 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
         )
       })() : isBlueprintSelected ? (
         <>
-          <Section idPrefix={instanceId} title="Sector" category="blueprint_sector" collapsed={collapsedSet.has('blueprint_sector')} onToggle={toggleCollapsed}>
-            <CheckboxList idPrefix={instanceId} name="blueprint_sector" options={BLUEPRINT_SECTORS} query={query} onChange={onChange} />
+          <Section idPrefix={instanceId} title="Product Type" category="product_type" collapsed={collapsedSet.has('product_type')} onToggle={toggleCollapsed}>
+            <CheckboxList idPrefix={instanceId} name="product_type" options={PRODUCT_TYPES} query={query} onChange={onChange} />
           </Section>
-          <Section idPrefix={instanceId} title="Framework" category="blueprint_framework" collapsed={collapsedSet.has('blueprint_framework')} onToggle={toggleCollapsed}>
-            <CheckboxList idPrefix={instanceId} name="blueprint_framework" options={BLUEPRINT_FRAMEWORKS} query={query} onChange={onChange} />
+          <Section idPrefix={instanceId} title="Product Stage" category="product_stage" collapsed={collapsedSet.has('product_stage')} onToggle={toggleCollapsed}>
+            <CheckboxList idPrefix={instanceId} name="product_stage" options={PRODUCT_STAGES} query={query} onChange={onChange} />
+          </Section>
+          <Section idPrefix={instanceId} title="Sector" category="product_sector" collapsed={collapsedSet.has('product_sector')} onToggle={toggleCollapsed}>
+            <CheckboxList idPrefix={instanceId} name="product_sector" options={PRODUCT_SECTORS} query={query} onChange={onChange} />
           </Section>
         </>
       ) : isGuidelinesSelected ? (

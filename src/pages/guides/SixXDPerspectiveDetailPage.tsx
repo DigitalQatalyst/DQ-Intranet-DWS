@@ -2,12 +2,197 @@ import React, { useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { HomeIcon, ChevronRightIcon, ArrowLeft, CheckCircle2, Target, Repeat, Zap } from 'lucide-react';
+import { 
+  HomeIcon, 
+  ChevronRightIcon, 
+  ArrowLeft, 
+  CheckCircle2, 
+  Target, 
+  Repeat, 
+  Zap,
+  Lightbulb,
+  Sparkles,
+  ChevronRight
+} from 'lucide-react';
 import { useAuth } from '../../components/Header/context/AuthContext';
 import { SIX_XD_PERSPECTIVE_CARDS, SixXDPerspectiveCard } from '../../components/guides/SixXDPerspectiveCards';
 import { SIX_XD_PERSPECTIVES } from './glossaryFilters';
 import { glossaryTerms } from './glossaryData';
 import { GlossaryDetailAccordion } from '../../components/guides/GlossaryDetailAccordion';
+
+interface DigitalEconomyDetailPageProps {
+  perspective: SixXDPerspectiveCard;
+  perspectiveFilter: { id: string; name: string } | undefined;
+  relatedTerms: any[];
+  user: any;
+}
+
+function DigitalEconomyDetailPage({ perspective, perspectiveFilter, relatedTerms, user }: DigitalEconomyDetailPageProps) {
+  const navigate = useNavigate();
+
+  // Get related perspectives for "See Also" section
+  const relatedPerspectives = useMemo(() => {
+    return SIX_XD_PERSPECTIVE_CARDS.filter(p => p.id !== perspective.id).slice(0, 3);
+  }, [perspective.id]);
+
+  return (
+    <div className="min-h-screen flex flex-col bg-stone-50">
+      <Header toggleSidebar={() => {}} sidebarOpen={false} />
+      <main className="container mx-auto px-6 py-8 flex-grow max-w-[740px]">
+        {/* Header: Breadcrumb */}
+        <nav className="mb-4">
+          <button
+            onClick={() => navigate('/marketplace/guides?tab=glossary&glossary_knowledge_system=6xd')}
+            className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft size={14} />
+            <span>Glossary</span>
+          </button>
+        </nav>
+
+        {/* Category Pill */}
+        <div className="mb-3">
+          <span className="inline-block text-xs font-medium px-2.5 py-1 rounded-full bg-gray-200 text-gray-700">
+            {perspectiveFilter?.name || '6xD'}
+          </span>
+        </div>
+
+        {/* Term Title */}
+        <h1 className="text-4xl font-serif font-bold text-gray-900 mb-1.5 leading-tight tracking-tight">
+          {perspective.name}
+        </h1>
+
+        {/* Subtitle */}
+        <p className="text-xs text-gray-500 mb-5 uppercase tracking-wider">
+          Perspective
+        </p>
+
+        {/* Lead Definition - with left accent border */}
+        <div className="border-l-2 border-orange-400 pl-5 py-3.5 mb-6">
+          <p className="text-base text-gray-800 leading-relaxed">
+            {perspective.description}
+          </p>
+        </div>
+
+        {/* Core Sections */}
+        <div className="space-y-6">
+          {/* Why This Matters */}
+          <section>
+            <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+              Why This Matters
+            </h2>
+            <p className="text-gray-600 leading-relaxed text-sm">
+              Organizations need a structured way to address why change is necessary. Without this perspective, 
+              transformation efforts risk becoming ad-hoc, reactive, or misaligned with market forces. This creates 
+              confusion, wasted effort, and missed opportunities for meaningful transformation.
+            </p>
+          </section>
+
+          {/* What This Means at DQ */}
+          <section className="bg-blue-50/40 border-l-2 border-blue-300 rounded-r pl-5 py-3.5">
+            <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+              What This Means at DQ
+            </h2>
+            <p className="text-gray-700 leading-relaxed text-sm">
+              This perspective provides a shared lens for understanding why change is necessary and continuous. 
+              It informs how priorities are set, how trade-offs are evaluated, and how transformation decisions 
+              are grounded in long-term value rather than short-term fixes. By anchoring strategic thinking in 
+              this perspective, DQ avoids reactive change and operates with clarity, intent, and consistency 
+              across transformation initiatives.
+            </p>
+          </section>
+
+          {/* Core Question - Inline Editorial Callout */}
+          <section className="my-5">
+            <p className="text-lg text-gray-800 leading-relaxed italic border-l-2 border-gray-400 pl-4">
+              {perspective.question}
+            </p>
+          </section>
+
+          {/* Examples / Contextual Use - Max 2 */}
+          <section>
+            <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+              Examples
+            </h2>
+            <div className="space-y-2.5">
+              <div className="bg-gray-50 rounded-md p-3 border border-gray-200">
+                <p className="text-gray-700 leading-relaxed italic text-xs">
+                  "Organizations need a structured way to address why change is necessary. Without this perspective, 
+                  transformation efforts risk becoming ad-hoc, reactive, or misaligned with market forces."
+                </p>
+              </div>
+              <div className="bg-gray-50 rounded-md p-3 border border-gray-200">
+                <p className="text-gray-700 leading-relaxed italic text-xs">
+                  "The Digital Economy perspective helps leaders understand shifts in market logic, customer behavior, 
+                  and value creation that drive transformation in the digital age."
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Usage Insight */}
+          <section className="bg-amber-50/60 border-l-2 border-amber-300 rounded-r pl-4 py-3">
+            <div className="flex items-start gap-2.5">
+              <Sparkles className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+              <p className="text-amber-900 leading-relaxed text-xs">
+                This perspective exists because transformation without understanding market forces leads to misaligned 
+                investments. It ensures decisions are grounded in market reality, not internal assumptions.
+              </p>
+            </div>
+          </section>
+
+          {/* Related Terms - Inline Links/Chips */}
+          {relatedTerms.length > 0 && (
+            <section>
+              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                Related Terms
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {relatedTerms.map((term) => (
+                  <Link
+                    key={term.id}
+                    to={`/marketplace/guides/glossary/${term.id}`}
+                    className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-white text-gray-700 hover:bg-gray-50 hover:text-blue-700 transition-colors border border-gray-200 hover:border-blue-300"
+                  >
+                    {term.term}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* See Also */}
+          {relatedPerspectives.length > 0 && (
+            <section>
+              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                See Also
+              </h2>
+              <div className="flex flex-wrap gap-3">
+                {relatedPerspectives.map((related) => (
+                  <Link
+                    key={related.id}
+                    to={`/marketplace/guides/6xd-perspective/${related.id}`}
+                    className="text-blue-600 hover:text-blue-800 text-xs font-medium underline decoration-blue-300 hover:decoration-blue-500 transition-colors"
+                  >
+                    {related.name}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+
+        {/* Footer: Last Updated */}
+        <div className="mt-8 pt-4 border-t border-gray-200">
+          <p className="text-xs text-gray-500 text-right">
+            Last updated {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </p>
+        </div>
+      </main>
+      <Footer isLoggedIn={!!user} />
+    </div>
+  );
+}
 
 export function SixXDPerspectiveDetailPage() {
   const { perspectiveId } = useParams<{ perspectiveId: string }>();
@@ -120,6 +305,16 @@ export function SixXDPerspectiveDetailPage() {
 
   // Deeper thinking - Long-form narrative (in accordion)
   const deeperThinking = `The ${perspective.name} perspective is one of six essential lenses through which DQ views digital transformation. Each perspective answers a fundamental question that organizations must address on their path to becoming digitally transformed enterprises. ${perspective.name} specifically addresses: "${perspective.question}" This question guides how we think, plan, and execute transformation initiatives at DQ. By understanding and applying the ${perspective.name} perspective, teams can make more informed decisions, align their work with strategic objectives, and deliver transformation outcomes that create lasting value.`;
+
+  // Special layout for Digital Economy
+  if (perspectiveId === 'digital-economy') {
+    return <DigitalEconomyDetailPage 
+      perspective={perspective}
+      perspectiveFilter={perspectiveFilter}
+      relatedTerms={relatedTerms}
+      user={user}
+    />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
