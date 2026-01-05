@@ -179,7 +179,34 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getMarketplaceConfig(marketplaceType);
-  const [activeServiceTab, setActiveServiceTab] = useState<string>('technology');
+  
+  // Service Center tabs - sync with URL params
+  const getServiceTabFromParams = useCallback((params: URLSearchParams): string => {
+    const tab = params.get('tab');
+    const validTabs = ['technology', 'business', 'digital_worker', 'prompt_library', 'ai_tools'];
+    return tab && validTabs.includes(tab) ? tab : 'technology';
+  }, []);
+  const [activeServiceTab, setActiveServiceTab] = useState<string>(() => 
+    isServicesCenter 
+      ? getServiceTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams())
+      : 'technology'
+  );
+  
+  // Sync activeServiceTab with URL params
+  useEffect(() => {
+    if (isServicesCenter) {
+      const currentTab = searchParams.get('tab');
+      const validTabs = ['technology', 'business', 'digital_worker', 'prompt_library', 'ai_tools'];
+      if (currentTab && validTabs.includes(currentTab) && currentTab !== activeServiceTab) {
+        setActiveServiceTab(currentTab);
+      } else if (!currentTab || !validTabs.includes(currentTab)) {
+        // Set default tab in URL if not present
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('tab', activeServiceTab);
+        setSearchParams(newParams, { replace: true });
+      }
+    }
+  }, [isServicesCenter, searchParams, activeServiceTab, setSearchParams]);
 
   // Items & filters state
   const [_items, setItems] = useState<any[]>([]);
@@ -1185,10 +1212,9 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           // Filter by active tab (category)
           const tabCategoryMap: Record<string, string> = {
             'technology': 'Technology',
-            'business': 'Business',
+            'business': 'Employee Services',
             'digital_worker': 'Digital Worker',
             'prompt_library': 'Prompt Library',
-            'doc_writer': 'DOC Writer',
             'ai_tools': 'AI Tools'
           };
           
@@ -1340,6 +1366,20 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             }
           }
           
+          // Filter by toolCategory (AI Tools-specific)
+          const toolCategoryFilter = filters.toolCategory;
+          if (toolCategoryFilter) {
+            const toolCategories = Array.isArray(toolCategoryFilter) ? toolCategoryFilter : [toolCategoryFilter];
+            if (toolCategories.length > 0) {
+              filtered = filtered.filter(item => {
+                const itemToolCategory = item.toolCategory || '';
+                return toolCategories.some(filterCategory => 
+                  itemToolCategory.toLowerCase().replace(/[\s_]/g, '') === filterCategory.toLowerCase().replace(/[\s_]/g, '')
+                );
+              });
+            }
+          }
+          
           // Filter by deliveryMode
           const deliveryModeFilter = filters.deliveryMode;
           if (deliveryModeFilter) {
@@ -1461,10 +1501,9 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           // Filter by active tab (category)
           const tabCategoryMap: Record<string, string> = {
             'technology': 'Technology',
-            'business': 'Business',
+            'business': 'Employee Services',
             'digital_worker': 'Digital Worker',
             'prompt_library': 'Prompt Library',
-            'doc_writer': 'DOC Writer',
             'ai_tools': 'AI Tools'
           };
           
@@ -1597,12 +1636,30 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 </li>
               </>
             ) : (
-              <li aria-current="page">
-                <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2">{config.itemNamePlural}</span>
-                </div>
-              </li>
+              <>
+                <li>
+                  <div className="flex items-center">
+                    <ChevronRightIcon size={16} className="text-gray-400" />
+                    <Link to={config.route} className="ml-1 text-gray-500 hover:text-gray-700 md:ml-2">
+                      {config.itemNamePlural}
+                    </Link>
+                  </div>
+                </li>
+                {isServicesCenter && activeServiceTab && (
+                  <li aria-current="page">
+                    <div className="flex items-center">
+                      <ChevronRightIcon size={16} className="text-gray-400" />
+                      <span className="ml-1 text-gray-700 md:ml-2">
+                        {activeServiceTab === 'technology' && 'Technology'}
+                        {activeServiceTab === 'business' && 'Employee Services'}
+                        {activeServiceTab === 'digital_worker' && 'Digital Worker'}
+                        {activeServiceTab === 'prompt_library' && 'Prompt Library'}
+                        {activeServiceTab === 'ai_tools' && 'AI Tools'}
+                      </span>
+                    </div>
+                  </li>
+                )}
+              </>
             )}
           </ol>
         </nav>
@@ -1619,10 +1676,9 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Current focus</p>
                   <p className="text-lg font-semibold text-gray-900 mb-1">
                     {activeServiceTab === 'technology' && 'Technology'}
-                    {activeServiceTab === 'business' && 'Business'}
+                    {activeServiceTab === 'business' && 'Employee Services'}
                     {activeServiceTab === 'digital_worker' && 'Digital Worker'}
                     {activeServiceTab === 'prompt_library' && 'Prompt Library'}
-                    {activeServiceTab === 'doc_writer' && 'Doc Writer'}
                     {activeServiceTab === 'ai_tools' && 'AI Tools'}
                   </p>
                 </div>
@@ -1632,10 +1688,9 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               </div>
               <p className="text-gray-600 text-sm mb-1">
                 {activeServiceTab === 'technology' && 'Access technology-related services including IT support, software requests, system access, and technical assistance.'}
-                {activeServiceTab === 'business' && 'Explore business services such as HR support, finance services, administrative requests, and operational assistance.'}
+                {activeServiceTab === 'business' && 'Explore employee services including HR support, finance services, administrative requests, and operational assistance.'}
                 {activeServiceTab === 'digital_worker' && 'Discover digital worker services including automation solutions, AI agents requests, AI tools and usage guidelines'}
                 {activeServiceTab === 'prompt_library' && "A curated collection of your team's best and previously used prompts to speed up workflows and boost productivity."}
-                {activeServiceTab === 'doc_writer' && 'Ready-to-use company document templates for fast, consistent, and professional document creation.'}
                 {activeServiceTab === 'ai_tools' && 'A centralized hub showcasing all AI tools and solutions used across the company.'}
               </p>
               <p className="text-xs text-gray-500">
@@ -1643,7 +1698,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 {activeServiceTab === 'business' && 'Provided by DQ HR, Finance, and Administrative teams.'}
                 {activeServiceTab === 'digital_worker' && 'Handled by DQ Automation Teams.'}
                 {activeServiceTab === 'prompt_library' && 'Curated and maintained by DQ Digital Innovation Teams.'}
-                {activeServiceTab === 'doc_writer' && 'Managed by DQ Documentation and Compliance Teams.'}
                 {activeServiceTab === 'ai_tools' && 'Provided by DQ AI & Innovation Teams.'}
               </p>
             </div>
@@ -1656,17 +1710,22 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             <nav className="flex space-x-8" aria-label="Service tabs">
               {[
                 { id: 'technology', label: 'Technology' },
-                { id: 'business', label: 'Business' },
+                { id: 'business', label: 'Employee Services' },
                 { id: 'digital_worker', label: 'Digital Worker' },
                 { id: 'prompt_library', label: 'Prompt Library' },
-                { id: 'doc_writer', label: 'Doc Writer' },
                 { id: 'ai_tools', label: 'AI Tools' }
               ].map((tab) => {
                 const isActive = activeServiceTab === tab.id;
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveServiceTab(tab.id)}
+                    onClick={() => {
+                      setActiveServiceTab(tab.id);
+                      // Update URL with tab parameter
+                      const newParams = new URLSearchParams(searchParams);
+                      newParams.set('tab', tab.id);
+                      setSearchParams(newParams, { replace: false });
+                    }}
                     className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors ${
                       isActive
                         ? 'border-blue-700'

@@ -39,4 +39,3 @@ export function GlossaryTermDetailPage() {
 }
 
 export default GlossaryTermDetailPage
-

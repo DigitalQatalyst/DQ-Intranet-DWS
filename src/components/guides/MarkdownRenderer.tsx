@@ -136,6 +136,24 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
         rehypeStripListIcons as any
       ] as any}
       components={{
+        h2: ({ node, ...props }) => (
+          <h2 className="text-xl font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0 [&_*]:border-0" {...(props as any)}>
+            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+            {props.children}
+          </h2>
+        ),
+        h3: ({ node, ...props }) => (
+          <h3 className="text-lg font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0 [&_*]:border-0" {...(props as any)}>
+            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+            {props.children}
+          </h3>
+        ),
+        h4: ({ node, ...props }) => (
+          <h4 className="text-base font-bold text-gray-900 mt-4 mb-3 pl-4 relative border-0 border-l-0 [&_*]:border-0" {...(props as any)}>
+            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+            {props.children}
+          </h4>
+        ),
         img: ({ node, ...props }) => (
           // Constrain and lazy-load images for performance
           <img loading="lazy" decoding="async" style={{ maxWidth: '100%', height: 'auto' }} {...(props as any)} />

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, Filter } from 'lucide-react';
+import { DiscoverSectionTitle } from './DiscoverSectionTitle';
 import { DirectoryCard, DirectoryCardData } from '../Directory/DirectoryCard';
 import DirectoryAssociateModal, {
   DirectoryAssociateProfile,
@@ -121,7 +122,8 @@ const mapAssociateToProfile = (associate: Associate): DirectoryAssociateProfile 
 
 const CARD_BASE =
   'rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md hover:ring-1 hover:ring-slate-200 transition';
-const PAD = 'flex min-h-[360px] flex-col p-6';
+// Fixed height for all associate cards to keep grid visually consistent
+const PAD = 'flex h-[460px] flex-col p-6';
 const META_PANEL = 'rounded-xl bg-slate-50 p-4 mb-4';
 const CTA_NAVY =
   'w-full rounded-xl bg-[#131E42] text-white text-sm py-2.5 font-semibold hover:bg-[#0F1633] transition-colors';
@@ -167,7 +169,9 @@ const AssociateCard: React.FC<AssociateCardProps> = ({ associate, onOpen }) => {
 
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-base font-semibold text-slate-900">{name}</h3>
+              <h3 className="text-base font-semibold text-slate-900 clamp-2 leading-snug">
+                {name}
+              </h3>
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700">
                 {tag}
               </span>
@@ -247,7 +251,7 @@ const AssociateCard: React.FC<AssociateCardProps> = ({ associate, onOpen }) => {
 };
 
 const Discover_DirectorySection: React.FC<Discover_DirectorySectionProps> = ({
-  subtitle = 'Connect with DQ sectors, teams, and associates driving collaboration, delivery, and innovation across the Digital Workspace.',
+  subtitle = 'Explore DQ teams, capabilities, and factories delivering solutions, services, and innovation across the ecosystem.',
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -414,19 +418,15 @@ const Discover_DirectorySection: React.FC<Discover_DirectorySectionProps> = ({
     <section
       id="dq-directory"
       className="py-16 md:py-20 pb-20"
-      style={{ backgroundColor: '#F9FAFB' }}
+      style={{ backgroundColor: '#FFFFFF' }}
       aria-labelledby="directory-heading"
     >
       <div className="max-w-[1240px] mx-auto px-4 md:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-8 md:mb-10">
-          <h1
-            id="directory-heading"
-            className="font-serif text-[32px] md:text-[40px] font-bold tracking-[0.04em] leading-tight text-[#030F35] mb-3"
-            style={{ fontFamily: '"Playfair Display", Georgia, "Times New Roman", serif' }}
-          >
+          <DiscoverSectionTitle as="h1" id="directory-heading">
             {viewMode === 'units' ? 'DQ Directory' : 'DQ Directory'}
-          </h1>
+          </DiscoverSectionTitle>
           <p
             className="text-sm md:text-base max-w-[720px] mx-auto leading-relaxed"
             style={{ color: '#334266', opacity: 0.85 }}
