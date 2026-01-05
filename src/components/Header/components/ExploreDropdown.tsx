@@ -162,9 +162,8 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         ref={buttonRef}
-        className={`flex items-center text-white hover:text-dq-coral transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 rounded-md px-2 py-1 ${
-          isCompact ? 'text-sm' : ''
-        }`}
+        className={`flex items-center text-white hover:text-dq-coral transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 rounded-md px-2 py-1 ${isCompact ? 'text-sm' : ''
+          }`}
         onClick={() => setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         aria-expanded={isOpen}
@@ -199,11 +198,9 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
                   key={marketplace.id}
                   ref={(el) => (itemRefs.current[index] = el)}
                   href={marketplace.href}
-                  className={`flex items-start px-4 py-3 text-left hover:bg-dq-coral/10 focus:bg-dq-coral/10 focus:outline-none transition-colors duration-150 ${
-                    focusedIndex === index ? 'bg-dq-coral/10' : ''
-                  } ${isActive ? 'border-l-4 border-dq-coral bg-dq-coral/5' : ''} ${
-                    isComingSoon ? 'cursor-not-allowed opacity-60' : ''
-                  }`}
+                  className={`flex items-start px-4 py-3 text-left hover:bg-dq-coral/10 focus:bg-dq-coral/10 focus:outline-none transition-colors duration-150 ${focusedIndex === index ? 'bg-dq-coral/10' : ''
+                    } ${isActive ? 'border-l-4 border-dq-coral bg-dq-coral/5' : ''} ${isComingSoon ? 'cursor-not-allowed opacity-60' : ''
+                    }`}
                   role="menuitem"
                   tabIndex={-1}
                   aria-current={isActive ? 'page' : undefined}
