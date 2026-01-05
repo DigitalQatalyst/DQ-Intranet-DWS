@@ -28,6 +28,7 @@ export function AuthProvider({
   children: ReactNode;
 }>) {
   const { instance, accounts } = useMsal();
+  console.log('MSAL instance and accounts', instance, accounts)
   const isAuthenticated = useIsAuthenticated();
   const [isLoading, setIsLoading] = useState(true);
   const [emailOverride, setEmailOverride] = useState<string | undefined>(undefined);
