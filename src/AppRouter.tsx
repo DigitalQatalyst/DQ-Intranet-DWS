@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider } from "./components/Header";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { MarketplaceRouter } from "./pages/marketplace/MarketplaceRouter";
 import { App } from './App';
 import Communities from "./communities/pages/Communities";

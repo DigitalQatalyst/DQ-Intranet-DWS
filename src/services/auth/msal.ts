@@ -52,7 +52,7 @@ if (CUSTOM_DOMAIN && TENANT_ID) {
 } else if (env.VITE_AZURE_AUTHORITY || env.NEXT_PUBLIC_AZURE_AUTHORITY) {
   // Allow explicit authority override from env (must be tenant-specific)
   computedAuthority = env.VITE_AZURE_AUTHORITY || env.NEXT_PUBLIC_AZURE_AUTHORITY || '';
-  
+
   // CRITICAL: Reject /common endpoint for single-tenant applications
   if (computedAuthority.includes('/common')) {
     throw new Error(

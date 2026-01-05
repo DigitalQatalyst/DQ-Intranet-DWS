@@ -76,6 +76,18 @@ if (container) {
           // Try to initialize MSAL - it will throw if already initialized
           initPromise = msalInstance.initialize();
         } catch (initError: any) {
+          console.error("MSAL initialization error:", initError);
+
+          // Check for cache corruption errors during initialization
+          if (initError?.message?.includes('AccountEntity') ||
+            initError?.name === 'CacheError' ||
+            initError?.errorCode === 'cache_error' ||
+            initError?.message?.includes('getAccountInfo')) {
+            console.log("Detected MSAL cache corruption during init");
+            // Instead of auto-reloading loop, throw to catch block to show error UI
+            throw initError;
+          }
+
           // If initialization fails because it's already initialized, that's okay
           if (initError?.message?.includes("already been initialized") ||
             initError?.message?.includes("already initialized") ||
@@ -98,7 +110,37 @@ if (container) {
 
         // Wait for initialization, then handle redirect promise
         await initPromise;
-        const result = await msalInstance.handleRedirectPromise();
+        let result = null;
+        try {
+          result = await msalInstance.handleRedirectPromise();
+        } catch (error: any) {
+          console.error("Error handling redirect promise:", error);
+          // Check for cache corruption errors
+          if (error?.message?.includes('AccountEntity') ||
+            error?.name === 'CacheError' ||
+            error?.errorCode === 'cache_error' ||
+            error?.message?.includes('getAccountInfo')) {
+            console.log("Detected MSAL cache corruption");
+
+            // Clear all storage
+            try {
+              localStorage.clear();
+              sessionStorage.clear();
+              // Clear cookies
+              document.cookie.split(";").forEach((c) => {
+                document.cookie = c
+                  .replace(/^ +/, "")
+                  .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+              });
+            } catch (e) {
+              console.warn("Failed to clear some storage:", e);
+            }
+
+            // Instead of auto-reloading loop, throw to catch block to show error UI
+            throw error;
+          }
+          throw error; // Re-throw other errors to be handled by the outer catch
+        }
 
         // Clear redirect guard on successful authentication
         if (result?.account) {
@@ -175,11 +217,34 @@ if (container) {
             // Increment redirect attempt counter
             sessionStorage.setItem(REDIRECT_GUARD_KEY, String(redirectAttempts + 1));
 
+            // Check if there's already an interaction in progress
+            const interactionStatus = sessionStorage.getItem('msal.interaction.status');
+            if (interactionStatus) {
+              console.log("Interaction already in progress, waiting...");
+              // Clear stale interaction status if it's been there too long
+              sessionStorage.removeItem('msal.interaction.status');
+            }
+
             // Trigger login redirect - no app content rendered
             msalInstance.loginRedirect({
               ...defaultLoginRequest
-            }).catch((error) => {
+            }).catch((error: any) => {
               console.error("Login redirect failed:", error);
+              // If it's an interaction_in_progress error, clear the interaction status and retry
+              if (error?.errorCode === 'interaction_in_progress') {
+                console.log("Clearing stale interaction status...");
+                // Clear all MSAL interaction-related storage
+                Object.keys(sessionStorage).forEach(key => {
+                  if (key.includes('msal') && (key.includes('interaction') || key.includes('request'))) {
+                    sessionStorage.removeItem(key);
+                  }
+                });
+                // Retry after a short delay
+                setTimeout(() => {
+                  window.location.reload();
+                }, 500);
+                return;
+              }
               sessionStorage.removeItem(REDIRECT_GUARD_KEY);
               // Show minimal error message if redirect fails
               root.render(

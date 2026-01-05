@@ -186,7 +186,7 @@ const transformEventDetail = (event: any): any => {
     organizerName: event.organizer_name || null,
     organizerId: event.organizer_id || null,
     startTime: event.start_time,
-    endTime: event.end_time,
+    rawEndTime: event.end_time,
     duration: durationStr,
     status: event.status || "published",
     isFeatured: event.is_featured || false,
