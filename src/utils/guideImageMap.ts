@@ -32,12 +32,11 @@ const GHC_IMAGE = '/images/honeycomb.png'
 // HoV (House of Values) main image
 const HOV_IMAGE = '/images/house-of-values.png'
 
+// Guidelines image
+const GUIDELINES_IMAGE = '/images/guidelines.PNG'
+
 // Specific guide images - Creative mappings for key guides
 const specificGuideImages: Record<string, string> = {
-  // DQ Products - Innovation, digital products, portfolio
-  'dq-products': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3', // Modern product showcase, innovation
-  'products': 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3',
-  
   // DQ Vision and Mission - Inspiring vision, global perspective, purpose
   'dq-vision-and-mission': 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3', // Earth from space, global vision
   'dq-vision-mission': 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3',
@@ -179,16 +178,34 @@ function isGHCGuide(g: GuideLike): boolean {
 }
 
 export function getGuideImageUrl(g: GuideLike): string {
-  // Prioritize heroImageUrl - check if it's a valid URL
+  const slug = (g.slug || '').toLowerCase()
+  const title = (g.title || '').toLowerCase()
+  
+  // Determine guide categories first
+  const isBlueprint = (g.domain || '').toLowerCase().includes('blueprint') || 
+                      (g.guideType || '').toLowerCase().includes('blueprint')
+  const isStrategy = (g.domain || '').toLowerCase().includes('strategy') || 
+                     (g.guideType || '').toLowerCase().includes('strategy')
+  const isTestimonial = (g.domain || '').toLowerCase().includes('testimonial') ||
+                        (g.guideType || '').toLowerCase().includes('testimonial')
+  
+  // Check if this is a guidelines guide - only apply guidelines image if domain is explicitly "Guidelines"
+  // This ensures the image only appears in the guidelines tab, not products/blueprints tab
+  const isGuidelinesDomain = (g.domain || '').toLowerCase().trim() === 'guidelines' ||
+                             (g.domain || '').toLowerCase().trim() === 'guideline'
+  
+  // Only apply guidelines image if domain is explicitly Guidelines (not for products/blueprints)
+  if (isGuidelinesDomain && !isHOVGuide(g) && !isGHCGuide(g) && !isBlueprint && !isStrategy && !isTestimonial) {
+    return GUIDELINES_IMAGE
+  }
+  
+  // For non-guidelines guides, prioritize heroImageUrl if it's a valid URL
   const src = (g.heroImageUrl || '').trim()
   if (src && src.startsWith('http')) {
     return src
   }
   
-  const slug = (g.slug || '').toLowerCase()
-  const title = (g.title || '').toLowerCase()
-  
-  // Check for specific guide images first (DQ Products, DQ Vision and Mission, etc.)
+  // Check for specific guide images (DQ Vision and Mission, etc.)
   for (const [guideSlug, imageUrl] of Object.entries(specificGuideImages)) {
     if (slug === guideSlug || slug.includes(guideSlug) || title.includes(guideSlug)) {
       return imageUrl
@@ -219,9 +236,6 @@ export function getGuideImageUrl(g: GuideLike): string {
   }
   
   // Check if this is a blueprint/product
-  const isBlueprint = (g.domain || '').toLowerCase().includes('blueprint') || 
-                      (g.guideType || '').toLowerCase().includes('blueprint')
-  
   if (isBlueprint) {
     // Check for product-specific metadata and use its image
     const productMeta = getProductMetadata(g.title)
@@ -233,8 +247,6 @@ export function getGuideImageUrl(g: GuideLike): string {
   }
 
   // Check if this is a strategy guide - use dark abstract images
-  const isStrategy = (g.domain || '').toLowerCase().includes('strategy') || 
-                     (g.guideType || '').toLowerCase().includes('strategy')
   if (isStrategy && strategyFallbacks.length) {
     const key = (g.slug || g.id || g.title || '').trim()
     const idx = key ? stringHash(key) % strategyFallbacks.length : 0

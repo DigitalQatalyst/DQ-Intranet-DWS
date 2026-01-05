@@ -12,7 +12,7 @@ export function HeroSection({ title = 'DQ Work From Home (WFH) Guidelines', date
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1920)',
+          backgroundImage: 'url(/images/guidelines.PNG)',
         }}
       >
         <div className="absolute inset-0 bg-[#030E31] bg-opacity-80"></div>

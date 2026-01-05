@@ -414,8 +414,3 @@ textarea:-webkit-autofill {
   background-color: #f9fafb;
   font-weight: 600;
 }
-
-/* DQ Products page background */
-.dq-products-bg {
-  background-color: #F8FAFC !important;
-}

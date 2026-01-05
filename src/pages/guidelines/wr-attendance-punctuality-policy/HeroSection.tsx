@@ -13,7 +13,7 @@ export function HeroSection({ title = 'DQ Working Room Attendance & Punctuality 
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1920)',
+          backgroundImage: 'url(/images/guidelines.PNG)',
         }}
       >
         <div className="absolute inset-0 bg-[#030E31] bg-opacity-80"></div>

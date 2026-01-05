@@ -91,9 +91,8 @@ const GUIDELINES_LOCATIONS: Facet[] = [
 ]
 
 const GUIDELINES_CATEGORIES: Facet[] = [
-  { id: 'resources', name: 'Resources' },
-  { id: 'policies', name: 'Policies' },
-  { id: 'xds', name: 'xDS (Design Systems)' }
+  { id: 'resources', name: 'Guidelines' },
+  { id: 'policies', name: 'Policies' }
 ]
 
 const BLUEPRINT_GUIDE_TYPES: Facet[] = [

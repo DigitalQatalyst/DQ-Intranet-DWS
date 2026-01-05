@@ -12,7 +12,7 @@ export function HeroSection({ title = 'DQ Asset Maintenance, Repair and Disposal
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1920)',
+          backgroundImage: 'url(/images/guidelines.PNG)',
         }}
       >
         <div className="absolute inset-0 bg-[#030E31] bg-opacity-80"></div>

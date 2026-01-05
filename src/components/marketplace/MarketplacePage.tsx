@@ -133,7 +133,7 @@ export interface MarketplacePageProps {
 
 const SUBDOMAIN_BY_DOMAIN: Record<string, string[]> = {
   strategy: ['journey', 'history', 'digital-framework', 'initiatives', 'clients'],
-  guidelines: ['resources', 'policies', 'design-systems'],
+  guidelines: ['resources', 'policies'],
   blueprints: ['devops', 'dbp', 'dxp', 'dws', 'products', 'projects'],
 };
 
@@ -683,7 +683,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         setLoading(true);
         try {
           // Exclude removed guidelines from frontend
-          const excludedSlugs = ['atp-guidelines', 'agile-working-guidelines', 'client-session-guidelines', 'dbp-support-guidelines'];
+          const excludedSlugs = ['atp-guidelines', 'agile-working-guidelines', 'client-session-guidelines', 'dbp-support-guidelines', 'dq-products'];
           
           let q = supabaseClient.from('guides').select(GUIDE_LIST_SELECT, { count: 'exact' });
           excludedSlugs.forEach(slug => {
@@ -766,7 +766,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           if (effectiveGuideTypes.length && !isGuidelinesTab) q = q.in('guide_type', effectiveGuideTypes);
           // Note: Unit filtering is done client-side after fetching to handle normalization
           // (filter IDs are slugified like 'deals', but DB may have 'Deals' or 'DQ Delivery (Accounts)')
-          if (locations.length) q = q.in('location', locations);
+          // Location filtering removed - all guides should be available for all locations (DXB, KSA, NBO)
 
           const sort = queryParams.get('sort') || 'editorsPick';
           if (sort === 'updated')       q = q.order('last_updated_at', { ascending: false, nullsFirst: false });
@@ -855,6 +855,9 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           });
 
           let out = mapped;
+          
+          // Exclude removed guides (client-side filter as backup)
+          out = out.filter(it => !excludedSlugs.includes(it.slug));
           
           // Apply tab filtering FIRST to get only guides for the current tab
           // This ensures unit filtering only applies to the correct tab's guides
@@ -984,12 +987,43 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           if (isStrategyTab && strategyTypes.length) {
             out = out.filter(it => {
               const subDomain = (it.subDomain || '').toLowerCase();
+              const slug = (it.slug || '').toLowerCase();
+              const title = (it.title || '').toLowerCase();
+              const summary = (it.summary || '').toLowerCase();
+              const allText = `${subDomain} ${slug} ${title} ${summary}`.toLowerCase();
+              
               return strategyTypes.some(selectedType => {
                 const normalizedSelected = slugify(selectedType);
                 const normalizedSubDomain = slugify(subDomain);
-                return normalizedSubDomain === normalizedSelected || 
-                       subDomain.includes(selectedType.toLowerCase()) ||
-                       selectedType.toLowerCase().includes(subDomain);
+                
+                // Direct sub_domain match
+                if (normalizedSubDomain === normalizedSelected || 
+                    subDomain.includes(selectedType.toLowerCase()) ||
+                    selectedType.toLowerCase().includes(subDomain)) {
+                  return true;
+                }
+                
+                // For "journey" type: match vision/mission guides
+                if (selectedType.toLowerCase() === 'journey') {
+                  const journeyKeywords = ['vision', 'mission', 'dq-vision', 'dq-mission', 'vision-and-mission', 'vision-mission'];
+                  return journeyKeywords.some(keyword => 
+                    slug.includes(keyword) || 
+                    title.includes(keyword) ||
+                    allText.includes(keyword)
+                  );
+                }
+                
+                // For "history" type: match history/origin guides
+                if (selectedType.toLowerCase() === 'history') {
+                  const historyKeywords = ['history', 'origin', 'began', 'founding', 'started', 'beginning', 'evolution', 'story'];
+                  return historyKeywords.some(keyword => 
+                    slug.includes(keyword) || 
+                    title.includes(keyword) ||
+                    allText.includes(keyword)
+                  );
+                }
+                
+                return false;
               });
             });
           }
@@ -1091,7 +1125,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               });
             }
           }
-          if (locations.length)  out = out.filter(it => it.location && locations.includes(it.location));
+          // Location filtering removed - all guides should be available for all locations (DXB, KSA, NBO)
           if (statuses.length)   out = out.filter(it => it.status && statuses.includes(it.status));
 
           if (sort === 'updated')       out.sort((a,b) => new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());

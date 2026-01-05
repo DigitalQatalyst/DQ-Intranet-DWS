@@ -27,7 +27,6 @@ const QForumGuidelinePage = React.lazy(() => import('../guidelines/qforum-guidel
 const DQCompetenciesPage = React.lazy(() => import('../strategy/dq-competencies/GuidelinePage'))
 const DQVisionMissionPage = React.lazy(() => import('../strategy/dq-vision-mission/GuidelinePage'))
 const DQGHCPage = React.lazy(() => import('../strategy/dq-ghc/GuidelinePage'))
-const DQProductsPage = React.lazy(() => import('../strategy/dq-products/GuidelinePage'))
 const DQVisionPage = React.lazy(() => import('../strategy/dq-vision/GuidelinePage'))
 const DQHoVPage = React.lazy(() => import('../strategy/dq-hov/GuidelinePage'))
 const DQPersonaPage = React.lazy(() => import('../strategy/dq-persona/GuidelinePage'))
@@ -158,11 +157,6 @@ const GuideDetailPage: React.FC = () => {
     const title = (guide?.title || '').toLowerCase()
     return slug === 'dq-ghc' || slug === 'ghc' || slug === 'golden-honeycomb' || title.includes('ghc') || title.includes('golden honeycomb') || (title.includes('foundation') && title.includes('dna'))
   }, [guide?.slug, guide?.title])
-  const isDQProducts = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-products' || slug === 'dq-products' || title.toLowerCase().includes('dq products') || (title.toLowerCase().includes('products') && !title.toLowerCase().includes('6xd'))
-  }, [guide?.slug, guide?.title])
   const isDQVision = useMemo(() => {
     const slug = (guide?.slug || '').toLowerCase()
     return slug === 'dq-vision' || slug === 'dq-vision-purpose'
@@ -283,8 +277,8 @@ const GuideDetailPage: React.FC = () => {
   
   // Check if this guide should use a custom GuidelinePage
   const hasCustomGuidelinePage = useMemo(() => {
-    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isWFHGuidelines || isAssetMaintenanceGuidelines || isDressCodeGuidelines || isDealsBDGuidelines || isATPStopScansGuidelines || isAVRAwardsGuidelines || isAzureDevOpsTaskGuidelines || isBiometricSystemGuidelines || isWRAttendancePunctualityPolicy || isAssociateOwnedAssetGuidelines || isDQCompetencies || isDQVisionMission || isDQGHC || isDQProducts || isDQVision || isDQHoV || isDQPersona || isDQAgileTMS || isDQAgileSoS || isDQAgileFlows || isDQAgile6xD || isEmotionalIntelligence || isGrowthMindset || isPurpose || isPerceptive || isProactive || isPerseverance || isPrecision || isCustomer || isLearning || isCollaboration || isResponsibility || isTrust
-  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isWFHGuidelines, isAssetMaintenanceGuidelines, isDressCodeGuidelines, isDealsBDGuidelines, isATPStopScansGuidelines, isAVRAwardsGuidelines, isAzureDevOpsTaskGuidelines, isBiometricSystemGuidelines, isWRAttendancePunctualityPolicy, isAssociateOwnedAssetGuidelines, isDQCompetencies, isDQVisionMission, isDQGHC, isDQProducts, isDQVision, isDQHoV, isDQPersona, isDQAgileTMS, isDQAgileSoS, isDQAgileFlows, isDQAgile6xD, isEmotionalIntelligence, isGrowthMindset, isPurpose, isPerceptive, isProactive, isPerseverance, isPrecision, isCustomer, isLearning, isCollaboration, isResponsibility, isTrust])
+    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isWFHGuidelines || isAssetMaintenanceGuidelines || isDressCodeGuidelines || isDealsBDGuidelines || isATPStopScansGuidelines || isAVRAwardsGuidelines || isAzureDevOpsTaskGuidelines || isBiometricSystemGuidelines || isWRAttendancePunctualityPolicy || isAssociateOwnedAssetGuidelines || isDQCompetencies || isDQVisionMission || isDQGHC || isDQVision || isDQHoV || isDQPersona || isDQAgileTMS || isDQAgileSoS || isDQAgileFlows || isDQAgile6xD || isEmotionalIntelligence || isGrowthMindset || isPurpose || isPerceptive || isProactive || isPerseverance || isPrecision || isCustomer || isLearning || isCollaboration || isResponsibility || isTrust
+  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isWFHGuidelines, isAssetMaintenanceGuidelines, isDressCodeGuidelines, isDealsBDGuidelines, isATPStopScansGuidelines, isAVRAwardsGuidelines, isAzureDevOpsTaskGuidelines, isBiometricSystemGuidelines, isWRAttendancePunctualityPolicy, isAssociateOwnedAssetGuidelines, isDQCompetencies, isDQVisionMission, isDQGHC, isDQVision, isDQHoV, isDQPersona, isDQAgileTMS, isDQAgileSoS, isDQAgileFlows, isDQAgile6xD, isEmotionalIntelligence, isGrowthMindset, isPurpose, isPerceptive, isProactive, isPerseverance, isPrecision, isCustomer, isLearning, isCollaboration, isResponsibility, isTrust])
   const featuredClientTestimonials = [
     {
       id: 'khalifa',
@@ -1156,10 +1150,6 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
       return <SuspenseWrapper><DQCompetenciesPage /></SuspenseWrapper>
     }
 
-    if (isDQProducts) {
-      return <SuspenseWrapper><DQProductsPage /></SuspenseWrapper>
-    }
-
     if (isDQVisionMission) {
       return <SuspenseWrapper><DQVisionMissionPage /></SuspenseWrapper>
     }
@@ -1259,7 +1249,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   // OLD Blueprint rendering - now replaced by BlueprintPage component above
   if (false && actualIsBlueprintDomain) {
     return (
-      <div className="min-h-screen flex flex-col guidelines-theme dq-products-bg" style={{ minHeight: '100vh' }}>
+      <div className="min-h-screen flex flex-col guidelines-theme" style={{ minHeight: '100vh' }}>
         <Header toggleSidebar={() => {}} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl" role="main" style={{ backgroundColor: 'transparent' }}>
           <nav className="flex mb-6" aria-label="Breadcrumb">
@@ -1449,7 +1439,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   // Skip blueprint domain as it has its own special layout
   if (!actualIsBlueprintDomain) {
     return (
-      <div className="min-h-screen flex flex-col guidelines-theme dq-products-bg" style={{ minHeight: '100vh' }}>
+      <div className="min-h-screen flex flex-col guidelines-theme" style={{ minHeight: '100vh' }}>
         <Header toggleSidebar={() => {}} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl" role="main" style={{ backgroundColor: 'transparent' }}>
           <nav className="flex mb-6" aria-label="Breadcrumb">
