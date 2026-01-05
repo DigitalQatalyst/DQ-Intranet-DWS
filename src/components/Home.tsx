@@ -340,8 +340,8 @@ export const HomePage: React.FC = () => {
       },
       {
         id: 'blueprints-library',
-        title: 'Blueprints',
-        description: 'Apply delivery blueprints for 6xD design, DevOps, DBP, DXP, and DWS execution.',
+        title: 'Products',
+        description: 'Explore DQ products, solutions, and digital offerings across platforms and services.',
         icon: <Compass />,
         path: '/marketplace/guides?tab=blueprints',
         isActive: true

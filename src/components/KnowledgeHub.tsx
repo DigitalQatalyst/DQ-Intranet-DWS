@@ -19,6 +19,7 @@ import { FadeInUpOnScroll, StaggeredFadeIn, useInView } from "./AnimationUtils";
 import { EventCard, NewsCard, ResourceCard } from "./CardComponents";
 import { fetchAllNews } from '@/services/mediaCenterService';
 import type { NewsItem as MediaCenterNewsItem } from '@/data/media/news';
+import { supabaseClient } from '@/lib/supabaseClient';
 
 interface NewsItem {
   id: string;
@@ -347,6 +348,7 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<{ message: string } | null>(null);
   const [mediaCenterNews, setMediaCenterNews] = useState<MediaCenterNewsItem[]>([]);
+  const [guides, setGuides] = useState<Guide[]>([]);
 
   const tabs: TabItem[] = [
     {
@@ -413,6 +415,88 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
     loadMediaCenterNews();
   }, [activeTab]);
 
+  // Fetch guides from DQ Knowledge Center Guidelines tab for Resources tab
+  useEffect(() => {
+    async function loadGuides() {
+      if (activeTab !== "resources") return;
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        // Use exact same logic as Guidelines tab in MarketplacePage
+        // Exclude removed guidelines from frontend
+        const excludedSlugs = ['atp-guidelines', 'agile-working-guidelines', 'client-session-guidelines', 'dbp-support-guidelines'];
+        
+        let q = supabaseClient
+          .from('guides')
+          .select('id, slug, title, summary, hero_image_url, last_updated_at, download_count, guide_type, domain, function_area, status, is_editors_pick, sub_domain')
+          .eq('status', 'Approved');
+        
+        // Exclude removed guidelines
+        excludedSlugs.forEach(slug => {
+          q = q.neq('slug', slug);
+        });
+        
+        // Order by editors pick, then download count, then last updated (same as Guidelines tab)
+        q = q
+          .order('is_editors_pick', { ascending: false })
+          .order('download_count', { ascending: false, nullsFirst: false })
+          .order('last_updated_at', { ascending: false, nullsFirst: false })
+          .limit(100); // Fetch enough to filter, then limit to 6
+        
+        const { data, error: supabaseError } = await q;
+        
+        if (supabaseError) {
+          throw supabaseError;
+        }
+        
+        // Filter for guidelines: exclude Strategy, Blueprint, and Testimonial (exact same logic as Guidelines tab)
+        const guidelinesGuides = (data || []).filter((guide: any) => {
+          const domain = (guide.domain || '').toLowerCase().trim();
+          const guideType = (guide.guide_type || '').toLowerCase().trim();
+          
+          // Exclude if domain or guide_type contains strategy, blueprint, or testimonial
+          // This is CRITICAL to prevent Strategy guides from showing in Guidelines tab
+          const hasStrategy = domain.includes('strategy') || guideType.includes('strategy');
+          const hasBlueprint = domain.includes('blueprint') || guideType.includes('blueprint');
+          const hasTestimonial = domain.includes('testimonial') || guideType.includes('testimonial');
+          
+          // Only include if it doesn't have any of these - be very strict
+          if (hasStrategy || hasBlueprint || hasTestimonial) {
+            return false; // Explicitly exclude
+          }
+          return true; // Include only if it's definitely not Strategy/Blueprint/Testimonial
+        }).slice(0, 6); // Limit to 6 after filtering
+        
+        // Map Supabase response to guide format
+        const mappedGuides = guidelinesGuides.map((guide: any) => ({
+          id: guide.id,
+          slug: guide.slug,
+          title: guide.title,
+          summary: guide.summary,
+          heroImageUrl: guide.hero_image_url,
+          lastUpdatedAt: guide.last_updated_at,
+          downloadCount: guide.download_count,
+          guideType: guide.guide_type,
+          domain: guide.domain,
+          functionArea: guide.function_area,
+          status: guide.status,
+        }));
+        
+        setGuides(mappedGuides);
+      } catch (err) {
+        console.error('Error loading guides:', err);
+        // Don't show error, just use fallback mock data
+        setGuides([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadGuides();
+  }, [activeTab]);
+
   // Get data based on active tab - updated to use Media Center news
   const getNewsData = () => {
     // If we have Media Center news, use it; otherwise fallback to mock data
@@ -431,7 +515,49 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
     return newsItems;
   };
   const getEventsData = () => events;
-  const getResourcesData = () => resources;
+  
+  // Map guides to Resource format
+  const getResourcesData = (): Resource[] => {
+    // If we have guides from Supabase, use them; otherwise fallback to mock data
+    if (guides.length > 0) {
+      return guides.map((guide: any) => {
+        // Determine resource type based on guide properties
+        let resourceType = 'Guide';
+        if (guide.guideType) {
+          const typeLower = guide.guideType.toLowerCase();
+          if (typeLower.includes('template')) resourceType = 'Template';
+          else if (typeLower.includes('tool')) resourceType = 'Tool';
+          else if (typeLower.includes('guide')) resourceType = 'Guide';
+        }
+
+        // Format last updated date
+        const lastUpdated = guide.lastUpdatedAt 
+          ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+          : 'Recently';
+
+        // Create tags from domain and guideType
+        const tags: string[] = [];
+        if (guide.domain) tags.push(guide.domain);
+        if (guide.guideType && guide.guideType !== guide.domain) tags.push(guide.guideType);
+
+        return {
+          id: guide.id || guide.slug || '',
+          title: guide.title,
+          type: resourceType,
+          description: guide.summary || guide.title,
+          icon: <BookOpen size={24} className="text-blue-600" />,
+          downloadUrl: guide.slug ? `/marketplace/guides/${guide.slug}` : (guide.id ? `/marketplace/guides/${guide.id}` : undefined),
+          fileSize: undefined,
+          downloadCount: guide.downloadCount || 0,
+          lastUpdated: lastUpdated,
+          isExternal: false,
+          tags: tags.length > 0 ? tags : ['Guide'],
+        };
+      });
+    }
+    // Fallback to mock data
+    return resources;
+  };
 
   // Helper function to get the appropriate icon for a resource type
   const getResourceIconByType = (type) => {
@@ -500,8 +626,13 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
         window.open(resource.downloadUrl, "_blank");
       }
     } else {
-      // For internal resources, navigate to detail page
-      navigate(`/resources/${resource.id}`);
+      // For guides, navigate to guide detail page
+      if (resource.downloadUrl && resource.downloadUrl.startsWith('/marketplace/guides/')) {
+        navigate(resource.downloadUrl);
+      } else {
+        // Fallback for other internal resources
+        navigate(`/resources/${resource.id}`);
+      }
     }
   };
 
@@ -613,7 +744,14 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
                       lastUpdated: resource.lastUpdated,
                       isExternal: resource.isExternal,
                     }}
-                    onQuickView={() => navigate(`/resources/${resource.id}`)}
+                    onQuickView={() => {
+                      // For guides, navigate to guide detail page
+                      if (resource.downloadUrl && resource.downloadUrl.startsWith('/marketplace/guides/')) {
+                        navigate(resource.downloadUrl);
+                      } else {
+                        navigate(`/resources/${resource.id}`);
+                      }
+                    }}
                     onAccessResource={() => handleResourceAccess(resource)}
                     onDownload={() => handleResourceDownload(resource)}
                   />
