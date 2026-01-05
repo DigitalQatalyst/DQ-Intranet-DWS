@@ -7,7 +7,7 @@ import { Skeleton } from '@/communities/components/ui/skeleton';
 import { AlertCircle, MessageSquare } from 'lucide-react';
 import { Button } from '@/communities/components/ui/button';
 import { HiddenContentPlaceholder } from '@/communities/components/moderation/HiddenContentPlaceholder';
-import { usePermissions } from '@/communities/hooks/usePermissions';
+import { useCommunityPermissions } from '@/communities/hooks/useCommunityPermissions';
 interface Comment {
   id: string;
   content: string;
@@ -29,7 +29,7 @@ export function CommentList({
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const permissions = usePermissions(communityId);
+  const permissions = useCommunityPermissions(communityId);
   useEffect(() => {
     fetchComments();
   }, [postId, refreshKey]);

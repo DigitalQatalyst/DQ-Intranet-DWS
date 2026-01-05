@@ -14,7 +14,7 @@ import { ModerationBadge } from '@/communities/components/moderation/ModerationB
 import { InlineModeratorControls } from '@/communities/components/moderation/InlineModeratorControls';
 import { ReportModal } from '@/communities/components/moderation/ReportModal';
 import { HiddenContentPlaceholder } from '@/communities/components/moderation/HiddenContentPlaceholder';
-import { usePermissions } from '@/communities/hooks/usePermissions';
+import { useCommunityPermissions } from '@/communities/hooks/useCommunityPermissions';
 import { useAuth } from '@/communities/contexts/AuthProvider';
 interface PostCardBaseProps {
   post: BasePost;
@@ -43,7 +43,7 @@ export const PostCardBase: React.FC<PostCardBaseProps> = ({
     user
   } = useAuth();
   const [showReportModal, setShowReportModal] = useState(false);
-  const permissions = usePermissions(post.community_id);
+  const permissions = useCommunityPermissions(post.community_id);
   const canModeratePosts = permissions.canModeratePosts;
   return <Card className={`shadow-sm hover:shadow-md transition-all duration-200 bg-white rounded-2xl overflow-hidden group ${highlightBorder ? 'border-2 border-amber-300' : 'border border-gray-100'}`}>
       <CardHeader className="p-4 pb-3 bg-white">

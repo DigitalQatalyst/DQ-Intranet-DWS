@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { safeFetch } from '@/communities/utils/safeFetch';
 import { Badge } from '@/communities/components/ui/badge';
 import { BurgerMenuButton } from '@/communities/components/AppSidebar';
+import { useCommunityPermissions } from '@/communities/hooks/useCommunityPermissions';
 interface HeaderProps {
   toggleSidebar?: () => void;
   sidebarOpen?: boolean;
@@ -28,6 +29,7 @@ export function Header({
   const location = useLocation();
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const { canModeratePosts, canViewReports } = useCommunityPermissions();
   const [unreadCount, setUnreadCount] = useState(0);
   useEffect(() => {
     if (user) {
@@ -105,7 +107,7 @@ export function Header({
                   Messages
                 </Button>
               </Link>}
-            {user && (user.role === 'admin' || user.role === 'moderator') && <>
+            {user && (canModeratePosts || canViewReports) && <>
                 <Link to="/moderation">
                   <Button variant="ghost" className={isActive('/moderation') ? 'bg-secondary' : ''}>
                     <Shield className="h-4 w-4 mr-2" />

@@ -15,6 +15,8 @@ import {
 } from "../components/PageLayout";
 import { Button } from "../components/ui/button";
 import { BasePost } from "../components/posts/types";
+import { useCan } from "@/hooks/useAbility";
+import { useAuthorization } from "@/hooks/useAbility";
 
 export default function CommunityFeed() {
   const { user, loading } = useAuth();
@@ -29,6 +31,13 @@ export default function CommunityFeed() {
   const [activeTab, setActiveTab] = useState<string>("my_communities");
   const [currentSort, setCurrentSort] = useState<string>("recent");
   const filterTag = searchParams.get("tag");
+
+  // Check moderation permissions using CASL
+  const { userContext } = useAuthorization();
+  const canModerate = useCan('moderate', 'Community');
+  const isPlatformModerator = userContext?.responsibilityRoles.includes('community_moderator') || false;
+  const isCommunityModerator = user?.role === "admin" || user?.role === "moderator";
+  const isModerator = canModerate || isPlatformModerator || isCommunityModerator;
 
   // Fetch posts when user is available
   // Note: User should always be authenticated due to ProtectedRoute at app level
@@ -46,8 +55,6 @@ export default function CommunityFeed() {
   ) => {
     if (!user) return;
     setMyLoading(true);
-
-    const isModerator = user.role === "admin" || user.role === "moderator";
 
     // Query posts table directly for all users
     let query = supabase.from("posts").select(
@@ -125,8 +132,6 @@ export default function CommunityFeed() {
   ) => {
     if (!user) return;
     setGlobalLoading(true);
-
-    const isModerator = user.role === "admin" || user.role === "moderator";
 
     // Query posts table directly for all users
     let query = supabase.from("posts").select(

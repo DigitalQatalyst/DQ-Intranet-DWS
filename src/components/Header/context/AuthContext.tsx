@@ -4,6 +4,12 @@ import { EventType, AuthenticationResult } from '@azure/msal-browser';
 import { defaultLoginRequest, signupRequest } from '../../../services/auth/msal';
 import { supabaseClient } from '../../../lib/supabaseClient';
 import { azureIdToUuid } from '../../../communities/utils/azureIdToUuid';
+import { buildAbility, normalizeRole } from '@/auth/ability';
+import type { UserContext, UserRole, EmployeeSegment, ContentDomain, ResponsibilityRole } from '@/types/iam';
+import type { AppAbility } from '@/auth/ability';
+
+// Create ability context for CASL
+const AbilityContext = createContext<AppAbility | undefined>(undefined);
 
 interface UserProfile {
   id: string;
@@ -16,6 +22,8 @@ interface UserProfile {
 
 interface AuthContextType {
   user: UserProfile | null;
+  userContext: UserContext | null; // Full authorization context
+  ability: AppAbility; // CASL ability
   isLoading: boolean;
   login: () => void;
   signup: () => void;
@@ -33,6 +41,7 @@ export function AuthProvider({
   const isAuthenticated = useIsAuthenticated();
   const [isLoading, setIsLoading] = useState(true);
   const [emailOverride, setEmailOverride] = useState<string | undefined>(undefined);
+  const [userContext, setUserContext] = useState<UserContext | null>(null);
   const viteEnv = (import.meta as any).env as Record<string, string | undefined>;
   const enableGraphFallback = (viteEnv?.VITE_MSAL_ENABLE_GRAPH_FALLBACK || viteEnv?.NEXT_PUBLIC_MSAL_ENABLE_GRAPH_FALLBACK) === 'true';
 
@@ -69,6 +78,66 @@ export function AuthProvider({
     };
   }, []);
 
+  // Fetch user authorization context from database
+  const fetchUserContext = useCallback(async (userId: string, email: string, name: string): Promise<UserContext | null> => {
+    try {
+      // Fetch user authorization data from users_local
+      const { data: userData, error } = await supabaseClient
+        .from('users_local')
+        .select('id, email, dws_role, segment, domain, role')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (error || !userData) {
+        // Fallback: create default context
+        return {
+          id: userId,
+          email,
+          name,
+          progressiveRole: 'viewer',
+          segment: 'employee',
+          responsibilityRoles: [],
+        };
+      }
+
+      // Fetch responsibility roles
+      const { data: responsibilityRolesData } = await supabaseClient
+        .from('user_responsibility_roles')
+        .select('role')
+        .eq('user_id', userId);
+
+      // Normalize progressive role from database
+      const roleString = (userData.dws_role as string) || (userData.role as string) || 'viewer';
+      const progressiveRole = normalizeRole(roleString) as UserRole;
+      const segment = (userData.segment as EmployeeSegment) || 'employee';
+      const domain = userData.domain as ContentDomain | undefined;
+      const responsibilityRoles = (responsibilityRolesData || []).map(
+        r => r.role as ResponsibilityRole
+      );
+
+      return {
+        id: userData.id,
+        email: userData.email,
+        name,
+        progressiveRole,
+        segment,
+        responsibilityRoles,
+        domain,
+      };
+    } catch (error) {
+      console.error('Error fetching user context:', error);
+      // Return default context on error to prevent white screen
+      return {
+        id: userId,
+        email,
+        name,
+        progressiveRole: 'viewer',
+        segment: 'employee',
+        responsibilityRoles: [],
+      };
+    }
+  }, []);
+
   // Simple fire-and-forget sync - directly upsert user data from Azure profile
   const syncUserQuietly = useCallback(async (account: any) => {
     const userData = extractUserDataFromAccount(account);
@@ -89,15 +158,22 @@ export function AuthProvider({
           username: username,
           azure_id: userData.azureId,
           password: 'AZURE_AD_AUTHENTICATED',
-          role: 'member',
+          role: 'member', // Legacy role
+          segment: 'employee', // Auto-assign segment (default)
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'id'
         });
+
+      // Fetch and update user context after sync
+      const context = await fetchUserContext(userId, emailToSync, userData.name);
+      if (context) {
+        setUserContext(context);
+      }
     } catch (error) {
       // Silent fail - sync will retry on next login
     }
-  }, [extractUserDataFromAccount, emailOverride]);
+  }, [extractUserDataFromAccount, emailOverride, fetchUserContext]);
 
   // Ensure active account is set on successful login/redirect events
   useEffect(() => {
@@ -137,6 +213,58 @@ export function AuthProvider({
       picture: undefined
     };
   }, [accounts, instance, emailOverride, extractUserDataFromAccount]);
+
+  // Fetch user context when user changes
+  useEffect(() => {
+    if (!user) {
+      setUserContext(null);
+      return;
+    }
+
+    // user.id is account.localAccountId which may need conversion
+    const account = instance.getActiveAccount() || accounts[0];
+    const azureId = account?.localAccountId || account?.homeAccountId || user.id;
+    
+    try {
+      const userId = azureIdToUuid(azureId);
+      fetchUserContext(userId, user.email, user.name)
+        .then(setUserContext)
+        .catch((error) => {
+          console.error('Error in fetchUserContext:', error);
+          // Set default context on error to prevent white screen
+          setUserContext({
+            id: userId,
+            email: user.email,
+            name: user.name,
+            progressiveRole: 'viewer',
+            segment: 'employee',
+            responsibilityRoles: [],
+          });
+        });
+    } catch (error) {
+      console.error('Error converting Azure ID to UUID:', error);
+      // Set default context on error
+      setUserContext({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        progressiveRole: 'viewer',
+        segment: 'employee',
+        responsibilityRoles: [],
+      });
+    }
+  }, [user, instance, accounts, fetchUserContext]);
+
+  // Build CASL ability from user context (always build, even if null)
+  const ability = useMemo(() => {
+    try {
+      return buildAbility(userContext);
+    } catch (error) {
+      console.error('Error building ability:', error);
+      // Return empty ability on error to prevent white screen
+      return buildAbility(null);
+    }
+  }, [userContext]);
 
   useEffect(() => {
     // Loading is complete once we have determined authentication state at least once
@@ -212,16 +340,25 @@ export function AuthProvider({
 
   const contextValue = useMemo<AuthContextType>(() => ({
     user,
+    userContext,
+    ability,
     isLoading,
     login,
     signup,
     logout
-  }), [user, isLoading, login, signup, logout]);
+  }), [user, userContext, ability, isLoading, login, signup, logout]);
 
-  return <AuthContext.Provider value={contextValue}>
-    {children}
-  </AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={contextValue}>
+      <AbilityContext.Provider value={ability}>
+        {children}
+      </AbilityContext.Provider>
+    </AuthContext.Provider>
+  );
 }
+
+// Export ability context for useAbility hook
+export { AbilityContext };
 
 export function useAuth() {
   const context = useContext(AuthContext);

@@ -5,8 +5,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { safeFetch } from '@/communities/utils/safeFetch';
 import { MainLayout } from '@/communities/components/layout/MainLayout';
 import { Button } from '@/communities/components/ui/button';
-import { StickyActionButton } from '@/communities/components/KF eJP Library/Button';
-import { Users, UserPlus, UserMinus, AlertCircle, Plus, Settings, Home, ChevronRight, Upload, X, Pencil, Calendar } from 'lucide-react';
+import { Users, AlertCircle, Plus, Settings, Home, ChevronRight, X, Pencil, Calendar, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 import { MemberList } from '@/communities/components/communities/MemberList';
 import { InlineComposer } from '@/communities/components/post/InlineComposer';
@@ -26,6 +25,7 @@ import {
   Breadcrumbs,
   BreadcrumbItem,
 } from "../components/PageLayout/index";
+import { useAuthorization } from '@/hooks/useAbility';
 
 interface Community {
   id: string;
@@ -62,6 +62,7 @@ export default function Community() {
   }>();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { userContext } = useAuthorization();
   const [community, setCommunity] = useState<Community | null>(null);
   const [memberCount, setMemberCount] = useState(0);
   const [isMember, setIsMember] = useState(false);
@@ -190,8 +191,10 @@ export default function Community() {
         const [ownerData] = await safeFetch(ownerQuery);
         const isUserOwner = ownerData?.created_by === user.id;
         setIsOwner(isUserOwner);
-        // Check if user is admin
-        if (!isUserOwner && user.role === "admin") {
+        // Check if user is admin (platform or community)
+        const isPlatformAdmin = userContext?.progressiveRole === 'admin' || 
+                               userContext?.responsibilityRoles.includes('community_moderator');
+        if (!isUserOwner && (user.role === "admin" || isPlatformAdmin)) {
           setIsAdmin(true);
         } else if (!isUserOwner) {
           const roleQuery = supabase
@@ -595,7 +598,7 @@ export default function Community() {
     <MainLayout hidePageLayout>
       <div className="">
         {/* Breadcrumbs */}
-        <div className="max-w-7xl mx-auto pl-0 pr-1 sm:pl-0 sm:pr-2 lg:pl-0 lg:pr-3 mt-2 mb-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 mb-4">
           <nav className="flex mb-4 min-h-[24px]" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
               <li className="inline-flex items-center">
@@ -632,112 +635,113 @@ export default function Community() {
           </nav>
         </div>
 
-        <div className="-mx-4 sm:-mx-6 lg:-mx-8">
-          <div className="max-w-7xl mx-auto pl-0 pr-1 sm:pl-0 sm:pr-2 lg:pl-0 lg:pr-3">
-            <PageLayout>
-          {/* Hero Section */}
-          <PageSection className="p-0 overflow-hidden mb-2">
-            <div className="relative">
-              {/* Dynamic Image with Fallback */}
-              <div className="relative lg:h-[280px] h-[320px] overflow-hidden ">
-                {community.imageurl ? (
-                  <img
-                    src={community.imageurl}
-                    alt={community.name}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-dq-navy to-[#1A2E6E]" />
-                )}
-                {/* Gradient Overlay for better text visibility */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20"></div>
-                {/* Admin/Moderator Control Buttons */}
+        <PageLayout>
+          {/* Hero Section - Guidelines Style */}
+          {community && (
+            <header
+              className="bg-white border border-gray-200 rounded-xl shadow-sm px-6 py-5 md:px-8 md:py-6"
+              aria-labelledby="community-title"
+            >
+              <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">
+                      {community.category || "DQ Work Community"}
+                    </p>
+                    <h1
+                      id="community-title"
+                      className="text-2xl md:text-3xl font-bold text-gray-900"
+                    >
+                      {community.name}
+                    </h1>
+                    {(community.description || community.category) && (
+                      <p className="text-sm text-gray-600 max-w-3xl leading-relaxed line-clamp-2">
+                        {community.description || community.category}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-start gap-2">
+                    {isMember ? (
+                      <Button
+                        onClick={handleJoinLeave}
+                        variant="outline"
+                        className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                        disabled={joinLoading}
+                      >
+                        {joinLoading ? "Processing..." : "Leave Community"}
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleJoinLeave}
+                        className="bg-dq-navy text-white hover:bg-[#13285A]"
+                        disabled={joinLoading}
+                      >
+                        {joinLoading
+                          ? "Processing..."
+                          : user
+                            ? community?.isprivate
+                              ? "Request to Join"
+                              : "Join Community"
+                            : "Join Community"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 text-sm text-gray-700">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1">
+                    <Tag className="h-4 w-4 text-gray-500" />
+                    <span className="font-medium">
+                      {community.category || "Community"}
+                    </span>
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1">
+                    <Calendar className="h-4 w-4 text-gray-500" />
+                    <span className="font-medium">
+                      {community.created_at
+                        ? format(new Date(community.created_at), "MMM d, yyyy")
+                        : "Created date unavailable"}
+                    </span>
+                  </span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1">
+                    <Users className="h-4 w-4 text-gray-500" />
+                    <span className="font-medium">
+                      {memberCount} {memberCount === 1 ? "member" : "members"}
+                    </span>
+                  </span>
+                </div>
+
                 {(isOwner ||
                   isAdmin ||
-                  (user &&
-                    (user.role === "admin" || user.role === "moderator"))) && (
-                  <div className="absolute top-4 right-4 flex gap-2 z-10">
+                  (user && (user.role === "admin" || user.role === "moderator"))) && (
+                  <div className="flex flex-wrap items-center gap-2">
                     <Button
                       onClick={() => setImageDialogOpen(true)}
-                      variant="secondary"
-                      className="bg-white/90 text-gray-700 hover:bg-white"
+                      variant="outline"
                       size="sm"
+                      className="text-gray-700 hover:bg-gray-50"
                     >
                       <Pencil className="h-3.5 w-3.5 mr-1.5" />
-                      Edit Cover Image
+                      Edit Image
                     </Button>
                     <Button
                       as={Link}
                       to={`/community/${id}/settings`}
-                      variant="secondary"
-                      className="bg-white/90 text-gray-700 hover:bg-white"
+                      variant="outline"
                       size="sm"
+                      className="text-gray-700 hover:bg-gray-50"
                     >
                       <Settings className="h-3.5 w-3.5 mr-1.5" />
                       Settings
                     </Button>
                   </div>
                 )}
-                {/* Content Container - Centered vertically */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-8">
-                    <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between">
-                      <div className="md:max-w-3xl">
-                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-md">
-                          {community.name}
-                        </h1>
-                        <p className="text-white/90 text-base md:text-lg mt-3 max-w-3xl leading-relaxed">
-                          {community.description || "No description available"}
-                        </p>
-                        {/* Community metadata */}
-                        <div className="flex flex-wrap items-center gap-3 mt-4">
-                          <div className="flex items-center bg-black/30 text-white px-3 py-1.5 rounded-full text-sm">
-                            <Users className="h-4 w-4 mr-2" />
-                            <span>{memberCount} members</span>
-                          </div>
-                          <div className="flex items-center bg-black/30 text-white px-3 py-1.5 rounded-full text-sm">
-                            <Calendar className="h-4 w-4 mr-2" />
-                            <span>
-                              Created{" "}
-                              {format(
-                                new Date(community.created_at),
-                                "MMM yyyy"
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-10 md:mt-0 md:ml-12">
-                      <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
-                        {isMember ? (
-                          <Button 
-                            onClick={handleJoinLeave} 
-                            variant="outline" 
-                            className="bg-white text-dq-navy border-dq-navy/30 hover:bg-dq-navy/10" 
-                            disabled={joinLoading}
-                          >
-                            {joinLoading ? 'Processing...' : 'Leave Community'}
-                          </Button>
-                        ) : (
-                          <Button 
-                            onClick={handleJoinLeave} 
-                            className="bg-dq-navy text-white hover:bg-[#13285A]" 
-                            disabled={joinLoading}
-                          >
-                            {joinLoading ? 'Processing...' : user ? (community?.isprivate ? 'Request to Join' : 'Join Community') : 'Join'}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                    </div>
-                  </div>
-                </div>
               </div>
-          </PageSection>
+            </header>
+          )}
+
           {/* Main Content */}
-          <div className="-mx-4 sm:-mx-6 lg:-mx-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Posts Feed */}
             <div className="lg:col-span-2 space-y-6">
               <PageSection>
@@ -937,10 +941,7 @@ export default function Community() {
               </PageSection>
             </div>
           </div>
-          </div>
-            </PageLayout>
-          </div>
-        </div>
+        </PageLayout>
         {/* Floating Create Post Button */}
         {user && isMember && (
           <Button
