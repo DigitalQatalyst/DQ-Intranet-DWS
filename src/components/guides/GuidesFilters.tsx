@@ -178,21 +178,6 @@ const STRATEGY_UNITS: Facet[] = [
   { id: 'stories', name: 'Stories' }
 ]
 
-const STRATEGY_TYPES: Facet[] = [
-  { id: 'journey', name: 'Journey' },
-  { id: 'history', name: 'History' },
-  { id: 'initiatives', name: 'Initiatives' },
-  { id: 'cases', name: 'Cases' },
-  { id: 'references', name: 'References' }
-]
-
-const STRATEGY_FRAMEWORKS: Facet[] = [
-  { id: 'ghc', name: 'GHC' },
-  { id: '6xd', name: '6xD (Digital Framework)' },
-  { id: 'clients', name: 'Clients' },
-  { id: 'ghc-leader', name: 'GHC Leader' },
-  { id: 'testimonials-insights', name: 'Testimonials/Insights' }
-]
 
 const Section: React.FC<{ idPrefix: string; title: string; category: string; collapsed: boolean; onToggle: (category: string) => void }> = ({ idPrefix, title, category, collapsed, onToggle, children }) => {
   const contentId = `${idPrefix}-filters-${category}`
@@ -501,16 +486,6 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
         <Section idPrefix={instanceId} title="Story Type" category="testimonial_category" collapsed={collapsedSet.has('testimonial_category')} onToggle={toggleCollapsed}>
           <CheckboxList idPrefix={instanceId} name="testimonial_category" options={TESTIMONIAL_CATEGORIES} query={query} onChange={onChange} />
         </Section>
-      )}
-      {isStrategySelected && (
-        <>
-          <Section idPrefix={instanceId} title="Strategy Type" category="strategy_type" collapsed={collapsedSet.has('strategy_type')} onToggle={toggleCollapsed}>
-            <CheckboxList idPrefix={instanceId} name="strategy_type" options={STRATEGY_TYPES} query={query} onChange={onChange} />
-          </Section>
-          <Section idPrefix={instanceId} title="Framework/Program" category="strategy_framework" collapsed={collapsedSet.has('strategy_framework')} onToggle={toggleCollapsed}>
-            <CheckboxList idPrefix={instanceId} name="strategy_framework" options={STRATEGY_FRAMEWORKS} query={query} onChange={onChange} />
-          </Section>
-        </>
       )}
       {!isGlossarySelected && (
         <>
