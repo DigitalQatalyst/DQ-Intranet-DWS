@@ -1,7 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CalendarIcon, ChevronDownIcon } from 'lucide-react';
-import { BuildingIcon, CreditCardIcon, GraduationCapIcon, UsersIcon, NewspaperIcon, SparklesIcon, FileText, LucideProps, BookOpen } from 'lucide-react';
+import {
+  BuildingIcon,
+  GraduationCapIcon,
+  UsersIcon,
+  NewspaperIcon,
+  SparklesIcon,
+  LucideProps,
+  BookOpen,
+} from 'lucide-react';
 
 interface Marketplace {
   id: string;
@@ -9,51 +17,18 @@ interface Marketplace {
   description: string;
   icon: React.ComponentType<LucideProps>;
   href: string;
+  isComingSoon?: boolean;
 }
 
 
 const marketplaces: Marketplace[] = [
   {
-    id: 'discover-dq',
-    name: 'Discover DQ',
-    description: 'Tour the digital workspace zones and teams across DQ.',
-    icon: SparklesIcon,
-    href: '/discover-dq',
-  },
-  {
-    id: 'service-center',
-    name: 'Services Center',
-    description: 'Helpdesk, access requests, device & app support.',
-    icon: BuildingIcon,
-    href: '/marketplace/services-center',
-  },
-  {
-    id: 'finance',
-    name: 'HR & Finance Services',
-    description: 'Leave, payroll, benefits, and reimbursements.',
-    icon: CreditCardIcon,
-    href: '/marketplace/financial',
-  },
-  {
-    id: 'media',
-    name: 'Facilities & Logistics',
-    description: 'Office access, seating, travel, and logistics.',
-    icon: NewspaperIcon,
-    href: '/marketplace/media',
-  },
-  {
-    id: 'community',
-    name: 'Associates Directory',
-    description: 'Find people, teams, and contacts across DQ.',
-    icon: UsersIcon,
-    href: '/marketplace/community',
-  },
-  {
-    id: 'course',
-    name: 'Learning Center',
-    description: '7x GHC, 6x Digital, 12x HoV, 1x Day in DQ, Key Tools.',
+    id: 'learning-center',
+    name: 'DQ Learning Center',
+    description: 'Courses, learning tracks, and associate reviews.',
     icon: GraduationCapIcon,
     href: '/lms',
+    isComingSoon: true,
   },
   {
     id: 'services-center',
@@ -63,32 +38,27 @@ const marketplaces: Marketplace[] = [
     href: '/dq-services-center',
   },
   {
-    id: 'calendar',
-    name: 'Calendar & Events',
-    description: 'Digital platform that connects event organizers with attendees, vendors, and service providers.',
+    id: 'work-center',
+    name: 'DQ Work Center',
+    description: 'Daily sessions, project work, and execution trackers.',
     icon: CalendarIcon,
     href: '/events',
-  },
-  {
-    id: 'guidelines',
-    name: 'DQ Knowledge Center',
-    description: 'Access practical guidelines, templates, and processes.',
-    icon: BookOpen,
-    href: '/marketplace/guides',
+    isComingSoon: true,
   },
   {
     id: 'work-directory',
     name: 'DQ Work Directory',
     description: 'Units, positions, and associate profiles.',
     icon: UsersIcon,
-    href: '/dq-work-directory',
+    href: '/marketplace/work-directory',
+    isComingSoon: true,
   },
   {
     id: 'media-center',
     name: 'DQ Media Center',
     description: 'News, announcements, job openings, and blogs.',
     icon: NewspaperIcon,
-    href: '/marketplace/guides',
+    href: '/marketplace/opportunities',
   },
   {
     id: 'work-communities',
@@ -96,27 +66,14 @@ const marketplaces: Marketplace[] = [
     description: 'Discussion rooms, pulse updates, and events.',
     icon: SparklesIcon,
     href: '/dq-work-communities',
+    isComingSoon: true,
   },
   {
     id: 'knowledge-center',
     name: 'DQ Knowledge Center',
     description: 'Strategy guides, blueprints, libraries, and testimonials.',
-    icon: FileText,
-    href: '/dq-knowledge-center',
-  },
-  {
-    id: 'asset-library',
-    name: 'Asset Library',
-    description: 'Shared design, deployment and marketing artefacts.',
-    icon: FileText,
-    href: '/dq-knowledge-center',
-  },
-  {
-    id: 'communities',
-    name: 'DQ Communities',
-    description: 'Connect, collaborate, and engage with peers in vibrant communities.',
-    icon: UsersIcon,
-    href: '/communities',
+    icon: BookOpen,
+    href: '/marketplace/guides',
   },
 ];
 
@@ -227,10 +184,14 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
           aria-orientation="vertical"
           aria-labelledby="explore-menu"
         >
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-[480px] overflow-y-auto">
             {marketplaces.map((marketplace, index) => {
               const Icon = marketplace.icon;
-              const isActive = marketplace.id === 'guides' && (location.pathname.startsWith('/marketplace/guides') || location.pathname.startsWith('/marketplace/knowledge-hub'));
+              const isComingSoon = marketplace.isComingSoon;
+              const isActive =
+                marketplace.id === 'knowledge-center' &&
+                (location.pathname.startsWith('/marketplace/guides') ||
+                  location.pathname.startsWith('/marketplace/knowledge-hub'));
               return (
                 <a
                   key={marketplace.id}
@@ -238,12 +199,16 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
                   href={marketplace.href}
                   className={`flex items-start px-4 py-3 text-left hover:bg-dq-coral/10 focus:bg-dq-coral/10 focus:outline-none transition-colors duration-150 ${
                     focusedIndex === index ? 'bg-dq-coral/10' : ''
-                  } ${isActive ? 'border-l-4 border-dq-coral bg-dq-coral/5' : ''}`}
+                  } ${isActive ? 'border-l-4 border-dq-coral bg-dq-coral/5' : ''} ${
+                    isComingSoon ? 'cursor-not-allowed opacity-60' : ''
+                  }`}
                   role="menuitem"
                   tabIndex={-1}
                   aria-current={isActive ? 'page' : undefined}
+                  aria-disabled={isComingSoon || undefined}
                   onClick={(e) => {
                     e.preventDefault();
+                    if (isComingSoon) return;
                     handleItemClick(marketplace.href);
                   }}
                   onMouseEnter={() => setFocusedIndex(index)}
