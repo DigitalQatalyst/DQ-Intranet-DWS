@@ -134,10 +134,12 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick }) => {
   
   // Ensure we're using the correct property name - check both camelCase and snake_case
   const heroImage = guide.heroImageUrl || (guide as any).hero_image_url || null
+  const subDomain = guide.subDomain || (guide as any).sub_domain || null
   const imageUrl = getGuideImageUrl({
     heroImageUrl: heroImage,
     domain: guide.domain,
     guideType: guide.guideType,
+    subDomain: subDomain,
     id: guide.id,
     slug: guide.slug || guide.id,
     title: guide.title,
@@ -159,17 +161,19 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick }) => {
   return (
     <div className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col" onClick={onClick}>
       {imageUrl && (
-        <img 
-          src={imageUrl} 
-          alt={displayTitle} 
-          className="w-full h-40 object-cover rounded mb-3" 
-          loading="lazy" 
-          decoding="async" 
-          width={640} 
-          height={180}
-          onError={handleImageError}
-          crossOrigin="anonymous"
-        />
+        <div className="rounded-lg overflow-hidden mb-3">
+          <img 
+            src={imageUrl} 
+            alt={displayTitle} 
+            className="w-full h-48 object-cover" 
+            loading="lazy" 
+            decoding="async" 
+            width={640} 
+            height={180}
+            onError={handleImageError}
+            crossOrigin="anonymous"
+          />
+        </div>
       )}
       <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 min-h-[40px]" title={displayTitle}>{displayTitle}</h3>
       <p className="text-sm text-gray-600 line-clamp-3 min-h-[60px] mb-3">{displayDescription}</p>

@@ -1,6 +1,12 @@
 import React from 'react'
 
-export function HeroSection() {
+interface HeroSectionProps {
+  title?: string
+  date?: string
+  author?: string
+}
+
+export function HeroSection({ title = 'DQ AVR Awards Guidelines', date = 'December 19, 2025', author = 'DQ Operations • Digital Qatalyst' }: HeroSectionProps) {
   return (
     <div className="relative w-full h-[500px] overflow-hidden">
       <div 
@@ -18,17 +24,21 @@ export function HeroSection() {
             Guideline
           </span>
 
-          <div className="text-sm text-white/90 mb-6 font-inter">
-            December 19, 2025
-          </div>
+          {date && (
+            <div className="text-sm text-white/90 mb-6 font-inter">
+              {date}
+            </div>
+          )}
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight font-inter">
-            The AVR Awards Guidelines
+            {title}
           </h1>
 
-          <div className="flex items-center gap-3 text-sm text-white/90 font-inter">
-            <span>DQ Operations • Digital Qatalyst</span>
-          </div>
+          {author && (
+            <div className="flex items-center gap-3 text-sm text-white/90 font-inter">
+              <span>{author}</span>
+            </div>
+          )}
         </div>
       </div>
 

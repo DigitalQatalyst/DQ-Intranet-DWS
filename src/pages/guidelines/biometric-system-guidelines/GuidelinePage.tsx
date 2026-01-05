@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { HomeIcon, ChevronRightIcon } from 'lucide-react'
 import { Header } from '../../../components/Header'
 import { Footer } from '../../../components/Footer'
 import { useAuth } from '../../../components/Header/context/AuthContext'
+import { supabaseClient } from '../../../lib/supabaseClient'
 import { HeroSection } from './HeroSection'
 import { SideNav } from './SideNav'
 import { GuidelineSection } from './GuidelineSection'
@@ -12,6 +13,33 @@ import { FullTableModal } from './FullTableModal'
 
 function GuidelinePage() {
   const { user } = useAuth()
+  const [guideTitle, setGuideTitle] = useState<string>('DQ Biometric System Guidelines')
+  const [lastUpdated, setLastUpdated] = useState<string>('December 19, 2025')
+  
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { data, error } = await supabaseClient
+          .from('guides')
+          .select('title, last_updated_at')
+          .eq('slug', 'dq-biometric-system-guidelines')
+          .maybeSingle()
+        
+        if (error) throw error
+        if (!cancelled && data) {
+          setGuideTitle(data.title || 'DQ Biometric System Guidelines')
+          if (data.last_updated_at) {
+            const date = new Date(data.last_updated_at)
+            setLastUpdated(date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }))
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching guide title:', error)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
   
   // Modal state management for tables
   const [rolesModalOpen, setRolesModalOpen] = useState(false)
@@ -96,7 +124,7 @@ function GuidelinePage() {
               <li aria-current="page">
                 <div className="flex items-center">
                   <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2">Biometric System Guidelines</span>
+                  <span className="ml-1 text-gray-500 md:ml-2">{guideTitle}</span>
                 </div>
               </li>
             </ol>
@@ -105,7 +133,7 @@ function GuidelinePage() {
       </div>
       
       {/* Hero Section */}
-      <HeroSection />
+      <HeroSection title={guideTitle} date={lastUpdated} />
 
       {/* Main Content */}
       <main className="flex-1">

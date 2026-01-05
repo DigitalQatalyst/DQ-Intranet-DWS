@@ -1,6 +1,13 @@
 import React from 'react'
 
-export function HeroSection() {
+interface HeroSectionProps {
+  title?: string
+  date?: string
+  author?: string
+  tag?: string
+}
+
+export function HeroSection({ title = 'DQ Working Room Attendance & Punctuality Policy', date = 'December 19, 2025', author = 'Human Resources (HRA Lead) • Digital Qatalyst', tag = 'Policy' }: HeroSectionProps) {
   return (
     <div className="relative w-full h-[500px] overflow-hidden">
       <div 
@@ -14,21 +21,27 @@ export function HeroSection() {
 
       <div className="relative z-10 h-full flex flex-col justify-center px-6 md:px-12 lg:px-24 text-white">
         <div className="max-w-4xl">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium mb-4">
-            Policy
-          </span>
+          {tag && (
+            <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium mb-4">
+              {tag}
+            </span>
+          )}
 
-          <div className="text-sm text-white/90 mb-6 font-inter">
-            December 19, 2025
-          </div>
+          {date && (
+            <div className="text-sm text-white/90 mb-6 font-inter">
+              {date}
+            </div>
+          )}
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight font-inter">
-            Working Room (WR) Attendance & Punctuality Policy
+            {title}
           </h1>
 
-          <div className="flex items-center gap-3 text-sm text-white/90 font-inter">
-            <span>Human Resources (HRA Lead) • Digital Qatalyst</span>
-          </div>
+          {author && (
+            <div className="flex items-center gap-3 text-sm text-white/90 font-inter">
+              <span>{author}</span>
+            </div>
+          )}
         </div>
       </div>
 

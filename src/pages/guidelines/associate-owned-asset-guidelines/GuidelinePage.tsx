@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { HomeIcon, ChevronRightIcon } from 'lucide-react'
 import { Header } from '../../../components/Header'
 import { Footer } from '../../../components/Footer'
 import { useAuth } from '../../../components/Header/context/AuthContext'
+import { supabaseClient } from '../../../lib/supabaseClient'
 import { HeroSection } from './HeroSection'
 import { SideNav } from './SideNav'
 import { GuidelineSection } from './GuidelineSection'
@@ -12,6 +13,33 @@ import { FullTableModal } from './FullTableModal'
 
 function GuidelinePage() {
   const { user } = useAuth()
+  const [guideTitle, setGuideTitle] = useState<string>('DQ Associate Owned Asset Guidelines')
+  const [lastUpdated, setLastUpdated] = useState<string>('Version 1.8 • December 19, 2025')
+  
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { data, error } = await supabaseClient
+          .from('guides')
+          .select('title, last_updated_at')
+          .eq('slug', 'dq-associate-owned-asset-guidelines')
+          .maybeSingle()
+        
+        if (error) throw error
+        if (!cancelled && data) {
+          setGuideTitle(data.title || 'DQ Associate Owned Asset Guidelines')
+          if (data.last_updated_at) {
+            const date = new Date(data.last_updated_at)
+            setLastUpdated(`Version 1.8 • ${date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching guide title:', error)
+      }
+    })()
+    return () => { cancelled = true }
+  }, [])
   
   // Modal state management for tables
   const [coreComponentsModalOpen, setCoreComponentsModalOpen] = useState(false)
@@ -216,7 +244,7 @@ function GuidelinePage() {
               <li aria-current="page">
                 <div className="flex items-center">
                   <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2">DQ Ops | Associate Owned Asset Guidelines</span>
+                  <span className="ml-1 text-gray-500 md:ml-2">{guideTitle}</span>
                 </div>
               </li>
             </ol>
@@ -225,7 +253,7 @@ function GuidelinePage() {
       </div>
       
       {/* Hero Section */}
-      <HeroSection />
+      <HeroSection title={guideTitle} date={lastUpdated} />
 
       {/* Main Content */}
       <main className="flex-1">
