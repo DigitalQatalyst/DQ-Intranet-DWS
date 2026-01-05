@@ -1,8 +1,7 @@
 import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Phone, X } from "lucide-react";
+import { Users, Briefcase, Phone, X } from "lucide-react";
 import { FadeInUpOnScroll } from "./AnimationUtils";
-import { getLeadApplyCards } from "../data/landingPageContent";
 
 const floatingShapes = [
   { size: 120, color: "rgba(3,15,53,0.15)", delay: 0, duration: 15, className: "top-[10%] left-[5%]" },
@@ -30,7 +29,28 @@ const LeadApplySection = () => {
   const navigate = useNavigate();
 
   const cards = useMemo<CardConfig[]>(
-    () => getLeadApplyCards(navigate),
+    () => [
+      {
+        id: "card-1",
+        icon: <Users size={28} className="text-[#FB5535]" />,
+        title: "Open DQ Workspace",
+        description:
+          "Lead — access the right tools, services, and dashboards to drive progress every day.",
+        cta: "Open Now →",
+        onClick: () => navigate("/workspace"),
+        ariaLabel: "Open DQ Workspace",
+        testId: "open-dq-workspace-cta",
+      },
+      {
+        id: "card-2",
+        icon: <Briefcase size={28} className="text-[#FB5535]" />,
+        title: "Become a Lead",
+        description:
+          "Co-work — take the next step in your DQ journey, mentor peers, and help shape how we grow.",
+        cta: "Apply Now →",
+        onClick: () => window.dispatchEvent(new Event("open-lead-popup")),
+      },
+    ],
     [navigate]
   );
 
@@ -184,15 +204,13 @@ const LeadApplySection = () => {
         </FadeInUpOnScroll>
 
         <div className="flex flex-wrap justify-center gap-6 mt-8">
-          {cards.map(({ id, iconComponent, iconSize, iconClassName, title, description, cta, onClick, ariaLabel, testId }, idx) => {
-            const Icon = iconComponent;
-            return (
+          {cards.map(({ id, icon, title, description, cta, onClick, ariaLabel, testId }, idx) => (
             <FadeInUpOnScroll key={id} delay={0.3 + idx * 0.2} className="flex">
               <article className="flex h-[350px] w-[320px] flex-col justify-between rounded-2xl bg-white p-6 text-left shadow-md transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
                 <div>
                   <div className="mb-3 flex justify-center">
                     <div className="inline-flex items-center justify-center rounded-full bg-[#FB5535]/10 p-3">
-                      <Icon size={iconSize || 28} className={iconClassName} />
+                      {icon}
                     </div>
                   </div>
                   <h3 className="mb-3 text-center text-lg font-semibold text-[#030F35]">{title}</h3>
@@ -215,8 +233,7 @@ const LeadApplySection = () => {
                 </button>
               </article>
             </FadeInUpOnScroll>
-          );
-          })}
+          ))}
           <FadeInUpOnScroll delay={supportDelay} className="flex">
             <article
               id="get-support"

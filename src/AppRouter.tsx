@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { CourseType } from "./utils/mockData";
 import { AuthProvider } from "./components/Header";
 import { MarketplaceRouter } from "./pages/marketplace/MarketplaceRouter";
 import { CommunitiesRouter } from "./communities/CommunitiesRouter";
@@ -13,11 +15,13 @@ const LmsCourseDetailPageWrapper = () => {
   const { slug } = useParams<{ slug: string }>();
   return <LmsCourseDetailPage key={slug} />;
 };
+import LmsCourseDetail from "./pages/LmsCourseDetail";
 import LmsCourses from "./pages/LmsCourses";
 import AssetLibraryPage from "./pages/assetLibrary";
 import BlueprintsPage from "./pages/blueprints";
 import DQAgileKPIsPage from "./pages/play/DQAgileKPIsPage";
 import DashboardRouter from "./pages/dashboard/DashboardRouter";
+import ProtectedRoute from "./components/ProtectedRoute";
 import DiscoverDQ from "./pages/DiscoverDQ";
 import ComingSoonPage from "./pages/ComingSoonPage";
 import GrowthSectorsComingSoon from "./pages/GrowthSectorsComingSoon";
@@ -27,14 +31,30 @@ import GuideEditor from "./pages/admin/guides/GuideEditor";
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import EventsPage from "./pages/events/EventsPage";
-import ChatBot from "./bot/ChatBot";
+import KfBot from "./bot/KfBot";
 import ThankYou from "./pages/ThankYou";
-import UnitProfilePage from "./pages/UnitProfilePage";
-import WorkPositionProfilePage from "./pages/WorkPositionProfilePage";
-import RoleProfilePage from "./pages/RoleProfilePage";
 import WomenEntrepreneursPage from "./pages/WomenEntrepreneursPage";
 
 export function AppRouter() {
+  const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
+  const [compareCourses, setCompareCourses] = useState<CourseType[]>([]);
+  const toggleBookmark = (courseId: string) => {
+    setBookmarkedCourses((prev) => {
+      if (prev.includes(courseId)) {
+        return prev.filter((id) => id !== courseId);
+      } else {
+        return [...prev, courseId];
+      }
+    });
+  };
+  const handleAddToComparison = (course: CourseType) => {
+    if (
+      compareCourses.length < 3 &&
+      !compareCourses.some((c) => c.id === course.id)
+    ) {
+      setCompareCourses((prev) => [...prev, course]);
+    }
+  };
 
   const client = new ApolloClient({
     link: new HttpLink({
@@ -47,7 +67,7 @@ export function AppRouter() {
     <ApolloProvider client={client}>
       <BrowserRouter>
         <AuthProvider>
-          <ChatBot />
+          <KfBot />
           <Routes>
             <Route path="/discover-dq" element={<DiscoverDQ />} />
             <Route path="/coming-soon" element={<ComingSoonPage />} />
@@ -106,11 +126,6 @@ export function AppRouter() {
             <Route path="/%20marketplace/news" element={<Navigate to="/marketplace/news" replace />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/communities/*" element={<CommunitiesRouter />} />
-            {/* Work Directory Routes */}
-            <Route path="/work-directory/units/:slug" element={<UnitProfilePage />} />
-            <Route path="/work-directory/positions/:slug" element={<WorkPositionProfilePage />} />
-            {/* Role Profile Route */}
-            <Route path="/roles/:slug" element={<RoleProfilePage />} />
             <Route
               path="/women-entrepreneurs"
               element={<WomenEntrepreneursPage />}

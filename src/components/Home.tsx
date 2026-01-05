@@ -6,10 +6,12 @@ import {
   Users,
   Newspaper,
   Lightbulb,
+  TrendingUp,
   Briefcase as JobIcon,
   Globe,
   Calendar,
   Book as BookIcon,
+  Award,
   MessageCircle,
   X,
   Clock,
@@ -119,6 +121,8 @@ const ServiceCard = ({
   isComingSoon?: boolean;
   sectionStyle?: SectionStyle;
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   const activeCardClasses = `${sectionStyle.cardClasses} hover:shadow-md hover:-translate-y-0.5 cursor-pointer`;
   const disabledClasses =
     sectionStyle.disabledCardClasses ??
@@ -133,6 +137,7 @@ const ServiceCard = ({
   const iconColorClass = isComingSoon
     ? "text-gray-500"
     : sectionStyle.iconClass ?? "text-[#1A2E6E]";
+  const hoverOverlayClass = sectionStyle.hoverOverlayClass ?? "bg-white/10";
   const iconWrapperClasses = sectionStyle.iconWrapperClass ?? "w-12 h-12";
   const descriptionClasses = `text-sm text-gray-600 leading-snug text-balance line-clamp-2 mt-3 mb-4 ${
     isComingSoon ? "text-white/70" : sectionStyle.descriptionClass
@@ -160,6 +165,8 @@ const ServiceCard = ({
     <div
       className={wrapperClasses}
       onClick={isComingSoon ? undefined : onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       role="button"
       aria-disabled={isComingSoon}
     >
@@ -182,7 +189,7 @@ const ServiceCard = ({
       <p className={descriptionClasses}>{service.description}</p>
 
       <button
-        className={isComingSoon ? disabledButtonClasses : "cta-dq"}
+        className={isComingSoon ? disabledButtonClasses : "cta-ejp"}
         disabled={isComingSoon}
         onClick={(e) => {
           if (!isComingSoon) {
@@ -202,6 +209,13 @@ const ServiceCard = ({
           </>
         )}
       </button>
+
+      {!isComingSoon && (
+        <div
+          className={`absolute inset-0 ${hoverOverlayClass} opacity-0 transition-opacity duration-500 rounded-2xl`}
+          style={{ opacity: isHovered ? 1 : 0 }}
+        />
+      )}
     </div>
   );
 };
@@ -255,74 +269,74 @@ export const HomePage: React.FC = () => {
     learningWorkGuides: [
       {
         id: 'courses-curricula',
-        title: 'Courses & Curricula',
-        description: 'Explore core and advanced LMS curricula across GHC, 6xD, DWS, DXP, and key tools.',
+        title: 'Courses',
+        description: 'Explore LMS courses across GHC, 6xD, DWS, DXP, and core curricula.',
         icon: <GraduationCap />,
         path: '/learning/courses',
-        isActive: false
+        isActive: true
       },
       {
-        id: 'learning-tracks',
-        title: 'Learning Tracks',
-        description: 'Follow guided learning paths tailored to roles, journeys, and competencies.',
-        icon: <GraduationCap />,
-        path: '/learning/courses',
-        isActive: false
+        id: 'onboarding-flows',
+        title: 'Onboarding',
+        description: 'Follow onboarding tracks to complete role-based learning and setup.',
+        icon: <Compass />,
+        path: '/learning/onboarding-flows',
+        isActive: true
       },
       {
-        id: 'learning-reviews',
-        title: 'Reviews',
-        description: 'Capture feedback and reviews on courses, bootcamps, and learning experiences.',
+        id: 'work-guide-strategy',
+        title: 'Strategy Guide',
+        description: "Understand DQ's journey, history, 6xD, initiatives, clients, and operating models.",
         icon: <BarChart />,
-        path: '/learning/courses',
-        isActive: false
+        path: '/work-guides/strategy',
+        isActive: true
+      },
+      {
+        id: 'work-guide-guidelines',
+        title: 'Operational Guide',
+        description: 'Access operational guidelines, policies, templates, and governance playbooks.',
+        icon: <ClipboardList />,
+        path: '/work-guides/guidelines',
+        isActive: true
       },
       {
         id: 'knowledge-library',
-        title: 'Library',
-        description: 'Browse glossaries, FAQs, playbooks, and reference resources for everyday work.',
+        title: 'Knowledge Library',
+        description: 'Browse glossaries, FAQs, and reference resources for everyday work.',
         icon: <BookIcon />,
         path: '/knowledge/library',
         isActive: true
-      },
-      {
-        id: 'learning-testimonials',
-        title: 'Testimonials',
-        description: 'Read stories and testimonials from associates on their learning journeys.',
-        icon: <HeartHandshake />,
-        path: '/resources/testimonials',
-        isActive: true
-      },
+      }
     ],
     servicesDigitalWorkforce: [
       {
         id: 'services-center-technology',
-        title: 'Technology',
-        description: 'Request environments, access, support, and tooling for DQ technology platforms.',
+        title: 'Technology Services',
+        description: 'Submit technology requests: queries, support, environments, and self-service tools.',
         icon: <Globe />,
         path: '/services/technology',
         isActive: true
       },
       {
         id: 'services-center-business',
-        title: 'Business',
-        description: 'Submit finance, HR, and admin requests through a single, trackable console.',
+        title: 'Business Services',
+        description: 'Submit business, finance, and admin requests through a unified console.',
         icon: <Briefcase />,
         path: '/services/business',
         isActive: true
       },
       {
         id: 'digital-worker-tools',
-        title: 'Digital Worker',
-        description: 'Use Doc Writers, prompting kits, AI tools, agents, and BPM helpers to speed up delivery.',
+        title: 'Digital Worker Tools',
+        description: 'Use Doc Writers, prompting kits, AI tools, agents, and BPM helpers for delivery.',
         icon: <Lightbulb />,
         path: '/services/digital-worker-tools',
         isActive: true
       },
       {
         id: 'blueprints-library',
-        title: 'Work Guide – Blueprints',
-        description: 'Apply delivery blueprints for 6xD design, DevOps, DBP, DXP, and DWS execution.',
+        title: 'Blueprint Library',
+        description: 'Access blueprint packs for 6xD design, DevOps, DBP, DXP, and DWS delivery.',
         icon: <Compass />,
         path: '/resources/blueprints-library',
         isActive: true
@@ -331,110 +345,110 @@ export const HomePage: React.FC = () => {
     workManagementHub: [
       {
         id: 'activities-sessions',
-        title: 'Activities – Sessions',
-        description: 'Plan and run daily and weekly work sessions, reviews, retros, and check-ins.',
+        title: 'Work Sessions',
+        description: 'Run daily and weekly work sessions, reviews, retros, and collaborator touchpoints.',
         icon: <Calendar />,
         path: '/activities/sessions',
-        isActive: false
+        isActive: true
       },
       {
         id: 'activities-projects-tasks',
-        title: 'Activities – Projects / Tasks',
-        description: 'Organize projects, tasks, and boards so work stays visible and on track.',
+        title: 'Projects & Tasks',
+        description: 'Manage tasks, planners, chat threads, and ATP delivery activities.',
         icon: <ClipboardList />,
         path: '/activities/projects',
-        isActive: false
+        isActive: true
       },
       {
         id: 'activities-trackers',
-        title: 'Activities – Trackers',
-        description: 'Follow statuses, categories, and live updates across activities and workflows.',
+        title: 'Performance Trackers',
+        description: 'Track statuses, categories, descriptions, and live workflow updates.',
         icon: <BarChart />,
         path: '/activities/trackers',
-        isActive: false
+        isActive: true
       },
       {
         id: 'communities-discussion',
-        title: 'Discussion',
-        description: 'Open discussion spaces for DNA practices, learnings, Q&A, and team topics.',
+        title: 'Team Discussions',
+        description: 'Join forums on topics, DNA practices, learnings, and team conversations.',
         icon: <MessageCircle />,
         path: '/communities/discussion',
-        isActive: false
+        isActive: true
       },
       {
         id: 'communities-pulse',
-        title: 'Pulse',
-        description: 'Use quick polls and surveys to capture team sentiment and feedback.',
+        title: 'Pulse Insights',
+        description: 'Share insights through polls, surveys, and feedback loops.',
         icon: <HeartHandshake />,
         path: '/communities/pulse',
-        isActive: false
+        isActive: true
       }
     ],
     cultureEventsNetworking: [
       {
         id: 'news-announcements',
-        title: 'News & Announcements',
-        description: 'View official DQ news, platform releases, and important organizational updates.',
+        title: 'DQ Media Center',
+        description: 'View DQ updates, corporate news, trends, and essential announcements.',
         icon: <Newspaper />,
-        path: '/marketplace/opportunities',
+        path: '/marketplace/guides',
         isActive: true
       },
       {
-        id: 'events',
-        title: 'Events',
-        description: 'Discover upcoming events, townhalls, and experience sessions across DQ.',
-        icon: <Calendar />,
-        path: '/communities/events',
-        isActive: false
+        id: 'jobs-openings',
+        title: 'Career Opportunities',
+        description: 'Browse new job postings and internal career opportunities.',
+        icon: <JobIcon />,
+        path: '/updates/jobs',
+        isActive: true
       },
       {
         id: 'blogs',
         title: 'Blogs & Stories',
-        description: 'Read stories, updates, and perspectives from teams and leaders across DQ.',
+        description: 'Read stories, updates, and insights from teams across DQ.',
         icon: <BookIcon />,
-        path: '/marketplace/opportunities?tab=insights',
+        path: '/updates/blogs',
         isActive: true
       },
       {
-        id: 'work-guide-strategy',
-        title: 'Work Guide (Strategy)',
-        description: "Understand DQ's journey, strategy, 6xD, initiatives, clients, and operating models.",
-        icon: <BarChart />,
-        path: '/work-guides/strategy',
+        id: 'communities-events-calendars',
+        title: 'Events & Calendars',
+        description: 'Stay aligned with scheduled huddles, events, calendars, and logistics.',
+        icon: <Calendar />,
+        path: '/communities/events',
         isActive: true
       }
     ],
     peopleDirectory: [
       {
         id: 'directory-units',
-        title: 'Units',
-        description: 'Explore sectors, units, mandates, priorities, and performance metrics.',
+        title: 'Units Directory',
+        description: 'Explore sectors, units, mandates, priorities, and performance data.',
         icon: <Building />,
-        path: '/marketplace/work-directory?tab=units',
-        isActive: false
+        path: '/directory/units',
+        isActive: true
       },
       {
         id: 'directory-positions',
-        title: 'Positions',
+        title: 'Positions Directory',
         description: 'Browse DQ positions, role descriptions, and key responsibilities.',
         icon: <Briefcase />,
-        path: '/marketplace/work-directory?tab=positions',
-        isActive: false
+        path: '/directory/positions',
+        isActive: true
       },
       {
         id: 'directory-associates',
-        title: 'Associates',
+        title: 'Associates Directory',
         description: 'View associate profiles, contacts, skills, and performance details.',
         icon: <Users />,
-        path: '/marketplace/work-directory?tab=associates',
-        isActive: false
+        path: '/directory/associates',
+        isActive: true
       },
       {
-        id: 'jobs-openings',
-        title: 'Job Openings',
-        description: 'Browse open roles and internal opportunities across DQ.',
-        icon: <JobIcon />,
-        path: '/marketplace/opportunities?tab=opportunities',
+        id: 'client-testimonials',
+        title: 'Client Testimonials',
+        description: 'Explore client stories, cases, achievements, and leadership references.',
+        icon: <HeartHandshake />,
+        path: '/resources/testimonials',
         isActive: true
       }
     ]
@@ -483,7 +497,7 @@ export const HomePage: React.FC = () => {
     loadSections();
   }, []);
 
-  /* --------- ROW COLORS + DQ BUTTON/ICON TREATMENT (UPDATED) --------- */
+  /* --------- ROW COLORS + EJP BUTTON/ICON TREATMENT (UPDATED) --------- */
   const sectionStyles: Record<string, SectionStyle> = {
     // ROW 1 — Navy gradient
     'Learning & Work Knowledge Hub': {
@@ -726,7 +740,7 @@ export const HomePage: React.FC = () => {
       {/* AI Chatbot */}
       <AIChatbot />
 
-      {/* animations + DQ CTA styles */}
+      {/* animations + EJP CTA styles */}
       <style>{`
         @keyframes fade-in-up {
           from {
@@ -781,8 +795,8 @@ export const HomePage: React.FC = () => {
           transform: scale(1.02);
         }
 
-        /* ---------- DQ-style CTA (dark translucent -> white on hover) ---------- */
-        .cta-dq {
+        /* ---------- EJP-style CTA (dark translucent -> white on hover) ---------- */
+        .cta-ejp {
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -799,17 +813,17 @@ export const HomePage: React.FC = () => {
           -webkit-backdrop-filter: saturate(140%) blur(4px);
           transition: all 0.3s ease;
         }
-        .cta-dq:hover {
+        .cta-ejp:hover {
           color: #1a2e6e;
           background: rgba(255, 255, 255, 0.95);
           border-color: rgba(255, 255, 255, 0.9);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
           transform: translateY(-1px);
         }
-        .cta-dq .chev {
+        .cta-ejp .chev {
           transition: transform 0.3s ease;
         }
-        .cta-dq:hover .chev {
+        .cta-ejp:hover .chev {
           transform: translateX(4px);
         }
       `}</style>

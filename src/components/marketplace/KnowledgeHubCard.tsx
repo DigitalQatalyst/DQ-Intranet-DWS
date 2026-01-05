@@ -103,10 +103,12 @@ export const KnowledgeHubCard: React.FC<KnowledgeHubItemProps> = ({
       }
     }
   }, [videoRef.current, item])
-  // Runtime check for valid href (development only)
+  // Runtime check for valid href
   useEffect(() => {
-    if (import.meta.env.DEV && (!detailsHref || detailsHref === '#' || detailsHref === 'about:blank')) {
-      // Invalid href detected in development mode
+    if (!detailsHref || detailsHref === '#' || detailsHref === 'about:blank') {
+      console.warn(
+        `Warning: Invalid href for item ${item.id}: "${detailsHref}"`,
+      )
     }
   }, [detailsHref, item.id])
   // Format date to display as "Jan 12, 2024"

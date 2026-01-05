@@ -11,7 +11,6 @@ type EventName =
   | 'Guides.RelatedClick'
   | 'Guides.Share'
   | 'Guides.Print'
-  | 'Guides.TabChanged'
 
 export const track = (name: EventName, payload: Record<string, any>) => {
   try {

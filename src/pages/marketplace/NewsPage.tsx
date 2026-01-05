@@ -294,7 +294,7 @@ const NewsPage: React.FC = () => {
     }
     return 'announcements';
   });
-  const [queryText, setQueryText] = useState(() => searchParams.get('q') ?? '');
+  const [queryText, setQueryText] = useState('');
   const [filters, setFilters] = useState<FiltersValue>({});
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -303,18 +303,6 @@ const NewsPage: React.FC = () => {
   const [jobItems, setJobItems] = useState<JobItem[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-
-  // Update tab when searchParams change (e.g., when navigating with query params)
-  useEffect(() => {
-    const paramTab = searchParams.get('tab');
-    if (paramTab === 'announcements' || paramTab === 'insights' || paramTab === 'opportunities') {
-      setTab(paramTab);
-    } else if (location.pathname.includes('/opportunities')) {
-      setTab('opportunities');
-    } else if (!paramTab) {
-      setTab('announcements');
-    }
-  }, [searchParams, location.pathname]);
 
   useEffect(() => {
     setFilters({});
@@ -332,12 +320,6 @@ const NewsPage: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Keep local search text in sync with URL ?q= from external entry points (e.g., hero search)
-  useEffect(() => {
-    const urlQuery = searchParams.get('q') ?? '';
-    setQueryText(urlQuery);
-  }, [searchParams]);
 
   useEffect(() => {
     let isMounted = true;

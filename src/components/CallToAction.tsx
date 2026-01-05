@@ -278,14 +278,14 @@ const CallToAction: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {/* Card 1: Register Your Enterprise */}
           <CTACard icon={<Users size={28} className="text-dq-coral" />} title="Open DQ Workspace" description="Lead — access tools, services, and dashboards that help you work smarter every day." buttonText="Open Now →" buttonColor="blue" onClick={() => navigate('/register')} delay={0.3} />
-          {/* Card 2: Become a Scrum Master */}
+          {/* Card 2: Become a Lead */}
           <CTACard
             icon={<Briefcase size={28} className="text-dq-navy" />}
-            title="Become a Scrum Master"
-            description="Co-work — take the next step in your DQ journey. Apply for a Scrum Master role, facilitate agile practices, and help teams deliver value effectively."
+            title="Become a Lead"
+            description="Co-work — take the next step in your DQ journey. Apply for a Lead role, mentor associates, and help shape how our workspace grows."
             buttonText="Apply Now →"
             buttonColor="green"
-            onClick={() => navigate('/scrum-master-space')}
+            onClick={handleLeadApplyCTA}
             delay={0.5}
           />
           {/* Card 3: Contact Us */}

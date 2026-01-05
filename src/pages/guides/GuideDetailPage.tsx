@@ -7,58 +7,16 @@
 // - Added accessibility attributes and improved button styling per spec
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useParams, Link } from 'react-router-dom'
+import { useLocation, useNavigate, useParams, Link } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
-import { ChevronRightIcon, HomeIcon, CheckCircle, Download, AlertTriangle, ExternalLink } from 'lucide-react'
+import { ChevronRightIcon, HomeIcon, CheckCircle, Download, AlertTriangle, ExternalLink, ChevronDown } from 'lucide-react'
 import { supabaseClient } from '../../lib/supabaseClient'
 import { getGuideImageUrl } from '../../utils/guideImageMap'
 import { track } from '../../utils/analytics'
 import { useAuth } from '../../components/Header/context/AuthContext'
 // CODEx: import new preview component
 import { DocumentPreview } from '../../components/guides/DocumentPreview'
-const L24WorkingRoomsGuidelinePage = React.lazy(() => import('../guidelines/l24-working-rooms/GuidelinePage'))
-const RescueShiftGuidelinePage = React.lazy(() => import('../guidelines/rescue-shift-guidelines/GuidelinePage'))
-const RAIDGuidelinePage = React.lazy(() => import('../guidelines/raid-guidelines/GuidelinePage'))
-const AgendaSchedulingGuidelinePage = React.lazy(() => import('../guidelines/agenda-scheduling-guidelines/GuidelinePage'))
-const FunctionalTrackerGuidelinePage = React.lazy(() => import('../guidelines/functional-tracker-guidelines/GuidelinePage'))
-const ScrumMasterGuidelinePage = React.lazy(() => import('../guidelines/scrum-master-guidelines/GuidelinePage'))
-const QForumGuidelinePage = React.lazy(() => import('../guidelines/qforum-guidelines/GuidelinePage'))
-const DQCompetenciesPage = React.lazy(() => import('../strategy/dq-competencies/GuidelinePage'))
-const DQVisionMissionPage = React.lazy(() => import('../strategy/dq-vision-mission/GuidelinePage'))
-const DQGHCPage = React.lazy(() => import('../strategy/dq-ghc/GuidelinePage'))
-const DQProductsPage = React.lazy(() => import('../strategy/dq-products/GuidelinePage'))
-const DQVisionPage = React.lazy(() => import('../strategy/dq-vision/GuidelinePage'))
-const DQHoVPage = React.lazy(() => import('../strategy/dq-hov/GuidelinePage'))
-const DQPersonaPage = React.lazy(() => import('../strategy/dq-persona/GuidelinePage'))
-const DQAgileTMSPage = React.lazy(() => import('../strategy/dq-agile-tms/GuidelinePage'))
-const DQAgileSoSPage = React.lazy(() => import('../strategy/dq-agile-sos/GuidelinePage'))
-const DQAgileFlowsPage = React.lazy(() => import('../strategy/dq-agile-flows/GuidelinePage'))
-const DQAgile6xDPage = React.lazy(() => import('../strategy/dq-agile-6xd/GuidelinePage'))
-const BlueprintPage = React.lazy(() => import('../blueprints/detail/BlueprintPage'))
-const WFHGuidelinePage = React.lazy(() => import('../guidelines/wfh-guidelines/GuidelinePage'))
-const AssetMaintenanceGuidelinePage = React.lazy(() => import('../guidelines/asset-maintenance-guidelines/GuidelinePage'))
-const DressCodeGuidelinePage = React.lazy(() => import('../guidelines/dress-code-guidelines/GuidelinePage'))
-const DealsBDGuidelinePage = React.lazy(() => import('../guidelines/deals-bd-guidelines/GuidelinePage'))
-const ATPStopScansGuidelinePage = React.lazy(() => import('../guidelines/atp-stop-scans-guidelines/GuidelinePage'))
-const AVRAwardsGuidelinePage = React.lazy(() => import('../guidelines/avr-awards-guidelines/GuidelinePage'))
-const AzureDevOpsTaskGuidelinePage = React.lazy(() => import('../guidelines/azure-devops-task-guidelines/GuidelinePage'))
-const BiometricSystemGuidelinePage = React.lazy(() => import('../guidelines/biometric-system-guidelines/GuidelinePage'))
-const WRAttendancePunctualityPolicyPage = React.lazy(() => import('../guidelines/wr-attendance-punctuality-policy/GuidelinePage'))
-const AssociateOwnedAssetGuidelinePage = React.lazy(() => import('../guidelines/associate-owned-asset-guidelines/GuidelinePage'))
-// 12 Guiding Values pages
-const EmotionalIntelligencePage = React.lazy(() => import('../strategy/dq-competencies-emotional-intelligence/GuidelinePage'))
-const GrowthMindsetPage = React.lazy(() => import('../strategy/dq-competencies-growth-mindset/GuidelinePage'))
-const PurposePage = React.lazy(() => import('../strategy/dq-competencies-purpose/GuidelinePage'))
-const PerceptivePage = React.lazy(() => import('../strategy/dq-competencies-perceptive/GuidelinePage'))
-const ProactivePage = React.lazy(() => import('../strategy/dq-competencies-proactive/GuidelinePage'))
-const PerseverancePage = React.lazy(() => import('../strategy/dq-competencies-perseverance/GuidelinePage'))
-const PrecisionPage = React.lazy(() => import('../strategy/dq-competencies-precision/GuidelinePage'))
-const CustomerPage = React.lazy(() => import('../strategy/dq-competencies-customer/GuidelinePage'))
-const LearningPage = React.lazy(() => import('../strategy/dq-competencies-learning/GuidelinePage'))
-const CollaborationPage = React.lazy(() => import('../strategy/dq-competencies-collaboration/GuidelinePage'))
-const ResponsibilityPage = React.lazy(() => import('../strategy/dq-competencies-responsibility/GuidelinePage'))
-const TrustPage = React.lazy(() => import('../strategy/dq-competencies-trust/GuidelinePage'))
 
 const Markdown = React.lazy(() => import('../../components/guides/MarkdownRenderer'))
 
@@ -93,6 +51,7 @@ interface GuideRecord {
 const GuideDetailPage: React.FC = () => {
   const { itemId } = useParams()
   const location = useLocation() as any
+  const navigate = useNavigate()
   const { user } = useAuth()
 
   const [guide, setGuide] = useState<GuideRecord | null>(null)
@@ -102,185 +61,9 @@ const GuideDetailPage: React.FC = () => {
   const [checklistState, setChecklistState] = useState<Record<string, boolean>>({})
   const [previewUnavailable, setPreviewUnavailable] = useState(false)
   const articleRef = useRef<HTMLDivElement | null>(null)
+  const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([])
   const [activeContentTab, setActiveContentTab] = useState<string>('overview')
   const isClientTestimonials = useMemo(() => (guide?.slug || '').toLowerCase() === 'client-testimonials', [guide?.slug])
-  const isL24WorkingRooms = useMemo(() => (guide?.slug || '').toLowerCase() === 'dq-l24-working-rooms-guidelines' || (guide?.title || '').toLowerCase().includes('l24 working rooms'), [guide?.slug, guide?.title])
-  const isRescueShift = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-rescue-shift-guidelines' || slug === 'rescue-shift-guidelines' || title.includes('rescue shift')
-  }, [guide?.slug, guide?.title])
-  const isRAID = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'raid-guidelines' || slug === 'dq-raid-guidelines' || title.includes('raid guidelines')
-  }, [guide?.slug, guide?.title])
-  const isAgendaScheduling = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-agenda-and-scheduling-guidelines' || slug === 'agenda-scheduling-guidelines' || title.includes('agenda') && title.includes('scheduling')
-  }, [guide?.slug, guide?.title])
-  const isFunctionalTracker = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-functional-tracker-guidelines' || slug === 'functional-tracker-guidelines' || title.includes('functional tracker')
-  }, [guide?.slug, guide?.title])
-  const isScrumMaster = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-scrum-master-guidelines' || slug === 'scrum-master-guidelines' || title.includes('scrum master')
-  }, [guide?.slug, guide?.title])
-  const isQForum = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'forum-guidelines' || slug === 'dq-forum-guidelines' || slug === 'qforum-guidelines' || title.includes('forum guidelines')
-  }, [guide?.slug, guide?.title])
-  const isDQCompetencies = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    // Exclude GHC - check for GHC first, then check for competencies
-    if (slug === 'dq-ghc' || slug === 'ghc' || slug === 'golden-honeycomb' || title.includes('ghc') || title.includes('golden honeycomb')) {
-      return false
-    }
-    return slug === 'dq-competencies' || title.toLowerCase().includes('dq competencies') || (title.toLowerCase().includes('competencies') && !title.includes('ghc'))
-  }, [guide?.slug, guide?.title])
-  const isDQVisionMission = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-vision-and-mission' || slug === 'dq-vision-mission' || title.toLowerCase().includes('dq vision') && title.toLowerCase().includes('mission') || (title.toLowerCase().includes('vision') && title.toLowerCase().includes('mission'))
-  }, [guide?.slug, guide?.title])
-  const isDQGHC = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-ghc' || slug === 'ghc' || slug === 'golden-honeycomb' || title.includes('ghc') || title.includes('golden honeycomb') || (title.includes('foundation') && title.includes('dna'))
-  }, [guide?.slug, guide?.title])
-  const isDQProducts = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-products' || slug === 'dq-products' || title.toLowerCase().includes('dq products') || (title.toLowerCase().includes('products') && !title.toLowerCase().includes('6xd'))
-  }, [guide?.slug, guide?.title])
-  const isDQVision = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-vision' || slug === 'dq-vision-purpose'
-  }, [guide?.slug])
-  const isDQHoV = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-hov' || slug === 'hov' || slug === 'house-of-values'
-  }, [guide?.slug])
-  const isDQPersona = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-persona' || slug === 'persona-identity'
-  }, [guide?.slug])
-  const isDQAgileTMS = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-agile-tms' || slug === 'agile-tms'
-  }, [guide?.slug])
-  const isDQAgileSoS = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-agile-sos' || slug === 'agile-sos'
-  }, [guide?.slug])
-  const isDQAgileFlows = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-agile-flows' || slug === 'agile-flows'
-  }, [guide?.slug])
-  const isDQAgile6xD = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-agile-6xd' || slug === 'agile-6xd'
-  }, [guide?.slug])
-  const isWFHGuidelines = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-wfh-guidelines' || slug === 'wfh-guidelines'
-  }, [guide?.slug])
-  const isAssetMaintenanceGuidelines = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-asset-maintenance-repair-disposal-guidelines' || slug === 'asset-maintenance-guidelines'
-  }, [guide?.slug])
-  const isDressCodeGuidelines = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-dress-code-guideline' || slug === 'dress-code-guideline'
-  }, [guide?.slug])
-  const isDealsBDGuidelines = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-deals-bd-guidelines' || slug === 'deals-bd-guidelines'
-  }, [guide?.slug])
-  const isATPStopScansGuidelines = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-atp-stop-scans-guidelines' || slug === 'atp-stop-scans-guidelines'
-  }, [guide?.slug])
-  const isAVRAwardsGuidelines = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-avr-awards-guidelines' || slug === 'avr-awards-guidelines'
-  }, [guide?.slug])
-  const isAzureDevOpsTaskGuidelines = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-azure-devops-task-guidelines' || slug === 'azure-devops-task-guidelines'
-  }, [guide?.slug])
-  const isBiometricSystemGuidelines = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-biometric-system-guidelines' || slug === 'biometric-system-guidelines'
-  }, [guide?.slug])
-  const isWRAttendancePunctualityPolicy = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-wr-attendance-punctuality-policy' || slug === 'wr-attendance-punctuality-policy'
-  }, [guide?.slug])
-  const isAssociateOwnedAssetGuidelines = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-associate-owned-asset-guidelines' || slug === 'associate-owned-asset-guidelines'
-  }, [guide?.slug])
-  // 12 Guiding Values checks
-  const isEmotionalIntelligence = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-competencies-emotional-intelligence' || slug === 'emotional-intelligence'
-  }, [guide?.slug])
-  const isGrowthMindset = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-competencies-growth-mindset' || slug === 'growth-mindset'
-  }, [guide?.slug])
-  const isPurpose = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-competencies-purpose'
-  }, [guide?.slug])
-  const isPerceptive = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-competencies-perceptive'
-  }, [guide?.slug])
-  const isProactive = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-competencies-proactive'
-  }, [guide?.slug])
-  const isPerseverance = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-competencies-perseverance'
-  }, [guide?.slug])
-  const isPrecision = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-competencies-precision'
-  }, [guide?.slug])
-  const isCustomer = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-competencies-customer'
-  }, [guide?.slug])
-  const isLearning = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-competencies-learning'
-  }, [guide?.slug])
-  const isCollaboration = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-competencies-collaboration'
-  }, [guide?.slug])
-  const isResponsibility = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-competencies-responsibility'
-  }, [guide?.slug])
-  const isTrust = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-competencies-trust'
-  }, [guide?.slug])
-  
-  // Check if this guide should use a custom GuidelinePage
-  const hasCustomGuidelinePage = useMemo(() => {
-    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isWFHGuidelines || isAssetMaintenanceGuidelines || isDressCodeGuidelines || isDealsBDGuidelines || isATPStopScansGuidelines || isAVRAwardsGuidelines || isAzureDevOpsTaskGuidelines || isBiometricSystemGuidelines || isWRAttendancePunctualityPolicy || isAssociateOwnedAssetGuidelines || isDQCompetencies || isDQVisionMission || isDQGHC || isDQProducts || isDQVision || isDQHoV || isDQPersona || isDQAgileTMS || isDQAgileSoS || isDQAgileFlows || isDQAgile6xD || isEmotionalIntelligence || isGrowthMindset || isPurpose || isPerceptive || isProactive || isPerseverance || isPrecision || isCustomer || isLearning || isCollaboration || isResponsibility || isTrust
-  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isWFHGuidelines, isAssetMaintenanceGuidelines, isDressCodeGuidelines, isDealsBDGuidelines, isATPStopScansGuidelines, isAVRAwardsGuidelines, isAzureDevOpsTaskGuidelines, isBiometricSystemGuidelines, isWRAttendancePunctualityPolicy, isAssociateOwnedAssetGuidelines, isDQCompetencies, isDQVisionMission, isDQGHC, isDQProducts, isDQVision, isDQHoV, isDQPersona, isDQAgileTMS, isDQAgileSoS, isDQAgileFlows, isDQAgile6xD, isEmotionalIntelligence, isGrowthMindset, isPurpose, isPerceptive, isProactive, isPerseverance, isPrecision, isCustomer, isLearning, isCollaboration, isResponsibility, isTrust])
   const featuredClientTestimonials = [
     {
       id: 'khalifa',
@@ -323,6 +106,14 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     normalizedStateTab === 'strategy' || normalizedStateTab === 'blueprints'
       ? normalizedStateTab as GuideTabKey
       : undefined
+const deriveTabKey = (g?: GuideRecord | null): GuideTabKey => {
+  const domain = (g?.domain || '').toLowerCase()
+  const guideType = (g?.guideType || '').toLowerCase()
+  if (domain.includes('blueprint') || guideType.includes('blueprint')) return 'blueprints'
+  if (domain.includes('strategy') || guideType.includes('strategy')) return 'strategy'
+  if (domain.includes('testimonial') || guideType.includes('testimonial')) return 'testimonials'
+  return 'guidelines'
+}
 
   useEffect(() => {
     let cancelled = false
@@ -405,6 +196,9 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   useEffect(() => {
     const el = articleRef.current
     if (!el) return
+    const hs = Array.from(el.querySelectorAll('h2, h3')) as HTMLElement[]
+    const items = hs.map(h => ({ id: h.id, text: h.innerText.trim(), level: h.tagName === 'H2' ? 2 : 3 }))
+    setToc(items.filter(i => i.id && i.text))
     const onClick = (e: Event) => {
       const t = e.target as HTMLElement | null
       if (!t) return
@@ -481,11 +275,10 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     heroImageUrl: guide?.heroImageUrl || undefined,
     domain: guide?.domain || undefined,
     guideType: guide?.guideType || undefined,
-    subDomain: guide?.subDomain || (guide as any)?.sub_domain || undefined,
     id: guide?.id,
     slug: guide?.slug,
     title: guide?.title,
-  }), [guide?.heroImageUrl, guide?.domain, guide?.guideType, guide?.subDomain, (guide as any)?.sub_domain, guide?.id, guide?.slug, guide?.title])
+  }), [guide?.heroImageUrl, guide?.domain, guide?.guideType, guide?.id, guide?.slug, guide?.title])
   const normalizeTag = (value?: string | null) => {
     if (!value) return ''
     const cleaned = value.toLowerCase().replace(/[_-]+/g, ' ').trim()
@@ -699,13 +492,11 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
 
   // Blueprint TOC state - MOVED TO TOP
   const [activeTOCSection, setActiveTOCSection] = useState<string>('')
+  const [showMobileTOC, setShowMobileTOC] = useState(false)
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
-  
-  // activeTOCSection is set by IntersectionObserver but not currently used in render
-  void activeTOCSection
 
   // Helper function to format Features: list the 10 DWS platform features
-  const makeFeaturesPrecise = (_content: string): string => {
+  const makeFeaturesPrecise = (content: string): string => {
     // Return the standard 10 DWS features for blueprints
     const standardFeatures = [
       { title: 'DWS Landing (Home)', description: 'Main entry point and navigation hub for the Digital Workspace platform' },
@@ -953,6 +744,11 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     if (!guide?.body) return []
     return parseGuideSections(guide.body)
   }, [guide?.body])
+  
+  const estimatedReadTime = useMemo(() => 
+    guide?.body ? Math.max(5, Math.ceil((guide.body.split(/\s+/).length || 0) / 200)) : 5,
+    [guide?.body]
+  )
 
   // Open/Print removed per new design
   const handleDownload = (category: 'attachment' | 'template', item: any) => {
@@ -981,6 +777,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   const lastUpdated = useMemo(() => guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null, [guide?.lastUpdatedAt])
   const isApproved = useMemo(() => ((guide?.status) || 'Approved') === 'Approved', [guide?.status])
   const isPolicy = useMemo(() => type === 'policy', [type])
+  const showDocumentActions = hasDocument
   const isPreviewableDocument = useMemo(() => {
     if (!isPolicy || !hasDocument) return false
     const base = documentUrl.split('#')[0].split('?')[0].toLowerCase()
@@ -1031,193 +828,19 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     )
   }
 
-  // Use custom layout for guidelines with custom GuidelinePage components
-  if (hasCustomGuidelinePage) {
-    const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
-      <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div><p className="mt-4 text-gray-600">Loading...</p></div></div>}>
-        {children}
-      </React.Suspense>
-    )
 
-    if (isL24WorkingRooms) {
-      return <SuspenseWrapper><L24WorkingRoomsGuidelinePage /></SuspenseWrapper>
-    }
-    
-    if (isRescueShift) {
-      return <SuspenseWrapper><RescueShiftGuidelinePage /></SuspenseWrapper>
-    }
-    
-    if (isRAID) {
-      return <SuspenseWrapper><RAIDGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isAgendaScheduling) {
-      return <SuspenseWrapper><AgendaSchedulingGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isFunctionalTracker) {
-      return <SuspenseWrapper><FunctionalTrackerGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isScrumMaster) {
-      return <SuspenseWrapper><ScrumMasterGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isQForum) {
-      return <SuspenseWrapper><QForumGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isWFHGuidelines) {
-      return <SuspenseWrapper><WFHGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isAssetMaintenanceGuidelines) {
-      return <SuspenseWrapper><AssetMaintenanceGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isDressCodeGuidelines) {
-      return <SuspenseWrapper><DressCodeGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isDealsBDGuidelines) {
-      return <SuspenseWrapper><DealsBDGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isATPStopScansGuidelines) {
-      return <SuspenseWrapper><ATPStopScansGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isAVRAwardsGuidelines) {
-      return <SuspenseWrapper><AVRAwardsGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isAzureDevOpsTaskGuidelines) {
-      return <SuspenseWrapper><AzureDevOpsTaskGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isBiometricSystemGuidelines) {
-      return <SuspenseWrapper><BiometricSystemGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isWRAttendancePunctualityPolicy) {
-      return <SuspenseWrapper><WRAttendancePunctualityPolicyPage /></SuspenseWrapper>
-    }
-
-    if (isAssociateOwnedAssetGuidelines) {
-      return <SuspenseWrapper><AssociateOwnedAssetGuidelinePage /></SuspenseWrapper>
-    }
-
-    // Check GHC BEFORE DQ Competencies (GHC is more specific and its title contains "Competencies")
-    if (isDQGHC) {
-      return <SuspenseWrapper><DQGHCPage /></SuspenseWrapper>
-    }
-
-    if (isDQCompetencies) {
-      return <SuspenseWrapper><DQCompetenciesPage /></SuspenseWrapper>
-    }
-
-    if (isDQProducts) {
-      return <SuspenseWrapper><DQProductsPage /></SuspenseWrapper>
-    }
-
-    if (isDQVisionMission) {
-      return <SuspenseWrapper><DQVisionMissionPage /></SuspenseWrapper>
-    }
-
-    // GHC Core Elements
-    if (isDQVision) {
-      return <SuspenseWrapper><DQVisionPage /></SuspenseWrapper>
-    }
-
-    if (isDQHoV) {
-      return <SuspenseWrapper><DQHoVPage /></SuspenseWrapper>
-    }
-
-    if (isDQPersona) {
-      return <SuspenseWrapper><DQPersonaPage /></SuspenseWrapper>
-    }
-
-    if (isDQAgileTMS) {
-      return <SuspenseWrapper><DQAgileTMSPage /></SuspenseWrapper>
-    }
-
-    if (isDQAgileSoS) {
-      return <SuspenseWrapper><DQAgileSoSPage /></SuspenseWrapper>
-    }
-
-    if (isDQAgileFlows) {
-      return <SuspenseWrapper><DQAgileFlowsPage /></SuspenseWrapper>
-    }
-
-    if (isDQAgile6xD) {
-      return <SuspenseWrapper><DQAgile6xDPage /></SuspenseWrapper>
-    }
-
-    // 12 Guiding Values
-    if (isEmotionalIntelligence) {
-      return <SuspenseWrapper><EmotionalIntelligencePage /></SuspenseWrapper>
-    }
-
-    if (isGrowthMindset) {
-      return <SuspenseWrapper><GrowthMindsetPage /></SuspenseWrapper>
-    }
-
-    if (isPurpose) {
-      return <SuspenseWrapper><PurposePage /></SuspenseWrapper>
-    }
-
-    if (isPerceptive) {
-      return <SuspenseWrapper><PerceptivePage /></SuspenseWrapper>
-    }
-
-    if (isProactive) {
-      return <SuspenseWrapper><ProactivePage /></SuspenseWrapper>
-    }
-
-    if (isPerseverance) {
-      return <SuspenseWrapper><PerseverancePage /></SuspenseWrapper>
-    }
-
-    if (isPrecision) {
-      return <SuspenseWrapper><PrecisionPage /></SuspenseWrapper>
-    }
-
-    if (isCustomer) {
-      return <SuspenseWrapper><CustomerPage /></SuspenseWrapper>
-    }
-
-    if (isLearning) {
-      return <SuspenseWrapper><LearningPage /></SuspenseWrapper>
-    }
-
-    if (isCollaboration) {
-      return <SuspenseWrapper><CollaborationPage /></SuspenseWrapper>
-    }
-
-    if (isResponsibility) {
-      return <SuspenseWrapper><ResponsibilityPage /></SuspenseWrapper>
-    }
-
-    if (isTrust) {
-      return <SuspenseWrapper><TrustPage /></SuspenseWrapper>
+  // Scroll to section
+  const scrollToSection = (sectionId: string) => {
+    const element = sectionRefs.current[sectionId]
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      setActiveTOCSection(sectionId)
+      setShowMobileTOC(false)
     }
   }
 
-
-
-
-  // Route blueprints to the new BlueprintPage component (same format as DQ Competencies)
+  // Render Blueprint with DQ Products layout (same as DQ Products)
   if (actualIsBlueprintDomain) {
-    const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
-      <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div><p className="mt-4 text-gray-600">Loading...</p></div></div>}>
-        {children}
-      </React.Suspense>
-    )
-    return <SuspenseWrapper><BlueprintPage /></SuspenseWrapper>
-  }
-
-  // OLD Blueprint rendering - now replaced by BlueprintPage component above
-  if (false && actualIsBlueprintDomain) {
     return (
       <div className="min-h-screen flex flex-col guidelines-theme dq-products-bg" style={{ minHeight: '100vh' }}>
         <Header toggleSidebar={() => {}} sidebarOpen={false} />
@@ -1371,7 +994,6 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                         heroImageUrl: r.heroImageUrl || undefined,
                         domain: r.domain || undefined,
                         guideType: r.guideType || undefined,
-                        subDomain: r.subDomain || (r as any)?.sub_domain || undefined,
                         id: r.id,
                         slug: r.slug,
                         title: r.title,
@@ -1558,7 +1180,6 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                         heroImageUrl: r.heroImageUrl || undefined,
                         domain: r.domain || undefined,
                         guideType: r.guideType || undefined,
-                        subDomain: r.subDomain || (r as any)?.sub_domain || undefined,
                         id: r.id,
                         slug: r.slug,
                         title: r.title,
@@ -2013,7 +1634,6 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                             heroImageUrl: r.heroImageUrl || undefined,
                             domain: r.domain || undefined,
                             guideType: r.guideType || undefined,
-                            subDomain: r.subDomain || (r as any)?.sub_domain || undefined,
                             id: r.id,
                             slug: r.slug,
                             title: r.title,

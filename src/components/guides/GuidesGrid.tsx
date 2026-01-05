@@ -5,17 +5,15 @@ interface Props {
   items: any[]
   onClickGuide: (g: any) => void
   hideEmptyState?: boolean
-  emptyStateTitle?: string
-  emptyStateMessage?: string
 }
 
-export const GuidesGrid: React.FC<Props> = ({ items, onClickGuide, hideEmptyState, emptyStateTitle = 'No guides found', emptyStateMessage = 'Try adjusting your filters or search' }) => {
+export const GuidesGrid: React.FC<Props> = ({ items, onClickGuide, hideEmptyState }) => {
   if (!items || items.length === 0) {
     if (hideEmptyState) return null
     return (
       <div className="bg-white rounded-lg shadow p-8 text-center">
-        <h3 className="text-xl font-medium text-gray-900 mb-2">{emptyStateTitle}</h3>
-        <p className="text-gray-500">{emptyStateMessage}</p>
+        <h3 className="text-xl font-medium text-gray-900 mb-2">No guides found</h3>
+        <p className="text-gray-500">Try adjusting your filters or search</p>
       </div>
     )
   }

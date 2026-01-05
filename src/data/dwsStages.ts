@@ -18,9 +18,6 @@ export type DwsStage = {
   subtitle: string;
   about: string;
   keyBenefits: string[];
-  levelSummary: string;
-  growthExpectations: string[];
-  whatGoodLooksLike: string[];
   ctaLabel: string;
   ctaHref: string;
   services: StageService[];
@@ -34,22 +31,10 @@ export const dwsStages: DwsStage[] = [
     order: 1,
     level: "L0",
     title: "Starting (Learning)",
-    subtitle: "Build your DQ foundation with essential onboarding, tools, and starter learning needed to begin contributing.",
+    subtitle: "Build DQ foundations.",
     about:
       "Lay the groundwork for your DQ journey with guided onboarding resources and curated starter courses that help you understand the workspace quickly.",
     keyBenefits: ["Onboarding guides", "LMS starter courses", "Knowledge Hub access"],
-    levelSummary: "Build DQ foundations and understand the workspace environment.",
-    growthExpectations: [
-      "Complete onboarding guides and LMS starter courses",
-      "Learn core DQ tools and daily workflows",
-      "Understand team structure, roles, and responsibilities",
-      "Follow guidance from mentors and buddies"
-    ],
-    whatGoodLooksLike: [
-      "You understand basic tools and processes",
-      "You ask questions early and often",
-      "You complete assigned starter tasks successfully"
-    ],
     ctaLabel: "Start Learning",
     ctaHref: "#",
     services: [
@@ -105,22 +90,10 @@ export const dwsStages: DwsStage[] = [
     order: 2,
     level: "L1",
     title: "Follow (Self Aware)",
-    subtitle: "Practice guided tasks, build confidence in daily routines, and understand how your work supports team goals.",
+    subtitle: "Practice with guidance.",
     about:
       "Strengthen awareness of DQ rhythms by pairing with mentors, applying daily rituals, and observing high-performing squads.",
     keyBenefits: ["Daily checklists", "Buddy system", "Workspace orientation"],
-    levelSummary: "Practice with guidance and begin contributing to simple tasks.",
-    growthExpectations: [
-      "Follow daily checklists and work routines",
-      "Seek guidance proactively from the team",
-      "Complete assigned tasks with accuracy",
-      "Learn how your work contributes to team goals"
-    ],
-    whatGoodLooksLike: [
-      "You finish tasks on time with minimal rework",
-      "You use team processes consistently",
-      "You collaborate respectfully and communicate clearly"
-    ],
     ctaLabel: "Follow the Path",
     ctaHref: "#",
     services: [
@@ -167,22 +140,10 @@ export const dwsStages: DwsStage[] = [
     order: 3,
     level: "L2",
     title: "Assist (Self Lead)",
-    subtitle: "Contribute independently to small tasks, collaborate with your squad, and communicate clearly to keep work moving.",
+    subtitle: "Contribute and collaborate.",
     about:
       "Own small deliverables, collaborate with your squad, and practice structured communication to unblock teammates.",
     keyBenefits: ["Agile boards", "Services & Requests", "Team deliverables"],
-    levelSummary: "Contribute independently and collaborate actively.",
-    growthExpectations: [
-      "Handle basic tasks end-to-end",
-      "Communicate progress clearly",
-      "Participate in team deliverables",
-      "Use Agile tools and work boards correctly"
-    ],
-    whatGoodLooksLike: [
-      "You require less supervision",
-      "You take responsibility for your deliverables",
-      "You help teammates when needed"
-    ],
     ctaLabel: "Assist Your Team",
     ctaHref: "#",
     services: [
@@ -238,22 +199,10 @@ export const dwsStages: DwsStage[] = [
     order: 4,
     level: "L3",
     title: "Apply (Drive Squad)",
-    subtitle: "Own outcomes within your squad, deliver consistent work, and play an active role in cross-team collaboration.",
+    subtitle: "Own outcomes.",
     about:
       "Lead sprint rituals, track performance signals, and coach peers to deliver predictable squad outcomes.",
     keyBenefits: ["Productivity dashboards", "Specialized LMS", "Cross-unit projects"],
-    levelSummary: "Own outcomes and drive value within your squad.",
-    growthExpectations: [
-      "Deliver tasks and features independently",
-      "Solve non-routine problems using judgment",
-      "Collaborate across squads",
-      "Support sprint planning and retros"
-    ],
-    whatGoodLooksLike: [
-      "You deliver consistent, high-quality outcomes",
-      "You anticipate blockers and escalate effectively",
-      "You contribute to team alignment"
-    ],
     ctaLabel: "Apply Your Skills",
     ctaHref: "#",
     services: [
@@ -300,22 +249,10 @@ export const dwsStages: DwsStage[] = [
     order: 5,
     level: "L4",
     title: "Enable (Drive Team)",
-    subtitle: "Support multi-squad alignment, improve workflows, and guide teammates through shared delivery processes.",
+    subtitle: "Enable multi-squad alignment.",
     about:
       "Coordinate multiple squads, build shared rituals, and scale best practices that keep teams aligned.",
     keyBenefits: ["Team sync playbook", "Scaling ceremonies", "Coaching guides"],
-    levelSummary: "Enable multi-squad alignment and drive team coordination.",
-    growthExpectations: [
-      "Guide others through work processes",
-      "Facilitate team syncs and ceremonies",
-      "Coordinate cross-squad dependencies",
-      "Mentor juniors where needed"
-    ],
-    whatGoodLooksLike: [
-      "You improve team workflows",
-      "Teams rely on you for clarity and direction",
-      "You help resolve blockers across squads"
-    ],
     ctaLabel: "Enable Your Teams",
     ctaHref: "#",
     services: [
@@ -371,22 +308,10 @@ export const dwsStages: DwsStage[] = [
     order: 6,
     level: "L5",
     title: "Ensure (Steer Org)",
-    subtitle: "Strengthen organization-level outcomes by applying governance, risk controls, and disciplined release management.",
+    subtitle: "Steer organization outcomes.",
     about:
       "Orchestrate releases, manage risk, and ensure compliance by connecting delivery signals to governance frameworks.",
     keyBenefits: ["Governance playbooks", "Release discipline", "Risk & compliance flows"],
-    levelSummary: "Steer organizational outcomes and maintain delivery discipline.",
-    growthExpectations: [
-      "Apply governance playbooks and frameworks",
-      "Ensure compliance and risk controls",
-      "Manage release cycles and approval flows",
-      "Provide leadership guidance to teams"
-    ],
-    whatGoodLooksLike: [
-      "You bring structure and stability",
-      "You foresee organizational risks early",
-      "Your decisions improve delivery outcomes"
-    ],
     ctaLabel: "Ensure at Org Level",
     ctaHref: "#",
     services: [
@@ -433,22 +358,10 @@ export const dwsStages: DwsStage[] = [
     order: 7,
     level: "L6",
     title: "Influence (Steer Cross)",
-    subtitle: "Scale best practices across units, lead change initiatives, and elevate quality through cross-organization influence.",
+    subtitle: "Scale good practices.",
     about:
       "Establish communities of practice, design change programs, and share patterns across business units.",
     keyBenefits: ["Cross-unit playbooks", "Communities of practice", "Change toolkits"],
-    levelSummary: "Scale good practices across units and teams.",
-    growthExpectations: [
-      "Create cross-unit playbooks",
-      "Build communities of practice",
-      "Lead change-management activities",
-      "Influence decision-making across groups"
-    ],
-    whatGoodLooksLike: [
-      "You uplift work quality across teams",
-      "You introduce scalable processes",
-      "You drive cross-unit alignment"
-    ],
     ctaLabel: "Influence at Scale",
     ctaHref: "#",
     services: [
@@ -504,22 +417,10 @@ export const dwsStages: DwsStage[] = [
     order: 8,
     level: "L7",
     title: "Inspire (Inspire Market)",
-    subtitle: "Shape strategic direction, promote innovation, and inspire the wider ecosystem through thought leadership.",
+    subtitle: "Shape the ecosystem.",
     about:
       "Drive market influence by sharing thought leadership, showcasing innovation, and cultivating external partnerships.",
     keyBenefits: ["Strategy hubs", "Innovation forums", "Thought leadership"],
-    levelSummary: "Shape the ecosystem and inspire strategic direction.",
-    growthExpectations: [
-      "Lead strategy discussions and forums",
-      "Promote innovation and thought leadership",
-      "Influence the wider market and ecosystem",
-      "Inspire teams toward long-term vision"
-    ],
-    whatGoodLooksLike: [
-      "You shape strategic direction",
-      "You champion innovation at scale",
-      "Teams look to you for guidance and inspiration"
-    ],
     ctaLabel: "Inspire the Market",
     ctaHref: "#",
     services: [

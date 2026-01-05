@@ -6,7 +6,7 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize from 'rehype-sanitize'
 
-const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
+const MarkdownRenderer: React.FC<{ body: string; onRendered?: () => void }> = ({ body, onRendered }) => {
   // Rehype plugin: preserve class attribute on div elements and ensure feature-box is detected
   const rehypePreserveDivClass = React.useMemo(() => {
     return () => (tree: any) => {
@@ -150,32 +150,24 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
           <li className="ml-1" {...(props as any)} />
         ),
         table: ({ node, ...props }) => (
-          <div className="overflow-x-auto my-8">
-            <table className="min-w-full border-collapse border border-gray-300" {...(props as any)} />
+          <div className="overflow-x-auto my-6">
+            <table className="min-w-full border-collapse border border-gray-200 rounded-lg" {...(props as any)} />
           </div>
         ),
         thead: ({ node, ...props }) => (
-          <thead {...(props as any)} />
+          <thead className="bg-gray-50" {...(props as any)} />
         ),
         tbody: ({ node, ...props }) => (
-          <tbody className="bg-white" {...(props as any)} />
+          <tbody className="bg-white divide-y divide-gray-200" {...(props as any)} />
         ),
         tr: ({ node, ...props }) => (
-          <tr className="bg-white" {...(props as any)} />
+          <tr className="hover:bg-gray-50 transition-colors" {...(props as any)} />
         ),
         th: ({ node, ...props }) => (
-          <th 
-            className="px-6 py-4 text-left text-sm font-semibold text-white border border-gray-300" 
-            style={{ backgroundColor: '#030E31', minWidth: '180px' }} 
-            {...(props as any)} 
-          />
+          <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider border-b border-gray-200" style={{ minWidth: '180px', color: '#000000' }} {...(props as any)} />
         ),
         td: ({ node, ...props }) => (
-          <td 
-            className="px-6 py-4 text-sm text-gray-900 border border-gray-300 whitespace-pre-line" 
-            style={{ minWidth: '300px' }} 
-            {...(props as any)} 
-          />
+          <td className="px-6 py-4 text-sm border-b border-gray-100" style={{ minWidth: '300px', color: '#000000' }} {...(props as any)} />
         ),
         div: (props: any) => {
           const { node, children, className, class: classProp, ...restProps } = props
@@ -204,8 +196,8 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
               }
               if (React.isValidElement(child)) {
                 // Check if element has meaningful content
-                const childProps = child.props as { children?: unknown } | undefined
-                const childChildren = childProps?.children
+                const childProps = child.props || {}
+                const childChildren = childProps.children
                 if (typeof childChildren === 'string') {
                   return childChildren.trim().length > 0
                 }

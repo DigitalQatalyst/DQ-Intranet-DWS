@@ -17,8 +17,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { FadeInUpOnScroll, StaggeredFadeIn, useInView } from "./AnimationUtils";
 import { EventCard, NewsCard, ResourceCard } from "./CardComponents";
-import { fetchAllNews } from '@/services/mediaCenterService';
-import type { NewsItem as MediaCenterNewsItem } from '@/data/media/news';
 
 interface NewsItem {
   id: string;
@@ -28,6 +26,8 @@ interface NewsItem {
   category: string;
   imageUrl: string;
   source?: string;
+  slug?: string;
+  detailPath?: string;
 }
 
 interface Event {
@@ -47,6 +47,7 @@ interface Resource {
   description: string;
   icon: React.ReactNode;
   downloadUrl?: string;
+  link?: string;
   fileSize?: string;
   downloadCount?: number;
   lastUpdated?: string;
@@ -346,7 +347,6 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
   const [isTabChanging, setIsTabChanging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<{ message: string } | null>(null);
-  const [mediaCenterNews, setMediaCenterNews] = useState<MediaCenterNewsItem[]>([]);
 
   const tabs: TabItem[] = [
     {
@@ -376,60 +376,8 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
     }, 300);
   };
 
-  // Fetch latest news from Media Center
-  useEffect(() => {
-    async function loadMediaCenterNews() {
-      if (activeTab !== "news") return;
-      
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const allNews = await fetchAllNews();
-        
-        // Filter to only announcements and limit to 6
-        const announcements = allNews
-          .filter(item => 
-            item.type === 'Announcement' || 
-            item.newsType === 'Corporate Announcements' ||
-            item.newsType === 'Product / Project Updates' ||
-            item.newsType === 'Events & Campaigns'
-          )
-          .slice(0, 6);
-        
-        setMediaCenterNews(announcements);
-      } catch (err) {
-        console.error('Error loading Media Center news:', err);
-        setError({ 
-          message: 'Unable to load latest news. Showing cached content.' 
-        });
-        // Fallback to mock data on error
-        setMediaCenterNews([]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadMediaCenterNews();
-  }, [activeTab]);
-
-  // Get data based on active tab - updated to use Media Center news
-  const getNewsData = () => {
-    // If we have Media Center news, use it; otherwise fallback to mock data
-    if (mediaCenterNews.length > 0) {
-      return mediaCenterNews.map(item => ({
-        id: item.id,
-        title: item.title,
-        excerpt: item.excerpt,
-        date: item.date,
-        category: item.department || item.newsType || 'News',
-        source: item.newsSource || item.byline || item.author || 'DQ Media Center',
-        imageUrl: item.image || undefined,
-      }));
-    }
-    // Fallback to mock data
-    return newsItems;
-  };
+  // Get data based on active tab
+  const getNewsData = () => newsItems;
   const getEventsData = () => events;
   const getResourcesData = () => resources;
 
@@ -449,17 +397,7 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
 
   // Add this function to handle event registration
   const handleEventRegister = (event: Event) => {
-    // Here you can implement what happens when someone registers for an event
-    // For example, open a registration modal, navigate to a registration page, etc.
-    console.log("Registering for event:", event.title);
-
-    // Example: Open a registration URL if available
-    // if (event.registrationUrl) {
-    //   window.open(event.registrationUrl, '_blank');
-    // }
-
-    // Or show a confirmation message
-    alert(`Registration for "${event.title}" will be available soon!`);
+    navigate(`/event-coming-soon?title=${encodeURIComponent(event.title)}`);
   };
 
   // Add function to handle resource downloads
@@ -492,17 +430,18 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
 
   // Add function to handle resource access
   const handleResourceAccess = (resource: Resource) => {
-    console.log("Accessing resource:", resource.title);
-
-    if (resource.isExternal) {
-      // For external resources, open in new tab
-      if (resource.downloadUrl) {
-        window.open(resource.downloadUrl, "_blank");
-      }
-    } else {
-      // For internal resources, navigate to detail page
-      navigate(`/resources/${resource.id}`);
+    if (resource.link && resource.link !== '#') {
+      window.open(resource.link, '_blank', 'noopener,noreferrer');
+      return;
     }
+    if (resource.isExternal && resource.downloadUrl && resource.downloadUrl !== '#') {
+      window.open(resource.downloadUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    navigate(`/resource-coming-soon?title=${encodeURIComponent(resource.title)}`);
+  };
+  const handleNewsReadMore = (news: NewsItem) => {
+    navigate(`/insight-coming-soon?title=${encodeURIComponent(news.title)}`);
   };
 
   return (
@@ -534,7 +473,7 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
           {/* Error State */}
           {error && !isLoading && <ErrorMessage message={error.message} />}
           {/* News Tab */}
-          {activeTab === "news" && !isLoading && !error && (
+          {activeTab === 'news' && !isLoading && !error && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {getNewsData().map((item, index) => (
                 <div
@@ -553,8 +492,8 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
                       date: item.date,
                       source: item.source,
                     }}
-                    onQuickView={() => navigate(`/marketplace/news/${item.id}`)}
-                    onReadMore={() => navigate(`/marketplace/news/${item.id}`)}
+                    onQuickView={() => navigate(`/news/${item.id}`)}
+                    onReadMore={() => handleNewsReadMore(item)}
                   />
                 </div>
               ))}
