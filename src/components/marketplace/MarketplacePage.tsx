@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from './FilterSidebar.js';
 import { MarketplaceGrid } from './MarketplaceGrid.js';
@@ -24,8 +24,11 @@ import {
 import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters';
 import GuidesGrid from '../guides/GuidesGrid';
 import TestimonialsGrid from '../guides/TestimonialsGrid';
+import GlossaryGrid from '../guides/GlossaryGrid';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { track } from '../../utils/analytics';
+import FAQsPageContent from '@/pages/guides/FAQsPageContent.tsx';
+import { glossaryTerms, GlossaryTerm, CATEGORIES } from '@/pages/guides/glossaryData.ts';
 const LEARNING_TYPE_FILTER: FilterConfig = {
   id: 'learningType',
   title: 'Learning Type',
@@ -174,10 +177,37 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getMarketplaceConfig(marketplaceType);
-  const [activeServiceTab, setActiveServiceTab] = useState<string>('technology');
+  
+  // Service Center tabs - sync with URL params
+  const getServiceTabFromParams = useCallback((params: URLSearchParams): string => {
+    const tab = params.get('tab');
+    const validTabs = ['technology', 'business', 'digital_worker', 'prompt_library', 'ai_tools'];
+    return tab && validTabs.includes(tab) ? tab : 'technology';
+  }, []);
+  const [activeServiceTab, setActiveServiceTab] = useState<string>(() => 
+    isServicesCenter 
+      ? getServiceTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams())
+      : 'technology'
+  );
+  
+  // Sync activeServiceTab with URL params
+  useEffect(() => {
+    if (isServicesCenter) {
+      const currentTab = searchParams.get('tab');
+      const validTabs = ['technology', 'business', 'digital_worker', 'prompt_library', 'ai_tools'];
+      if (currentTab && validTabs.includes(currentTab) && currentTab !== activeServiceTab) {
+        setActiveServiceTab(currentTab);
+      } else if (!currentTab || !validTabs.includes(currentTab)) {
+        // Set default tab in URL if not present
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('tab', activeServiceTab);
+        setSearchParams(newParams, { replace: true });
+      }
+    }
+  }, [isServicesCenter, searchParams, activeServiceTab, setSearchParams]);
 
   // Items & filters state
-  const [items, setItems] = useState<any[]>([]);
+  const [_items, setItems] = useState<any[]>([]);
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState('');
@@ -188,10 +218,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [facets, setFacets] = useState<GuidesFacets>({});
   const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
   const searchStartRef = useRef<number | null>(null);
-type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 'resources';
+type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 'glossary' | 'faqs';
   const getTabFromParams = useCallback((params: URLSearchParams): WorkGuideTab => {
     const tab = params.get('tab');
-    return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' || tab === 'resources' ? tab : 'guidelines';
+    return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' || tab === 'glossary' || tab === 'faqs' ? tab : 'guidelines';
   }, []);
   const [activeTab, setActiveTab] = useState<WorkGuideTab>(() => getTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()));
 
@@ -200,7 +230,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     guidelines: 'Guidelines',
     blueprints: 'Blueprints',
     testimonials: 'Testimonials',
-    resources: 'Library'
+    glossary: 'Glossary',
+    faqs: 'FAQs'
   };
 
   const TAB_DESCRIPTIONS: Record<WorkGuideTab, { description: string; author?: string }> = {
@@ -220,8 +251,12 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       description: 'Success stories, case studies, and reflections that capture lessons learned, celebrate achievements, and share insights from real-world experiences and transformations.',
       author: 'Authored by DQ Teams, Clients, and Partners'
     },
-    resources: {
-      description: 'Library of reference materials, glossaries, and FAQs that help you navigate DQ terminology, processes, and best practices.',
+    glossary: {
+      description: 'Comprehensive dictionary of DQ terminology, acronyms, and key concepts to help you understand our language and processes.',
+      author: 'Maintained by DQ Knowledge Management Team'
+    },
+    faqs: {
+      description: 'Frequently asked questions about DQ processes, tools, workflows, and best practices with detailed answers and guidance.',
       author: 'Maintained by DQ Knowledge Management Team'
     }
   };
@@ -250,8 +285,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         // Keep 'unit' and 'location' for Blueprints; delete incompatible filters
         const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_sector'];
         keysToDelete.forEach(key => next.delete(key));
-      } else if (tab === 'resources') {
-        // For Resources tab, delete all incompatible filters
+      } else if (tab === 'glossary' || tab === 'faqs') {
+        // For Glossary and FAQs tabs, delete all incompatible filters
         const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'testimonials') {
@@ -305,19 +340,18 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     } else if (activeTab === 'testimonials') {
       // For Testimonials, delete all incompatible filters
       keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector'];
-    } else if (activeTab === 'resources') {
-      // For Resources, delete all incompatible filters
+    } else if (activeTab === 'glossary' || activeTab === 'faqs') {
+      // For Glossary and FAQs, delete all incompatible filters
       keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
     } else {
       // For Guidelines, delete Strategy and Blueprint-specific filters
       keysToDelete = ['strategy_type', 'strategy_framework', 'blueprint_framework', 'blueprint_sector'];
     }
     // Clear tab-specific filters when switching away from their respective tabs
-    if (activeTab !== 'guidelines') {
-      if (next.has('guidelines_category')) {
-        next.delete('guidelines_category');
-        changed = true;
-      }
+    // Note: activeTab cannot be 'guidelines' here due to early return above
+    if (next.has('guidelines_category')) {
+      next.delete('guidelines_category');
+      changed = true;
     }
     if (activeTab !== 'blueprints') {
       if (next.has('blueprint_framework')) {
@@ -397,6 +431,95 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         return searchableText.includes(searchQuery.toLowerCase());
       })
     : lmsFilteredItems;
+  
+  // Filter glossary terms based on two-level filter structure
+  const filteredGlossaryTerms = useMemo(() => {
+    if (!isGuides || activeTab !== 'glossary') {
+      return [];
+    }
+    
+    // PRIMARY FILTER: Knowledge System
+    const knowledgeSystems = parseFilterValues(queryParams, 'glossary_knowledge_system');
+    
+    // SECONDARY FILTERS: GHC
+    const ghcDimensions = parseFilterValues(queryParams, 'glossary_ghc_dimension');
+    const ghcTermTypes = parseFilterValues(queryParams, 'glossary_ghc_term_type');
+    
+    // SECONDARY FILTERS: 6xD
+    const sixXdDimensions = parseFilterValues(queryParams, 'glossary_6xd_dimension');
+    const sixXdTermTypes = parseFilterValues(queryParams, 'glossary_6xd_term_type');
+    
+    // SHARED FILTERS
+    const termOrigins = parseFilterValues(queryParams, 'glossary_term_origin');
+    const usedIn = parseFilterValues(queryParams, 'glossary_used_in');
+    const whoUsesIt = parseFilterValues(queryParams, 'glossary_who_uses_it');
+    const letters = parseFilterValues(queryParams, 'glossary_letter');
+    
+    // Search query
+    const searchQuery = queryParams.get('q') || '';
+    
+    return glossaryTerms.filter(term => {
+      // PRIMARY: Knowledge System filter
+      if (knowledgeSystems.length > 0) {
+        if (!term.knowledgeSystem || !knowledgeSystems.includes(term.knowledgeSystem)) return false;
+      }
+      
+      // SECONDARY: GHC filters (only if GHC is selected or no system filter)
+      if (term.knowledgeSystem === 'ghc') {
+        if (ghcDimensions.length > 0) {
+          if (!term.ghcDimension || !ghcDimensions.includes(term.ghcDimension)) return false;
+        }
+        if (ghcTermTypes.length > 0) {
+          if (!term.ghcTermType || !ghcTermTypes.includes(term.ghcTermType)) return false;
+        }
+      }
+      
+      // SECONDARY: 6xD filters (only if 6xD is selected or no system filter)
+      if (term.knowledgeSystem === '6xd') {
+        if (sixXdDimensions.length > 0) {
+          if (!term.sixXdDimension || !sixXdDimensions.includes(term.sixXdDimension)) return false;
+        }
+        if (sixXdTermTypes.length > 0) {
+          if (!term.sixXdTermType || !sixXdTermTypes.includes(term.sixXdTermType)) return false;
+        }
+      }
+      
+      // SHARED: Term Origin filter
+      if (termOrigins.length > 0) {
+        if (!term.termOrigin || !termOrigins.includes(term.termOrigin)) return false;
+      }
+      
+      // SHARED: Used In filter
+      if (usedIn.length > 0) {
+        if (!term.usedIn || !term.usedIn.some(ui => usedIn.includes(ui))) return false;
+      }
+      
+      // SHARED: Who Uses It filter
+      if (whoUsesIt.length > 0) {
+        if (!term.whoUsesIt || !term.whoUsesIt.some(wui => whoUsesIt.includes(wui))) return false;
+      }
+      
+      // SHARED: Letter filter (A-Z)
+      if (letters.length > 0) {
+        const termLetter = term.letter.toUpperCase();
+        const matchesLetter = letters.some(l => l.toUpperCase() === termLetter);
+        if (!matchesLetter) return false;
+      }
+      
+      // Search filter (works across all terms, no category needed)
+      if (searchQuery) {
+        const searchLower = searchQuery.toLowerCase();
+        const matchesSearch = 
+          term.term.toLowerCase().includes(searchLower) ||
+          (term.shortIntro && term.shortIntro.toLowerCase().includes(searchLower)) ||
+          term.explanation.toLowerCase().includes(searchLower) ||
+          term.tags.some(tag => tag.toLowerCase().includes(searchLower));
+        if (!matchesSearch) return false;
+      }
+      
+      return true;
+    });
+  }, [isGuides, activeTab, queryParams]);
   
   // Compute filters from URL for courses
   const urlBasedFilters: Record<string, string[]> = isCourses
@@ -497,11 +620,24 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         return;
       }
 
-      // GUIDES: Supabase query + facets
+      // GUIDES: Supabase query + facets (skip for glossary and faqs tabs)
       if (isGuides) {
+        if (activeTab === 'glossary' || activeTab === 'faqs') {
+          setLoading(false);
+          setItems([]);
+          setFilteredItems([]);
+          setTotalCount(0);
+          return;
+        }
         setLoading(true);
         try {
+          // Exclude removed guidelines from frontend
+          const excludedSlugs = ['atp-guidelines', 'agile-working-guidelines', 'client-session-guidelines', 'dbp-support-guidelines'];
+          
           let q = supabaseClient.from('guides').select(GUIDE_LIST_SELECT, { count: 'exact' });
+          excludedSlugs.forEach(slug => {
+            q = q.neq('slug', slug);
+          });
 
           const qStr = queryParams.get('q') || '';
           const domains     = parseFilterValues(queryParams, 'domain');
@@ -522,9 +658,10 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           const isStrategyTab = currentActiveTab === 'strategy';
           const isBlueprintTab = currentActiveTab === 'blueprints';
           const isTestimonialsTab = currentActiveTab === 'testimonials';
-          const isResourcesTab = currentActiveTab === 'resources';
+          const isGlossaryTab = currentActiveTab === 'glossary';
+          const isFAQsTab = currentActiveTab === 'faqs';
           const isGuidelinesTab = currentActiveTab === 'guidelines';
-          const isSpecialTab = isStrategyTab || isBlueprintTab || isTestimonialsTab || isResourcesTab;
+          const isSpecialTab = isStrategyTab || isBlueprintTab || isTestimonialsTab || isGlossaryTab || isFAQsTab;
 
           const allowed = new Set<string>();
           if (!isSpecialTab) {
@@ -605,10 +742,14 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           // When fetching all, we need to set a high limit (Supabase default is 1000)
           const listPromise = needsClientSideFiltering ? q.limit(10000) : q.range(from, to);
           
+          // Exclude removed guidelines from facets
           let facetQ = supabaseClient
             .from('guides')
             .select('domain,sub_domain,guide_type,function_area,unit,location,status')
             .eq('status', 'Approved');
+          excludedSlugs.forEach(slug => {
+            facetQ = facetQ.neq('slug', slug);
+          });
 
           // Facets should show ALL available options for the current tab, not filtered by selected filters
           // This ensures filter options don't disappear when other filters are selected
@@ -977,10 +1118,9 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           // Filter by active tab (category)
           const tabCategoryMap: Record<string, string> = {
             'technology': 'Technology',
-            'business': 'Business',
+            'business': 'Employee Services',
             'digital_worker': 'Digital Worker',
             'prompt_library': 'Prompt Library',
-            'doc_writer': 'DOC Writer',
             'ai_tools': 'AI Tools'
           };
           
@@ -1132,6 +1272,20 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             }
           }
           
+          // Filter by toolCategory (AI Tools-specific)
+          const toolCategoryFilter = filters.toolCategory;
+          if (toolCategoryFilter) {
+            const toolCategories = Array.isArray(toolCategoryFilter) ? toolCategoryFilter : [toolCategoryFilter];
+            if (toolCategories.length > 0) {
+              filtered = filtered.filter(item => {
+                const itemToolCategory = item.toolCategory || '';
+                return toolCategories.some(filterCategory => 
+                  itemToolCategory.toLowerCase().replace(/[\s_]/g, '') === filterCategory.toLowerCase().replace(/[\s_]/g, '')
+                );
+              });
+            }
+          }
+          
           // Filter by deliveryMode
           const deliveryModeFilter = filters.deliveryMode;
           if (deliveryModeFilter) {
@@ -1254,10 +1408,9 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           // Filter by active tab (category)
           const tabCategoryMap: Record<string, string> = {
             'technology': 'Technology',
-            'business': 'Business',
+            'business': 'Employee Services',
             'digital_worker': 'Digital Worker',
             'prompt_library': 'Prompt Library',
-            'doc_writer': 'DOC Writer',
             'ai_tools': 'AI Tools'
           };
           
@@ -1296,7 +1449,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       if (Array.isArray(current)) {
         const exists = current.includes(value);
         const nextValues = exists ? current.filter(v => v !== value) : [...current, value];
-        return { ...prev, [filterType]: nextValues };
+        return { ...prev, [filterType]: Array.isArray(nextValues) ? nextValues.join(',') : nextValues };
       } else {
         return { ...prev, [filterType]: value === prev[filterType] ? '' : value };
       }
@@ -1390,12 +1543,30 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 </li>
               </>
             ) : (
-              <li aria-current="page">
-                <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2">{config.itemNamePlural}</span>
-                </div>
-              </li>
+              <>
+                <li>
+                  <div className="flex items-center">
+                    <ChevronRightIcon size={16} className="text-gray-400" />
+                    <Link to={config.route} className="ml-1 text-gray-500 hover:text-gray-700 md:ml-2">
+                      {config.itemNamePlural}
+                    </Link>
+                  </div>
+                </li>
+                {isServicesCenter && activeServiceTab && (
+                  <li aria-current="page">
+                    <div className="flex items-center">
+                      <ChevronRightIcon size={16} className="text-gray-400" />
+                      <span className="ml-1 text-gray-700 md:ml-2">
+                        {activeServiceTab === 'technology' && 'Technology'}
+                        {activeServiceTab === 'business' && 'Employee Services'}
+                        {activeServiceTab === 'digital_worker' && 'Digital Worker'}
+                        {activeServiceTab === 'prompt_library' && 'Prompt Library'}
+                        {activeServiceTab === 'ai_tools' && 'AI Tools'}
+                      </span>
+                    </div>
+                  </li>
+                )}
+              </>
             )}
           </ol>
         </nav>
@@ -1412,10 +1583,9 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Current focus</p>
                   <p className="text-lg font-semibold text-gray-900 mb-1">
                     {activeServiceTab === 'technology' && 'Technology'}
-                    {activeServiceTab === 'business' && 'Business'}
+                    {activeServiceTab === 'business' && 'Employee Services'}
                     {activeServiceTab === 'digital_worker' && 'Digital Worker'}
                     {activeServiceTab === 'prompt_library' && 'Prompt Library'}
-                    {activeServiceTab === 'doc_writer' && 'Doc Writer'}
                     {activeServiceTab === 'ai_tools' && 'AI Tools'}
                   </p>
                 </div>
@@ -1425,10 +1595,9 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               </div>
               <p className="text-gray-600 text-sm mb-1">
                 {activeServiceTab === 'technology' && 'Access technology-related services including IT support, software requests, system access, and technical assistance.'}
-                {activeServiceTab === 'business' && 'Explore business services such as HR support, finance services, administrative requests, and operational assistance.'}
+                {activeServiceTab === 'business' && 'Explore employee services including HR support, finance services, administrative requests, and operational assistance.'}
                 {activeServiceTab === 'digital_worker' && 'Discover digital worker services including automation solutions, AI agents requests, AI tools and usage guidelines'}
                 {activeServiceTab === 'prompt_library' && "A curated collection of your team's best and previously used prompts to speed up workflows and boost productivity."}
-                {activeServiceTab === 'doc_writer' && 'Ready-to-use company document templates for fast, consistent, and professional document creation.'}
                 {activeServiceTab === 'ai_tools' && 'A centralized hub showcasing all AI tools and solutions used across the company.'}
               </p>
               <p className="text-xs text-gray-500">
@@ -1436,7 +1605,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 {activeServiceTab === 'business' && 'Provided by DQ HR, Finance, and Administrative teams.'}
                 {activeServiceTab === 'digital_worker' && 'Handled by DQ Automation Teams.'}
                 {activeServiceTab === 'prompt_library' && 'Curated and maintained by DQ Digital Innovation Teams.'}
-                {activeServiceTab === 'doc_writer' && 'Managed by DQ Documentation and Compliance Teams.'}
                 {activeServiceTab === 'ai_tools' && 'Provided by DQ AI & Innovation Teams.'}
               </p>
             </div>
@@ -1449,17 +1617,22 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             <nav className="flex space-x-8" aria-label="Service tabs">
               {[
                 { id: 'technology', label: 'Technology' },
-                { id: 'business', label: 'Business' },
+                { id: 'business', label: 'Employee Services' },
                 { id: 'digital_worker', label: 'Digital Worker' },
                 { id: 'prompt_library', label: 'Prompt Library' },
-                { id: 'doc_writer', label: 'Doc Writer' },
                 { id: 'ai_tools', label: 'AI Tools' }
               ].map((tab) => {
                 const isActive = activeServiceTab === tab.id;
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveServiceTab(tab.id)}
+                    onClick={() => {
+                      setActiveServiceTab(tab.id);
+                      // Update URL with tab parameter
+                      const newParams = new URLSearchParams(searchParams);
+                      newParams.set('tab', tab.id);
+                      setSearchParams(newParams, { replace: false });
+                    }}
                     className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors ${
                       isActive
                         ? 'border-blue-700'
@@ -1500,7 +1673,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             
             <div className="mb-6 border-b border-gray-200">
               <nav className="flex space-x-8" aria-label="Guides navigation">
-              {(['strategy', 'guidelines', 'blueprints', 'testimonials', 'resources'] as WorkGuideTab[]).map(tab => (
+                {/* Main tabs rendered as buttons */}
+                {(['strategy', 'guidelines', 'blueprints', 'testimonials', 'glossary', 'faqs'] as WorkGuideTab[]).map(tab => (
                   <button
                     key={tab}
                     onClick={() => handleGuidesTabChange(tab)}
@@ -1522,28 +1696,30 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           </>
         )}
 
-        {/* Search + Sort */}
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex-1">
-            <SearchBar
-              searchQuery={isGuides ? (queryParams.get('q') || '') : searchQuery}
-              placeholder={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
-              ariaLabel={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
-              setSearchQuery={(q: string) => {
-                if (isGuides) {
-                  const next = new URLSearchParams(queryParams.toString());
-                  next.delete('page');
-                  if (q) next.set('q', q); else next.delete('q');
-                  const qs = next.toString();
-                  window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
-                  setQueryParams(new URLSearchParams(next.toString()));
-                } else {
-                  setSearchQuery(q);
-                }
-              }}
-            />
+        {/* Search + Sort - Hide for Glossary tab (has its own search) */}
+        {!(isGuides && activeTab === 'glossary') && (
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex-1">
+              <SearchBar
+                searchQuery={isGuides ? (queryParams.get('q') || '') : searchQuery}
+                placeholder={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
+                ariaLabel={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
+                setSearchQuery={(q: string) => {
+                  if (isGuides) {
+                    const next = new URLSearchParams(queryParams.toString());
+                    next.delete('page');
+                    if (q) next.set('q', q); else next.delete('q');
+                    const qs = next.toString();
+                    window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+                    setQueryParams(new URLSearchParams(next.toString()));
+                  } else {
+                    setSearchQuery(q);
+                  }
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex flex-col xl:flex-row gap-6">
           {/* Mobile filter toggle */}
@@ -1666,84 +1842,50 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               />
             ) : isGuides ? (
               <>
-                {activeTab === 'resources' ? (
+                {activeTab === 'faqs' ? (
+                  <FAQsPageContent />
+                ) : activeTab === 'glossary' ? (
                   <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                      {/* Glossary Card */}
-                      <Link to="/marketplace/guides/glossary" className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer block">
-                        <div className="flex items-center mb-4">
-                          <div className="w-12 h-12 bg-[var(--guidelines-primary-surface)] rounded-lg flex items-center justify-center mr-4">
-                            <svg className="w-6 h-6 text-[var(--guidelines-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
-                          </div>
-                          <h3 className="text-xl font-semibold text-gray-800">Glossary</h3>
-                        </div>
-                        <p className="text-gray-600 mb-4">
-                          Comprehensive dictionary of DQ terminology, acronyms, and key concepts to help you understand our language and processes.
-                        </p>
-                        <div className="flex items-center text-[var(--guidelines-primary)] font-medium">
-                          <span>View Glossary</span>
-                          <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </Link>
-
-                      {/* FAQs Card */}
-                      <Link to="/marketplace/guides/faqs" className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer block">
-                        <div className="flex items-center mb-4">
-                          <div className="w-12 h-12 bg-[var(--guidelines-primary-surface)] rounded-lg flex items-center justify-center mr-4">
-                            <svg className="w-6 h-6 text-[var(--guidelines-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </div>
-                          <h3 className="text-xl font-semibold text-gray-800">FAQs</h3>
-                        </div>
-                        <p className="text-gray-600 mb-4">
-                          Frequently asked questions about DQ processes, tools, workflows, and best practices with detailed answers and guidance.
-                        </p>
-                        <div className="flex items-center text-[var(--guidelines-primary)] font-medium">
-                          <span>View FAQs</span>
-                          <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </Link>
-                    </div>
-                    <GuidesGrid
-                      items={filteredItems}
-                      hideEmptyState={activeTab === 'resources'}
-                      onClickGuide={(g) => {
-                        const qs = queryParams.toString();
-                        navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
-                          state: { fromQuery: qs, activeTab }
-                        });
-                      }}
-                    />
-                    {totalPages > 1 && (
-                      <div className="mt-6 flex items-center justify-center gap-4">
-                        <button
-                          type="button"
-                          onClick={() => goToPage(currentPage - 1)}
-                          disabled={currentPage === 1}
-                          className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    {/* Global Search Bar for Glossary */}
+                    <div className="mb-6">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={queryParams.get('q') || ''}
+                          onChange={(e) => {
+                            const next = new URLSearchParams(queryParams.toString());
+                            next.delete('page');
+                            if (e.target.value) {
+                              next.set('q', e.target.value);
+                            } else {
+                              next.delete('q');
+                            }
+                            const qs = next.toString();
+                            if (typeof window !== 'undefined') {
+                              window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+                            }
+                            setQueryParams(new URLSearchParams(next.toString()));
+                          }}
+                          placeholder="Search DQ terms (e.g. DWS, CWS, Agile TMS)"
+                          className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--guidelines-primary)] focus:border-[var(--guidelines-primary)] outline-none"
+                        />
+                        <svg
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          Previous
-                        </button>
-                        <span className="text-sm text-gray-600">
-                          Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => goToPage(currentPage + 1)}
-                          disabled={currentPage >= totalPages}
-                          className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Next
-                        </button>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                       </div>
-                    )}
+                    </div>
+                    <GlossaryGrid
+                      items={filteredGlossaryTerms}
+                      onClickTerm={(term) => {
+                        navigate(`/marketplace/guides/glossary/${term.id}`);
+                      }}
+                      hideEmptyState={false}
+                    />
                   </>
                 ) : activeTab === 'testimonials' ? (
                   <TestimonialsGrid
@@ -1759,7 +1901,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                   <>
                     <GuidesGrid
                       items={filteredItems}
-                      hideEmptyState={activeTab === 'resources'}
+                      hideEmptyState={false}
                       onClickGuide={(g) => {
                         const qs = queryParams.toString();
                         navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
