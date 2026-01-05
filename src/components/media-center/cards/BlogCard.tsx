@@ -1,6 +1,6 @@
 import type { NewsItem } from '@/data/media/news';
-
 import { Link } from 'react-router-dom';
+import { formatDateVeryShort, generateTitle, getFallbackImage } from '@/utils/newsUtils';
 
 const fallbackImages = [
   'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80',
@@ -13,90 +13,13 @@ const fallbackImages = [
 const BLOG_COLOR = '#14B8A6'; // Teal color for blogs
 const PODCAST_COLOR = '#8B5CF6'; // Purple color for podcasts
 
-const formatDate = (input: string) =>
-  new Date(input).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
-// Generate an appropriate title for news items that don't have one
-const generateTitle = (item: NewsItem): string => {
-  // If title exists and is not empty, return it
-  if (item.title && item.title.trim()) {
-    return item.title;
-  }
-
-  // Generate title based on available information
-  const parts: string[] = [];
-
-  // Add location prefix if available
-  if (item.location) {
-    const locationMap: Record<string, string> = {
-      'Dubai': 'DXB',
-      'Nairobi': 'NBO',
-      'Riyadh': 'KSA',
-      'Remote': 'Remote'
-    };
-    parts.push(locationMap[item.location] || item.location);
-  }
-
-  // Add type/newsType information
-  if (item.newsType) {
-    parts.push(item.newsType);
-  } else if (item.type) {
-    if (item.type === 'Thought Leadership') {
-      parts.push('Blog');
-    } else {
-      parts.push(item.type);
-    }
-  }
-
-  // Try to extract title from excerpt
-  if (item.excerpt && item.excerpt.trim()) {
-    const excerptWords = item.excerpt.trim().split(' ');
-    if (excerptWords.length > 0) {
-      // Take first 8 words and capitalize
-      const titleFromExcerpt = excerptWords.slice(0, 8).join(' ');
-      if (titleFromExcerpt.length > 20) {
-        return parts.length > 0 ? `${parts.join(' | ')} | ${titleFromExcerpt}` : titleFromExcerpt;
-      }
-    }
-  }
-
-  // Try to extract from content if available
-  if (item.content) {
-    const firstLine = item.content.split('\n').find(line => line.trim() && !line.trim().startsWith('#'));
-    if (firstLine) {
-      const cleanLine = firstLine.trim().replace(/^#+\s+/, '').replace(/\*\*/g, '').substring(0, 60);
-      if (cleanLine.length > 15) {
-        return parts.length > 0 ? `${parts.join(' | ')} | ${cleanLine}` : cleanLine;
-      }
-    }
-  }
-
-  // Fallback based on ID patterns
-  if (item.id) {
-    const idParts = item.id.split('-');
-    const meaningfulParts = idParts
-      .filter(part => part.length > 2 && !['dq', 'the', 'and', 'for'].includes(part.toLowerCase()))
-      .map(part => part.charAt(0).toUpperCase() + part.slice(1));
-    
-    if (meaningfulParts.length > 0) {
-      const idTitle = meaningfulParts.join(' ');
-      return parts.length > 0 ? `${parts.join(' | ')} | ${idTitle}` : idTitle;
-    }
-  }
-
-  // Final fallback
-  const typeLabel = item.type === 'Thought Leadership' ? 'Blog' : (item.newsType || item.type || 'Blog Post');
-  return parts.length > 0 ? `${parts.join(' | ')} | ${typeLabel}` : typeLabel;
-};
-
 interface BlogCardProps {
   item: NewsItem;
   href?: string;
 }
 
 export function BlogCard({ item, href }: BlogCardProps) {
-  const imageIndex = Math.abs(item.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0));
-  const imageSrc = item.image || fallbackImages[imageIndex % fallbackImages.length];
+  const imageSrc = item.image || getFallbackImage(item.id, fallbackImages);
   const authorName = item.byline || item.author || 'DQ Media Team';
   const displayTitle = generateTitle(item);
   
@@ -120,7 +43,7 @@ export function BlogCard({ item, href }: BlogCardProps) {
       <div className="flex flex-1 flex-col p-4">
         <div className="flex flex-1 flex-col">
           <div className="text-xs text-gray-500">
-            {authorName} · {formatDate(item.date)}
+            {authorName} · {formatDateVeryShort(item.date)}
           </div>
           <h3 className="mt-2 text-lg font-semibold text-gray-900 line-clamp-2">{displayTitle}</h3>
           <p className="mt-2 text-sm text-gray-700 line-clamp-3">{item.excerpt}</p>

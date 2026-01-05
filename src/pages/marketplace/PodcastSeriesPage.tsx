@@ -2,9 +2,12 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, ChevronDown, Share2, Download, Bookmark, HomeIcon, ChevronRightIcon, BookmarkIcon } from 'lucide-react';
+import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, ChevronDown, Share2, Download, Bookmark, BookmarkIcon } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
 import { fetchAllNews } from '@/services/mediaCenterService';
+import { formatDateVeryShort, formatDuration, formatListens, formatTime } from '@/utils/newsUtils';
+import { parseBold } from '@/utils/contentParsing';
+import { Breadcrumb } from '@/components/media-center/shared/Breadcrumb';
 
 const PODCAST_IMAGE =
   'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=1600&q=80';
@@ -23,30 +26,6 @@ const PODCAST_EPISODE_ORDER: string[] = [
   'execution-metrics-that-drive-movement',
 ];
 
-const formatDate = (input: string) => {
-  const date = new Date(input);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-};
-
-const formatDuration = (readingTime?: string): string => {
-  if (!readingTime) return '12 min';
-  const durationMap: Record<string, string> = {
-    '<5': '5 min',
-    '5–10': '8 min',
-    '10–20': '15 min',
-    '20+': '20 min'
-  };
-  return durationMap[readingTime] || '12 min';
-};
-
-const formatListens = (views: number): string => {
-  if (views >= 1000) {
-    const kValue = (views / 1000).toFixed(1);
-    // Remove trailing .0 if present
-    return `${kValue.replace(/\.0$/, '')}k listens`;
-  }
-  return `${views} listens`;
-};
 
 export default function PodcastSeriesPage() {
   const location = useLocation();
@@ -81,8 +60,8 @@ export default function PodcastSeriesPage() {
       try {
         const savedIds = JSON.parse(saved);
         setSavedEpisodes(new Set(savedIds));
-      } catch (e) {
-        console.error('Error loading saved episodes:', e);
+      } catch {
+        // Error loading saved episodes - handled silently
       }
     }
   }, []);
@@ -124,8 +103,8 @@ export default function PodcastSeriesPage() {
           (item) => item.format === 'Podcast' || item.tags?.some((tag) => tag.toLowerCase().includes('podcast'))
         );
         setEpisodes(podcastEpisodes);
-      } catch (error) {
-        console.error('Failed to load episodes:', error);
+      } catch {
+        // Error loading episodes - handled by loading state
       } finally {
         setLoading(false);
       }
@@ -301,8 +280,8 @@ export default function PodcastSeriesPage() {
         try {
           await audio.play();
           setIsPlaying(true);
-        } catch (error) {
-          console.error('Error playing audio:', error);
+        } catch {
+          // Error playing audio - handled silently
         }
       }
       return;
@@ -328,8 +307,7 @@ export default function PodcastSeriesPage() {
         try {
           await audio.play();
           setIsPlaying(true);
-        } catch (playError) {
-          console.error('Error playing audio:', playError);
+        } catch {
           setIsPlaying(false);
         }
       }, { once: true });
@@ -339,8 +317,7 @@ export default function PodcastSeriesPage() {
         await audio.play();
         setIsPlaying(true);
       }
-    } catch (error) {
-      console.error('Error loading/playing audio:', error);
+    } catch {
       setIsPlaying(false);
     }
   };
@@ -351,12 +328,6 @@ export default function PodcastSeriesPage() {
     }
   };
 
-  const formatTime = (seconds: number): string => {
-    if (isNaN(seconds)) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const audio = audioRef.current;
@@ -443,14 +414,13 @@ export default function PodcastSeriesPage() {
     } catch (error) {
       // User cancelled or error occurred
       if ((error as Error).name !== 'AbortError') {
-        console.error('Error sharing:', error);
         // Fallback to clipboard if Web Share fails
         try {
           await navigator.clipboard.writeText(shareUrl);
           setShareSuccess(episode.id);
           setTimeout(() => setShareSuccess(null), 2000);
-        } catch (clipboardError) {
-          console.error('Error copying to clipboard:', clipboardError);
+        } catch {
+          // Clipboard error - handled silently
         }
       }
     }
@@ -481,8 +451,7 @@ export default function PodcastSeriesPage() {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading audio:', error);
+    } catch {
       alert('Failed to download audio file. Please try again.');
     }
   };
@@ -501,28 +470,6 @@ export default function PodcastSeriesPage() {
     });
   };
 
-  // Parse bold text in markdown
-  const parseBold = (text: string) => {
-    const parts: (string | JSX.Element)[] = [];
-    const regex = /\*\*(.+?)\*\*/g;
-    let lastIndex = 0;
-    let match;
-    let key = 0;
-
-    while ((match = regex.exec(text)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push(text.substring(lastIndex, match.index));
-      }
-      parts.push(<strong key={key++}>{match[1]}</strong>);
-      lastIndex = regex.lastIndex;
-    }
-
-    if (lastIndex < text.length) {
-      parts.push(text.substring(lastIndex));
-    }
-
-    return parts.length > 0 ? parts : text;
-  };
 
   // Render podcast content (Focus of the Episode and Intended Impact)
   const renderEpisodeContent = (content: string) => {
@@ -635,31 +582,32 @@ export default function PodcastSeriesPage() {
         {/* Breadcrumb Navigation and Action Buttons */}
         <section className="border-b border-gray-200 bg-white">
           <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
-            <nav className="flex items-center text-sm text-gray-600" aria-label="Breadcrumb">
-              <Link to="/" className="inline-flex items-center gap-1 hover:text-[#1A2E6E]">
-                <HomeIcon size={16} />
-                Home
-              </Link>
-              <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
-              <Link 
-                to={`/marketplace/opportunities?tab=${tabParam}`}
-                className="hover:text-[#1A2E6E]"
-              >
-                DQ Media Center
-              </Link>
-              <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
-              <span className="text-gray-900 line-clamp-1">Action-Solver Podcast</span>
-            </nav>
+            <Breadcrumb
+              items={[
+                {
+                  href: `/marketplace/opportunities?tab=${tabParam}`,
+                  label: 'DQ Media Center'
+                },
+                {
+                  label: 'Action-Solver Podcast'
+                }
+              ]}
+            />
             <div className="flex gap-2 text-sm text-gray-500">
               <button 
+                type="button"
                 onClick={() => {
                   const shareUrl = window.location.href;
                   if (navigator.share) {
                     navigator.share({ title: 'Action-Solver Podcast', url: shareUrl }).catch(() => {
-                      navigator.clipboard.writeText(shareUrl);
+                      navigator.clipboard.writeText(shareUrl).catch(() => {
+                        // Clipboard error
+                      });
                     });
                   } else {
-                    navigator.clipboard.writeText(shareUrl);
+                    navigator.clipboard.writeText(shareUrl).catch(() => {
+                      // Clipboard error
+                    });
                   }
                 }}
                 className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 hover:text-[#1A2E6E]"
@@ -668,6 +616,7 @@ export default function PodcastSeriesPage() {
                 Share
               </button>
               <button 
+                type="button"
                 onClick={() => {
                   const saved = localStorage.getItem('podcast-series-saved');
                   const isSaved = saved === 'true';
@@ -731,13 +680,17 @@ export default function PodcastSeriesPage() {
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3">
                 <button
+                  type="button"
                   onClick={handlePlayLatest}
                   className="flex items-center gap-2 rounded-lg bg-[#030f35] px-6 py-3 font-semibold text-white transition hover:opacity-90"
                 >
                   <Play size={20} />
                   <span>Play Latest Episode</span>
                 </button>
-                <button className="flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 backdrop-blur-sm px-6 py-3 font-semibold text-white transition hover:bg-white/20">
+                <button 
+                  type="button"
+                  className="flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 backdrop-blur-sm px-6 py-3 font-semibold text-white transition hover:bg-white/20"
+                >
                   <Plus size={20} />
                   <span>Follow</span>
                 </button>
@@ -941,7 +894,7 @@ export default function PodcastSeriesPage() {
                         )}
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           <span>{formatDuration(episode.readingTime)}</span>
-                          <span>{formatDate(episode.date)}</span>
+                          <span>{formatDateVeryShort(episode.date)}</span>
                           <span>{formatListens(episode.views || 0)}</span>
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-600">
@@ -993,17 +946,17 @@ export default function PodcastSeriesPage() {
                                 min="0"
                                 max={duration || 0}
                                 step="0.1"
-                                value={currentTime || 0}
+                                value={currentTime}
                                 onChange={handleSeek}
                                 onMouseDown={handleSeekMouseDown}
                                 onMouseUp={handleSeekMouseUp}
                                 className="h-1 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#030f35]"
                                 style={{
-                                  background: `linear-gradient(to right, #030f35 0%, #030f35 ${((currentTime || 0) / (duration || 1)) * 100}%, #e5e7eb ${((currentTime || 0) / (duration || 1)) * 100}%, #e5e7eb 100%)`
+                                  background: `linear-gradient(to right, #030f35 0%, #030f35 ${duration ? (currentTime / duration) * 100 : 0}%, #e5e7eb ${duration ? (currentTime / duration) * 100 : 0}%, #e5e7eb 100%)`
                                 }}
                               />
                               <span className="text-xs text-gray-500 whitespace-nowrap">
-                                {formatTime(currentTime || 0)} / {formatTime(duration || 0)}
+                                {formatTime(currentTime)} / {formatTime(duration)}
                               </span>
                             </div>
                           </div>
