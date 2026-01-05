@@ -11,6 +11,7 @@ on:
       - "develop-staging"
       - "staging"
       - "release"
+      - "Stage**"
   pull_request:
     branches:
       - main

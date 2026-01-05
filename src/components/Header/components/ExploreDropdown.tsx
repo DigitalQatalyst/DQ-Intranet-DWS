@@ -55,7 +55,7 @@ const marketplaces: Marketplace[] = [
   },
   {
     id: 'news-center',
-    name: 'News Center',
+    name: 'DQ Media Center',
     description: 'View DQ updates, corporate news, blogs, job openings, and essential announcements.',
     icon: NewspaperIcon,
     href: '/marketplace/opportunities?tab=announcements',

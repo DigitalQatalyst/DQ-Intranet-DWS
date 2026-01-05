@@ -395,7 +395,7 @@ export const HomePage: React.FC = () => {
         title: 'News & Announcements',
         description: 'View official DQ news, platform releases, and important organizational updates.',
         icon: <Newspaper />,
-        path: '/marketplace/opportunities',
+        path: '/marketplace/opportunities?tab=announcements',
         isActive: true
       },
       {
