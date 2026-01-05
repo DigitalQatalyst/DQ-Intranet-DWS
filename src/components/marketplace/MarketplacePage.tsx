@@ -25,10 +25,12 @@ import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters';
 import GuidesGrid from '../guides/GuidesGrid';
 import TestimonialsGrid from '../guides/TestimonialsGrid';
 import GlossaryGrid from '../guides/GlossaryGrid';
+import { SixXDPerspectiveCards } from '../guides/SixXDPerspectiveCards';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { track } from '../../utils/analytics';
 import FAQsPageContent from '@/pages/guides/FAQsPageContent.tsx';
 import { glossaryTerms, GlossaryTerm, CATEGORIES } from '@/pages/guides/glossaryData.ts';
+import { STATIC_PRODUCTS } from '../../utils/staticProducts';
 const LEARNING_TYPE_FILTER: FilterConfig = {
   id: 'learningType',
   title: 'Learning Type',
@@ -228,7 +230,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
   const TAB_LABELS: Record<WorkGuideTab, string> = {
     strategy: 'Strategy',
     guidelines: 'Guidelines',
-    blueprints: 'Blueprints',
+    blueprints: 'Products',
     testimonials: 'Testimonials',
     glossary: 'Glossary',
     faqs: 'FAQs'
@@ -244,8 +246,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       author: 'Authored by DQ Associates, Leads, and Subject Matter Experts'
     },
     blueprints: {
-      description: 'Standardized blueprints, templates, and proven methodologies that enable consistent execution, reduce rework, and accelerate delivery across projects and initiatives.',
-      author: 'Authored by DQ Delivery Teams and Practice Leads'
+      description: 'Productized digital platforms, frameworks, and solutions designed to enable execution, adoption, and measurable outcomes across DQ initiatives.',
+      author: 'Product Owner / Practice'
     },
     testimonials: {
       description: 'Success stories, case studies, and reflections that capture lessons learned, celebrate achievements, and share insights from real-world experiences and transformations.',
@@ -282,8 +284,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category'];
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'blueprints') {
-        // Keep 'unit' and 'location' for Blueprints; delete incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_sector'];
+        // Keep 'unit' and 'location' for Products; delete incompatible filters
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category'];
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'glossary' || tab === 'faqs') {
         // For Glossary and FAQs tabs, delete all incompatible filters
@@ -309,6 +311,10 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     }
     if (tab !== 'blueprints') {
       next.delete('blueprint_framework');
+      next.delete('blueprint_sector');
+      next.delete('product_type');
+      next.delete('product_stage');
+      next.delete('product_sector');
     }
     const qs = next.toString();
     if (typeof window !== 'undefined') {
@@ -335,7 +341,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       // Keep 'unit' and 'location' for Strategy; delete incompatible filters
       keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category'];
     } else if (activeTab === 'blueprints') {
-      // Keep 'unit' and 'location' for Blueprints; delete incompatible filters
+      // Keep 'unit' and 'location' for Products; delete incompatible filters
       keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category'];
     } else if (activeTab === 'testimonials') {
       // For Testimonials, delete all incompatible filters
@@ -354,14 +360,13 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       changed = true;
     }
     if (activeTab !== 'blueprints') {
-      if (next.has('blueprint_framework')) {
-        next.delete('blueprint_framework');
-        changed = true;
-      }
-      if (next.has('blueprint_sector')) {
-        next.delete('blueprint_sector');
-        changed = true;
-      }
+      const productFilterKeys = ['blueprint_framework', 'blueprint_sector', 'product_type', 'product_stage', 'product_sector'];
+      productFilterKeys.forEach(key => {
+        if (next.has(key)) {
+          next.delete(key);
+          changed = true;
+        }
+      });
     }
     keysToDelete.forEach(key => {
       if (next.has(key)) {
@@ -438,21 +443,16 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       return [];
     }
     
-    // PRIMARY FILTER: Knowledge System
+    // PRIMARY FILTER: Knowledge System (e.g., GHC, Agile 6xD)
     const knowledgeSystems = parseFilterValues(queryParams, 'glossary_knowledge_system');
     
-    // SECONDARY FILTERS: GHC
+    // SECONDARY FILTER: GHC Dimension (only when GHC is selected)
     const ghcDimensions = parseFilterValues(queryParams, 'glossary_ghc_dimension');
-    const ghcTermTypes = parseFilterValues(queryParams, 'glossary_ghc_term_type');
     
-    // SECONDARY FILTERS: 6xD
-    const sixXdDimensions = parseFilterValues(queryParams, 'glossary_6xd_dimension');
-    const sixXdTermTypes = parseFilterValues(queryParams, 'glossary_6xd_term_type');
-    
-    // SHARED FILTERS
-    const termOrigins = parseFilterValues(queryParams, 'glossary_term_origin');
-    const usedIn = parseFilterValues(queryParams, 'glossary_used_in');
-    const whoUsesIt = parseFilterValues(queryParams, 'glossary_who_uses_it');
+    // SECONDARY FILTER: 6xD Perspective (only when Agile 6xD is selected)
+    const sixXdPerspectives = parseFilterValues(queryParams, 'glossary_6xd_perspective');
+
+    // BROWSING FILTER: Alphabetical (A–Z)
     const letters = parseFilterValues(queryParams, 'glossary_letter');
     
     // Search query
@@ -464,42 +464,21 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         if (!term.knowledgeSystem || !knowledgeSystems.includes(term.knowledgeSystem)) return false;
       }
       
-      // SECONDARY: GHC filters (only if GHC is selected or no system filter)
+      // SECONDARY: GHC Dimension filter (only for GHC terms)
       if (term.knowledgeSystem === 'ghc') {
         if (ghcDimensions.length > 0) {
           if (!term.ghcDimension || !ghcDimensions.includes(term.ghcDimension)) return false;
         }
-        if (ghcTermTypes.length > 0) {
-          if (!term.ghcTermType || !ghcTermTypes.includes(term.ghcTermType)) return false;
-        }
       }
       
-      // SECONDARY: 6xD filters (only if 6xD is selected or no system filter)
+      // SECONDARY: 6xD Perspective filter (only for 6xD terms)
       if (term.knowledgeSystem === '6xd') {
-        if (sixXdDimensions.length > 0) {
-          if (!term.sixXdDimension || !sixXdDimensions.includes(term.sixXdDimension)) return false;
-        }
-        if (sixXdTermTypes.length > 0) {
-          if (!term.sixXdTermType || !sixXdTermTypes.includes(term.sixXdTermType)) return false;
+        if (sixXdPerspectives.length > 0) {
+          if (!term.sixXdPerspective || !sixXdPerspectives.includes(term.sixXdPerspective)) return false;
         }
       }
       
-      // SHARED: Term Origin filter
-      if (termOrigins.length > 0) {
-        if (!term.termOrigin || !termOrigins.includes(term.termOrigin)) return false;
-      }
-      
-      // SHARED: Used In filter
-      if (usedIn.length > 0) {
-        if (!term.usedIn || !term.usedIn.some(ui => usedIn.includes(ui))) return false;
-      }
-      
-      // SHARED: Who Uses It filter
-      if (whoUsesIt.length > 0) {
-        if (!term.whoUsesIt || !term.whoUsesIt.some(wui => whoUsesIt.includes(wui))) return false;
-      }
-      
-      // SHARED: Letter filter (A-Z)
+      // BROWSING: Letter filter (A–Z)
       if (letters.length > 0) {
         const termLetter = term.letter.toUpperCase();
         const matchesLetter = letters.some(l => l.toUpperCase() === termLetter);
@@ -586,7 +565,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         filterOptions.forEach(c => { initial[c.id] = ''; });
         setFilters(initial);
       } catch (err) {
-        console.error('Error fetching filter options:', err);
+        // Error handled by fallback to default filter config
         setFilterConfig(config.filterCategories);
         const initial: Record<string, string | string[]> = {};
         config.filterCategories.forEach(c => { initial[c.id] = ''; });
@@ -620,7 +599,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         return;
       }
 
-      // GUIDES: Supabase query + facets (skip for glossary and faqs tabs)
+      // GUIDES: Supabase query + facets (skip for glossary, faqs, and products tabs)
       if (isGuides) {
         if (activeTab === 'glossary' || activeTab === 'faqs') {
           setLoading(false);
@@ -629,6 +608,78 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           setTotalCount(0);
           return;
         }
+        
+        // Products tab: Skip database query entirely, use static products
+        if (activeTab === 'blueprints') {
+          setLoading(true);
+          try {
+            const qStr = queryParams.get('q') || '';
+            const productTypes = parseFilterValues(queryParams, 'product_type');
+            const productStages = parseFilterValues(queryParams, 'product_stage');
+            const productSectors = parseFilterValues(queryParams, 'product_sector');
+
+            // Convert static products to guide format
+            let out = STATIC_PRODUCTS.map(product => ({
+              id: product.id,
+              slug: product.slug,
+              title: product.title,
+              summary: product.summary,
+              heroImageUrl: product.heroImageUrl,
+              lastUpdatedAt: product.lastUpdatedAt,
+              authorName: product.authorName,
+              authorOrg: product.authorOrg,
+              isEditorsPick: product.isEditorsPick,
+              downloadCount: product.downloadCount,
+              guideType: product.guideType,
+              domain: product.domain,
+              functionArea: null,
+              unit: null,
+              subDomain: null,
+              location: null,
+              status: product.status,
+              complexityLevel: null,
+              productType: product.productType,
+              productStage: product.productStage,
+            }));
+
+            // Apply product filters
+            if (productTypes.length > 0) {
+              out = out.filter(it => it.productType && productTypes.includes(it.productType.toLowerCase()));
+            }
+            if (productStages.length > 0) {
+              out = out.filter(it => it.productStage && productStages.includes(it.productStage.toLowerCase()));
+            }
+            // Note: Static products don't have sectors, so productSectors filter will show no results
+
+            // Apply search query if provided
+            if (qStr) {
+              const query = qStr.toLowerCase();
+              out = out.filter(it => {
+                const searchableText = [
+                  it.title,
+                  it.summary,
+                  it.productType,
+                  it.productStage,
+                ].filter(Boolean).join(' ').toLowerCase();
+                return searchableText.includes(query);
+              });
+            }
+
+            setItems(out);
+            setFilteredItems(out);
+            setTotalCount(out.length);
+            setLoading(false);
+            return;
+          } catch (error) {
+            console.error('Error loading products:', error);
+            setLoading(false);
+            setItems([]);
+            setFilteredItems([]);
+            setTotalCount(0);
+            return;
+          }
+        }
+
         setLoading(true);
         try {
           // Exclude removed guidelines from frontend
@@ -652,6 +703,10 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           const guidelinesCategories = parseFilterValues(queryParams, 'guidelines_category');
           const blueprintFrameworks = parseFilterValues(queryParams, 'blueprint_framework');
           const blueprintSectors = parseFilterValues(queryParams, 'blueprint_sector');
+          // Product-led filters (not used for non-products tabs)
+          const productTypes = parseFilterValues(queryParams, 'product_type');
+          const productStages = parseFilterValues(queryParams, 'product_stage');
+          const productSectors = parseFilterValues(queryParams, 'product_sector');
 
           // Get activeTab from state - ensure it's current
           const currentActiveTab = activeTab;
@@ -691,8 +746,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           if (qStr) q = q.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
           if (isStrategyTab) {
             q = q.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
-          } else if (isBlueprintTab) {
-            q = q.or('domain.ilike.%Blueprint%,guide_type.ilike.%Blueprint%');
           } else if (isTestimonialsTab) {
             q = q.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
           } else if (isGuidelinesTab) {
@@ -731,7 +784,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           // Otherwise, use server-side pagination
           const needsClientSideUnitFilter = effectiveUnits.length > 0;
           const needsClientSideFrameworkFilter = (isStrategyTab && strategyFrameworks.length > 0) || 
-                                                 (isBlueprintTab && (blueprintFrameworks.length > 0 || blueprintSectors.length > 0)) ||
+                                                 (isBlueprintTab && (blueprintFrameworks.length > 0 || blueprintSectors.length > 0 || productTypes.length > 0 || productStages.length > 0 || productSectors.length > 0)) ||
                                                  (isGuidelinesTab && guidelinesCategories.length > 0);
           const needsClientSideFiltering = needsClientSideUnitFilter || needsClientSideFrameworkFilter;
           
@@ -755,7 +808,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           // This ensures filter options don't disappear when other filters are selected
           if (qStr)              facetQ = facetQ.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
           if (isStrategyTab)    facetQ = facetQ.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
-          else if (isBlueprintTab) facetQ = facetQ.or('domain.ilike.%Blueprint%,guide_type.ilike.%Blueprint%');
           else if (isTestimonialsTab) facetQ = facetQ.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
           // For Guidelines tab: facets should only include Guidelines guides (exclude Strategy/Blueprint/Testimonial)
           // But don't filter by selected guide_type, units, locations - show all available options for Guidelines
@@ -767,31 +819,13 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             facetQ,
           ]);
           if (error) {
-            console.error('Guides query error:', error);
             throw error;
           }
-          if (facetError) console.warn('Facet query failed', facetError);
-          
-          // Debug logging
-          if (isGuides) {
-            console.log('[Guides Debug]', {
-              activeTab,
-              currentActiveTab,
-              isStrategyTab,
-              isBlueprintTab,
-              isGuidelinesTab,
-              rowsCount: rows?.length || 0,
-              totalCount: count,
-              qStr,
-              hasError: !!error,
-              sampleRows: rows?.slice(0, 3).map((r: any) => ({ 
-                title: r.title, 
-                domain: r.domain, 
-                guide_type: r.guide_type,
-                status: r.status
-              }))
-            });
+          if (facetError) {
+            // Facet query failed, continue without facets
           }
+          
+          // Debug logging removed for production
 
           const mapped = (rows || []).map((r: any) => {
             const unitValue = r.unit ?? r.function_area ?? null;
@@ -833,11 +867,31 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               return domain.includes('strategy') || guideType.includes('strategy');
             });
           } else if (isBlueprintTab) {
-            out = out.filter(it => {
-              const domain = (it.domain || '').toLowerCase();
-              const guideType = (it.guideType || '').toLowerCase();
-              return domain.includes('blueprint') || guideType.includes('blueprint');
-            });
+            // Products tab: Replace all database results with static products
+            // Convert static products to guide format immediately
+            out = STATIC_PRODUCTS.map(product => ({
+              id: product.id,
+              slug: product.slug,
+              title: product.title,
+              summary: product.summary,
+              heroImageUrl: product.heroImageUrl,
+              lastUpdatedAt: product.lastUpdatedAt,
+              authorName: product.authorName,
+              authorOrg: product.authorOrg,
+              isEditorsPick: product.isEditorsPick,
+              downloadCount: product.downloadCount,
+              guideType: product.guideType,
+              domain: product.domain,
+              functionArea: null,
+              unit: null,
+              subDomain: null,
+              location: null,
+              status: product.status,
+              complexityLevel: null,
+              // Store product metadata for filtering
+              productType: product.productType,
+              productStage: product.productStage,
+            }));
           } else if (isTestimonialsTab) {
             out = out.filter(it => {
               const domain = (it.domain || '').toLowerCase();
@@ -977,27 +1031,65 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               });
             });
           }
-          // Blueprints-specific filter: Framework (DevOps, DBP, DXP, DWS, Products, Projects)
-          if (isBlueprintTab && blueprintFrameworks.length) {
-            out = out.filter(it => {
-              const subDomain = (it.subDomain || '').toLowerCase();
-              const domain = (it.domain || '').toLowerCase();
-              const guideType = (it.guideType || '').toLowerCase();
-              const title = (it.title || '').toLowerCase();
-              const allText = `${subDomain} ${domain} ${guideType} ${title}`.toLowerCase();
-              return blueprintFrameworks.some(selectedFramework => {
-                const normalizedSelected = slugify(selectedFramework);
-                // Check various fields for framework matches
-                return allText.includes(selectedFramework.toLowerCase()) ||
-                       allText.includes(normalizedSelected) ||
-                       (selectedFramework === 'devops' && allText.includes('devops')) ||
-                       (selectedFramework === 'dbp' && allText.includes('dbp')) ||
-                       (selectedFramework === 'dxp' && allText.includes('dxp')) ||
-                       (selectedFramework === 'dws' && allText.includes('dws')) ||
-                       (selectedFramework === 'products' && allText.includes('product')) ||
-                       (selectedFramework === 'projects' && allText.includes('project'));
+          // Products-specific filters (for static products only)
+          if (isBlueprintTab) {
+            // Product Type filter
+            if (productTypes.length) {
+              out = out.filter(it => {
+                const itemProductType = (it.productType || '').toLowerCase();
+                return productTypes.some(selectedType => {
+                  const normalizedSelected = slugify(selectedType);
+                  const typeMap: Record<string, string[]> = {
+                    'platform': ['platform'],
+                    'academy': ['academy'],
+                    'framework': ['framework'],
+                    'tooling': ['tooling'],
+                    'marketplace': ['marketplace'],
+                    'enablement-product': ['enablement product']
+                  };
+                  const searchTerms = typeMap[selectedType] || [normalizedSelected];
+                  return searchTerms.some(term => itemProductType.includes(term));
+                });
               });
-            });
+            }
+            
+            // Product Stage filter
+            if (productStages.length) {
+              out = out.filter(it => {
+                const itemProductStage = (it.productStage || '').toLowerCase();
+                return productStages.some(selectedStage => {
+                  const normalizedSelected = slugify(selectedStage);
+                  const stageMap: Record<string, string[]> = {
+                    'concept': ['concept'],
+                    'mvp': ['mvp'],
+                    'live': ['live'],
+                    'scaling': ['scaling'],
+                    'enterprise-ready': ['enterprise-ready', 'enterprise ready']
+                  };
+                  const searchTerms = stageMap[selectedStage] || [normalizedSelected];
+                  return searchTerms.some(term => itemProductStage.includes(term));
+                });
+              });
+            }
+            
+            // Product Sector filter - static products don't have sectors, so filter them out if sector filter is active
+            if (productSectors.length || blueprintSectors.length) {
+              out = [];
+            }
+            
+            // Apply search query if provided
+            if (qStr) {
+              const query = qStr.toLowerCase();
+              out = out.filter(it => {
+                const searchableText = [
+                  it.title,
+                  it.summary,
+                  it.productType,
+                  it.productStage
+                ].filter(Boolean).join(' ').toLowerCase();
+                return searchableText.includes(query);
+              });
+            }
           }
           if (locations.length)  out = out.filter(it => it.location && locations.includes(it.location));
           if (statuses.length)   out = out.filter(it => it.status && statuses.includes(it.status));
@@ -1012,20 +1104,22 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                               (b.downloadCount||0)-(a.downloadCount||0) ||
                               new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
 
-          // Ensure default image if missing
-          const defaultImage = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=400&fit=crop&q=80';
-          out = out.map(it => ({
-            ...it,
-            heroImageUrl: it.heroImageUrl || defaultImage,
-          }));
+          // Ensure default image if missing (for non-product tabs)
+          if (!isBlueprintTab) {
+            const defaultImage = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=400&fit=crop&q=80';
+            out = out.map(it => ({
+              ...it,
+              heroImageUrl: it.heroImageUrl || defaultImage,
+            }));
+          }
 
           // If client-side filtering was used, paginate after filtering
           const totalFiltered = out.length;
-          if (needsClientSideFiltering) {
+          if (needsClientSideFiltering || isBlueprintTab) {
             out = out.slice(from, from + pageSize);
           }
 
-          const total = needsClientSideFiltering ? totalFiltered : (typeof count === 'number' ? count : out.length);
+          const total = (needsClientSideFiltering || isBlueprintTab) ? totalFiltered : (typeof count === 'number' ? count : out.length);
           const lastPage = Math.max(1, Math.ceil(total / pageSize));
           // If current page exceeds last page (e.g., after filtering), reset to page 1
           if (currentPage > lastPage) {
@@ -1092,7 +1186,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           if (start) { const latency = Date.now() - start; track('Guides.Search', { q: qStr, latency_ms: latency }); searchStartRef.current = null; }
           track('Guides.ViewList', { q: qStr, sort, page: String(currentPage) });
         } catch (e) {
-          console.error('Error fetching guides:', e);
+          setError('Failed to load guides. Please try again.');
           setItems([]); setFilteredItems([]); setFacets({}); setTotalCount(0);
         } finally {
           setLoading(false);
@@ -1397,7 +1491,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         setFilteredItems(filtered);
         setTotalCount(filtered.length);
       } catch (err) {
-        console.error(`Error fetching ${marketplaceType} items:`, err);
         setError(`Failed to load ${marketplaceType}`);
         const fallbackItems = getFallbackItems(marketplaceType);
         setItems(fallbackItems);
@@ -1879,13 +1972,53 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                         </svg>
                       </div>
                     </div>
-                    <GlossaryGrid
-                      items={filteredGlossaryTerms}
-                      onClickTerm={(term) => {
-                        navigate(`/marketplace/guides/glossary/${term.id}`);
-                      }}
-                      hideEmptyState={false}
-                    />
+                    {/* Show 6xD Perspective Cards when Agile 6xD is selected */}
+                    {(() => {
+                      const selectedKnowledgeSystems = parseFilterValues(queryParams, 'glossary_knowledge_system');
+                      const has6xD = selectedKnowledgeSystems.includes('6xd');
+                      const selectedPerspectives = parseFilterValues(queryParams, 'glossary_6xd_perspective');
+                      
+                      // Always show cards when 6xD is selected
+                      if (has6xD) {
+                        return (
+                          <>
+                            <SixXDPerspectiveCards
+                              onCardClick={(perspectiveId) => {
+                                // Navigate to perspective detail page
+                                navigate(`/marketplace/guides/6xd-perspective/${perspectiveId}`);
+                                track('Glossary.6xDPerspectiveSelected', { perspective: perspectiveId });
+                              }}
+                            />
+                            {/* Show filtered terms below cards */}
+                            {filteredGlossaryTerms.length > 0 && (
+                              <div className="mt-8">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                                  {selectedPerspectives.length > 0 ? 'Terms in this perspective' : 'All 6xD terms'}
+                                </h3>
+                                <GlossaryGrid
+                                  items={filteredGlossaryTerms}
+                                  onClickTerm={(term) => {
+                                    navigate(`/marketplace/guides/glossary/${term.id}`);
+                                  }}
+                                  hideEmptyState={false}
+                                />
+                              </div>
+                            )}
+                          </>
+                        );
+                      }
+                      
+                      // Show regular glossary grid when 6xD is not selected
+                      return (
+                        <GlossaryGrid
+                          items={filteredGlossaryTerms}
+                          onClickTerm={(term) => {
+                            navigate(`/marketplace/guides/glossary/${term.id}`);
+                          }}
+                          hideEmptyState={false}
+                        />
+                      );
+                    })()}
                   </>
                 ) : activeTab === 'testimonials' ? (
                   <TestimonialsGrid
@@ -1902,11 +2035,23 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                     <GuidesGrid
                       items={filteredItems}
                       hideEmptyState={false}
+                      emptyStateTitle={activeTab === 'blueprints' ? 'No products found' : 'No guides found'}
+                      emptyStateMessage={activeTab === 'blueprints' ? 'Try adjusting your filters or search' : 'Try adjusting your filters or search'}
                       onClickGuide={(g) => {
                         const qs = queryParams.toString();
-                        navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
-                          state: { fromQuery: qs, activeTab }
-                        });
+                        // Check if this is a product (has productType and productStage, or domain is 'Product')
+                        const isProduct = (g.domain === 'Product') || (g.productType && g.productStage);
+                        if (isProduct) {
+                          // Navigate to product details page
+                          navigate(`/marketplace/products/${encodeURIComponent(g.slug || g.id)}`, {
+                            state: { fromQuery: qs, activeTab }
+                          });
+                        } else {
+                          // Navigate to guide details page
+                          navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
+                            state: { fromQuery: qs, activeTab }
+                          });
+                        }
                       }}
                     />
                     {totalPages > 1 && (
