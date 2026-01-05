@@ -261,6 +261,54 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
   const isGlossarySelected = activeTab === 'glossary'
   const isResourcesSelected = activeTab === 'resources'
   const prevTabRef = useRef<typeof activeTab>(activeTab)
+  
+  // Filter strategy options based on available data in facets
+  // Only show filter options that have matching guides in the database
+  const availableStrategyTypes = useMemo(() => {
+    if (!isStrategySelected) return []
+    // If facets are not loaded yet, show all options (they'll be filtered once data loads)
+    if (!facets.sub_domain || facets.sub_domain.length === 0) return STRATEGY_TYPES
+    
+    const subDomainIds = new Set(facets.sub_domain.map(f => f.id.toLowerCase()))
+    return STRATEGY_TYPES.filter(type => {
+      const typeId = type.id.toLowerCase()
+      // Check if any sub_domain matches this type (strategy filters check sub_domain field)
+      return Array.from(subDomainIds).some(sd => 
+        sd.includes(typeId) || typeId.includes(sd) || sd === typeId
+      )
+    })
+  }, [isStrategySelected, facets.sub_domain])
+  
+  const availableStrategyFrameworks = useMemo(() => {
+    if (!isStrategySelected) return []
+    // If facets are not loaded yet, show all options (they'll be filtered once data loads)
+    if ((!facets.sub_domain || facets.sub_domain.length === 0) && 
+        (!facets.domain || facets.domain.length === 0) && 
+        (!facets.guide_type || facets.guide_type.length === 0)) {
+      return STRATEGY_FRAMEWORKS
+    }
+    
+    const subDomainIds = new Set((facets.sub_domain || []).map(f => f.id.toLowerCase()))
+    const domainIds = new Set((facets.domain || []).map(f => f.id.toLowerCase()))
+    const guideTypeIds = new Set((facets.guide_type || []).map(f => f.id.toLowerCase()))
+    
+    return STRATEGY_FRAMEWORKS.filter(framework => {
+      const frameworkId = framework.id.toLowerCase()
+      // Check if any facet matches this framework (strategy filters check sub_domain, domain, and guide_type)
+      const allFacetValues = [...subDomainIds, ...domainIds, ...guideTypeIds]
+      return allFacetValues.some(value => {
+        if (frameworkId === '6xd') {
+          return value.includes('6xd') || 
+                 value.includes('digital-framework') ||
+                 value.includes('digital framework')
+        } else if (frameworkId === 'ghc') {
+          return value.includes('ghc') ||
+                 value.includes('golden honeycomb')
+        }
+        return value.includes(frameworkId) || frameworkId.includes(value)
+      })
+    })
+  }, [isStrategySelected, facets.sub_domain, facets.domain, facets.guide_type])
   const clearAll = () => {
     const next = new URLSearchParams()
     onChange(next)
@@ -498,12 +546,16 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
       )}
       {isStrategySelected && (
         <>
-          <Section idPrefix={instanceId} title="Strategy Type" category="strategy_type" collapsed={collapsedSet.has('strategy_type')} onToggle={toggleCollapsed}>
-            <CheckboxList idPrefix={instanceId} name="strategy_type" options={STRATEGY_TYPES} query={query} onChange={onChange} />
-          </Section>
-          <Section idPrefix={instanceId} title="Framework/Program" category="strategy_framework" collapsed={collapsedSet.has('strategy_framework')} onToggle={toggleCollapsed}>
-            <CheckboxList idPrefix={instanceId} name="strategy_framework" options={STRATEGY_FRAMEWORKS} query={query} onChange={onChange} />
-          </Section>
+          {availableStrategyTypes.length > 0 && (
+            <Section idPrefix={instanceId} title="Strategy Type" category="strategy_type" collapsed={collapsedSet.has('strategy_type')} onToggle={toggleCollapsed}>
+              <CheckboxList idPrefix={instanceId} name="strategy_type" options={availableStrategyTypes} query={query} onChange={onChange} />
+            </Section>
+          )}
+          {availableStrategyFrameworks.length > 0 && (
+            <Section idPrefix={instanceId} title="Framework/Program" category="strategy_framework" collapsed={collapsedSet.has('strategy_framework')} onToggle={toggleCollapsed}>
+              <CheckboxList idPrefix={instanceId} name="strategy_framework" options={availableStrategyFrameworks} query={query} onChange={onChange} />
+            </Section>
+          )}
         </>
       )}
       {!isGlossarySelected && (
