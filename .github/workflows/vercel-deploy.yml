@@ -11,8 +11,6 @@ on:
       - "develop-staging"
       - "staging"
       - "release"
-      - "Stage00"
-      - "devlop-discover-dq"
   pull_request:
     branches:
       - main
@@ -39,11 +37,11 @@ jobs:
       - name: 🧰 Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
           cache: 'npm'
 
       - name: 📦 Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: 🏗️ Build project
         run: npm run build
@@ -62,6 +60,9 @@ jobs:
           echo "✅ Linked to Vercel project: dq-intranet"
 
       - name: 🔗 Pull Vercel environment
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: 🏗️ Build with Vercel
