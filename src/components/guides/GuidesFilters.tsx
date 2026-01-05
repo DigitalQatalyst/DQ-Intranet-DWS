@@ -546,16 +546,12 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
       )}
       {isStrategySelected && (
         <>
-          {availableStrategyTypes.length > 0 && (
-            <Section idPrefix={instanceId} title="Strategy Type" category="strategy_type" collapsed={collapsedSet.has('strategy_type')} onToggle={toggleCollapsed}>
-              <CheckboxList idPrefix={instanceId} name="strategy_type" options={availableStrategyTypes} query={query} onChange={onChange} />
-            </Section>
-          )}
-          {availableStrategyFrameworks.length > 0 && (
-            <Section idPrefix={instanceId} title="Framework/Program" category="strategy_framework" collapsed={collapsedSet.has('strategy_framework')} onToggle={toggleCollapsed}>
-              <CheckboxList idPrefix={instanceId} name="strategy_framework" options={availableStrategyFrameworks} query={query} onChange={onChange} />
-            </Section>
-          )}
+          <Section idPrefix={instanceId} title="Strategy Type" category="strategy_type" collapsed={collapsedSet.has('strategy_type')} onToggle={toggleCollapsed}>
+            <CheckboxList idPrefix={instanceId} name="strategy_type" options={availableStrategyTypes.length > 0 ? availableStrategyTypes : STRATEGY_TYPES} query={query} onChange={onChange} />
+          </Section>
+          <Section idPrefix={instanceId} title="Framework/Program" category="strategy_framework" collapsed={collapsedSet.has('strategy_framework')} onToggle={toggleCollapsed}>
+            <CheckboxList idPrefix={instanceId} name="strategy_framework" options={availableStrategyFrameworks.length > 0 ? availableStrategyFrameworks : STRATEGY_FRAMEWORKS} query={query} onChange={onChange} />
+          </Section>
         </>
       )}
       {!isGlossarySelected && (
