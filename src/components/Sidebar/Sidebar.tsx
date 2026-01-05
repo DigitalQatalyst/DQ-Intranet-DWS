@@ -262,74 +262,76 @@ export const Sidebar: React.FC<SidebarProps> = ({
     >
       {/* Header with Company Switcher */}
       <div className="p-4 border-b border-gray-200">
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex justify-between items-center mb-0">
           <button className="lg:hidden text-gray-500" onClick={onClose}>
             <X size={20} />
           </button>
         </div>
-        <div className="relative" ref={dropdownRef}>
-          <button
-            className=" w-full flex items-center justify-between text-left p-3 rounded-md hover:bg-gray-100 transition-colors"
-            onClick={() => setCompanyDropdownOpen(!companyDropdownOpen)}
-          >
-            <div className="flex-1 min-w-0">
-              <h2 className="text-blue-800 font-bold text-lg leading-tight truncate">
-                {activeCompany.name}
-              </h2>
-              {activeCompany.badge && (
-                <span className="text-xs text-gray-500 font-medium mt-0.5 block">
-                  {activeCompany.badge}
-                </span>
-              )}
-            </div>
-            <ChevronDown
-              size={18}
-              className={`text-gray-500 transition-transform ml-2 flex-shrink-0 ${companyDropdownOpen ? "rotate-180" : ""
-                }`}
-            />
-          </button>
-          {companyDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-              <div className="py-1">
-                {companies.map((company) => (
-                  <button
-                    key={company.id}
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center justify-between"
-                    onClick={() => onCompanyChange?.(company.id)}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 truncate">
-                        {company.name}
+        {onboardingComplete && (
+          <div className="relative" ref={dropdownRef}>
+            <button
+              className=" w-full flex items-center justify-between text-left p-3 rounded-md hover:bg-gray-100 transition-colors"
+              onClick={() => setCompanyDropdownOpen(!companyDropdownOpen)}
+            >
+              <div className="flex-1 min-w-0">
+                <h2 className="text-blue-800 font-bold text-lg leading-tight truncate">
+                  {activeCompany.name}
+                </h2>
+                {activeCompany.badge && (
+                  <span className="text-xs text-gray-500 font-medium mt-0.5 block">
+                    {activeCompany.badge}
+                  </span>
+                )}
+              </div>
+              <ChevronDown
+                size={18}
+                className={`text-gray-500 transition-transform ml-2 flex-shrink-0 ${companyDropdownOpen ? "rotate-180" : ""
+                  }`}
+              />
+            </button>
+            {companyDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                <div className="py-1">
+                  {companies.map((company) => (
+                    <button
+                      key={company.id}
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center justify-between"
+                      onClick={() => onCompanyChange?.(company.id)}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-900 truncate">
+                          {company.name}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {company.role}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500">
-                        {company.role}
+                      <div className="flex items-center ml-2 flex-shrink-0">
+                        {company.badge && (
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded mr-2">
+                            {company.badge}
+                          </span>
+                        )}
+                        {company.isActive && (
+                          <Check size={16} className="text-blue-600" />
+                        )}
                       </div>
-                    </div>
-                    <div className="flex items-center ml-2 flex-shrink-0">
-                      {company.badge && (
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded mr-2">
-                          {company.badge}
-                        </span>
-                      )}
-                      {company.isActive && (
-                        <Check size={16} className="text-blue-600" />
-                      )}
-                    </div>
-                  </button>
-                ))}
-                <div className="border-t border-gray-100 mt-1 pt-1">
-                  <button
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center text-blue-600"
-                    onClick={onAddNewEnterprise}
-                  >
-                    <Plus size={16} className="mr-2 flex-shrink-0" />
-                    Add New Enterprise
-                  </button>
+                    </button>
+                  ))}
+                  <div className="border-t border-gray-100 mt-1 pt-1">
+                    <button
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center text-blue-600"
+                      onClick={onAddNewEnterprise}
+                    >
+                      <Plus size={16} className="mr-2 flex-shrink-0" />
+                      Add New Enterprise
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Onboarding Banner */}

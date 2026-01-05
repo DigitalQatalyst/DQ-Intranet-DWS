@@ -1,5 +1,6 @@
 // hooks/useOnboardingForm.js
 import { useState, useEffect, useRef } from "react";
+import { useMsal } from "@azure/msal-react";
 import { validateFormField } from "../utils/validation";
 
 export function useOnboardingForm(steps, onComplete, isRevisit) {
@@ -28,26 +29,35 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Use MSAL to get the logged-in user's info
+  const { accounts } = useMsal();
+
   // Load initial data
   useEffect(() => {
     const loadData = async () => {
-      // Azure B2C claims (in real app, this would come from auth context)
-      const azureB2CClaims = {
-        tradeName: "FutureTech",
-        industry: "Information Technology",
-        companyStage: "growth",
-        contactName: "John Smith",
-        phone: "+971 50 123 4567",
-        email: "john.smith@futuretech.com",
+      // Get user info from MSAL account
+      const account = accounts[0];
+
+      const initialData = {
+        tradeName: account?.name || "",
+        role: "", // Role is not standard in basic MSAL account info, user can input
+        email: account?.username || "", // Username is typically the email in B2C
+        phone: "",
+        // Preserving other fields just in case, though they might not be used in the new simplified form
+        industry: "",
+        companyStage: "",
+        contactName: account?.name || "",
       };
 
-      // In real implementation, load from persistent storage
-      // For now, just use claims
-      setFormData(azureB2CClaims);
+      // In real implementation, load from persistent storage if available
+      // For now, use account info
+      setFormData(initialData);
     };
 
-    loadData();
-  }, []);
+    if (accounts.length > 0) {
+      loadData();
+    }
+  }, [accounts]);
 
   const handleInputChange = (fieldName, value) => {
     setFormData((prev) => ({
@@ -119,18 +129,11 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
   const getWelcomeFields = () => [
     {
       fieldName: "tradeName",
-      label: "Company Name",
+      label: "Name",
       required: true,
       minLength: 2,
     },
-    { fieldName: "industry", label: "Industry", required: true },
-    {
-      fieldName: "contactName",
-      label: "Contact Name",
-      required: true,
-      minLength: 3,
-      pattern: "^[a-zA-Z\\s.-]+$",
-    },
+    { fieldName: "role", label: "Role", required: true },
     { fieldName: "email", label: "Email", required: true, type: "email" },
     { fieldName: "phone", label: "Phone", required: true, type: "tel" },
   ];

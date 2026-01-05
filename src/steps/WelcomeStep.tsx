@@ -16,9 +16,8 @@ export function WelcomeStep({
     ) || profileConfig.companyStages[0];
 
     const welcomeFields = [
-        { id: 'tradeName', label: 'Company Name', fieldName: 'tradeName', required: true, minLength: 2 },
-        { id: 'industry', label: 'Industry', fieldName: 'industry', required: true },
-        { id: 'contactName', label: 'Contact Name', fieldName: 'contactName', required: true, minLength: 3, pattern: '^[a-zA-Z\\s.-]+$' },
+        { id: 'tradeName', label: 'Name', fieldName: 'tradeName', required: true, minLength: 2 },
+        { id: 'role', label: 'Role', fieldName: 'role', required: true },
         { id: 'email', label: 'Email', fieldName: 'email', required: true, type: 'email' },
         { id: 'phone', label: 'Phone', fieldName: 'phone', required: true, type: 'tel' },
     ];
@@ -86,30 +85,13 @@ export function WelcomeStep({
                                 )}
                             </div>
                         ))}
-                        <div className="space-y-1">
-                            <label className="block text-sm font-medium text-gray-700">
-                                Company Stage
-                            </label>
-                            <select
-                                value={formData.companyStage || 'startup'}
-                                onChange={e => onInputChange('companyStage', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                            >
-                                {profileConfig.companyStages.map(stage => (
-                                    <option key={stage.id} value={stage.id}>
-                                        {stage.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {[
-                            { key: 'tradeName', label: 'Company Name' },
-                            { key: 'industry', label: 'Industry' },
-                            { key: 'companyStage', label: 'Company Stage', special: 'stage' },
-                            { key: 'contactName', label: 'Contact Name' },
+                            { key: 'tradeName', label: 'Name' },
+                            { key: 'role', label: 'Role' },
                             { key: 'email', label: 'Email' },
                             { key: 'phone', label: 'Phone' },
                         ].map(item => (

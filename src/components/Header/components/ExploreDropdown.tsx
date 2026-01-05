@@ -28,7 +28,6 @@ const marketplaces: Marketplace[] = [
     description: 'Courses, learning tracks, and associate reviews.',
     icon: GraduationCapIcon,
     href: '/lms',
-    isComingSoon: true,
   },
   {
     id: 'services-center',
@@ -65,8 +64,7 @@ const marketplaces: Marketplace[] = [
     name: 'DQ Work Communities',
     description: 'Discussion rooms, pulse updates, and events.',
     icon: SparklesIcon,
-    href: '/dq-work-communities',
-    isComingSoon: true,
+    href: '/communities',
   },
   {
     id: 'knowledge-center',
