@@ -6,7 +6,8 @@ import { NotificationsMenu } from './notifications/NotificationsMenu';
 import { NotificationCenter } from './notifications/NotificationCenter';
 import { mockNotifications } from './utils/mockNotifications';
 import { useAuth } from './context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { scrollToSupport } from '../../utils/scroll';
 
 interface HeaderProps {
   toggleSidebar?: () => void;
@@ -22,7 +23,9 @@ export function Header({
   const [showNotificationsMenu, setShowNotificationsMenu] = useState(false);
   const [showNotificationCenter, setShowNotificationCenter] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
-  const { user, login } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const onboardingPath = '/onboarding/start';
 
   // Count unread notifications
   const unreadCount = mockNotifications.filter(notif => !notif.read).length;
@@ -46,8 +49,17 @@ export function Header({
 
   const closeNotificationCenter = () => setShowNotificationCenter(false);
 
-  const handleSignIn = () => login();
+  const handleSignIn = () => {
+    if (user) {
+      navigate(onboardingPath);
+      return;
+    }
+    navigate(`/signin?redirect=${encodeURIComponent(onboardingPath)}`);
+  };
   const handleSignUp = () => console.log('Sign up clicked');
+  const handleRequestSupport = () => {
+    scrollToSupport();
+  };
 
   useEffect(() => {
     if (!user) {
@@ -59,10 +71,8 @@ export function Header({
   return (
     <>
       <header
-        className={`flex items-center w-full transition-all duration-300 text-white ${
-          isSticky
-            ? 'fixed top-0 left-0 right-0 z-40 shadow-lg backdrop-blur-sm'
-            : 'relative'
+        className={`dq-app-header sticky top-0 z-[120] flex w-full items-center text-white transition-all duration-300 ${
+          isSticky ? 'shadow-lg backdrop-blur-sm' : ''
         }`}
         style={{
           background: isSticky
@@ -74,14 +84,14 @@ export function Header({
         {/* Logo Section */}
         <Link
           to="/"
-          className={`bg-[#030F35] py-2 px-4 flex items-center transition-all duration-300 ${
+          className={`bg-[#030F3] py-2 px-4 flex items-center transition-all duration-300 ${
             isSticky ? 'h-12' : 'h-16'
           }`}
         >
           <img
-            src="/logo/dq_logo2.png"
+            src="/dq_logo8.png"
             alt="DQ"
-            className={`transition-all duration-300 ${isSticky ? 'h-8' : 'h-10'}`}
+            className={`transition-all duration-300 ${isSticky ? 'h-10' : 'h-12'}`}
           />
         </Link>
 
@@ -100,56 +110,38 @@ export function Header({
                 isSticky ? 'text-sm' : ''
               }`}
             >
-              Explore DQ
+              Discover DQ
             </Link>
           </div>
 
           {/* Right Navigation */}
-          <div className="flex items-center ml-auto relative">
+          <div className="flex items-center ml-auto relative space-x-3">
             {user ? (
-              <ProfileDropdown
-                onViewNotifications={toggleNotificationsMenu}
-                unreadNotifications={unreadCount}
-              />
-            ) : (
               <>
-                {/* Desktop CTAs */}
-                <div className="hidden lg:flex items-center space-x-3">
-                  <button
-                    className={`px-4 py-2 text-white border border-white/40 rounded-md hover:bg-white/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 ${
-                      isSticky ? 'text-sm px-3 py-1.5' : ''
-                    }`}
-                  >
-                    Join a Workspace
-                  </button>
-                  <button
-                    className={`px-4 py-2 bg-white text-[#030F35] font-medium rounded-md hover:bg-white/90 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 ${
-                      isSticky ? 'text-sm px-3 py-1.5' : ''
-                    }`}
-                  >
-                    Request Support
-                  </button>
-                  <button
-                    className={`px-4 py-2 text-white border border-white/40 rounded-md hover:bg-white hover:text-[#030F35] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 ${
-                      isSticky ? 'text-sm px-3 py-1.5' : ''
-                    }`}
-                    onClick={handleSignIn}
-                  >
-                    Sign In
-                  </button>
-                </div>
-
-                {/* Tablet Button */}
-                <div className="hidden md:flex lg:hidden items-center">
-                  <button
-                    className={`px-3 py-2 bg-white text-[#030F35] rounded-md hover:bg-white/90 transition-all duration-200 font-medium ${
-                      isSticky ? 'text-sm px-2 py-1.5' : 'text-sm'
-                    }`}
-                  >
-                    Request Support
-                  </button>
-                </div>
+                {/* Request Support button - shown when logged in */}
+                <button
+                  className={`hidden md:flex px-4 py-2 text-white border border-white/50 rounded-md hover:bg-white/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/30 font-medium ${
+                    isSticky ? 'text-sm px-3 py-1.5' : ''
+                  }`}
+                  onClick={handleRequestSupport}
+                >
+                  Request Support
+                </button>
+                <ProfileDropdown
+                  onViewNotifications={toggleNotificationsMenu}
+                  unreadNotifications={unreadCount}
+                />
               </>
+            ) : (
+              // When not signed in, only show sign-in button - no other CTAs
+              <button
+                className={`px-4 py-2 text-white border border-white/40 rounded-md hover:bg-white hover:text-[#030F35] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 ${
+                  isSticky ? 'text-sm px-3 py-1.5' : ''
+                }`}
+                onClick={handleSignIn}
+              >
+                Sign In
+              </button>
             )}
 
             {/* Mobile Drawer */}
@@ -162,9 +154,6 @@ export function Header({
           </div>
         </div>
       </header>
-
-      {/* Spacer for sticky header */}
-      {isSticky && <div className="h-12"></div>}
 
       {/* Notifications */}
       {showNotificationsMenu && user && (

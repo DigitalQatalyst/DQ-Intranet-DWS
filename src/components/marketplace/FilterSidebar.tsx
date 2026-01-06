@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 export interface FilterOption {
   id: string;
   name: string;
 }
+export interface FilterGroup {
+  title: string;
+  options: FilterOption[];
+}
+
 export interface FilterConfig {
   id: string;
   title: string;
   options: FilterOption[];
+  groups?: FilterGroup[];
 }
 interface AccordionSectionProps {
   title: string;
@@ -16,7 +22,7 @@ interface AccordionSectionProps {
   children: React.ReactNode;
 }
 export interface FilterSidebarProps {
-  filters: Record<string, string>;
+  filters: Record<string, string[]>;
   filterConfig: FilterConfig[];
   onFilterChange: (filterType: string, value: string) => void;
   onResetFilters: () => void;
@@ -45,7 +51,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   onResetFilters,
   isResponsive = false
 }) => {
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>(Object.fromEntries(filterConfig.map(config => [config.id, true])));
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>(Object.fromEntries(filterConfig.map(config => [config.id, false])));
   const toggleSection = (section: string) => {
     setOpenSections(prev => ({
       ...prev,
@@ -55,14 +61,26 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   const textSizeClass = isResponsive ? 'text-xs' : 'text-sm';
   const spacingClass = isResponsive ? 'space-y-1' : 'space-y-2';
   return <div className="space-y-2">
-      {filterConfig.map(config => <AccordionSection key={config.id} title={config.title} isOpen={openSections[config.id] || false} onToggle={() => toggleSection(config.id)}>
+      {filterConfig.map(config => <AccordionSection key={config.id} title={config.title} isOpen={openSections[config.id] ?? false} onToggle={() => toggleSection(config.id)}>
           <div className={spacingClass}>
-            {config.options.map(option => <div key={option.id} className="flex items-center">
-                <input type="checkbox" id={`${isResponsive ? 'mobile' : 'desktop'}-${config.id}-${option.id}`} checked={filters[config.id] === option.name} onChange={() => onFilterChange(config.id, option.name)} className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                <label htmlFor={`${isResponsive ? 'mobile' : 'desktop'}-${config.id}-${option.id}`} className={`ml-2 ${textSizeClass} text-gray-700`}>
+            {config.options.map(option => {
+            const optionValue = option.id;
+            const selectedValues = filters[config.id] ?? [];
+            const isChecked = selectedValues.includes(optionValue);
+            const inputId = `${isResponsive ? 'mobile' : 'desktop'}-${config.id}-${option.id}`;
+            return <div key={option.id} className="flex items-center">
+                <input
+                  type="checkbox"
+                  id={inputId}
+                  checked={isChecked}
+                  onChange={() => onFilterChange(config.id, optionValue)}
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label htmlFor={inputId} className={`ml-2 ${textSizeClass} text-gray-700`}>
                   {option.name}
                 </label>
-              </div>)}
+              </div>;
+          })}
           </div>
         </AccordionSection>)}
     </div>;
