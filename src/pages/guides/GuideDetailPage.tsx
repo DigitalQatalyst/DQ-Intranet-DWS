@@ -475,15 +475,19 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     return () => { cancelled = true }
   }, [guide?.id, guide?.domain, guide?.guideType, guide?.slug])
 
-  const imageUrl = useMemo(() => getGuideImageUrl({
-    heroImageUrl: guide?.heroImageUrl || undefined,
-    domain: guide?.domain || undefined,
-    guideType: guide?.guideType || undefined,
-    subDomain: guide?.subDomain || (guide as any)?.sub_domain || undefined,
-    id: guide?.id,
-    slug: guide?.slug,
-    title: guide?.title,
-  }), [guide?.heroImageUrl, guide?.domain, guide?.guideType, guide?.subDomain, (guide as any)?.sub_domain, guide?.id, guide?.slug, guide?.title])
+  const imageUrl = useMemo(() => {
+    const computed = getGuideImageUrl({
+      heroImageUrl: guide?.heroImageUrl || undefined,
+      domain: guide?.domain || undefined,
+      guideType: guide?.guideType || undefined,
+      subDomain: guide?.subDomain || (guide as any)?.sub_domain || undefined,
+      id: guide?.id,
+      slug: guide?.slug,
+      title: guide?.title,
+    })
+    const isGuidelinesDomain = (guide?.domain || '').toLowerCase().includes('guideline')
+    return isGuidelinesDomain ? '/images/guidelines-content.PNG' : computed
+  }, [guide?.heroImageUrl, guide?.domain, guide?.guideType, guide?.subDomain, (guide as any)?.sub_domain, guide?.id, guide?.slug, guide?.title])
   const normalizeTag = (value?: string | null) => {
     if (!value) return ''
     const cleaned = value.toLowerCase().replace(/[_-]+/g, ' ').trim()

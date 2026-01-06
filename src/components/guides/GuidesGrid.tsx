@@ -7,9 +7,10 @@ interface Props {
   hideEmptyState?: boolean
   emptyStateTitle?: string
   emptyStateMessage?: string
+  imageOverrideUrl?: string
 }
 
-export const GuidesGrid: React.FC<Props> = ({ items, onClickGuide, hideEmptyState, emptyStateTitle = 'No guides found', emptyStateMessage = 'Try adjusting your filters or search' }) => {
+export const GuidesGrid: React.FC<Props> = ({ items, onClickGuide, hideEmptyState, emptyStateTitle = 'No guides found', emptyStateMessage = 'Try adjusting your filters or search', imageOverrideUrl }) => {
   if (!items || items.length === 0) {
     if (hideEmptyState) return null
     return (
@@ -22,7 +23,7 @@ export const GuidesGrid: React.FC<Props> = ({ items, onClickGuide, hideEmptyStat
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
       {items.map((g, i) => (
-        <GuideCard key={g.id || i} guide={g} onClick={() => onClickGuide(g)} />
+        <GuideCard key={g.id || i} guide={g} onClick={() => onClickGuide(g)} imageOverrideUrl={imageOverrideUrl} />
       ))}
     </div>
   )

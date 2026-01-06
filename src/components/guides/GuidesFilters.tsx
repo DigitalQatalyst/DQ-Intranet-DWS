@@ -187,6 +187,14 @@ const STRATEGY_FRAMEWORKS: Facet[] = [
   { id: '6xd', name: '6xD (Digital Framework)' }
 ]
 
+// All possible filter categories - default to ALL collapsed
+const ALL_CATEGORIES = [
+  'guide_type', 'sub_domain', 'unit', 'location', 'testimonial_category',
+  'product_type', 'product_stage', 'product_sector', 'guidelines_category',
+  'strategy_type', 'strategy_framework',
+  'glossary_knowledge_system', 'glossary_ghc_dimension', 'glossary_6xd_perspective', 'glossary_letter'
+]
+
 const Section: React.FC<{ idPrefix: string; title: string; category: string; collapsed: boolean; onToggle: (category: string) => void }> = ({ idPrefix, title, category, collapsed, onToggle, children }) => {
   const contentId = `${idPrefix}-filters-${category}`
   return (
@@ -312,26 +320,54 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
     const next = new URLSearchParams()
     onChange(next)
   }
+  
   // Persist collapsed categories in URL param 'collapsed' as CSV; also keep local state to avoid cross-instance glitches
+  // Default to ALL categories collapsed if not in URL
   const initialCollapsed = useMemo(() => {
     const fromUrl = parseCsv(query.get('collapsed'))
-    return new Set(fromUrl.length > 0 ? fromUrl : ['guide_type', 'sub_domain', 'unit', 'location', 'testimonial_category'])
+    // If URL has collapsed param, use it; otherwise default to ALL collapsed
+    return new Set(fromUrl.length > 0 ? fromUrl : ALL_CATEGORIES)
   }, [query])
   const [collapsedSet, setCollapsedSet] = useState<Set<string>>(initialCollapsed)
+  
   // Keep local collapsed state in sync if URL changes from outside
   useEffect(() => {
     const next = new Set(parseCsv(query.get('collapsed')))
-    if (next.size > 0) setCollapsedSet(next)
+    // If URL has collapsed param, use it; otherwise default to ALL collapsed
+    if (next.size > 0) {
+      setCollapsedSet(next)
+    } else {
+      setCollapsedSet(new Set(ALL_CATEGORIES))
+    }
   }, [query])
   // Clean up incompatible filters when switching tabs (only run on actual tab change, not on query changes)
+  // Also collapse all filters when switching tabs
   useEffect(() => {
     // Only run if tab actually changed
     if (prevTabRef.current === activeTab) return
     prevTabRef.current = activeTab
     
-    if (!(isStrategySelected || isBlueprintSelected || isTestimonialsSelected)) return
     const next = new URLSearchParams(query.toString())
     let changed = false
+    
+    // Collapse all filters when switching tabs
+    const allCollapsed = new Set(ALL_CATEGORIES)
+    const currentCollapsed = new Set(parseCsv(next.get('collapsed')))
+    // Check if collapsed state needs to be updated
+    const collapsedChanged = ALL_CATEGORIES.some(cat => {
+      return allCollapsed.has(cat) !== currentCollapsed.has(cat)
+    })
+    if (collapsedChanged) {
+      next.set('collapsed', Array.from(allCollapsed).join(','))
+      setCollapsedSet(allCollapsed)
+      changed = true
+    }
+    
+    if (!(isStrategySelected || isBlueprintSelected || isTestimonialsSelected)) {
+      if (changed) onChange(next)
+      return
+    }
+    
     const keysToDelete = isStrategySelected 
       ? ['guide_type', 'sub_domain', 'domain']
       : isTestimonialsSelected

@@ -8,9 +8,10 @@ import { getProductMetadata } from '../../utils/productMetadata'
 export interface GuideCardProps {
   guide: any
   onClick: () => void
+  imageOverrideUrl?: string
 }
 
-export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick }) => {
+export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverrideUrl }) => {
   const timeBucket = toTimeBucket(guide.estimatedTimeMin)
   const lastUpdated = guide.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''
   const domain = guide.domain as string | undefined
@@ -135,7 +136,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick }) => {
   // Ensure we're using the correct property name - check both camelCase and snake_case
   const heroImage = guide.heroImageUrl || (guide as any).hero_image_url || null
   const subDomain = guide.subDomain || (guide as any).sub_domain || null
-  const imageUrl = getGuideImageUrl({
+  const defaultImageUrl = getGuideImageUrl({
     heroImageUrl: heroImage,
     domain: guide.domain,
     guideType: guide.guideType,
@@ -144,6 +145,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick }) => {
     slug: guide.slug || guide.id,
     title: guide.title,
   })
+  const imageUrl = imageOverrideUrl || defaultImageUrl
   const isTestimonial = ((guide.domain || '').toLowerCase().includes('testimonial')) || ((guide.guideType || '').toLowerCase().includes('testimonial'))
   
   // Use product description if available, otherwise use summary

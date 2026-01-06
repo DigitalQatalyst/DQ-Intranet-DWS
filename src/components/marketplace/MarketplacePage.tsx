@@ -125,7 +125,7 @@ interface ComparisonItem {
 }
 
 export interface MarketplacePageProps {
-  marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding' | 'guides';
+  marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding' | 'guides' | 'design-system';
   title: string;
   description: string;
   promoCards?: any[];
@@ -175,6 +175,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const isCourses = marketplaceType === 'courses';
   const isKnowledgeHub = marketplaceType === 'knowledge-hub';
   const isServicesCenter = marketplaceType === 'non-financial';
+  const isDesignSystem = marketplaceType === 'design-system';
   
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -221,11 +222,19 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
   const searchStartRef = useRef<number | null>(null);
 type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 'glossary' | 'faqs';
+type DesignSystemTab = 'cids' | 'vds' | 'cds';
   const getTabFromParams = useCallback((params: URLSearchParams): WorkGuideTab => {
     const tab = params.get('tab');
     return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' || tab === 'glossary' || tab === 'faqs' ? tab : 'guidelines';
   }, []);
+  const getDesignSystemTabFromParams = useCallback((params: URLSearchParams): DesignSystemTab => {
+    const tab = params.get('tab');
+    return tab === 'vds' || tab === 'cds' ? tab : 'cids';
+  }, []);
   const [activeTab, setActiveTab] = useState<WorkGuideTab>(() => getTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()));
+  const [activeDesignSystemTab, setActiveDesignSystemTab] = useState<DesignSystemTab>(() => 
+    isDesignSystem ? getDesignSystemTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()) : 'cids'
+  );
 
   const TAB_LABELS: Record<WorkGuideTab, string> = {
     strategy: 'Strategy',
@@ -267,6 +276,11 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     if (!isGuides) return;
     setActiveTab(getTabFromParams(queryParams));
   }, [isGuides, queryParams, getTabFromParams]);
+
+  useEffect(() => {
+    if (!isDesignSystem) return;
+    setActiveDesignSystemTab(getDesignSystemTabFromParams(searchParams));
+  }, [isDesignSystem, searchParams, getDesignSystemTabFromParams]);
 
   const handleGuidesTabChange = useCallback((tab: WorkGuideTab) => {
     setActiveTab(tab);
@@ -557,6 +571,15 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         return;
       }
       
+      // For Design System, use config.filterCategories directly
+      if (isDesignSystem) {
+        setFilterConfig(config.filterCategories);
+        const initial: Record<string, string | string[]> = {};
+        config.filterCategories.forEach(c => { initial[c.id] = ''; });
+        setFilters(initial);
+        return;
+      }
+      
       try {
         let filterOptions = await fetchMarketplaceFilters(marketplaceType);
         filterOptions = prependLearningTypeFilter(marketplaceType, filterOptions);
@@ -573,7 +596,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       }
     };
     loadFilterOptions();
-  }, [marketplaceType, config, isCourses, isGuides, isKnowledgeHub, isServicesCenter, activeServiceTab, filterConfig.length, Object.keys(filters).length]);
+  }, [marketplaceType, config, isCourses, isGuides, isKnowledgeHub, isServicesCenter, isDesignSystem, activeServiceTab, filterConfig.length, Object.keys(filters).length]);
   
   // Fetch items based on marketplace type
   useEffect(() => {
@@ -1823,8 +1846,84 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           </>
         )}
 
+        {/* Design System Tabs Section */}
+        {isDesignSystem && (() => {
+          const DESIGN_SYSTEM_TAB_LABELS: Record<DesignSystemTab, string> = {
+            cids: 'CI.DS',
+            vds: 'V.DS',
+            cds: 'CDS'
+          };
+
+          const DESIGN_SYSTEM_TAB_DESCRIPTIONS: Record<DesignSystemTab, { description: string; author?: string }> = {
+            cids: {
+              description: 'Component Integration Design System - Reusable UI components, patterns, and integration guidelines for building consistent digital experiences.',
+              author: 'Maintained by DQ Design & Engineering Teams'
+            },
+            vds: {
+              description: 'Visual Design System - Design tokens, typography, color palettes, and visual guidelines for creating cohesive brand experiences.',
+              author: 'Maintained by DQ Design Team'
+            },
+            cds: {
+              description: 'Content Design System - Content patterns, writing guidelines, and messaging frameworks for clear and effective communication.',
+              author: 'Maintained by DQ Content & Communications Teams'
+            }
+          };
+
+          const handleDesignSystemTabChange = (tab: DesignSystemTab) => {
+            setActiveDesignSystemTab(tab);
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set('tab', tab);
+            setSearchParams(newParams, { replace: false });
+          };
+
+          return (
+            <>
+              {/* Tab Description - Above Navigation */}
+              {activeDesignSystemTab && DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab] && (
+                <div className="mb-4 bg-white rounded-lg p-6 border border-gray-200 relative">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <span className="text-xs uppercase text-gray-500 font-medium tracking-wide">CURRENT FOCUS</span>
+                      <h2 className="text-2xl font-bold text-gray-800 mt-1">{DESIGN_SYSTEM_TAB_LABELS[activeDesignSystemTab]}</h2>
+                    </div>
+                    <button className="px-4 py-2 bg-blue-50 text-gray-800 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors border-0">
+                      Tab overview
+                    </button>
+                  </div>
+                  <p className="text-gray-700 mb-2">{DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].description}</p>
+                  {DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].author && (
+                    <p className="text-sm text-gray-500">{DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].author}</p>
+                  )}
+                </div>
+              )}
+              
+              <div className="mb-6 border-b border-gray-200">
+                <nav className="flex space-x-8" aria-label="Design System navigation">
+                  {(['cids', 'vds', 'cds'] as DesignSystemTab[]).map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => handleDesignSystemTabChange(tab)}
+                      className={`
+                        py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                        ${
+                          activeDesignSystemTab === tab
+                            ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }
+                      `}
+                      aria-current={activeDesignSystemTab === tab ? 'page' : undefined}
+                    >
+                      {DESIGN_SYSTEM_TAB_LABELS[tab]}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            </>
+          );
+        })()}
+
         {/* Search + Sort - Hide for Glossary tab (has its own search) */}
-        {!(isGuides && activeTab === 'glossary') && (
+        {!(isGuides && activeTab === 'glossary') && !isDesignSystem && (
           <div className="mb-6 flex items-center gap-3">
             <div className="flex-1">
               <SearchBar
@@ -1967,6 +2066,24 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 onFilterChange={handleKnowledgeHubFilterChange}
                 onClearFilters={clearKnowledgeHubFilters}
               />
+            ) : isDesignSystem ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">DQ Stories CI.DS</h3>
+                  <p className="text-gray-600 text-sm mb-4">Component Integration Design System - Explore reusable components and integration patterns.</p>
+                  <p className="text-xs text-gray-500">xDS Design System Marketplace</p>
+                </div>
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">DQ Stories V.DS</h3>
+                  <p className="text-gray-600 text-sm mb-4">Visual Design System - Discover design tokens, typography, and visual guidelines.</p>
+                  <p className="text-xs text-gray-500">xDS Design System Marketplace</p>
+                </div>
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">DQ Stories CDS</h3>
+                  <p className="text-gray-600 text-sm mb-4">Content Design System - Access content patterns and writing guidelines.</p>
+                  <p className="text-xs text-gray-500">xDS Design System Marketplace</p>
+                </div>
+              </div>
             ) : isGuides ? (
               <>
                 {activeTab === 'faqs' ? (
