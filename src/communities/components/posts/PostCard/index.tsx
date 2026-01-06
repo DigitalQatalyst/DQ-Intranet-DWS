@@ -9,7 +9,7 @@ import { PostCardPoll } from './PostCardPoll';
 import { PostCardEvent } from './PostCardEvent';
 import { PostCardAnnouncement } from './PostCardAnnouncement';
 import { BasePost } from '../types';
-import { useCommunityPermissions } from '@/communities/hooks/useCommunityPermissions';
+import { usePermissions } from '@/communities/hooks/usePermissions';
 import { AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { safeFetch } from '@/communities/utils/safeFetch';
@@ -31,7 +31,7 @@ export function PostCard({
   const [hasReactedInsightful, setHasReactedInsightful] = useState(false);
   const {
     canModeratePosts
-  } = useCommunityPermissions();
+  } = usePermissions();
 
   // Check if post is hidden/flagged and user is not a moderator
   const isHiddenFromUser = (post.status === 'flagged' || post.status === 'deleted') && !canModeratePosts;
