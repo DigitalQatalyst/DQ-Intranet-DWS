@@ -58,11 +58,11 @@ export const CIDS_SERVICE_CARDS: CIDSServiceCard[] = [
       ]
     },
     tags: ['Introduction', 'CI.DS', 'Content System'],
-    imageUrl: '/images/services/design-automation.jpg'
+    imageUrl: '/images/design service card image.PNG'
   },
   {
     id: 'cids-stage-00',
-    title: 'Stage 00',
+    title: 'Stage 00 – Content Item Strategy (CI.DS)',
     description: 'Stage 00 defines the strategic lens through which all content items are shaped. It ensures that content is not created in isolation but instead anchored in DQ\'s narrative, frameworks, product positioning, and distribution strategy.',
     section: '2. Stage 00',
     content: {
@@ -150,7 +150,7 @@ export const CIDS_SERVICE_CARDS: CIDSServiceCard[] = [
       ]
     },
     tags: ['Stage 00', 'CI.DS', 'Strategy', 'Content Development'],
-    imageUrl: '/images/services/strategy-advisor.jpg'
+    imageUrl: '/images/design service card image.PNG'
   }
 ];
 

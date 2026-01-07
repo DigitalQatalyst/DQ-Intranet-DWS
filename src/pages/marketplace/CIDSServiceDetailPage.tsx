@@ -64,7 +64,7 @@ export default function CIDSServiceDetailPage() {
               <div className="flex items-center">
                 <ChevronRightIcon size={16} className="text-gray-400" />
                 <Link to="/marketplace/design-system?tab=cids" className="ml-1 text-gray-500 hover:text-gray-700 md:ml-2">
-                  Design System Marketplace
+                  Design System
                 </Link>
               </div>
             </li>
@@ -88,32 +88,30 @@ export default function CIDSServiceDetailPage() {
       
       {/* Hero Section */}
       <div className="relative w-full h-[500px] overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: card.imageUrl ? `url(${card.imageUrl})` : 'url(/images/guidelines.PNG)',
+            backgroundImage: 'url(/images/content.PNG)',
           }}
-        >
-          <div className="absolute inset-0 bg-[#030E31] bg-opacity-80"></div>
-        </div>
+        />
 
-        <div className="relative z-10 h-full flex flex-col justify-center px-6 md:px-12 lg:px-24 text-white">
+        <div className="relative z-10 h-full flex flex-col justify-center px-6 md:px-12 lg:px-24 text-white bg-[#030E31]/60">
           <div className="max-w-4xl">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium mb-4">
-              CI.DS Service
+            <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium mb-4 text-white">
+              CI.DS
             </span>
 
-            <div className="text-sm text-white/90 mb-2 font-inter">
-              {card.section}
+            <div className="text-sm text-white/90 mb-6 font-inter">
+              {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-inter">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight font-inter text-white">
               {card.title}
             </h1>
 
-            <p className="text-lg md:text-xl text-white/90 max-w-3xl mb-4">
-              {card.description}
-            </p>
+            <div className="flex items-center gap-3 text-sm text-white/90 font-inter">
+              <span>Digital Qatalyst</span>
+            </div>
           </div>
         </div>
 
@@ -125,62 +123,62 @@ export default function CIDSServiceDetailPage() {
         <div className="container mx-auto px-4 py-12 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Main Content Area */}
-            <div className="lg:col-span-3">
+            <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12">
               {/* Overview Section */}
               {card.content.overview && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6" style={{ backgroundColor: '#F8FAFC' }}>
-                  <div className="p-6 md:p-8">
-                    <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 pl-4 relative">
-                      <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] to-transparent"></span>
+                <section id="overview" className="mb-16 scroll-mt-24">
+                  <div className="relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 pl-6 font-inter tracking-tight">
                       Overview
                     </h2>
-                    <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
-                      <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                        <MarkdownRenderer body={card.content.overview} />
-                      </React.Suspense>
-                    </div>
                   </div>
-                </div>
+                  <div className="pl-6 prose prose-lg max-w-none text-gray-700 leading-relaxed">
+                    <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
+                      <MarkdownRenderer body={card.content.overview} />
+                    </React.Suspense>
+                  </div>
+                </section>
               )}
 
               {/* Subsections */}
               {card.content.subsections && card.content.subsections.length > 0 && (
-                <div className="space-y-6">
+                <div>
                   {card.content.subsections.map((subsection) => (
-                    <div key={subsection.id} className="bg-white rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
-                      <div className="p-6 md:p-8">
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 pl-4 relative">
-                          <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] to-transparent"></span>
-                          {subsection.id} {subsection.title}
+                    <section key={subsection.id} id={subsection.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-')} className="mb-16 scroll-mt-24">
+                      <div className="relative">
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 pl-6 font-inter tracking-tight">
+                          {subsection.title}
                         </h2>
-                        <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed space-y-4">
-                          {subsection.tableData ? (
-                            <>
-                              <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                                <MarkdownRenderer body={subsection.content} />
-                              </React.Suspense>
-                              <SummaryTable
-                                title=""
-                                columns={subsection.tableData.columns}
-                                data={subsection.tableData.data}
-                                onViewFull={() => openTableModal(subsection.id)}
-                              />
-                              <FullTableModal
-                                isOpen={tableModalOpen[subsection.id] || false}
-                                onClose={() => closeTableModal(subsection.id)}
-                                title={`${subsection.id} ${subsection.title}`}
-                                columns={subsection.tableData.columns}
-                                data={subsection.tableData.data}
-                              />
-                            </>
-                          ) : (
+                      </div>
+                      <div className="pl-6 prose prose-lg max-w-none text-gray-700 leading-relaxed">
+                        {subsection.tableData ? (
+                          <>
                             <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
                               <MarkdownRenderer body={subsection.content} />
                             </React.Suspense>
-                          )}
-                        </div>
+                            <SummaryTable
+                              title=""
+                              columns={subsection.tableData.columns}
+                              data={subsection.tableData.data}
+                              onViewFull={() => openTableModal(subsection.id)}
+                            />
+                            <FullTableModal
+                              isOpen={tableModalOpen[subsection.id] || false}
+                              onClose={() => closeTableModal(subsection.id)}
+                              title={`${subsection.id} ${subsection.title}`}
+                              columns={subsection.tableData.columns}
+                              data={subsection.tableData.data}
+                            />
+                          </>
+                        ) : (
+                          <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
+                            <MarkdownRenderer body={subsection.content} />
+                          </React.Suspense>
+                        )}
                       </div>
-                    </div>
+                    </section>
                   ))}
                 </div>
               )}
@@ -188,48 +186,38 @@ export default function CIDSServiceDetailPage() {
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-24">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
-                <nav className="space-y-2">
-                  {card.content.overview && (
-                    <a
-                      href="#overview"
-                      className="block text-sm text-gray-600 hover:text-[var(--guidelines-primary)] transition-colors"
-                    >
-                      Overview
-                    </a>
-                  )}
-                  {card.content.subsections?.map((subsection) => (
-                    <a
-                      key={subsection.id}
-                      href={`#${subsection.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-')}`}
-                      className="block text-sm text-gray-600 hover:text-[var(--guidelines-primary)] transition-colors"
-                    >
-                      {subsection.id} {subsection.title}
-                    </a>
-                  ))}
-                </nav>
-
-                {card.tags && card.tags.length > 0 && (
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Tags</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {card.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                          style={{
-                            backgroundColor: 'var(--guidelines-primary-surface)',
-                            color: 'var(--guidelines-primary)'
-                          }}
+              <nav className="sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto">
+                <div className="pr-6">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                    Contents
+                  </h3>
+                  <ul className="space-y-2">
+                    {card.content.overview && (
+                      <li>
+                        <a
+                          href="#overview"
+                          className="block w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 text-gray-700 hover:bg-gray-50"
                         >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+                          Overview
+                        </a>
+                      </li>
+                    )}
+                    {card.content.subsections?.map((subsection) => {
+                      const sectionId = subsection.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
+                      return (
+                        <li key={subsection.id}>
+                          <a
+                            href={`#${sectionId}`}
+                            className="block w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 text-gray-700 hover:bg-gray-50"
+                          >
+                            {subsection.title}
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </nav>
             </div>
           </div>
         </div>

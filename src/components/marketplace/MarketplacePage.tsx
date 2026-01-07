@@ -219,9 +219,9 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     cds: 'CDS'
   };
   const DESIGN_SYSTEM_TAB_DESCRIPTIONS: Record<DesignSystemTab, string> = {
-    cids: 'Component Integration Design System - Unified component library and integration patterns.',
-    vds: 'Visual Design System - Design tokens, typography, and visual guidelines.',
-    cds: 'Content Design System - Content patterns, voice, and tone guidelines.'
+    cids: 'CI.DS (Content Item Design System) replaces CI.PF, shifting from static production rules to a dynamic, modular, and quality-driven content system that embeds intentionality, traceability, and performance assurance across all DQ platforms.',
+    vds: 'V.DS (Video Design System) — DQ\'s unified blueprint for producing high‑impact, cinematic‑quality video content. It represents a shift from traditional production routines to a creative excellence framework that embeds intentionality, precision, and measurable performance into every stage of video creation.',
+    cds: 'The Marketing Campaigns Design System (CDS) offers a unified operating framework for how campaigns are conceived, planned, designed, deployed, and reviewed—anchored by DQ\'s 5 strategic Content Pillars.'
   };
   const getDesignSystemTabFromParams = useCallback((params: URLSearchParams): DesignSystemTab => {
     const tab = params.get('tab');
@@ -1624,6 +1624,22 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
 
   // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
+    // For Design System: Type filter should sync with active tab, but don't change tab
+    if (isDesignSystem && filterType === 'type') {
+      // If user selects a type that doesn't match current tab, switch to that tab
+      const typeToTabMap: Record<string, DesignSystemTab> = {
+        'cids': 'cids',
+        'vds': 'vds',
+        'cds': 'cds'
+      };
+      const targetTab = typeToTabMap[value];
+      if (targetTab && targetTab !== activeDesignSystemTab) {
+        setActiveDesignSystemTab(targetTab);
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('tab', targetTab);
+        setSearchParams(newParams, { replace: false });
+      }
+    }
     if (isCourses) {
       toggleFilter(filterType, value);
       return;
@@ -1642,7 +1658,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         return { ...prev, [filterType]: value === prev[filterType] ? '' : value };
       }
     });
-  }, [isCourses, isGuides, marketplaceType, toggleFilter]);
+  }, [isCourses, isGuides, isDesignSystem, marketplaceType, toggleFilter, activeDesignSystemTab, searchParams, setSearchParams]);
   
   // Reset all filters
   const resetFilters = useCallback(() => {
@@ -1837,6 +1853,25 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           </div>
         )}
 
+        {/* Design System CURRENT FOCUS Section */}
+        {isDesignSystem && (
+          <>
+            {/* Tab Description - Above Navigation */}
+            <div className="mb-4 bg-white rounded-lg p-6 border border-gray-200 relative">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex-1">
+                  <span className="text-xs uppercase text-gray-500 font-medium tracking-wide">CURRENT FOCUS</span>
+                  <h2 className="text-2xl font-bold text-gray-800 mt-1">{DESIGN_SYSTEM_TAB_LABELS[activeDesignSystemTab]}</h2>
+                </div>
+                <button className="px-4 py-2 bg-blue-50 text-gray-800 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors border-0">
+                  Tab overview
+                </button>
+              </div>
+              <p className="text-gray-700">{DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab]}</p>
+            </div>
+          </>
+        )}
+
         {/* Design System Tabs */}
         {isDesignSystem && (
           <div className="mb-6 border-b border-gray-200">
@@ -1851,6 +1886,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                       // Update URL with tab parameter
                       const newParams = new URLSearchParams(searchParams);
                       newParams.set('tab', tab);
+                      // Clear type filter when switching tabs (type filter should match active tab)
+                      newParams.delete('type');
                       setSearchParams(newParams, { replace: false });
                     }}
                     className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors ${

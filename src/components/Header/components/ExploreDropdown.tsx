@@ -78,7 +78,7 @@ const marketplaces: Marketplace[] = [
   },
   {
     id: 'design-system',
-    name: 'Design System Marketplace',
+    name: 'Design System',
     description: 'Explore design system components, patterns, and resources.',
     icon: Layers,
     href: '/marketplace/design-system',

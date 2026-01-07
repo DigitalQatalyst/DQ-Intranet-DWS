@@ -150,7 +150,7 @@ export const MarketplaceRouter: React.FC = () => {
       <Route path="/guides/testimonials" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><TestimonialsDetailPage /></React.Suspense>} />
       <Route path="/guides/:itemId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><GuideDetailPage /></React.Suspense>} />
       
-      {/* Design System Marketplace */}
+      {/* Design System */}
       <Route path="/design-system" element={<MarketplacePage marketplaceType="design-system" title={designSystemConfig.title} description={designSystemConfig.description} />} />
       <Route path="/design-system/:cardId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><CIDSServiceDetailPage /></React.Suspense>} />
       

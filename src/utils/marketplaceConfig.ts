@@ -900,7 +900,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   },
   'design-system': {
     id: 'design-system',
-    title: 'Design System Marketplace',
+    title: 'Design System',
     description: 'Explore design system components, patterns, and resources.',
     route: '/marketplace/design-system',
     primaryCTA: 'Explore',
@@ -954,14 +954,14 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       id: 'location',
       title: 'Location',
       options: [{
-        id: 'dubai',
-        name: 'Dubai'
+        id: 'dxb',
+        name: 'DXB'
       }, {
-        id: 'nairobi',
-        name: 'Nairobi'
+        id: 'nbo',
+        name: 'NBO'
       }, {
-        id: 'riyadh',
-        name: 'Riyadh'
+        id: 'ksa',
+        name: 'KSA'
       }]
     }],
     // Data mapping functions

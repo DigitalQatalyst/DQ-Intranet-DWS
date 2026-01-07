@@ -1,5 +1,4 @@
 import React from 'react';
-import { Layers } from 'lucide-react';
 import type { CIDSServiceCard as CIDSServiceCardType } from '@/data/cidsServiceCards';
 
 interface CIDSServiceCardProps {
@@ -29,12 +28,6 @@ export const CIDSServiceCardComponent: React.FC<CIDSServiceCardProps> = ({ card,
             }
           }}
         />
-        {/* Overlay with section number */}
-        <div className="absolute top-4 left-4">
-          <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
-            <span className="text-xs font-semibold text-gray-700">{card.section}</span>
-          </div>
-        </div>
       </div>
 
       {/* Card Content */}
@@ -54,28 +47,17 @@ export const CIDSServiceCardComponent: React.FC<CIDSServiceCardProps> = ({ card,
           </p>
         </div>
 
-        {/* Tags */}
-        {card.tags && card.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-3">
-            {card.tags.slice(0, 3).map((tag, index) => (
-              <span
-                key={index}
-                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                style={{
-                  backgroundColor: 'var(--guidelines-primary-surface)',
-                  color: 'var(--guidelines-primary)'
-                }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Icon indicator */}
-        <div className="flex items-center text-xs text-gray-500 mt-auto">
-          <Layers size={14} className="mr-1" />
-          <span>CI.DS Service</span>
+        {/* CI.DS Tag */}
+        <div className="mb-3">
+          <span
+            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+            style={{
+              backgroundColor: 'var(--guidelines-primary-surface)',
+              color: 'var(--guidelines-primary)'
+            }}
+          >
+            CI.DS
+          </span>
         </div>
       </div>
 
