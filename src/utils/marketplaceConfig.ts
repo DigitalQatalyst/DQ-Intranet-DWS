@@ -897,6 +897,123 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     route: '/marketplace/guides',
     title: 'DQ Knowledge Center',
     description: 'Access practical guidelines, templates, and processes to support everyday delivery and collaboration.'
+  },
+  'design-system': {
+    id: 'design-system',
+    title: 'Design System Marketplace',
+    description: 'Explore design system components, patterns, and resources.',
+    route: '/marketplace/design-system',
+    primaryCTA: 'Explore',
+    secondaryCTA: 'View Details',
+    itemName: 'Component',
+    itemNamePlural: 'Components',
+    attributes: [{
+      key: 'type',
+      label: 'Type',
+      icon: React.createElement(Layers, { size: 18, className: "mr-2" })
+    }],
+    detailSections: ['description', 'related'],
+    tabs: [
+      {
+        id: 'cids',
+        label: 'CI.DS',
+        icon: Layers,
+        iconBgColor: 'bg-blue-50',
+        iconColor: 'text-blue-600'
+      },
+      {
+        id: 'vds',
+        label: 'V.DS',
+        icon: Layers,
+        iconBgColor: 'bg-purple-50',
+        iconColor: 'text-purple-600'
+      },
+      {
+        id: 'cds',
+        label: 'CDS',
+        icon: Layers,
+        iconBgColor: 'bg-amber-50',
+        iconColor: 'text-amber-600'
+      }
+    ],
+    summarySticky: false,
+    filterCategories: [{
+      id: 'type',
+      title: 'Type',
+      options: [{
+        id: 'cids',
+        name: 'CI.DS'
+      }, {
+        id: 'vds',
+        name: 'V.DS'
+      }, {
+        id: 'cds',
+        name: 'CDS'
+      }]
+    }, {
+      id: 'location',
+      title: 'Location',
+      options: [{
+        id: 'dubai',
+        name: 'Dubai'
+      }, {
+        id: 'nairobi',
+        name: 'Nairobi'
+      }, {
+        id: 'riyadh',
+        name: 'Riyadh'
+      }]
+    }],
+    // Data mapping functions
+    mapListResponse: data => {
+      return data.map((item: any) => ({
+        ...item,
+        tags: item.tags || [item.type].filter(Boolean)
+      }));
+    },
+    mapDetailResponse: data => {
+      return {
+        ...data,
+        highlights: data.highlights || data.details || []
+      };
+    },
+    mapFilterResponse: data => {
+      return [{
+        id: 'type',
+        title: 'Type',
+        options: data.types || []
+      }, {
+        id: 'location',
+        title: 'Location',
+        options: data.locations || []
+      }];
+    },
+    // Mock data for fallback and schema reference
+    mockData: {
+      items: [],
+      filterOptions: {
+        types: [{
+          id: 'cids',
+          name: 'CI.DS'
+        }, {
+          id: 'vds',
+          name: 'V.DS'
+        }, {
+          id: 'cds',
+          name: 'CDS'
+        }],
+        locations: [{
+          id: 'dubai',
+          name: 'Dubai'
+        }, {
+          id: 'nairobi',
+          name: 'Nairobi'
+        }, {
+          id: 'riyadh',
+          name: 'Riyadh'
+        }]
+      }
+    }
   }
 };
 // Helper to get config by marketplace type

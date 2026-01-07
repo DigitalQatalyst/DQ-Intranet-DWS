@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from './FilterSidebar.js';
 import { MarketplaceGrid } from './MarketplaceGrid.js';
 import { SearchBar } from '../SearchBar.js';
-import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
+import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon, Layers } from 'lucide-react';
 import { ErrorDisplay, CourseCardSkeleton } from '../SkeletonLoader.js';
 import { fetchMarketplaceItems, fetchMarketplaceFilters } from '../../services/marketplace.js';
 import { getMarketplaceConfig, getTabSpecificFilters } from '../../utils/marketplaceConfig.js';
@@ -175,6 +175,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const isCourses = marketplaceType === 'courses';
   const isKnowledgeHub = marketplaceType === 'knowledge-hub';
   const isServicesCenter = marketplaceType === 'non-financial';
+  const isDesignSystem = marketplaceType === 'design-system';
   
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -207,6 +208,45 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       }
     }
   }, [isServicesCenter, searchParams, activeServiceTab, setSearchParams]);
+
+  // Design System tabs - sync with URL params
+  type DesignSystemTab = 'cids' | 'vds' | 'cds';
+  const DESIGN_SYSTEM_TAB_LABELS: Record<DesignSystemTab, string> = {
+    cids: 'CI.DS',
+    vds: 'V.DS',
+    cds: 'CDS'
+  };
+  const DESIGN_SYSTEM_TAB_DESCRIPTIONS: Record<DesignSystemTab, string> = {
+    cids: 'Component Integration Design System - Unified component library and integration patterns.',
+    vds: 'Visual Design System - Design tokens, typography, and visual guidelines.',
+    cds: 'Content Design System - Content patterns, voice, and tone guidelines.'
+  };
+  const getDesignSystemTabFromParams = useCallback((params: URLSearchParams): DesignSystemTab => {
+    const tab = params.get('tab');
+    const validTabs: DesignSystemTab[] = ['cids', 'vds', 'cds'];
+    return tab && validTabs.includes(tab as DesignSystemTab) ? (tab as DesignSystemTab) : 'cids';
+  }, []);
+  const [activeDesignSystemTab, setActiveDesignSystemTab] = useState<DesignSystemTab>(() => 
+    isDesignSystem 
+      ? getDesignSystemTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams())
+      : 'cids'
+  );
+
+  // Sync activeDesignSystemTab with URL params
+  useEffect(() => {
+    if (isDesignSystem) {
+      const currentTab = searchParams.get('tab');
+      const validTabs: DesignSystemTab[] = ['cids', 'vds', 'cds'];
+      if (currentTab && validTabs.includes(currentTab as DesignSystemTab) && currentTab !== activeDesignSystemTab) {
+        setActiveDesignSystemTab(currentTab as DesignSystemTab);
+      } else if (!currentTab || !validTabs.includes(currentTab as DesignSystemTab)) {
+        // Set default tab in URL if not present
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('tab', activeDesignSystemTab);
+        setSearchParams(newParams, { replace: true });
+      }
+    }
+  }, [isDesignSystem, searchParams, activeDesignSystemTab, setSearchParams, getDesignSystemTabFromParams]);
 
   // Items & filters state
   const [_items, setItems] = useState<any[]>([]);
@@ -1559,7 +1599,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
 
     run();
     // Keep deps lean; no need to include functions like isGuides
-  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isKnowledgeHub, currentPage, pageSize, isServicesCenter, activeServiceTab, activeTab]);
+  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isKnowledgeHub, currentPage, pageSize, isServicesCenter, activeServiceTab, isDesignSystem, activeDesignSystemTab, activeTab]);
 
   // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
@@ -1776,6 +1816,38 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           </div>
         )}
 
+        {/* Design System Tabs */}
+        {isDesignSystem && (
+          <div className="mb-6 border-b border-gray-200">
+            <nav className="flex space-x-8" aria-label="Design System tabs">
+              {(['cids', 'vds', 'cds'] as DesignSystemTab[]).map((tab) => {
+                const isActive = activeDesignSystemTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => {
+                      setActiveDesignSystemTab(tab);
+                      // Update URL with tab parameter
+                      const newParams = new URLSearchParams(searchParams);
+                      newParams.set('tab', tab);
+                      setSearchParams(newParams, { replace: false });
+                    }}
+                    className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors ${
+                      isActive
+                        ? 'border-blue-700'
+                        : 'text-gray-700 border-transparent hover:text-gray-900 hover:border-gray-300'
+                    }`}
+                    style={isActive ? { color: '#030F35', borderColor: '#030F35' } : {}}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    {DESIGN_SYSTEM_TAB_LABELS[tab]}
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        )}
+
         {/* Guides Tabs Section */}
         {isGuides && (
           <>
@@ -1967,6 +2039,52 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 onFilterChange={handleKnowledgeHubFilterChange}
                 onClearFilters={clearKnowledgeHubFilters}
               />
+            ) : isDesignSystem ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                {[
+                  {
+                    id: 'cids',
+                    title: 'CI.DS',
+                    description: DESIGN_SYSTEM_TAB_DESCRIPTIONS.cids,
+                    type: 'Component Integration Design System'
+                  },
+                  {
+                    id: 'vds',
+                    title: 'V.DS',
+                    description: DESIGN_SYSTEM_TAB_DESCRIPTIONS.vds,
+                    type: 'Visual Design System'
+                  },
+                  {
+                    id: 'cds',
+                    title: 'CDS',
+                    description: DESIGN_SYSTEM_TAB_DESCRIPTIONS.cds,
+                    type: 'Content Design System'
+                  }
+                ]
+                  .filter(item => activeDesignSystemTab === item.id)
+                  .map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 p-6 min-h-[340px] flex flex-col"
+                    >
+                      <div className="flex items-center mb-4">
+                        <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mr-3">
+                          <Layers size={24} className="text-blue-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-semibold text-gray-900">{item.title}</h3>
+                          <p className="text-sm text-gray-500">{item.type}</p>
+                        </div>
+                      </div>
+                      <p className="text-gray-600 mb-4 flex-grow">{item.description}</p>
+                      <div className="mt-auto">
+                        <span className="inline-block px-3 py-1 bg-blue-50 text-blue-700 text-sm font-medium rounded-full">
+                          Coming Soon
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+              </div>
             ) : isGuides ? (
               <>
                 {activeTab === 'faqs' ? (
