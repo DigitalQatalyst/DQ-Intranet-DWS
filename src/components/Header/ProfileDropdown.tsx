@@ -88,39 +88,37 @@ export function ProfileDropdown({
     </button>
     {isOpen && <>
       <div className="fixed inset-0 z-30" onClick={closeDropdown}></div>
-      <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-40">
-        <div className="p-4 border-b border-gray-200">
-          <button className="flex items-start w-full text-left hover:bg-gray-50 rounded-md transition-colors p-2 -m-2" onClick={navigateToUserProfile}>
-            <UserIcon size={20} className="text-gray-500 mr-3 mt-0.5 flex-shrink-0" />
-            <div className="flex-1 min-w-0" onClick={() => navigate('/dashboard')}>
-              <p className="text-sm font-semibold text-gray-900 truncate">
+      <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-40">
+        <div className="p-3 border-b border-gray-200">
+          <button className="flex items-center w-full text-left hover:bg-gray-50 rounded-md transition-colors" onClick={navigateToUserProfile}>
+            <UserIcon size={18} className="text-gray-500 mr-2" />
+            <div className="ml-1" onClick={() => navigate('/dashboard')}>
+              <p className="text-sm font-medium text-gray-800">
                 {user.name}
               </p>
-              <p className="text-xs text-gray-500 mt-1 break-words overflow-wrap-anywhere">
-                {user.email}
-              </p>
+              <p className="text-xs text-gray-500">{user.email}</p>
             </div>
           </button>
         </div>
         <div className="py-1">
-          <button className="flex items-center w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors" onClick={e => {
+          <button className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={e => {
             e.preventDefault();
             closeDropdown();
             onViewNotifications();
           }}>
-            <BellIcon size={16} className="mr-3 text-gray-500 flex-shrink-0" />
-            <span className="flex-1">Notifications</span>
-            {unreadNotifications > 0 && <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 min-w-5 px-1.5 flex items-center justify-center flex-shrink-0">
+            <BellIcon size={16} className="mr-3 text-gray-500" />
+            <span>Notifications</span>
+            {unreadNotifications > 0 && <span className="ml-auto bg-red-500 text-white text-xs rounded-full h-5 min-w-5 px-1.5 flex items-center justify-center">
               {unreadNotifications}
             </span>}
           </button>
         </div>
         <div className="py-1 border-t border-gray-200">
-          <button className="flex items-center w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors" onClick={e => {
+          <button className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onClick={e => {
             e.preventDefault();
             showLogoutConfirm();
           }}>
-            <LogOutIcon size={16} className="mr-3 text-gray-500 flex-shrink-0" />
+            <LogOutIcon size={16} className="mr-3 text-gray-500" />
             Log Out
           </button>
         </div>

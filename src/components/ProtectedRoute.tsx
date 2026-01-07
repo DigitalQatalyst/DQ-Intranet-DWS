@@ -1,77 +1,42 @@
-import { PropsWithChildren } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from './Header';
+import {PropsWithChildren, useEffect} from 'react';
+import {Navigate, useLocation} from 'react-router-dom';
+import {useAuth} from './Header';
 
 /**
- * ProtectedRoute (ProtectedLayout equivalent)
- * 
- * Per Global_Authentication_v1.md spec Section 3.2:
- * - Wrap all authenticated content
- * - Show loading UI while auth resolves
- * - Redirect newJoiner → /onboarding
- * - Redirect unauthenticated users → /signin (app's login route)
- * - Prevent partial rendering until session is resolved
+ * Guards routes behind MSAL auth. If unauthenticated, triggers login and
+ * renders nothing while redirecting. If you prefer redirecting to home
+ * instead of auto-login, set `AUTO_LOGIN` to false below.
  */
-const AUTO_LOGIN = false;
+const AUTO_LOGIN = true;
 
-const ALLOWED_DOMAINS = ['@digitalqatalyst.com', '@dq.com', '@dq.lk'];
+export const ProtectedRoute: React.FC<PropsWithChildren> = ({children}) => {
+    const {user, isLoading, login} = useAuth();
+    const location = useLocation();
 
-function isAllowedEmail(email?: string | null): boolean {
-  if (!email) return false;
-  const lower = email.toLowerCase();
-  return ALLOWED_DOMAINS.some(domain => lower.endsWith(domain));
-}
+    // Not authenticated: either auto-login or redirect to home
+    useEffect(() => {
+        if (!isLoading && !user && AUTO_LOGIN) {
+            // Kick off MSAL redirect sign-in flow
+            // MSAL will remember current URL so user returns to the same route
+            login();
+        }
+    }, [isLoading, user, login]);
 
-export const ProtectedRoute: React.FC<PropsWithChildren> = ({ children }) => {
-  const { user, userContext, isLoading } = useAuth();
-  const location = useLocation();
 
-  // While determining auth state, show loading message
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="mb-4 inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-dq-navy border-r-transparent"></div>
-          <p className="text-gray-600">Checking your session...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Not authenticated - redirect to sign-in page
-  if (!user) {
-    return <Navigate to={`/signin?redirect=${encodeURIComponent(location.pathname)}`} replace />;
-  }
-
-  // Enforce DQ email domains
-  if (!isAllowedEmail(user.email)) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center px-4 text-center">
-        <div className="max-w-xl">
-          <h1 className="mb-4 text-2xl font-display font-semibold text-dq-navy">
-            Access restricted
-          </h1>
-          <p className="mb-6 text-base text-gray-700">
-            This workspace is only available to Digital Qatalyst accounts. Please sign in with
-            your <span className="font-mono">@digitalqatalyst.com</span>,{' '}
-            <span className="font-mono">@dq.com</span> or <span className="font-mono">@dq.lk</span>{' '}
-            email.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // New Joiner: Redirect to onboarding (per DWS Authorization Design Spec)
-  if (userContext?.segment === 'new_joiner') {
-    // Allow access to onboarding routes, but redirect others
-    const isOnboardingRoute = location.pathname.startsWith('/onboarding');
-    if (!isOnboardingRoute) {
-      return <Navigate to="/onboarding/start" replace />;
+    // While determining auth state, don't render or redirect
+    if (isLoading) {
+        return null;
     }
-  }
 
-  return <>{children}</>;
+    // If authenticated, render the protected content
+    if (user) {
+        return <>{children}</>;
+    }
+
+
+    if (AUTO_LOGIN) return null;
+
+    return <Navigate to="/" state={{from: location}} replace/>;
 };
 
 export default ProtectedRoute;

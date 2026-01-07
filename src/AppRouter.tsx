@@ -3,8 +3,6 @@ import { AuthProvider } from "./components/Header";
 import { MarketplaceRouter } from "./pages/marketplace/MarketplaceRouter";
 import { CommunitiesRouter } from "./communities/CommunitiesRouter";
 import { App } from './App';
-import { ProtectedRoute } from "./components/ProtectedRoute";
-import { ProtectedRouteWithAuthAndRole } from "./components/ProtectedRouteWithRole";
 
 import MarketplaceDetailsPage from "./pages/marketplace/MarketplaceDetailsPage";
 import LmsCourseDetailPage from "./pages/lms/LmsCourseDetailPage";
@@ -35,7 +33,6 @@ import UnitProfilePage from "./pages/UnitProfilePage";
 import WorkPositionProfilePage from "./pages/WorkPositionProfilePage";
 import RoleProfilePage from "./pages/RoleProfilePage";
 import WomenEntrepreneursPage from "./pages/WomenEntrepreneursPage";
-import SignInPage from "./pages/SignInPage";
 
 export function AppRouter() {
 
@@ -52,282 +49,75 @@ export function AppRouter() {
         <AuthProvider>
           <ChatBot />
           <Routes>
-            {/* Sign-in page is the ONLY public route */}
-            <Route path="/signin" element={<SignInPage />} />
-            
-            {/* All other routes require authentication */}
-            <Route
-              path="/discover-dq"
-              element={
-                <ProtectedRoute>
-                  <DiscoverDQ />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/coming-soon"
-              element={
-                <ProtectedRoute>
-                  <ComingSoonPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/growth-sectors-coming-soon"
-              element={
-                <ProtectedRoute>
-                  <GrowthSectorsComingSoon />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/*"
-              element={
-                <ProtectedRoute>
-                  <App />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/:itemId"
-              element={
-                <ProtectedRoute>
-                  <LmsCourseDetailPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/lms"
-              element={
-                <ProtectedRoute>
-                  <LmsCourses />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/lms/:slug/reviews"
-              element={
-                <ProtectedRoute>
-                  <LmsCourseReviewsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/lms/:slug"
-              element={
-                <ProtectedRoute>
-                  <LmsCourseDetailPageWrapper />
-                </ProtectedRoute>
-              }
+            <Route path="/discover-dq" element={<DiscoverDQ />} />
+            <Route path="/coming-soon" element={<ComingSoonPage />} />
+            <Route path="/growth-sectors-coming-soon" element={<GrowthSectorsComingSoon />} />
+            <Route path="/*" element={<App />} />
+            <Route path="/courses/:itemId" element={<LmsCourseDetailPage />} />
+            <Route path="/lms" element={<LmsCourses />} />
+            <Route path="/lms/:slug/reviews" element={<LmsCourseReviewsPage />} />
+            <Route 
+              path="/lms/:slug" 
+              element={<LmsCourseDetailPageWrapper />} 
             />
             <Route
               path="/onboarding/:itemId"
               element={
-                <ProtectedRoute>
-                  <MarketplaceDetailsPage marketplaceType="onboarding" />
-                </ProtectedRoute>
+                <MarketplaceDetailsPage
+                  marketplaceType="onboarding"
+                />
               }
             />
             <Route
               path="/onboarding/:itemId/details"
               element={
-                <ProtectedRoute>
-                  <MarketplaceDetailsPage marketplaceType="onboarding" />
-                </ProtectedRoute>
+                <MarketplaceDetailsPage
+                  marketplaceType="onboarding"
+                />
               }
             />
-            {/* Marketplace routes - authenticated access per spec Section 4 */}
-            <Route
-              path="/marketplace/*"
-              element={
-                <ProtectedRoute>
-                  <MarketplaceRouter />
-                </ProtectedRoute>
-              }
-            />
-            {/* Future: /knowledge/manage/** requires content_publisher role */}
-            {/* Future: /media/admin/** requires content_publisher role */}
-            {/* Future: /services/manage/** requires service_owner role */}
-            {/* Admin - Guides CRUD (requires system_admin role per spec) */}
-            <Route
-              path="/admin/guides"
-              element={
-                <ProtectedRouteWithAuthAndRole requiredRole="system_admin">
-                  <AdminGuidesList />
-                </ProtectedRouteWithAuthAndRole>
-              }
-            />
-            <Route
-              path="/admin/guides/new"
-              element={
-                <ProtectedRouteWithAuthAndRole requiredRole="system_admin">
-                  <GuideEditor />
-                </ProtectedRouteWithAuthAndRole>
-              }
-            />
-            <Route
-              path="/admin/guides/:id"
-              element={
-                <ProtectedRouteWithAuthAndRole requiredRole="system_admin">
-                  <GuideEditor />
-                </ProtectedRouteWithAuthAndRole>
-              }
-            />
-            {/* Admin routes - all require system_admin role per spec Section 4 */}
-            <Route
-              path="/admin/*"
-              element={
-                <ProtectedRouteWithAuthAndRole requiredRole="system_admin">
-                  <NotFound />
-                </ProtectedRouteWithAuthAndRole>
-              }
-            />
-            {/* Canonical and compatibility routes for Guides marketplace */}
-            <Route
-              path="/guides"
-              element={
-                <ProtectedRoute>
-                  <Navigate to="/marketplace/guides" replace />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/knowledge-hub"
-              element={
-                <ProtectedRoute>
-                  <Navigate to="/marketplace/guides" replace />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/marketplace/*" element={<MarketplaceRouter />} />
+            {/* Admin - Guides CRUD */}
+            <Route path="/admin/guides" element={<AdminGuidesList />} />
+            <Route path="/admin/guides/new" element={<GuideEditor />} />
+            <Route path="/admin/guides/:id" element={<GuideEditor />} />
+          {/* Canonical and compatibility routes for Guides marketplace */}
+          <Route path="/guides" element={<Navigate to="/marketplace/guides" replace />} />
+          <Route path="/knowledge-hub" element={<Navigate to="/marketplace/guides" replace />} />
             <Route
               path="/dashboard/*"
               element={
-                <ProtectedRoute>
-                  <DashboardRouter />
-                </ProtectedRoute>
+                // <ProtectedRoute>
+                <DashboardRouter />
+                // </ProtectedRoute>
               }
             />
-            <Route
-              path="/asset-library"
-              element={
-                <ProtectedRoute>
-                  <AssetLibraryPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/blueprints"
-              element={
-                <ProtectedRoute>
-                  <BlueprintsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/blueprints/:projectId"
-              element={
-                <ProtectedRoute>
-                  <BlueprintsPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/asset-library" element={<AssetLibraryPage />} />
+            <Route path="/blueprints" element={<BlueprintsPage />} />
+            <Route path="/blueprints/:projectId" element={<BlueprintsPage />} />
             <Route
               path="/blueprints/:projectId/:folderId"
-              element={
-                <ProtectedRoute>
-                  <BlueprintsPage />
-                </ProtectedRoute>
-              }
+              element={<BlueprintsPage />}
             />
-            <Route
-              path="/play/dq-agile-kpis"
-              element={
-                <ProtectedRoute>
-                  <DQAgileKPIsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/thank-you"
-              element={
-                <ProtectedRoute>
-                  <ThankYou />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/play/dq-agile-kpis" element={<DQAgileKPIsPage />} />
+            <Route path="/discover-dq" element={<DiscoverDQ />} />
+            <Route path="/thank-you" element={<ThankYou />} />
             {/* Redirect encoded leading-space path to canonical route */}
-            <Route
-              path="/%20marketplace/news"
-              element={
-                <ProtectedRoute>
-                  <Navigate to="/marketplace/news" replace />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/events"
-              element={
-                <ProtectedRoute>
-                  <EventsPage />
-                </ProtectedRoute>
-              }
-            />
-            {/* Communities routes - authenticated access per spec Section 4 */}
-            <Route
-              path="/communities/*"
-              element={
-                <ProtectedRoute>
-                  <CommunitiesRouter />
-                </ProtectedRoute>
-              }
-            />
-            {/* Future: /communities/moderation/** requires moderator role */}
-            {/* Future: /directory/manage/** requires directory_maintainer role */}
+            <Route path="/%20marketplace/news" element={<Navigate to="/marketplace/news" replace />} />
+            <Route path="/events" element={<EventsPage />} />
+            <Route path="/communities/*" element={<CommunitiesRouter />} />
             {/* Work Directory Routes */}
-            <Route
-              path="/work-directory/units/:slug"
-              element={
-                <ProtectedRoute>
-                  <UnitProfilePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/work-directory/positions/:slug"
-              element={
-                <ProtectedRoute>
-                  <WorkPositionProfilePage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/work-directory/units/:slug" element={<UnitProfilePage />} />
+            <Route path="/work-directory/positions/:slug" element={<WorkPositionProfilePage />} />
             {/* Role Profile Route */}
-            <Route
-              path="/roles/:slug"
-              element={
-                <ProtectedRoute>
-                  <RoleProfilePage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/roles/:slug" element={<RoleProfilePage />} />
             <Route
               path="/women-entrepreneurs"
-              element={
-                <ProtectedRoute>
-                  <WomenEntrepreneursPage />
-                </ProtectedRoute>
-              }
+              element={<WomenEntrepreneursPage />}
             />
-            <Route
-              path="/404"
-              element={
-                <ProtectedRoute>
-                  <NotFound />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/404" element={<NotFound />} />
 
-            {/* Catch-all redirects to sign-in if not authenticated */}
-            <Route path="*" element={<Navigate to="/signin" replace />} />
+            <Route path="*" element={<Navigate to="/404" replace />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
