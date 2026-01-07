@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, Navigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { useAuth } from '../components/Header';
@@ -25,11 +25,6 @@ const HomePage: React.FC = () => {
     }, 100);
     return () => clearTimeout(timer);
   }, [location.pathname]);
-
-  // Redirect to sign-in if not authenticated
-  if (!authLoading && !user) {
-    return <Navigate to="/signin" replace />;
-  }
 
   if (isLoading || authLoading) {
     return (

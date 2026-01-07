@@ -20,6 +20,7 @@ const SixXDPerspectiveDetailPage = React.lazy(() => import('../guides/SixXDPersp
 const FAQsPage = React.lazy(() => import('../guides/FAQsPage'));
 const TestimonialsDetailPage = React.lazy(() => import('../guides/TestimonialsDetailPage'));
 const ProductDetailPage = React.lazy(() => import('../products/ProductDetailPage'));
+const CIDSServiceDetailPage = React.lazy(() => import('./CIDSServiceDetailPage'));
 // Promo cards for courses marketplace
 const coursePromoCards = [{
   id: 'finance-promo',
@@ -151,6 +152,7 @@ export const MarketplaceRouter: React.FC = () => {
       
       {/* Design System Marketplace */}
       <Route path="/design-system" element={<MarketplacePage marketplaceType="design-system" title={designSystemConfig.title} description={designSystemConfig.description} />} />
+      <Route path="/design-system/:cardId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><CIDSServiceDetailPage /></React.Suspense>} />
       
       {/* Products Detail Pages */}
       <Route path="/products/:slug" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><ProductDetailPage /></React.Suspense>} />

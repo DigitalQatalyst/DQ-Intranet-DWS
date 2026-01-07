@@ -31,6 +31,8 @@ import { track } from '../../utils/analytics';
 import FAQsPageContent from '@/pages/guides/FAQsPageContent.tsx';
 import { glossaryTerms, GlossaryTerm, CATEGORIES } from '@/pages/guides/glossaryData.ts';
 import { STATIC_PRODUCTS } from '../../utils/staticProducts';
+import { CIDS_SERVICE_CARDS } from '@/data/cidsServiceCards';
+import { CIDSServiceCardComponent } from './CIDSServiceCard';
 const LEARNING_TYPE_FILTER: FilterConfig = {
   id: 'learningType',
   title: 'Learning Type',
@@ -587,6 +589,15 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         return;
       }
       
+      // DESIGN SYSTEM: use static filter config from marketplace config
+      if (isDesignSystem) {
+        setFilterConfig(config.filterCategories || []);
+        const initial: Record<string, string | string[]> = {};
+        (config.filterCategories || []).forEach(c => { initial[c.id] = ''; });
+        setFilters(initial);
+        return;
+      }
+      
       // Use tab-specific filters for Services Center
       if (isServicesCenter) {
         const tabFilters = getTabSpecificFilters(activeServiceTab);
@@ -613,7 +624,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       }
     };
     loadFilterOptions();
-  }, [marketplaceType, config, isCourses, isGuides, isKnowledgeHub, isServicesCenter, activeServiceTab, filterConfig.length, Object.keys(filters).length]);
+  }, [marketplaceType, config, isCourses, isGuides, isKnowledgeHub, isDesignSystem, isServicesCenter, activeServiceTab, filterConfig.length, Object.keys(filters).length]);
   
   // Fetch items based on marketplace type
   useEffect(() => {
@@ -636,6 +647,16 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         setFilteredItems(fallbackItems);
         setTotalCount(fallbackItems.length);
         setLoading(false);
+        return;
+      }
+
+      // DESIGN SYSTEM: use static service cards (no API)
+      if (isDesignSystem) {
+        setLoading(false);
+        setError(null);
+        setItems([]);
+        setFilteredItems([]);
+        setTotalCount(0);
         return;
       }
 
@@ -1688,7 +1709,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
   }, [queryParams, totalPages]);
 
   return (
-    <div className={`min-h-screen flex flex-col bg-gray-50 ${isGuides ? 'guidelines-theme' : ''}`}>
+    <div className={`min-h-screen flex flex-col bg-gray-50 ${isGuides || isDesignSystem ? 'guidelines-theme' : ''}`}>
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
       <div className="container mx-auto px-4 py-8 flex-grow max-w-7xl">
         {/* Breadcrumbs */}
@@ -2027,7 +2048,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                 {[...Array(6)].map((_, idx) => <CourseCardSkeleton key={idx} />)}
               </div>
-            ) : error && !isGuides && !isKnowledgeHub ? (
+            ) : error && !isGuides && !isKnowledgeHub && !isDesignSystem ? (
               <ErrorDisplay message={error} onRetry={retryFetch} />
             ) : isKnowledgeHub ? (
               <KnowledgeHubGrid
@@ -2041,49 +2062,42 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               />
             ) : isDesignSystem ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                {[
-                  {
-                    id: 'cids',
-                    title: 'CI.DS',
-                    description: DESIGN_SYSTEM_TAB_DESCRIPTIONS.cids,
-                    type: 'Component Integration Design System'
-                  },
-                  {
-                    id: 'vds',
-                    title: 'V.DS',
-                    description: DESIGN_SYSTEM_TAB_DESCRIPTIONS.vds,
-                    type: 'Visual Design System'
-                  },
-                  {
-                    id: 'cds',
-                    title: 'CDS',
-                    description: DESIGN_SYSTEM_TAB_DESCRIPTIONS.cds,
-                    type: 'Content Design System'
-                  }
-                ]
-                  .filter(item => activeDesignSystemTab === item.id)
-                  .map((item) => (
-                    <div
-                      key={item.id}
-                      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200 p-6 min-h-[340px] flex flex-col"
-                    >
-                      <div className="flex items-center mb-4">
-                        <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mr-3">
-                          <Layers size={24} className="text-blue-600" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-semibold text-gray-900">{item.title}</h3>
-                          <p className="text-sm text-gray-500">{item.type}</p>
-                        </div>
-                      </div>
-                      <p className="text-gray-600 mb-4 flex-grow">{item.description}</p>
-                      <div className="mt-auto">
-                        <span className="inline-block px-3 py-1 bg-blue-50 text-blue-700 text-sm font-medium rounded-full">
-                          Coming Soon
-                        </span>
+                {activeDesignSystemTab === 'cids' ? (
+                  // CI.DS Service Cards
+                  CIDS_SERVICE_CARDS.length > 0 ? (
+                    CIDS_SERVICE_CARDS.map((card) => (
+                      <CIDSServiceCardComponent
+                        key={card.id}
+                        card={card}
+                        onClick={() => {
+                          // Navigate to detail page (to be implemented)
+                          navigate(`/marketplace/design-system/${card.id}?tab=cids`);
+                        }}
+                      />
+                    ))
+                  ) : (
+                    <div className="col-span-full bg-white rounded-lg shadow p-8 text-center">
+                      <h3 className="text-xl font-medium text-gray-900 mb-2">No CI.DS services found</h3>
+                      <p className="text-gray-500">Service cards will appear here once they are added.</p>
+                    </div>
+                  )
+                ) : (
+                  // Placeholder for V.DS and CDS tabs
+                  <div className="col-span-full bg-white rounded-lg shadow p-8 text-center">
+                    <div className="flex items-center justify-center mb-4">
+                      <div className="w-16 h-16 bg-blue-50 rounded-lg flex items-center justify-center">
+                        <Layers size={32} className="text-blue-600" />
                       </div>
                     </div>
-                  ))}
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      {DESIGN_SYSTEM_TAB_LABELS[activeDesignSystemTab]}
+                    </h3>
+                    <p className="text-gray-600 mb-4">{DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab]}</p>
+                    <span className="inline-block px-4 py-2 bg-blue-50 text-blue-700 text-sm font-medium rounded-full">
+                      Coming Soon
+                    </span>
+                  </div>
+                )}
               </div>
             ) : isGuides ? (
               <>
