@@ -1,17 +1,15 @@
-import React, { useMemo, useState, cloneElement } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, cloneElement } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   BookOpen,
   Briefcase,
   Users,
   Newspaper,
   Lightbulb,
-  TrendingUp,
   Briefcase as JobIcon,
   Globe,
   Calendar,
   Book as BookIcon,
-  Award,
   MessageCircle,
   X,
   Clock,
@@ -23,14 +21,18 @@ import {
   BarChart,
   CircleDot,
   ClipboardList,
-  ChevronRight,
-} from "lucide-react";
+  ScrollText,
+  Wand2,
+  Bot,
+} from 'lucide-react';
 import {
   AnimatedCounter,
   FadeInUpOnScroll,
   useInView,
-} from "./AnimationUtils.tsx";
-import ServiceCarousel from "./marketplace/ServiceCarousel.tsx";
+} from './AnimationUtils';
+import ServiceCarousel from './marketplace/ServiceCarousel';
+import { fetchServicesByCategory } from '../services/homeContentService';
+import type { ServiceCard as ServiceCardRecord } from '../services/homeContentService';
 
 /* ----------------------------- AI Chatbot ----------------------------- */
 const AIChatbot = () => {
@@ -120,8 +122,6 @@ const ServiceCard = ({
   isComingSoon?: boolean;
   sectionStyle?: SectionStyle;
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
   const activeCardClasses = `${sectionStyle.cardClasses} hover:shadow-md hover:-translate-y-0.5 cursor-pointer`;
   const disabledClasses =
     sectionStyle.disabledCardClasses ??
@@ -136,7 +136,6 @@ const ServiceCard = ({
   const iconColorClass = isComingSoon
     ? "text-gray-500"
     : sectionStyle.iconClass ?? "text-[#1A2E6E]";
-  const hoverOverlayClass = sectionStyle.hoverOverlayClass ?? "bg-white/10";
   const iconWrapperClasses = sectionStyle.iconWrapperClass ?? "w-12 h-12";
   const descriptionClasses = `text-sm text-gray-600 leading-snug text-balance line-clamp-2 mt-3 mb-4 ${
     isComingSoon ? "text-white/70" : sectionStyle.descriptionClass
@@ -164,8 +163,6 @@ const ServiceCard = ({
     <div
       className={wrapperClasses}
       onClick={isComingSoon ? undefined : onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       role="button"
       aria-disabled={isComingSoon}
     >
@@ -188,7 +185,7 @@ const ServiceCard = ({
       <p className={descriptionClasses}>{service.description}</p>
 
       <button
-        className={isComingSoon ? disabledButtonClasses : "cta-ejp"}
+        className={isComingSoon ? disabledButtonClasses : "cta-dq"}
         disabled={isComingSoon}
         onClick={(e) => {
           if (!isComingSoon) {
@@ -208,13 +205,6 @@ const ServiceCard = ({
           </>
         )}
       </button>
-
-      {!isComingSoon && (
-        <div
-          className={`absolute inset-0 ${hoverOverlayClass} opacity-0 transition-opacity duration-500 rounded-2xl`}
-          style={{ opacity: isHovered ? 1 : 0 }}
-        />
-      )}
     </div>
   );
 };
@@ -264,224 +254,266 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
-  // Services organized by new categories
-  const allServices = useMemo(() => {
-    return {
-      learningKnowledge: [
-        {
-          id: "courses",
-          title: "Courses",
-          description:
-            "Explore LMS courses across GHC, 6xD, DWS, DXP, and core curricula.",
-          icon: <GraduationCap />,
-          path: "/marketplace/courses",
-          isActive: true,
-        },
-        {
-          id: "onboarding",
-          title: "Onboarding",
-          description:
-            "Follow onboarding tracks to complete role-based learning and setup.",
-          icon: <Compass />,
-          path: "/onboarding",
-          isActive: true,
-        },
-        {
-          id: "strategy-guide",
-          title: "Strategy Guide",
-          description:
-            "Understand DQ's journey, history, 6xD, initiatives, clients, and operating models.",
-          icon: <BarChart />,
-          path: "#",
-          isActive: true,
-        },
-        {
-          id: "operational-guide",
-          title: "Operational Guide",
-          description:
-            "Access operational guidelines, policies, templates, and governance playbooks.",
-          icon: <BookIcon />,
-          path: "#",
-          isActive: true,
-        },
-        {
-          id: "knowledge-library",
-          title: "Knowledge Library",
-          description:
-            "Browse glossaries, FAQs, and reference resources for everyday work.",
-          icon: <BookOpen />,
-          path: "#",
-          isActive: true,
-        },
-      ],
-      servicesDigital: [
-        {
-          id: "technology-services",
-          title: "Technology Services",
-          description:
-            "Submit technology requests: queries, support, environments, and self-service tools.",
-          icon: <Briefcase />,
-          path: "#",
-          isActive: true,
-        },
-        {
-          id: "business-services",
-          title: "Business Services",
-          description:
-            "Submit business, finance, and admin requests through a unified console.",
-          icon: <Globe />,
-          path: "#",
-          isActive: true,
-        },
-        {
-          id: "digital-worker-tools",
-          title: "Digital Worker Tools",
-          description:
-            "Use Doc Writers, prompting kits, AI tools, agents, and BPM helpers for delivery.",
-          icon: <Lightbulb />,
-          path: "#",
-          isActive: true,
-        },
-        {
-          id: "blueprint-library",
-          title: "Blueprint Library",
-          description:
-            "Access blueprint packs for 6xD design, DevOps, DBP, DXP, and DWS delivery.",
-          icon: <Compass />,
-          path: "#",
-          isActive: true,
-        },
-      ],
-      workCollaboration: [
-        {
-          id: "work-sessions",
-          title: "Work Sessions",
-          description:
-            "Run daily and weekly work sessions, reviews, retros, and collaborator touchpoints.",
-          icon: <Clock />,
-          path: "/marketplace/activities",
-          isActive: true,
-        },
-        {
-          id: "projects-tasks",
-          title: "Projects & Tasks",
-          description:
-            "Manage tasks, planners, chat threads, and ATP delivery activities.",
-          icon: <ClipboardList />,
-          path: "/marketplace/activities",
-          isActive: true,
-        },
-        {
-          id: "performance-trackers",
-          title: "Performance Trackers",
-          description:
-            "Track statuses, categories, descriptions, and live workflow updates.",
-          icon: <TrendingUp />,
-          path: "#",
-          isActive: true,
-        },
-        {
-          id: "team-discussions",
-          title: "Team Discussions",
-          description:
-            "Join forums on topics, DNA practices, learnings, and team conversations.",
-          icon: <MessageCircle />,
-          path: "/communities",
-          isActive: true,
-        },
-        {
-          id: "pulse-insights",
-          title: "Pulse Insights",
-          description:
-            "Share insights through polls, surveys, and feedback loops.",
-          icon: <HeartHandshake />,
-          path: "/communities",
-          isActive: true,
-        },
-      ],
-      cultureEvents: [
-        {
-          id: "dq-media-center",
-          title: "DQ Media Center",
-          description:
-            "View DQ updates, corporate news, trends, and essential announcements.",
-          icon: <Newspaper />,
-          path: "/marketplace/opportunities",
-          isActive: true,
-        },
-        {
-          id: "career-opportunities",
-          title: "Career Opportunities",
-          description:
-            "Browse new job postings and internal career opportunities.",
-          icon: <JobIcon />,
-          path: "/marketplace/opportunities?tab=opportunities",
-          isActive: true,
-        },
-        {
-          id: "blogs-stories",
-          title: "Blogs & Stories",
-          description:
-            "Read stories, updates, and insights from teams across DQ.",
-          icon: <BookIcon />,
-          path: "/marketplace/opportunities?tab=insights",
-          isActive: true,
-        },
-        {
-          id: "events-calendars",
-          title: "Events & Calendars",
-          description:
-            "Stay aligned with scheduled huddles, events, calendars, and logistics.",
-          icon: <Calendar />,
-          path: "/events",
-          isActive: true,
-        },
-      ],
-      peopleOrg: [
-        {
-          id: "units-directory",
-          title: "Units Directory",
-          description:
-            "Explore sectors, units, mandates, priorities, and performance data.",
-          icon: <Building />,
-          path: "#",
-          isActive: true,
-        },
-        {
-          id: "positions-directory",
-          title: "Positions Directory",
-          description:
-            "Browse DQ positions, role descriptions, and key responsibilities.",
-          icon: <Briefcase />,
-          path: "#",
-          isActive: true,
-        },
-        {
-          id: "associates-directory",
-          title: "Associates Directory",
-          description:
-            "View associate profiles, contacts, skills, and performance details.",
-          icon: <Users />,
-          path: "#",
-          isActive: true,
-        },
-        {
-          id: "client-testimonials",
-          title: "Client Testimonials",
-          description:
-            "Explore client stories, cases, achievements, and leadership references.",
-          icon: <Award />,
-          path: "#",
-          isActive: true,
-        },
-      ],
-    };
+  const fallbackSections = {
+    learningWorkGuides: [
+      {
+        id: 'courses-curricula',
+        title: 'Courses & Curricula',
+        description: 'Explore core and advanced LMS curricula across GHC, 6xD, DWS, DXP, and key tools.',
+        icon: <GraduationCap />,
+        path: '/learning/courses',
+        isActive: false
+      },
+      {
+        id: 'learning-tracks',
+        title: 'Learning Tracks',
+        description: 'Follow guided learning paths tailored to roles, journeys, and competencies.',
+        icon: <GraduationCap />,
+        path: '/learning/courses',
+        isActive: false
+      },
+      {
+        id: 'prompt-library',
+        title: 'Prompt Library',
+        description: 'Curated, reusable AI prompts and patterns to accelerate delivery and decision-making.',
+        icon: <Wand2 />,
+        path: '/marketplace/services-center?tab=prompt_library',
+        isActive: true
+      },
+      {
+        id: 'learning-reviews',
+        title: 'Reviews',
+        description: 'Capture feedback and reviews on courses, bootcamps, and learning experiences.',
+        icon: <BarChart />,
+        path: '/learning/courses',
+        isActive: false
+      },
+      {
+        id: 'knowledge-library',
+        title: 'Library',
+        description: 'Browse glossaries, FAQs, playbooks, and reference resources for everyday work.',
+        icon: <BookIcon />,
+        path: '/marketplace/guides?tab=glossary',
+        isActive: true
+      },
+      {
+        id: 'learning-testimonials',
+        title: 'Testimonials',
+        description: 'Read stories and testimonials from associates on their learning journeys.',
+        icon: <HeartHandshake />,
+        path: '/marketplace/guides?tab=testimonials',
+        isActive: true
+      },
+    ],
+    servicesDigitalWorkforce: [
+      {
+        id: 'services-center-technology',
+        title: 'Technology',
+        description: 'Request environments, access, support, and tooling for DQ technology platforms.',
+        icon: <Globe />,
+        path: '/marketplace/services-center?tab=technology',
+        isActive: true
+      },
+      {
+        id: 'services-center-business',
+        title: 'Employee Services',
+        description: 'Submit finance, HR, and admin requests through a single, trackable console.',
+        icon: <Briefcase />,
+        path: '/marketplace/services-center?tab=business',
+        isActive: true
+      },
+      {
+        id: 'ai-tools',
+        title: 'AI Tools',
+        description: 'AI-powered tools and copilots that support execution, automation, and delivery across DQ.',
+        icon: <Bot />,
+        path: '/marketplace/services-center?tab=ai_tools',
+        isActive: true
+      },
+      {
+        id: 'digital-worker-tools',
+        title: 'Digital Worker',
+        description: 'Use Doc Writers, prompting kits, AI tools, agents, and BPM helpers to speed up delivery.',
+        icon: <Lightbulb />,
+        path: '/marketplace/services-center?tab=digital_worker',
+        isActive: true
+      },
+      {
+        id: 'blueprints-library',
+        title: 'Blueprints',
+        description: 'Apply delivery blueprints for 6xD design, DevOps, DBP, DXP, and DWS execution.',
+        icon: <Compass />,
+        path: '/marketplace/guides?tab=blueprints',
+        isActive: true
+      }
+    ],
+    workManagementHub: [
+      {
+        id: 'activities-sessions',
+        title: 'Activities – Sessions',
+        description: 'Plan and run daily and weekly work sessions, reviews, retros, and check-ins.',
+        icon: <Calendar />,
+        path: '/activities/sessions',
+        isActive: false
+      },
+      {
+        id: 'activities-projects-tasks',
+        title: 'Activities – Projects / Tasks',
+        description: 'Organize projects, tasks, and boards so work stays visible and on track.',
+        icon: <ClipboardList />,
+        path: '/activities/projects',
+        isActive: false
+      },
+      {
+        id: 'activities-trackers',
+        title: 'Activities – Trackers',
+        description: 'Follow statuses, categories, and live updates across activities and workflows.',
+        icon: <BarChart />,
+        path: '/activities/trackers',
+        isActive: false
+      },
+      {
+        id: 'communities-discussion',
+        title: 'Discussion',
+        description: 'Open discussion spaces for DNA practices, learnings, Q&A, and team topics.',
+        icon: <MessageCircle />,
+        path: '/communities/discussion',
+        isActive: false
+      },
+      {
+        id: 'communities-pulse',
+        title: 'Pulse',
+        description: 'Use quick polls and surveys to capture team sentiment and feedback.',
+        icon: <HeartHandshake />,
+        path: '/communities/pulse',
+        isActive: false
+      }
+    ],
+    cultureEventsNetworking: [
+      {
+        id: 'news-announcements',
+        title: 'News & Announcements',
+        description: 'View official DQ news, platform releases, and important organizational updates.',
+        icon: <Newspaper />,
+        path: '/marketplace/opportunities',
+        isActive: true
+      },
+      {
+        id: 'events',
+        title: 'Events',
+        description: 'Discover upcoming events, townhalls, and experience sessions across DQ.',
+        icon: <Calendar />,
+        path: '/communities/events',
+        isActive: false
+      },
+      {
+        id: 'blogs',
+        title: 'Blogs & Stories',
+        description: 'Read stories, updates, and perspectives from teams and leaders across DQ.',
+        icon: <BookIcon />,
+        path: '/marketplace/opportunities?tab=insights',
+        isActive: true
+      },
+      {
+        id: 'dq-guidelines',
+        title: 'DQ Guidelines',
+        description: 'Official standards, governance models, and ways of working that guide execution across DQ.',
+        icon: <ScrollText />,
+        path: '/marketplace/guides?tab=guidelines',
+        isActive: true
+      },
+      {
+        id: 'work-guide-strategy',
+        title: 'Strategy',
+        description: "Understand DQ's journey, strategy, 6xD, initiatives, clients, and operating models.",
+        icon: <BarChart />,
+        path: '/marketplace/guides?tab=strategy',
+        isActive: true
+      }
+    ],
+    peopleDirectory: [
+      {
+        id: 'directory-units',
+        title: 'Units',
+        description: 'Explore sectors, units, mandates, priorities, and performance metrics.',
+        icon: <Building />,
+        path: '/marketplace/work-directory?tab=units',
+        isActive: false
+      },
+      {
+        id: 'directory-positions',
+        title: 'Positions',
+        description: 'Browse DQ positions, role descriptions, and key responsibilities.',
+        icon: <Briefcase />,
+        path: '/marketplace/work-directory?tab=positions',
+        isActive: false
+      },
+      {
+        id: 'directory-associates',
+        title: 'Associates',
+        description: 'View associate profiles, contacts, skills, and performance details.',
+        icon: <Users />,
+        path: '/marketplace/work-directory?tab=associates',
+        isActive: false
+      },
+      {
+        id: 'jobs-openings',
+        title: 'Job Openings',
+        description: 'Browse open roles and internal opportunities across DQ.',
+        icon: <JobIcon />,
+        path: '/marketplace/opportunities?tab=opportunities',
+        isActive: true
+      }
+    ]
+  };
+
+  const [homeSections, setHomeSections] = useState(fallbackSections);
+
+  useEffect(() => {
+    const mapServiceToCard = (service: ServiceCardRecord) => ({
+      id: service.id,
+      title: service.title,
+      description: service.description ?? '',
+      icon: <CircleDot />,
+      path: service.path ?? '#',
+      isActive: service.is_active ?? true
+    });
+
+    async function loadSections() {
+      try {
+        const [
+          learning,
+          servicesDigital,
+          work,
+          culture,
+          people
+        ] = await Promise.all([
+          fetchServicesByCategory('Learning & Work Knowledge Hub'),
+          fetchServicesByCategory('Services & Digital Enablement'),
+          fetchServicesByCategory('Work Execution & Collaboration'),
+          fetchServicesByCategory('Culture, Events & Communications'),
+          fetchServicesByCategory('People & Organization Hub')
+        ]);
+
+        setHomeSections(prev => ({
+          learningWorkGuides: learning.length ? learning.map(mapServiceToCard) : prev.learningWorkGuides,
+          servicesDigitalWorkforce: servicesDigital.length ? servicesDigital.map(mapServiceToCard) : prev.servicesDigitalWorkforce,
+          workManagementHub: work.length ? work.map(mapServiceToCard) : prev.workManagementHub,
+          cultureEventsNetworking: culture.length ? culture.map(mapServiceToCard) : prev.cultureEventsNetworking,
+          peopleDirectory: people.length ? people.map(mapServiceToCard) : prev.peopleDirectory
+        }));
+      } catch (err) {
+        console.error('Failed to load home sections from Supabase', err);
+      }
+    }
+
+    loadSections();
   }, []);
 
-  /* --------- ROW COLORS + EJP BUTTON/ICON TREATMENT (UPDATED) --------- */
+  /* --------- ROW COLORS + DQ BUTTON/ICON TREATMENT (UPDATED) --------- */
   const sectionStyles: Record<string, SectionStyle> = {
     // ROW 1 — Navy gradient
-    "Learning & Work Knowledge Hub": {
+    'Learning & Work Knowledge Hub': {
       cardClasses:
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
       headingClass: "text-white",
@@ -496,8 +528,8 @@ export const HomePage: React.FC = () => {
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed",
     },
 
-    // ROW 2 — Navy gradient (matching Learning & Work Knowledge Hub)
-    "Services & Digital Enablement": {
+    // ROW 2 — Navy gradient (matching primary style)
+    'Services & Digital Enablement': {
       cardClasses:
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
       headingClass: "text-white",
@@ -512,40 +544,40 @@ export const HomePage: React.FC = () => {
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed",
     },
 
-    // ROW 3 — Navy gradient (matching Learning & Work Knowledge Hub)
-    "Work Execution & Collaboration": {
+    // ROW 3 — Navy gradient
+    'Work Execution & Collaboration': {
       cardClasses:
-        "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
-      headingClass: "text-white",
-      descriptionClass: "text-white/90",
-      iconClass: "text-[#030F35]",
+        'bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white',
+      headingClass: 'text-white',
+      descriptionClass: 'text-white/90',
+      iconClass: 'text-[#030F35]',
       buttonClasses:
         "text-white bg-[#030F35] hover:bg-[#13285A] " +
         "border border-[rgba(255,255,255,0.22)] focus:ring-[#030F35] focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200",
       hoverOverlayClass: "bg-white/10",
       iconWrapperClass: "w-10 h-10",
       disabledCardClasses:
-        "bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed",
+        'bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed'
     },
 
-    // ROW 4 — Navy gradient (matching Learning & Work Knowledge Hub)
-    "Culture, Events & Communications": {
+    // ROW 4 — Navy gradient (matching primary style)
+    'Culture, Events & Communications': {
       cardClasses:
-        "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
-      headingClass: "text-white",
-      descriptionClass: "text-white/90",
-      iconClass: "text-[#030F35]",
+        'bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white',
+      headingClass: 'text-white',
+      descriptionClass: 'text-white/90',
+      iconClass: 'text-[#030F35]',
       buttonClasses:
-        "text-white bg-[#030F35] hover:bg-[#13285A] " +
-        "border border-[rgba(255,255,255,0.22)] focus:ring-[#030F35] focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200",
-      hoverOverlayClass: "bg-white/10",
-      iconWrapperClass: "w-10 h-10",
+        'text-white bg-[#030F35] hover:bg-[#13285A] ' +
+        'border border-[rgba(255,255,255,0.22)] focus:ring-[#030F35] focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200',
+      hoverOverlayClass: 'bg-white/10',
+      iconWrapperClass: 'w-10 h-10',
       disabledCardClasses:
-        "bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed",
+        'bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed'
     },
 
-    // ROW 5 — Navy gradient (matching Learning & Work Knowledge Hub)
-    "People & Organization Hub": {
+    // ROW 5 — Navy gradient
+    'People & Organization Hub': {
       cardClasses:
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
       headingClass: "text-white",
@@ -561,17 +593,7 @@ export const HomePage: React.FC = () => {
     },
   };
 
-  const handleServiceClick = (path: string) => {
-    if (path === "#" || !path) return; // Don't navigate if path is # or empty
-    
-    // Handle query parameters properly
-    if (path.includes('?')) {
-      const [pathname, search] = path.split('?');
-      navigate({ pathname, search: `?${search}` });
-    } else {
-      navigate(path);
-    }
-  };
+  const handleServiceClick = (path: string) => navigate(path);
 
   return (
     <div className="bg-white py-16">
@@ -590,26 +612,24 @@ export const HomePage: React.FC = () => {
             </div>
           </FadeInUpOnScroll>
 
-          {/* Row 1: Learning & Work Knowledge Hub */}
+          {/* Row 1 */}
           <div className="mb-10">
             <FadeInUpOnScroll>
               <CategoryHeader
                 icon={<GraduationCap size={24} />}
                 title="Learning & Work Knowledge Hub"
-                count={5}
+                count={homeSections.learningWorkGuides.length}
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
-              services={allServices.learningKnowledge}
-              renderCard={(service) => {
-                const index = allServices.learningKnowledge.findIndex(
-                  (item) => item.id === service.id
-                );
+              services={homeSections.learningWorkGuides}
+              renderCard={service => {
+                const index = homeSections.learningWorkGuides.findIndex(item => item.id === service.id);
                 return (
                   <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
                     <ServiceCard
                       service={service}
-                      sectionStyle={sectionStyles["Learning & Work Knowledge Hub"]}
+                      sectionStyle={sectionStyles['Learning & Work Knowledge Hub']}
                       onClick={() => handleServiceClick(service.path)}
                       isComingSoon={!service.isActive}
                     />
@@ -619,26 +639,24 @@ export const HomePage: React.FC = () => {
             />
           </div>
 
-          {/* Row 2: Services & Digital Enablement */}
+          {/* Row 2 */}
           <div className="mb-10">
             <FadeInUpOnScroll>
               <CategoryHeader
                 icon={<Briefcase size={24} />}
                 title="Services & Digital Enablement"
-                count={4}
+                count={homeSections.servicesDigitalWorkforce.length}
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
-              services={allServices.servicesDigital}
-              renderCard={(service) => {
-                const index = allServices.servicesDigital.findIndex(
-                  (item) => item.id === service.id
-                );
+              services={homeSections.servicesDigitalWorkforce}
+              renderCard={service => {
+                const index = homeSections.servicesDigitalWorkforce.findIndex(item => item.id === service.id);
                 return (
                   <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
                     <ServiceCard
                       service={service}
-                      sectionStyle={sectionStyles["Services & Digital Enablement"]}
+                      sectionStyle={sectionStyles['Services & Digital Enablement']}
                       onClick={() => handleServiceClick(service.path)}
                       isComingSoon={!service.isActive}
                     />
@@ -648,26 +666,24 @@ export const HomePage: React.FC = () => {
             />
           </div>
 
-          {/* Row 3: Work Execution & Collaboration */}
+          {/* Row 3 */}
           <div className="mb-10">
             <FadeInUpOnScroll>
               <CategoryHeader
                 icon={<Users size={24} />}
                 title="Work Execution & Collaboration"
-                count={5}
+                count={homeSections.workManagementHub.length}
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
-              services={allServices.workCollaboration}
-              renderCard={(service) => {
-                const index = allServices.workCollaboration.findIndex(
-                  (item) => item.id === service.id
-                );
+              services={homeSections.workManagementHub}
+              renderCard={service => {
+                const index = homeSections.workManagementHub.findIndex(item => item.id === service.id);
                 return (
                   <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
                     <ServiceCard
                       service={service}
-                      sectionStyle={sectionStyles["Work Execution & Collaboration"]}
+                      sectionStyle={sectionStyles['Work Execution & Collaboration']}
                       onClick={() => handleServiceClick(service.path)}
                       isComingSoon={!service.isActive}
                     />
@@ -677,26 +693,24 @@ export const HomePage: React.FC = () => {
             />
           </div>
 
-          {/* Row 4: Culture, Events & Communications */}
+          {/* Row 4 */}
           <div className="mb-10">
             <FadeInUpOnScroll>
               <CategoryHeader
                 icon={<Newspaper size={24} />}
                 title="Culture, Events & Communications"
-                count={4}
+                count={homeSections.cultureEventsNetworking.length}
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
-              services={allServices.cultureEvents}
-              renderCard={(service) => {
-                const index = allServices.cultureEvents.findIndex(
-                  (item) => item.id === service.id
-                );
+              services={homeSections.cultureEventsNetworking}
+              renderCard={service => {
+                const index = homeSections.cultureEventsNetworking.findIndex(item => item.id === service.id);
                 return (
                   <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
                     <ServiceCard
                       service={service}
-                      sectionStyle={sectionStyles["Culture, Events & Communications"]}
+                      sectionStyle={sectionStyles['Culture, Events & Communications']}
                       onClick={() => handleServiceClick(service.path)}
                       isComingSoon={!service.isActive}
                     />
@@ -706,26 +720,24 @@ export const HomePage: React.FC = () => {
             />
           </div>
 
-          {/* Row 5: People & Organization Hub */}
+          {/* Row 5 */}
           <div className="mb-10">
             <FadeInUpOnScroll>
               <CategoryHeader
-                icon={<Building size={24} />}
+                icon={<BookOpen size={24} />}
                 title="People & Organization Hub"
-                count={4}
+                count={homeSections.peopleDirectory.length}
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
-              services={allServices.peopleOrg}
-              renderCard={(service) => {
-                const index = allServices.peopleOrg.findIndex(
-                  (item) => item.id === service.id
-                );
+              services={homeSections.peopleDirectory}
+              renderCard={service => {
+                const index = homeSections.peopleDirectory.findIndex(item => item.id === service.id);
                 return (
                   <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
                     <ServiceCard
                       service={service}
-                      sectionStyle={sectionStyles["People & Organization Hub"]}
+                      sectionStyle={sectionStyles['People & Organization Hub']}
                       onClick={() => handleServiceClick(service.path)}
                       isComingSoon={!service.isActive}
                     />
@@ -734,13 +746,14 @@ export const HomePage: React.FC = () => {
               }}
             />
           </div>
+
         </div>
       </div>
 
       {/* AI Chatbot */}
       <AIChatbot />
 
-      {/* animations + EJP CTA styles */}
+      {/* animations + DQ CTA styles */}
       <style>{`
         @keyframes fade-in-up {
           from {
@@ -795,8 +808,8 @@ export const HomePage: React.FC = () => {
           transform: scale(1.02);
         }
 
-        /* ---------- EJP-style CTA (dark translucent -> white on hover) ---------- */
-        .cta-ejp {
+        /* ---------- DQ-style CTA (dark translucent -> white on hover) ---------- */
+        .cta-dq {
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -813,17 +826,17 @@ export const HomePage: React.FC = () => {
           -webkit-backdrop-filter: saturate(140%) blur(4px);
           transition: all 0.3s ease;
         }
-        .cta-ejp:hover {
+        .cta-dq:hover {
           color: #1a2e6e;
           background: rgba(255, 255, 255, 0.95);
           border-color: rgba(255, 255, 255, 0.9);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
           transform: translateY(-1px);
         }
-        .cta-ejp .chev {
+        .cta-dq .chev {
           transition: transform 0.3s ease;
         }
-        .cta-ejp:hover .chev {
+        .cta-dq:hover .chev {
           transform: translateX(4px);
         }
       `}</style>

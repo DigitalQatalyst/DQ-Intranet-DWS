@@ -14,6 +14,7 @@ import type { FacetConfig, FiltersValue, MediaCenterTabKey } from '@/components/
 import type { NewsItem } from '@/data/media/news';
 import type { JobItem } from '@/data/media/jobs';
 import { fetchAllNews, fetchAllJobs } from '@/services/mediaCenterService';
+import { markMediaItemSeen, getSeenMediaItems } from '@/utils/mediaTracking';
 
 const PINNED_FACETS: FacetConfig[] = [
   {
@@ -197,8 +198,6 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
   ]
 };
 
-const MEDIA_SEEN_STORAGE_KEY = 'dq-media-center-seen-items';
-
 type MediaKind = 'news' | 'job';
 
 interface MediaNotification {
@@ -208,29 +207,6 @@ interface MediaNotification {
   href: string;
   meta: string;
 }
-
-const markMediaItemSeen = (kind: MediaKind, id: string) => {
-  if (typeof window === 'undefined') return;
-  try {
-    const raw = window.localStorage.getItem(MEDIA_SEEN_STORAGE_KEY);
-    let seen: { news: string[]; jobs: string[] } = { news: [], jobs: [] };
-    if (raw) {
-      const parsed = JSON.parse(raw) as Partial<{ news: string[]; jobs: string[] }>;
-      seen = {
-        news: parsed.news ?? [],
-        jobs: parsed.jobs ?? []
-      };
-    }
-
-    const key = kind === 'news' ? 'news' : 'jobs';
-    if (!seen[key].includes(id)) {
-      seen[key] = [...seen[key], id];
-      window.localStorage.setItem(MEDIA_SEEN_STORAGE_KEY, JSON.stringify(seen));
-    }
-  } catch {
-    // Ignore storage errors
-  }
-};
 
 const buildNewsNotification = (item: NewsItem): MediaNotification => {
   const isBlog = item.type === 'Thought Leadership';
@@ -257,10 +233,9 @@ const buildJobNotification = (job: JobItem): MediaNotification => {
 const getLatestUnseenMediaItem = (newsItems: NewsItem[], jobItems: JobItem[]): MediaNotification | null => {
   if (typeof window === 'undefined') return null;
   try {
-    const raw = window.localStorage.getItem(MEDIA_SEEN_STORAGE_KEY);
-    const parsed = raw ? (JSON.parse(raw) as Partial<{ news: string[]; jobs: string[] }>) : {};
-    const seenNews = new Set(parsed.news ?? []);
-    const seenJobs = new Set(parsed.jobs ?? []);
+    const seen = getSeenMediaItems();
+    const seenNews = new Set(seen.news);
+    const seenJobs = new Set(seen.jobs);
 
     const latestUnseenNews = [...newsItems]
       .sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -325,15 +300,16 @@ const NewsPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tab, setTab] = useState<MediaCenterTabKey>(() => {
     const paramTab = searchParams.get('tab');
-    if (paramTab === 'announcements' || paramTab === 'insights' || paramTab === 'podcasts' || paramTab === 'opportunities') {
-      return paramTab;
+    const validTabs: MediaCenterTabKey[] = ['announcements', 'insights', 'podcasts', 'opportunities'];
+    if (paramTab && validTabs.includes(paramTab as MediaCenterTabKey)) {
+      return paramTab as MediaCenterTabKey;
     }
     if (location.pathname.includes('/opportunities')) {
       return 'opportunities';
     }
     return 'announcements';
   });
-  const [queryText, setQueryText] = useState('');
+  const [queryText, setQueryText] = useState(() => searchParams.get('q') ?? '');
   const [filters, setFilters] = useState<FiltersValue>({});
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -357,8 +333,13 @@ const NewsPage: React.FC = () => {
       const { units, ...rest } = legacyFilters;
       setFilters({ ...rest, department: units });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [filters]);
+
+  // Keep local search text in sync with URL ?q= from external entry points (e.g., hero search)
+  useEffect(() => {
+    const urlQuery = searchParams.get('q') ?? '';
+    setQueryText(urlQuery);
+  }, [searchParams]);
 
   useEffect(() => {
     let isMounted = true;
@@ -373,8 +354,6 @@ const NewsPage: React.FC = () => {
         setLoadError(null);
       } catch (error) {
         if (!isMounted) return;
-        // eslint-disable-next-line no-console
-        console.error('Error loading media center data', error);
         setLoadError('Unable to load media items right now.');
       } finally {
         if (isMounted) {
@@ -497,7 +476,7 @@ const NewsPage: React.FC = () => {
         <nav className="flex mb-4 text-sm text-gray-600" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center">
-              <a href="/" className="inline-flex items-center text-gray-600 hover:text-gray-900">
+              <a href="/" className="inline-flex items-center text-gray-600 hover:text-gray-900" rel="noopener noreferrer">
                 <HomeIcon size={16} className="mr-1" />
                 Home
               </a>

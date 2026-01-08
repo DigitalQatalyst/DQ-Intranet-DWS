@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { HomeIcon, ChevronRightIcon, Share2, BookmarkIcon, Calendar, User, Building2, Heart, MessageCircle, FileText, Play, Pause } from 'lucide-react';
+import { HomeIcon, ChevronRightIcon, Share2, BookmarkIcon, Heart, MessageCircle, FileText } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
 import { fetchAllNews, fetchNewsById } from '@/services/mediaCenterService';
-
-const formatDate = (input: string) =>
-  new Date(input).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+import { formatDate, formatDateShort, generateTitle, getNewsTypeDisplay, getFallbackImage, toTitleCase } from '@/utils/newsUtils';
+import { markMediaItemSeen } from '@/utils/mediaTracking';
+import { parseBold } from '@/utils/contentParsing';
+import { Breadcrumb } from '@/components/media-center/shared/Breadcrumb';
+import { AudioPlayer } from '@/components/media-center/shared/AudioPlayer';
+import { MediaMetaBlock } from '@/components/media-center/shared/MediaMetaBlock';
 
 const fallbackHero =
   'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1600&q=80';
@@ -19,55 +22,9 @@ const fallbackImages = [
   'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80'
 ];
 
-const MEDIA_SEEN_STORAGE_KEY = 'dq-media-center-seen-items';
-
-const markMediaItemSeen = (kind: 'news' | 'job', id: string) => {
-  if (typeof window === 'undefined') return;
-  try {
-    const raw = window.localStorage.getItem(MEDIA_SEEN_STORAGE_KEY);
-    let seen: { news: string[]; jobs: string[] } = { news: [], jobs: [] };
-    if (raw) {
-      const parsed = JSON.parse(raw) as Partial<{ news: string[]; jobs: string[] }>;
-      seen = {
-        news: parsed.news ?? [],
-        jobs: parsed.jobs ?? []
-      };
-    }
-
-    const key = kind === 'news' ? 'news' : 'jobs';
-    if (!seen[key].includes(id)) {
-      seen[key] = [...seen[key], id];
-      window.localStorage.setItem(MEDIA_SEEN_STORAGE_KEY, JSON.stringify(seen));
-    }
-  } catch {
-    // Ignore storage errors
-  }
-};
-
-// Convert text to title case (not all caps)
-const toTitleCase = (text: string): string => {
-  // If already in title case or mixed case, return as is (but ensure not all caps)
-  if (text === text.toUpperCase() && text.length > 3) {
-    // Convert all caps to title case
-    return text
-      .toLowerCase()
-      .split(' ')
-      .map(word => {
-        // Handle special cases like "WFH", "DXB", "KSA", "NBO", "EoY"
-        const acronyms = ['wfh', 'dxb', 'ksa', 'nbo', 'eoy', 'dq', 'hr', 'hra'];
-        if (acronyms.includes(word.toLowerCase())) {
-          return word.toUpperCase();
-        }
-        // Capitalize first letter
-        return word.charAt(0).toUpperCase() + word.slice(1);
-      })
-      .join(' ');
-  }
-  return text;
-};
 
 // Generate a short, relevant heading for announcements
-const generateAnnouncementHeading = (article: NewsItem & { content?: string }): string => {
+const generateAnnouncementHeading = (article: NewsItem): string => {
   // If the article has a title, use it (but make it shorter if needed)
   if (article.title && article.title.trim()) {
     // For very long titles, try to create a shorter version
@@ -374,30 +331,6 @@ const buildOverview = (article: NewsItem & { content?: string }) => {
   return overview.slice(0, 4);
 };
 
-// Parse bold text (**text** or **text**)
-const parseBold = (text: string) => {
-  const parts: (string | JSX.Element)[] = [];
-  const regex = /\*\*(.+?)\*\*/g;
-  let lastIndex = 0;
-  let match;
-
-  while ((match = regex.exec(text)) !== null) {
-    // Add text before the match
-    if (match.index > lastIndex) {
-      parts.push(text.slice(lastIndex, match.index));
-    }
-    // Add bold text
-    parts.push(<strong key={match.index} className="font-bold">{match[1]}</strong>);
-    lastIndex = regex.lastIndex;
-  }
-
-  // Add remaining text
-  if (lastIndex < text.length) {
-    parts.push(text.slice(lastIndex));
-  }
-
-  return parts.length > 0 ? parts : [text];
-};
 
 // Render full content for blog articles, news, and announcements, preserving all formatting exactly as provided
 const renderFullContent = (content: string, isBlog: boolean = false, treatFirstLineAsHeading: boolean = false, isPodcast: boolean = false) => {
@@ -554,78 +487,6 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
   return elements.length > 0 ? <div className="space-y-4">{elements}</div> : null;
 };
 
-// Generate an appropriate title for news items that don't have one
-const generateTitle = (item: NewsItem): string => {
-  // If title exists and is not empty, return it
-  if (item.title && item.title.trim()) {
-    return item.title;
-  }
-
-  // Generate title based on available information
-  const parts: string[] = [];
-
-  // Add location prefix if available
-  if (item.location) {
-    const locationMap: Record<string, string> = {
-      'Dubai': 'DXB',
-      'Nairobi': 'NBO',
-      'Riyadh': 'KSA',
-      'Remote': 'Remote'
-    };
-    parts.push(locationMap[item.location] || item.location);
-  }
-
-  // Add type/newsType information
-  if (item.newsType) {
-    parts.push(item.newsType);
-  } else if (item.type) {
-    if (item.type === 'Thought Leadership') {
-      parts.push('Blog');
-    } else {
-      parts.push(item.type);
-    }
-  }
-
-  // Try to extract title from excerpt
-  if (item.excerpt && item.excerpt.trim()) {
-    const excerptWords = item.excerpt.trim().split(' ');
-    if (excerptWords.length > 0) {
-      // Take first 8 words and capitalize
-      const titleFromExcerpt = excerptWords.slice(0, 8).join(' ');
-      if (titleFromExcerpt.length > 20) {
-        return parts.length > 0 ? `${parts.join(' | ')} | ${titleFromExcerpt}` : titleFromExcerpt;
-      }
-    }
-  }
-
-  // Try to extract from content if available
-  if (item.content) {
-    const firstLine = item.content.split('\n').find(line => line.trim() && !line.trim().startsWith('#'));
-    if (firstLine) {
-      const cleanLine = firstLine.trim().replace(/^#+\s+/, '').replace(/\*\*/g, '').substring(0, 60);
-      if (cleanLine.length > 15) {
-        return parts.length > 0 ? `${parts.join(' | ')} | ${cleanLine}` : cleanLine;
-      }
-    }
-  }
-
-  // Fallback based on ID patterns
-  if (item.id) {
-    const idParts = item.id.split('-');
-    const meaningfulParts = idParts
-      .filter(part => part.length > 2 && !['dq', 'the', 'and', 'for'].includes(part.toLowerCase()))
-      .map(part => part.charAt(0).toUpperCase() + part.slice(1));
-    
-    if (meaningfulParts.length > 0) {
-      const idTitle = meaningfulParts.join(' ');
-      return parts.length > 0 ? `${parts.join(' | ')} | ${idTitle}` : idTitle;
-    }
-  }
-
-  // Final fallback
-  const typeLabel = item.type === 'Thought Leadership' ? 'Blog' : (item.newsType || item.type || 'Announcement');
-  return parts.length > 0 ? `${parts.join(' | ')} | ${typeLabel}` : typeLabel;
-};
 
 const NewsDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -638,75 +499,20 @@ const NewsDetailPage: React.FC = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [likes] = useState(47); // Mock likes count - can be replaced with actual data
   const [comments] = useState(12); // Mock comments count - can be replaced with actual data
-  
-  // Audio player state for podcasts
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
-  const getImageSrc = (item: NewsItem) => {
+  const getImageSrc = (item: NewsItem): string => {
     if (item.image) return item.image;
-    const hash = Math.abs(item.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0));
-    return fallbackImages[hash % fallbackImages.length] || fallbackHero;
+    return getFallbackImage(item.id, fallbackImages) || fallbackHero;
   };
 
   const overview = article ? buildOverview(article) : [];
   const isBlogArticle = article?.type === 'Thought Leadership';
   const isScrumMasterArticle = article?.id === 'dq-scrum-master-structure-update' || 
-                               article?.title.toLowerCase().includes('scrum master structure');
+                               article?.title?.toLowerCase().includes('scrum master structure');
   const isChristmasScheduleArticle = article?.id === 'dq-dxb-ksa-christmas-new-year-schedule' || 
                                      article?.id === 'dq-nbo-christmas-new-year-schedule' ||
-                                     (article?.title.toLowerCase().includes('christmas') && article?.title.toLowerCase().includes('new year'));
+                                     (article?.title?.toLowerCase().includes('christmas') && article?.title?.toLowerCase().includes('new year'));
   const isDXBEOYArticle = article?.id === 'dxb-eoy-event-postponement';
-
-  // Color and label mappings for newsType categories (matching NewsCard)
-  const newsTypeColor: Record<NonNullable<NewsItem['newsType']>, string> = {
-    'Policy Update': '#8B5CF6',        // Purple for policy/guidelines
-    'Upcoming Events': '#F97316',      // Orange for events
-    'Company News': '#0EA5E9',         // Blue for company news
-    'Holidays': '#16A34A'              // Green for holidays/notices
-  };
-
-  const newsTypeLabel: Record<NonNullable<NewsItem['newsType']>, string> = {
-    'Policy Update': 'Policy Update',
-    'Upcoming Events': 'Upcoming Events',
-    'Company News': 'Company News',
-    'Holidays': 'Holidays'
-  };
-
-  // Get newsType display info (matching NewsCard logic)
-  const getNewsTypeDisplay = (item: NewsItem) => {
-    // Check if this is a podcast first - podcasts should match blog styling
-    const isPodcast = item.format === 'Podcast' || item.tags?.some(tag => tag.toLowerCase().includes('podcast'));
-    if (isPodcast) {
-      return {
-        label: 'Podcast',
-        color: '#14B8A6' // Use same teal color as blogs for consistency
-      };
-    }
-    // For blog articles (Thought Leadership), always show "Blog" with unique color
-    if (item.type === 'Thought Leadership') {
-      return {
-        label: 'Blog',
-        color: '#14B8A6' // Teal color for blogs
-      };
-    }
-    if (item.newsType) {
-      return {
-        label: newsTypeLabel[item.newsType],
-        color: newsTypeColor[item.newsType]
-      };
-    }
-    // Fallback to type if newsType is missing
-    const typeFallback: Record<NewsItem['type'], { label: string; color: string }> = {
-      Announcement: { label: 'Company News', color: '#0EA5E9' },      // Blue
-      Guidelines: { label: 'Policy Update', color: '#8B5CF6' },        // Purple
-      Notice: { label: 'Holidays', color: '#16A34A' },                  // Green
-      'Thought Leadership': { label: 'Blog', color: '#14B8A6' }         // Teal for blogs
-    };
-    return typeFallback[item.type];
-  };
 
   useEffect(() => {
     if (!id) return;
@@ -725,8 +531,6 @@ const NewsDetailPage: React.FC = () => {
         setLoadError(null);
       } catch (error) {
         if (!isMounted) return;
-        // eslint-disable-next-line no-console
-        console.error('Error loading news article', error);
         setLoadError('Unable to load this article right now.');
       } finally {
         if (isMounted) {
@@ -742,46 +546,6 @@ const NewsDetailPage: React.FC = () => {
     };
   }, [id]);
 
-  // Audio player useEffect - must be before early return
-  useEffect(() => {
-    if (!article) {
-      setIsPlaying(false);
-      setCurrentTime(0);
-      setDuration(0);
-      return;
-    }
-    
-    const isPodcast = article.format === 'Podcast' || article.tags?.some(tag => tag.toLowerCase().includes('podcast'));
-    const hasAudio = isPodcast && article.audioUrl;
-    
-    if (!hasAudio) {
-      setIsPlaying(false);
-      setCurrentTime(0);
-      setDuration(0);
-      return;
-    }
-
-    if (!audioRef.current) return;
-
-    const audio = audioRef.current;
-
-    const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration);
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setCurrentTime(0);
-    };
-
-    audio.addEventListener('timeupdate', updateTime);
-    audio.addEventListener('loadedmetadata', updateDuration);
-    audio.addEventListener('ended', handleEnded);
-
-    return () => {
-      audio.removeEventListener('timeupdate', updateTime);
-      audio.removeEventListener('loadedmetadata', updateDuration);
-      audio.removeEventListener('ended', handleEnded);
-    };
-  }, [article?.id, article?.format, article?.tags, article?.audioUrl]);
 
   if (!article) {
     return (
@@ -800,6 +564,7 @@ const NewsDetailPage: React.FC = () => {
             <p className="text-sm text-red-600 mb-4">{loadError}</p>
           )}
           <button
+            type="button"
             onClick={() => {
               // Preserve the tab parameter from the current location
               const params = new URLSearchParams(location.search);
@@ -850,49 +615,10 @@ const NewsDetailPage: React.FC = () => {
   };
 
   const announcementDate = article.date ? formatDate(article.date) : '';
-  const announcementDateShort = article.date ? new Date(article.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
 
   // Check if this is a podcast with audio
   const isPodcast = article.format === 'Podcast' || article.tags?.some(tag => tag.toLowerCase().includes('podcast'));
   const hasAudio = isPodcast && article.audioUrl;
-
-  // Format time helper for audio player
-  const formatTime = (seconds: number): string => {
-    if (isNaN(seconds)) return '0:00';
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const togglePlayPause = () => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!audioRef.current || !duration) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const percentage = clickX / rect.width;
-    const newTime = percentage * duration;
-    audioRef.current.currentTime = newTime;
-    setCurrentTime(newTime);
-  };
-
-  const skipForward = (seconds: number) => {
-    if (!audioRef.current) return;
-    audioRef.current.currentTime = Math.min(audioRef.current.currentTime + seconds, duration);
-  };
-
-  const skipBackward = (seconds: number) => {
-    if (!audioRef.current) return;
-    audioRef.current.currentTime = Math.max(audioRef.current.currentTime - seconds, 0);
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F3F6FB]">
@@ -900,31 +626,33 @@ const NewsDetailPage: React.FC = () => {
       <main className="flex-1">
         <section className="border-b border-gray-200 bg-white">
           <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
-            <nav className="flex items-center text-sm text-gray-600" aria-label="Breadcrumb">
-              <Link to="/" className="inline-flex items-center gap-1 hover:text-[#1A2E6E]">
-                <HomeIcon size={16} />
-                Home
-              </Link>
-              <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
-              <Link 
-                to={(() => {
-                  const params = new URLSearchParams(location.search);
-                  const tab = params.get('tab');
-                  return tab ? `/marketplace/opportunities?tab=${tab}` : '/marketplace/opportunities';
-                })()}
-                className="hover:text-[#1A2E6E]"
-              >
-                DQ Media Center
-              </Link>
-              <ChevronRightIcon size={16} className="mx-2 text-gray-400" />
-              <span className="text-gray-900 line-clamp-1">{article.title}</span>
-            </nav>
+            <Breadcrumb
+              items={[
+                {
+                  href: (() => {
+                    const params = new URLSearchParams(location.search);
+                    const tab = params.get('tab');
+                    return tab ? `/marketplace/opportunities?tab=${tab}` : '/marketplace/opportunities';
+                  })(),
+                  label: 'DQ Media Center'
+                },
+                {
+                  label: article.title || 'Article'
+                }
+              ]}
+            />
             <div className="flex gap-2 text-sm text-gray-500">
-              <button className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 hover:text-[#1A2E6E]">
+              <button 
+                type="button"
+                className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 hover:text-[#1A2E6E]"
+              >
                 <Share2 size={16} />
                 Share
               </button>
-              <button className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 hover:text-[#1A2E6E]">
+              <button 
+                type="button"
+                className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 hover:text-[#1A2E6E]"
+              >
                 <BookmarkIcon size={16} />
                 Save
               </button>
@@ -949,14 +677,9 @@ const NewsDetailPage: React.FC = () => {
           <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-24 w-full">
             <div className="max-w-4xl">
               {/* Category Tag */}
-              {(() => {
-                const newsTypeDisplay = getNewsTypeDisplay(article);
-                return (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-white/20 backdrop-blur-sm text-white mb-4">
-                    {newsTypeDisplay.label}
-                  </span>
-                );
-              })()}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-white/20 backdrop-blur-sm text-white mb-4">
+                {getNewsTypeDisplay(article).label}
+              </span>
               
               {/* Date */}
               <div className="text-white/90 text-sm mb-4">
@@ -965,21 +688,7 @@ const NewsDetailPage: React.FC = () => {
 
               {/* Title */}
               <h1 id="article-title" className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
-                {(() => {
-                  if (article.id === 'dq-scrum-master-structure-update' || article.title.toLowerCase().includes('scrum master structure')) {
-                    return 'Updated Scrum Master Structure';
-                  }
-                  if (article.id === 'dq-townhall-meeting-agenda' || article.title.toLowerCase().includes('townhall meeting agenda')) {
-                    return 'DQ Townhall Meeting';
-                  }
-                  if (article.id === 'company-wide-lunch-break-schedule' || article.title.toLowerCase().includes('company-wide lunch break schedule') || article.title.toLowerCase().includes('lunch break schedule')) {
-                    return 'Company-Wide Lunch Break Schedule';
-                  }
-                  if (article.id === 'grading-review-program-grp' || article.title.toLowerCase().includes('grading review program') || article.title.toLowerCase().includes('grp')) {
-                    return 'Grading Review Program (GRP)';
-                  }
-                  return article.title;
-                })()}
+                {generateTitle(article)}
               </h1>
 
               {/* Author Info */}
@@ -1006,78 +715,8 @@ const NewsDetailPage: React.FC = () => {
               <div className="lg:col-span-2 space-y-6">
 
                 {/* Audio Player for Podcasts */}
-                {hasAudio && (
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Listen to Podcast</h2>
-                    <audio ref={audioRef} src={article.audioUrl} preload="metadata" />
-                    <div className="flex flex-col items-center space-y-4">
-                      {/* Play/Pause Button */}
-                      <button
-                        onClick={togglePlayPause}
-                        className="w-16 h-16 bg-[#030f35] hover:bg-[#021028] text-white rounded-full flex items-center justify-center shadow-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#030f35] focus:ring-offset-2"
-                        aria-label={isPlaying ? 'Pause podcast' : 'Play podcast'}
-                      >
-                        {isPlaying ? (
-                          <Pause size={24} fill="currentColor" />
-                        ) : (
-                          <Play size={24} fill="currentColor" />
-                        )}
-                      </button>
-                      
-                      {/* Time Display */}
-                      <div className="text-gray-700 text-sm font-medium">
-                        <span>{formatTime(currentTime)}</span> / <span>{formatTime(duration)}</span>
-                      </div>
-                      
-                      {/* Progress Bar */}
-                      <div className="w-full max-w-2xl">
-                        <div
-                          className="h-2 bg-gray-200 rounded-full cursor-pointer relative"
-                          onClick={handleProgressClick}
-                          role="slider"
-                          aria-label="Audio progress"
-                          aria-valuemin={0}
-                          aria-valuemax={duration || 100}
-                          aria-valuenow={currentTime}
-                          tabIndex={0}
-                          onKeyDown={(e) => {
-                            if (e.key === 'ArrowRight') {
-                              e.preventDefault();
-                              skipForward(10);
-                            } else if (e.key === 'ArrowLeft') {
-                              e.preventDefault();
-                              skipBackward(10);
-                            }
-                          }}
-                        >
-                          <div
-                            className="h-2 bg-[#030f35] rounded-full transition-all"
-                            style={{
-                              width: `${duration ? (currentTime / duration) * 100 : 0}%`,
-                            }}
-                          />
-                        </div>
-                      </div>
-                      
-                      {/* Skip Controls */}
-                      <div className="flex items-center gap-4">
-                        <button
-                          onClick={() => skipBackward(15)}
-                          className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
-                          aria-label="Rewind 15 seconds"
-                        >
-                          -15s
-                        </button>
-                        <button
-                          onClick={() => skipForward(15)}
-                          className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
-                          aria-label="Forward 15 seconds"
-                        >
-                          +15s
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                {hasAudio && article.audioUrl && (
+                  <AudioPlayer audioUrl={article.audioUrl} />
                 )}
 
                 {/* Article Content - Full content for blogs, Scrum Master article, Christmas schedule articles, DXB EoY Event, and podcasts, overview for other announcements */}
@@ -1113,43 +752,17 @@ const NewsDetailPage: React.FC = () => {
                 </article>
 
                 {/* COMPANY NEWS DETAILS Section */}
-                <section className="bg-gray-50 rounded-lg p-6 border border-gray-200" aria-label="Company News Details">
-                  <h2 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wide">COMPANY NEWS DETAILS</h2>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <Calendar size={16} className="text-gray-500 flex-shrink-0" />
-                      <div>
-                        <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">ANNOUNCEMENT DATE</div>
-                        <div className="text-sm text-gray-900">{announcementDate}</div>
-                      </div>
-                    </div>
-                    {displayAuthor && (
-                      <div className="flex items-center gap-3">
-                        <User size={16} className="text-gray-500 flex-shrink-0" />
-                        <div>
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">RELEVANT CONTACT</div>
-                          <div className="text-sm text-gray-900">{displayAuthor}</div>
-                        </div>
-                      </div>
-                    )}
-                    {(article.department || article.domain) && (
-                      <div className="flex items-center gap-3">
-                        <Building2 size={16} className="text-gray-500 flex-shrink-0" />
-                        <div>
-                          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">DEPARTMENT</div>
-                          <div className="text-sm text-gray-900">{article.department || article.domain || 'N/A'}</div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </section>
+                <MediaMetaBlock item={article} displayAuthor={displayAuthor} />
 
                 {/* NEXT STEPS Section - Only show for Guidelines */}
                 {article.type === 'Guidelines' && (
                   <section className="bg-white rounded-lg shadow p-6" aria-label="Next Steps">
                     <h2 className="text-sm font-bold mb-4 uppercase tracking-wide">NEXT STEPS</h2>
                     <div className="flex flex-wrap gap-3">
-                      <button className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-[#030f35] text-white rounded-lg hover:opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-[#030f35]">
+                      <button 
+                        type="button"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-[#030f35] text-white rounded-lg hover:opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-[#030f35]"
+                      >
                         <FileText size={14} /> Read Full Policy
                       </button>
                     </div>
@@ -1160,11 +773,17 @@ const NewsDetailPage: React.FC = () => {
                 <div className="bg-white rounded-lg shadow p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-6">
-                      <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900">
+                      <button 
+                        type="button"
+                        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
+                      >
                         <Heart size={16} />
                         <span>{likes}</span>
                       </button>
-                      <button className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900">
+                      <button 
+                        type="button"
+                        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
+                      >
                         <MessageCircle size={16} />
                         <span>{comments}</span>
                       </button>
@@ -1178,15 +797,20 @@ const NewsDetailPage: React.FC = () => {
                         <BookmarkIcon size={16} fill={isBookmarked ? 'currentColor' : 'none'} />
                       </button>
                       <button
+                        type="button"
                         onClick={() => {
                           if (navigator.share) {
                             navigator.share({
                               title: article.title,
                               text: article.excerpt,
                               url: window.location.href,
-                            }).catch(() => {});
+                            }).catch(() => {
+                              // User cancelled or error occurred
+                            });
                           } else {
-                            navigator.clipboard.writeText(window.location.href).catch(() => {});
+                            navigator.clipboard.writeText(window.location.href).catch(() => {
+                              // Clipboard error
+                            });
                           }
                         }}
                         className="p-1.5 rounded hover:bg-gray-100 transition-colors text-gray-600"
@@ -1214,7 +838,7 @@ const NewsDetailPage: React.FC = () => {
                       <h2 className="text-base font-semibold mb-4">Related Announcements</h2>
                       <div className="space-y-3">
                         {related.slice(0, 3).map((item) => {
-                          const relatedDate = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                          const relatedDate = formatDateShort(item.date);
                           const newsTypeDisplay = getNewsTypeDisplay(item);
                           return (
                             <Link
