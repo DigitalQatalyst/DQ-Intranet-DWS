@@ -16,10 +16,11 @@ import { ReportsPage } from "./reportingObligations/ReportsPage";
 import { AllReceivedReportsPage } from "./reportingObligations/AllReceivedReportsPage";
 import { AllSubmittedReportsPage } from "./reportingObligations/AllSubmittedReportsPage";
 import { AllUpcomingObligationsPage } from "./reportingObligations/AllUpcomingObligationsPage";
-import BusinessProfilePage from "./businessProfile";
+import ProfilePage from "./profile";
 import SupportPage from "./support";
 import SettingsPage from "./settings";
 import { ChatInterface } from "../../components/Chat/ChatInterface";
+import ComingSoonPage from "../ComingSoonPage";
 
 // Form imports
 import BookConsultationForEntrepreneurship from "../forms/BookConsultationForEntrepreneurship";
@@ -153,10 +154,22 @@ const DashboardRouter = () => {
           path="reporting-obligations/received"
           element={<AllReceivedReportsPage />}
         />
-        <Route path="profile" element={<BusinessProfilePage />} />
+        <Route path="profile" element={<ProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="support" element={<SupportPage />} />
         <Route path="chat-support" element={<ChatInterface />} />
+
+        {/* New Sidebar Routes */}
+        <Route path="workspace" element={<Navigate to="/dashboard/coming-soon?label=My%20Workspace" replace />} />
+        <Route path="approvals" element={<Navigate to="/dashboard/coming-soon?label=Approvals" replace />} />
+        <Route path="compliance-tasks" element={<Navigate to="/dashboard/coming-soon?label=Compliance%20Tasks" replace />} />
+        <Route path="notifications" element={<Navigate to="/dashboard/coming-soon?label=Notifications" replace />} />
+        <Route path="messages" element={<Navigate to="/dashboard/coming-soon?label=Messages" replace />} />
+        <Route path="performance/overview" element={<Navigate to="/dashboard/coming-soon?label=Performance%20Overview" replace />} />
+        <Route path="performance/tasks" element={<Navigate to="/dashboard/coming-soon?label=Task%20Completion" replace />} />
+        <Route path="performance/turnaround" element={<Navigate to="/dashboard/coming-soon?label=Request%20Turnaround" replace />} />
+        <Route path="performance/timeline" element={<Navigate to="/dashboard/coming-soon?label=Activity%20Timeline" replace />} />
+        <Route path="coming-soon" element={<ComingSoonPage />} />
 
         {/* Forms Routes */}
         <Route
@@ -207,7 +220,7 @@ const DashboardRouter = () => {
           element={<TrainingInEntrepreneurship />}
         />
 
-        
+
 
         <Route path="*" element={<Navigate to="overview" replace />} />
       </Routes>

@@ -1,9 +1,15 @@
-// hooks/useOnboardingForm.js
+// hooks/useOnboardingForm.ts
 import { useState, useEffect, useRef } from "react";
 import { useMsal } from "@azure/msal-react";
 import { validateFormField } from "../utils/validation";
+import {
+  getOnboardingData,
+  saveOnboardingData,
+  completeOnboarding,
+  ensureEmployeeRecord,
+} from "../services/employeeOnboardingService";
 
-export function useOnboardingForm(steps, onComplete, isRevisit) {
+export function useOnboardingForm(steps, onComplete) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<any>({});
   const [errors, setErrors] = useState<any>({});
@@ -12,6 +18,7 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
   const [isEditingWelcome, setIsEditingWelcome] = useState(false);
   const [showStepsDropdown, setShowStepsDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const stepsDropdownRef: any = useRef(null);
 
@@ -32,30 +39,65 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
   // Use MSAL to get the logged-in user's info
   const { accounts } = useMsal();
 
-  // Load initial data
+  // Get employee ID from MSAL account (using localAccountId or email as fallback)
+  const getEmployeeId = (): string => {
+    const account = accounts[0];
+    // Use localAccountId if available, otherwise use email
+    return account?.localAccountId || account?.username || "";
+  };
+
+  // Load initial data from Supabase
   useEffect(() => {
     const loadData = async () => {
-      // Get user info from MSAL account
+      setInitialLoading(true);
       const account = accounts[0];
+      const employeeId = getEmployeeId();
 
-      const initialData = {
+      // Default data from MSAL
+      const defaultData = {
         tradeName: account?.name || "",
-        role: "", // Role is not standard in basic MSAL account info, user can input
-        email: account?.username || "", // Username is typically the email in B2C
+        role: "",
+        email: account?.username || "",
         phone: "",
-        // Preserving other fields just in case, though they might not be used in the new simplified form
         industry: "",
         companyStage: "",
         contactName: account?.name || "",
       };
 
-      // In real implementation, load from persistent storage if available
-      // For now, use account info
-      setFormData(initialData);
+      if (employeeId) {
+        try {
+          // 1. Ensure employee record exists first (to avoid foreign key violations)
+          await ensureEmployeeRecord({
+            employee_id: employeeId,
+            email: account?.username || "",
+            name: account?.name || "",
+          });
+
+          // 2. Try to load existing data from Supabase
+          const existingData = await getOnboardingData(employeeId);
+          if (existingData) {
+            // Merge existing data with defaults (existing takes precedence)
+            setFormData({ ...defaultData, ...existingData });
+            console.log("✅ Loaded existing onboarding data from Supabase");
+          } else {
+            setFormData(defaultData);
+            console.log("ℹ️ No existing onboarding data, using defaults");
+          }
+        } catch (error) {
+          console.error("Error loading onboarding data:", error);
+          setFormData(defaultData);
+        }
+      } else {
+        setFormData(defaultData);
+      }
+
+      setInitialLoading(false);
     };
 
     if (accounts.length > 0) {
       loadData();
+    } else {
+      setInitialLoading(false);
     }
   }, [accounts]);
 
@@ -133,13 +175,14 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
       required: true,
       minLength: 2,
     },
+    { fieldName: "department", label: "Department", required: true },
     { fieldName: "role", label: "Role", required: true },
+    { fieldName: "studio", label: "Studio", required: true },
     { fieldName: "email", label: "Email", required: true, type: "email" },
     { fieldName: "phone", label: "Phone", required: true, type: "tel" },
   ];
 
   const validateCurrentStep = () => {
-    if (currentStep === 0 && !isEditingWelcome) return true;
     if (currentStep === steps.length - 1) return true;
 
     const step = steps[currentStep];
@@ -164,12 +207,20 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
 
   const getStepFields = (step) => {
     const fields: any = [];
+
+    const isVisible = (item: any) => {
+      if (!item.applicableStudio) return true;
+      return item.applicableStudio === formData.studio;
+    };
+
     if (step.sections) {
       step.sections.forEach((section) => {
-        if (section.fields) fields.push(...section.fields);
+        if (isVisible(section) && section.fields) {
+          fields.push(...section.fields.filter(isVisible));
+        }
       });
     } else if (step.fields) {
-      fields.push(...step.fields);
+      fields.push(...step.fields.filter(isVisible));
     }
     return fields;
   };
@@ -201,12 +252,31 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
 
     if (isValid) {
       setLoading(true);
-      try {
-        // Save to backend (commented out for this example)
-        // await saveOnboardingData(formData);
+      const employeeId = getEmployeeId();
 
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+      try {
+        if (employeeId) {
+          const account = accounts[0];
+          // Save form data to Supabase
+          const saveResult = await saveOnboardingData(employeeId, formData, currentStep, {
+            name: account?.name || "",
+            email: account?.username || ""
+          });
+
+          if (!saveResult.success) {
+            console.error("Failed to save onboarding data:", saveResult.error);
+            // Still try to complete if save partially worked
+          }
+
+          // Mark onboarding as complete
+          const completeResult = await completeOnboarding(employeeId);
+
+          if (!completeResult.success) {
+            console.error("Failed to mark onboarding complete:", completeResult.error);
+          } else {
+            console.log("✅ Onboarding completed successfully!");
+          }
+        }
 
         onComplete();
       } catch (error) {
@@ -247,10 +317,9 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
   };
 
   const getStepCompletionStatus = (stepIndex) => {
-    if (stepIndex === 0 || stepIndex === steps.length - 1) return true;
+    if (stepIndex === steps.length - 1) return true;
 
-    const step = steps[stepIndex];
-    const fields = getStepFields(step);
+    const fields = stepIndex === 0 ? getWelcomeFields() : getStepFields(steps[stepIndex]);
 
     return fields.every((field) => {
       if (!field.required) return true;
@@ -268,6 +337,7 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
     isEditingWelcome,
     showStepsDropdown,
     loading,
+    initialLoading,
     stepsDropdownRef,
     setCurrentStep,
     setShowStepsDropdown,
@@ -279,5 +349,6 @@ export function useOnboardingForm(steps, onComplete, isRevisit) {
     handleSubmit,
     handleJumpToStep,
     getStepCompletionStatus,
+    getEmployeeId,
   };
 }

@@ -6,18 +6,27 @@ import {
   Info,
   Lock,
   Home,
-  Users,
-  Settings,
-  BarChart3,
   User,
-  FolderOpen,
   Send,
+  BarChart3,
+  Settings,
   HelpCircle,
   ExternalLink,
   Plus,
   Check,
   Menu,
-  MessageCircleIcon,
+  MessageCircle,
+  Wallet,
+  LayoutGrid,
+  CheckCircle2,
+  ShieldCheck,
+  Navigation,
+  BookOpen,
+  Bell,
+  TrendingUp,
+  CheckSquare,
+  Timer,
+  History,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -162,26 +171,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const getMenuItems = (): MenuItem[] => {
     const items: MenuItem[] = [];
 
-    if (!onboardingComplete) {
-      items.push({
-        id: "onboarding",
-        label: "Onboarding",
-        icon: <Users size={20} />,
-        href: "/dashboard/onboarding",
-      });
-    } else {
-      items.push({
-        id: "overview",
-        label: "Overview",
-        icon: <Home size={20} />,
-        href: "/dashboard/overview",
-      });
-    }
-
+    // Overview
     items.push(
       {
-        id: "essentials",
-        label: "ESSENTIALS",
+        id: "overview-cat",
+        label: "Overview",
+        category: "category",
+      } as MenuItem,
+      {
+        id: "overview",
+        label: "Overview / Home",
+        icon: <Home size={20} />,
+        href: onboardingComplete ? "/dashboard/overview" : "/dashboard/onboarding",
+      }
+    );
+
+    // Essentials
+    items.push(
+      {
+        id: "essentials-cat",
+        label: "Essentials",
         category: "category",
       } as MenuItem,
       {
@@ -191,16 +200,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
         href: "/dashboard/profile",
       },
       {
-        id: "documents",
-        label: "Documents",
-        icon: <FolderOpen size={20} />,
+        id: "wallet",
+        label: "Wallet",
+        icon: <Wallet size={20} />,
         href: "/dashboard/documents",
-      },
+      }
+    );
+
+    // Work & Transactions
+    items.push(
       {
-        id: "transactions",
-        label: "TRANSACTIONS",
+        id: "work-transactions-cat",
+        label: "Work & Transactions",
         category: "category",
       } as MenuItem,
+      {
+        id: "workspace",
+        label: "My Workspace",
+        icon: <LayoutGrid size={20} />,
+        href: "/dashboard/workspace",
+      },
       {
         id: "requests",
         label: "Requests",
@@ -208,18 +227,113 @@ export const Sidebar: React.FC<SidebarProps> = ({
         href: "/dashboard/requests",
       },
       {
+        id: "approvals",
+        label: "Approvals",
+        icon: <CheckCircle2 size={20} />,
+        href: "/dashboard/approvals",
+      }
+    );
+
+    // Compliance & Obligations
+    items.push(
+      {
+        id: "compliance-obligations-cat",
+        label: "Compliance & Obligations",
+        category: "category",
+      } as MenuItem,
+      {
         id: "reporting-obligations",
         label: "Reporting Obligations",
         icon: <BarChart3 size={20} />,
         href: "/dashboard/reporting-obligations",
       },
       {
-        id: "forms",
-        label: "Forms",
-        icon: <FolderOpen size={20} />,
+        id: "compliance-tasks",
+        label: "Compliance Tasks",
+        icon: <ShieldCheck size={20} />,
+        href: "/dashboard/compliance-tasks",
+      }
+    );
+
+    // Learning & Enablement
+    items.push(
+      {
+        id: "learning-enablement-cat",
+        label: "Learning & Enablement",
+        category: "category",
       } as MenuItem,
       {
-        id: "settings-support",
+        id: "onboarding-journey",
+        label: "Onboarding Journey",
+        icon: <Navigation size={20} />,
+        href: "/dashboard/onboarding",
+      },
+      {
+        id: "learning-center",
+        label: "Learning Center",
+        icon: <BookOpen size={20} />,
+        href: "/lms",
+      }
+    );
+
+    // Communication
+    items.push(
+      {
+        id: "communication-cat",
+        label: "Communication",
+        category: "category",
+      } as MenuItem,
+      {
+        id: "notifications",
+        label: "Notifications",
+        icon: <Bell size={20} />,
+        href: "/dashboard/notifications",
+      },
+      {
+        id: "messages",
+        label: "Messages",
+        icon: <MessageCircle size={20} />,
+        href: "/dashboard/messages",
+      }
+    );
+
+    // My Performance
+    items.push(
+      {
+        id: "my-performance-cat",
+        label: "My Performance",
+        category: "category",
+      } as MenuItem,
+      {
+        id: "performance-overview",
+        label: "Performance Overview",
+        icon: <TrendingUp size={20} />,
+        href: "/dashboard/performance/overview",
+      },
+      {
+        id: "task-completion",
+        label: "Task Completion",
+        icon: <CheckSquare size={20} />,
+        href: "/dashboard/performance/tasks",
+      },
+      {
+        id: "request-turnaround",
+        label: "Request Turnaround",
+        icon: <Timer size={20} />,
+        href: "/dashboard/performance/turnaround",
+      },
+      {
+        id: "activity-timeline",
+        label: "Activity Timeline",
+        icon: <History size={20} />,
+        href: "/dashboard/performance/timeline",
+      }
+    );
+
+    // Settings & Support
+    items.push(
+      {
+        id: "settings-support-cat",
         label: "Settings & Support",
         category: "category",
       } as MenuItem,
@@ -236,12 +350,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         href: "/dashboard/support",
       },
       {
-        id: "chat-support",
-        label: "Chat Support",
-        icon: <MessageCircleIcon size={20} />,
-        href: "/dashboard/chat-support",
-      },
-      {
         id: "help-center",
         label: "Help Center",
         icon: <ExternalLink size={16} />,
@@ -249,6 +357,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         href: "https://docs.example.com/help",
       }
     );
+
     return items;
   };
 
@@ -260,78 +369,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         } lg:w-60 overflow-y-auto`}
       data-id={dataId}
     >
-      {/* Header with Company Switcher */}
+      {/* Header */}
       <div className="p-4 border-b border-gray-200">
-        <div className="flex justify-between items-center mb-0">
+        <div className="flex justify-between items-center">
           <button className="lg:hidden text-gray-500" onClick={onClose}>
             <X size={20} />
           </button>
         </div>
-        {onboardingComplete && (
-          <div className="relative" ref={dropdownRef}>
-            <button
-              className=" w-full flex items-center justify-between text-left p-3 rounded-md hover:bg-gray-100 transition-colors"
-              onClick={() => setCompanyDropdownOpen(!companyDropdownOpen)}
-            >
-              <div className="flex-1 min-w-0">
-                <h2 className="text-blue-800 font-bold text-lg leading-tight truncate">
-                  {activeCompany.name}
-                </h2>
-                {activeCompany.badge && (
-                  <span className="text-xs text-gray-500 font-medium mt-0.5 block">
-                    {activeCompany.badge}
-                  </span>
-                )}
-              </div>
-              <ChevronDown
-                size={18}
-                className={`text-gray-500 transition-transform ml-2 flex-shrink-0 ${companyDropdownOpen ? "rotate-180" : ""
-                  }`}
-              />
-            </button>
-            {companyDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                <div className="py-1">
-                  {companies.map((company) => (
-                    <button
-                      key={company.id}
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center justify-between"
-                      onClick={() => onCompanyChange?.(company.id)}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-gray-900 truncate">
-                          {company.name}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {company.role}
-                        </div>
-                      </div>
-                      <div className="flex items-center ml-2 flex-shrink-0">
-                        {company.badge && (
-                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded mr-2">
-                            {company.badge}
-                          </span>
-                        )}
-                        {company.isActive && (
-                          <Check size={16} className="text-blue-600" />
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                  <div className="border-t border-gray-100 mt-1 pt-1">
-                    <button
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center text-blue-600"
-                      onClick={onAddNewEnterprise}
-                    >
-                      <Plus size={16} className="mr-2 flex-shrink-0" />
-                      Add New Enterprise
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Onboarding Banner */}
@@ -398,121 +442,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </>
           );
 
-          // Special handling for Forms dropdown
-          if (item.id === "forms" && !isDisabled) {
-            return (
-              <div key={item.id} className="relative" ref={formsDropdownRef}>
-                <div
-                  className={`${baseClasses} cursor-pointer`}
-                  onClick={() => setFormsDropdownOpen(!formsDropdownOpen)}
-                >
-                  <span className="w-8 flex items-center justify-center flex-shrink-0">
-                    {item.icon}
-                  </span>
-                  <span className="flex-1 ml-3">{item.label}</span>
-                  <ChevronDown
-                    size={16}
-                    className={`text-gray-500 transition-transform ml-2 flex-shrink-0 ${formsDropdownOpen ? "rotate-180" : ""
-                      }`}
-                  />
-                </div>
-                <div
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${formsDropdownOpen
-                    ? "max-h-96 opacity-100"
-                    : "max-h-0 opacity-0"
-                    }`}
-                >
-                  <div className="transform transition-transform duration-300 ease-in-out max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                    <Link
-                      to="/dashboard/forms/book-consultation-for-entrepreneurship"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Book Consultation for Entrepreneurship
-                    </Link>
-                    <Link
-                      to="/dashboard/forms/collateral-user-guide"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Collateral User Guide
-                    </Link>
-                    <Link
-                      to="/dashboard/forms/cancel-loan"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Cancel Loan
-                    </Link>
 
-                    <Link
-                      to="/dashboard/forms/disburse-approved-loan"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Disburse an Approved Loan
-                    </Link>
-                    <Link
-                      to="/dashboard/forms/facilitate-communication"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Facilitate Communication
-                    </Link>
-                    <Link
-                      to="/dashboard/forms/issue-support-letter"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Issue Support Letter
-                    </Link>
-                    <Link
-                      to="/dashboard/forms/needs-assessment-form"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Needs Assessment Form
-                    </Link>
-                    <Link
-                      to="/dashboard/forms/reallocation-of-loan-disbursement"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Reallocation of Loan Disbursement
-                    </Link>
-                    <Link
-                      to="/dashboard/forms/request-for-funding"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Request For Funding
-                    </Link>
-                    <Link
-                      to="/dashboard/forms/request-for-membership"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Request for Membership
-                    </Link>
-                    <Link
-                      to="/dashboard/forms/request-to-amend-existing-loan-details"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Request to Amend Existing Loan Details
-                    </Link>
-                    <Link
-                      to="/dashboard/forms/training-in-entrepreneurship"
-                      className="flex items-center px-4 py-3 pl-12 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                      onClick={() => setFormsDropdownOpen(false)}
-                    >
-                      Training in Entrepreneurship
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            );
-          }
 
           if (item.href && !isDisabled) {
             return item.external ? (

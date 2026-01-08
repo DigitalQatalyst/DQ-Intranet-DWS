@@ -3,12 +3,17 @@ import { DocumentDashboard } from './DocumentDashboard';
 import { DocumentTable } from './DocumentTable';
 import { DocumentUpload } from './DocumentUpload';
 import { DocumentDetail } from './DocumentDetail';
-import { SearchIcon, FilterIcon, XIcon } from 'lucide-react';
-import { mockDocumentData } from './mockDocumentData';
-import { getAllDocuments } from '../../services/DataverseService';
-import { deleteBlob, getBlobNameFromUrl } from '../../services/AzureBlobService';
+import { SearchIcon, FilterIcon, XIcon, FolderIcon, UploadCloudIcon, AwardIcon } from 'lucide-react';
+import { getEmployeeDocuments, deleteDocument } from '../../services/employeeOnboardingService';
+import { useMsal } from "@azure/msal-react";
+
 export function DocumentWallet() {
+    const { accounts } = useMsal();
+    const account = accounts[0];
+    const employeeId = account?.localAccountId || account?.username || "";
+
     const [documents, setDocuments] = useState<any[]>([]);
+    const [activeTab, setActiveTab] = useState<'my-documents' | 'uploads' | 'certificates'>('my-documents');
     const [filteredDocuments, setFilteredDocuments] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
@@ -18,73 +23,105 @@ export function DocumentWallet() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isFilterExpanded, setIsFilterExpanded] = useState(false);
-    // Fetch documents from Dataverse
+    const REQUIRED_DOCS = [
+        { name: 'National ID', category: 'Id', fieldName: 'national_id' },
+        { name: 'Degree Certificate', category: 'Certificate', fieldName: 'degree_certificate' },
+        { name: 'Employment Contract', category: 'Contract', fieldName: 'employment_contract' }
+    ];
+
+    // Function to fetch documents
+    const fetchDocs = async () => {
+        if (!employeeId) return;
+        try {
+            setIsLoading(true);
+            setError(null);
+            const data = await getEmployeeDocuments(employeeId);
+
+            // Transform database fields to UI fields
+            const uploadedDocs = data.map(doc => ({
+                ...doc,
+                name: doc.file_name,
+                category: getCategoryFromFieldName(doc.field_name),
+                uploadDate: doc.created_at,
+                expiryDate: null,
+                status: 'Uploaded',
+                fileType: doc.file_type.includes('pdf') ? 'pdf' : doc.file_type.includes('image') ? 'image' : 'file',
+            }));
+
+            // Get field names of uploaded docs
+            const uploadedFieldNames = data.map(d => d.field_name.toLowerCase());
+
+            // Identify missing required docs
+            const missingDocs = REQUIRED_DOCS.filter(req =>
+                !uploadedFieldNames.includes(req.fieldName)
+            ).map(missing => ({
+                id: `missing-${missing.fieldName}`,
+                name: missing.name,
+                category: missing.category,
+                status: 'Required',
+                isMissing: true,
+                fileType: 'none',
+                fieldName: missing.fieldName
+            }));
+
+            const allDocs = [...missingDocs, ...uploadedDocs];
+            setDocuments(allDocs);
+            setFilteredDocuments(allDocs);
+        } catch (error) {
+            console.error('Error fetching documents:', error);
+            setError('Failed to load documents. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Helper to get category label from field_name
+    const getCategoryFromFieldName = (fieldName: string): string => {
+        const lower = fieldName.toLowerCase();
+        if (lower.includes('id') || lower.includes('passport')) return 'Id';
+        if (lower.includes('cert') || lower.includes('degree')) return 'Certificate';
+        if (lower.includes('contract')) return 'Contract';
+        if (lower.includes('letter')) return 'Letter';
+        return 'Other';
+    };
+
+    // Fetch documents from Supabase
     useEffect(() => {
-        const fetchDocuments = async () => {
-            try {
-                setIsLoading(true);
-                setError(null);
-                // In a real implementation, this would fetch from Dataverse
-                // const data = await getAllDocuments();
-                // For demo purposes, we'll use mock data with a delay to simulate API call
-                setTimeout(() => {
-                    setDocuments(mockDocumentData);
-                    setFilteredDocuments(mockDocumentData);
-                    setIsLoading(false);
-                }, 1000);
-            } catch (error) {
-                console.error('Error fetching documents:', error);
-                setError('Failed to load documents. Please try again.');
-                setIsLoading(false);
-                // Fall back to mock data in case of error
-                setDocuments(mockDocumentData);
-                setFilteredDocuments(mockDocumentData);
-            }
-        };
-        fetchDocuments();
-    }, []);
-    // Filter documents based on search term, active filter, and status filter
+        fetchDocs();
+    }, [employeeId]);
+    // Filter documents based on active tab, search term, and status
     useEffect(() => {
         let filtered = documents;
+
+        // Apply Tab Filter
+        if (activeTab === 'uploads') {
+            // Uploads & Validation: Focus on pending/recent uploads (exclude virtual missing docs)
+            filtered = filtered.filter(doc => !doc.isMissing && ['Uploaded', 'Reviewed'].includes(doc.status));
+        } else if (activeTab === 'certificates') {
+            // Certificates & Credentials
+            filtered = filtered.filter(doc => doc.category === 'Certificate');
+        } else {
+            // My Documents: Approved, General, or Required placeholders
+            filtered = filtered.filter(doc =>
+                doc.isMissing ||
+                doc.status === 'Approved' ||
+                doc.status === 'Required' ||
+                (doc.category !== 'Certificate' && doc.status !== 'Rejected')
+            );
+        }
+
         // Apply search filter
         if (searchTerm) {
             filtered = filtered.filter(
                 (doc) =>
                     doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    doc.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    doc.tags.some((tag: string) =>
-                        tag.toLowerCase().includes(searchTerm.toLowerCase()),
-                    ),
+                    doc.category.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
-        // Apply category filter
-        if (activeFilter !== 'all') {
-            filtered = filtered.filter((doc) => doc.category === activeFilter);
-        }
-        // Apply status filter
-        if (statusFilter) {
-            if (statusFilter === 'active') {
-                filtered = filtered.filter((doc) => doc.status === 'Active');
-            } else if (statusFilter === 'expired') {
-                filtered = filtered.filter((doc) => {
-                    if (!doc.expiryDate) return false;
-                    const today = new Date();
-                    const expiry = new Date(doc.expiryDate);
-                    return expiry < today || doc.status === 'Expired';
-                });
-            } else if (statusFilter === 'expiring') {
-                filtered = filtered.filter((doc) => {
-                    if (!doc.expiryDate) return false;
-                    const today = new Date();
-                    const expiry = new Date(doc.expiryDate);
-                    const diffTime = expiry.getTime() - today.getTime();
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    return diffDays <= 30 && diffDays >= 0;
-                });
-            }
-        }
+
+        // ... (remaining status filters if needed)
         setFilteredDocuments(filtered);
-    }, [searchTerm, activeFilter, documents, statusFilter]);
+    }, [searchTerm, activeFilter, documents, statusFilter, activeTab]);
     // Get expiring documents (within 30 days)
     const expiringDocuments = documents.filter((doc) => {
         if (!doc.expiryDate) return false;
@@ -113,15 +150,10 @@ export function DocumentWallet() {
     };
     // Get unique categories for filter
     const categories = ['all', ...new Set(documents.map((doc) => doc.category))];
-    // Handle document upload
+    // Handle document upload - refresh from database
     const handleDocumentUpload = (newDocument: any) => {
-        setDocuments([
-            ...documents,
-            {
-                ...newDocument,
-                id: Date.now().toString(),
-            },
-        ]);
+        // Refresh the document list from the database to get accurate state
+        fetchDocs();
         setIsUploadModalOpen(false);
     };
     // Handle document replacement
@@ -152,28 +184,25 @@ export function DocumentWallet() {
         );
         setSelectedDocument(null);
     };
-    // Handle document deletion
     const handleDocumentDelete = async (docId: string) => {
         try {
             const docToDelete = documents.find((doc) => doc.id === docId);
-            if (docToDelete) {
-                // Delete all versions from blob storage
-                if (docToDelete.versions && docToDelete.versions.length > 0) {
-                    for (const version of docToDelete.versions) {
-                        const blobName = getBlobNameFromUrl(version.fileUrl);
-                        await deleteBlob(blobName);
-                    }
-                }
-                // Delete the current version
-                const blobName = getBlobNameFromUrl(docToDelete.fileUrl);
-                await deleteBlob(blobName);
+            if (!docToDelete || docToDelete.isMissing) {
+                // If it's a virtual missing doc, just ignore or handle specially
+                return;
             }
+
+            const result = await deleteDocument(docId, docToDelete.file_path);
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to delete document');
+            }
+
             // Update state to remove the document
             setDocuments(documents.filter((doc) => doc.id !== docId));
             setSelectedDocument(null);
         } catch (error) {
             console.error('Error deleting document:', error);
-            // Continue with UI update even if blob deletion fails
+            // Fallback: still remove from UI if it was a virtual document or already gone
             setDocuments(documents.filter((doc) => doc.id !== docId));
             setSelectedDocument(null);
         }
@@ -194,24 +223,43 @@ export function DocumentWallet() {
         );
     }
     // Error state
-    if (error) {
-        return (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="text-center">
-                    <div className="text-red-500 text-lg mb-2">Error</div>
-                    <p className="text-gray-600 mb-4">{error}</p>
+    return (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            {/* Wallet Sections Tabs */}
+            <div className="border-b border-gray-200">
+                <div className="flex overflow-x-auto px-4 md:px-6">
                     <button
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        onClick={() => window.location.reload()}
+                        onClick={() => setActiveTab('my-documents')}
+                        className={`flex items-center gap-2 py-4 px-4 border-b-2 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'my-documents'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
                     >
-                        Retry
+                        <FolderIcon size={18} />
+                        My Documents
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('uploads')}
+                        className={`flex items-center gap-2 py-4 px-4 border-b-2 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'uploads'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                    >
+                        <UploadCloudIcon size={18} />
+                        Uploads & Validation
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('certificates')}
+                        className={`flex items-center gap-2 py-4 px-4 border-b-2 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'certificates'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                    >
+                        <AwardIcon size={18} />
+                        Certificates & Credentials
                     </button>
                 </div>
             </div>
-        );
-    }
-    return (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             {/* Dashboard Summary - 2x2 grid on mobile */}
             <div className="px-4 md:px-6 pt-4 md:pt-6">
                 <DocumentDashboard
