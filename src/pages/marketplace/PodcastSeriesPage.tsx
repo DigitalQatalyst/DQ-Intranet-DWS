@@ -2,11 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-<<<<<<< HEAD
-import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, Share2, Download, Bookmark, HomeIcon, ChevronRightIcon, BookmarkIcon, Volume2, VolumeX, SkipBack, SkipForward, RotateCcw, RotateCw } from 'lucide-react';
-=======
-import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, ChevronDown, Share2, Download, Bookmark, BookmarkIcon } from 'lucide-react';
->>>>>>> e6656b72fe1865eeda308b7e6bacc0d9acdeb0e0
+import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, Share2, Download, Bookmark, HomeIcon, ChevronRightIcon, BookmarkIcon, Volume2, VolumeX, RotateCcw, RotateCw } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
 import { fetchAllNews } from '@/services/mediaCenterService';
 import { formatDateVeryShort, formatDuration, formatListens, formatTime } from '@/utils/newsUtils';
@@ -947,34 +943,6 @@ export default function PodcastSeriesPage() {
                             <span>{savedEpisodes.has(episode.id) ? 'Saved' : 'Save'}</span>
                           </button>
                         </div>
-<<<<<<< HEAD
-=======
-                        
-                        {/* Audio Player Controls - shown when this episode is playing */}
-                        {isCurrentlyPlaying && (
-                          <div className="mt-4 w-full space-y-2">
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max={duration || 0}
-                                step="0.1"
-                                value={currentTime}
-                                onChange={handleSeek}
-                                onMouseDown={handleSeekMouseDown}
-                                onMouseUp={handleSeekMouseUp}
-                                className="h-1 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#030f35]"
-                                style={{
-                                  background: `linear-gradient(to right, #030f35 0%, #030f35 ${duration ? (currentTime / duration) * 100 : 0}%, #e5e7eb ${duration ? (currentTime / duration) * 100 : 0}%, #e5e7eb 100%)`
-                                }}
-                              />
-                              <span className="text-xs text-gray-500 whitespace-nowrap">
-                                {formatTime(currentTime)} / {formatTime(duration)}
-                              </span>
-                            </div>
-                          </div>
-                        )}
->>>>>>> e6656b72fe1865eeda308b7e6bacc0d9acdeb0e0
                       </div>
                     </div>
                     
