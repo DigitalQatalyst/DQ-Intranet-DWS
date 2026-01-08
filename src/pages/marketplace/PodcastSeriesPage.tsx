@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, ChevronDown, Share2, Download, Bookmark, HomeIcon, ChevronRightIcon, BookmarkIcon } from 'lucide-react';
+import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, Share2, Download, Bookmark, HomeIcon, ChevronRightIcon, BookmarkIcon, Volume2, VolumeX, SkipBack, SkipForward, RotateCcw, RotateCw } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
 import { fetchAllNews } from '@/services/mediaCenterService';
 
@@ -54,7 +54,6 @@ export default function PodcastSeriesPage() {
   const [episodes, setEpisodes] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<'latest' | 'most-listened'>('latest');
-  const [durationFilter, setDurationFilter] = useState<'all' | 'short' | 'medium' | 'long'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   
   // Audio player state
@@ -63,6 +62,8 @@ export default function PodcastSeriesPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
   
   // Expanded episode state
   const [expandedEpisode, setExpandedEpisode] = useState<string | null>(null);
@@ -136,17 +137,6 @@ export default function PodcastSeriesPage() {
   const filteredAndSortedEpisodes = useMemo(() => {
     let filtered = [...episodes];
 
-    // Apply duration filter
-    if (durationFilter !== 'all') {
-      filtered = filtered.filter((episode) => {
-        const duration = episode.readingTime;
-        if (durationFilter === 'short') return duration === '<5' || duration === '5–10';
-        if (durationFilter === 'medium') return duration === '10–20';
-        if (durationFilter === 'long') return duration === '20+';
-        return true;
-      });
-    }
-
     // Apply sorting
     if (sortBy === 'latest') {
       // Sort by explicit episode number (EP10 at top, EP1 at bottom)
@@ -171,7 +161,7 @@ export default function PodcastSeriesPage() {
     }
 
     return filtered;
-  }, [episodes, sortBy, durationFilter]);
+  }, [episodes, sortBy]);
 
   const episodeNumberMap = useMemo(() => {
     const map = new Map<string, number>();
@@ -263,6 +253,9 @@ export default function PodcastSeriesPage() {
     audio.addEventListener('pause', handlePause);
     audio.addEventListener('seeked', updateTime);
 
+    // Initialize volume
+    audio.volume = isMuted ? 0 : volume;
+
     // Initial duration check
     if (audio.readyState >= 1) {
       updateDuration();
@@ -280,7 +273,7 @@ export default function PodcastSeriesPage() {
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('seeked', updateTime);
     };
-  }, [currentlyPlaying]); // Re-run when currentlyPlaying changes
+  }, [currentlyPlaying, volume, isMuted]); // Re-run when currentlyPlaying, volume, or mute state changes
 
   const handlePlayEpisode = async (episode: NewsItem, e?: React.MouseEvent) => {
     if (e) {
@@ -387,6 +380,39 @@ export default function PodcastSeriesPage() {
       if (isPlaying) {
         audio.play().catch(console.error);
       }
+    }
+  };
+
+  const skipBackward = (seconds: number = 10) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = Math.max(0, audio.currentTime - seconds);
+  };
+
+  const skipForward = (seconds: number = 10) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = Math.min(audio.duration, audio.currentTime + seconds);
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const newVolume = parseFloat(e.target.value);
+    audio.volume = newVolume;
+    setVolume(newVolume);
+    setIsMuted(newVolume === 0);
+  };
+
+  const toggleMute = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isMuted) {
+      audio.volume = volume > 0 ? volume : 0.5;
+      setIsMuted(false);
+    } else {
+      audio.volume = 0;
+      setIsMuted(true);
     }
   };
 
@@ -524,7 +550,7 @@ export default function PodcastSeriesPage() {
     return parts.length > 0 ? parts : text;
   };
 
-  // Render podcast content (Focus of the Episode and Intended Impact)
+  // Render podcast content (Focus of the Episode only - Intended Impact removed)
   const renderEpisodeContent = (content: string) => {
     if (!content) return null;
 
@@ -533,6 +559,8 @@ export default function PodcastSeriesPage() {
     let currentParagraph: string[] = [];
     let keyCounter = 0;
     let firstHeadingSkipped = false;
+    let inFocusSection = false;
+    let shouldStop = false;
 
     const flushParagraph = () => {
       if (currentParagraph.length > 0) {
@@ -549,10 +577,14 @@ export default function PodcastSeriesPage() {
     };
 
     for (const line of lines) {
+      if (shouldStop) break;
+      
       const trimmed = line.trim();
       
       if (!trimmed) {
-        flushParagraph();
+        if (inFocusSection) {
+          flushParagraph();
+        }
         continue;
       }
 
@@ -565,7 +597,6 @@ export default function PodcastSeriesPage() {
       // Check for headings (## or ###)
       const headingMatch = trimmed.match(/^(##+)\s+(.+)$/);
       if (headingMatch) {
-        flushParagraph();
         const level = headingMatch[1].length;
         let headingText = headingMatch[2].trim();
         
@@ -576,38 +607,57 @@ export default function PodcastSeriesPage() {
                                  normalizedHeading.includes('goal of episode');
         const isIntendedImpact = normalizedHeading.includes('intended impact');
         
-        // Only show Focus of the Episode and Intended Impact
-        if (!isFocusOfEpisode && !isIntendedImpact) {
+        // If we encounter Intended Impact or any other heading after Focus section, stop processing
+        if (inFocusSection && !isFocusOfEpisode) {
+          flushParagraph();
+          shouldStop = true;
+          break;
+        }
+        
+        // Only process Focus of the Episode section
+        if (isFocusOfEpisode) {
+          flushParagraph();
+          inFocusSection = true;
+          
+          const titleCaseHeading = headingText
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+          
+          if (level === 2) {
+            elements.push(
+              <h3 key={keyCounter++} className="text-lg font-bold text-gray-900 mt-6 mb-4 pl-4 relative">
+                <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+                {titleCaseHeading}
+              </h3>
+            );
+          } else {
+            elements.push(
+              <h4 key={keyCounter++} className="text-base font-bold text-gray-900 mt-4 mb-3">
+                {titleCaseHeading}
+              </h4>
+            );
+          }
           continue;
         }
         
-        const titleCaseHeading = headingText
-          .split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-          .join(' ');
-        
-        if (level === 2) {
-          elements.push(
-            <h3 key={keyCounter++} className="text-lg font-bold text-gray-900 mt-6 mb-4 pl-4 relative">
-              <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
-              {titleCaseHeading}
-            </h3>
-          );
-        } else {
-          elements.push(
-            <h4 key={keyCounter++} className="text-base font-bold text-gray-900 mt-4 mb-3">
-              {titleCaseHeading}
-            </h4>
-          );
+        // Skip any other headings (including Intended Impact)
+        if (!inFocusSection) {
+          continue;
         }
-        continue;
       }
 
-      // Regular paragraph text
-      currentParagraph.push(trimmed);
+      // Only collect paragraph text if we're in the Focus section
+      if (inFocusSection) {
+        currentParagraph.push(trimmed);
+      }
     }
 
-    flushParagraph();
+    // Flush any remaining paragraph
+    if (inFocusSection) {
+      flushParagraph();
+    }
+    
     return elements;
   };
 
@@ -631,7 +681,7 @@ export default function PodcastSeriesPage() {
       {/* Hidden audio element */}
       <audio ref={audioRef} preload="metadata" />
       
-      <main className="flex-1">
+      <main className={`flex-1 ${currentlyPlaying ? 'pb-20' : ''}`}>
         {/* Breadcrumb Navigation and Action Buttons */}
         <section className="border-b border-gray-200 bg-white">
           <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
@@ -683,7 +733,7 @@ export default function PodcastSeriesPage() {
         </section>
 
         {/* Hero Section with Blurred Background - Matching Blog Style - Full Width */}
-        <section className="relative min-h-[500px] md:min-h-[600px] flex items-center" aria-labelledby="podcast-title">
+        <section className="relative min-h-[320px] md:min-h-[400px] flex items-center" aria-labelledby="podcast-title">
           {/* Background Image */}
           <div 
             className="absolute inset-0 bg-cover bg-center"
@@ -828,49 +878,6 @@ export default function PodcastSeriesPage() {
                   >
                     Most Listened
                   </button>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setDurationFilter('all')}
-                      className={`flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                        durationFilter === 'all'
-                          ? 'border-gray-300 bg-gray-100 text-gray-900'
-                          : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
-                      }`}
-                    >
-                      <ChevronDown size={14} />
-                      All
-                    </button>
-                    <button
-                      onClick={() => setDurationFilter('short')}
-                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                        durationFilter === 'short'
-                          ? 'border-gray-300 bg-gray-100 text-gray-900'
-                          : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
-                      }`}
-                    >
-                      Short
-                    </button>
-                    <button
-                      onClick={() => setDurationFilter('medium')}
-                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                        durationFilter === 'medium'
-                          ? 'border-gray-300 bg-gray-100 text-gray-900'
-                          : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
-                      }`}
-                    >
-                      Medium
-                    </button>
-                    <button
-                      onClick={() => setDurationFilter('long')}
-                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                        durationFilter === 'long'
-                          ? 'border-gray-300 bg-gray-100 text-gray-900'
-                          : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
-                      }`}
-                    >
-                      Long
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -896,23 +903,23 @@ export default function PodcastSeriesPage() {
                     id={`episode-${episode.id}`}
                     className={`group flex flex-col gap-4 rounded-lg border p-4 transition ${
                       isCurrentlyPlaying
-                        ? 'border-[#030f35] bg-[#030f35]/5'
+                        ? 'border-[#030f35] bg-[#030f35]/5 shadow-md'
                         : 'border-gray-200 bg-gray-50 hover:bg-white hover:border-gray-300'
                     }`}
                   >
                     <div className="flex items-start gap-4">
                       <button
                         onClick={(e) => handlePlayEpisode(episode, e)}
-                        className={`mt-1 flex-shrink-0 rounded-full p-2 transition ${
+                        className={`mt-1 flex-shrink-0 rounded-full p-3 transition ${
                           isCurrentlyPlaying
-                            ? 'bg-[#030f35] text-white'
+                            ? 'bg-[#030f35] text-white shadow-lg'
                             : 'bg-gray-200 text-gray-600 group-hover:bg-[#030f35] group-hover:text-white'
                         }`}
                       >
                         {isCurrentlyPlaying && isPlaying ? (
-                          <Pause size={16} />
+                          <Pause size={18} />
                         ) : (
-                          <Play size={16} />
+                          <Play size={18} />
                         )}
                       </button>
                       <div 
@@ -929,7 +936,7 @@ export default function PodcastSeriesPage() {
                         </div>
                         <h3 className={`mb-1 text-lg font-semibold transition ${
                           isCurrentlyPlaying
-                            ? 'text-gray-900'
+                            ? 'text-[#030f35]'
                             : 'text-gray-900 group-hover:text-[#030f35]'
                         }`}>
                           {episode.title}
@@ -983,31 +990,6 @@ export default function PodcastSeriesPage() {
                             <span>{savedEpisodes.has(episode.id) ? 'Saved' : 'Save'}</span>
                           </button>
                         </div>
-                        
-                        {/* Audio Player Controls - shown when this episode is playing */}
-                        {isCurrentlyPlaying && (
-                          <div className="mt-4 w-full space-y-2">
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="range"
-                                min="0"
-                                max={duration || 0}
-                                step="0.1"
-                                value={currentTime || 0}
-                                onChange={handleSeek}
-                                onMouseDown={handleSeekMouseDown}
-                                onMouseUp={handleSeekMouseUp}
-                                className="h-1 flex-1 cursor-pointer appearance-none rounded-lg bg-gray-200 accent-[#030f35]"
-                                style={{
-                                  background: `linear-gradient(to right, #030f35 0%, #030f35 ${((currentTime || 0) / (duration || 1)) * 100}%, #e5e7eb ${((currentTime || 0) / (duration || 1)) * 100}%, #e5e7eb 100%)`
-                                }}
-                              />
-                              <span className="text-xs text-gray-500 whitespace-nowrap">
-                                {formatTime(currentTime || 0)} / {formatTime(duration || 0)}
-                              </span>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                     
@@ -1026,6 +1008,101 @@ export default function PodcastSeriesPage() {
           </div>
         </div>
       </main>
+      
+      {/* Persistent Bottom Audio Player */}
+      {currentlyPlaying && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-[#030f35] bg-gray-100 shadow-2xl">
+          <div className="mx-auto max-w-7xl px-4 py-3">
+            <div className="flex items-center gap-4">
+              {/* Episode Info */}
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#030f35] bg-white">
+                  <Radio size={20} className="text-[#030f35]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-gray-900">
+                    {episodes.find(e => e.id === currentlyPlaying)?.title || 'Unknown Episode'}
+                  </p>
+                  <p className="truncate text-xs text-gray-600">Action-Solver Series</p>
+                </div>
+              </div>
+
+              {/* Playback Controls */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => skipBackward(10)}
+                  className="rounded-full border-2 border-[#030f35] p-2 text-[#030f35] hover:bg-[#030f35] hover:text-white transition-colors"
+                  aria-label="Skip backward 10 seconds"
+                >
+                  <RotateCcw size={18} />
+                </button>
+                <button
+                  onClick={() => {
+                    const episode = episodes.find(e => e.id === currentlyPlaying);
+                    if (episode) handlePlayEpisode(episode);
+                  }}
+                  className="rounded-full border-2 border-[#030f35] bg-[#030f35] p-3 text-white hover:opacity-90 transition-colors"
+                  aria-label={isPlaying ? 'Pause' : 'Play'}
+                >
+                  {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+                </button>
+                <button
+                  onClick={() => skipForward(10)}
+                  className="rounded-full border-2 border-[#030f35] p-2 text-[#030f35] hover:bg-[#030f35] hover:text-white transition-colors"
+                  aria-label="Skip forward 10 seconds"
+                >
+                  <RotateCw size={18} />
+                </button>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <input
+                  type="range"
+                  min="0"
+                  max={duration || 0}
+                  step="0.1"
+                  value={currentTime || 0}
+                  onChange={handleSeek}
+                  onMouseDown={handleSeekMouseDown}
+                  onMouseUp={handleSeekMouseUp}
+                  className="h-1.5 flex-1 cursor-pointer appearance-none rounded-lg border border-[#030f35]/30 bg-gray-200 accent-[#030f35]"
+                  style={{
+                    background: `linear-gradient(to right, #030f35 0%, #030f35 ${((currentTime || 0) / (duration || 1)) * 100}%, #e5e7eb ${((currentTime || 0) / (duration || 1)) * 100}%, #e5e7eb 100%)`
+                  }}
+                />
+                <span className="text-xs text-gray-700 whitespace-nowrap font-medium">
+                  {formatTime(currentTime || 0)} / {formatTime(duration || 0)}
+                </span>
+              </div>
+
+              {/* Volume Control */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={toggleMute}
+                  className="rounded-full border-2 border-[#030f35] p-2 text-[#030f35] hover:bg-[#030f35] hover:text-white transition-colors"
+                  aria-label={isMuted ? 'Unmute' : 'Mute'}
+                >
+                  {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                </button>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={isMuted ? 0 : volume}
+                  onChange={handleVolumeChange}
+                  className="h-1.5 w-20 cursor-pointer appearance-none rounded-lg border border-[#030f35]/30 bg-gray-200 accent-[#030f35]"
+                  style={{
+                    background: `linear-gradient(to right, #030f35 0%, #030f35 ${(isMuted ? 0 : volume) * 100}%, #e5e7eb ${(isMuted ? 0 : volume) * 100}%, #e5e7eb 100%)`
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );

@@ -933,7 +933,7 @@ const NewsDetailPage: React.FC = () => {
         </section>
 
         {/* Hero Section with Blurred Background */}
-        <section className="relative min-h-[500px] md:min-h-[600px] flex items-center" aria-labelledby="article-title">
+        <section className="relative min-h-[320px] md:min-h-[400px] flex items-center" aria-labelledby="article-title">
           {/* Blurred Background Image */}
           <div 
             className="absolute inset-0 bg-cover bg-center"

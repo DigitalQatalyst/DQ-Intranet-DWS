@@ -592,7 +592,7 @@ const NewsPage: React.FC = () => {
                 <div className="absolute z-20 mt-1 w-full max-h-64 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
                   {podcastSearchResults.length === 0 ? (
                     <div className="px-3 py-2 text-sm text-gray-500">
-                      No podcast episodes found.
+                      No podcast episodes found matching "{queryText}".
                     </div>
                   ) : (
                     podcastSearchResults.map((item) => (
@@ -601,12 +601,12 @@ const NewsPage: React.FC = () => {
                         type="button"
                         onClick={() => {
                           setQueryText('');
-                          const params = new URLSearchParams(location.search);
+                          const params = new URLSearchParams();
                           params.set('tab', 'podcasts');
                           params.set('episode', item.id);
                           navigate(`/marketplace/news/action-solver-podcast?${params.toString()}`);
                         }}
-                        className="flex w-full flex-col items-start px-3 py-2 text-left text-sm hover:bg-gray-50"
+                        className="flex w-full flex-col items-start px-3 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
                       >
                         <span className="font-medium text-gray-900 line-clamp-1">{item.title}</span>
                         <span className="text-xs text-gray-500">Podcast episode</span>
