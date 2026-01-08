@@ -1,31 +1,42 @@
-import React, { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
-import { Heart, MessageSquare, Share2, Calendar, MapPin } from 'lucide-react';
+import { MessageSquare, Calendar, MapPin } from 'lucide-react';
 import { CommunityReactions } from '@/communities/components/post/CommunityReactions';
-import { CommunityComments } from '@/communities/components/post/CommunityComments';
-import { useAuth } from '@/communities/contexts/AuthProvider';
-import { toast } from 'sonner';
+import { CommunityComments, CommunityCommentsRef } from '@/communities/components/post/CommunityComments';
+import { ReactionSummary } from '@/communities/components/post/ReactionSummary';
+import { useReactionSummary } from '@/communities/hooks/useReactionSummary';
+import { usePostViews } from '@/communities/hooks/usePostViews';
+import { ShareDropdown } from '@/communities/components/post/ShareDropdown';
 import { PostCardMedia } from './PostCard/PostCardMedia';
+import { cn } from '@/communities/lib/utils';
+import { Eye, MoreHorizontal } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/communities/components/ui/dropdown-menu';
 
 interface Post {
   id: string;
-  title: string;
-  content: string;
+  title?: string | null;
+  content?: string | null;
   created_at: string;
-  created_by: string;
-  community_id: string;
-  community_name: string;
-  author_username: string;
-  author_avatar?: string;
-  helpful_count?: number;
-  insightful_count?: number;
-  comment_count?: number;
-  tags?: string[];
-  post_type?: 'text' | 'media' | 'poll' | 'event' | 'article' | 'announcement';
-  metadata?: any;
-  event_date?: string;
-  event_location?: string;
+  created_by?: string | null;
+  community_id?: string | null;
+  community_name?: string | null;
+  author_username?: string | null;
+  author_avatar?: string | null;
+  helpful_count?: number | null;
+  insightful_count?: number | null;
+  comment_count?: number | null;
+  view_count?: number | null;
+  tags?: string[] | null;
+  post_type?: 'text' | 'media' | 'poll' | 'event' | 'article' | 'announcement' | null;
+  metadata?: Record<string, any> | null;
+  event_date?: string | null;
+  event_location?: string | null;
 }
 
 interface PostCardProps {
@@ -34,135 +45,292 @@ interface PostCardProps {
   isMember?: boolean;
 }
 
+type DisplayPostType =
+  | 'question'
+  | 'discussion'
+  | 'praise'
+  | 'poll'
+  | 'event'
+  | 'media'
+  | 'article'
+  | 'announcement';
+
 export function PostCard({ post, onActionComplete, isMember = false }: PostCardProps) {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [showComments, setShowComments] = useState(false);
+  const { summary: reactionSummary, refetch: refetchReactionSummary } = useReactionSummary(post.id);
+  const { viewCount = 0, recentViewers = [] } = usePostViews(post.id);
+  const [expanded, setExpanded] = useState(false);
+  const commentsRef = useRef<CommunityCommentsRef>(null);
 
-  const getPostTypeBadge = (type: string) => {
-    const badges = {
-      event: 'bg-green-100 text-green-800',
-      poll: 'bg-dq-navy/15 text-dq-navy',
-      media: 'bg-purple-100 text-purple-800',
-      article: 'bg-orange-100 text-orange-800',
-      announcement: 'bg-red-100 text-red-800',
-      text: 'bg-gray-100 text-gray-800'
-    };
-    return badges[type as keyof typeof badges] || badges.text;
+  // Optional-safe defaults for all fields
+  const safeTitle = post.title ?? 'Untitled Post';
+  const safeContent = post.content ?? '';
+  const safeAuthor = post.author_username ?? 'Unknown User';
+  const safeCommunity = post.community_name ?? 'Unknown Community';
+  const safeCreatedAt = post.created_at ?? new Date().toISOString();
+
+  const deriveDisplayType = (p: Post): DisplayPostType => {
+    // Explicit metadata first (future friendly) - optional-safe
+    const metaType =
+      p.metadata?.type ??
+      p.metadata?.intent ??
+      p.metadata?.kind ??
+      p.metadata?.postType ??
+      null;
+    if (metaType === 'question') return 'question';
+    if (metaType === 'praise') return 'praise';
+
+    // Strong types from backend - optional-safe
+    const postType = p.post_type;
+    if (postType === 'poll') return 'poll';
+    if (postType === 'event') return 'event';
+    if (postType === 'media') return 'media';
+    if (postType === 'article') return 'article';
+    if (postType === 'announcement') return 'announcement';
+
+    const title = (p.title ?? '').trim();
+    const body = (p.content ?? '').toLowerCase();
+
+    // Question heuristic: title ends with ? or contains '?' and not a poll
+    // Since we already checked for 'poll' above, if we reach here, it's not a poll
+    if (title.endsWith('?') || title.includes('?')) {
+      return 'question';
+    }
+
+    // Praise heuristic: common praise language
+    if (
+      /kudos|thank you|thanks|shout[- ]?out|appreciat(e|ion)|praise/i.test(
+        title || body
+      )
+    ) {
+      return 'praise';
+    }
+
+    // Default discussion
+    return 'discussion';
   };
 
-  const handleShare = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      const url = `${window.location.origin}/post/${post.id}`;
-      if (navigator.share) {
-        await navigator.share({
-          title: post.title,
-          text: post.content.substring(0, 200),
-          url: url
-        });
-      } else {
-        await navigator.clipboard.writeText(url);
-        toast.success('Post link copied to clipboard');
-      }
-    } catch (error: any) {
-      // User cancelled share or error occurred
-      if (error.name !== 'AbortError') {
-        console.error('Error sharing:', error);
-        // Fallback to clipboard
-        try {
-          const url = `${window.location.origin}/post/${post.id}`;
-          await navigator.clipboard.writeText(url);
-          toast.success('Post link copied to clipboard');
-        } catch (clipboardError) {
-          toast.error('Failed to share post');
-        }
-      }
+  const displayType = deriveDisplayType(post);
+
+  const getPostTypeBadge = (type: DisplayPostType) => {
+    const badges: Record<DisplayPostType, string> = {
+      question: 'bg-blue-50 text-blue-700 border border-blue-200',
+      discussion: 'bg-gray-100 text-gray-800 border border-transparent',
+      praise: 'bg-purple-50 text-purple-700 border border-purple-200',
+      poll: 'bg-teal-50 text-teal-700 border border-teal-200',
+      event: 'bg-green-50 text-green-700 border border-green-200',
+      media: 'bg-indigo-50 text-indigo-700 border border-indigo-200',
+      article: 'bg-orange-50 text-orange-700 border border-orange-200',
+      announcement: 'bg-red-50 text-red-700 border border-red-200'
+    };
+    return badges[type] || badges.discussion;
+  };
+
+  const getWrapperClassesForType = (type: DisplayPostType) => {
+    switch (type) {
+      case 'question':
+        return 'border-blue-200';
+      case 'praise':
+        return 'border-purple-200';
+      case 'poll':
+        return 'border-teal-200';
+      case 'event':
+        return 'border-green-200';
+      default:
+        return 'border-gray-200';
     }
   };
 
+  const getBadgeLabel = (type: DisplayPostType) => {
+    switch (type) {
+      case 'question':
+        return 'QUESTION';
+      case 'discussion':
+        return 'DISCUSSION';
+      case 'praise':
+        return 'PRAISE';
+      case 'poll':
+        return 'POLL';
+      case 'event':
+        return 'EVENT';
+      case 'media':
+        return 'MEDIA';
+      case 'article':
+        return 'ARTICLE';
+      case 'announcement':
+        return 'ANNOUNCEMENT';
+      default:
+        return 'POST';
+    }
+  };
+
+  // Share is now handled by ShareDropdown component
+
+  const isQuestion = displayType === 'question';
+
+  // Optional-safe content processing
+  const contentText = (post.content ?? '').replace(/<[^>]*>/g, '');
+  const hasLongContent = contentText.length > 200;
+  const displayContent = expanded || !hasLongContent 
+    ? contentText 
+    : contentText.substring(0, 200) + '...';
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div
+      className={cn(
+        'bg-white rounded-xl border shadow-sm hover:shadow-md transition-all duration-200',
+        getWrapperClassesForType(displayType)
+      )}
+    >
       {/* Post Header */}
-      <div className="p-6 pb-4">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-3">
-            <div className="w-10 h-10 bg-dq-navy/15 rounded-full flex items-center justify-center">
-              <span className="text-dq-navy font-medium text-sm">
-                {post.author_username.charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
+      <div className="p-5 pb-3">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 bg-dq-navy/15 rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-dq-navy font-semibold text-sm">
+              {safeAuthor.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              {post.created_by ? (
                 <button
                   onClick={() => navigate(`/communities/profile/${post.created_by}`)}
-                  className="font-medium text-gray-900 hover:text-dq-navy transition-colors"
+                  className="font-semibold text-gray-900 hover:text-dq-navy transition-colors text-sm"
                 >
-                  {post.author_username}
+                  {safeAuthor}
                 </button>
-                <span
-                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getPostTypeBadge(post.post_type || 'text')}`}
-                >
-                  {post.post_type || 'text'}
+              ) : (
+                <span className="font-semibold text-gray-900 text-sm">
+                  {safeAuthor}
                 </span>
-              </div>
-              <div className="flex items-center space-x-2 mt-1">
+              )}
+              <span
+                className={cn(
+                  'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-[0.1em]',
+                  getPostTypeBadge(displayType)
+                )}
+              >
+                {getBadgeLabel(displayType)}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+              {post.community_id ? (
                 <button
                   onClick={() => navigate(`/communities/community/${post.community_id}`)}
-                  className="text-sm text-dq-navy hover:text-[#13285A] transition-colors"
+                  className="hover:text-dq-navy transition-colors"
                 >
-                  {post.community_name}
+                  {safeCommunity}
                 </button>
-                <span className="text-gray-400">•</span>
-                <span className="text-sm text-gray-500">
-                  {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-                </span>
-              </div>
+              ) : (
+                <span>{safeCommunity}</span>
+              )}
+              <span>•</span>
+              <span>
+                {formatDistanceToNow(new Date(safeCreatedAt), { addSuffix: true })}
+              </span>
+              {viewCount > 0 && (
+                <>
+                  <span>•</span>
+                  <div className="flex items-center gap-1 group relative">
+                    <Eye className="h-3 w-3" />
+                    <span>Seen by {viewCount}</span>
+                    {recentViewers.length > 0 && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="opacity-0 group-hover:opacity-100 transition-opacity">
+                            <MoreHorizontal className="h-3 w-3" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-56">
+                          <div className="px-2 py-1.5 text-xs font-semibold text-gray-700 border-b">
+                            Recent viewers
+                          </div>
+                          {recentViewers.map((viewer) => (
+                            <DropdownMenuItem key={viewer.id} className="text-xs">
+                              {viewer.username}
+                            </DropdownMenuItem>
+                          ))}
+                          {viewCount > recentViewers.length && (
+                            <div className="px-2 py-1.5 text-xs text-gray-500">
+                              +{viewCount - recentViewers.length} more
+                            </div>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       {/* Post Content */}
-      <div className="px-6 pb-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{post.title}</h3>
+      <div className="px-5 pb-3">
+        <h3
+          className={cn(
+            'mb-3 text-base font-bold leading-snug',
+            isQuestion
+              ? 'text-blue-900'
+              : 'text-gray-900'
+          )}
+        >
+          {safeTitle}
+        </h3>
         
-        {/* Check if content has media (either post_type is media OR content contains media HTML) */}
+        {/* Check if content has media */}
         {(() => {
-          const hasMedia = post.post_type === 'media' || 
-                          (post.content && (post.content.includes('<div class="media-content">') || 
-                                           post.content.includes('<img') ||
-                                           post.content.match(/<img[^>]+src/i)));
+          const postType = post.post_type ?? null;
+          const postContent = post.content ?? '';
+          const hasMedia = postType === 'media' || 
+                          (postContent && (postContent.includes('<div class="media-content">') || 
+                                           postContent.includes('<img') ||
+                                           postContent.match(/<img[^>]+src/i)));
           
           if (hasMedia) {
             return (
-              <div className="mt-3">
+              <div className="mt-2">
                 <PostCardMedia post={post as any} />
-                {/* Show text content only if it doesn't contain media HTML */}
-                {post.content && !post.content.includes('<div class="media-content">') && !post.content.includes('<img') && (
-                  <p className="text-gray-700 leading-relaxed mt-3">{post.content.replace(/<[^>]*>/g, '')}</p>
+                {contentText && !postContent.includes('<div class="media-content">') && !postContent.includes('<img') && (
+                  <div className="mt-3">
+                    <p className="text-gray-700 leading-relaxed text-sm">{contentText}</p>
+                  </div>
                 )}
               </div>
             );
-          } else {
+          } else if (contentText) {
             return (
-              <p className="text-gray-700 leading-relaxed line-clamp-3">{post.content?.replace(/<[^>]*>/g, '') || post.content}</p>
+              <div>
+                <p className="text-gray-700 leading-relaxed text-sm whitespace-pre-wrap">
+                  {displayContent}
+                </p>
+                {hasLongContent && (
+                  <button
+                    onClick={() => setExpanded(!expanded)}
+                    className="mt-2 text-sm text-dq-navy hover:text-[#13285A] font-medium"
+                  >
+                    {expanded ? 'See less' : 'See more'}
+                  </button>
+                )}
+              </div>
             );
           }
+          return null;
         })()}
         
         {/* Event specific content */}
         {post.post_type === 'event' && (
-          <div className="mt-3 p-3 bg-green-50 rounded-lg">
-            <div className="flex items-center space-x-4 text-sm text-green-800">
+          <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-100">
+            <div className="flex items-center gap-4 text-sm text-green-800">
               {post.event_date && (
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-1.5">
                   <Calendar className="h-4 w-4" />
                   <span>{new Date(post.event_date).toLocaleDateString()}</span>
                 </div>
               )}
               {post.event_location && (
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-1.5">
                   <MapPin className="h-4 w-4" />
                   <span>{post.event_location}</span>
                 </div>
@@ -172,56 +340,66 @@ export function PostCard({ post, onActionComplete, isMember = false }: PostCardP
         )}
       </div>
 
-      {/* Post Actions */}
-      <div className="px-6 py-4 border-t border-gray-100">
+      {/* Post Actions - Viva Engage Layout */}
+      <div className="px-5 py-3 border-t border-gray-100">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-6">
+          {/* Left: Action Buttons */}
+          <div className="flex items-center gap-5">
             <CommunityReactions
               postId={post.id}
-              communityId={post.community_id}
+              communityId={post.community_id ?? undefined}
               isMember={isMember || false}
-              onReactionChange={onActionComplete}
+              onReactionChange={() => {
+                onActionComplete?.();
+                refetchReactionSummary();
+              }}
             />
             <button
               onClick={(e) => {
-                console.log('🔵 PostCard Comments button clicked');
                 e.stopPropagation();
                 e.preventDefault();
-                setShowComments(!showComments);
+                commentsRef.current?.focusInput();
               }}
-              className="flex items-center space-x-2 text-gray-500 hover:text-dq-navy transition-colors"
+              className={cn(
+                'flex items-center gap-1.5 transition-colors text-sm',
+                isQuestion
+                  ? 'text-blue-600 hover:text-blue-800'
+                  : 'text-gray-600 hover:text-dq-navy'
+              )}
             >
-              <MessageSquare className="h-5 w-5" />
-              <span className="text-sm">{post.comment_count || 0}</span>
+              <MessageSquare className="h-4 w-4" />
+              <span className="font-medium">
+                {isQuestion ? 'Answer' : 'Comment'}
+              </span>
             </button>
-            <button 
-              onClick={(e) => {
-                console.log('🔵 PostCard Share button clicked');
-                handleShare(e);
-              }}
-              className="flex items-center space-x-2 text-gray-500 hover:text-green-500 transition-colors"
-            >
-              <Share2 className="h-5 w-5" />
-              <span className="text-sm">Share</span>
-            </button>
+            <ShareDropdown
+              postId={post.id}
+              postTitle={safeTitle}
+              postContent={safeContent}
+              communityName={safeCommunity}
+              authorName={safeAuthor}
+            />
+          </div>
+
+          {/* Right: Reaction Summary (Non-interactive) */}
+          <div className="flex items-center">
+            <ReactionSummary topReaction={reactionSummary} />
           </div>
         </div>
       </div>
 
-      {/* Comments Section */}
-      {showComments && (
-        <div className="px-6 pb-4">
-          <CommunityComments
-            postId={post.id}
-            communityId={post.community_id}
-            isMember={isMember || false}
-            onCommentAdded={() => {
-              onActionComplete?.();
-              setShowComments(true);
-            }}
-          />
-        </div>
-      )}
+      {/* Comments Section - Always visible */}
+      <div className="px-5 pb-5 bg-gray-50/50">
+        <CommunityComments
+          ref={commentsRef}
+          postId={post.id}
+          communityId={post.community_id ?? ''}
+          isMember={isMember || false}
+          onCommentAdded={() => {
+            onActionComplete?.();
+          }}
+        />
+      </div>
     </div>
   );
 }

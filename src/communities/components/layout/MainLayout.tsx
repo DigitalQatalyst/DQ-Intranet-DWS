@@ -32,7 +32,7 @@ export function MainLayout({
       {/* Main content area */}
       <main className="flex-grow">
         {hidePageLayout ? (
-          <div className={`flex-1 ${fullWidth ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'} w-full py-6`}>
+          <div className={`${fullWidth ? '' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'} w-full py-6`}>
             {children}
           </div>
         ) : (
@@ -44,8 +44,8 @@ export function MainLayout({
         )}
       </main>
 
-      {/* Main DWS Footer */}
-      <Footer isLoggedIn={!!user} />
+      {/* Main DWS Footer - Always show full footer (bg-dq-navy) like Home page */}
+      <Footer isLoggedIn={false} />
     </div>
   );
 }

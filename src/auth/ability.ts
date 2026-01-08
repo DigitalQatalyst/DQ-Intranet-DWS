@@ -1,4 +1,4 @@
-import { AbilityBuilder, createMongoAbility, MongoAbility } from "@casl/ability";
+import { AbilityBuilder, PureAbility, AbilityClass } from "@casl/ability";
 
 export type Actions = "manage" | "create" | "read" | "update" | "delete" | "publish" | "approve" | "archive" | "moderate";
 export type Subjects =
@@ -14,7 +14,7 @@ export type Subjects =
   | "System"
   | "all";
 
-export type AppAbility = MongoAbility<[Actions, Subjects]>;
+export type AppAbility = PureAbility<[Actions, Subjects]>;
 
 export interface UserContext {
   segment?: "employee" | "new_joiner" | "lead" | "hr" | "tech_support" | "platform_admin";
@@ -42,7 +42,7 @@ export function normalizeRole(role: string | null | undefined): "viewer" | "cont
  * Accepts a nullable user context and falls back to a minimal viewer ability.
  */
 export function buildAbility(user: UserContext | null): AppAbility {
-  const { can, cannot, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
+  const { can, cannot, build } = new AbilityBuilder<AppAbility>(PureAbility as AbilityClass<AppAbility>);
   const segment = user?.segment;
   const roles = user?.roles ?? [];
   const newJoiner = user?.newJoiner ?? false;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from "@/lib/supabaseClient";
 import { safeFetch } from '@/communities/utils/safeFetch';
 import { format } from 'date-fns';
@@ -40,7 +40,7 @@ export function CommentList({
     const query = supabase
       .from('community_post_comments_new')
       .select('id, content, status, created_at, user_id')
-      .eq('post_id' as any, postId)
+      .eq('post_id' as any, postId as any)
       .order('created_at', { ascending: true });
     
     const [data, err] = await safeFetch(query);

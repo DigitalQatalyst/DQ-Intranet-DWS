@@ -7,6 +7,7 @@ import { MsalProvider } from "@azure/msal-react";
 import { msalInstance, defaultLoginRequest } from "./services/auth/msal";
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const client = new ApolloClient({
   link: new HttpLink({
@@ -149,11 +150,13 @@ if (container) {
               msalInstance.setActiveAccount(account);
               // Render app with authenticated account
               root.render(
-                <ApolloProvider client={client}>
-                  <MsalProvider instance={msalInstance}>
-                    <AppRouter />
-                  </MsalProvider>
-                </ApolloProvider>
+                <ErrorBoundary>
+                  <ApolloProvider client={client}>
+                    <MsalProvider instance={msalInstance}>
+                      <AppRouter />
+                    </MsalProvider>
+                  </ApolloProvider>
+                </ErrorBoundary>
               );
               return;
             }
@@ -209,11 +212,13 @@ if (container) {
         
         // User is authenticated - render the app
         root.render(
-          <ApolloProvider client={client}>
-            <MsalProvider instance={msalInstance}>
-              <AppRouter />
-            </MsalProvider>
-          </ApolloProvider>
+          <ErrorBoundary>
+            <ApolloProvider client={client}>
+              <MsalProvider instance={msalInstance}>
+                <AppRouter />
+              </MsalProvider>
+            </ApolloProvider>
+          </ErrorBoundary>
         );
       } catch (e: any) {
         console.error("MSAL initialization failed:", e);
@@ -227,11 +232,13 @@ if (container) {
             msalInstance.setActiveAccount(accounts[0]);
             // Render app if we have accounts
             root.render(
-              <ApolloProvider client={client}>
-                <MsalProvider instance={msalInstance}>
-                  <AppRouter />
-                </MsalProvider>
-              </ApolloProvider>
+              <ErrorBoundary>
+                <ApolloProvider client={client}>
+                  <MsalProvider instance={msalInstance}>
+                    <AppRouter />
+                  </MsalProvider>
+                </ApolloProvider>
+              </ErrorBoundary>
             );
             return;
           }

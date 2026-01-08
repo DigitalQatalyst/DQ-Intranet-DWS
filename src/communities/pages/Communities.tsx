@@ -1083,7 +1083,7 @@ export default function Communities() {
             </SheetContent>
           </Sheet>
           {/* Create Community button */}
-          {user && <Button onClick={() => setCreateModalOpen(true)} className="bg-brand-blue hover:bg-brand-darkBlue text-white gap-2 transition-all duration-200 ease-in-out">
+          {user && <Button onClick={() => setCreateModalOpen(true)} className="bg-dq-navy hover:bg-[#13285A] text-white gap-2 transition-all duration-200 ease-in-out">
               <PlusCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Create Community</span>
               <span className="sm:hidden">Create</span>

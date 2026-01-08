@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from "@/lib/supabaseClient";
 import { safeFetch } from '@/communities/utils/safeFetch';
 import { toast } from 'sonner';
-import { Send, Maximize2, Image, BarChart3, Clock } from 'lucide-react';
+import { Send, Image, BarChart3, Clock, MessageCircle, HelpCircle, Star } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/communities/components/ui/tabs';
 import { RichTextEditor } from './RichTextEditor';
 import { InlineMediaUpload } from './InlineMediaUpload';
@@ -22,7 +22,7 @@ interface InlineComposerProps {
   isMember?: boolean;
   onPostCreated?: () => void;
 }
-type PostType = 'text' | 'media' | 'poll';
+type PostType = 'text' | 'media' | 'poll' | 'question';
 interface Community {
   id: string;
   name: string;
@@ -66,6 +66,8 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
   // Link preview state
   const [detectedLink, setDetectedLink] = useState<string | null>(null);
   const [showLinkPreview, setShowLinkPreview] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isQuestionMode = postType === 'question';
   useEffect(() => {
     if (!communityId) {
       // Fetch communities for authenticated users
@@ -193,8 +195,9 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
     }
 
     // Type-specific validation
-    if (!title.trim()) {
-      toast.error('Title is required');
+    if (!title.trim() && postType !== 'text') {
+      // For media, poll, and question we always require an explicit title/question
+      toast.error(postType === 'question' ? 'Question is required' : 'Title is required');
       return;
     }
     // Content is optional for text posts - will default to title if empty
@@ -217,11 +220,14 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
     setSubmitting(true);
     try {
       // Prepare simplified post data for posts_v2
-      // For text posts, use content if available, otherwise use title
+      // For text and question posts, use content/details if available, otherwise use title
       // For media posts, include media HTML in content
-      let postContent = postType === 'text' 
-        ? (content.trim() || title.trim()) 
-        : title.trim();
+      let postContent: string;
+      if (postType === 'text' || postType === 'question') {
+        postContent = content.trim() || title.trim();
+      } else {
+        postContent = title.trim();
+      }
       
       // If media post, add media HTML to content immediately
       if (postType === 'media' && mediaFile) {
@@ -291,22 +297,8 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
     if (!communityId) setSelectedCommunityId('');
   };
   const handleOpenFullEditor = () => {
-    const targetCommunityId = communityId || selectedCommunityId;
-    const draft = {
-      title,
-      content,
-      contentHtml,
-      postType,
-      communityId: targetCommunityId,
-      pollQuestion,
-      pollOptions,
-      timestamp: Date.now()
-    };
-    localStorage.setItem('post-draft', JSON.stringify(draft));
-    const params = new URLSearchParams();
-    if (targetCommunityId) params.set('communityId', targetCommunityId);
-    params.set('type', postType);
-    navigate(`/create-post?${params.toString()}`);
+    // Inlined "advanced" experience – keep user in this composer
+    setIsExpanded(true);
   };
   const handleRichTextUpdate = (html: string, text: string) => {
     setContentHtml(html);
@@ -320,6 +312,14 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
       setPollQuestion('');
       setPollOptions(['', '']);
     }
+  };
+  const handleExpandWithType = (newType: PostType) => {
+    handleTypeChange(newType);
+    setIsExpanded(true);
+  };
+  const handleOpenDrafts = () => {
+    // For now, drafts are auto-saved per mode; opening just expands the composer
+    setIsExpanded(true);
   };
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLFormElement>) => {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
@@ -338,6 +338,10 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
         // Allow text posts with just a title (content is optional for quick posts)
         // Content will default to title if empty during submission
         return true;
+      case 'question': {
+        // Require a question title; details are optional
+        return title.trim().length > 0;
+      }
       case 'media':
         return mediaFile !== null;
       case 'poll':
@@ -350,6 +354,8 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
   };
   const getPostButtonLabel = () => {
     switch (postType) {
+      case 'question':
+        return 'Ask';
       case 'media':
         return 'Post Media';
       case 'poll':
@@ -383,132 +389,341 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
   
   return (
     <>
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="h-10 w-10 rounded-full bg-dq-navy flex items-center justify-center text-white font-semibold">
-          {user?.email?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || 'U'}
+      <div className={`bg-white rounded-2xl border shadow-sm p-4 sm:p-5 ${isQuestionMode ? 'border-blue-400' : 'border-gray-200'}`}>
+        {/* Collapsed Viva-style header */}
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-full bg-dq-navy flex items-center justify-center text-white font-semibold">
+            {user?.email?.charAt(0).toUpperCase() ||
+              user?.username?.charAt(0).toUpperCase() ||
+              'U'}
+          </div>
+          <div className="flex-1">
+            <button
+              type="button"
+              onClick={() => setIsExpanded(true)}
+              className="w-full text-left text-sm sm:text-base text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full px-4 py-2 transition-colors"
+            >
+              Share thoughts, ideas, or updates…
+            </button>
+
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleExpandWithType('text')}
+                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-gray-700 hover:bg-orange-50"
+                >
+                  <MessageCircle className="h-4 w-4 text-orange-500" />
+                  <span>Discussion</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleExpandWithType('question')}
+                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-gray-700 hover:bg-blue-50"
+                >
+                  <HelpCircle className="h-4 w-4 text-blue-500" />
+                  <span>Question</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleExpandWithType('text')}
+                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-gray-700 hover:bg-purple-50"
+                >
+                  <Star className="h-4 w-4 text-purple-500" />
+                  <span>Praise</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleExpandWithType('poll')}
+                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-gray-700 hover:bg-teal-50"
+                >
+                  <BarChart3 className="h-4 w-4 text-teal-500" />
+                  <span>Poll</span>
+                </Button>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleOpenDrafts}
+                className="text-xs sm:text-sm text-gray-500 hover:text-gray-800 hover:bg-gray-50"
+              >
+                <Clock className="h-3.5 w-3.5 mr-1" />
+                Drafts
+              </Button>
+            </div>
+          </div>
         </div>
-        <h3 className="text-lg font-semibold text-gray-900">Create a Post</h3>
-      </div>
 
-      <form 
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          handleQuickSubmit(e);
-        }} 
-        onKeyDown={handleKeyDown} 
-        className="space-y-4"
-        noValidate
-      >
-        {/* Post Type Selector */}
-        <Tabs value={postType} onValueChange={value => handleTypeChange(value as PostType)}>
-          <TabsList className="grid grid-cols-3 w-full">
-            <TabsTrigger value="text" className="flex items-center gap-1.5">
-              <span className="text-sm">Text</span>
-            </TabsTrigger>
-            <TabsTrigger value="media" className="flex items-center gap-1.5">
-              <Image className="h-3.5 w-3.5" />
-              <span className="text-sm">Media</span>
-            </TabsTrigger>
-            <TabsTrigger value="poll" className="flex items-center gap-1.5">
-              <BarChart3 className="h-3.5 w-3.5" />
-              <span className="text-sm">Poll</span>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        {/* Community Selection (only if not provided) */}
-        {!communityId && <div>
-            <Label htmlFor="community" className="text-sm font-medium text-gray-700 mb-1 block">
-              Community <span className="text-red-500">*</span>
-            </Label>
-            <Select value={selectedCommunityId} onValueChange={setSelectedCommunityId}>
-              <SelectTrigger className="border border-gray-300 rounded-md">
-                <SelectValue placeholder="Select a community" />
-              </SelectTrigger>
-              <SelectContent className="bg-white z-50">
-                {communities.map(community => <SelectItem key={community.id} value={community.id}>
-                    {community.name}
-                  </SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>}
-
-        {/* Title Input - All Types */}
-        <div>
-          <Label htmlFor="title" className="text-sm font-medium text-gray-700 mb-1 block">
-            {postType === 'poll' ? 'Poll Question' : 'Title'} <span className="text-red-500">*</span>
-          </Label>
-          <Input id="title" placeholder={postType === 'poll' ? 'Ask a question...' : 'Post title...'} value={title} onChange={e => setTitle(e.target.value)} maxLength={150} className="text-base" />
-        </div>
-
-        {/* TYPE-SPECIFIC FIELDS */}
-        
-        {/* TEXT POST */}
-        {postType === 'text' && <>
-            <div>
-              <Label className="text-sm font-medium text-gray-700 mb-1 block">
-                Content <span className="text-red-500">*</span>
-              </Label>
-              <RichTextEditor content={contentHtml} onUpdate={handleRichTextUpdate} placeholder="Share your thoughts... Use #hashtags and @mentions" maxLength={1500} mode="short" />
-              <p className="text-xs text-gray-500 mt-1">
-                ⌘/Ctrl + Enter to post • Shift + Enter for new line
-              </p>
-            </div>
-
-            {/* Link Preview */}
-            {detectedLink && showLinkPreview && <LinkPreview url={detectedLink} onRemove={() => setShowLinkPreview(false)} />}
-          </>}
-
-        {/* MEDIA POST */}
-        {postType === 'media' && <>
-            <div>
-              <Label className="text-sm font-medium text-gray-700 mb-1 block">
-                Upload File <span className="text-red-500">*</span>
-              </Label>
-              <InlineMediaUpload file={mediaFile} onFileChange={setMediaFile} userId={getCurrentUserId(user)} />
-              <p className="text-xs text-gray-500 mt-1">
-                Use full editor for multiple uploads
-              </p>
-            </div>
-          </>}
-
-        {/* POLL POST */}
-        {postType === 'poll' && <>
-            <div>
-              <Label className="text-sm font-medium text-gray-700 mb-1 block">
-                Poll Options <span className="text-red-500">*</span>
-              </Label>
-              <PollOptionsInput options={pollOptions} onOptionsChange={setPollOptions} />
-              <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                Duration: 7 days (default) • Use full editor for custom duration
-              </p>
-            </div>
-          </>}
-
-
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-          <Button type="button" variant="ghost" size="sm" onClick={handleOpenFullEditor} className="text-dq-navy hover:text-[#13285A] hover:bg-dq-navy/10">
-            <Maximize2 className="h-4 w-4 mr-1.5" />
-            Advanced options
-          </Button>
-
-          <Button 
-            type="submit" 
-            disabled={submitting || !isFormValid()} 
-            className="bg-dq-navy hover:bg-[#13285A] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        {/* Expanded composer */}
+        {isExpanded && (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleQuickSubmit(e);
+            }}
+            onKeyDown={handleKeyDown}
+            className="mt-4 space-y-4 border-t border-gray-100 pt-4"
+            noValidate
           >
-            {submitting ? 'Posting...' : <>
-                <Send className="h-4 w-4 mr-1.5" />
-                {getPostButtonLabel()}
-              </>}
-          </Button>
-        </div>
-      </form>
-    </div>
+            {/* Question mode header */}
+            {isQuestionMode && (
+              <div className="flex items-center justify-between gap-3">
+                <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-blue-700">
+                  Question
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsExpanded(false);
+                    handleTypeChange('text');
+                  }}
+                  className="text-xs text-gray-500 hover:text-gray-800"
+                >
+                  Collapse
+                </button>
+              </div>
+            )}
+
+            {/* Discussion mode header (neutral, no badge) */}
+            {postType === 'text' && !isQuestionMode && (
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsExpanded(false);
+                  }}
+                  className="text-xs text-gray-500 hover:text-gray-800"
+                >
+                  Collapse
+                </button>
+              </div>
+            )}
+
+            {/* Post Type Selector (hidden in dedicated question mode) */}
+            {!isQuestionMode && (
+              <Tabs
+                value={postType}
+                onValueChange={(value) => handleTypeChange(value as PostType)}
+              >
+                <TabsList className="grid grid-cols-3 w-full">
+                  <TabsTrigger
+                    value="text"
+                    className="flex items-center gap-1.5"
+                  >
+                    <span className="text-sm">Text</span>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="media"
+                    className="flex items-center gap-1.5"
+                  >
+                    <Image className="h-3.5 w-3.5" />
+                    <span className="text-sm">Media</span>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="poll"
+                    className="flex items-center gap-1.5"
+                  >
+                    <BarChart3 className="h-3.5 w-3.5" />
+                    <span className="text-sm">Poll</span>
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
+
+            {/* Community Selection (only if not provided) */}
+            {!communityId && (
+              <div>
+                <Label
+                  htmlFor="community"
+                  className="text-sm font-medium text-gray-700 mb-1 block"
+                >
+                  Community <span className="text-red-500">*</span>
+                </Label>
+                <Select
+                  value={selectedCommunityId}
+                  onValueChange={setSelectedCommunityId}
+                >
+                  <SelectTrigger className="border border-gray-300 rounded-md">
+                    <SelectValue placeholder="Select a community" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white z-50">
+                    {communities.map((community) => (
+                      <SelectItem key={community.id} value={community.id}>
+                        {community.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Title Input - All Types */}
+            <div>
+              <Label
+                htmlFor="title"
+                className="text-sm font-medium text-gray-700 mb-1 block"
+              >
+                {isQuestionMode
+                  ? 'Question'
+                  : postType === 'poll'
+                    ? 'Poll Question'
+                    : 'Title'}{' '}
+                <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="title"
+                placeholder={
+                  isQuestionMode || postType === 'poll'
+                    ? 'Ask a question...'
+                    : 'Post title...'
+                }
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={150}
+                className="text-base"
+              />
+            </div>
+
+            {/* TYPE-SPECIFIC FIELDS */}
+
+            {/* QUESTION MODE */}
+            {isQuestionMode && (
+              <>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                    Details <span className="text-gray-400">(optional)</span>
+                  </Label>
+                  <RichTextEditor
+                    content={contentHtml}
+                    onUpdate={handleRichTextUpdate}
+                    placeholder="Add more context so others can help you faster…"
+                    maxLength={1500}
+                    mode="short"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    ⌘/Ctrl + Enter to ask • Shift + Enter for new line
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-600">
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={handleOpenFullEditor}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Add people
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleOpenFullEditor}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Add topics
+                    </button>
+                  </div>
+                  <span>Formatting tools are available above.</span>
+                </div>
+              </>
+            )}
+
+            {/* TEXT POST */}
+            {postType === 'text' && !isQuestionMode && (
+              <>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                    Content <span className="text-red-500">*</span>
+                  </Label>
+                  <RichTextEditor
+                    content={contentHtml}
+                    onUpdate={handleRichTextUpdate}
+                    placeholder="Share your thoughts... Use #hashtags and @mentions"
+                    maxLength={1500}
+                    mode="short"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    ⌘/Ctrl + Enter to post • Shift + Enter for new line
+                  </p>
+                </div>
+
+                {/* Link Preview */}
+                {detectedLink && showLinkPreview && (
+                  <LinkPreview
+                    url={detectedLink}
+                    onRemove={() => setShowLinkPreview(false)}
+                  />
+                )}
+              </>
+            )}
+
+            {/* MEDIA POST */}
+            {postType === 'media' && !isQuestionMode && (
+              <>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                    Upload File <span className="text-red-500">*</span>
+                  </Label>
+                  <InlineMediaUpload
+                    file={mediaFile}
+                    onFileChange={setMediaFile}
+                    userId={getCurrentUserId(user)}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Use full editor for multiple uploads
+                  </p>
+                </div>
+              </>
+            )}
+
+            {/* POLL POST */}
+            {postType === 'poll' && !isQuestionMode && (
+              <>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                    Poll Options <span className="text-red-500">*</span>
+                  </Label>
+                  <PollOptionsInput
+                    options={pollOptions}
+                    onOptionsChange={setPollOptions}
+                  />
+                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    Duration: 7 days (default) • Use full editor for custom
+                    duration
+                  </p>
+                </div>
+              </>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end pt-2 border-t border-gray-100">
+              <Button
+                type="submit"
+                disabled={submitting || !isFormValid()}
+                className="bg-dq-navy hover:bg-[#13285A] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? (
+                  'Posting...'
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-1.5" />
+                    {getPostButtonLabel()}
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
+        )}
+      </div>
     </>
   );
 };

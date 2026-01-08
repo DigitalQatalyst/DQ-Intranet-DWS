@@ -11,10 +11,10 @@ import Community from "./communities/pages/Community";
 import CommunityMembers from "./communities/pages/CommunityMembers";
 import CommunitySettings from "./communities/pages/CommunitySettings";
 import CommunityAnalytics from "./communities/pages/CommunityAnalytics";
+import CommunityAnalyticsDashboard from "./communities/pages/CommunityAnalyticsDashboard";
 import ModerationDashboard from "./communities/pages/ModerationDashboard";
 import MessagingDashboard from "./communities/pages/MessagingDashboard";
 import ActivityCenter from "./communities/pages/ActivityCenter";
-import CreatePost from "./communities/pages/CreatePost";
 import PostDetail from "./communities/pages/PostDetail";
 import ProfileDashboard from "./communities/pages/ProfileDashboard";
 import { AuthProvider as CommunitiesAuthProvider } from "./communities/contexts/AuthProvider";
@@ -124,6 +124,13 @@ export function AppRouter() {
                 <Route path="/community" element={<Home />} />
                 <Route path="/communities" element={<Communities />} />
                 <Route path="/community/:id" element={<Community />} />
+                <Route
+                  path="/community/:id/conversations"
+                  element={<Community />}
+                />
+                <Route path="/community/:id/about" element={<Community />} />
+                <Route path="/community/:id/files" element={<Community />} />
+                <Route path="/community/:id/events" element={<Community />} />
                 <Route path="/feed" element={<CommunityFeed />} />
                 <Route
                   path="/community/:id/members"
@@ -135,10 +142,9 @@ export function AppRouter() {
                 />
                 <Route path="/moderation" element={<ModerationDashboard />} />
                 <Route path="/analytics" element={<CommunityAnalytics />} />
+                <Route path="/community/:id/analytics" element={<CommunityAnalyticsDashboard />} />
                 <Route path="/activity" element={<ActivityCenter />} />
                 <Route path="/messages" element={<MessagingDashboard />} />
-                <Route path="/create-post" element={<CreatePost />} />
-                <Route path="/post/edit/:id" element={<CreatePost />} />
                 <Route path="/post/:id" element={<PostDetail />} />
                 <Route
                   path="/profile/:userId?"

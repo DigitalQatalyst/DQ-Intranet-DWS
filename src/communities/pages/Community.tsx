@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/communities/contexts/AuthProvider';
 import { supabase } from '@/lib/supabaseClient';
 import { safeFetch } from '@/communities/utils/safeFetch';
 import { MainLayout } from '@/communities/components/layout/MainLayout';
 import { Button } from '@/communities/components/ui/button';
-import { Users, AlertCircle, Plus, Settings, Home, ChevronRight, X, Pencil, Calendar, Tag } from 'lucide-react';
+import { AlertCircle, Plus, Settings, Home, ChevronRight, X, Pencil, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { MemberList } from '@/communities/components/communities/MemberList';
 import { InlineComposer } from '@/communities/components/post/InlineComposer';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/communities/components/ui/dialog';
 import { Label } from '@/communities/components/ui/label';
 import { Input } from '@/communities/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/communities/components/ui/select';
 import { format } from 'date-fns';
 import { PostCard } from '@/communities/components/posts/PostCard';
 import { Skeleton } from '@/communities/components/ui/skeleton';
@@ -25,7 +26,15 @@ import {
   Breadcrumbs,
   BreadcrumbItem,
 } from "../components/PageLayout/index";
+import { cn } from '@/communities/lib/utils';
 import { useAuthorization } from '@/hooks/useAbility';
+import { HeroActionIcons } from '@/communities/components/hero/HeroActionIcons';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/communities/components/ui/tooltip';
 
 interface Community {
   id: string;
@@ -35,6 +44,10 @@ interface Community {
   imageurl?: string | null;
   category?: string | null;
   isprivate?: boolean;
+  isVerified?: boolean;
+  metadata?: {
+    isVerified?: boolean;
+  };
 }
 interface Post {
   id: string;
@@ -79,6 +92,25 @@ export default function Community() {
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<'recent-activity' | 'recent-posts'>('recent-activity');
+  const [filterBy, setFilterBy] = useState<'all' | 'new' | 'questions' | 'unanswered' | 'unreplied'>('all');
+  const location = useLocation();
+  const pathname = location.pathname;
+
+  const baseCommunityPath = `/community/${id}`;
+  const tabs = [
+    { key: "conversations", label: "Conversations", path: baseCommunityPath },
+    { key: "about", label: "About", path: `${baseCommunityPath}/about` },
+    { key: "files", label: "Files", path: `${baseCommunityPath}/files` },
+    { key: "events", label: "Events", path: `${baseCommunityPath}/events` },
+  ] as const;
+
+  const activeTab = React.useMemo(() => {
+    if (pathname.endsWith("/about")) return "about";
+    if (pathname.endsWith("/files")) return "files";
+    if (pathname.endsWith("/events")) return "events";
+    return "conversations";
+  }, [pathname]);
   // SignInModal removed - users are already authenticated via main app
   useEffect(() => {
     if (id) {
@@ -594,12 +626,50 @@ export default function Community() {
   // Fallback image URL if community image is missing
   const fallbackImageUrl =
     "https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1400&q=80";
+
+  // Community-specific hero images mapping
+  // TODO: Replace placeholder URLs with actual image URLs for:
+  // - Agile: Agile development illustration
+  // - Culture: Culture/community collaboration illustration  
+  // - GHC - Persona: User profile/community illustration
+  // - DTMF: Project management/analytics illustration
+  const getCommunityHeroImage = (communityName: string | null | undefined): string | null => {
+    if (!communityName) return null;
+    const name = communityName.toLowerCase();
+    
+    // Map community names to their specific images
+    // Add your image URLs here (can be local paths like /images/agile-hero.jpg or hosted URLs)
+    const imageMap: Record<string, string> = {
+      'agile': '/images/communities/agile-hero.jpg', // Replace with actual Agile illustration URL
+      'culture': '/images/communities/culture-hero.jpg', // Replace with actual Culture illustration URL
+      'ghc - persona': '/images/communities/ghc-persona-hero.jpg', // Replace with actual GHC Persona illustration URL
+      'ghc persona': '/images/communities/ghc-persona-hero.jpg',
+      'dtmf': '/images/communities/dtmf-hero.jpg', // Replace with actual DTMF illustration URL
+    };
+
+    // Check for exact match or partial match
+    for (const [key, url] of Object.entries(imageMap)) {
+      if (name.includes(key.toLowerCase())) {
+        return url;
+      }
+    }
+    
+    return null;
+  };
+
+  // Get hero image for this community
+  const heroImage = community?.imageurl || getCommunityHeroImage(community?.name) || fallbackImageUrl;
+  const sidebarCardImage = getCommunityHeroImage(community?.name) || community?.imageurl || null;
+
   return (
-    <MainLayout hidePageLayout>
-      <div className="">
+    <MainLayout hidePageLayout fullWidth>
+      <div className="bg-gray-50">
         {/* Breadcrumbs */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 mb-4">
-          <nav className="flex mb-4 min-h-[24px]" aria-label="Breadcrumb">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2">
+          <nav
+            className="flex items-center gap-1 text-xs sm:text-sm text-gray-500 py-2"
+            aria-label="Breadcrumb"
+          >
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
               <li className="inline-flex items-center">
                 <Link
@@ -635,91 +705,117 @@ export default function Community() {
           </nav>
         </div>
 
-        <PageLayout>
-          {/* Hero Section - Guidelines Style */}
-          {community && (
-            <header
-              className="bg-white border border-gray-200 rounded-xl shadow-sm px-6 py-5 md:px-8 md:py-6"
-              aria-labelledby="community-title"
-            >
-              <div className="flex flex-col gap-5">
-                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">
-                      {community.category || "DQ Work Community"}
-                    </p>
+        {/* Hero Section - Guidelines-style dimensions */}
+        {community && (
+          <header
+            className="relative overflow-hidden text-white h-[500px] w-full"
+            aria-labelledby="community-title"
+          >
+            {/* Background Image with Overlay */}
+            <div className="absolute inset-0 z-0">
+              <img 
+                src={heroImage} 
+                alt={`${community.name} community background`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = fallbackImageUrl;
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#030F35]/90 via-[#061649]/85 to-[#030F35]/90" />
+            </div>
+            {/* Subtle bottom fade into page background */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-gray-50/40 z-10" />
+
+            <div className="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-[120px] pb-12">
+              {/* Hero Action Icons - Top-right Overlay (Viva Engage Style) */}
+              <div className="absolute top-4 right-4 sm:top-6 sm:right-6 lg:top-8 lg:right-8 z-10">
+                <HeroActionIcons
+                  communityId={community.id}
+                  communityName={community.name}
+                  onLike={() => {
+                    // Handle community like/favorite
+                    console.log('Community liked');
+                  }}
+                  onInsights={() => {
+                    // Handle insights/analytics
+                    console.log('Insights clicked');
+                  }}
+                />
+              </div>
+
+              <div className="space-y-4">
+                {/* Eyebrow, title, description, metadata */}
+                <div className="space-y-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-200/70">
+                    {community.category || "DQ Work Community"}
+                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h1
                       id="community-title"
-                      className="text-2xl md:text-3xl font-bold text-gray-900"
+                      className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white"
                     >
                       {community.name}
                     </h1>
-                    {(community.description || community.category) && (
-                      <p className="text-sm text-gray-600 max-w-3xl leading-relaxed line-clamp-2">
-                        {community.description || community.category}
-                      </p>
+                    {/* Verified Badge - Viva Engage Style */}
+                    {(community.isVerified || community.metadata?.isVerified) && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="inline-flex items-center ml-2">
+                              <CheckCircle2 
+                                className="h-5 w-5 md:h-6 md:w-6 lg:h-7 lg:w-7 text-blue-400 flex-shrink-0" 
+                                aria-label="Verified community"
+                                fill="currentColor"
+                              />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Verified community</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     )}
                   </div>
-                  <div className="flex items-start gap-2">
-                    {isMember ? (
-                      <Button
-                        onClick={handleJoinLeave}
-                        variant="outline"
-                        className="border-gray-300 text-gray-700 hover:bg-gray-50"
-                        disabled={joinLoading}
-                      >
-                        {joinLoading ? "Processing..." : "Leave Community"}
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={handleJoinLeave}
-                        className="bg-dq-navy text-white hover:bg-[#13285A]"
-                        disabled={joinLoading}
-                      >
-                        {joinLoading
-                          ? "Processing..."
-                          : user
-                            ? community?.isprivate
-                              ? "Request to Join"
-                              : "Join Community"
-                            : "Join Community"}
-                      </Button>
+                  {(community.description || community.category) && (
+                    <p className="text-sm md:text-base font-normal text-indigo-100/80 max-w-2xl leading-relaxed">
+                      {community.description || community.category}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base text-indigo-100/90">
+                    <span>{community.category || "Community"}</span>
+                    {community.created_at && (
+                      <>
+                        <span className="text-indigo-200/70">•</span>
+                        <span>
+                          {format(
+                            new Date(community.created_at),
+                            "MMM d, yyyy"
+                          )}
+                        </span>
+                      </>
                     )}
+                    <span className="text-indigo-200/70">•</span>
+                    <span>
+                      {memberCount}{" "}
+                      {memberCount === 1 ? "member" : "members"}
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 text-sm text-gray-700">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1">
-                    <Tag className="h-4 w-4 text-gray-500" />
-                    <span className="font-medium">
-                      {community.category || "Community"}
-                    </span>
-                  </span>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1">
-                    <Calendar className="h-4 w-4 text-gray-500" />
-                    <span className="font-medium">
-                      {community.created_at
-                        ? format(new Date(community.created_at), "MMM d, yyyy")
-                        : "Created date unavailable"}
-                    </span>
-                  </span>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1">
-                    <Users className="h-4 w-4 text-gray-500" />
-                    <span className="font-medium">
-                      {memberCount} {memberCount === 1 ? "member" : "members"}
-                    </span>
-                  </span>
-                </div>
+                {/* Primary action row removed per user request */}
 
+                {/* Owner/admin actions row below hero text */}
                 {(isOwner ||
                   isAdmin ||
-                  (user && (user.role === "admin" || user.role === "moderator"))) && (
-                  <div className="flex flex-wrap items-center gap-2">
+                  (user &&
+                    (user.role === "admin" ||
+                      user.role === "moderator"))) && (
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-indigo-100/90">
                     <Button
                       onClick={() => setImageDialogOpen(true)}
                       variant="outline"
                       size="sm"
-                      className="text-gray-700 hover:bg-gray-50"
+                      className="border-white/25 bg-white/5 text-white hover:bg-white hover:text-[#030F35]"
                     >
                       <Pencil className="h-3.5 w-3.5 mr-1.5" />
                       Edit Image
@@ -729,7 +825,7 @@ export default function Community() {
                       to={`/community/${id}/settings`}
                       variant="outline"
                       size="sm"
-                      className="text-gray-700 hover:bg-gray-50"
+                      className="border-white/25 bg-white/5 text-white hover:bg-white hover:text-[#030F35]"
                     >
                       <Settings className="h-3.5 w-3.5 mr-1.5" />
                       Settings
@@ -737,11 +833,16 @@ export default function Community() {
                   </div>
                 )}
               </div>
-            </header>
-          )}
+            </div>
+          </header>
+        )}
 
+        {/* Section selector removed per latest requirements */}
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
           {/* Main Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {activeTab === "conversations" && (
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Posts Feed */}
             <div className="lg:col-span-2 space-y-6">
               <PageSection>
@@ -756,6 +857,64 @@ export default function Community() {
                       communityId={id}
                       onPostCreated={handlePostCreated}
                     />
+                  </SectionContent>
+                )}
+                {/* Sort & Filter Controls - Viva Engage Style (Sticky) */}
+                {!postsLoading && posts.length > 0 && (
+                  <SectionContent className="sticky top-[64px] z-10 bg-white py-3 border-b border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500 font-medium">Sort:</span>
+                        <Select value={sortBy} onValueChange={(value: 'recent-activity' | 'recent-posts') => setSortBy(value)}>
+                          <SelectTrigger className="h-8 w-[160px] text-xs border-gray-200 rounded-full px-3">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="recent-activity">Recent activity</SelectItem>
+                            <SelectItem value="recent-posts">Recent posts</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500 font-medium">Filter:</span>
+                        <Select value={filterBy} onValueChange={(value: 'all' | 'new' | 'questions' | 'unanswered' | 'unreplied') => setFilterBy(value)}>
+                          <SelectTrigger className="h-8 w-[200px] text-xs border-gray-200 rounded-full px-3">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All conversations</SelectItem>
+                            <SelectItem value="new">
+                              New conversations ({posts.filter(p => {
+                                const postDate = new Date(p.created_at);
+                                const oneDayAgo = new Date();
+                                oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+                                return postDate > oneDayAgo;
+                              }).length})
+                            </SelectItem>
+                            <SelectItem value="questions">
+                              All questions ({posts.filter(p => {
+                                const title = (p.title || '').trim();
+                                return title.endsWith('?') || title.includes('?');
+                              }).length})
+                            </SelectItem>
+                            <SelectItem value="unanswered">
+                              Questions with no marked answer ({posts.filter(p => {
+                                const title = (p.title || '').trim();
+                                const isQuestion = title.endsWith('?') || title.includes('?');
+                                return isQuestion && (p.comment_count || 0) === 0;
+                              }).length})
+                            </SelectItem>
+                            <SelectItem value="unreplied">
+                              Questions with no replies ({posts.filter(p => {
+                                const title = (p.title || '').trim();
+                                const isQuestion = title.endsWith('?') || title.includes('?');
+                                return isQuestion && (p.comment_count || 0) === 0;
+                              }).length})
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </SectionContent>
                 )}
                 {/* Posts List */}
@@ -794,17 +953,7 @@ export default function Community() {
                         <p className="text-gray-500 mb-4">
                           Be the first to start a conversation in this community
                         </p>
-                        {user && isMember && (
-                          <Button
-                            onClick={() =>
-                              navigate(`/create-post?communityId=${id}`)
-                            }
-                            className="bg-dq-navy text-white hover:bg-[#13285A]"
-                          >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Create Post
-                          </Button>
-                        )}
+                        {/* Inline composer above feed is now the primary way to post */}
                         {!user && (
                           <p className="text-gray-400 text-sm">
                             Join this community to start posting
@@ -815,22 +964,51 @@ export default function Community() {
                   ) : (
                     <div className="space-y-4">
                       {(() => {
-                        // Filter posts based on search query
-                        const searchTerm = searchQuery.trim().toLowerCase();
-                        const filteredPosts = searchTerm
-                          ? posts.filter((post) => {
-                              // Safely check title and content
-                              const titleMatch = post.title
-                                ?.toLowerCase()
-                                .includes(searchTerm) || false;
-                              const contentMatch = post.content
-                                ?.toLowerCase()
-                                .includes(searchTerm) || false;
-                              return titleMatch || contentMatch;
-                            })
-                          : posts;
+                        // Helper to check if post is a question
+                        const isQuestion = (post: Post) => {
+                          const title = (post.title || '').trim();
+                          return title.endsWith('?') || title.includes('?');
+                        };
 
-                        if (searchTerm && filteredPosts.length === 0) {
+                        // Apply filters
+                        let filteredPosts = posts;
+                        
+                        // Filter by type
+                        if (filterBy === 'new') {
+                          const oneDayAgo = new Date();
+                          oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+                          filteredPosts = filteredPosts.filter(p => new Date(p.created_at) > oneDayAgo);
+                        } else if (filterBy === 'questions') {
+                          filteredPosts = filteredPosts.filter(isQuestion);
+                        } else if (filterBy === 'unanswered' || filterBy === 'unreplied') {
+                          filteredPosts = filteredPosts.filter(p => isQuestion(p) && (p.comment_count || 0) === 0);
+                        }
+
+                        // Apply search query
+                        const searchTerm = searchQuery.trim().toLowerCase();
+                        if (searchTerm) {
+                          filteredPosts = filteredPosts.filter((post) => {
+                            const titleMatch = post.title?.toLowerCase().includes(searchTerm) || false;
+                            const contentMatch = post.content?.toLowerCase().includes(searchTerm) || false;
+                            return titleMatch || contentMatch;
+                          });
+                        }
+
+                        // Apply sorting
+                        const sortedPosts = [...filteredPosts].sort((a, b) => {
+                          if (sortBy === 'recent-activity') {
+                            // Sort by most recent activity (comments/reactions update this)
+                            // For now, use created_at + comment_count as proxy
+                            const aScore = new Date(a.created_at).getTime() + ((a.comment_count || 0) * 1000);
+                            const bScore = new Date(b.created_at).getTime() + ((b.comment_count || 0) * 1000);
+                            return bScore - aScore;
+                          } else {
+                            // Sort by most recent posts
+                            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                          }
+                        });
+
+                        if (searchTerm && sortedPosts.length === 0) {
                           return (
                             <div className="bg-gray-50 rounded-lg p-8 text-center">
                               <div className="flex flex-col items-center justify-center">
@@ -848,7 +1026,25 @@ export default function Community() {
                           );
                         }
 
-                        return filteredPosts.map((post) => (
+                        if (filterBy !== 'all' && sortedPosts.length === 0) {
+                          return (
+                            <div className="bg-gray-50 rounded-lg p-8 text-center">
+                              <div className="flex flex-col items-center justify-center">
+                                <div className="bg-gray-100 p-3 rounded-full mb-4">
+                                  <AlertCircle className="h-6 w-6 text-gray-400" />
+                                </div>
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                  No posts match this filter
+                                </h3>
+                                <p className="text-gray-500">
+                                  Try adjusting your filter or sort options
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        return sortedPosts.map((post) => (
                           <PostCard
                             key={post.id}
                             post={post}
@@ -862,12 +1058,25 @@ export default function Community() {
               </PageSection>
             </div>
             {/* Sidebar Column */}
-            {/* Main content container with vertical spacing */}
-            <div className="space-y-6 mb-10">
+            {/* Main content container with vertical spacing - Sticky sidebar */}
+            <div className="space-y-6 mb-10 lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto">
               {/* Community Information Section */}
               <PageSection>
                 <SectionHeader title="About this Community" />
                 <SectionContent>
+                  {/* Community Image Card */}
+                  {sidebarCardImage && (
+                    <div className="mb-4 rounded-lg overflow-hidden border border-gray-200">
+                      <img 
+                        src={sidebarCardImage} 
+                        alt={`${community.name} community`}
+                        className="w-full h-32 object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
                   <div className="space-y-4">
                     {/* Community Category */}
                     <div>
@@ -933,7 +1142,7 @@ export default function Community() {
                     </Button>
                   }
                 />
-                {/* Member list with pagination */}
+                {/* Member list with independent scrolling */}
                 <SectionContent className="p-0">
                   {/* Display first 5 members, hides the section header */}
                   <MemberList communityId={id!} limit={5} hideHeader={true} />
@@ -941,17 +1150,111 @@ export default function Community() {
               </PageSection>
             </div>
           </div>
-        </PageLayout>
-        {/* Floating Create Post Button */}
-        {user && isMember && (
-          <Button
-            onClick={() => navigate(`/create-post?communityId=${id}`)}
-            className="fixed bottom-5 right-5 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all bg-dq-navy hover:bg-[#13285A] text-white"
-            size="icon"
-          >
-            <Plus className="h-6 w-6" />
-          </Button>
-        )}
+          )}
+
+          {activeTab === "about" && (
+            <div className="mt-8 space-y-6 pb-10">
+              <PageSection>
+                <SectionHeader
+                  title="About this Community"
+                  description="Learn more about the purpose and makeup of this community."
+                />
+                <SectionContent>
+                  <div className="space-y-4">
+                    {/* Community Description */}
+                    {community.description && (
+                      <div>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          {community.description}
+                        </p>
+                      </div>
+                    )}
+                    {/* Category */}
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                        Category
+                      </p>
+                      <p className="text-sm text-gray-700 font-medium">
+                        {community.category}
+                      </p>
+                    </div>
+                    {/* Created Date */}
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                        Created
+                      </p>
+                      <p className="text-sm text-gray-700 font-medium">
+                        {format(new Date(community.created_at), "MMMM d, yyyy")}
+                      </p>
+                    </div>
+                    {/* Member Count */}
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                        Members
+                      </p>
+                      <p className="text-sm text-gray-700 font-medium">
+                        {memberCount} members
+                      </p>
+                    </div>
+                  </div>
+                </SectionContent>
+              </PageSection>
+
+              <PageSection>
+                <SectionHeader
+                  title="Community Members"
+                  actions={
+                    <Button
+                      as={Link}
+                      to={`/community/${id}/members`}
+                      variant="outline"
+                      size="sm"
+                    >
+                      View All
+                    </Button>
+                  }
+                />
+                <SectionContent className="p-0">
+                  <MemberList communityId={id!} limit={10} hideHeader={true} />
+                </SectionContent>
+              </PageSection>
+            </div>
+          )}
+
+          {activeTab === "files" && (
+            <div className="mt-8 pb-10">
+              <PageSection>
+                <SectionHeader
+                  title="Files"
+                  description="Shared files and resources for this community."
+                />
+                <SectionContent>
+                  <p className="text-sm text-gray-600">
+                    File sharing for this community will appear here.
+                  </p>
+                </SectionContent>
+              </PageSection>
+            </div>
+          )}
+
+          {activeTab === "events" && (
+            <div className="mt-8 pb-10">
+              <PageSection>
+                <SectionHeader
+                  title="Events"
+                  description="Upcoming and past events for this community."
+                />
+                <SectionContent>
+                  <p className="text-sm text-gray-600">
+                    Events for this community will appear here.
+                  </p>
+                </SectionContent>
+              </PageSection>
+            </div>
+          )}
+        </div>
+        {/* Floating Create Post Button removed - InlineComposer is the single entry point */}
+
         {/* SignInModal removed - users are already authenticated via main app */}
 
         {/* Image Update Dialog */}

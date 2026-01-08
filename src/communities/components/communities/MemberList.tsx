@@ -89,7 +89,7 @@ export function MemberList({
         {members.length === 0 ? <div className="p-4 text-center text-sm text-gray-500">
             No members yet
           </div> : <>
-            <div className="max-h-[400px] overflow-y-auto">
+            <div className="max-h-[300px] overflow-y-auto">
               {members.map(member => <Link key={member.id} to={`/profile/${member.user_id}`} className="flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors">
                   <Avatar className="h-10 w-10 border border-gray-200">
                     <AvatarImage src={member.avatar_url || undefined} />
@@ -107,7 +107,7 @@ export function MemberList({
                   </div>
                 </Link>)}
             </div>
-            <div className="p-3 bg-gray-50">
+            <div className="p-3 bg-gray-50 border-t border-gray-100">
               <Link to={`/community/${communityId}/members`}>
                 <Button variant="ghost" size="sm" className="w-full justify-center text-sm text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50">
                   View All Members

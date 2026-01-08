@@ -346,7 +346,8 @@ export default function CommunityFeed() {
                 myLoading={myLoading}
                 globalLoading={globalLoading}
                 trendingLoading={trendingLoading}
-                onNewPost={() => navigate("/create-post")}
+                // InlineComposer above is now the single composer; disable legacy new-post flow
+                onNewPost={handlePostCreated}
                 onSortChange={handleSortChange}
                 onLoadMore={handleLoadMore}
                 activeTab={activeTab}
