@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     UploadIcon,
     XIcon,
@@ -8,17 +8,43 @@ import {
 } from 'lucide-react';
 import { uploadDocument } from '../../services/employeeOnboardingService';
 import { useMsal } from "@azure/msal-react";
-export function DocumentUpload({ onClose, onUpload, categories }: { onClose: () => void, onUpload: (document: any) => void, categories: string[]; }) {
+
+interface DocumentUploadProps {
+    onClose: () => void;
+    onUpload: (document: any) => void;
+    categories: string[];
+    preSelectedDocType?: string;
+}
+
+// Map document type names to their category values
+const DOC_TYPE_TO_CATEGORY: Record<string, string> = {
+    'national_id': 'National ID',
+    'National ID': 'National ID',
+    'degree_certificate': 'Degree Certificate',
+    'Degree Certificate': 'Degree Certificate',
+    'employment_contract': 'Employment Contract',
+    'Employment Contract': 'Employment Contract',
+};
+
+export function DocumentUpload({ onClose, onUpload, categories, preSelectedDocType }: DocumentUploadProps) {
     const { accounts } = useMsal();
     const account = accounts[0];
     const employeeId = account?.localAccountId || account?.username || "";
+
+    // Determine initial category based on preSelectedDocType
+    const getInitialCategory = () => {
+        if (preSelectedDocType && DOC_TYPE_TO_CATEGORY[preSelectedDocType]) {
+            return DOC_TYPE_TO_CATEGORY[preSelectedDocType];
+        }
+        return categories[0] || '';
+    };
 
     const [isDragging, setIsDragging] = useState(false);
     const [file, setFile] = useState<any>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [formData, setFormData] = useState({
-        name: '',
-        category: categories[0] || '',
+        name: preSelectedDocType ? (DOC_TYPE_TO_CATEGORY[preSelectedDocType] || '') : '',
+        category: getInitialCategory(),
         description: '',
         expiryDate: '',
         tags: '',

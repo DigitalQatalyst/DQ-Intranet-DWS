@@ -18,6 +18,7 @@ export function DocumentWallet() {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [preSelectedDocType, setPreSelectedDocType] = useState<string | undefined>(undefined);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [statusFilter, setStatusFilter] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -417,6 +418,10 @@ export function DocumentWallet() {
                     <DocumentTable
                         documents={filteredDocuments}
                         onViewDocument={setSelectedDocument}
+                        onUploadDocument={(docType) => {
+                            setPreSelectedDocType(docType);
+                            setIsUploadModalOpen(true);
+                        }}
                     />
                 </div>
             )}
@@ -424,9 +429,13 @@ export function DocumentWallet() {
             {/* Upload Modal */}
             {isUploadModalOpen && (
                 <DocumentUpload
-                    onClose={() => setIsUploadModalOpen(false)}
+                    onClose={() => {
+                        setIsUploadModalOpen(false);
+                        setPreSelectedDocType(undefined);
+                    }}
                     onUpload={handleDocumentUpload}
                     categories={categories.filter((c) => c !== 'all')}
+                    preSelectedDocType={preSelectedDocType}
                 />
             )}
 

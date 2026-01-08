@@ -15,7 +15,14 @@ import {
     TagIcon,
     UploadCloudIcon,
 } from 'lucide-react';
-export function DocumentTable({ documents, onViewDocument }: { documents: any, onViewDocument: (document: any) => void; }) {
+
+interface DocumentTableProps {
+    documents: any[];
+    onViewDocument: (document: any) => void;
+    onUploadDocument?: (documentType?: string) => void;
+}
+
+export function DocumentTable({ documents, onViewDocument, onUploadDocument }: DocumentTableProps) {
     const [sortField, setSortField] = useState('uploadDate');
     const [sortDirection, setSortDirection] = useState('desc');
     const [expandedRows, setExpandedRows] = useState<any[]>([]);
@@ -223,7 +230,10 @@ export function DocumentTable({ documents, onViewDocument }: { documents: any, o
                                         {doc.isMissing ? (
                                             <button
                                                 className="text-red-600 hover:text-red-800 px-2 py-1 flex items-center gap-1"
-                                                onClick={() => { }} // Should trigger upload modal
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    onUploadDocument?.(doc.fieldName || doc.name);
+                                                }}
                                             >
                                                 <UploadCloudIcon size={16} /> Upload
                                             </button>

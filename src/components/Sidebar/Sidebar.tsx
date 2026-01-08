@@ -269,9 +269,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
         href: "/dashboard/onboarding",
       },
       {
+        id: "my-courses",
+        label: "My Courses",
+        icon: <BookOpen size={20} />,
+        href: "/dashboard/learning",
+      },
+      {
         id: "learning-center",
         label: "Learning Center",
-        icon: <BookOpen size={20} />,
+        icon: <TrendingUp size={20} />,
         href: "/lms",
       }
     );
