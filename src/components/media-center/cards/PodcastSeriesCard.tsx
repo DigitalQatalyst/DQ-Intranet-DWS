@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Radio, Clock, Calendar, Play, Plus, Mic } from 'lucide-react';
 
-const PODCAST_IMAGE =
-  'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=1200&q=80';
+const PODCAST_IMAGE = '/podcasts.jpg';
 
 interface PodcastSeriesCardProps {
   href?: string;

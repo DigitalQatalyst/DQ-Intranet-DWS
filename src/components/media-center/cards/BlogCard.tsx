@@ -19,12 +19,11 @@ interface BlogCardProps {
 }
 
 export function BlogCard({ item, href }: BlogCardProps) {
-  const imageSrc = item.image || getFallbackImage(item.id, fallbackImages);
-  const authorName = item.byline || item.author || 'DQ Media Team';
-  const displayTitle = generateTitle(item);
-  
   // Check if this is a podcast
   const isPodcast = item.format === 'Podcast' || item.tags?.some(tag => tag.toLowerCase().includes('podcast'));
+  const imageSrc = isPodcast ? '/podcasts.jpg' : '/blogs.jpg';
+  const authorName = item.byline || item.author || 'DQ Media Team';
+  const displayTitle = generateTitle(item);
   const categoryLabel = isPodcast ? 'Podcast' : 'Blog';
   const categoryColor = isPodcast ? PODCAST_COLOR : BLOG_COLOR;
   const buttonText = isPodcast ? 'Listen Now' : 'View Insights';

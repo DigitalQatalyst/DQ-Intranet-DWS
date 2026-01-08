@@ -9,8 +9,7 @@ import { formatDateVeryShort, formatDuration, formatListens, formatTime } from '
 import { parseBold } from '@/utils/contentParsing';
 import { Breadcrumb } from '@/components/media-center/shared/Breadcrumb';
 
-const PODCAST_IMAGE =
-  'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&w=1600&q=80';
+const PODCAST_IMAGE = '/podcasts.jpg';
 
 // Explicit canonical order of Action-Solver podcast episodes (EP1..EP10)
 const PODCAST_EPISODE_ORDER: string[] = [
@@ -688,10 +687,11 @@ export default function PodcastSeriesPage() {
             className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url(${PODCAST_IMAGE})`,
+              filter: 'blur(2px)',
             }}
           />
           {/* Dark Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-800/70 to-slate-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-800/85 to-slate-900/90" />
           
           {/* Content */}
           <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-24 w-full">

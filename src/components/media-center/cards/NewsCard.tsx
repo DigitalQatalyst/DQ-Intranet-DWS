@@ -1,6 +1,6 @@
 import type { NewsItem } from '@/data/media/news';
 import { Link } from 'react-router-dom';
-import { formatDateVeryShort, generateTitle, getNewsTypeDisplay, getFallbackImage } from '@/utils/newsUtils';
+import { formatDateVeryShort, generateTitle, getNewsTypeDisplay, getNewsImageSrc } from '@/utils/newsUtils';
 
 interface NewsCardProps {
   item: NewsItem;
@@ -14,8 +14,12 @@ const fallbackImages = [
   'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80'
 ];
 
+const fallbackHero =
+  'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1600&q=80';
+
 export function NewsCard({ item, href }: NewsCardProps) {
-  const imageSrc = item.image || getFallbackImage(item.id, fallbackImages);
+  // Use shared utility function to ensure consistency with detail pages
+  const imageSrc = getNewsImageSrc(item, fallbackImages, fallbackHero);
   const displayTitle = generateTitle(item);
   const newsTypeDisplay = getNewsTypeDisplay(item);
 

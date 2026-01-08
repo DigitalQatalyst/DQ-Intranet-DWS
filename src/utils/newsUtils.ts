@@ -245,3 +245,49 @@ export const formatListens = (views: number): string => {
   return `${views} listens`;
 };
 
+/**
+ * Get the image source for a news item based on type, format, and newsType
+ * This ensures cards and detail pages use the same images
+ */
+export const getNewsImageSrc = (
+  item: NewsItem,
+  fallbackImages: string[],
+  fallbackHero?: string
+): string => {
+  // Use /blogs.jpg for blog articles
+  if (item.type === 'Thought Leadership') {
+    return '/blogs.jpg';
+  }
+  // Use /podcasts.jpg for podcast articles
+  if (item.format === 'Podcast' || item.tags?.some(tag => tag.toLowerCase().includes('podcast'))) {
+    return '/podcasts.jpg';
+  }
+  // Use specific images based on newsType
+  if (item.newsType === 'Policy Update') {
+    return '/policy update.png';
+  }
+  if (item.newsType === 'Upcoming Events') {
+    return '/upcoming events.jpg';
+  }
+  if (item.newsType === 'Company News') {
+    return '/company news.jpg';
+  }
+  if (item.newsType === 'Holidays') {
+    // Holidays - use company news as fallback since no holidays image exists
+    return '/company news.jpg';
+  }
+  // Fallback to type field if newsType is not set
+  if (item.type === 'Guidelines') {
+    return '/policy update.png';
+  }
+  if (item.type === 'Announcement') {
+    return '/company news.jpg';
+  }
+  if (item.type === 'Notice') {
+    return '/company news.jpg'; // Notice maps to Holidays, use company news
+  }
+  // Final fallback to item.image or getFallbackImage
+  if (item.image) return item.image;
+  return getFallbackImage(item.id, fallbackImages) || fallbackHero || '';
+};
+

@@ -5,7 +5,7 @@ import { Footer } from '../../components/Footer';
 import { HomeIcon, ChevronRightIcon, Share2, BookmarkIcon, Heart, MessageCircle, FileText } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
 import { fetchAllNews, fetchNewsById } from '@/services/mediaCenterService';
-import { formatDate, formatDateShort, generateTitle, getNewsTypeDisplay, getFallbackImage, toTitleCase } from '@/utils/newsUtils';
+import { formatDate, formatDateShort, generateTitle, getNewsTypeDisplay, getNewsImageSrc, toTitleCase } from '@/utils/newsUtils';
 import { markMediaItemSeen } from '@/utils/mediaTracking';
 import { parseBold } from '@/utils/contentParsing';
 import { Breadcrumb } from '@/components/media-center/shared/Breadcrumb';
@@ -501,8 +501,8 @@ const NewsDetailPage: React.FC = () => {
   const [comments] = useState(12); // Mock comments count - can be replaced with actual data
 
   const getImageSrc = (item: NewsItem): string => {
-    if (item.image) return item.image;
-    return getFallbackImage(item.id, fallbackImages) || fallbackHero;
+    // Use shared utility function to ensure consistency with cards
+    return getNewsImageSrc(item, fallbackImages, fallbackHero);
   };
 
   const overview = article ? buildOverview(article) : [];
@@ -662,16 +662,16 @@ const NewsDetailPage: React.FC = () => {
 
         {/* Hero Section with Blurred Background */}
         <section className="relative min-h-[320px] md:min-h-[400px] flex items-center" aria-labelledby="article-title">
-          {/* Blurred Background Image */}
+          {/* Background Image */}
           <div 
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: `url(${getImageSrc(article)})`,
-              filter: 'blur(4px)',
+              backgroundImage: `url("${getImageSrc(article)}")`,
+              filter: 'blur(2px)',
             }}
           />
           {/* Dark Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-800/70 to-slate-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-800/85 to-slate-900/90" />
           
           {/* Content */}
           <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-24 w-full">

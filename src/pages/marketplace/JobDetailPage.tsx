@@ -53,9 +53,7 @@ const JobDetailPage: React.FC = () => {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const getImageSrc = (item: JobItem) => {
-    if (item.image) return item.image;
-    const hash = Math.abs(item.id.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0));
-    return fallbackImages[hash % fallbackImages.length] || fallbackHero;
+    return '/job openings.jpg';
   };
 
   useEffect(() => {
