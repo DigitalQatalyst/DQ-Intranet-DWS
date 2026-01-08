@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Radio, Clock, Calendar, Play, Plus, Mic } from 'lucide-react';
+import { Radio, Clock, Calendar, Play, Plus } from 'lucide-react';
 
 const PODCAST_IMAGE = '/podcasts.jpg';
 
@@ -20,14 +20,6 @@ export function PodcastSeriesCard({ href }: PodcastSeriesCardProps) {
           loading="lazy"
         />
         {/* Flowing wave shapes */}
-        
-        {/* PODCAST overlay - centered */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-          <div className="flex flex-col items-center rounded-lg bg-black/40 px-4 py-3 backdrop-blur-sm">
-            <Mic size={28} className="mb-1 text-white" />
-            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-white">Podcast Series</span>
-          </div>
-        </div>
         
         {/* Series Label */}
         <div className="absolute left-3 top-3 z-10">
