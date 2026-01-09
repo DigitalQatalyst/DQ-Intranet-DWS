@@ -316,7 +316,6 @@ CREATE TABLE IF NOT EXISTS user_roles (
 -- VIEWS
 -- =====================================================
 
--- Communities with member counts
 CREATE OR REPLACE VIEW communities_with_counts AS
 SELECT 
     c.id,
@@ -326,10 +325,21 @@ SELECT
     c.category,
     c.created_at,
     c.isprivate,
+    c.activemembers,
+    c.activitylevel,
     COUNT(DISTINCT m.user_id) AS member_count
 FROM communities c
 LEFT JOIN memberships m ON c.id = m.community_id
-GROUP BY c.id, c.name, c.description, c.imageurl, c.category, c.created_at, c.isprivate;
+GROUP BY 
+    c.id, 
+    c.name, 
+    c.description, 
+    c.imageurl, 
+    c.category, 
+    c.created_at, 
+    c.isprivate,
+    c.activemembers,
+    c.activitylevel;
 
 -- Posts with reactions and metadata
 CREATE OR REPLACE VIEW posts_with_reactions AS

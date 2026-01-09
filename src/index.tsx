@@ -151,11 +151,11 @@ if (container) {
               // Render app with authenticated account
               root.render(
                 <ErrorBoundary>
-                  <ApolloProvider client={client}>
-                    <MsalProvider instance={msalInstance}>
-                      <AppRouter />
-                    </MsalProvider>
-                  </ApolloProvider>
+                <ApolloProvider client={client}>
+                  <MsalProvider instance={msalInstance}>
+                    <AppRouter />
+                  </MsalProvider>
+                </ApolloProvider>
                 </ErrorBoundary>
               );
               return;
@@ -213,11 +213,11 @@ if (container) {
         // User is authenticated - render the app
         root.render(
           <ErrorBoundary>
-            <ApolloProvider client={client}>
-              <MsalProvider instance={msalInstance}>
-                <AppRouter />
-              </MsalProvider>
-            </ApolloProvider>
+          <ApolloProvider client={client}>
+            <MsalProvider instance={msalInstance}>
+              <AppRouter />
+            </MsalProvider>
+          </ApolloProvider>
           </ErrorBoundary>
         );
       } catch (e: any) {
@@ -233,11 +233,11 @@ if (container) {
             // Render app if we have accounts
             root.render(
               <ErrorBoundary>
-                <ApolloProvider client={client}>
-                  <MsalProvider instance={msalInstance}>
-                    <AppRouter />
-                  </MsalProvider>
-                </ApolloProvider>
+              <ApolloProvider client={client}>
+                <MsalProvider instance={msalInstance}>
+                  <AppRouter />
+                </MsalProvider>
+              </ApolloProvider>
               </ErrorBoundary>
             );
             return;

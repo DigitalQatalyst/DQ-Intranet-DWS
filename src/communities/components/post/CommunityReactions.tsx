@@ -389,14 +389,14 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
 
     // Send to backend async (don't block UI)
     try {
-      // Verify post exists in posts_v2 (required by foreign key)
-      const { data: postCheck } = await supabase
-        .from('posts_v2')
-        .select('id')
-        .eq('id' as any, postId)
-        .single();
-      
-      if (!postCheck) {
+    // Verify post exists in posts_v2 (required by foreign key)
+    const { data: postCheck } = await supabase
+      .from('posts_v2')
+      .select('id')
+      .eq('id' as any, postId)
+      .single();
+    
+    if (!postCheck) {
         throw new Error('Post not found');
       }
 
@@ -567,12 +567,12 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
           setShowReactions(false);
         }}
       >
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
             // If already reacted, remove reaction; otherwise do nothing (hover to select)
             if (selectedReaction) {
               console.log('REACTION SELECTED: Removing', selectedReaction);
@@ -585,14 +585,14 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
                 handleReaction(inferredType);
               }
             }
-          }}
-          disabled={!isAuthenticated}
-          className={`h-8 px-3 text-xs transition-all ${
+        }}
+        disabled={!isAuthenticated}
+        className={`h-8 px-3 text-xs transition-all ${
             selectedReaction || selectedEmoji
-              ? 'bg-[#FB5535]/10 text-[#FB5535] hover:bg-[#FB5535]/20'
-              : 'text-[#030F35]/60 hover:text-[#030F35] hover:bg-[#030F35]/10'
-          } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
+            ? 'bg-[#FB5535]/10 text-[#FB5535] hover:bg-[#FB5535]/20'
+            : 'text-[#030F35]/60 hover:text-[#030F35] hover:bg-[#030F35]/10'
+        } ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
+      >
           <span className="mr-1.5 text-base">
             {selectedEmoji 
               ? selectedEmoji 
@@ -610,7 +610,7 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
                 ? getReactionLabel(selectedReaction)
                 : QUICK_REACTIONS[0].label}
           </span>
-        </Button>
+      </Button>
 
         {/* Floating Reaction Popup */}
         {showReactions && isAuthenticated && !showEmojiPicker && (
@@ -627,23 +627,23 @@ export const CommunityReactions: React.FC<CommunityReactionsProps> = ({
               <button
                 key={reaction.type}
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
                   handleReaction(reaction.type);
-                }}
+        }}
                 className="flex items-center justify-center w-9 h-9 rounded-full hover:scale-110 transition-transform duration-150 hover:bg-gray-100 text-lg"
                 title={reaction.label}
-              >
+      >
                 {reaction.emoji}
               </button>
             ))}
             {/* More reactions button */}
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
                 setShowEmojiPicker(true);
                 setShowReactions(false);
               }}

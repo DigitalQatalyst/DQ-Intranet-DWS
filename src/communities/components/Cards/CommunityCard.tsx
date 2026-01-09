@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BaseCard } from './BaseCard';
 import { CardFooter } from './CardFooter';
 import { TagChip } from './TagChip';
-import { Users, TrendingUp, MessageCircle, Lock } from 'lucide-react';
+import { Users, MessageCircle, Lock } from 'lucide-react';
 export interface CommunityItem {
   id: string;
   name: string;
@@ -107,27 +107,11 @@ export const CommunityCard: React.FC<CommunityCardProps> = ({
       </div>
       {/* Content Section */}
       <div className="px-4 py-5 flex-grow flex flex-col">
-        {/* Title and Category */}
+        {/* Title */}
         <div className="mb-4">
           <h3 className="font-bold text-lg text-gray-900 line-clamp-2 mb-1 leading-snug">
             {item.name}
           </h3>
-          <p className="text-sm text-gray-500">{item.category}</p>
-        </div>
-        {/* Community Stats */}
-        <div className="flex items-center gap-4 mb-4">
-          <div className="flex items-center gap-2">
-            <Users size={16} className="text-gray-500" />
-            <span className="text-sm font-medium text-gray-700">
-              {item.memberCount.toLocaleString()} members
-            </span>
-          </div>
-          {item.activeMembers && <div className="flex items-center gap-2">
-              <TrendingUp size={16} className="text-green-500" />
-              <span className="text-sm text-gray-600">
-                {item.activeMembers} active
-              </span>
-            </div>}
         </div>
         {/* Description */}
         <div className="mb-4">

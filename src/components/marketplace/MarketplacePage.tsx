@@ -1340,7 +1340,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         {isEvents && (
           <>
             {/* Current Focus Section */}
-            <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200 min-h-[140px]">
+            <div className="bg-white rounded-lg p-6 mb-6 border border-gray-200 min-h-[140px]">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="text-xs uppercase text-gray-500 font-medium mb-2">CURRENT FOCUS</div>
@@ -1357,16 +1357,16 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
             {/* Navigation Tabs */}
             <div className="mb-6">
-              <nav className="flex" aria-label="Tabs">
+              <nav className="flex border-b border-gray-200" aria-label="Tabs">
                 <button
                   onClick={() => {
                     // Discussion tab - routes to Communities Marketplace
                     navigate('/communities');
                   }}
-                  className={`py-4 px-4 text-sm transition-colors border-b ${
+                  className={`py-4 px-4 text-sm font-medium transition-colors border-b-2 ${
                     location.pathname === '/communities' || location.pathname.startsWith('/community/')
-                      ? 'border-blue-600 text-gray-900 font-medium'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
+                      ? 'border-gray-900 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   Discussion
@@ -1376,10 +1376,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     // Pulse tab - routes to Pulse Marketplace
                     navigate('/marketplace/pulse');
                   }}
-                  className={`py-4 px-4 text-sm transition-colors border-b ${
+                  className={`py-4 px-4 text-sm font-medium transition-colors border-b-2 ${
                     location.pathname === '/marketplace/pulse' || location.pathname.startsWith('/marketplace/pulse/')
-                      ? 'border-blue-600 text-gray-900 font-medium'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
+                      ? 'border-gray-900 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   Pulse
@@ -1389,10 +1389,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                     // Events tab - stays on current page (Events Marketplace)
                     navigate('/marketplace/events');
                   }}
-                  className={`py-4 px-4 text-sm transition-colors border-b ${
+                  className={`py-4 px-4 text-sm font-medium transition-colors border-b-2 ${
                     location.pathname === '/marketplace/events' || location.pathname.startsWith('/marketplace/events/')
-                      ? 'border-blue-600 text-gray-900 font-medium'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
+                      ? 'border-gray-900 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   Events

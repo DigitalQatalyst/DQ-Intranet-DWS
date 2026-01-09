@@ -355,14 +355,14 @@ const CommunityCommentsComponent = (props: CommunityCommentsProps, ref: React.Fo
       {/* Reply count header - only show collapse toggle for long threads */}
       {showCollapseToggle && (
         <div className="flex items-center justify-between mb-3">
-          <button
-            onClick={() => setExpanded(!expanded)}
+        <button
+          onClick={() => setExpanded(!expanded)}
             className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 hover:text-dq-navy transition-colors"
-          >
+        >
             {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
             <span>{commentCount} {commentCount === 1 ? 'reply' : 'replies'}</span>
-          </button>
-        </div>
+        </button>
+      </div>
       )}
 
       {/* Comments List - Show by default, collapse only for long threads */}
@@ -427,7 +427,7 @@ const CommunityCommentsComponent = (props: CommunityCommentsProps, ref: React.Fo
           /* Expanded Reply Editor (On Click) */
           <div className="bg-white rounded-lg border border-gray-200 p-3">
             <div className="flex gap-2.5">
-              <Avatar className="h-8 w-8 flex-shrink-0">
+                <Avatar className="h-8 w-8 flex-shrink-0">
                 {isAuthenticated && user ? (
                   <AvatarFallback className="relative overflow-hidden bg-dq-navy/15">
                     <GradientAvatar seed={user.id || 'default'} className="absolute inset-0" />
@@ -440,12 +440,12 @@ const CommunityCommentsComponent = (props: CommunityCommentsProps, ref: React.Fo
                     <span className="text-gray-500 text-xs">U</span>
                   </AvatarFallback>
                 )}
-              </Avatar>
-              <div className="flex-1">
-                <Textarea
+                </Avatar>
+                <div className="flex-1">
+                  <Textarea
                   ref={replyInputRef}
-                  value={replyContent}
-                  onChange={(e) => setReplyContent(e.target.value)}
+                    value={replyContent}
+                    onChange={(e) => setReplyContent(e.target.value)}
                   placeholder="Write a reply…"
                   className="min-h-[80px] text-sm mb-2 resize-none"
                   rows={3}
@@ -476,9 +476,9 @@ const CommunityCommentsComponent = (props: CommunityCommentsProps, ref: React.Fo
                 </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
     </div>
   );
 };

@@ -659,7 +659,6 @@ export default function Community() {
 
   // Get hero image for this community
   const heroImage = community?.imageurl || getCommunityHeroImage(community?.name) || fallbackImageUrl;
-  const sidebarCardImage = getCommunityHeroImage(community?.name) || community?.imageurl || null;
 
   return (
     <MainLayout hidePageLayout fullWidth>
@@ -783,22 +782,6 @@ export default function Community() {
                   )}
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm md:text-base text-indigo-100/90">
                     <span>{community.category || "Community"}</span>
-                    {community.created_at && (
-                      <>
-                        <span className="text-indigo-200/70">•</span>
-                        <span>
-                          {format(
-                            new Date(community.created_at),
-                            "MMM d, yyyy"
-                          )}
-                        </span>
-                      </>
-                    )}
-                    <span className="text-indigo-200/70">•</span>
-                    <span>
-                      {memberCount}{" "}
-                      {memberCount === 1 ? "member" : "members"}
-                    </span>
                   </div>
                 </div>
 
@@ -1064,19 +1047,6 @@ export default function Community() {
               <PageSection>
                 <SectionHeader title="About this Community" />
                 <SectionContent>
-                  {/* Community Image Card */}
-                  {sidebarCardImage && (
-                    <div className="mb-4 rounded-lg overflow-hidden border border-gray-200">
-                      <img 
-                        src={sidebarCardImage} 
-                        alt={`${community.name} community`}
-                        className="w-full h-32 object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  )}
                   <div className="space-y-4">
                     {/* Community Category */}
                     <div>

@@ -20,6 +20,7 @@ interface Community {
   name: string;
   description: string | null;
   member_count: number;
+  activemembers?: number | null;
   imageurl?: string;
   category?: string;
   department?: string;
@@ -56,43 +57,22 @@ export default function Communities() {
     // Set minimal filter config immediately so page can load
     setFilterConfig([
       {
-        id: 'department',
-        title: 'Department',
-        options: [
-          { id: 'hra-people', name: 'HRA (People)' },
-          { id: 'finance', name: 'Finance' },
-          { id: 'deals', name: 'Deals' },
-          { id: 'stories', name: 'Stories' },
-          { id: 'intelligence', name: 'Intelligence' },
-          { id: 'solutions', name: 'Solutions' },
-          { id: 'secdevops', name: 'SecDevOps' },
-          { id: 'products', name: 'Products' },
-          { id: 'delivery-deploys', name: 'Delivery — Deploys' },
-          { id: 'delivery-designs', name: 'Delivery — Designs' },
-          { id: 'dco-operations', name: 'DCO Operations' },
-          { id: 'dbp-platform', name: 'DBP Platform' },
-          { id: 'dbp-delivery', name: 'DBP Delivery' }
-        ]
-      },
-      {
-        id: 'location',
-        title: 'Location',
-        options: [
-          { id: 'dubai', name: 'Dubai' },
-          { id: 'nairobi', name: 'Nairobi' },
-          { id: 'riyadh', name: 'Riyadh' }
-        ]
-      },
-      {
         id: 'category',
         title: 'Category',
         options: [
           { id: 'dq-agile', name: 'GHC - DQ Agile' },
           { id: 'dq-culture', name: 'GHC - DQ Culture' },
           { id: 'dq-dtmf', name: 'GHC - DQ DTMF' },
-          { id: 'dq-persona', name: 'GHC - DQ Persona' },
-          { id: 'dq-tech', name: 'GHC - DQ Tech' },
-          { id: 'dq-vision', name: 'GHC - DQ Vision' }
+          { id: 'dq-tech', name: 'GHC - DQ Tech' }
+        ]
+      },
+      {
+        id: 'activityLevel',
+        title: 'Activity Level',
+        options: [
+          { id: 'high', name: 'High' },
+          { id: 'medium', name: 'Medium' },
+          { id: 'low', name: 'Low' }
         ]
       }
     ]);
@@ -173,10 +153,16 @@ export default function Communities() {
         safeFetch<Array<{ location_filter: string }>>(locationsQuery)
       ]);
 
-      // Extract unique values
+      // Extract unique values and filter out Persona and Vision
       const uniqueCategories = Array.from(
         new Set(
-          (categoriesResult[0] || []).map(c => c.category).filter(Boolean) as string[]
+          (categoriesResult[0] || [])
+            .map(c => c.category)
+            .filter(Boolean)
+            .filter(cat => 
+              cat !== 'GHC - DQ Persona' && 
+              cat !== 'GHC - DQ Vision'
+            ) as string[]
         )
       ).sort();
 
@@ -250,41 +236,20 @@ export default function Communities() {
       const finalDepartmentOptions = departmentOptions.length > 0 ? departmentOptions : fallbackDepartmentOptions;
       const finalLocationOptions = locationOptions.length > 0 ? locationOptions : fallbackLocationOptions;
 
-      // Hardcoded Category options
+      // Hardcoded Category options (excluding Persona and Vision)
       const categoryOptions = [
         { id: 'dq-agile', name: 'GHC - DQ Agile' },
         { id: 'dq-culture', name: 'GHC - DQ Culture' },
         { id: 'dq-dtmf', name: 'GHC - DQ DTMF' },
-        { id: 'dq-persona', name: 'GHC - DQ Persona' },
-        { id: 'dq-tech', name: 'GHC - DQ Tech' },
-        { id: 'dq-vision', name: 'GHC - DQ Vision' }
+        { id: 'dq-tech', name: 'GHC - DQ Tech' }
       ];
 
-      // Build filter configuration dynamically - Department first, then Location, then Category
+      // Build filter configuration dynamically - Category and Activity Level only
       const config: FilterConfig[] = [
-        {
-          id: 'department',
-          title: 'Department',
-          options: finalDepartmentOptions
-        },
-        {
-          id: 'location',
-          title: 'Location',
-          options: finalLocationOptions
-        },
         {
           id: 'category',
           title: 'Category',
           options: categoryOptions
-        },
-        {
-          id: 'memberCount',
-          title: 'Member Count',
-          options: [
-            { id: 'small', name: '0-10 members' },
-            { id: 'medium', name: '11-50 members' },
-            { id: 'large', name: '51+ members' }
-          ]
         },
         {
           id: 'activityLevel',
@@ -352,34 +317,22 @@ export default function Communities() {
           { id: 'dq-agile', name: 'GHC - DQ Agile' },
           { id: 'dq-culture', name: 'GHC - DQ Culture' },
           { id: 'dq-dtmf', name: 'GHC - DQ DTMF' },
-          { id: 'dq-persona', name: 'GHC - DQ Persona' },
-          { id: 'dq-tech', name: 'GHC - DQ Tech' },
-          { id: 'dq-vision', name: 'GHC - DQ Vision' }
+          { id: 'dq-tech', name: 'GHC - DQ Tech' }
         ];
 
         setFilterConfig([
-          {
-            id: 'department',
-            title: 'Department',
-            options: fallbackDeptOptions.length > 0 ? fallbackDeptOptions : hardcodedDeptOptions
-          },
-          {
-            id: 'location',
-            title: 'Location',
-            options: fallbackLocOptions.length > 0 ? fallbackLocOptions : hardcodedLocOptions
-          },
           {
             id: 'category',
             title: 'Category',
             options: hardcodedCategoryOptions
           },
           {
-            id: 'memberCount',
-            title: 'Member Count',
+            id: 'activityLevel',
+            title: 'Activity Level',
             options: [
-              { id: 'small', name: '0-10 members' },
-              { id: 'medium', name: '11-50 members' },
-              { id: 'large', name: '51+ members' }
+              { id: 'high', name: 'High' },
+              { id: 'medium', name: 'Medium' },
+              { id: 'low', name: 'Low' }
             ]
           }
         ]);
@@ -412,34 +365,22 @@ export default function Communities() {
           { id: 'dq-agile', name: 'GHC - DQ Agile' },
           { id: 'dq-culture', name: 'GHC - DQ Culture' },
           { id: 'dq-dtmf', name: 'GHC - DQ DTMF' },
-          { id: 'dq-persona', name: 'GHC - DQ Persona' },
-          { id: 'dq-tech', name: 'GHC - DQ Tech' },
-          { id: 'dq-vision', name: 'GHC - DQ Vision' }
+          { id: 'dq-tech', name: 'GHC - DQ Tech' }
         ];
 
         setFilterConfig([
-          {
-            id: 'department',
-            title: 'Department',
-            options: hardcodedDeptOptions
-          },
-          {
-            id: 'location',
-            title: 'Location',
-            options: hardcodedLocOptions
-          },
           {
             id: 'category',
             title: 'Category',
             options: hardcodedCategoryOptions
           },
           {
-            id: 'memberCount',
-            title: 'Member Count',
+            id: 'activityLevel',
+            title: 'Activity Level',
             options: [
-              { id: 'small', name: '0-10 members' },
-              { id: 'medium', name: '11-50 members' },
-              { id: 'large', name: '51+ members' }
+              { id: 'high', name: 'High' },
+              { id: 'medium', name: 'Medium' },
+              { id: 'low', name: 'Low' }
             ]
           }
         ]);
@@ -455,31 +396,17 @@ export default function Communities() {
       console.log('Fetching communities with filters:', { searchQuery, filters });
       console.log('User authenticated:', !!user);
       
-      // If department or location filters are applied, query base table directly
-      // since communities_with_counts view may not include these columns
-      const hasDepartmentOrLocationFilter = !!(filters.department || filters.location);
-      
-      // Try communities_with_counts view first (unless we need department/location filters)
-      let query = hasDepartmentOrLocationFilter 
-        ? supabase.from('communities').select('*, memberships(count)')
-        : supabase.from('communities_with_counts').select('*');
+      // Use communities_with_counts view for all queries
+      let query = supabase.from('communities_with_counts').select('*');
+
+      // Exclude GHC - DQ Vision community from all queries
+      query = query.neq('name', 'GHC - DQ Vision');
 
       // Apply search filter (backend) - search in name or description
       if (searchQuery.trim()) {
         const searchTerm = searchQuery.trim();
         // Use PostgREST OR syntax: field.operator.value,field.operator.value
         query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
-      }
-
-      // Apply member count filter (backend)
-      if (filters.memberCount) {
-        if (filters.memberCount === '0-10 members') {
-          query = query.lt('member_count', 11);
-        } else if (filters.memberCount === '11-50 members') {
-          query = query.gte('member_count', 11).lte('member_count', 50);
-        } else if (filters.memberCount === '51+ members') {
-          query = query.gt('member_count', 50);
-        }
       }
 
       // Apply activity level filter (backend) - case-insensitive match
@@ -489,32 +416,12 @@ export default function Communities() {
       }
 
       // Apply category filter (backend) - exact match
-      // Note: Category is separate from Department and Location filters
       if (filters.category) {
         query = (query as any).eq('category', filters.category);
       }
 
-      // Apply department filter (backend) - use department field, NOT category
-      // Ensure we're filtering by the actual department column, not category
-      if (filters.department) {
-        // Use the exact department value from the filter
-        query = (query as any).eq('department', filters.department);
-      }
-
-      // Apply location filter (backend) - use location_filter field, NOT category
-      // Ensure we're filtering by the actual location_filter column, not category
-      if (filters.location) {
-        // Use the exact location_filter value from the filter
-        query = (query as any).eq('location_filter', filters.location);
-      }
-
       // Order by member count (descending)
-      if (hasDepartmentOrLocationFilter) {
-        // For base table query, we'll sort client-side after getting member counts
-        query = query.order('created_at', { ascending: false });
-      } else {
-        query = query.order('member_count', { ascending: false });
-      }
+      query = query.order('member_count', { ascending: false });
 
       // Execute query with timeout protection
       console.log('Executing query...');
@@ -580,8 +487,9 @@ export default function Communities() {
         }));
       }
       
-      // If querying base table (for department/location filters), transform data
-      if (hasDepartmentOrLocationFilter && data && !error) {
+      // This block is no longer needed since we removed department/location filters
+      // Keeping for reference but it won't execute
+      if (false && data && !error) {
         const transformedData = data.map((community: any) => ({
           ...community,
           member_count: Array.isArray(community.memberships) 
@@ -590,17 +498,8 @@ export default function Communities() {
           activitylevel: community.activitylevel || null
         }));
 
-        // Apply member count filter client-side if needed
-        let filteredData = transformedData;
-        if (filters.memberCount) {
-          filteredData = transformedData.filter(community => {
-            const count = community.member_count || 0;
-            if (filters.memberCount === '0-10 members') return count < 11;
-            if (filters.memberCount === '11-50 members') return count >= 11 && count <= 50;
-            if (filters.memberCount === '51+ members') return count > 50;
-            return true;
-          });
-        }
+        // Exclude GHC - DQ Vision community (client-side safety filter)
+        let filteredData = transformedData.filter(community => community.name !== 'GHC - DQ Vision');
 
         // Sort by member count
         filteredData.sort((a, b) => (b.member_count || 0) - (a.member_count || 0));
@@ -653,6 +552,9 @@ export default function Communities() {
             memberships(count)
           `);
 
+        // Exclude GHC - DQ Vision community
+        query = query.neq('name', 'GHC - DQ Vision');
+
         // Apply search filter
         if (searchQuery.trim()) {
           const searchTerm = searchQuery.trim();
@@ -665,23 +567,8 @@ export default function Communities() {
         }
 
         // Apply category filter
-        // Note: Category is separate from Department and Location filters
         if (filters.category) {
           query = (query as any).eq('category', filters.category);
-        }
-
-        // Apply department filter - use department field, NOT category
-        // Ensure we're filtering by the actual department column, not category
-        if (filters.department) {
-          // Use the exact department value from the filter
-          query = (query as any).eq('department', filters.department);
-        }
-
-        // Apply location filter - use location_filter field, NOT category
-        // Ensure we're filtering by the actual location_filter column, not category
-        if (filters.location) {
-          // Use the exact location_filter value from the filter
-          query = (query as any).eq('location_filter', filters.location);
         }
 
         // Fetch data with timeout
@@ -738,17 +625,8 @@ export default function Communities() {
             recent_post_title: recentPostsMap.get(community.id) || null
           }));
 
-          // Apply member count filter client-side if needed
-          let filteredData = transformedData;
-          if (filters.memberCount) {
-            filteredData = transformedData.filter(community => {
-              const count = community.member_count || 0;
-              if (filters.memberCount === '0-10 members') return count < 11;
-              if (filters.memberCount === '11-50 members') return count >= 11 && count <= 50;
-              if (filters.memberCount === '51+ members') return count > 50;
-              return true;
-            });
-          }
+          // Exclude GHC - DQ Vision community (client-side safety filter)
+          let filteredData = transformedData.filter(community => community.name !== 'GHC - DQ Vision');
 
           // Sort by member count
           filteredData.sort((a, b) => (b.member_count || 0) - (a.member_count || 0));
@@ -771,8 +649,10 @@ export default function Communities() {
         setError(new Error(`Failed to load communities: ${error.message || 'Unknown error'}`));
         setFilteredCommunities([]);
       } else if (data) {
-        console.log('Successfully fetched communities:', data.length);
-        setFilteredCommunities(data);
+        // Exclude GHC - DQ Vision community (final client-side safety filter)
+        const filteredData = data.filter(community => community.name !== 'GHC - DQ Vision');
+        console.log('Successfully fetched communities:', filteredData.length);
+        setFilteredCommunities(filteredData);
       } else {
         console.warn('No data returned from communities query');
         setFilteredCommunities([]);
@@ -979,7 +859,7 @@ export default function Communities() {
             }
 
             return (
-              <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200 min-h-[140px]">
+              <div className="bg-white rounded-lg p-6 mb-6 border border-gray-200 min-h-[140px]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="text-xs uppercase text-gray-500 font-medium mb-2">CURRENT FOCUS</div>
@@ -996,16 +876,16 @@ export default function Communities() {
 
           {/* Navigation Tabs */}
           <div className="mb-6">
-            <nav className="flex" aria-label="Tabs">
+            <nav className="flex border-b border-gray-200" aria-label="Tabs">
               <button
                 onClick={() => {
                   // Discussion tab - stays on current page (Communities Marketplace)
                   navigate('/communities');
                 }}
-                className={`py-4 px-4 text-sm transition-colors border-b ${
+                className={`py-4 px-4 text-sm font-medium transition-colors border-b-2 ${
                   location.pathname === '/communities' || location.pathname.startsWith('/community/')
-                    ? 'border-blue-600 text-gray-900 font-medium'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
+                    ? 'border-gray-900 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
                 Discussion
@@ -1015,10 +895,10 @@ export default function Communities() {
                   // Pulse tab - routes to Pulse Marketplace
                   navigate('/marketplace/pulse');
                 }}
-                className={`py-4 px-4 text-sm transition-colors border-b ${
+                className={`py-4 px-4 text-sm font-medium transition-colors border-b-2 ${
                   location.pathname === '/marketplace/pulse' || location.pathname.startsWith('/marketplace/pulse/')
-                    ? 'border-blue-600 text-gray-900 font-medium'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
+                    ? 'border-gray-900 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
                 Pulse
@@ -1028,10 +908,10 @@ export default function Communities() {
                   // Events tab - routes to Events Marketplace
                   navigate('/marketplace/events');
                 }}
-                className={`py-4 px-4 text-sm transition-colors border-b ${
+                className={`py-4 px-4 text-sm font-medium transition-colors border-b-2 ${
                   location.pathname === '/marketplace/events' || location.pathname.startsWith('/marketplace/events/')
-                    ? 'border-blue-600 text-gray-900 font-medium'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
+                    ? 'border-gray-900 text-gray-900'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
                 Events
@@ -1188,7 +1068,10 @@ export default function Communities() {
                       else if (count > 10) activityLevel = 'medium';
                     }
                     
-                    const activeMembers = Math.floor(count * (0.6 + Math.random() * 0.3));
+                    // Use activemembers from database when available; otherwise default to 0
+                    const activeMembers = typeof community.activemembers === 'number'
+                      ? community.activemembers
+                      : 0;
                     const category = community.category || 'General';
                     const tags = [category, activityLevel === 'high' ? 'Popular' : 'Growing'];
                     
@@ -1290,7 +1173,10 @@ export default function Communities() {
                     else if (count > 10) activityLevel = 'medium';
                   }
                   
-                  const activeMembers = Math.floor(count * (0.6 + Math.random() * 0.3));
+                  // Use activemembers from database when available; otherwise default to 0
+                  const activeMembers = typeof community.activemembers === 'number'
+                    ? community.activemembers
+                    : 0;
                   const category = community.category || 'General';
                   const tags = [category, activityLevel === 'high' ? 'Popular' : 'Growing'];
                   return (

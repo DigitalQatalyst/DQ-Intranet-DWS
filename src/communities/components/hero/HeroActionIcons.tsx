@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ThumbsUp, BarChart3, Link2, MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
@@ -22,6 +22,25 @@ interface HeroActionIconsProps {
   onInsights?: () => void;
 }
 
+const FAVORITES_STORAGE_KEY = 'dq_community_favorites';
+
+const getFavorites = (): Set<string> => {
+  try {
+    const stored = localStorage.getItem(FAVORITES_STORAGE_KEY);
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  } catch {
+    return new Set();
+  }
+};
+
+const saveFavorites = (favorites: Set<string>) => {
+  try {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(Array.from(favorites)));
+  } catch (error) {
+    console.error('Error saving favorites:', error);
+  }
+};
+
 export const HeroActionIcons: React.FC<HeroActionIconsProps> = ({
   communityId,
   communityName,
@@ -31,10 +50,27 @@ export const HeroActionIcons: React.FC<HeroActionIconsProps> = ({
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(false);
 
+  // Load favorite status on mount
+  useEffect(() => {
+    const favorites = getFavorites();
+    setIsLiked(favorites.has(communityId));
+  }, [communityId]);
+
   const handleLike = () => {
-    setIsLiked(!isLiked);
+    const favorites = getFavorites();
+    const newIsLiked = !isLiked;
+    
+    if (newIsLiked) {
+      favorites.add(communityId);
+      toast.success('Added to favorites');
+    } else {
+      favorites.delete(communityId);
+      toast.success('Removed from favorites');
+    }
+    
+    saveFavorites(favorites);
+    setIsLiked(newIsLiked);
     onLike?.();
-    toast.success(isLiked ? 'Removed from favorites' : 'Added to favorites');
   };
 
   const handleCopyLink = async () => {

@@ -188,8 +188,8 @@ export function PostCard({ post, onActionComplete, isMember = false }: PostCardP
           <div className="w-10 h-10 bg-dq-navy/15 rounded-full flex items-center justify-center flex-shrink-0">
             <span className="text-dq-navy font-semibold text-sm">
               {safeAuthor.charAt(0).toUpperCase()}
-            </span>
-          </div>
+              </span>
+            </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               {post.created_by ? (
@@ -204,15 +204,15 @@ export function PostCard({ post, onActionComplete, isMember = false }: PostCardP
                   {safeAuthor}
                 </span>
               )}
-              <span
+                <span
                 className={cn(
                   'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-[0.1em]',
                   getPostTypeBadge(displayType)
                 )}
-              >
+                >
                 {getBadgeLabel(displayType)}
-              </span>
-            </div>
+                </span>
+              </div>
             <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
               {post.community_id ? (
                 <button
@@ -227,7 +227,7 @@ export function PostCard({ post, onActionComplete, isMember = false }: PostCardP
               <span>•</span>
               <span>
                 {formatDistanceToNow(new Date(safeCreatedAt), { addSuffix: true })}
-              </span>
+                </span>
               {viewCount > 0 && (
                 <>
                   <span>•</span>
@@ -258,7 +258,7 @@ export function PostCard({ post, onActionComplete, isMember = false }: PostCardP
                         </DropdownMenuContent>
                       </DropdownMenu>
                     )}
-                  </div>
+              </div>
                 </>
               )}
             </div>
@@ -390,16 +390,16 @@ export function PostCard({ post, onActionComplete, isMember = false }: PostCardP
 
       {/* Comments Section - Always visible */}
       <div className="px-5 pb-5 bg-gray-50/50">
-        <CommunityComments
+          <CommunityComments
           ref={commentsRef}
-          postId={post.id}
+            postId={post.id}
           communityId={post.community_id ?? ''}
-          isMember={isMember || false}
-          onCommentAdded={() => {
-            onActionComplete?.();
-          }}
-        />
-      </div>
+            isMember={isMember || false}
+            onCommentAdded={() => {
+              onActionComplete?.();
+            }}
+          />
+        </div>
     </div>
   );
 }

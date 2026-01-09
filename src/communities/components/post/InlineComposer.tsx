@@ -392,11 +392,11 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
       <div className={`bg-white rounded-2xl border shadow-sm p-4 sm:p-5 ${isQuestionMode ? 'border-blue-400' : 'border-gray-200'}`}>
         {/* Collapsed Viva-style header */}
         <div className="flex items-start gap-3">
-          <div className="h-10 w-10 rounded-full bg-dq-navy flex items-center justify-center text-white font-semibold">
+        <div className="h-10 w-10 rounded-full bg-dq-navy flex items-center justify-center text-white font-semibold">
             {user?.email?.charAt(0).toUpperCase() ||
               user?.username?.charAt(0).toUpperCase() ||
               'U'}
-          </div>
+        </div>
           <div className="flex-1">
             <button
               type="button"
@@ -461,20 +461,20 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
               </Button>
             </div>
           </div>
-        </div>
+      </div>
 
         {/* Expanded composer */}
         {isExpanded && (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleQuickSubmit(e);
-            }}
-            onKeyDown={handleKeyDown}
+      <form 
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleQuickSubmit(e);
+        }} 
+        onKeyDown={handleKeyDown} 
             className="mt-4 space-y-4 border-t border-gray-100 pt-4"
-            noValidate
-          >
+        noValidate
+      >
             {/* Question mode header */}
             {isQuestionMode && (
               <div className="flex items-center justify-between gap-3">
@@ -515,60 +515,60 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
                 value={postType}
                 onValueChange={(value) => handleTypeChange(value as PostType)}
               >
-                <TabsList className="grid grid-cols-3 w-full">
+          <TabsList className="grid grid-cols-3 w-full">
                   <TabsTrigger
                     value="text"
                     className="flex items-center gap-1.5"
                   >
-                    <span className="text-sm">Text</span>
-                  </TabsTrigger>
+              <span className="text-sm">Text</span>
+            </TabsTrigger>
                   <TabsTrigger
                     value="media"
                     className="flex items-center gap-1.5"
                   >
-                    <Image className="h-3.5 w-3.5" />
-                    <span className="text-sm">Media</span>
-                  </TabsTrigger>
+              <Image className="h-3.5 w-3.5" />
+              <span className="text-sm">Media</span>
+            </TabsTrigger>
                   <TabsTrigger
                     value="poll"
                     className="flex items-center gap-1.5"
                   >
-                    <BarChart3 className="h-3.5 w-3.5" />
-                    <span className="text-sm">Poll</span>
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+              <BarChart3 className="h-3.5 w-3.5" />
+              <span className="text-sm">Poll</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
             )}
 
-            {/* Community Selection (only if not provided) */}
+        {/* Community Selection (only if not provided) */}
             {!communityId && (
               <div>
                 <Label
                   htmlFor="community"
                   className="text-sm font-medium text-gray-700 mb-1 block"
                 >
-                  Community <span className="text-red-500">*</span>
-                </Label>
+              Community <span className="text-red-500">*</span>
+            </Label>
                 <Select
                   value={selectedCommunityId}
                   onValueChange={setSelectedCommunityId}
                 >
-                  <SelectTrigger className="border border-gray-300 rounded-md">
-                    <SelectValue placeholder="Select a community" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white z-50">
+              <SelectTrigger className="border border-gray-300 rounded-md">
+                <SelectValue placeholder="Select a community" />
+              </SelectTrigger>
+              <SelectContent className="bg-white z-50">
                     {communities.map((community) => (
                       <SelectItem key={community.id} value={community.id}>
-                        {community.name}
+                    {community.name}
                       </SelectItem>
                     ))}
-                  </SelectContent>
-                </Select>
+              </SelectContent>
+            </Select>
               </div>
             )}
 
-            {/* Title Input - All Types */}
-            <div>
+        {/* Title Input - All Types */}
+        <div>
               <Label
                 htmlFor="title"
                 className="text-sm font-medium text-gray-700 mb-1 block"
@@ -579,7 +579,7 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
                     ? 'Poll Question'
                     : 'Title'}{' '}
                 <span className="text-red-500">*</span>
-              </Label>
+          </Label>
               <Input
                 id="title"
                 placeholder={
@@ -592,9 +592,9 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
                 maxLength={150}
                 className="text-base"
               />
-            </div>
+        </div>
 
-            {/* TYPE-SPECIFIC FIELDS */}
+        {/* TYPE-SPECIFIC FIELDS */}
 
             {/* QUESTION MODE */}
             {isQuestionMode && (
@@ -635,14 +635,14 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
                 </div>
               </>
             )}
-
-            {/* TEXT POST */}
+        
+        {/* TEXT POST */}
             {postType === 'text' && !isQuestionMode && (
               <>
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-1 block">
-                    Content <span className="text-red-500">*</span>
-                  </Label>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                Content <span className="text-red-500">*</span>
+              </Label>
                   <RichTextEditor
                     content={contentHtml}
                     onUpdate={handleRichTextUpdate}
@@ -650,12 +650,12 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
                     maxLength={1500}
                     mode="short"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    ⌘/Ctrl + Enter to post • Shift + Enter for new line
-                  </p>
-                </div>
+              <p className="text-xs text-gray-500 mt-1">
+                ⌘/Ctrl + Enter to post • Shift + Enter for new line
+              </p>
+            </div>
 
-                {/* Link Preview */}
+            {/* Link Preview */}
                 {detectedLink && showLinkPreview && (
                   <LinkPreview
                     url={detectedLink}
@@ -665,65 +665,65 @@ export const InlineComposer: React.FC<InlineComposerProps> = ({
               </>
             )}
 
-            {/* MEDIA POST */}
+        {/* MEDIA POST */}
             {postType === 'media' && !isQuestionMode && (
               <>
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-1 block">
-                    Upload File <span className="text-red-500">*</span>
-                  </Label>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                Upload File <span className="text-red-500">*</span>
+              </Label>
                   <InlineMediaUpload
                     file={mediaFile}
                     onFileChange={setMediaFile}
                     userId={getCurrentUserId(user)}
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Use full editor for multiple uploads
-                  </p>
-                </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Use full editor for multiple uploads
+              </p>
+            </div>
               </>
             )}
 
-            {/* POLL POST */}
+        {/* POLL POST */}
             {postType === 'poll' && !isQuestionMode && (
               <>
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-1 block">
-                    Poll Options <span className="text-red-500">*</span>
-                  </Label>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-1 block">
+                Poll Options <span className="text-red-500">*</span>
+              </Label>
                   <PollOptionsInput
                     options={pollOptions}
                     onOptionsChange={setPollOptions}
                   />
-                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
+              <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                <Clock className="h-3 w-3" />
                     Duration: 7 days (default) • Use full editor for custom
                     duration
-                  </p>
-                </div>
+              </p>
+            </div>
               </>
             )}
 
-            {/* Action Buttons */}
+        {/* Action Buttons */}
             <div className="flex items-center justify-end pt-2 border-t border-gray-100">
-              <Button
-                type="submit"
-                disabled={submitting || !isFormValid()}
-                className="bg-dq-navy hover:bg-[#13285A] text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              >
+          <Button 
+            type="submit" 
+            disabled={submitting || !isFormValid()} 
+            className="bg-dq-navy hover:bg-[#13285A] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          >
                 {submitting ? (
                   'Posting...'
                 ) : (
                   <>
-                    <Send className="h-4 w-4 mr-1.5" />
-                    {getPostButtonLabel()}
+                <Send className="h-4 w-4 mr-1.5" />
+                {getPostButtonLabel()}
                   </>
                 )}
-              </Button>
-            </div>
-          </form>
+          </Button>
+        </div>
+      </form>
         )}
-      </div>
+    </div>
     </>
   );
 };
