@@ -73,9 +73,9 @@ jobs:
       - name: "🏗️ Build with Vercel"
         run: |
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            vercel build --prod --force --token=${{ secrets.VERCEL_TOKEN }}
+            vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
           else
-            vercel build --force --token=${{ secrets.VERCEL_TOKEN }}
+            vercel build --token=${{ secrets.VERCEL_TOKEN }}
           fi
 
       - name: "🌐 Deploy to Vercel"
