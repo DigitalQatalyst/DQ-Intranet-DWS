@@ -128,6 +128,7 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
             tagNames: ['div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'strong', 'em', 'ul', 'ol', 'li', 'blockquote'],
             attributes: {
               div: ['class', 'className'],
+              ol: ['class', 'className', 'start'],
               '*': ['class', 'className', 'id']
             },
             strip: []
@@ -159,10 +160,10 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
           <img loading="lazy" decoding="async" style={{ maxWidth: '100%', height: 'auto' }} {...(props as any)} />
         ),
         ul: ({ node, ...props }) => (
-          <ul className="list-disc pl-6 space-y-1" {...(props as any)} />
+          <ul className="list-disc pl-6 space-y-3 my-4" {...(props as any)} />
         ),
         ol: ({ node, ...props }) => (
-          <ol className="list-decimal pl-6 space-y-1" {...(props as any)} />
+          <ol className="list-decimal pl-6 space-y-3 my-4" {...(props as any)} />
         ),
         li: ({ node, ...props }) => (
           <li className="ml-1" {...(props as any)} />

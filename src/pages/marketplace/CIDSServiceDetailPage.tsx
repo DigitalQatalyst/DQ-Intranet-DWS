@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -17,12 +17,116 @@ export default function CIDSServiceDetailPage() {
   // Modal state management for tables
   const [tableModalOpen, setTableModalOpen] = useState<{ [key: string]: boolean }>({});
   
+  // Active section tracking
+  const [activeSection, setActiveSection] = useState<string>('overview');
+  const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
+  
   const openTableModal = (subsectionId: string) => {
     setTableModalOpen(prev => ({ ...prev, [subsectionId]: true }));
   };
   
   const closeTableModal = (subsectionId: string) => {
     setTableModalOpen(prev => ({ ...prev, [subsectionId]: false }));
+  };
+
+  // Scroll tracking with IntersectionObserver
+  useEffect(() => {
+    if (!card) return;
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '-10% 0px -70% 0px',
+      threshold: [0, 0.1, 0.5, 1]
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      // Sort entries by intersection ratio and position to find the most visible section
+      const visibleEntries = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a, b) => {
+          // Prioritize entries with higher intersection ratio
+          if (b.intersectionRatio !== a.intersectionRatio) {
+            return b.intersectionRatio - a.intersectionRatio;
+          }
+          // If ratios are equal, prioritize the one higher on the page
+          return a.boundingClientRect.top - b.boundingClientRect.top;
+        });
+
+      if (visibleEntries.length > 0) {
+        const currentEntry = visibleEntries[0];
+        const currentId = currentEntry.target.id;
+        
+        // Check if this is a Stage title itself (e.g., "3" for Stage 01)
+        const isStageTitle = card.content.subsections?.some(s => {
+          const sectionId = s.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
+          return sectionId === currentId && s.title.startsWith('Stage');
+        });
+        
+        if (isStageTitle) {
+          // If viewing the Stage title itself, highlight it
+          setActiveSection(currentId);
+          return;
+        }
+        
+        // Check if this is a subsection of a Stage (e.g., "3-1" is a subsection of Stage "3")
+        // If so, highlight the Stage title in navigation instead of the subsection
+        const stageMatch = currentId.match(/^(\d+)-/);
+        if (stageMatch) {
+          const stageId = stageMatch[1];
+          // Check if this Stage exists in the subsections
+          const stageSubsection = card.content.subsections?.find(s => {
+            const sectionId = s.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
+            return sectionId === stageId && s.title.startsWith('Stage');
+          });
+          
+          if (stageSubsection) {
+            // Highlight the Stage title when viewing its subsections
+            setActiveSection(stageId);
+            return;
+          }
+        }
+        
+        // For other sections (like "1-1", "1-2", "overview", etc.), highlight them directly
+        setActiveSection(currentId);
+      }
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    // Observe overview section
+    const overviewElement = document.getElementById('overview');
+    if (overviewElement) {
+      observer.observe(overviewElement);
+    }
+
+    // Observe all subsection sections
+    card.content.subsections?.forEach((subsection) => {
+      const sectionId = subsection.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
+      const element = document.getElementById(sectionId);
+      if (element) {
+        observer.observe(element);
+      }
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [card]);
+
+  // Handle smooth scroll on navigation click
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault();
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const offset = 100; // Account for sticky header
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
   };
 
   if (!card) {
@@ -51,7 +155,7 @@ export default function CIDSServiceDetailPage() {
       <Header toggleSidebar={() => {}} sidebarOpen={false} />
       
       {/* Breadcrumbs - Above Hero Section */}
-      <div className="container mx-auto px-4 pt-4 max-w-7xl">
+      <div className="container mx-auto px-4 pt-4 max-w-[90rem]">
         <nav className="flex" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center">
@@ -64,7 +168,7 @@ export default function CIDSServiceDetailPage() {
               <div className="flex items-center">
                 <ChevronRightIcon size={16} className="text-gray-400" />
                 <Link to="/marketplace/design-system?tab=cids" className="ml-1 text-gray-500 hover:text-gray-700 md:ml-2">
-                  Design System
+                  DQ Design System
                 </Link>
               </div>
             </li>
@@ -120,17 +224,17 @@ export default function CIDSServiceDetailPage() {
 
       {/* Main Content */}
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-12 max-w-7xl">
+        <div className="container mx-auto px-4 py-12 max-w-[90rem]">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Main Content Area */}
-            <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12">
+            <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12 min-h-0">
               {/* Overview Section */}
               {card.content.overview && (
                 <section id="overview" className="mb-16 scroll-mt-24">
                   <div className="relative">
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 pl-6 font-inter tracking-tight">
-                      Overview
+                      1. Introduction
                     </h2>
                   </div>
                   <div className="pl-6 prose prose-lg max-w-none text-gray-700 leading-relaxed">
@@ -144,42 +248,69 @@ export default function CIDSServiceDetailPage() {
               {/* Subsections */}
               {card.content.subsections && card.content.subsections.length > 0 && (
                 <div>
-                  {card.content.subsections.map((subsection) => (
-                    <section key={subsection.id} id={subsection.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-')} className="mb-16 scroll-mt-24">
-                      <div className="relative">
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
-                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 pl-6 font-inter tracking-tight">
-                          {subsection.title}
-                        </h2>
-                      </div>
-                      <div className="pl-6 prose prose-lg max-w-none text-gray-700 leading-relaxed">
-                        {subsection.tableData ? (
-                          <>
+                  {card.content.subsections.map((subsection) => {
+                    const sectionId = subsection.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
+
+                    // Decide whether to prefix with the numeric ID
+                    const shouldPrefixWithId =
+                      subsection.id !== '1.05' &&
+                      subsection.id !== '1.06' &&
+                      /^\d/.test(subsection.id);
+
+                    let displayTitle = subsection.title;
+
+                    if (shouldPrefixWithId) {
+                      // If the id is a whole number (e.g. "2", "3", "4"), add a dot after it
+                      if (/^\d+$/.test(subsection.id)) {
+                        displayTitle = `${subsection.id}. ${subsection.title}`;
+                      } else {
+                        // For decimal-style ids (e.g. "1.1", "2.7", "5.10"), prepend as-is
+                        displayTitle = `${subsection.id} ${subsection.title}`;
+                      }
+                    }
+
+                    return (
+                      <section key={subsection.id} id={sectionId} className="mb-16 scroll-mt-24">
+                        <div className="relative">
+                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
+                          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 pl-6 font-inter tracking-tight">
+                            {displayTitle}
+                          </h2>
+                        </div>
+                        <div className="pl-6 prose prose-lg max-w-none text-gray-700 leading-relaxed">
+                          {subsection.tableData ? (
+                            <>
+                              <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
+                                <MarkdownRenderer body={subsection.content} />
+                              </React.Suspense>
+                              <SummaryTable
+                                title=""
+                                columns={subsection.tableData.columns}
+                                data={subsection.tableData.data}
+                                onViewFull={() => openTableModal(subsection.id)}
+                              />
+                              {subsection.contentAfterTable && (
+                                <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
+                                  <MarkdownRenderer body={subsection.contentAfterTable} />
+                                </React.Suspense>
+                              )}
+                              <FullTableModal
+                                isOpen={tableModalOpen[subsection.id] || false}
+                                onClose={() => closeTableModal(subsection.id)}
+                                title={`${subsection.id} ${subsection.title}`}
+                                columns={subsection.tableData.columns}
+                                data={subsection.tableData.data}
+                              />
+                            </>
+                          ) : (
                             <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
                               <MarkdownRenderer body={subsection.content} />
                             </React.Suspense>
-                            <SummaryTable
-                              title=""
-                              columns={subsection.tableData.columns}
-                              data={subsection.tableData.data}
-                              onViewFull={() => openTableModal(subsection.id)}
-                            />
-                            <FullTableModal
-                              isOpen={tableModalOpen[subsection.id] || false}
-                              onClose={() => closeTableModal(subsection.id)}
-                              title={`${subsection.id} ${subsection.title}`}
-                              columns={subsection.tableData.columns}
-                              data={subsection.tableData.data}
-                            />
-                          </>
-                        ) : (
-                          <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                            <MarkdownRenderer body={subsection.content} />
-                          </React.Suspense>
-                        )}
-                      </div>
-                    </section>
-                  ))}
+                          )}
+                        </div>
+                      </section>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -196,25 +327,60 @@ export default function CIDSServiceDetailPage() {
                       <li>
                         <a
                           href="#overview"
-                          className="block w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 text-gray-700 hover:bg-gray-50"
+                          onClick={(e) => handleNavClick(e, 'overview')}
+                          className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                            activeSection === 'overview'
+                              ? 'bg-[#f0f6ff] text-[#1e4ed8] font-medium'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
                         >
-                          Overview
+                          1. Introduction
                         </a>
                       </li>
                     )}
-                    {card.content.subsections?.map((subsection) => {
-                      const sectionId = subsection.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
-                      return (
-                        <li key={subsection.id}>
-                          <a
-                            href={`#${sectionId}`}
-                            className="block w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 text-gray-700 hover:bg-gray-50"
-                          >
-                            {subsection.title}
-                          </a>
-                        </li>
-                      );
-                    })}
+                    {card.content.subsections
+                      ?.filter((subsection) => {
+                        // Only show: "Who is this for?", "What problem does it solve?", and all Stage titles
+                        return (
+                          subsection.title === 'Who is this for?' ||
+                          subsection.title === 'What problem does it solve?' ||
+                          subsection.title.startsWith('Stage')
+                        );
+                      })
+                      .map((subsection) => {
+                        const sectionId = subsection.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
+                        const isActive = activeSection === sectionId;
+                        // Find the original index in the full subsections array to calculate stage number correctly
+                        const originalIndex = card.content.subsections?.findIndex(s => s.id === subsection.id) ?? -1;
+                        // Count how many Stage titles come before this one (including this one) in the original array
+                        let stageCount = 0;
+                        if (originalIndex >= 0 && card.content.subsections) {
+                          for (let i = 0; i <= originalIndex; i++) {
+                            if (card.content.subsections[i]?.title.startsWith('Stage')) {
+                              stageCount++;
+                            }
+                          }
+                        }
+                        // Add number prefix only for Stage titles: 2 for first Stage, 3 for second, etc.
+                        const displayTitle = subsection.title.startsWith('Stage') 
+                          ? `${stageCount + 1}. ${subsection.title}`
+                          : subsection.title;
+                        return (
+                          <li key={subsection.id}>
+                            <a
+                              href={`#${sectionId}`}
+                              onClick={(e) => handleNavClick(e, sectionId)}
+                              className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                                isActive
+                                  ? 'bg-[#f0f6ff] text-[#1e4ed8] font-medium'
+                                  : 'text-gray-700 hover:bg-gray-50'
+                              }`}
+                            >
+                              {displayTitle}
+                            </a>
+                          </li>
+                        );
+                      })}
                   </ul>
                 </div>
               </nav>
@@ -227,4 +393,3 @@ export default function CIDSServiceDetailPage() {
     </div>
   );
 }
-

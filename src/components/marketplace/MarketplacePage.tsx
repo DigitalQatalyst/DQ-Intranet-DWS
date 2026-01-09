@@ -218,11 +218,22 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     vds: 'V.DS',
     cds: 'CDS'
   };
-  const DESIGN_SYSTEM_TAB_DESCRIPTIONS: Record<DesignSystemTab, string> = {
-    cids: 'CI.DS (Content Item Design System) replaces CI.PF, shifting from static production rules to a dynamic, modular, and quality-driven content system that embeds intentionality, traceability, and performance assurance across all DQ platforms.',
-    vds: 'V.DS (Video Design System) — DQ\'s unified blueprint for producing high‑impact, cinematic‑quality video content. It represents a shift from traditional production routines to a creative excellence framework that embeds intentionality, precision, and measurable performance into every stage of video creation.',
-    cds: 'The Marketing Campaigns Design System (CDS) offers a unified operating framework for how campaigns are conceived, planned, designed, deployed, and reviewed—anchored by DQ\'s 5 strategic Content Pillars.'
+  const DESIGN_SYSTEM_FOCUS_TITLES: Record<DesignSystemTab, string> = {
+    cids: 'Content Item Design System (CI.DS)',
+    vds: 'Video Design System (V.DS)',
+    cds: 'Campaign Design System (CDS)'
   };
+  const DESIGN_SYSTEM_TAB_DESCRIPTIONS: Record<DesignSystemTab, string> = {
+    cids: 'Guides how DQ plans, creates, and delivers high-quality content combining structure, governance, and review standards to ensure clarity, consistency, and measurable impact across platforms and channels.',
+    vds: 'Guides how DQ plans, creates, and delivers high-impact video content—combining storytelling, visual design, and production standards to ensure clarity, consistency, and emotional impact across platforms.',
+    cds: 'Guides how DQ plans, designs, and delivers marketing campaigns combining strategy, storytelling, and execution standards to ensure clarity, consistency, and measurable impact across channels and platforms.'
+  };
+  const DESIGN_SYSTEM_TYPE_LABELS: Record<DesignSystemTab, { title: string; options: string[] }> = {
+    cids: { title: 'CI.DS', options: ['Framework', 'Lifecycle', 'Template'] },
+    vds: { title: 'V.DS', options: ['Framework', 'Lifecycle', 'Template'] },
+    cds: { title: 'CDS', options: ['Framework', 'Lifecycle', 'Template'] }
+  };
+  const DESIGN_SYSTEM_TYPE_OPTION_IDS = ['framework', 'lifecycle', 'template'] as const;
   const getDesignSystemTabFromParams = useCallback((params: URLSearchParams): DesignSystemTab => {
     const tab = params.get('tab');
     const validTabs: DesignSystemTab[] = ['cids', 'vds', 'cds'];
@@ -446,6 +457,59 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
   
   // Knowledge-hub specific state
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+
+  const filteredCidsServiceCards = useMemo(
+    () =>
+      CIDS_SERVICE_CARDS.filter((card) => {
+        const sectionText = (card.section || '').toLowerCase();
+        const isStageZero = card.id === 'cids-stage-00' || sectionText.includes('stage 00');
+        return !isStageZero;
+      }),
+    []
+  );
+
+  const selectedDesignSystemTypes = useMemo(() => {
+    const raw = filters?.type;
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'string') {
+      return raw
+        .split(',')
+        .map((v) => v.trim())
+        .filter(Boolean);
+    }
+    return [];
+  }, [filters]);
+
+  const visibleCidsServiceCards = useMemo(() => {
+    if (activeDesignSystemTab !== 'cids') return [];
+    const selected = selectedDesignSystemTypes.map((t) => t.toLowerCase());
+    if (!selected.length) return filteredCidsServiceCards;
+    return filteredCidsServiceCards.filter((card) => {
+      const cardType = (card.type || '').toLowerCase();
+      if (!cardType) return false;
+      return selected.includes(cardType);
+    });
+  }, [activeDesignSystemTab, filteredCidsServiceCards, selectedDesignSystemTypes]);
+
+  const effectiveFilterConfig = useMemo(() => {
+    if (!isDesignSystem) return filterConfig;
+    const labelConfig = DESIGN_SYSTEM_TYPE_LABELS[activeDesignSystemTab];
+    return filterConfig.map((category) => {
+      if (category.id !== 'type') return category;
+      const updatedTitle = labelConfig?.title || category.title;
+      return {
+        ...category,
+        title: updatedTitle,
+        options: category.options.map((option, idx) => {
+          const suffix = labelConfig?.options?.[idx];
+          const prefix = labelConfig?.title;
+          const name = prefix && suffix ? `${prefix} ${suffix}` : option.name;
+          const optionId = DESIGN_SYSTEM_TYPE_OPTION_IDS[idx] || option.id;
+          return { ...option, id: optionId, name };
+        })
+      };
+    });
+  }, [activeDesignSystemTab, filterConfig, isDesignSystem]);
   
   // Courses: URL toggle function
   const toggleFilter = useCallback((key: string, value: string) => {
@@ -1861,7 +1925,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               <div className="flex justify-between items-start mb-3">
                 <div className="flex-1">
                   <span className="text-xs uppercase text-gray-500 font-medium tracking-wide">CURRENT FOCUS</span>
-                  <h2 className="text-2xl font-bold text-gray-800 mt-1">{DESIGN_SYSTEM_TAB_LABELS[activeDesignSystemTab]}</h2>
+                  <h2 className="text-2xl font-bold text-gray-800 mt-1">{DESIGN_SYSTEM_FOCUS_TITLES[activeDesignSystemTab]}</h2>
                 </div>
                 <button className="px-4 py-2 bg-blue-50 text-gray-800 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors border-0">
                   Tab overview
@@ -2029,7 +2093,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                   ) : (
                     <FilterSidebar
                       filters={isCourses ? urlBasedFilters : (Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>)}
-                      filterConfig={filterConfig}
+                      filterConfig={effectiveFilterConfig}
                       onFilterChange={handleFilterChange}
                       onResetFilters={resetFilters}
                       isResponsive={true}
@@ -2069,7 +2133,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 ) : (
                   <FilterSidebar
                     filters={isCourses ? urlBasedFilters : (Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>)}
-                    filterConfig={filterConfig}
+                    filterConfig={effectiveFilterConfig}
                     onFilterChange={handleFilterChange}
                     onResetFilters={resetFilters}
                     isResponsive={false}
@@ -2101,8 +2165,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                 {activeDesignSystemTab === 'cids' ? (
                   // CI.DS Service Cards
-                  CIDS_SERVICE_CARDS.length > 0 ? (
-                    CIDS_SERVICE_CARDS.map((card) => (
+                  visibleCidsServiceCards.length > 0 ? (
+                    visibleCidsServiceCards.map((card) => (
                       <CIDSServiceCardComponent
                         key={card.id}
                         card={card}

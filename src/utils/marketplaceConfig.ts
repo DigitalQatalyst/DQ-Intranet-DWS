@@ -900,8 +900,8 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
   },
   'design-system': {
     id: 'design-system',
-    title: 'Design System',
-    description: 'Explore design system components, patterns, and resources.',
+    title: 'DQ Design System',
+    description: 'Discover the foundations behind DQ’s digital experiences—bringing design, content, and storytelling together to ensure clarity, consistency, and impact.',
     route: '/marketplace/design-system',
     primaryCTA: 'Explore',
     secondaryCTA: 'View Details',
@@ -941,14 +941,14 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       id: 'type',
       title: 'Type',
       options: [{
-        id: 'cids',
-        name: 'CI.DS'
+        id: 'framework',
+        name: 'Framework'
       }, {
-        id: 'vds',
-        name: 'V.DS'
+        id: 'lifecycle',
+        name: 'Lifecycle'
       }, {
-        id: 'cds',
-        name: 'CDS'
+        id: 'template',
+        name: 'Template'
       }]
     }, {
       id: 'location',
@@ -993,14 +993,14 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       items: [],
       filterOptions: {
         types: [{
-          id: 'cids',
-          name: 'CI.DS'
+          id: 'framework',
+          name: 'Framework'
         }, {
-          id: 'vds',
-          name: 'V.DS'
+          id: 'lifecycle',
+          name: 'Lifecycle'
         }, {
-          id: 'cds',
-          name: 'CDS'
+          id: 'template',
+          name: 'Template'
         }],
         locations: [{
           id: 'dubai',
