@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from './FilterSidebar.js';
 import { MarketplaceGrid } from './MarketplaceGrid.js';
 import { SearchBar } from '../SearchBar.js';
-import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon, Layers } from 'lucide-react';
+import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
 import { ErrorDisplay, CourseCardSkeleton } from '../SkeletonLoader.js';
 import { fetchMarketplaceItems, fetchMarketplaceFilters } from '../../services/marketplace.js';
 import { getMarketplaceConfig, getTabSpecificFilters } from '../../utils/marketplaceConfig.js';
@@ -33,6 +33,10 @@ import { glossaryTerms, GlossaryTerm, CATEGORIES } from '@/pages/guides/glossary
 import { STATIC_PRODUCTS } from '../../utils/staticProducts';
 import { CIDS_SERVICE_CARDS } from '@/data/cidsServiceCards';
 import { CIDSServiceCardComponent } from './CIDSServiceCard';
+import { VDS_SERVICE_CARDS } from '@/data/vdsServiceCards';
+import { VDSServiceCardComponent } from './VDSServiceCard';
+import { CDS_SERVICE_CARDS } from '@/data/cdsServiceCards';
+import { CDSServiceCardComponent } from './CDSServiceCard';
 const LEARNING_TYPE_FILTER: FilterConfig = {
   id: 'learningType',
   title: 'Learning Type',
@@ -180,8 +184,18 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const isDesignSystem = marketplaceType === 'design-system';
   
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getMarketplaceConfig(marketplaceType);
+  
+  // Detect selected card from URL pathname (e.g., /marketplace/design-system/cds-campaigns-design-system?tab=cds)
+  const getSelectedCardId = useCallback(() => {
+    if (!isDesignSystem) return null;
+    const pathMatch = location.pathname.match(/\/marketplace\/design-system\/([^/?]+)/);
+    return pathMatch ? pathMatch[1] : null;
+  }, [isDesignSystem, location.pathname]);
+  
+  const selectedCardId = getSelectedCardId();
   
   // Service Center tabs - sync with URL params
   const getServiceTabFromParams = useCallback((params: URLSearchParams): string => {
@@ -468,6 +482,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     []
   );
 
+  const filteredCdsServiceCards = useMemo(() => CDS_SERVICE_CARDS, []);
+
   const selectedDesignSystemTypes = useMemo(() => {
     const raw = filters?.type;
     if (Array.isArray(raw)) return raw;
@@ -480,6 +496,16 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     return [];
   }, [filters]);
 
+  const filteredVdsServiceCards = useMemo(
+    () =>
+      VDS_SERVICE_CARDS.filter((card) => {
+        const sectionText = (card.section || '').toLowerCase();
+        const isStageZero = card.id === 'vds-stage-00' || sectionText.includes('stage 00');
+        return !isStageZero;
+      }),
+    []
+  );
+
   const visibleCidsServiceCards = useMemo(() => {
     if (activeDesignSystemTab !== 'cids') return [];
     const selected = selectedDesignSystemTypes.map((t) => t.toLowerCase());
@@ -490,6 +516,28 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       return selected.includes(cardType);
     });
   }, [activeDesignSystemTab, filteredCidsServiceCards, selectedDesignSystemTypes]);
+
+  const visibleVdsServiceCards = useMemo(() => {
+    if (activeDesignSystemTab !== 'vds') return [];
+    const selected = selectedDesignSystemTypes.map((t) => t.toLowerCase());
+    if (!selected.length) return filteredVdsServiceCards;
+    return filteredVdsServiceCards.filter((card) => {
+      const cardType = (card.type || '').toLowerCase();
+      if (!cardType) return false;
+      return selected.includes(cardType);
+    });
+  }, [activeDesignSystemTab, filteredVdsServiceCards, selectedDesignSystemTypes]);
+
+  const visibleCdsServiceCards = useMemo(() => {
+    if (activeDesignSystemTab !== 'cds') return [];
+    const selected = selectedDesignSystemTypes.map((t) => t.toLowerCase());
+    if (!selected.length) return filteredCdsServiceCards;
+    return filteredCdsServiceCards.filter((card) => {
+      const cardType = (card.type || '').toLowerCase();
+      if (!cardType) return false;
+      return selected.includes(cardType);
+    });
+  }, [activeDesignSystemTab, filteredCdsServiceCards, selectedDesignSystemTypes]);
 
   const effectiveFilterConfig = useMemo(() => {
     if (!isDesignSystem) return filterConfig;
@@ -2170,6 +2218,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                       <CIDSServiceCardComponent
                         key={card.id}
                         card={card}
+                        isSelected={selectedCardId === card.id && activeDesignSystemTab === 'cids'}
                         onClick={() => {
                           // Navigate to detail page (to be implemented)
                           navigate(`/marketplace/design-system/${card.id}?tab=cids`);
@@ -2182,22 +2231,44 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                       <p className="text-gray-500">Service cards will appear here once they are added.</p>
                     </div>
                   )
-                ) : (
-                  // Placeholder for V.DS and CDS tabs
-                  <div className="col-span-full bg-white rounded-lg shadow p-8 text-center">
-                    <div className="flex items-center justify-center mb-4">
-                      <div className="w-16 h-16 bg-blue-50 rounded-lg flex items-center justify-center">
-                        <Layers size={32} className="text-blue-600" />
-                      </div>
+                ) : activeDesignSystemTab === 'vds' ? (
+                  // V.DS Service Cards
+                  visibleVdsServiceCards.length > 0 ? (
+                    visibleVdsServiceCards.map((card) => (
+                      <VDSServiceCardComponent
+                        key={card.id}
+                        card={card}
+                        onClick={() => {
+                          // Navigate to detail page (to be implemented)
+                          navigate(`/marketplace/design-system/${card.id}?tab=vds`);
+                        }}
+                      />
+                    ))
+                  ) : (
+                    <div className="col-span-full bg-white rounded-lg shadow p-8 text-center">
+                      <h3 className="text-xl font-medium text-gray-900 mb-2">No V.DS services found</h3>
+                      <p className="text-gray-500">Service cards will appear here once they are added.</p>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {DESIGN_SYSTEM_TAB_LABELS[activeDesignSystemTab]}
-                    </h3>
-                    <p className="text-gray-600 mb-4">{DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab]}</p>
-                    <span className="inline-block px-4 py-2 bg-blue-50 text-blue-700 text-sm font-medium rounded-full">
-                      Coming Soon
-                    </span>
-                  </div>
+                  )
+                ) : (
+                  // CDS Service Cards
+                  visibleCdsServiceCards.length > 0 ? (
+                    visibleCdsServiceCards.map((card) => (
+                      <CDSServiceCardComponent
+                        key={card.id}
+                        card={card}
+                        isSelected={selectedCardId === card.id && activeDesignSystemTab === 'cds'}
+                        onClick={() => {
+                          navigate(`/marketplace/design-system/${card.id}?tab=cds`);
+                        }}
+                      />
+                    ))
+                  ) : (
+                    <div className="col-span-full bg-white rounded-lg shadow p-8 text-center">
+                      <h3 className="text-xl font-medium text-gray-900 mb-2">No CDS services found</h3>
+                      <p className="text-gray-500">Service cards will appear here once they are added.</p>
+                    </div>
+                  )
                 )}
               </div>
             ) : isGuides ? (

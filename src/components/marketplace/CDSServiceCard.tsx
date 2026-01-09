@@ -1,14 +1,20 @@
 import React from 'react';
-import type { CIDSServiceCard as CIDSServiceCardType } from '@/data/cidsServiceCards';
+import type { CDSServiceCard as CDSServiceCardType } from '@/data/cdsServiceCards';
 
-interface CIDSServiceCardProps {
-  card: CIDSServiceCardType;
+interface CDSServiceCardProps {
+  card: CDSServiceCardType;
   onClick: () => void;
   isSelected?: boolean;
 }
 
-export const CIDSServiceCardComponent: React.FC<CIDSServiceCardProps> = ({ card, onClick, isSelected = false }) => {
-  const imageUrl = card.imageUrl || '/images/cids-introduction.jpg';
+export const CDSServiceCardComponent: React.FC<CDSServiceCardProps> = ({ card, onClick, isSelected = false }) => {
+  // Handle image URL with spaces by encoding it properly
+  const getImageUrl = () => {
+    const url = card.imageUrl || '/images/design service card image.PNG';
+    // If URL has spaces, encode them
+    return url.includes(' ') ? url.split('/').map(part => part.includes(' ') ? encodeURIComponent(part) : part).join('/') : url;
+  };
+  const imageUrl = getImageUrl();
 
   return (
     <div
@@ -50,7 +56,7 @@ export const CIDSServiceCardComponent: React.FC<CIDSServiceCardProps> = ({ card,
           </p>
         </div>
 
-        {/* CI.DS Tag */}
+        {/* CDS Tag */}
         <div className="mb-3">
           <span
             className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
@@ -59,7 +65,7 @@ export const CIDSServiceCardComponent: React.FC<CIDSServiceCardProps> = ({ card,
               color: 'var(--guidelines-primary)'
             }}
           >
-            CI.DS
+            CDS
           </span>
         </div>
       </div>
@@ -81,4 +87,3 @@ export const CIDSServiceCardComponent: React.FC<CIDSServiceCardProps> = ({ card,
     </div>
   );
 };
-

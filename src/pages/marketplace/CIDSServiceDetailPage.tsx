@@ -214,7 +214,7 @@ export default function CIDSServiceDetailPage() {
             </h1>
 
             <div className="flex items-center gap-3 text-sm text-white/90 font-inter">
-              <span>Digital Qatalyst</span>
+              <span>DQ Design · Digital Qatalyst</span>
             </div>
           </div>
         </div>
@@ -330,8 +330,8 @@ export default function CIDSServiceDetailPage() {
                           onClick={(e) => handleNavClick(e, 'overview')}
                           className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
                             activeSection === 'overview'
-                              ? 'bg-[#f0f6ff] text-[#1e4ed8] font-medium'
-                              : 'text-gray-700 hover:bg-gray-50'
+                              ? 'bg-blue-100 text-blue-900 font-medium'
+                              : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1'
                           }`}
                         >
                           1. Introduction
@@ -372,8 +372,8 @@ export default function CIDSServiceDetailPage() {
                               onClick={(e) => handleNavClick(e, sectionId)}
                               className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
                                 isActive
-                                  ? 'bg-[#f0f6ff] text-[#1e4ed8] font-medium'
-                                  : 'text-gray-700 hover:bg-gray-50'
+                                  ? 'bg-blue-100 text-blue-900 font-medium'
+                                  : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1'
                               }`}
                             >
                               {displayTitle}

@@ -1,20 +1,17 @@
 import React from 'react';
-import type { CIDSServiceCard as CIDSServiceCardType } from '@/data/cidsServiceCards';
+import type { VDSServiceCard as VDSServiceCardType } from '@/data/vdsServiceCards';
 
-interface CIDSServiceCardProps {
-  card: CIDSServiceCardType;
+interface VDSServiceCardProps {
+  card: VDSServiceCardType;
   onClick: () => void;
-  isSelected?: boolean;
 }
 
-export const CIDSServiceCardComponent: React.FC<CIDSServiceCardProps> = ({ card, onClick, isSelected = false }) => {
-  const imageUrl = card.imageUrl || '/images/cids-introduction.jpg';
+export const VDSServiceCardComponent: React.FC<VDSServiceCardProps> = ({ card, onClick }) => {
+  const imageUrl = card.imageUrl || '/images/design service card image.PNG';
 
   return (
     <div
-      className={`flex flex-col min-h-[340px] bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer guidelines-theme ${
-        isSelected ? 'ring-2 ring-blue-500 shadow-lg' : ''
-      }`}
+      className="flex flex-col min-h-[340px] bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer guidelines-theme"
       onClick={onClick}
     >
       {/* Featured Image */}
@@ -50,7 +47,7 @@ export const CIDSServiceCardComponent: React.FC<CIDSServiceCardProps> = ({ card,
           </p>
         </div>
 
-        {/* CI.DS Tag */}
+        {/* V.DS Tag */}
         <div className="mb-3">
           <span
             className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
@@ -59,7 +56,7 @@ export const CIDSServiceCardComponent: React.FC<CIDSServiceCardProps> = ({ card,
               color: 'var(--guidelines-primary)'
             }}
           >
-            CI.DS
+            V.DS
           </span>
         </div>
       </div>
@@ -81,4 +78,3 @@ export const CIDSServiceCardComponent: React.FC<CIDSServiceCardProps> = ({ card,
     </div>
   );
 };
-
