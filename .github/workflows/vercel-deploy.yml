@@ -42,6 +42,9 @@ jobs:
           node-version: 18
           cache: "npm"
 
+      - name: "🧹 Clear npm cache"
+        run: npm cache clean --force
+
       - name: "📦 Install dependencies"
         run: npm ci --legacy-peer-deps
 
@@ -70,9 +73,9 @@ jobs:
       - name: "🏗️ Build with Vercel"
         run: |
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+            vercel build --prod --force --token=${{ secrets.VERCEL_TOKEN }}
           else
-            vercel build --token=${{ secrets.VERCEL_TOKEN }}
+            vercel build --force --token=${{ secrets.VERCEL_TOKEN }}
           fi
 
       - name: "🌐 Deploy to Vercel"
