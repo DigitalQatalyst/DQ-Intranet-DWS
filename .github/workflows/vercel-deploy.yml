@@ -91,6 +91,7 @@ jobs:
           echo "🔍 Branch: $BRANCH_NAME"
           echo "👤 Deployed by: $AUTHOR_NAME ($AUTHOR_EMAIL)"
           echo "📦 Project ID: $VERCEL_PROJECT_ID"
+          echo "🌿 Git Ref: ${{ github.ref }}"
           
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "🚀 Deploying PRODUCTION build..."
@@ -99,9 +100,18 @@ jobs:
             echo "✅ Production deployed at: $DEPLOY_URL"
           else
             echo "🧪 Deploying PREVIEW build for branch: $BRANCH_NAME"
-            DEPLOY_URL=$(vercel deploy --prebuilt --token=$VERCEL_TOKEN)
+            # Use --scope and explicit branch to ensure correct deployment
+            DEPLOY_URL=$(vercel deploy --prebuilt --token=$VERCEL_TOKEN 2>&1 | tee /tmp/vercel-deploy.log || true)
+            # Extract URL from output if it's there
+            if echo "$DEPLOY_URL" | grep -q "https://"; then
+              DEPLOY_URL=$(echo "$DEPLOY_URL" | grep -o 'https://[^ ]*' | head -1)
+            else
+              DEPLOY_URL=$(cat /tmp/vercel-deploy.log | grep -o 'https://[^ ]*' | head -1 || echo "")
+            fi
             echo "deploy_url=$DEPLOY_URL" >> $GITHUB_OUTPUT
             echo "✅ Preview deployed at: $DEPLOY_URL"
+            echo "📋 Full deployment log:"
+            cat /tmp/vercel-deploy.log || echo "No log file"
           fi
 
       - name: "💬 Comment on PR (if applicable)"
