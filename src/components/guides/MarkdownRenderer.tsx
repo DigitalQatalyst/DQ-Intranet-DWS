@@ -154,6 +154,11 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
             {props.children}
           </h4>
         ),
+        p: ({ node, ...props }) => (
+          <p className="text-gray-700 text-sm leading-normal mb-2" {...(props as any)}>
+            {props.children}
+          </p>
+        ),
         img: ({ node, ...props }) => (
           // Constrain and lazy-load images for performance
           <img loading="lazy" decoding="async" style={{ maxWidth: '100%', height: 'auto' }} {...(props as any)} />

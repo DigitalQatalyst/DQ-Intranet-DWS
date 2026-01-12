@@ -513,7 +513,7 @@ export default function PodcastSeriesPage() {
         const paraText = currentParagraph.join(' ').trim();
         if (paraText) {
           elements.push(
-            <p key={keyCounter++} className="text-gray-700 text-sm leading-relaxed mb-4">
+            <p key={keyCounter++} className="text-gray-700 text-sm leading-normal mb-2">
               {parseBold(paraText)}
             </p>
           );
@@ -527,10 +527,8 @@ export default function PodcastSeriesPage() {
       
       const trimmed = line.trim();
       
+      // Empty line - ignore it, don't flush paragraphs (text should stay together under headings)
       if (!trimmed) {
-        if (inFocusSection) {
-          flushParagraph();
-        }
         continue;
       }
 

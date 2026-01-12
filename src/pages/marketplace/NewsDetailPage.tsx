@@ -350,7 +350,7 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
       const paraText = currentParagraph.join(' ').trim();
       if (paraText) {
         elements.push(
-          <p key={keyCounter++} className="text-gray-700 text-sm leading-relaxed mb-4">
+          <p key={keyCounter++} className="text-gray-700 text-sm leading-normal mb-2">
             {parseBold(paraText)}
           </p>
         );
@@ -362,9 +362,9 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
   const flushList = () => {
     if (listItems.length > 0) {
       elements.push(
-        <ul key={keyCounter++} className="list-disc list-inside space-y-2 mb-4 ml-4">
+        <ul key={keyCounter++} className="list-disc list-inside space-y-1 mb-2 ml-4">
           {listItems.map((item, idx) => (
-            <li key={idx} className="text-gray-700 text-sm leading-relaxed">
+            <li key={idx} className="text-gray-700 text-sm leading-normal">
               {parseBold(item.trim())}
             </li>
           ))}
@@ -378,12 +378,11 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
   for (const line of lines) {
     const trimmed = line.trim();
     
-    // Empty line - flush current paragraph or list
+    // Empty line - ignore it, don't flush paragraphs (text should stay together under headings)
     if (!trimmed) {
+      // Only flush lists on empty lines, but keep paragraphs together
       if (inList) {
         flushList();
-      } else {
-        flushParagraph();
       }
       continue;
     }
@@ -473,6 +472,7 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
     }
 
     // Regular paragraph text - preserve all content
+    // Combine all text lines until we hit a heading or list
     if (inList) {
       flushList();
     }
@@ -484,7 +484,7 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
   flushList();
   flushParagraph();
 
-  return elements.length > 0 ? <div className="space-y-4">{elements}</div> : null;
+  return elements.length > 0 ? <div className="space-y-2">{elements}</div> : null;
 };
 
 
@@ -742,7 +742,7 @@ const NewsDetailPage: React.FC = () => {
                         const boldText = parseBold(trimmed);
                         
                         return (
-                          <p key={index} className="text-gray-700 text-sm leading-relaxed">
+                          <p key={index} className="text-gray-700 text-sm leading-normal mb-2">
                             {boldText}
                           </p>
                         );
