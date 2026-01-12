@@ -35,7 +35,7 @@ const marketplaces = [{
   href: '/marketplace/community'
 }, {
   id: 'course',
-  name: 'Learning Center',
+  name: 'DQ Learning Center',
   description: '7x GHC, 6x Digital, 12x HoV, 1x Day in DQ, Key Tools.',
   icon: GraduationCapIcon,
   href: '/lms'

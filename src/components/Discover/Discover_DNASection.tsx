@@ -24,13 +24,13 @@ const CANVAS_H = 640;
 
 /* Honeycomb positions */
 const POS = {
-  leftTop:  { x: -95,  y: -140 },
-  rightTop: { x:  95,  y: -140 },
-  leftMid:  { x: -190, y:    0 },
-  center:   { x:    0, y:    0 },
-  rightMid: { x:  190, y:    0 },
-  leftBot:  { x: -95,  y:  140 },
-  rightBot: { x:  95,  y:  140 },
+  leftTop: { x: -95, y: -140 },
+  rightTop: { x: 95, y: -140 },
+  leftMid: { x: -190, y: 0 },
+  center: { x: 0, y: 0 },
+  rightMid: { x: 190, y: 0 },
+  leftBot: { x: -95, y: 140 },
+  rightBot: { x: 95, y: 140 },
 } as const;
 
 type Role = keyof typeof POS;
@@ -38,13 +38,13 @@ type Side = "left" | "right" | "bottom";
 
 /* slight per-row slope */
 const DY: Record<Role, number> = {
-  leftTop:  -8,
+  leftTop: -8,
   rightTop: -8,
-  leftMid:   0,
-  center:    0,
-  rightMid:  0,
-  leftBot:   8,
-  rightBot:  8,
+  leftMid: 0,
+  center: 0,
+  rightMid: 0,
+  leftBot: 8,
+  rightBot: 8,
 };
 
 interface Node {
@@ -89,21 +89,21 @@ const NODES: Node[] = [
 ];
 
 const CALLOUTS: { role: Role; text: string; side: Side }[] = [
-  { role: "leftTop",  text: "How we orchestrate", side: "left"  },
-  { role: "rightTop", text: "How we govern",      side: "right" },
-  { role: "leftMid",  text: "What we offer",      side: "left"  },
-  { role: "rightMid", text: "How we work",        side: "right" },
-  { role: "leftBot",  text: "How we behave",      side: "left"  },
-  { role: "rightBot", text: "Who we are",         side: "right" },
-  { role: "center",   text: "Why we exist",       side: "bottom"},
+  { role: "leftTop", text: "How we orchestrate", side: "left" },
+  { role: "rightTop", text: "How we govern", side: "right" },
+  { role: "leftMid", text: "What we offer", side: "left" },
+  { role: "rightMid", text: "How we work", side: "right" },
+  { role: "leftBot", text: "How we behave", side: "left" },
+  { role: "rightBot", text: "Who we are", side: "right" },
+  { role: "center", text: "Why we exist", side: "bottom" },
 ];
 
 /* ===== Hex (flat-top) ===== */
 function Hex({ fill, id }: { fill: "navy" | "white"; id?: number }) {
   const w = HEX_W, h = HEX_H;
-  const d = `M${w/2} 4 L${w-4} ${h*0.25} L${w-4} ${h*0.75} L${w/2} ${h-4} L4 ${h*0.75} L4 ${h*0.25} Z`;
+  const d = `M${w / 2} 4 L${w - 4} ${h * 0.25} L${w - 4} ${h * 0.75} L${w / 2} ${h - 4} L4 ${h * 0.75} L4 ${h * 0.25} Z`;
   const uniqueId = id ?? Math.random().toString(36).substr(2, 9);
-  
+
   if (fill === "white") {
     // Textured fill: subtle blend of blue, orange, and white
     return (
@@ -134,7 +134,7 @@ function Hex({ fill, id }: { fill: "navy" | "white"; id?: number }) {
       </svg>
     );
   }
-  
+
   // Solid navy for center hexagons
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: "block" }}>
@@ -151,9 +151,9 @@ function Hex({ fill, id }: { fill: "navy" | "white"; id?: number }) {
 /* Anchors for connectors */
 function anchor(role: Role, side: Side) {
   const { x, y } = POS[role];
-  if (side === "left")  return { x: x - HEX_W/2 + EDGE_INSET, y };
-  if (side === "right") return { x: x + HEX_W/2 - EDGE_INSET, y };
-  return { x, y: y + HEX_H/2 - 4 };
+  if (side === "left") return { x: x - HEX_W / 2 + EDGE_INSET, y };
+  if (side === "right") return { x: x + HEX_W / 2 - EDGE_INSET, y };
+  return { x, y: y + HEX_H / 2 - 4 };
 }
 
 interface Discover_DNASectionProps {
@@ -179,13 +179,13 @@ function Discover_DNASection({ onExploreLearningCenter }: Discover_DNASectionPro
 
   const nodes: Node[] = nodesDb
     ? nodesDb.map((n) => ({
-        id: n.id,
-        role: n.role as Role,
-        title: n.title,
-        subtitle: n.subtitle,
-        fill: n.fill as "navy" | "white",
-        details: n.details ?? undefined,
-      }))
+      id: n.id,
+      role: n.role as Role,
+      title: n.title,
+      subtitle: n.subtitle,
+      fill: n.fill as "navy" | "white",
+      details: n.details ?? undefined,
+    }))
     : NODES;
 
   return (
@@ -216,7 +216,7 @@ function Discover_DNASection({ onExploreLearningCenter }: Discover_DNASectionPro
           <svg
             width={CANVAS_W}
             height={CANVAS_H}
-            viewBox={[-CANVAS_W/2, -CANVAS_H/2, CANVAS_W, CANVAS_H].join(" ")}
+            viewBox={[-CANVAS_W / 2, -CANVAS_H / 2, CANVAS_W, CANVAS_H].join(" ")}
             preserveAspectRatio="xMidYMid meet"
             style={{ position: "absolute", left: 0, top: 0 }}
           >
@@ -253,7 +253,7 @@ function Discover_DNASection({ onExploreLearningCenter }: Discover_DNASectionPro
           {/* Hexes */}
           {nodes.map((n) => {
             const left = CANVAS_W / 2 + POS[n.role].x;
-            const top  = CANVAS_H / 2 + POS[n.role].y;
+            const top = CANVAS_H / 2 + POS[n.role].y;
 
             return (
               <button
@@ -285,17 +285,17 @@ function Discover_DNASection({ onExploreLearningCenter }: Discover_DNASectionPro
                     alignItems: "center", justifyContent: "center", textAlign: "center",
                     padding: "0 14px", color: n.fill === "white" ? NAVY : "#fff"
                   }}>
-                    <div style={{ 
-                      fontWeight: 800, 
-                      fontSize: 18, 
-                      lineHeight: 1.1, 
-                      textShadow: n.fill === "white" ? "none" : "0 1px 2px rgba(0,0,0,0.1)" 
+                    <div style={{
+                      fontWeight: 800,
+                      fontSize: 18,
+                      lineHeight: 1.1,
+                      textShadow: n.fill === "white" ? "none" : "0 1px 2px rgba(0,0,0,0.1)"
                     }}>{n.title}</div>
-                    <div style={{ 
-                      marginTop: 4, 
-                      fontSize: 13, 
-                      opacity: 0.9, 
-                      textShadow: n.fill === "white" ? "none" : "0 1px 2px rgba(0,0,0,0.1)" 
+                    <div style={{
+                      marginTop: 4,
+                      fontSize: 13,
+                      opacity: 0.9,
+                      textShadow: n.fill === "white" ? "none" : "0 1px 2px rgba(0,0,0,0.1)"
                     }}>{n.subtitle}</div>
                   </div>
                 </div>
@@ -367,7 +367,7 @@ function Discover_DNASection({ onExploreLearningCenter }: Discover_DNASectionPro
         })()}
         {onExploreLearningCenter && (
           <div className="mt-10 flex justify-center">
-            <SectionCTAButton label="Explore Learning Center" onClick={onExploreLearningCenter} />
+            <SectionCTAButton label="Explore DQ Learning Center" onClick={onExploreLearningCenter} />
           </div>
         )}
       </div>
