@@ -113,6 +113,7 @@ export const LmsCourseDetailPage: React.FC = () => {
   // State for expanded sections in curriculum
   const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set());
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set());
+  const [hasInitializedCurriculum, setHasInitializedCurriculum] = useState(false);
   const [renderError, setRenderError] = useState<Error | null>(null);
 
   // Fetch course data from Supabase - MUST be called before any conditional returns
@@ -144,6 +145,7 @@ export const LmsCourseDetailPage: React.FC = () => {
       setIsNavigating(true);
       setExpandedCourses(new Set());
       setExpandedTopics(new Set());
+      setHasInitializedCurriculum(false);
       setActiveTab('details'); // Reset to details tab on navigation
       setRenderError(null);
       prevSlugRef.current = slug;
@@ -206,6 +208,14 @@ export const LmsCourseDetailPage: React.FC = () => {
       console.log('[LMS Detail Page] No course data found');
     }
   }, [course]);
+
+  // Auto-expand first module when data loads
+  React.useEffect(() => {
+    if (!hasInitializedCurriculum && course?.curriculum && course.curriculum.length > 0) {
+      setExpandedCourses(new Set([course.curriculum[0].id]));
+      setHasInitializedCurriculum(true);
+    }
+  }, [course, hasInitializedCurriculum]);
 
   // Log any errors
   React.useEffect(() => {
@@ -750,7 +760,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                           }
                           moduleLessons.sort((a, b) => a.order - b.order);
 
-                          const isExpanded = expandedCourses.has(item.id) || (expandedCourses.size === 0 && curriculumIndex === 0);
+                          const isExpanded = expandedCourses.has(item.id);
 
                           const toggleExpand = () => {
                             setExpandedCourses(prev => {

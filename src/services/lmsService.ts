@@ -129,23 +129,7 @@ function transformCourseToLmsDetail(
     });
   }
 
-  // Add Final Assessment if present
-  if (course.quiz) {
-    curriculum.push({
-      id: course.quiz.id,
-      title: 'Final Assessment',
-      description: course.quiz.description || 'Complete the final assessment to finish the course.',
-      order: 9999,
-      lessons: [{
-        id: course.quiz.id, // Using quiz ID, handled specially in rendering
-        title: course.quiz.title,
-        description: course.quiz.description || undefined,
-        type: 'final-assessment',
-        order: 1,
-        isLocked: false // Could be based on progress
-      }]
-    });
-  }
+
 
   // Parse FAQ from JSONB
   const faq = Array.isArray(course.faq) ? course.faq.map((item: any) => ({

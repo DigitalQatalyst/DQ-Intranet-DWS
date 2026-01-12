@@ -181,13 +181,13 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
         <div className="flex gap-3">
           <button
             onClick={handleViewDetails}
-            className="flex-1 px-4 py-2.5 text-sm font-semibold text-[#1E293B] bg-white border border-[#E2E8F0] rounded-xl hover:bg-gray-50 transition-colors"
+            className="flex-1 px-4 py-2.5 text-xs font-semibold text-[#1E293B] bg-white border border-[#E2E8F0] rounded-xl hover:bg-gray-50 transition-colors"
           >
             View Details
           </button>
           <button
             onClick={handlePrimaryAction}
-            className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-[#030F35] rounded-xl hover:bg-[#030F35]/90 transition-colors shadow-sm shadow-blue-900/10"
+            className="flex-1 px-4 py-2.5 text-xs font-bold text-white bg-[#030F35] rounded-xl hover:bg-[#030F35]/90 transition-colors shadow-sm shadow-blue-900/10"
           >
             Start Learning
           </button>
