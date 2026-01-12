@@ -7,13 +7,22 @@ import { SearchIcon, FilterIcon, XIcon, FolderIcon, UploadCloudIcon, AwardIcon }
 import { getEmployeeDocuments, deleteDocument } from '../../services/employeeOnboardingService';
 import { useMsal } from "@azure/msal-react";
 
-export function DocumentWallet() {
+export function DocumentWallet({
+    activeTab = 'my-documents',
+    setActiveTab
+}: {
+    activeTab?: 'my-documents' | 'uploads' | 'certificates';
+    setActiveTab?: (tab: 'my-documents' | 'uploads' | 'certificates') => void;
+}) {
     const { accounts } = useMsal();
     const account = accounts[0];
     const employeeId = account?.localAccountId || account?.username || "";
 
     const [documents, setDocuments] = useState<any[]>([]);
-    const [activeTab, setActiveTab] = useState<'my-documents' | 'uploads' | 'certificates'>('my-documents');
+    // If props are provided, use them, otherwise use internal state for backward compatibility
+    const [internalActiveTab, setInternalActiveTab] = useState<'my-documents' | 'uploads' | 'certificates'>('my-documents');
+    const currentTab = setActiveTab ? activeTab : internalActiveTab;
+
     const [filteredDocuments, setFilteredDocuments] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
@@ -95,10 +104,10 @@ export function DocumentWallet() {
         let filtered = documents;
 
         // Apply Tab Filter
-        if (activeTab === 'uploads') {
+        if (currentTab === 'uploads') {
             // Uploads & Validation: Focus on pending/recent uploads (exclude virtual missing docs)
             filtered = filtered.filter(doc => !doc.isMissing && ['Uploaded', 'Reviewed'].includes(doc.status));
-        } else if (activeTab === 'certificates') {
+        } else if (currentTab === 'certificates') {
             // Certificates & Credentials
             filtered = filtered.filter(doc => doc.category === 'Certificate');
         } else {
@@ -122,7 +131,7 @@ export function DocumentWallet() {
 
         // ... (remaining status filters if needed)
         setFilteredDocuments(filtered);
-    }, [searchTerm, activeFilter, documents, statusFilter, activeTab]);
+    }, [searchTerm, activeFilter, documents, statusFilter, currentTab]);
     // Get expiring documents (within 30 days)
     const expiringDocuments = documents.filter((doc) => {
         if (!doc.expiryDate) return false;
@@ -215,52 +224,17 @@ export function DocumentWallet() {
     // Loading state
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-screen bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+            <div className="flex items-center justify-center h-48 bg-white rounded-lg p-4">
                 <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading documents...</p>
+                    <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-600 text-sm">Loading documents...</p>
                 </div>
             </div>
         );
     }
     // Error state
     return (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            {/* Wallet Sections Tabs */}
-            <div className="border-b border-gray-200">
-                <div className="flex overflow-x-auto px-4 md:px-6">
-                    <button
-                        onClick={() => setActiveTab('my-documents')}
-                        className={`flex items-center gap-2 py-4 px-4 border-b-2 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'my-documents'
-                            ? 'border-blue-600 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
-                    >
-                        <FolderIcon size={18} />
-                        My Documents
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('uploads')}
-                        className={`flex items-center gap-2 py-4 px-4 border-b-2 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'uploads'
-                            ? 'border-blue-600 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
-                    >
-                        <UploadCloudIcon size={18} />
-                        Uploads & Validation
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('certificates')}
-                        className={`flex items-center gap-2 py-4 px-4 border-b-2 text-sm font-medium whitespace-nowrap transition-colors ${activeTab === 'certificates'
-                            ? 'border-blue-600 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                            }`}
-                    >
-                        <AwardIcon size={18} />
-                        Certificates & Credentials
-                    </button>
-                </div>
-            </div>
+        <div className="bg-white">
             {/* Dashboard Summary - 2x2 grid on mobile */}
             <div className="px-4 md:px-6 pt-4 md:pt-6">
                 <DocumentDashboard

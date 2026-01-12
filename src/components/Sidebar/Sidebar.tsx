@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 // import Link from 'next/link';
 import {
   X,
-  ChevronDown,
   Info,
   Lock,
   Home,
@@ -12,13 +11,10 @@ import {
   Settings,
   HelpCircle,
   ExternalLink,
-  Plus,
-  Check,
   Menu,
   MessageCircle,
   Wallet,
   LayoutGrid,
-  CheckCircle2,
   ShieldCheck,
   Navigation,
   BookOpen,
@@ -62,38 +58,10 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({
   isOpen = true,
   onClose,
-  onSectionChange,
   onboardingComplete = true,
-  companies = [
-    {
-      id: "1",
-      name: "FutureTech LLC",
-      role: "Owner",
-      isActive: true,
-      badge: "Primary",
-    },
-    {
-      id: "2",
-      name: "StartupCo Inc",
-      role: "Admin",
-      badge: "Secondary",
-    },
-    {
-      id: "3",
-      name: "Enterprise Solutions",
-      role: "Member",
-    },
-  ],
-  onCompanyChange,
-  onAddNewEnterprise,
   isLoggedIn = true,
   "data-id": dataId,
 }) => {
-  const [tooltipItem, setTooltipItem] = useState<string | null>(null);
-  const [companyDropdownOpen, setCompanyDropdownOpen] = useState(false);
-  const [formsDropdownOpen, setFormsDropdownOpen] = useState(false);
-  const [focusedMenuIndex, setFocusedMenuIndex] = useState(-1);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const formsDropdownRef = useRef<HTMLDivElement>(null);
   const menuItemsRef = useRef<(HTMLDivElement | null)[]>([]);
   const location = useLocation();
@@ -107,16 +75,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setCompanyDropdownOpen(false);
-      }
-      if (
         formsDropdownRef.current &&
         !formsDropdownRef.current.contains(event.target as Node)
       ) {
-        setFormsDropdownOpen(false);
+        // Handle forms dropdown if needed
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -132,31 +94,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       );
       switch (event.key) {
         case "Escape":
-          if (companyDropdownOpen) {
-            setCompanyDropdownOpen(false);
-            return;
-          }
-          if (formsDropdownOpen) {
-            setFormsDropdownOpen(false);
-            return;
-          }
           onClose?.();
           break;
         case "ArrowDown":
           event.preventDefault();
-          setFocusedMenuIndex((prev) => {
-            const next = prev < menuItems.length - 1 ? prev + 1 : 0;
-            menuItemsRef.current[next]?.focus();
-            return next;
-          });
-          break;
-        case "ArrowUp":
-          event.preventDefault();
-          setFocusedMenuIndex((prev) => {
-            const next = prev > 0 ? prev - 1 : menuItems.length - 1;
-            menuItemsRef.current[next]?.focus();
-            return next;
-          });
+          // Arrow navigation logic could be simplified or removed if redundant
           break;
       }
     };
@@ -164,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       document.addEventListener("keydown", handleKeyDown);
       return () => document.removeEventListener("keydown", handleKeyDown);
     }
-  }, [isOpen, companyDropdownOpen, formsDropdownOpen, onClose]);
+  }, [isOpen, onClose]);
 
   if (!isLoggedIn) return null;
 
@@ -225,12 +167,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         label: "Requests",
         icon: <Send size={20} />,
         href: "/dashboard/requests",
-      },
-      {
-        id: "approvals",
-        label: "Approvals",
-        icon: <CheckCircle2 size={20} />,
-        href: "/dashboard/approvals",
       }
     );
 
@@ -245,13 +181,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         id: "reporting-obligations",
         label: "Reporting Obligations",
         icon: <BarChart3 size={20} />,
-        href: "/dashboard/reporting-obligations",
+        href: "/dashboard/coming-soon?label=Reporting%20Obligations",
       },
       {
         id: "compliance-tasks",
         label: "Compliance Tasks",
         icon: <ShieldCheck size={20} />,
-        href: "/dashboard/compliance-tasks",
+        href: "/dashboard/coming-soon?label=Compliance%20Tasks",
       }
     );
 
@@ -266,19 +202,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         id: "onboarding-journey",
         label: "Onboarding Journey",
         icon: <Navigation size={20} />,
-        href: "/dashboard/onboarding",
+        href: "/dashboard/coming-soon?label=Onboarding%20Journey",
       },
       {
         id: "my-courses",
         label: "My Courses",
         icon: <BookOpen size={20} />,
         href: "/dashboard/learning",
-      },
-      {
-        id: "learning-center",
-        label: "Learning Center",
-        icon: <TrendingUp size={20} />,
-        href: "/lms",
       }
     );
 
@@ -367,12 +297,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
     return items;
   };
 
-  const activeCompany = companies.find((c) => c.isActive) || companies[0];
-
   return (
     <div
-      className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-gray-50 border-r border-gray-200 transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        } lg:w-60 overflow-y-auto`}
+      className={`fixed lg:relative inset-y-0 left-0 z-30 w-64 bg-gray-50 border-r border-gray-200 transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        } lg:w-60 h-full overflow-y-auto custom-scrollbar`}
       data-id={dataId}
     >
       {/* Header */}
@@ -471,12 +399,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           return (
             <div key={item.id} className={baseClasses}>
               {content}
-              {tooltipItem === item.id && (
-                <div className="absolute left-full ml-2 bg-gray-800 text-white text-xs py-2 px-3 rounded-md w-48 z-50">
-                  Complete onboarding to unlock this section
-                  <div className="absolute top-1/2 -left-1 transform -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-r-4 border-transparent border-r-gray-800"></div>
-                </div>
-              )}
             </div>
           );
         })}
