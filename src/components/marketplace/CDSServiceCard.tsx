@@ -10,7 +10,7 @@ interface CDSServiceCardProps {
 export const CDSServiceCardComponent: React.FC<CDSServiceCardProps> = ({ card, onClick, isSelected = false }) => {
   // Handle image URL with spaces by encoding it properly
   const getImageUrl = () => {
-    const url = card.imageUrl || '/images/design service card image.PNG';
+    const url = card.imageUrl || '/images/cds.png';
     // If URL has spaces, encode them
     return url.includes(' ') ? url.split('/').map(part => part.includes(' ') ? encodeURIComponent(part) : part).join('/') : url;
   };
@@ -59,7 +59,7 @@ export const CDSServiceCardComponent: React.FC<CDSServiceCardProps> = ({ card, o
         {/* CDS Tag */}
         <div className="mb-3">
           <span
-            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"
             style={{
               backgroundColor: 'var(--guidelines-primary-surface)',
               color: 'var(--guidelines-primary)'

@@ -53,7 +53,7 @@ export const CIDSServiceCardComponent: React.FC<CIDSServiceCardProps> = ({ card,
         {/* CI.DS Tag */}
         <div className="mb-3">
           <span
-            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"
             style={{
               backgroundColor: 'var(--guidelines-primary-surface)',
               color: 'var(--guidelines-primary)'

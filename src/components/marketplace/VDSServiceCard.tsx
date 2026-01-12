@@ -7,7 +7,7 @@ interface VDSServiceCardProps {
 }
 
 export const VDSServiceCardComponent: React.FC<VDSServiceCardProps> = ({ card, onClick }) => {
-  const imageUrl = card.imageUrl || '/images/design service card image.PNG';
+  const imageUrl = card.imageUrl || '/images/vds.png';
 
   return (
     <div

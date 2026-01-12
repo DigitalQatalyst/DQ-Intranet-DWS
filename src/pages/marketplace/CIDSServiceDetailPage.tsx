@@ -114,7 +114,7 @@ export default function CIDSServiceDetailPage() {
   }, [card]);
 
   // Handle smooth scroll on navigation click
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+  const handleNavClick = (e: React.MouseEvent<HTMLButtonElement>, sectionId: string) => {
     e.preventDefault();
     const element = document.getElementById(sectionId);
     if (element) {
@@ -201,7 +201,7 @@ export default function CIDSServiceDetailPage() {
 
         <div className="relative z-10 h-full flex flex-col justify-center px-6 md:px-12 lg:px-24 text-white bg-[#030E31]/60">
           <div className="max-w-4xl">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-medium mb-4 text-white">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-bold mb-4 text-white">
               CI.DS
             </span>
 
@@ -213,7 +213,7 @@ export default function CIDSServiceDetailPage() {
               {card.title}
             </h1>
 
-            <div className="flex items-center gap-3 text-sm text-white/90 font-inter">
+            <div className="flex items-center gap-3 text-sm text-white/90 font-inter font-semibold">
               <span>DQ Design · Digital Qatalyst</span>
             </div>
           </div>
@@ -318,25 +318,26 @@ export default function CIDSServiceDetailPage() {
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <nav className="sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto">
-                <div className="pr-6">
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                <div className="bg-gray-50 border-l border-gray-200 p-6">
+                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
                     Contents
-                  </h3>
-                  <ul className="space-y-2">
+                  </h2>
+                  <div className="space-y-2">
                     {card.content.overview && (
-                      <li>
-                        <a
-                          href="#overview"
-                          onClick={(e) => handleNavClick(e, 'overview')}
-                          className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                            activeSection === 'overview'
-                              ? 'bg-blue-100 text-blue-900 font-medium'
-                              : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1'
-                          }`}
-                        >
-                          1. Introduction
-                        </a>
-                      </li>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleNavClick(e, 'overview');
+                        }}
+                        style={{ outline: 'none', border: 'none' }}
+                        className={`block w-full text-left px-3 py-2 text-sm transition-all duration-200 outline-none ${
+                          activeSection === 'overview'
+                            ? 'bg-blue-200 text-blue-900 font-medium outline-none'
+                            : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none active:outline-none'
+                        }`}
+                      >
+                        1. Introduction
+                      </button>
                     )}
                     {card.content.subsections
                       ?.filter((subsection) => {
@@ -366,22 +367,24 @@ export default function CIDSServiceDetailPage() {
                           ? `${stageCount + 1}. ${subsection.title}`
                           : subsection.title;
                         return (
-                          <li key={subsection.id}>
-                            <a
-                              href={`#${sectionId}`}
-                              onClick={(e) => handleNavClick(e, sectionId)}
-                              className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                                isActive
-                                  ? 'bg-blue-100 text-blue-900 font-medium'
-                                  : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1'
-                              }`}
-                            >
-                              {displayTitle}
-                            </a>
-                          </li>
+                          <button
+                            key={subsection.id}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleNavClick(e, sectionId);
+                            }}
+                            style={{ outline: 'none', border: 'none' }}
+                            className={`block w-full text-left px-3 py-2 text-sm transition-all duration-200 outline-none ${
+                              isActive
+                                ? 'bg-blue-200 text-blue-900 font-medium outline-none'
+                                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none active:outline-none'
+                            }`}
+                          >
+                            {displayTitle}
+                          </button>
                         );
                       })}
-                  </ul>
+                  </div>
                 </div>
               </nav>
             </div>

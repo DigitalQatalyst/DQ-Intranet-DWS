@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -15,7 +15,6 @@ export default function CDSServiceDetailPage() {
 
   const [tableModalOpen, setTableModalOpen] = useState<{ [key: string]: boolean }>({});
   const [activeSection, setActiveSection] = useState<string>('overview');
-  const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
   const introSection = card?.content.subsections?.find(s => s.id === '1');
   const defaultVersion = '1.0.1';
   const defaultDate = '23.10.2025';
@@ -29,8 +28,8 @@ export default function CDSServiceDetailPage() {
     };
   })();
 
-  const navSections =
-    card?.content.subsections?.filter((s) => /^\d+$/.test(s.id) || s.id === 'who' || s.id === 'problem') || [];
+  const getSectionId = (rawId: string) =>
+    rawId.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
 
   const openTableModal = (subsectionId: string) => {
     setTableModalOpen(prev => ({ ...prev, [subsectionId]: true }));
@@ -40,52 +39,55 @@ export default function CDSServiceDetailPage() {
     setTableModalOpen(prev => ({ ...prev, [subsectionId]: false }));
   };
 
-  const [isScrolling, setIsScrolling] = useState(false);
-
+  // Scroll tracking with IntersectionObserver (aligned with CI.DS behaviour)
   useEffect(() => {
-    if (navSections.length > 0) {
-      setActiveSection(navSections[0].id);
-    }
-  }, [card, navSections]);
-
-  // Use IntersectionObserver for more reliable section detection
-  useEffect(() => {
-    if (!card || navSections.length === 0) return;
+    if (!card) return;
 
     const observerOptions = {
       root: null,
-      rootMargin: '-15% 0px -70% 0px',
-      threshold: [0, 0.1, 0.25, 0.5, 0.75, 1]
+      rootMargin: '-10% 0px -70% 0px',
+      threshold: [0, 0.1, 0.5, 1]
     };
 
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      // Don't update if we're in the middle of a programmatic scroll
-      if (isScrolling) return;
-
       const visibleEntries = entries
-        .filter(entry => {
-          const rect = entry.boundingClientRect;
-          // Consider an entry visible if it's in the viewport with some margin
-          return entry.isIntersecting && 
-                 rect.top < window.innerHeight * 0.3 && 
-                 rect.bottom > 0;
-        })
+        .filter(entry => entry.isIntersecting)
         .sort((a, b) => {
-          // Prioritize entries with higher intersection ratio
-          if (Math.abs(b.intersectionRatio - a.intersectionRatio) > 0.15) {
+          if (b.intersectionRatio !== a.intersectionRatio) {
             return b.intersectionRatio - a.intersectionRatio;
           }
-          // If ratios are similar, prioritize the one closer to the top of the viewport
-          const aTop = Math.abs(a.boundingClientRect.top - 120);
-          const bTop = Math.abs(b.boundingClientRect.top - 120);
-          return aTop - bTop;
+          return a.boundingClientRect.top - b.boundingClientRect.top;
         });
 
       if (visibleEntries.length > 0) {
         const currentEntry = visibleEntries[0];
-        const currentId = currentEntry.target.id || currentEntry.target.getAttribute('id');
-        // Only update if it's a valid navigation section and it's different from current
-        if (currentId && navSections.some(s => s.id === currentId) && activeSection !== currentId) {
+        const currentId = currentEntry.target.id;
+
+        const isStageTitle = card.content.subsections?.some(s => {
+          const sectionId = getSectionId(s.id);
+          return sectionId === currentId && s.title.toLowerCase().includes('stage');
+        });
+
+        if (isStageTitle) {
+          setActiveSection(currentId);
+          return;
+        }
+
+        const stageMatch = currentId?.match(/^(\d+)-/);
+        if (stageMatch) {
+          const stageId = stageMatch[1];
+          const stageSubsection = card.content.subsections?.find(s => {
+            const sectionId = getSectionId(s.id);
+            return sectionId === stageId && s.title.toLowerCase().includes('stage');
+          });
+
+          if (stageSubsection) {
+            setActiveSection(stageId);
+            return;
+          }
+        }
+
+        if (currentId) {
           setActiveSection(currentId);
         }
       }
@@ -93,9 +95,14 @@ export default function CDSServiceDetailPage() {
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
-    // Observe all navigation sections
-    navSections.forEach((subsection) => {
-      const element = sectionRefs.current[subsection.id];
+    const overviewElement = document.getElementById('overview');
+    if (overviewElement && card.content.overview) {
+      observer.observe(overviewElement);
+    }
+
+    card.content.subsections?.forEach((subsection) => {
+      const sectionId = getSectionId(subsection.id);
+      const element = document.getElementById(sectionId);
       if (element) {
         observer.observe(element);
       }
@@ -104,7 +111,7 @@ export default function CDSServiceDetailPage() {
     return () => {
       observer.disconnect();
     };
-  }, [card, navSections, isScrolling, activeSection]);
+  }, [card]);
 
   if (!card) {
     return (
@@ -125,63 +132,19 @@ export default function CDSServiceDetailPage() {
     );
   }
 
-  const scrollToSection = (sectionId: string) => {
-    const element = sectionRefs.current[sectionId];
+  // Handle smooth scroll on navigation click
+  const handleNavClick = (e: React.MouseEvent<HTMLButtonElement>, sectionId: string) => {
+    e.preventDefault();
+    const element = document.getElementById(sectionId);
     if (element) {
-      setIsScrolling(true);
-      setActiveSection(sectionId);
-      
-      const offset = 120; // Account for sticky header
-      const elementRect = element.getBoundingClientRect();
-      const elementTop = elementRect.top + window.pageYOffset;
-      const viewportHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      
-      // Calculate target scroll position
-      let targetScroll = elementTop - offset;
-      
-      // Check if section is near the bottom of the document
-      const elementBottom = elementTop + elementRect.height;
-      const maxScroll = documentHeight - viewportHeight;
-      
-      // If scrolling to this position would push the section out of view at the bottom,
-      // adjust to keep it visible
-      if (targetScroll + viewportHeight > documentHeight) {
-        // Ensure at least some of the section is visible
-        targetScroll = Math.max(0, documentHeight - viewportHeight);
-      }
-      
-      // Ensure we don't scroll past the maximum
-      targetScroll = Math.min(targetScroll, maxScroll);
-      targetScroll = Math.max(0, targetScroll);
+      const offset = 100; // Account for sticky header
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
 
       window.scrollTo({
-        top: targetScroll,
+        top: offsetPosition,
         behavior: 'smooth'
       });
-
-      // Reset scrolling flag and verify visibility after scroll completes
-      setTimeout(() => {
-        setIsScrolling(false);
-        // Double-check the section is visible
-        const finalRect = element.getBoundingClientRect();
-        if (finalRect.top < offset) {
-          // Section is too high, scroll down a bit
-          window.scrollBy({
-            top: offset - finalRect.top + 10,
-            behavior: 'smooth'
-          });
-        } else if (finalRect.bottom > viewportHeight - 20) {
-          // Section extends below viewport, but that's okay for bottom sections
-          // Just ensure the top is visible
-          if (finalRect.top > viewportHeight * 0.5) {
-            window.scrollBy({
-              top: finalRect.top - offset,
-              behavior: 'smooth'
-            });
-          }
-        }
-      }, 1000);
     }
   };
 
@@ -212,37 +175,48 @@ export default function CDSServiceDetailPage() {
       </div>
 
       {/* Hero Section */}
-      <div className="relative w-full overflow-hidden mb-8 bg-[#030E31]">
-        <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 35%), radial-gradient(circle at 80% 30%, rgba(255,255,255,0.06), transparent 35%)' }}></div>
-        <div className="relative z-10 px-6 md:px-12 lg:px-24 py-12 md:py-16 text-white">
-          <div className="max-w-5xl space-y-6">
-            <div className="flex items-center gap-3">
-              <span className="px-4 py-1 rounded-full bg-white/15 text-sm font-semibold uppercase tracking-wide">
-                {card.system || 'CDS'}
-              </span>
+      <div className="relative w-full h-[500px] overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: 'url(/images/content.PNG)',
+          }}
+        />
+
+        <div className="relative z-10 h-full flex flex-col justify-center px-6 md:px-12 lg:px-24 text-white bg-[#030E31]/60">
+          <div className="max-w-4xl">
+            <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-bold mb-4 text-white">
+              CDS
+            </span>
+
+            <div className="text-sm text-white/90 mb-6 font-inter">
+              {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
             </div>
-            {(heroMeta.date || heroMeta.version) && (
-              <p className="text-sm md:text-base text-white/80">
-                {`Version ${heroMeta.version || ''}`.trim()} {heroMeta.version && heroMeta.date ? '|' : ''} {heroMeta.date || ''}
-              </p>
-            )}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">{card.title}</h1>
-            <p className="text-base md:text-lg text-white/80">DQ Design · Digital Qatalyst</p>
+
+            <div className="mb-8">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight font-inter text-white">
+                CDS Framework
+              </h1>
+            </div>
+
+            <div className="flex items-center gap-3 text-sm text-white/90 font-inter font-semibold">
+              <span>DQ Design · Digital Qatalyst</span>
+            </div>
           </div>
         </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/20"></div>
       </div>
 
-      <div className="container mx-auto px-4 pb-8">
-        <div className="bg-white rounded-lg shadow-lg">
-          <div className="flex flex-col lg:flex-row lg:items-start">
-            {/* Main Content */}
-            <div className="flex-1 p-8">
+      {/* Main Content */}
+      <main className="flex-1">
+        <div className="container mx-auto px-4 py-12 max-w-[90rem]">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Main Content Area */}
+            <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12 min-h-0">
               {/* Overview Section */}
               {card.content.overview && (
-                <div
-                  ref={(el) => (sectionRefs.current['overview'] = el)}
-                  className="mb-12"
-                >
+                <section id="overview" className="mb-12 scroll-mt-24">
                   <div className="relative">
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 pl-6 font-inter tracking-tight">
@@ -252,85 +226,137 @@ export default function CDSServiceDetailPage() {
                   <div className="pl-6 prose prose-lg max-w-none text-gray-700 leading-relaxed">
                     <MarkdownRenderer body={card.content.overview} />
                   </div>
-                </div>
+                </section>
               )}
 
               {/* Subsections */}
-              {card.content.subsections?.map((subsection, index) => (
-                <div
-                  key={subsection.id}
-                  id={subsection.id}
-                  ref={(el) => (sectionRefs.current[subsection.id] = el)}
-                  className={`mb-12 scroll-mt-32 ${index === 0 && !card.content.overview ? 'mt-0' : ''}`}
-                  style={{ scrollMarginTop: '120px' }}
-                >
-                  <div className="relative">
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 pl-6 font-inter tracking-tight">
-                      {subsection.title}
-                    </h2>
-                  </div>
-                  <div className="pl-6 prose prose-lg max-w-none text-gray-700 leading-relaxed">
-                    <MarkdownRenderer body={subsection.content} />
-                  </div>
-
-                  {subsection.tableData && (
-                    <div className="mt-6 pl-6">
-                      <SummaryTable
-                        data={subsection.tableData.data}
-                        columns={subsection.tableData.columns}
-                        onViewFullTable={() => openTableModal(subsection.id)}
-                      />
-                      <FullTableModal
-                        isOpen={tableModalOpen[subsection.id] || false}
-                        onClose={() => closeTableModal(subsection.id)}
-                        title={subsection.title}
-                        data={subsection.tableData.data}
-                        columns={subsection.tableData.columns}
-                      />
+              {card.content.subsections?.map((subsection, index) => {
+                const sectionId = getSectionId(subsection.id);
+                return (
+                  <section
+                    key={subsection.id}
+                    id={sectionId}
+                    className={`mb-12 scroll-mt-24 ${index === 0 && !card.content.overview ? 'mt-0' : ''}`}
+                  >
+                    <div className="relative">
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
+                      <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 pl-6 font-inter tracking-tight">
+                        {subsection.title}
+                      </h2>
                     </div>
-                  )}
-
-                  {subsection.contentAfterTable && (
-                    <div className="mt-6 pl-6 prose max-w-none">
-                      <MarkdownRenderer body={subsection.contentAfterTable} />
+                    <div className="pl-6 prose prose-lg max-w-none text-gray-700 leading-relaxed">
+                      <MarkdownRenderer body={subsection.content} />
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {subsection.tableData && (
+                      <div className="mt-6 pl-6">
+                        <SummaryTable
+                          data={subsection.tableData.data}
+                          columns={subsection.tableData.columns}
+                          onViewFullTable={() => openTableModal(subsection.id)}
+                        />
+                        <FullTableModal
+                          isOpen={tableModalOpen[subsection.id] || false}
+                          onClose={() => closeTableModal(subsection.id)}
+                          title={subsection.title}
+                          data={subsection.tableData.data}
+                          columns={subsection.tableData.columns}
+                        />
+                      </div>
+                    )}
+
+                    {subsection.contentAfterTable && (
+                      <div className="mt-6 pl-6 prose max-w-none">
+                        <MarkdownRenderer body={subsection.contentAfterTable} />
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
             </div>
 
-            {/* Sidebar Navigation (right) */}
-            <div className="lg:w-64">
+            {/* Sidebar */}
+            <div className="lg:col-span-1">
               <nav className="sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto">
                 <div className="bg-gray-50 border-l border-gray-200 p-6">
                   <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
                     Contents
                   </h2>
                   <div className="space-y-2">
-                    {navSections.map((subsection) => {
-                      const isActive = activeSection === subsection.id;
-                      return (
-                        <button
-                          key={subsection.id}
-                          onClick={() => scrollToSection(subsection.id)}
-                          className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                            isActive
-                              ? 'bg-blue-100 text-blue-900 font-medium'
-                              : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1'
-                          }`}
-                        >
-                          {subsection.title}
-                        </button>
-                      );
-                    })}
+                    {(card.content.overview || card.content.subsections?.find(s => s.id === '1' && s.title.includes('Introduction'))) && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const introSection = card.content.subsections?.find(s => s.id === '1');
+                          const sectionId = introSection ? getSectionId(introSection.id) : 'overview';
+                          handleNavClick(e, sectionId);
+                        }}
+                        style={{ outline: 'none', border: 'none' }}
+                        className={`block w-full text-left px-3 py-2 text-sm transition-all duration-200 outline-none ${
+                          activeSection === '1' || activeSection === 'overview'
+                            ? 'bg-blue-200 text-blue-900 font-medium outline-none'
+                            : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none active:outline-none'
+                        }`}
+                      >
+                        1. Introduction
+                      </button>
+                    )}
+                    {card.content.subsections
+                      ?.filter((subsection) => {
+                        const title = subsection.title || '';
+                        // Only show: "Who is this for?", "What problem does it solve?", and whole number stages
+                        const isWholeNumber = /^\d+$/.test(subsection.id);
+                        const isStage = title.toLowerCase().includes('stage');
+                        return (
+                          title === 'Who is this for?' ||
+                          title === 'What problem does it solve?' ||
+                          (isWholeNumber && isStage && subsection.id !== '1')
+                        );
+                      })
+                      .map((subsection) => {
+                        const sectionId = getSectionId(subsection.id);
+                        const isActive = activeSection === sectionId;
+                        const originalIndex = card.content.subsections?.findIndex(s => s.id === subsection.id) ?? -1;
+                        let stageCount = 0;
+                        if (originalIndex >= 0 && card.content.subsections) {
+                          for (let i = 0; i <= originalIndex; i++) {
+                            const sub = card.content.subsections[i];
+                            if (sub && /^\d+$/.test(sub.id) && sub.title.toLowerCase().includes('stage')) {
+                              stageCount++;
+                            }
+                          }
+                        }
+                        const isStage = subsection.title.toLowerCase().includes('stage');
+                        // For stages, use the ID number directly (already whole numbers: 2, 3, 4, etc.)
+                        const baseStageTitle = subsection.title.replace(/^\d+\.\s*/, '').trim();
+                        const displayTitle = isStage
+                          ? `${subsection.id}. ${baseStageTitle}`
+                          : subsection.title;
+                        return (
+                          <button
+                            key={subsection.id}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleNavClick(e, sectionId);
+                            }}
+                            style={{ outline: 'none', border: 'none' }}
+                            className={`block w-full text-left px-3 py-2 text-sm transition-all duration-200 outline-none ${
+                              isActive
+                                ? 'bg-blue-200 text-blue-900 font-medium outline-none'
+                                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none active:outline-none'
+                            }`}
+                          >
+                            {displayTitle}
+                          </button>
+                        );
+                      })}
                   </div>
                 </div>
               </nav>
             </div>
           </div>
         </div>
-      </div>
+      </main>
       <Footer />
     </div>
   );

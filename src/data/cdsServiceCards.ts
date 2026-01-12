@@ -63,17 +63,17 @@ export const CDS_SERVICE_CARDS: CDSServiceCard[] = [
           {
             id: '1.2',
             title: '1.2 DQ MarCom | Ecosystem',
-            content: `The DQ MarCom Unit delivers targeted promotional and lead-generation campaigns in collaboration with key units across the organization. Operating as a centralized support function, it ensures each campaign aligns with both the strategic goals of the unit it supports and the broader DQ brand and business objectives.\n\n- DQ Organisation: Branding positioning.\n- DQ Delivery Units: Leads generation (DQ Designs and Deploys).\n- DQ Products Units: Leads generation (DQ DT2.0 and DCO offerings).`
+            content: `The DQ MarCom Unit delivers targeted promotional and lead-generation campaigns in collaboration with key units across the organization. Operating as a centralized support function, it ensures each campaign aligns with both the strategic goals of the unit it supports and the broader DQ brand and business objectives.\n\n**DQ Organisation:** Branding positioning.\n\n**DQ Delivery Units:** Leads generation (DQ Designs and Deploys).\n\n**DQ Products Units:** Leads generation (DQ DT2.0 and DCO offerings).`
           },
           {
             id: '1.3',
             title: '1.3 DQ CDS | Purpose',
-            content: `At its core, the Campaigns Design System (CDS) is a mechanism for ensuring consistency, quality, and strategic clarity across all outputs. It transforms campaign activity into a disciplined process of storytelling, brand expression, and stakeholder engagement while embedding visual and narrative standards that unify the brand experience. This ensures every campaign is impactful, aligned, repeatable, and reflective of DQ's digital leadership.\n\n- Provide a standardized, high-impact system for managing all marketing campaigns.\n- Empower teams to build campaigns that align with DQ's vision, values, and voice.\n- Accelerate production, improve consistency, and enhance campaign effectiveness.`
+            content: `At its core, the Campaigns Design System (CDS) is a mechanism for ensuring consistency, quality, and strategic clarity across all outputs. It transforms campaign activity into a disciplined process of storytelling, brand expression, and stakeholder engagement while embedding visual and narrative standards that unify the brand experience. This ensures every campaign is impactful, aligned, repeatable, and reflective of DQ's digital leadership.\n\n**Provide a standardized, high-impact system** for managing all marketing campaigns.\n\n**Empower teams to build campaigns** that align with DQ's vision, values, and voice.\n\n**Accelerate production, improve consistency, and enhance campaign effectiveness.**`
           },
           {
             id: '1.4',
             title: '1.4 DQ CDS | Key Stakeholders',
-            content: `CDS standardizes campaign execution and enables collaboration across diverse stakeholders, providing a shared system, language, and quality benchmarks to co-create high-quality, brand-aligned campaigns.\n\n- Marketing Leadership - Strategic alignment and oversight.\n- Campaign Beneficiaries - All stakeholders across the organisation.\n- Campaign Specialists - Campaign planning, scripting, and content design.\n- Designers & Creators - Visual identity, videos, carousels.\n- DevOps / WebOps - Programming, deployment, asset integration.\n- Campaign Data Analysts - Measurement, reporting, optimization.\n- Delivery / Products Teams - Cross-functional campaign initiators.`
+            content: `CDS standardizes campaign execution and enables collaboration across diverse stakeholders, providing a shared system, language, and quality benchmarks to co-create high-quality, brand-aligned campaigns.\n\n**Marketing Leadership** – Strategic alignment and oversight.\n\n**Campaign Beneficiaries** – All stakeholders across the organisation.\n\n**Campaign Specialists** – Campaign planning, scripting, and content design.\n\n**Designers & Creators** – Visual identity, videos, carousels.\n\n**DevOps / WebOps** – Programming, deployment, asset integration.\n\n**Campaign Data Analysts** – Measurement, reporting, optimization.\n\n**Delivery / Products Teams** – Cross-functional campaign initiators.`
           },
         {
           id: '2',
@@ -83,7 +83,7 @@ export const CDS_SERVICE_CARDS: CDSServiceCard[] = [
         {
           id: '2.1',
           title: '2.1 DQ CDS | 5 Content Pillars',
-          content: `The foundation of every DQ marketing campaign is built upon five core content pillars. These pillars are strategic expressions of DQ’s value proposition and positioning.\n\n- Thought Leadership & Insight: Advance DQ as the brain trust for digital transformation.\n- Product & Service Value: Showcase the functionality and outcomes of DQ products.\n- Brand Identity & Culture: Humanize the brand through emotion and values.\n- Education & Enablement: Teach and enable audiences to take action.\n- Community & Ecosystem: Highlight DQ’s role as a movement, not just a company.\n\nStructuring campaigns around these pillars ensures consistent messaging and measurable outcomes.`
+          content: `The foundation of every DQ marketing campaign is built upon five core content pillars. These pillars are strategic expressions of DQ's value proposition and positioning.\n\n**Thought Leadership & Insight:** Advance DQ as the brain trust for digital transformation.\n\n**Product & Service Value:** Showcase the functionality and outcomes of DQ products.\n\n**Brand Identity & Culture:** Humanize the brand through emotion and values.\n\n**Education & Enablement:** Teach and enable audiences to take action.\n\n**Community & Ecosystem:** Highlight DQ's role as a movement, not just a company.\n\nStructuring campaigns around these pillars ensures consistent messaging and measurable outcomes.`
         },
         {
           id: '2.2',
@@ -93,17 +93,17 @@ export const CDS_SERVICE_CARDS: CDSServiceCard[] = [
         {
           id: '2.3',
           title: '2.3 DQ CDS | The DQ Offerings',
-          content: `Campaigns develop the DQ brand and generate leads for products organized in the 6xD framework. Four product classes include:\n\nClass 01: DBP Reference Products\n- Product 11: DTMF (Digital Transformation Management Framework)\n- Product 12: Digital Canvas (Digital Cognitive Organisation Canvas)\n\nClass 02: DT2.0 Products\n- Product 21: DTMP (Digital Transformation Management Platform)\n- Product 22: DTO4T (Digital Twin of Organisation for Transformation)\n- Product 23: DTMaaS (Digital Transformation Management as a Service)\n\nClass 03: DCO Products\n- Product 31: DTMI (Digital Transformation Management Insight)\n- Product 32: DTMA (Digital Transformation Management Academy)\n- Product 33: DTMB (Digital Transformation Management Books)\n\nClass 04: Niche Products\n- Product 41: D2GPRC (Data-Driven Govern Perform Risk Comply)\n- Product 42: Others (e.g., LoanMS, PlanBPM).`
+          content: `Campaigns develop the DQ brand and generate leads for products organized in the 6xD framework. Four product classes include:\n\n**Class 01: DBP Reference Products**\n\n**Product 11:** DTMF (Digital Transformation Management Framework)\n\n**Product 12:** Digital Canvas (Digital Cognitive Organisation Canvas)\n\n**Class 02: DT2.0 (Digital Transformation 2.0) Products**\n\n**Product 21:** DTMP (Digital Transformation Management Platform)\n\n**Product 22:** DTO4T (Digital Twin of Organisation for Transformation)\n\n**Product 23:** DTMaaS (Digital Transformation Management as a Service)\n\n**Class 03: DCO (Digital Cognitive Organisation) Products**\n\n**Product 31:** DTMI (Digital Transformation Management Insight)\n\n**Product 32:** DTMA (Digital Transformation Management Academy)\n\n**Product 33:** DTMB (Digital Transformation Management Books)\n\n**Class 04: Niche Products**\n\n**Product 41:** D2GPRC (Data-Driven Govern Perform Risk Comply) – RegTech | SupTech\n\n**Product 42:** Others (i.e. LoanMS | PlanBPM…)`
         },
         {
           id: '2.4',
           title: '2.4 DQ CDS | Roles & Responsibilities',
-          content: `Effective execution relies on clearly defined roles and seamless collaboration. Roles are interdependent contributors in a unified campaign workflow, improving speed, quality, and alignment:\n\n- Campaign Owner – Strategic direction and alignment.\n- Creative Lead – Messaging, visuals, pillar fit.\n- Creative Editor – Canva, video, animation.\n- Creative Writer – Scripts, captions, CTA writing.\n- DXP Feature Dev (Platform) – Distribution, platform compliance.\n- DXP Feature Dev (Data) – Metrics tracking, insights, reporting.`
+          content: `Effective execution relies on clearly defined roles and seamless collaboration. Roles are interdependent contributors in a unified campaign workflow, improving speed, quality, and alignment:\n\n**Campaign Owner** – Strategic direction & alignment.\n\n**Creative Lead** – Messaging, visuals, pillar fit.\n\n**Creative Editor** – Canva, video, animation.\n\n**Creative Writer** – Scripts, captions, CTA writing.\n\n**DXP Feature Dev (Platform)** – Distribution, platform compliance.\n\n**DXP Feature Dev (Data)** – Metrics tracking, insights, reporting.`
         },
         {
           id: '2.5',
           title: '2.5 DQ CDS | Target Audience',
-          content: `To be refined per campaign; typical personas include:\n- Digital Organisation Executive\n- Digital Leaders (CTO, CDO)\n- Digital Architect\n- Digital Worker`
+          content: `To be refined per campaign; typical personas include:\n\n**Digital Organisation Executive**\n\n**Digital Leaders** (CTO | CDO)\n\n**Digital Architect**\n\n**Digital Worker**`
         },
         {
           id: '2.6',
@@ -136,12 +136,47 @@ export const CDS_SERVICE_CARDS: CDSServiceCard[] = [
         {
           id: '2.7',
           title: '2.7 DQ MarCom | Channels vs Content Pillars',
-          content: `Align pillars to the best-fit channels to maximize resonance and conversion. Sample mappings include:\n- Thought Leadership & Insight: LinkedIn, Medium/Substack, YouTube, Website (support: X, Threads, SlideShare, Email, WhatsApp/Telegram).\n- Product & Service Value: Website, YouTube, LinkedIn, Email (support: Instagram Reels, WhatsApp/Telegram, Facebook, X, SlideShare).\n- Brand Identity & Culture: Instagram, YouTube, TikTok, Website (support: Threads, Facebook, Pinterest, WhatsApp/Telegram).\n- Education & Enablement: YouTube, Instagram (Carousels/Reels), Website, Email (support: Pinterest, Medium/Substack, LinkedIn, WhatsApp/Telegram).\n- Community & Ecosystem: Instagram, LinkedIn, WhatsApp/Telegram, Email, Website (support: Facebook, X, Threads).\n\nPillar-to-channel examples:\n- Thought Leadership: “Why DT2.0 Replaces Siloed Projects” on LinkedIn + Medium + Website.\n- Product Value: TMaaS demo video on YouTube + Email + LinkedIn.\n- Brand Identity: “Day in DQ: Culture Reel” on Instagram + TikTok + Threads.\n- Education: “What is a Work Unit?” carousel on Instagram + Website + Email.\n- Community: “Join the DTMA Launch Event” on LinkedIn + WhatsApp + Email.`
+          content: `While each campaign pillar serves a unique strategic purpose, their impact is amplified when mapped to the channels best suited to their strengths. This alignment ensures that content resonates in both form and function—delivered through the platform where it naturally thrives.`,
+          tableData: {
+            columns: [
+              { header: '#', accessor: 'number' },
+              { header: 'Content Pillar', accessor: 'pillar' },
+              { header: 'Primary Channels', accessor: 'primary' },
+              { header: 'Supporting Channels', accessor: 'supporting' }
+            ],
+            data: [
+              { number: '1', pillar: 'Thought Leadership & Insight', primary: 'LinkedIn, Medium/Substack, YouTube, Website', supporting: 'X (Twitter), Threads, SlideShare, Email, WhatsApp/Telegram' },
+              { number: '2', pillar: 'Product & Service Value', primary: 'Website, YouTube, LinkedIn, Email', supporting: 'Instagram (Reels), WhatsApp/Telegram, Facebook, X (Twitter), SlideShare' },
+              { number: '3', pillar: 'Brand Identity & Culture', primary: 'Instagram, YouTube, TikTok, Website', supporting: 'Threads, Facebook, Pinterest, WhatsApp/Telegram' },
+              { number: '4', pillar: 'Education & Enablement', primary: 'YouTube, Instagram (Carousels/Reels), Website, Email', supporting: 'Pinterest, Medium/Substack, LinkedIn, WhatsApp/Telegram' },
+              { number: '5', pillar: 'Community, Events & Ecosystem', primary: 'Instagram, LinkedIn, WhatsApp/Telegram, Email, Website', supporting: 'Facebook, X (Twitter), Threads' }
+            ]
+          },
+          contentAfterTable: `Each of the channels offers a number of specific features making it most relevant for a type of content as promoted in specific content pillars. The mapping of channels to pillars is here illustrated:\n\n**Channel Best for Pillars**\n\n**LinkedIn** – 1, 2, 5 (Thought leadership, product, community)\n\n**YouTube** – 1, 2, 3, 4 (All video storytelling & education)\n\n**Instagram** – 3, 4, 5 (Visual identity, engagement, culture)\n\n**Website** – 1, 2, 4, 5 (Hub for conversion & discovery)\n\n**Email** – 2, 4, 5 (Targeted nurture & CTA delivery)\n\n**WhatsApp/Telegram** – 2, 5 (Alerts, client/community activations)\n\n**Medium/Substack** – 1, 4 (In-depth articles and POVs)\n\n**X (Twitter)** – 1, 2, 5 (Fast insights, reactions, awareness)\n\n**Facebook** – 3, 5 (Broad outreach, regional audience)\n\n**Pinterest** – 3, 4 (Visual models and templates)\n\n**SlideShare** – 1, 2 (Decks and visual frameworks)\n\n**TikTok** – 3 (Brand culture and talent magnet)\n\n**Threads** – 1, 3, 5 (Micro storytelling & community tone)\n\nThe style of posts emerging from the content pillars points to specialized social channel for best engagement, as illustrated in the table below.`
+        },
+        {
+          id: '2.7a',
+          title: '2.7a DQ MarCom | Sample Post Examples by Pillar',
+          content: `The style of posts emerging from the content pillars points to specialized social channel for best engagement.`,
+          tableData: {
+            columns: [
+              { header: 'Pillar', accessor: 'pillar' },
+              { header: 'Sample Post', accessor: 'post' },
+              { header: 'Channel(s)', accessor: 'channels' }
+            ],
+            data: [
+              { pillar: 'Thought Leadership', post: '"Why DT2.0 Replaces Siloed Projects"', channels: 'LinkedIn + Medium + Website' },
+              { pillar: 'Product & Service Value', post: 'TMaaS Demo Video', channels: 'YouTube + Email + LinkedIn' },
+              { pillar: 'Brand Identity & Culture', post: '"Day in DQ: Culture Reel"', channels: 'Instagram + TikTok + Threads' },
+              { pillar: 'Education & Enablement', post: '"What is a Work Unit?" carousel', channels: 'Instagram + Website + Email' },
+              { pillar: 'Community / Ecosystem', post: '"Join the DTMA Launch Event" post', channels: 'LinkedIn + WhatsApp + Email' }
+            ]
+          }
         },
         {
           id: '2.8',
           title: '2.8 DQ MarCom | Campaign Lifecycle',
-          content: `A repeatable structure that moves from strategic intent to execution with clarity and speed. Four core stages:\n\n- Planning – Strategy, objectives, storyboarding.\n- Design – Scripts, visuals, messaging, prompts.\n- Execution – Programming, scheduling, deployment.\n- Governance – Monitoring, review, reporting, retros.`
+          content: `A repeatable structure that moves from strategic intent to execution with clarity and speed. Four core stages:\n\n**Planning** – Strategy, objectives, storyboarding.\n\n**Design** – Scripts, visuals, messaging, prompts.\n\n**Execution** – Programming, scheduling, deployment.\n\n**Governance** – Monitoring, review, reporting, retros.`
         },
         {
           id: '3',
@@ -166,22 +201,22 @@ export const CDS_SERVICE_CARDS: CDSServiceCard[] = [
         {
           id: '4.1',
           title: '4.1 DQ CDS | Messaging & Narrative Framework',
-          content: `Use the core flow to drive clarity and engagement across all formats:\n- Hook – Capture attention.\n- Context – Frame relevance/problem.\n- Value – Deliver the key benefit or outcome.\n- CTA – Direct the next action with urgency and clarity.`
+          content: `Use the core flow to drive clarity and engagement across all formats:\n\n**Hook** – A bold, emotional, or insightful opening that captures attention and stirs curiosity.\n\n**Context** – Sets the scene and introduces relevance or a core problem to build interest and emotional alignment.\n\n**Value** – Describes the key benefit, insight, or outcome that the audience should walk away with.\n\n**CTA** – Directs the viewer on what to do next with urgency and clarity.`
         },
         {
           id: '4.2',
           title: '4.2 DQ CDS | Content Asset Templates (by Pillar)',
-          content: `Templates provide fit-for-purpose starting points:\n\n- Thought Leadership: Explainer reels, whitepaper quotes, carousels.\n- Product Value: Walkthroughs, case studies, user reviews.\n- Brand Culture: Team reels, behind-the-scenes, storytelling videos.\n- Education: Mini tutorials, toolkit downloads, how-to carousels.\n- Community: Shoutouts, partner highlights, polls, event promos.`
+          content: `Templates provide fit-for-purpose starting points:\n\n**Thought Leadership** – Explainer reels, whitepaper quotes, carousels.\n\n**Product & Service Value** – Walkthroughs, case studies, user reviews.\n\n**Brand Identity & Culture** – Team reels, behind-the-scenes, storytelling videos.\n\n**Education & Enablement** – Mini tutorials, toolkit downloads, how-to carousels.\n\n**Community & Ecosystem** – Shoutouts, partner highlights, polls, event promos.`
         },
         {
           id: '4.3',
           title: '4.3 DQ CDS | Visual & Style Guides',
-          content: `Maintain consistency and recognizability with the CDS visual system:\n- Brand colors/gradients: Midnight Navy, Silver Gray, warm neutrals.\n- Typography: Cormorant Garamond for hero text, Open Sans for body.\n- Image composition: Consistent lighting, minimal backdrops, organic framing.\n- Layout: Grid-based with wide margins and content-first hierarchy.\n- Animation: Minimalist transitions and linear reveals.\n- Emotional tone: Inspirational (Thought Leadership), practical (Education), intimate (Brand Culture).`
+          content: `Maintain consistency and recognizability with the CDS visual system:\n\n**Brand Colors and Gradients** – Midnight Navy, Silver Gray, Warm Neutrals.\n\n**Typography and Font Pairings** – Cormorant Garamond for hero text, Open Sans for body text.\n\n**Image Composition and Usage** – Consistent lighting, minimal backdrops, organic framing.\n\n**Layout Rules** – Grid-based, wide margins, content foreground priority.\n\n**Animation Style** – Minimalist transitions, elegant overlays, linear reveal sequences.\n\n**Emotional Tone Guidelines** – Inspirational for Thought Leadership, Practical for Education, Intimate for Brand Culture.`
         },
         {
           id: '4.4',
           title: '4.4 DQ CDS | AI-Powered Production Tools',
-          content: `Integrated tools accelerate production without sacrificing quality:\n\n- HeyGen – Script-to-video for animated explainers.\n- MidJourney – AI-generated image mood boards and compositions.\n- ChatGPT – Captioning, CTA generation, hooks, and script writing.\n- MagicPatterns – Creative layouts and brand-fit patterns.\n- Rocket/Lovable – Smart previews, design QA, A/B prompt testing, clarity scoring.\n- Notion Campaign Tracker, Canva Template Library, AI Prompt Library, Campaign Calendar Generator, UTM Tagging and Performance Dashboard, Platform Publishing Specs.`
+          content: `Integrated tools accelerate production without sacrificing quality:\n\n**HeyGen** – Script-to-video for animated explainers.\n\n**MidJourney** – AI-generated image mood boards and compositions.\n\n**ChatGPT** – Captioning, CTA generation, hook design, and script writing.\n\n**MagicPatterns** – Creative layouts and brand-fit aesthetic pattern generation.\n\n**Rocket/Lovable** – Smart previews, design QA, A/B prompt testing, and message clarity scoring.\n\n**Notion Campaign Tracker** (Backlog, In Progress, Complete)\n\n**Canva Template Library** (by Content Pillar)\n\n**AI Prompt Library** (ChatGPT, HeyGen, MidJourney)\n\n**Campaign Calendar Generator** (Notion/Excel)\n\n**UTM Tagging and Performance Dashboard** (Google Sheets)\n\n**Platform Publishing Specs** (Reel sizes, carousel specs, etc.)`
         },
         {
           id: '5',
@@ -191,17 +226,17 @@ export const CDS_SERVICE_CARDS: CDSServiceCard[] = [
         {
           id: '5.1',
           title: '5.1 Compilation & Programming',
-          content: `Pre-launch readiness to ensure flawless delivery across touchpoints:\n- Organize assets in versioned folders per platform.\n- Tag assets with metadata and UTMs for analytics and attribution.\n- Finalize captions, hashtags, emojis, and links for tone and platform coherence.\n- QA visuals, copy, videos, and scripts for brand and technical compliance.`
+          content: `Pre-launch readiness to ensure flawless delivery across touchpoints:\n\n**Organize all assets in versioned folders (per platform):** Ensures that files are clearly labeled, accessible, and properly grouped for platform-specific workflows.\n\n**Tag assets with metadata and UTMs:** Embeds performance tracking codes directly into the content to facilitate precise analytics, audience behavior insights, and campaign attribution.\n\n**Finalize and standardize caption text, hashtags, emojis, and links:** Maintains content tone and platform coherence, enhancing the consistency and effectiveness of each post.\n\n**QA all visuals, copy, videos, and scripts:** A final quality control step to detect and correct errors, reinforce brand consistency, and ensure the campaign meets technical and creative expectations before going live.`
         },
         {
           id: '5.2',
           title: '5.2 Deployment Checklist',
-          content: `Guide precise go-live:\n- Automated scheduling (e.g., Simplified) for timed, coordinated publishing.\n- Manual native posting for formats not supported by automation.\n- Cross-link assets to guide users across channels and journeys.\n- Compliance and verification alerts to confirm successful publication.\n- Live engagement monitoring to respond and boost signals.`
+          content: `Guide precise go-live:\n\n**Automated Scheduling:** Schedule content via trusted social media tools (e.g., Simplified) to ensure timed, coordinated, and consistent publishing across all selected platforms.\n\n**Manual Native Posting:** Manually post to native platforms when needed (e.g., Instagram Stories, LinkedIn Polls) to accommodate formats or features not supported by automation.\n\n**Cross-Linking Between Assets:** Ensure interlinking between content pieces (e.g., carousels linking to blog posts, videos to forms) to guide users across channels and increase overall engagement.\n\n**Compliance & Verification Alerts:** Activate alerts and tracking monitors to confirm all assets comply with platform standards and are successfully published without issues.\n\n**Live Engagement Monitoring:** Actively monitor comments, shares, and DMs in real-time to engage audiences, surface feedback, and signal positive interaction to platform algorithms.`
         },
         {
           id: '5.3',
           title: '5.3 Mid-Campaign Adjustments',
-          content: `Optimize during the campaign window:\n- Creative refresh for low-performing hooks/CTAs.\n- Smart retargeting to high-performing segments or alternate formats.\n- Format remixing (Stories, Shorts, bite-sized Reels).\n- Audience expansion via new segments, geo-variants, or localized messaging.`
+          content: `Optimize during the campaign window:\n\n**Creative Refresh:** Refresh visuals, hooks, or CTAs if early performance signals (e.g., low CTR or watch time) suggest poor engagement or content fatigue.\n\n**Smart Retargeting:** Retarget content to high-performing audience clusters or test alternate formats (e.g., static vs. animated) based on live behavior patterns.\n\n**Format Remixing:** Remix or elevate top-performing assets into complementary formats like Stories, Shorts, or bite-sized Reels to boost recirculation, visibility, and engagement.\n\n**Audience Expansion:** Extend the campaign's lifespan and visibility by activating new audience segments, launching geo-variants, or adapting messaging for regional resonance.`
         },
         {
           id: '6',
@@ -211,17 +246,17 @@ export const CDS_SERVICE_CARDS: CDSServiceCard[] = [
         {
           id: '6.1',
           title: '6.1 KPI Model by Pillar',
-          content: `Measure outcomes aligned to pillar intent:\n- Thought Leadership: Shares, reach, saves, reposts.\n- Product Value: CTR, conversions, engagement time.\n- Brand Culture: Reactions, comments, reposts.\n- Education: Completion rate, downloads, saves.\n- Community: RSVPs, tagging, DMs, poll responses.`
+          content: `Measure outcomes aligned to pillar intent:\n\n**Thought Leadership:** Shares, Reach, Saves, Reposts. Signals the spread and perceived value of insight-driven content.\n\n**Product & Service Value:** Click-Through Rate (CTR), Conversions, Engagement Time. Indicates audience action, interest, and content depth.\n\n**Brand Identity & Culture:** Reactions, Comments, Reposts. Reveals emotional connection and brand affinity.\n\n**Education & Enablement:** Completion Rate, Downloads, Saves. Measures the effectiveness of knowledge transfer and utility.\n\n**Community & Ecosystem:** RSVPs, Tagging, DMs, Poll Responses. Tracks interactive engagement and collective participation.`
         },
         {
           id: '6.2',
           title: '6.2 Campaign Review Template',
-          content: `Post-campaign review for actionable insights:\n- Results vs objectives.\n- Top-performing assets.\n- Audience feedback themes.\n- Visual and tone resonance.\n- Budget use and ROI.\n- Lessons learned and pillar impact.`
+          content: `Post-campaign review for actionable insights:\n\n**Results vs Objectives:** Did we meet or exceed expectations?\n\n**Top-Performing Assets:** What content formats resonated most?\n\n**Audience Feedback Themes:** What did people say—and how did they feel?\n\n**Visual & Tone Resonance:** Was the brand voice visually and emotionally consistent?\n\n**Budget Use and ROI:** Did we get value for our spend?\n\n**Lessons Learned:** What should we repeat, avoid, or tweak?\n\n**Pillar Impact Assessment:** Which content pillar drove the highest engagement?`
         },
         {
           id: '6.3',
           title: '6.3 Monthly Quality Review',
-          content: `Cross-functional review (Head of Content, CES, Design Leads) to assess messaging, visuals, tone, and platform impact; map assets to pillars; log improvements; and evolve frameworks, prompts, and QA checklists.`
+          content: `Cross-functional review (Head of Content, CES, Design Leads) to assess messaging, visuals, tone, and platform impact; map assets to pillars; log improvements; and evolve frameworks, prompts, and QA checklists.\n\n**Review of Campaign Assets:** Including evaluation by the Head of Content, CES, and Design Leads.\n\n**Editorial, Emotional, and Visual Checks:** Focus on tone, quality, and brand presence.\n\n**Pillar Mapping:** Ensure each asset fulfills its pillar's strategic purpose.\n\n**Improvement Logging:** Capture and assign specific improvements.\n\n**Framework Enhancements:** Apply lessons learned to evolve tools and templates.`
         },
         {
           id: '7',
@@ -231,6 +266,6 @@ export const CDS_SERVICE_CARDS: CDSServiceCard[] = [
       ]
     },
     tags: ['CDS', 'Campaigns', 'Marketing'],
-    imageUrl: '/images/design service card image.PNG'
+    imageUrl: '/images/cds.png'
   }
 ];
