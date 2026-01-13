@@ -666,8 +666,23 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
             }));
 
             // Apply product filters
-            if (productTypes.length > 0) {
-              out = out.filter(it => it.productType && productTypes.includes(it.productType.toLowerCase()));
+          if (productTypes.length > 0) {
+            out = out.filter(it => {
+              const itemProductType = (it.productType || '').toLowerCase();
+              return productTypes.some(selectedType => {
+                const normalizedSelected = slugify(selectedType);
+                const typeMap: Record<string, string[]> = {
+                  'tmaas': ['tmaas'],
+                  'dtma': ['dtma'],
+                  'dtmp': ['dtmp'],
+                  'plant-4-0': ['plant 4.0', 'plant-4.0', 'plant40'],
+                  'dtmcc': ['dtmcc'],
+                  'dto4t': ['dto4t', 'dto4t ']
+                };
+                const searchTerms = typeMap[selectedType] || [normalizedSelected];
+                return searchTerms.some(term => itemProductType.includes(term));
+              });
+            });
             }
             if (productStages.length > 0) {
               out = out.filter(it => it.productStage && productStages.includes(it.productStage.toLowerCase()));
@@ -1944,6 +1959,13 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                 }}
               />
             </div>
+          </div>
+        )}
+        {isGuides && activeTab === 'blueprints' && (
+          <div className="mb-4">
+            <span className="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full border border-blue-200 bg-blue-50 text-blue-700">
+              Product
+            </span>
           </div>
         )}
 

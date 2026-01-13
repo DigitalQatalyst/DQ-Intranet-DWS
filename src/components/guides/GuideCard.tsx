@@ -136,15 +136,20 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
   // Ensure we're using the correct property name - check both camelCase and snake_case
   const heroImage = guide.heroImageUrl || (guide as any).hero_image_url || null
   const subDomain = guide.subDomain || (guide as any).sub_domain || null
-  const defaultImageUrl = getGuideImageUrl({
-    heroImageUrl: heroImage,
-    domain: guide.domain,
-    guideType: guide.guideType,
-    subDomain: subDomain,
-    id: guide.id,
-    slug: guide.slug || guide.id,
-    title: guide.title,
-  })
+
+  // For products/blueprints, prioritize the product image from metadata (e.g. TMaaS card image)
+  const defaultImageUrl = isBlueprint && productMetadata?.imageUrl
+    ? productMetadata.imageUrl
+    : getGuideImageUrl({
+        heroImageUrl: heroImage,
+        domain: guide.domain,
+        guideType: guide.guideType,
+        subDomain: subDomain,
+        id: guide.id,
+        slug: guide.slug || guide.id,
+        title: guide.title,
+      })
+
   const imageUrl = imageOverrideUrl || defaultImageUrl
   const isTestimonial = ((guide.domain || '').toLowerCase().includes('testimonial')) || ((guide.guideType || '').toLowerCase().includes('testimonial'))
   
@@ -182,14 +187,9 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
       <div className="flex flex-wrap gap-2 mb-3">
         {/* For products, show Product Type and Stage instead of domain/guideType */}
         {isBlueprint && productMetadata ? (
-          <>
-            <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border" style={{ backgroundColor: 'var(--dws-chip-bg)', color: 'var(--dws-chip-text)', borderColor: 'var(--dws-card-border)' }}>
-              {productMetadata.productType}
-            </span>
-            <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border" style={{ backgroundColor: 'var(--dws-chip-bg)', color: 'var(--dws-chip-text)', borderColor: 'var(--dws-card-border)' }}>
-              {productMetadata.productStage}
-            </span>
-          </>
+          <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border" style={{ backgroundColor: 'var(--dws-chip-bg)', color: 'var(--dws-chip-text)', borderColor: 'var(--dws-card-border)' }}>
+            Product
+          </span>
         ) : (
           <>
             {domain && (
@@ -219,14 +219,14 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
         {timeBucket && <span>{timeBucket}</span>}
         {lastUpdated && <span>{lastUpdated}</span>}
       </div>
-      {/* Always show author info for products, show for others only if author exists */}
-      {(isBlueprint || guide.authorName || guide.authorOrg) && (
+            {/* Show author info only when provided and not a product */}
+      {(!isBlueprint && (guide.authorName || guide.authorOrg)) && (
         <div className="text-xs text-gray-600 mb-3">
           <span
             className="truncate"
-            title={isBlueprint ? 'Product Owner / Practice' : `${guide.authorName || ''}${guide.authorOrg ? ' • ' + guide.authorOrg : ''}`}
+            title={`${guide.authorName || ""}${guide.authorOrg ? " - " + guide.authorOrg : ""}`}
           >
-            {isBlueprint ? 'Product Owner / Practice' : `${guide.authorName || ''}${guide.authorOrg ? ` • ${guide.authorOrg}` : ''}`}
+            {`${guide.authorName || ""}${guide.authorOrg ? ` - ${guide.authorOrg}` : ""}`}
           </span>
         </div>
       )}
@@ -248,3 +248,5 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
 }
 
 export default GuideCard
+
+

@@ -123,12 +123,12 @@ const BLUEPRINT_LOCATIONS: Facet[] = [
 ]
 
 const PRODUCT_TYPES: Facet[] = [
-  { id: 'platform', name: 'Platform' },
-  { id: 'academy', name: 'Academy' },
-  { id: 'framework', name: 'Framework' },
-  { id: 'tooling', name: 'Tooling' },
-  { id: 'marketplace', name: 'Marketplace' },
-  { id: 'enablement-product', name: 'Enablement Product' }
+  { id: 'tmaas', name: 'TMaaS' },
+  { id: 'dtma', name: 'DTMA' },
+  { id: 'dtmp', name: 'DTMP' },
+  { id: 'plant-4-0', name: 'Plant 4.0' },
+  { id: 'dtmcc', name: 'DTMCC' },
+  { id: 'dto4t', name: 'DTO4T' }
 ]
 
 const PRODUCT_STAGES: Facet[] = [
@@ -190,7 +190,7 @@ const STRATEGY_FRAMEWORKS: Facet[] = [
 // All possible filter categories - default to ALL collapsed
 const ALL_CATEGORIES = [
   'guide_type', 'sub_domain', 'unit', 'location', 'testimonial_category',
-  'product_type', 'product_stage', 'product_sector', 'guidelines_category',
+  'product_type', 'product_stage', 'guidelines_category',
   'strategy_type', 'strategy_framework',
   'glossary_knowledge_system', 'glossary_ghc_dimension', 'glossary_6xd_perspective', 'glossary_letter'
 ]
@@ -524,14 +524,11 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
         )
       })() : isBlueprintSelected ? (
         <>
-          <Section idPrefix={instanceId} title="Product Type" category="product_type" collapsed={collapsedSet.has('product_type')} onToggle={toggleCollapsed}>
+          <Section idPrefix={instanceId} title="Products" category="product_type" collapsed={collapsedSet.has('product_type')} onToggle={toggleCollapsed}>
             <CheckboxList idPrefix={instanceId} name="product_type" options={PRODUCT_TYPES} query={query} onChange={onChange} />
           </Section>
           <Section idPrefix={instanceId} title="Product Stage" category="product_stage" collapsed={collapsedSet.has('product_stage')} onToggle={toggleCollapsed}>
             <CheckboxList idPrefix={instanceId} name="product_stage" options={PRODUCT_STAGES} query={query} onChange={onChange} />
-          </Section>
-          <Section idPrefix={instanceId} title="Sector" category="product_sector" collapsed={collapsedSet.has('product_sector')} onToggle={toggleCollapsed}>
-            <CheckboxList idPrefix={instanceId} name="product_sector" options={PRODUCT_SECTORS} query={query} onChange={onChange} />
           </Section>
         </>
       ) : isGuidelinesSelected ? (
@@ -549,13 +546,9 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
           <CheckboxList idPrefix={instanceId} name="guide_type" options={facets.guide_type || []} query={query} onChange={onChange} />
         </Section>
       )}
-      {!isGlossarySelected && (
+      {!isGlossarySelected && !isBlueprintSelected && (
         <>
-          {isBlueprintSelected ? (
-            <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
-              <CheckboxList idPrefix={instanceId} name="unit" options={BLUEPRINT_UNITS} query={query} onChange={onChange} />
-            </Section>
-          ) : isStrategySelected ? (
+          {isStrategySelected ? (
             <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
               <CheckboxList idPrefix={instanceId} name="unit" options={STRATEGY_UNITS} query={query} onChange={onChange} />
             </Section>
@@ -589,13 +582,9 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
           </Section>
         </>
       )}
-      {!isGlossarySelected && (
+      {!isGlossarySelected && !isBlueprintSelected && (
         <>
-          {isBlueprintSelected ? (
-            <Section idPrefix={instanceId} title="Location" category="location" collapsed={collapsedSet.has('location')} onToggle={toggleCollapsed}>
-              <CheckboxList idPrefix={instanceId} name="location" options={BLUEPRINT_LOCATIONS} query={query} onChange={onChange} />
-            </Section>
-          ) : isStrategySelected ? (
+          {isStrategySelected ? (
             <Section idPrefix={instanceId} title="Location" category="location" collapsed={collapsedSet.has('location')} onToggle={toggleCollapsed}>
               <CheckboxList idPrefix={instanceId} name="location" options={STRATEGY_LOCATIONS} query={query} onChange={onChange} />
             </Section>
