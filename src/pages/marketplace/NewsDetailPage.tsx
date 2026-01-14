@@ -404,9 +404,13 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
           continue; // Skip rendering the main title
         }
         const titleCaseText = toTitleCase(cleanText);
+        // Check if heading starts with a number
+        const isNumberedHeading = /^(\*\*)?\d+\.\s/.test(cleanText.trim());
         elements.push(
-          <h2 key={keyCounter++} className="text-xl font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0">
-            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+          <h2 key={keyCounter++} className={`text-xl font-bold text-gray-900 mt-6 mb-4 ${isNumberedHeading ? 'pl-0' : 'pl-4 relative border-0 border-l-0'}`}>
+            {!isNumberedHeading && (
+              <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+            )}
             {parseBold(titleCaseText)}
           </h2>
         );
@@ -442,17 +446,24 @@ const renderFullContent = (content: string, isBlog: boolean = false, treatFirstL
       }
       
       const titleCaseHeading = toTitleCase(headingText);
+      // Check if heading starts with a number (e.g., "1.", "2.", "**1.**", etc.)
+      const isNumberedHeading = /^(\*\*)?\d+\.\s/.test(headingText.trim());
+      
       if (level === 2) {
         elements.push(
-          <h2 key={keyCounter++} className="text-xl font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0">
-            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+          <h2 key={keyCounter++} className={`text-xl font-bold text-gray-900 mt-6 mb-4 ${isNumberedHeading ? 'pl-0' : 'pl-4 relative border-0 border-l-0'}`}>
+            {!isNumberedHeading && (
+              <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+            )}
             {parseBold(titleCaseHeading)}
           </h2>
         );
       } else {
         elements.push(
-          <h3 key={keyCounter++} className="text-lg font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0">
-            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+          <h3 key={keyCounter++} className={`text-lg font-bold text-gray-900 mt-6 mb-4 ${isNumberedHeading ? 'pl-0' : 'pl-4 relative border-0 border-l-0'}`}>
+            {!isNumberedHeading && (
+              <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+            )}
             {parseBold(titleCaseHeading)}
           </h3>
         );
@@ -728,12 +739,18 @@ const NewsDetailPage: React.FC = () => {
                   ) : (
                     <div className="space-y-3">
                       {/* Short heading for announcements */}
-                      {article && !isBlogArticle && (
-                        <h2 className="text-2xl font-bold text-gray-900 mb-4 pl-4 relative">
-                          <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
-                          {generateAnnouncementHeading(article)}
-                        </h2>
-                      )}
+                      {article && !isBlogArticle && (() => {
+                        const headingText = generateAnnouncementHeading(article);
+                        const isNumberedHeading = /^(\*\*)?\d+\.\s/.test(headingText.trim());
+                        return (
+                          <h2 className={`text-2xl font-bold text-gray-900 mb-4 ${isNumberedHeading ? 'pl-0' : 'pl-4 relative'}`}>
+                            {!isNumberedHeading && (
+                              <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+                            )}
+                            {headingText}
+                          </h2>
+                        );
+                      })()}
                       {overview.map((paragraph, index) => {
                         const trimmed = paragraph.trim();
                         if (!trimmed) return null;

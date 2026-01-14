@@ -44,6 +44,7 @@ export default function PodcastSeriesPage() {
   const [isMuted, setIsMuted] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [hoveredEpisode, setHoveredEpisode] = useState<string | null>(null);
+  const [episodeDurations, setEpisodeDurations] = useState<Map<string, number>>(new Map());
   
   // Expanded episode state
   const [expandedEpisode, setExpandedEpisode] = useState<string | null>(null);
@@ -105,6 +106,29 @@ export default function PodcastSeriesPage() {
           (item) => item.format === 'Podcast' || item.tags?.some((tag) => tag.toLowerCase().includes('podcast'))
         );
         setEpisodes(podcastEpisodes);
+        
+        // Preload audio durations for all episodes
+        const durations = new Map<string, number>();
+        const loadPromises = podcastEpisodes.map((episode) => {
+          if (!episode.audioUrl) return Promise.resolve();
+          
+          return new Promise<void>((resolve) => {
+            const audio = new Audio(episode.audioUrl);
+            audio.addEventListener('loadedmetadata', () => {
+              if (audio.duration && isFinite(audio.duration) && !isNaN(audio.duration)) {
+                durations.set(episode.id, audio.duration);
+              }
+              resolve();
+            }, { once: true });
+            audio.addEventListener('error', () => {
+              resolve(); // Resolve even on error to not block other loads
+            }, { once: true });
+            audio.load();
+          });
+        });
+        
+        await Promise.all(loadPromises);
+        setEpisodeDurations(durations);
       } catch {
         // Error loading episodes - handled by loading state
       } finally {
@@ -186,6 +210,14 @@ export default function PodcastSeriesPage() {
     const updateDuration = () => {
       if (!isNaN(audio.duration) && isFinite(audio.duration) && audio.duration > 0) {
         setDuration(audio.duration);
+        // Store the duration for the currently playing episode
+        if (currentlyPlaying) {
+          setEpisodeDurations(prev => {
+            const newMap = new Map(prev);
+            newMap.set(currentlyPlaying, audio.duration);
+            return newMap;
+          });
+        }
       }
     };
     const handleEnded = () => {
@@ -299,6 +331,12 @@ export default function PodcastSeriesPage() {
       audio.addEventListener('loadedmetadata', async () => {
         if (audio.duration) {
           setDuration(audio.duration);
+          // Store duration for this episode
+          setEpisodeDurations(prev => {
+            const newMap = new Map(prev);
+            newMap.set(episode.id, audio.duration);
+            return newMap;
+          });
         }
         audio.playbackRate = playbackSpeed;
         try {
@@ -774,13 +812,6 @@ export default function PodcastSeriesPage() {
                   <Play size={20} />
                   <span>Play Latest Episode</span>
                 </button>
-                <button 
-                  type="button"
-                  className="flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 backdrop-blur-sm px-6 py-3 font-semibold text-white transition hover:bg-white/20"
-                >
-                  <Plus size={20} />
-                  <span>Follow</span>
-                </button>
               </div>
             </div>
           </div>
@@ -981,7 +1012,10 @@ export default function PodcastSeriesPage() {
                     {/* Duration and Date - Right Side */}
                     <div className="flex-shrink-0 text-right">
                       <div className="text-xs text-gray-500 mb-1">
-                        {formatDuration(episode.readingTime)}
+                        {episodeDurations.has(episode.id) 
+                          ? formatTime(episodeDurations.get(episode.id)!)
+                          : formatDuration(episode.readingTime)
+                        }
                       </div>
                       <div className="text-xs text-gray-400">
                         {formatDateVeryShort(episode.date)}

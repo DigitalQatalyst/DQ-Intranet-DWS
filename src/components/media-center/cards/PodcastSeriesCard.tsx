@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Radio, Clock, Calendar, Play, Plus } from 'lucide-react';
+import { Radio, Clock, Calendar, Play } from 'lucide-react';
 
 const PODCAST_IMAGE = '/podcasts.jpg';
 
@@ -76,7 +76,7 @@ export function PodcastSeriesCard({ href }: PodcastSeriesCardProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-auto pt-4 space-y-2">
+        <div className="mt-auto pt-4">
           {href ? (
             <Link
               to={href}
@@ -91,11 +91,6 @@ export function PodcastSeriesCard({ href }: PodcastSeriesCardProps) {
               <span>Play Series</span>
             </button>
           )}
-          
-          <button className="flex h-9 w-full items-center justify-center gap-2 rounded-xl border border-gray-300 bg-gray-50 text-sm font-semibold text-gray-700 transition hover:bg-gray-100">
-            <Plus size={16} />
-            <span>Follow</span>
-          </button>
         </div>
       </div>
     </article>
