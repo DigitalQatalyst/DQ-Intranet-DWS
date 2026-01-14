@@ -861,8 +861,11 @@ export const LmsCourseDetailPage: React.FC = () => {
                                 <div className="p-4 space-y-3 bg-white border-t border-gray-100">
                                   {moduleLessons.map((lesson, lIndex) => {
                                     const LessonIcon = getLessonTypeIcon(lesson.type);
-                                    // Dynamic Lock Check
-                                    const isLocked = !arePreviousLessonsCompleted(allFlattenedLessons, lesson.id);
+                                    // Lock logic: If is_locked is false in DB, lesson is always accessible.
+                                    // If is_locked is true (or undefined for backward compatibility), use sequential order.
+                                    const isLocked = lesson.isLocked === false
+                                      ? false
+                                      : !arePreviousLessonsCompleted(allFlattenedLessons, lesson.id);
                                     // const isCompleted = isLessonCompleted(lesson.id);
 
                                     return (
