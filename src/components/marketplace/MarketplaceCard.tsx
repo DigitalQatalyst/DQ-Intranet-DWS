@@ -1,13 +1,7 @@
 import React, { useMemo } from 'react';
-import { BookmarkIcon, Clock, BookOpen, Layers } from 'lucide-react';
-import {
-  CARD_ICON_BY_ID,
-  DEFAULT_COURSE_ICON,
-  resolveChipIcon
-} from '../../utils/lmsIcons';
+import { BookmarkIcon, Clock, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
-import { formatDurationFromMinutes } from '../../utils/durationFormatter';
 
 export interface MarketplaceItemProps {
   item: {
@@ -32,7 +26,6 @@ export interface MarketplaceItemProps {
   marketplaceType: string;
   isBookmarked: boolean;
   onToggleBookmark: () => void;
-  onAddToComparison?: () => void;
   onQuickView: () => void;
 }
 
@@ -41,7 +34,6 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
   marketplaceType,
   isBookmarked,
   onToggleBookmark,
-  onAddToComparison,
   onQuickView
 }) => {
   const navigate = useNavigate();
@@ -100,10 +92,15 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
 
   const categoryLabel = item.courseCategory || item.category || (Array.isArray(item.tags) ? item.tags[0] : null);
 
+  const isComingSoon = item.status === 'coming-soon';
+
   return (
     <div
-      className="group flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-      onClick={onQuickView}
+      className={`group flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 transform ${isComingSoon
+        ? 'opacity-75 grayscale-[0.5] cursor-not-allowed'
+        : 'hover:shadow-xl hover:-translate-y-1 cursor-pointer'
+        }`}
+      onClick={isComingSoon ? undefined : onQuickView}
     >
       {/* Course Image & Overlay Badge */}
       <div className="relative w-full h-48 bg-gray-100 overflow-hidden">
@@ -111,7 +108,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
           <img
             src={item.imageUrl}
             alt={item.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className={`w-full h-full object-cover transition-transform duration-500 ${!isComingSoon && 'group-hover:scale-105'}`}
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
             }}
@@ -122,32 +119,43 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
           </div>
         )}
 
-        {/* Top-left Overlay Badge */}
-        {categoryLabel && (
-          <div className="absolute top-4 left-4">
-            <span className="px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-lg text-[10px] font-bold tracking-widest uppercase text-purple-700 shadow-sm border border-white/20">
+        {/* Overlay Badges */}
+        <div className="absolute top-4 left-4">
+          {categoryLabel && (
+            <span className="px-2.5 py-1 bg-white/95 backdrop-blur-sm rounded-lg text-[9px] font-bold tracking-widest uppercase text-purple-700 shadow-sm border border-white/20">
               {categoryLabel}
+            </span>
+          )}
+        </div>
+
+        {isComingSoon && (
+          <div className="absolute top-4 right-4">
+            <span className="px-2.5 py-1 bg-amber-500 text-white rounded-lg text-[9px] font-bold tracking-widest uppercase shadow-sm">
+              Coming Soon
             </span>
           </div>
         )}
 
         {/* Bookmark Button Overlay */}
-        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <button
-            onClick={e => {
-              e.stopPropagation();
-              onToggleBookmark();
-            }}
-            className={`p-2 rounded-full backdrop-blur-md ${isBookmarked ? 'bg-amber-500/90 text-white' : 'bg-white/80 text-gray-600 hover:bg-white'}`}
-          >
-            <BookmarkIcon size={16} className={isBookmarked ? 'fill-current' : ''} />
-          </button>
-        </div>
+        {!isComingSoon && (
+          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <button
+              onClick={e => {
+                e.stopPropagation();
+                onToggleBookmark();
+              }}
+              className={`p-2 rounded-full backdrop-blur-md ${isBookmarked ? 'bg-amber-500/90 text-white' : 'bg-white/80 text-gray-600 hover:bg-white'}`}
+            >
+              <BookmarkIcon size={16} className={isBookmarked ? 'fill-current' : ''} />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="px-5 py-6 flex-grow flex flex-col">
         {/* Title */}
-        <h3 className="text-xl font-bold text-[#1E293B] mb-3 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors">
+        <h3 className={`text-xl font-bold mb-3 line-clamp-2 leading-tight transition-colors ${isComingSoon ? 'text-gray-500' : 'text-[#1E293B] group-hover:text-blue-600'
+          }`}>
           {item.title}
         </h3>
 
@@ -180,16 +188,22 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       <div className="px-5 pb-6">
         <div className="flex gap-3">
           <button
-            onClick={handleViewDetails}
-            className="flex-1 px-4 py-2.5 text-xs font-semibold text-[#1E293B] bg-white border border-[#E2E8F0] rounded-xl hover:bg-gray-50 transition-colors"
+            onClick={isComingSoon ? undefined : handleViewDetails}
+            className={`flex-1 px-4 py-2.5 text-xs font-semibold rounded-xl transition-colors ${isComingSoon
+              ? 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+              : 'text-[#1E293B] bg-white border border-[#E2E8F0] hover:bg-gray-50'
+              }`}
           >
-            View Details
+            {isComingSoon ? 'Not Available' : 'View Details'}
           </button>
           <button
-            onClick={handlePrimaryAction}
-            className="flex-1 px-4 py-2.5 text-xs font-bold text-white bg-[#030F35] rounded-xl hover:bg-[#030F35]/90 transition-colors shadow-sm shadow-blue-900/10"
+            onClick={isComingSoon ? undefined : handlePrimaryAction}
+            className={`flex-1 px-4 py-2.5 text-xs font-bold text-white rounded-xl transition-colors shadow-sm ${isComingSoon
+              ? 'bg-gray-300 cursor-not-allowed'
+              : 'bg-[#030F35] hover:bg-[#030F35]/90 shadow-blue-900/10'
+              }`}
           >
-            Start Learning
+            {isComingSoon ? 'Coming Soon' : 'Start Learning'}
           </button>
         </div>
       </div>

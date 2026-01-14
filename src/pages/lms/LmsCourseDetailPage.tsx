@@ -1159,16 +1159,16 @@ export const LmsCourseDetailPage: React.FC = () => {
                   )}
                   <button
                     onClick={() => {
-                      if (firstLesson) {
+                      if (firstLesson && course.status !== 'coming-soon') {
                         navigate(`/lms/${course.slug}/lesson/${firstLesson.id}`);
                       }
                     }}
-                    disabled={!firstLesson}
-                    className={`w-full px-4 py-3 text-white font-semibold rounded-md transition-colors shadow-md ${firstLesson ? 'hover:opacity-90' : 'opacity-50 cursor-not-allowed'
+                    disabled={!firstLesson || course.status === 'coming-soon'}
+                    className={`w-full px-4 py-3 text-white font-semibold rounded-md transition-colors shadow-md ${firstLesson && course.status !== 'coming-soon' ? 'hover:opacity-90' : 'opacity-50 cursor-not-allowed'
                       }`}
-                    style={{ backgroundColor: '#030F35' }}
+                    style={{ backgroundColor: course.status === 'coming-soon' ? '#9CA3AF' : '#030F35' }}
                   >
-                    {isTrack ? 'Enroll to Curriculum' : 'Start Course'}
+                    {course.status === 'coming-soon' ? 'Coming Soon' : (isTrack ? 'Enroll to Curriculum' : 'Start Course')}
                   </button>
                   <button
                     className="w-full px-4 py-2.5 font-medium bg-white border rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center"

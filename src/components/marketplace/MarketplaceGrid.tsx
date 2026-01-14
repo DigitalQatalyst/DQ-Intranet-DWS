@@ -33,7 +33,6 @@ interface MarketplaceGridProps {
   marketplaceType: string;
   bookmarkedItems: string[];
   onToggleBookmark: (itemId: string) => void;
-  onAddToComparison: (item: MarketplaceItem) => void;
   promoCards?: PromoCardData[];
 }
 export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
@@ -42,7 +41,6 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
   marketplaceType,
   bookmarkedItems,
   onToggleBookmark,
-  onAddToComparison,
   promoCards = []
 }) => {
   const [quickViewItem, setQuickViewItem] = useState<MarketplaceItem | null>(null);
@@ -56,13 +54,13 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
   const visibleCount = nonPromoItems.length;
   if (visibleCount === 0) {
     return <div className="bg-white rounded-lg shadow p-8 text-center">
-        <h3 className="text-xl font-medium text-gray-900 mb-2">
-          No items found
-        </h3>
-        <p className="text-gray-500">
-          Try adjusting your filters or search criteria
-        </p>
-      </div>;
+      <h3 className="text-xl font-medium text-gray-900 mb-2">
+        No items found
+      </h3>
+      <p className="text-gray-500">
+        Try adjusting your filters or search criteria
+      </p>
+    </div>;
   }
   // Insert promo cards after every 6 regular items
   const itemsWithPromos = nonPromoItems.reduce((acc, item, index) => {
@@ -84,38 +82,38 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
     data: any;
   }>);
   return <div>
-      <div className="flex justify-between items-center mb-4">
-        {/* Responsive header - concise on mobile */}
-        <h2 className="text-xl font-semibold text-gray-800 hidden sm:block">
-          Available Items ({visibleCount})
-        </h2>
-        <div className="text-sm text-gray-500 hidden sm:block">
-          Showing {visibleCount} of {overallCount} items
-        </div>
-        {/* Mobile-friendly header */}
-        <h2 className="text-lg font-medium text-gray-800 sm:hidden">
-          {visibleCount} Items Available
-        </h2>
+    <div className="flex justify-between items-center mb-4">
+      {/* Responsive header - concise on mobile */}
+      <h2 className="text-xl font-semibold text-gray-800 hidden sm:block">
+        Available Items ({visibleCount})
+      </h2>
+      <div className="text-sm text-gray-500 hidden sm:block">
+        Showing {visibleCount} of {overallCount} items
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-        {itemsWithPromos.map((entry, idx) => {
+      {/* Mobile-friendly header */}
+      <h2 className="text-lg font-medium text-gray-800 sm:hidden">
+        {visibleCount} Items Available
+      </h2>
+    </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+      {itemsWithPromos.map((entry, idx) => {
         if (entry.type === 'item') {
           const item = entry.data as MarketplaceItem;
           // Use KnowledgeHubCard for guides/knowledge-hub marketplace types
           if (marketplaceType === 'knowledge-hub' || marketplaceType === 'guides') {
-            return <KnowledgeHubCard key={`item-${item.id || idx}`} item={item} isBookmarked={bookmarkedItems.includes(item.id)} onToggleBookmark={() => onToggleBookmark(item.id)} onAddToComparison={() => onAddToComparison(item)} onQuickView={() => setQuickViewItem(item)} />;
+            return <KnowledgeHubCard key={`item-${item.id || idx}`} item={item as any} isBookmarked={bookmarkedItems.includes(item.id)} onToggleBookmark={() => onToggleBookmark(item.id)} onQuickView={() => setQuickViewItem(item)} />;
           }
           // Use standard MarketplaceCard for other marketplace types
-          return <MarketplaceCard key={`item-${item.id || idx}`} item={item} marketplaceType={marketplaceType} isBookmarked={bookmarkedItems.includes(item.id)} onToggleBookmark={() => onToggleBookmark(item.id)} onAddToComparison={() => onAddToComparison(item)} onQuickView={() => setQuickViewItem(item)} />;
+          return <MarketplaceCard key={`item-${item.id || idx}`} item={item} marketplaceType={marketplaceType} isBookmarked={bookmarkedItems.includes(item.id)} onToggleBookmark={() => onToggleBookmark(item.id)} onQuickView={() => setQuickViewItem(item)} />;
         } else if (entry.type === 'promo') {
           const promo = entry.data as PromoCardData;
           return <PromoCard key={`promo-${promo.id || idx}-${idx}`} title={promo.title} description={promo.description} icon={promo.icon} path={promo.path} gradientFrom={promo.gradientFrom || 'from-blue-500'} gradientTo={promo.gradientTo || 'to-purple-600'} />;
         }
         return null;
       })}
-      </div>
-      {/* Quick View Modal */}
-      {quickViewItem && <MarketplaceQuickViewModal item={quickViewItem} marketplaceType={marketplaceType} onClose={() => setQuickViewItem(null)} onViewDetails={() => {
+    </div>
+    {/* Quick View Modal */}
+    {quickViewItem && <MarketplaceQuickViewModal item={quickViewItem} marketplaceType={marketplaceType} onClose={() => setQuickViewItem(null)} onViewDetails={() => {
       setQuickViewItem(null);
       if (marketplaceType === 'courses') {
         const slug = quickViewItem.slug || quickViewItem.id;
@@ -123,9 +121,6 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
       } else {
         navigate(`${config.route}/${quickViewItem.id}`);
       }
-    }} isBookmarked={bookmarkedItems.includes(quickViewItem.id)} onToggleBookmark={() => onToggleBookmark(quickViewItem.id)} onAddToComparison={() => {
-      onAddToComparison(quickViewItem);
-      setQuickViewItem(null);
-    }} />}
-    </div>;
+    }} isBookmarked={bookmarkedItems.includes(quickViewItem.id)} onToggleBookmark={() => onToggleBookmark(quickViewItem.id)} />}
+  </div>;
 };
