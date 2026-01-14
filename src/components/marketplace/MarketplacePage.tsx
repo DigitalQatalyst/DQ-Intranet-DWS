@@ -301,9 +301,13 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
         // Keep 'unit' and 'location' for Products; delete incompatible filters
         const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category'];
         keysToDelete.forEach(key => next.delete(key));
-      } else if (tab === 'glossary' || tab === 'faqs') {
-        // For Glossary and FAQs tabs, delete all incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
+      } else if (tab === 'glossary') {
+        // For Glossary tab, delete all incompatible filters
+        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category', 'faq_category', 'location'];
+        keysToDelete.forEach(key => next.delete(key));
+      } else if (tab === 'faqs') {
+        // For FAQs, keep units/location; clear incompatible filters
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'testimonials') {
         // Keep 'unit' and 'location' for Testimonials; delete incompatible filters
@@ -360,8 +364,11 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
     } else if (activeTab === 'testimonials') {
       // For Testimonials, delete all incompatible filters
       keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector'];
-    } else if (activeTab === 'glossary' || activeTab === 'faqs') {
-      // For Glossary and FAQs, delete all incompatible filters
+    } else if (activeTab === 'glossary') {
+      // For Glossary, delete all incompatible filters
+      keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category', 'faq_category', 'location'];
+    } else if (activeTab === 'faqs') {
+      // For FAQs, keep location only; clear incompatible filters including units
       keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
     } else {
       // For Guidelines, delete Strategy and Blueprint-specific filters
@@ -371,6 +378,10 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
     // Note: activeTab cannot be 'guidelines' here due to early return above
     if (next.has('guidelines_category')) {
       next.delete('guidelines_category');
+      changed = true;
+    }
+    if (activeTab !== 'faqs' && next.has('faq_category')) {
+      next.delete('faq_category');
       changed = true;
     }
     if (activeTab !== 'blueprints') {
@@ -2109,7 +2120,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
             ) : isGuides ? (
               <>
                 {activeTab === 'faqs' ? (
-                  <FAQsPageContent />
+                  <FAQsPageContent categoryFilter={(queryParams.get('faq_category') || '').split(',').filter(Boolean)[0] || null} />
                 ) : activeTab === 'glossary' ? (
                   <>
                     {/* Global Search Bar for Glossary */}

@@ -168,11 +168,11 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
   return (
     <div className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col" onClick={onClick}>
       {imageUrl && (
-        <div className="rounded-lg overflow-hidden mb-3">
+        <div className={`rounded-lg overflow-hidden mb-3 ${isBlueprint ? 'bg-slate-100' : ''}`}>
           <img 
             src={imageUrl} 
             alt={displayTitle} 
-            className="w-full h-48 object-cover" 
+            className={`w-full h-48 ${isBlueprint ? 'object-contain p-2' : 'object-cover'}`} 
             loading="lazy" 
             decoding="async" 
             width={640} 
@@ -184,13 +184,8 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
       )}
       <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 min-h-[40px]" title={displayTitle}>{displayTitle}</h3>
       <p className="text-sm text-gray-600 line-clamp-3 min-h-[60px] mb-3">{displayDescription}</p>
-      <div className="flex flex-wrap gap-2 mb-3">
-        {/* For products, show Product Type and Stage instead of domain/guideType */}
-        {isBlueprint && productMetadata ? (
-          <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border" style={{ backgroundColor: 'var(--dws-chip-bg)', color: 'var(--dws-chip-text)', borderColor: 'var(--dws-card-border)' }}>
-            Product
-          </span>
-        ) : (
+      <div className="flex flex-wrap gap-2 mb-3 min-h-[32px]">
+        {!isBlueprint && (
           <>
             {domain && (
               <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border" style={{ backgroundColor: 'var(--dws-chip-bg)', color: 'var(--dws-chip-text)', borderColor: 'var(--dws-card-border)' }}>
@@ -202,17 +197,17 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
                 {formatLabel(guide.guideType)}
               </span>
             )}
+            {isTestimonial && guide.unit && (
+              <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border" style={{ backgroundColor: 'var(--dws-chip-bg)', color: 'var(--dws-chip-text)', borderColor: 'var(--dws-card-border)' }}>
+                {formatLabel(guide.unit)}
+              </span>
+            )}
+            {isTestimonial && guide.location && (
+              <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border" style={{ backgroundColor: 'var(--dws-chip-bg)', color: 'var(--dws-chip-text)', borderColor: 'var(--dws-card-border)' }}>
+                {formatLabel(guide.location)}
+              </span>
+            )}
           </>
-        )}
-        {isTestimonial && guide.unit && (
-          <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border" style={{ backgroundColor: 'var(--dws-chip-bg)', color: 'var(--dws-chip-text)', borderColor: 'var(--dws-card-border)' }}>
-            {formatLabel(guide.unit)}
-          </span>
-        )}
-        {isTestimonial && guide.location && (
-          <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border" style={{ backgroundColor: 'var(--dws-chip-bg)', color: 'var(--dws-chip-text)', borderColor: 'var(--dws-card-border)' }}>
-            {formatLabel(guide.location)}
-          </span>
         )}
       </div>
       <div className="flex items-center text-xs text-gray-500 gap-3 mb-3">
@@ -230,7 +225,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
           </span>
         </div>
       )}
-      <div className="mt-auto pt-3 border-t border-gray-100">
+      <div className="pt-3 mt-4 border-t border-gray-100">
         <button
           type="button"
           onClick={(e) => {
@@ -248,5 +243,3 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
 }
 
 export default GuideCard
-
-

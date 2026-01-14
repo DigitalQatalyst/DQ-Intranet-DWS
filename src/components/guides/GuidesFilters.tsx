@@ -157,6 +157,13 @@ const PRODUCT_SECTORS: Facet[] = [
   { id: 'service-4.0', name: 'Service 4.0' }
 ]
 
+const FAQ_CATEGORIES: Facet[] = [
+  { id: 'dt2.0', name: 'DT2.0' },
+  { id: 'general', name: 'General' },
+  { id: 'process', name: 'Process' },
+  { id: 'resources', name: 'Resources' }
+]
+
 const STRATEGY_LOCATIONS: Facet[] = [
   { id: 'DXB', name: 'DXB' },
   { id: 'KSA', name: 'KSA' },
@@ -192,7 +199,8 @@ const ALL_CATEGORIES = [
   'guide_type', 'sub_domain', 'unit', 'location', 'testimonial_category',
   'product_type', 'product_stage', 'guidelines_category',
   'strategy_type', 'strategy_framework',
-  'glossary_knowledge_system', 'glossary_ghc_dimension', 'glossary_6xd_perspective', 'glossary_letter'
+  'glossary_knowledge_system', 'glossary_ghc_dimension', 'glossary_6xd_perspective', 'glossary_letter',
+  'faq_category'
 ]
 
 const Section: React.FC<{ idPrefix: string; title: string; category: string; collapsed: boolean; onToggle: (category: string) => void }> = ({ idPrefix, title, category, collapsed, onToggle, children }) => {
@@ -266,6 +274,7 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
   const isTestimonialsSelected = activeTab === 'testimonials'
   const isGuidelinesSelected = activeTab === 'guidelines'
   const isGlossarySelected = activeTab === 'glossary'
+  const isFAQsSelected = activeTab === 'faqs'
   const isResourcesSelected = activeTab === 'resources'
   const prevTabRef = useRef<typeof activeTab>(activeTab)
   
@@ -546,7 +555,25 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
           <CheckboxList idPrefix={instanceId} name="guide_type" options={facets.guide_type || []} query={query} onChange={onChange} />
         </Section>
       )}
-      {!isGlossarySelected && !isBlueprintSelected && (
+      {isFAQsSelected && (
+        <Section idPrefix={instanceId} title="Category" category="faq_category" collapsed={collapsedSet.has('faq_category')} onToggle={toggleCollapsed}>
+          <div className="flex flex-wrap gap-2 mb-3">
+            <button
+              type="button"
+              onClick={() => {
+                const next = new URLSearchParams(query.toString())
+                next.delete('faq_category')
+                onChange(next)
+              }}
+              className="px-3 py-1 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+            >
+              All
+            </button>
+          </div>
+          <CheckboxList idPrefix={instanceId} name="faq_category" options={FAQ_CATEGORIES} query={query} onChange={onChange} />
+        </Section>
+      )}
+      {!isGlossarySelected && !isBlueprintSelected && !isFAQsSelected && (
         <>
           {isStrategySelected ? (
             <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
@@ -588,7 +615,7 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
             <Section idPrefix={instanceId} title="Location" category="location" collapsed={collapsedSet.has('location')} onToggle={toggleCollapsed}>
               <CheckboxList idPrefix={instanceId} name="location" options={STRATEGY_LOCATIONS} query={query} onChange={onChange} />
             </Section>
-          ) : isGuidelinesSelected ? (
+          ) : (isGuidelinesSelected || isFAQsSelected) ? (
             <Section idPrefix={instanceId} title="Location" category="location" collapsed={collapsedSet.has('location')} onToggle={toggleCollapsed}>
               <CheckboxList idPrefix={instanceId} name="location" options={GUIDELINES_LOCATIONS} query={query} onChange={onChange} />
             </Section>
