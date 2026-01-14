@@ -546,7 +546,7 @@ export const LmsCourses: React.FC = () => {
         <h1 className="text-3xl font-bold text-gray-800 mb-2">DQ Learning Center</h1>
         <p className="text-gray-600 mb-6 leading-relaxed max-w-5xl">
           {activeTab === 'courses'
-            ? "At the heart of the DQ ecosystem lies a centralized platform that empowers associates to access structured learning modules from GHC, 6xD, DWS, and DXP. Designed for continuous upskilling and certification, it helps associates grow, enhance their skills, and stay aligned with DQ’s commitment to excellence."
+            ? "Designed for continuous upskilling and certification, it helps associates grow, enhance their skills, and stay aligned with DQ’s commitment to excellence."
             : "Explore authentic reviews and testimonials from learners across DQ. Discover how courses have transformed work practices, developed skills, and shaped professional journeys within our learning community."}
         </p>
 
@@ -560,14 +560,14 @@ export const LmsCourses: React.FC = () => {
               </h2>
               <p className="text-gray-600 text-sm leading-relaxed mb-2">
                 {activeTab === 'courses'
-                  ? "Browse comprehensive learning tracks, individual courses, and structured curricula designed to enhance your skills across GHC, 6xD, DWS, and DXP frameworks."
+                  ? "Browse comprehensive learning tracks, individual courses, and structured curricula designed to enhance your skills across GHC and 6xD frameworks."
                   : activeTab === 'tracks'
                     ? "Explore structured learning tracks that combine multiple courses into comprehensive learning journeys. Each track includes courses, topics, and lessons designed to master specific skills and competencies."
                     : "Read real experiences and insights from DQ associates who have completed courses. Learn how training has impacted their work, improved their skills, and advanced their careers."}
               </p>
               <p className="text-gray-500 text-xs mt-2">
                 {activeTab === 'courses'
-                  ? "Sourced from DQ Learning & Development, GHC, 6xD, DWS, and DXP teams."
+                  ? "Sourced from DQ Learning & Development, GHC and 6xD teams."
                   : activeTab === 'tracks'
                     ? "Sourced from DQ Learning & Development teams and structured learning programs."
                     : "Sourced from course participants and verified learners across DQ studios."}
