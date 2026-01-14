@@ -321,11 +321,11 @@ export default function PodcastSeriesPage() {
       setDuration(0);
       
       // Set source and load
-      audio.src = episode.audioUrl;
+    audio.src = episode.audioUrl;
       audio.playbackRate = playbackSpeed;
       audio.load();
       
-      setCurrentlyPlaying(episode.id);
+    setCurrentlyPlaying(episode.id);
       
       // Wait for metadata to load before playing
       audio.addEventListener('loadedmetadata', async () => {
@@ -341,7 +341,7 @@ export default function PodcastSeriesPage() {
         audio.playbackRate = playbackSpeed;
         try {
           await audio.play();
-          setIsPlaying(true);
+    setIsPlaying(true);
         } catch {
           setIsPlaying(false);
         }
@@ -370,8 +370,8 @@ export default function PodcastSeriesPage() {
     if (!audio) return;
     const newTime = parseFloat(e.target.value);
     if (!isNaN(newTime) && isFinite(newTime)) {
-      audio.currentTime = newTime;
-      setCurrentTime(newTime);
+    audio.currentTime = newTime;
+    setCurrentTime(newTime);
     }
   };
 
@@ -639,29 +639,29 @@ export default function PodcastSeriesPage() {
         if (isFocusOfEpisode) {
           flushParagraph();
           inFocusSection = true;
-          
-          const titleCaseHeading = headingText
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join(' ');
-          
-          if (level === 2) {
-            elements.push(
-              <h3 key={keyCounter++} className="text-lg font-bold text-gray-900 mt-6 mb-4 pl-4 relative">
-                <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
-                {titleCaseHeading}
-              </h3>
-            );
-          } else {
-            elements.push(
-              <h4 key={keyCounter++} className="text-base font-bold text-gray-900 mt-4 mb-3">
-                {titleCaseHeading}
-              </h4>
-            );
-          }
-          continue;
-        }
         
+        const titleCaseHeading = headingText
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+          .join(' ');
+        
+        if (level === 2) {
+          elements.push(
+            <h3 key={keyCounter++} className="text-lg font-bold text-gray-900 mt-6 mb-4 pl-4 relative">
+              <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+              {titleCaseHeading}
+            </h3>
+          );
+        } else {
+          elements.push(
+            <h4 key={keyCounter++} className="text-base font-bold text-gray-900 mt-4 mb-3">
+              {titleCaseHeading}
+            </h4>
+          );
+        }
+        continue;
+      }
+
         // Skip any other headings (including Intended Impact)
         if (!inFocusSection) {
           continue;
@@ -670,13 +670,13 @@ export default function PodcastSeriesPage() {
 
       // Only collect paragraph text if we're in the Focus section
       if (inFocusSection) {
-        currentParagraph.push(trimmed);
+      currentParagraph.push(trimmed);
       }
     }
 
     // Flush any remaining paragraph
     if (inFocusSection) {
-      flushParagraph();
+    flushParagraph();
     }
     
     return elements;
@@ -751,8 +751,8 @@ export default function PodcastSeriesPage() {
                 <BookmarkIcon size={16} />
                 Save
               </button>
-            </div>
           </div>
+        </div>
         </section>
 
         {/* Hero Section with Blurred Background - Matching Blog Style */}
@@ -773,8 +773,8 @@ export default function PodcastSeriesPage() {
             <div className="max-w-4xl">
               {/* Category Tag */}
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-white/20 backdrop-blur-sm text-white mb-4">
-                Action-Solver Series
-              </span>
+                    Action-Solver Series
+                  </span>
               
               {/* Title */}
               <h1 id="podcast-title" className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
@@ -785,20 +785,20 @@ export default function PodcastSeriesPage() {
               <p className="text-white/90 text-lg mb-6">
                 Short conversations that solve real work problems at DQ
               </p>
-
-              {/* Metadata */}
+                
+                {/* Metadata */}
               <div className="flex flex-wrap items-center gap-6 text-white/90 text-sm mb-6">
-                <div className="flex items-center gap-2">
-                  <Radio size={16} />
-                  <span>{episodes.length} episodes</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock size={16} />
-                  <span>~{averageDuration} min avg</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar size={16} />
-                  <span>Weekly</span>
+                  <div className="flex items-center gap-2">
+                    <Radio size={16} />
+                    <span>{episodes.length} episodes</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock size={16} />
+                    <span>~{averageDuration} min avg</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar size={16} />
+                    <span>Weekly</span>
                 </div>
               </div>
 
@@ -869,26 +869,26 @@ export default function PodcastSeriesPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-1 border-l border-gray-200 pl-3">
-                  <button
-                    onClick={() => setSortBy('latest')}
+                <button
+                  onClick={() => setSortBy('latest')}
                     className={`px-3 py-1 text-sm font-medium transition ${
-                      sortBy === 'latest'
+                    sortBy === 'latest'
                         ? 'text-gray-900'
                         : 'text-gray-500 hover:text-gray-900'
-                    }`}
-                  >
-                    Latest
-                  </button>
+                  }`}
+                >
+                  Latest
+                </button>
                   <span className="text-gray-300">|</span>
-                  <button
-                    onClick={() => setSortBy('most-listened')}
+                <button
+                  onClick={() => setSortBy('most-listened')}
                     className={`px-3 py-1 text-sm font-medium transition ${
-                      sortBy === 'most-listened'
+                    sortBy === 'most-listened'
                         ? 'text-gray-900'
                         : 'text-gray-500 hover:text-gray-900'
-                    }`}
-                  >
-                    Most Listened
+                  }`}
+                >
+                  Most Listened
                   </button>
                 </div>
               </div>
@@ -900,7 +900,7 @@ export default function PodcastSeriesPage() {
                 const isNew = index === 0 && sortBy === 'latest';
                 const episodeNumber = episodeNumberMap.get(episode.id) ?? (
                   sortBy === 'latest'
-                    ? filteredAndSortedEpisodes.length - index
+                  ? filteredAndSortedEpisodes.length - index 
                     : index + 1
                 );
                 
@@ -928,43 +928,43 @@ export default function PodcastSeriesPage() {
                     }`}
                   >
                     {/* Play Button */}
-                    <button
-                      onClick={(e) => handlePlayEpisode(episode, e)}
+                      <button
+                        onClick={(e) => handlePlayEpisode(episode, e)}
                       className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition hover:scale-110"
-                    >
-                      {isCurrentlyPlaying && isPlaying ? (
+                      >
+                        {isCurrentlyPlaying && isPlaying ? (
                         <Pause size={20} className="text-[#030f35]" />
-                      ) : (
+                        ) : (
                         <Play size={20} className="text-gray-400 group-hover:text-[#030f35]" fill="currentColor" />
-                      )}
-                    </button>
+                        )}
+                      </button>
                     
                     {/* Episode Info */}
-                    <div 
+                      <div 
                       className="flex-1 min-w-0 cursor-pointer"
-                      onClick={(e) => handleEpisodeCardClick(episode.id, e)}
-                    >
+                        onClick={(e) => handleEpisodeCardClick(episode.id, e)}
+                      >
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs text-gray-500 font-medium">EP {episodeNumber}</span>
-                        {isNew && (
+                          {isNew && (
                           <span className="text-xs font-semibold text-[#030f35]">NEW</span>
-                        )}
-                      </div>
+                          )}
+                        </div>
                       <h3 className={`text-sm font-semibold mb-1 truncate ${
                         isCurrentlyPlaying ? 'text-[#030f35]' : 'text-gray-900'
-                      }`}>
-                        {episode.title}
-                      </h3>
-                      {!isExpanded && (
+                        }`}>
+                          {episode.title}
+                        </h3>
+                        {!isExpanded && (
                         <p className="text-xs text-gray-600 line-clamp-1 mb-1">
-                          {episode.excerpt}
-                        </p>
-                      )}
+                            {episode.excerpt}
+                          </p>
+                        )}
                       {isExpanded && episode.content && (
                         <div className="mt-2 mb-3">
                           <div className="text-xs text-gray-600 mb-3">
                             {renderEpisodeContent(episode.content)}
-                          </div>
+                        </div>
                           {/* Action Buttons - After Expanded Content */}
                           <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-200">
                             <button
@@ -976,9 +976,9 @@ export default function PodcastSeriesPage() {
                               }`}
                               title="Share episode"
                             >
-                              <Share2 size={14} />
+                            <Share2 size={14} />
                               <span>{shareSuccess === episode.id ? 'Copied!' : 'Share'}</span>
-                            </button>
+                          </button>
                             <button
                               onClick={(e) => handleDownload(episode, e)}
                               disabled={!episode.audioUrl}
@@ -989,9 +989,9 @@ export default function PodcastSeriesPage() {
                               }`}
                               title={episode.audioUrl ? 'Download episode' : 'Audio not available'}
                             >
-                              <Download size={14} />
-                              <span>Download</span>
-                            </button>
+                            <Download size={14} />
+                            <span>Download</span>
+                          </button>
                             <button
                               onClick={(e) => handleSave(episode, e)}
                               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
@@ -1003,12 +1003,12 @@ export default function PodcastSeriesPage() {
                             >
                               <Bookmark size={14} fill={savedEpisodes.has(episode.id) ? 'currentColor' : 'none'} />
                               <span>{savedEpisodes.has(episode.id) ? 'Saved' : 'Save'}</span>
-                            </button>
+                          </button>
                           </div>
                         </div>
                       )}
-                    </div>
-                    
+                        </div>
+                        
                     {/* Duration and Date - Right Side */}
                     <div className="flex-shrink-0 text-right">
                       <div className="text-xs text-gray-500 mb-1">
@@ -1031,7 +1031,7 @@ export default function PodcastSeriesPage() {
       
       {/* Persistent Bottom Audio Player - Exact Match to Screenshot */}
       {currentlyPlaying && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-900 border-t border-gray-700">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-100 border-t-2 border-[#030f35]">
           <div className="mx-auto max-w-7xl px-4 py-3">
             <div className="flex items-center gap-6">
               {/* Left: Playing Icon + Episode Info */}
@@ -1044,14 +1044,14 @@ export default function PodcastSeriesPage() {
                   </div>
                 ) : (
                   <div className="flex items-center justify-center w-10 h-10 flex-shrink-0">
-                    <Radio size={20} className="text-gray-400" />
+                    <Radio size={20} className="text-gray-600" />
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-white">
+                  <p className="truncate text-sm font-medium text-[#030f35]">
                     {episodes.find(e => e.id === currentlyPlaying)?.title || 'Unknown Episode'}
                   </p>
-                  <p className="truncate text-xs text-gray-400">Action-Solver Series</p>
+                  <p className="truncate text-xs text-gray-600">Action-Solver Series</p>
                 </div>
               </div>
 
@@ -1063,8 +1063,8 @@ export default function PodcastSeriesPage() {
                     onClick={handlePreviousEpisode}
                     className={`p-1.5 transition-colors ${
                       filteredAndSortedEpisodes.findIndex(e => e.id === currentlyPlaying) === 0
-                        ? 'text-gray-600 cursor-not-allowed'
-                        : 'text-gray-400 hover:text-white'
+                        ? 'text-gray-400 cursor-not-allowed'
+                        : 'text-gray-600 hover:text-[#030f35]'
                     }`}
                     aria-label="Previous episode"
                     disabled={filteredAndSortedEpisodes.findIndex(e => e.id === currentlyPlaying) === 0}
@@ -1075,7 +1075,7 @@ export default function PodcastSeriesPage() {
                   </button>
                   <button
                     onClick={() => skipBackward(10)}
-                    className="p-1.5 text-gray-400 hover:text-white transition-colors"
+                    className="p-1.5 text-gray-600 hover:text-[#030f35] transition-colors"
                     aria-label="Skip backward 10 seconds"
                   >
                     <RotateCcw size={18} />
@@ -1092,7 +1092,7 @@ export default function PodcastSeriesPage() {
                   </button>
                   <button
                     onClick={() => skipForward(10)}
-                    className="p-1.5 text-gray-400 hover:text-white transition-colors"
+                    className="p-1.5 text-gray-600 hover:text-[#030f35] transition-colors"
                     aria-label="Skip forward 10 seconds"
                   >
                     <RotateCw size={18} />
@@ -1101,8 +1101,8 @@ export default function PodcastSeriesPage() {
                     onClick={handleNextEpisode}
                     className={`p-1.5 transition-colors ${
                       filteredAndSortedEpisodes.findIndex(e => e.id === currentlyPlaying) === filteredAndSortedEpisodes.length - 1
-                        ? 'text-gray-600 cursor-not-allowed'
-                        : 'text-gray-400 hover:text-white'
+                        ? 'text-gray-400 cursor-not-allowed'
+                        : 'text-gray-600 hover:text-[#030f35]'
                     }`}
                     aria-label="Next episode"
                     disabled={filteredAndSortedEpisodes.findIndex(e => e.id === currentlyPlaying) === filteredAndSortedEpisodes.length - 1}
@@ -1115,26 +1115,26 @@ export default function PodcastSeriesPage() {
                 
                 {/* Progress Bar Row */}
                 <div className="flex items-center gap-2 w-full">
-                  <span className="text-xs text-gray-400 whitespace-nowrap">
+                  <span className="text-xs text-gray-600 whitespace-nowrap">
                     {formatTime(currentTime || 0)}
                   </span>
-                  <input
-                    type="range"
-                    min="0"
-                    max={duration || 0}
+                              <input
+                                type="range"
+                                min="0"
+                                max={duration || 0}
                     step="0.1"
                     value={currentTime || 0}
-                    onChange={handleSeek}
+                                onChange={handleSeek}
                     onMouseDown={handleSeekMouseDown}
                     onMouseUp={handleSeekMouseUp}
-                    className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-gray-700"
+                    className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-gray-300"
                     style={{
-                      background: `linear-gradient(to right, #030f35 0%, #030f35 ${((currentTime || 0) / (duration || 1)) * 100}%, #374151 ${((currentTime || 0) / (duration || 1)) * 100}%, #374151 100%)`
+                      background: `linear-gradient(to right, #030f35 0%, #030f35 ${((currentTime || 0) / (duration || 1)) * 100}%, #d1d5db ${((currentTime || 0) / (duration || 1)) * 100}%, #d1d5db 100%)`
                     }}
                   />
-                  <span className="text-xs text-gray-400 whitespace-nowrap">
+                  <span className="text-xs text-gray-600 whitespace-nowrap">
                     {formatTime(duration || 0)}
-                  </span>
+                              </span>
                   <button
                     onClick={() => {
                       const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -1142,19 +1142,19 @@ export default function PodcastSeriesPage() {
                       const nextSpeed = speeds[(currentIndex + 1) % speeds.length];
                       handlePlaybackSpeedChange(nextSpeed);
                     }}
-                    className="px-2 py-0.5 text-xs text-gray-400 hover:text-white transition-colors border border-gray-600 rounded"
+                    className="px-2 py-0.5 text-xs text-gray-600 hover:text-[#030f35] transition-colors border border-[#030f35] rounded"
                     aria-label="Playback speed"
                   >
                     {playbackSpeed}x
                   </button>
-                </div>
-              </div>
-
+                      </div>
+                    </div>
+                    
               {/* Right: Volume + Close */}
               <div className="flex items-center gap-2">
                 <button
                   onClick={toggleMute}
-                  className="p-1.5 text-gray-400 hover:text-white transition-colors"
+                  className="p-1.5 text-gray-600 hover:text-[#030f35] transition-colors"
                   aria-label={isMuted ? 'Unmute' : 'Mute'}
                 >
                   {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
@@ -1166,24 +1166,24 @@ export default function PodcastSeriesPage() {
                   step="0.01"
                   value={isMuted ? 0 : volume}
                   onChange={handleVolumeChange}
-                  className="h-1 w-20 cursor-pointer appearance-none rounded-full bg-gray-700"
+                  className="h-1 w-20 cursor-pointer appearance-none rounded-full bg-gray-300"
                   style={{
-                    background: `linear-gradient(to right, #030f35 0%, #030f35 ${(isMuted ? 0 : volume) * 100}%, #374151 ${(isMuted ? 0 : volume) * 100}%, #374151 100%)`
+                    background: `linear-gradient(to right, #030f35 0%, #030f35 ${(isMuted ? 0 : volume) * 100}%, #d1d5db ${(isMuted ? 0 : volume) * 100}%, #d1d5db 100%)`
                   }}
                 />
                 <button
                   onClick={handleClosePlayer}
-                  className="p-1.5 text-gray-400 hover:text-white transition-colors"
+                  className="p-1.5 text-gray-600 hover:text-[#030f35] transition-colors"
                   aria-label="Close player"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                   </svg>
                 </button>
-              </div>
+                        </div>
+                      </div>
+                  </div>
             </div>
-          </div>
-        </div>
       )}
 
       <Footer />

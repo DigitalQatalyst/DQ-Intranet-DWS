@@ -99,11 +99,6 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
       options: ['Blog', 'Article', 'Research Report']
     },
     {
-      key: 'source',
-      label: 'Category',
-      options: ['DigitalQatalyst', 'ADGM Academy', 'Abu Dhabi Export Office', 'Khalifa Fund']
-    },
-    {
       key: 'department',
       label: 'Department',
       options: [
