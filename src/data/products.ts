@@ -265,19 +265,6 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
     usedIn: ['Training', 'Enablement', 'Self-paced learning'],
     imageUrl: '/images/DTMB.jpg'
   },
-  'dtmcc': {
-    slug: 'dtmcc',
-    name: 'DTMCC',
-    tagline: 'Digital Transformation Management capability component.',
-    description: 'An emerging capability within the Digital Transformation Management suite.',
-    productType: 'DTMCC',
-    productStage: 'Preview',
-    whatItIs: 'A capability module aligned to the DT2.0 product family.',
-    whyItMatters: 'Extends the product line with specialized functionality.',
-    includes: ['Capability definitions', 'Operating guidance'],
-    usedIn: ['Capability rollout', 'Internal enablement'],
-    imageUrl: '/images/DTMCC.jpg'
-  },
   'dtmi': {
     slug: 'dtmi',
     name: 'DTMI',

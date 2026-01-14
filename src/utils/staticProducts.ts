@@ -107,23 +107,6 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     productStage: 'Preview'
   },
   {
-    id: 'static-product-dtmcc',
-    title: 'DTMCC',
-    summary: 'A Digital Transformation Management capability. Detailed description to follow.',
-    domain: 'Product',
-    guideType: 'Marketplace',
-    heroImageUrl: '/images/DTMCC.jpg',
-    lastUpdatedAt: new Date().toISOString(),
-    authorName: null,
-    authorOrg: null,
-    isEditorsPick: false,
-    downloadCount: 0,
-    status: 'Approved',
-    slug: 'dtmcc',
-    productType: 'DTMCC',
-    productStage: 'Preview'
-  },
-  {
     id: 'static-product-dtmi',
     title: 'DTMI',
     summary: 'A Digital Transformation Management initiative. Detailed description to follow.',
