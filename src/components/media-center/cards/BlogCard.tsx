@@ -27,6 +27,10 @@ export function BlogCard({ item, href }: BlogCardProps) {
   const categoryLabel = isPodcast ? 'Podcast' : 'Blog';
   const categoryColor = isPodcast ? PODCAST_COLOR : BLOG_COLOR;
   const buttonText = isPodcast ? 'Listen Now' : 'View Insights';
+  
+  // Get views from localStorage (synced with details page)
+  const storedViews = typeof window !== 'undefined' ? localStorage.getItem(`news-views-${item.id}`) : null;
+  const views = storedViews ? parseInt(storedViews, 10) : 0;
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -48,7 +52,7 @@ export function BlogCard({ item, href }: BlogCardProps) {
           <p className="mt-2 text-sm text-gray-700 line-clamp-3">{item.excerpt}</p>
 
           <div className="mt-3 text-xs text-gray-500">
-            {isPodcast ? `${item.views || 0} listens` : `${item.views || 0} views`}
+            {isPodcast ? `${views} listens` : `${views} views`}
           </div>
 
           {item.source && (

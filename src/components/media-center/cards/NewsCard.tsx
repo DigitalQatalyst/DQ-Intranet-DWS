@@ -22,6 +22,10 @@ export function NewsCard({ item, href }: NewsCardProps) {
   const imageSrc = getNewsImageSrc(item, fallbackImages, fallbackHero);
   const displayTitle = generateTitle(item);
   const newsTypeDisplay = getNewsTypeDisplay(item);
+  
+  // Get views from localStorage (synced with details page)
+  const storedViews = typeof window !== 'undefined' ? localStorage.getItem(`news-views-${item.id}`) : null;
+  const views = storedViews ? parseInt(storedViews, 10) : 0;
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -42,7 +46,7 @@ export function NewsCard({ item, href }: NewsCardProps) {
           <p className="mt-2 text-sm text-gray-700 line-clamp-3">{item.excerpt}</p>
 
           <div className="mt-3 text-xs text-gray-500">
-            {item.views} views {item.location ? ` · ${item.location}` : ''}
+            {views} views {item.location ? ` · ${item.location}` : ''}
           </div>
 
           {(item.newsType || item.focusArea || item.newsSource) && (

@@ -52,9 +52,37 @@ export default function PodcastSeriesPage() {
   const [shareSuccess, setShareSuccess] = useState<string | null>(null);
   const [targetEpisodeId, setTargetEpisodeId] = useState<string | null>(null);
 
-  // Get tab parameter from URL
+  // Get tab parameter and filters from URL
   const searchParams = new URLSearchParams(location.search);
   const tabParam = searchParams.get('tab') || 'podcasts';
+  
+  // Parse filters from URL - handle both filters[key]=value and filters[key][]=value formats
+  const urlFilters = useMemo(() => {
+    const filters: Record<string, string[]> = {};
+    searchParams.forEach((value, key) => {
+      // Handle filters.domain=Technology format
+      if (key.startsWith('filters.')) {
+        const filterKey = key.replace('filters.', '');
+        if (!filters[filterKey]) {
+          filters[filterKey] = [];
+        }
+        if (value && !filters[filterKey].includes(value)) {
+          filters[filterKey].push(value);
+        }
+      }
+      // Handle filters[domain]=Technology format
+      else if (key.startsWith('filters[') && key.endsWith(']')) {
+        const filterKey = key.slice(7, -1); // Extract key from filters[key]
+        if (!filters[filterKey]) {
+          filters[filterKey] = [];
+        }
+        if (value && !filters[filterKey].includes(value)) {
+          filters[filterKey].push(value);
+        }
+      }
+    });
+    return filters;
+  }, [location.search]);
 
   // Load saved episodes from localStorage on mount
   useEffect(() => {
@@ -141,6 +169,58 @@ export default function PodcastSeriesPage() {
   const filteredAndSortedEpisodes = useMemo(() => {
     let filtered = [...episodes];
 
+    // Apply filters from URL
+    const domainFilter = urlFilters.domain;
+    const themeFilter = urlFilters.theme;
+    const durationFilter = urlFilters.readingTime; // Note: filter key is 'readingTime' but we'll use actual audio duration
+
+    filtered = filtered.filter((episode) => {
+      // Domain filter
+      if (domainFilter && domainFilter.length > 0) {
+        if (!episode.domain || !domainFilter.includes(episode.domain)) {
+          return false;
+        }
+      }
+
+      // Theme filter
+      if (themeFilter && themeFilter.length > 0) {
+        if (!episode.theme || !themeFilter.includes(episode.theme)) {
+          return false;
+        }
+      }
+
+      // Duration filter - use actual audio duration if available, otherwise fallback to readingTime
+      if (durationFilter && durationFilter.length > 0) {
+        const episodeDurationSeconds = episodeDurations.get(episode.id);
+        let durationMinutes = 0;
+        
+        if (episodeDurationSeconds && episodeDurationSeconds > 0) {
+          // Use actual audio duration in minutes
+          durationMinutes = Math.round(episodeDurationSeconds / 60);
+        } else if (episode.readingTime) {
+          // Fallback to readingTime if audio duration not loaded yet
+          const dur = formatDuration(episode.readingTime);
+          durationMinutes = parseInt(dur.replace(' min', '')) || 0;
+        }
+
+        // Check if duration matches any selected filter
+        const matchesDuration = durationFilter.some((filter) => {
+          if (filter === '10–20') {
+            return durationMinutes >= 10 && durationMinutes < 20;
+          } else if (filter === '20+') {
+            return durationMinutes >= 20;
+          }
+          return false;
+        });
+
+        if (!matchesDuration) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
     // Apply sorting
     if (sortBy === 'latest') {
       // Sort by explicit episode number from PODCAST_EPISODE_ORDER (EP10 at top, EP1 at bottom)
@@ -165,7 +245,7 @@ export default function PodcastSeriesPage() {
     }
 
     return filtered;
-  }, [episodes, sortBy]);
+  }, [episodes, sortBy, urlFilters, episodeDurations]);
 
   const episodeNumberMap = useMemo(() => {
     const map = new Map<string, number>();

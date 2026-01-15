@@ -1924,11 +1924,11 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
             )}
           </div>
 
-          {/* Sidebar: Related Announcements - Updated to match screenshot */}
+          {/* Sidebar: Related News and Announcements - Updated to match screenshot */}
           <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-24" aria-label="Secondary">
             {related && related.length > 0 && (
               <section aria-labelledby="related-title" className="bg-white rounded-lg shadow p-6" id="related">
-                <h2 id="related-title" className="text-xl font-semibold mb-4">Related Announcements</h2>
+                <h2 id="related-title" className="text-xl font-semibold mb-4">Related News and Announcements</h2>
                 <div className="space-y-3">
                   {related.slice(0, 3).map((r) => {
                     const relatedDate = r.lastUpdatedAt ? new Date(r.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null

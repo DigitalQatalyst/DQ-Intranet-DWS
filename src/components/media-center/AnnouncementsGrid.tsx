@@ -42,12 +42,16 @@ export default function AnnouncementsGrid({ query, items }: GridProps) {
         const newsType = query.filters?.newsType;
         const newsSource = query.filters?.newsSource;
         const focusArea = query.filters?.focusArea;
+        const channel = query.filters?.channel;
+        const audience = query.filters?.audience;
         const okDepartment = matchesSelection(item.department, department);
         const okLocation = matchesSelection(item.location, location);
         const okNewsType = matchesSelection(item.newsType, newsType);
         const okSource = matchesSelection(item.newsSource, newsSource);
         const okFocus = matchesSelection(item.focusArea, focusArea);
-        return okDepartment && okLocation && okNewsType && okSource && okFocus;
+        const okChannel = matchesSelection(item.channel, channel);
+        const okAudience = matchesSelection(item.audience, audience);
+        return okDepartment && okLocation && okNewsType && okSource && okFocus && okChannel && okAudience;
       })
       .sort((a, b) => {
         // Sort by date descending (newest first)

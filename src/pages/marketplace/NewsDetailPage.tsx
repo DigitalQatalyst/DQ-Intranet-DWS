@@ -508,8 +508,14 @@ const NewsDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [likes] = useState(47); // Mock likes count - can be replaced with actual data
-  const [comments] = useState(12); // Mock comments count - can be replaced with actual data
+  const [likes, setLikes] = useState(0);
+  const [comments, setComments] = useState(0);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [hasCommented, setHasCommented] = useState(false);
+  const [views, setViews] = useState(0);
+  const [showCommentSection, setShowCommentSection] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const [commentList, setCommentList] = useState<Array<{ id: string; text: string; date: string }>>([]);
 
   const getImageSrc = (item: NewsItem): string => {
     // Use shared utility function to ensure consistency with cards
@@ -524,6 +530,74 @@ const NewsDetailPage: React.FC = () => {
                                      article?.id === 'dq-nbo-christmas-new-year-schedule' ||
                                      (article?.title?.toLowerCase().includes('christmas') && article?.title?.toLowerCase().includes('new year'));
   const isDXBEOYArticle = article?.id === 'dxb-eoy-event-postponement';
+
+  // Load likes, comments, views, and interaction state from localStorage
+  useEffect(() => {
+    if (!id) return;
+    
+    try {
+      const storedLikes = localStorage.getItem(`news-likes-${id}`);
+      const storedComments = localStorage.getItem(`news-comments-${id}`);
+      const storedViews = localStorage.getItem(`news-views-${id}`);
+      const storedHasLiked = localStorage.getItem(`news-hasLiked-${id}`);
+      const storedHasCommented = localStorage.getItem(`news-hasCommented-${id}`);
+      const storedCommentsList = localStorage.getItem(`news-commentsList-${id}`);
+      
+      if (storedLikes) {
+        setLikes(parseInt(storedLikes, 10) || 0);
+      }
+      if (storedComments) {
+        setComments(parseInt(storedComments, 10) || 0);
+      }
+      if (storedViews) {
+        setViews(parseInt(storedViews, 10) || 0);
+      }
+      if (storedHasLiked === 'true') {
+        setHasLiked(true);
+      }
+      if (storedHasCommented === 'true') {
+        setHasCommented(true);
+      }
+      if (storedCommentsList) {
+        try {
+          setCommentList(JSON.parse(storedCommentsList));
+        } catch {
+          setCommentList([]);
+        }
+      }
+    } catch (error) {
+      // Error loading from localStorage - use defaults
+      console.error('Error loading engagement data:', error);
+    }
+  }, [id]);
+
+  // Track page view - increment views when article loads
+  useEffect(() => {
+    if (!id || !article) return;
+    
+    try {
+      const viewKey = `news-viewed-${id}`;
+      const hasViewed = sessionStorage.getItem(viewKey);
+      
+      // Only increment if this is a new view in this session
+      if (!hasViewed) {
+        setViews(prev => {
+          const newViews = prev + 1;
+          localStorage.setItem(`news-views-${id}`, newViews.toString());
+          sessionStorage.setItem(viewKey, 'true');
+          return newViews;
+        });
+      } else {
+        // Load existing views if already viewed in this session
+        const storedViews = localStorage.getItem(`news-views-${id}`);
+        if (storedViews) {
+          setViews(parseInt(storedViews, 10) || 0);
+        }
+      }
+    } catch (error) {
+      console.error('Error tracking view:', error);
+    }
+  }, [id, article]);
 
   useEffect(() => {
     if (!id) return;
@@ -556,6 +630,69 @@ const NewsDetailPage: React.FC = () => {
       isMounted = false;
     };
   }, [id]);
+
+  // Save likes and comments to localStorage whenever they change
+  useEffect(() => {
+    if (!id) return;
+    try {
+      localStorage.setItem(`news-likes-${id}`, likes.toString());
+    } catch (error) {
+      console.error('Error saving likes:', error);
+    }
+  }, [id, likes]);
+
+  useEffect(() => {
+    if (!id) return;
+    try {
+      localStorage.setItem(`news-comments-${id}`, comments.toString());
+    } catch (error) {
+      console.error('Error saving comments:', error);
+    }
+  }, [id, comments]);
+
+  // Handle like action
+  const handleLike = () => {
+    if (!id) return;
+    if (!hasLiked) {
+      setLikes(prev => prev + 1);
+      setHasLiked(true);
+      try {
+        localStorage.setItem(`news-hasLiked-${id}`, 'true');
+      } catch (error) {
+        console.error('Error saving like state:', error);
+      }
+    }
+  };
+
+  // Handle comment button click - toggle comment section
+  const handleComment = () => {
+    setShowCommentSection(prev => !prev);
+  };
+
+  // Handle submitting a comment
+  const handleSubmitComment = () => {
+    if (!id || !commentText.trim()) return;
+    
+    const newComment = {
+      id: Date.now().toString(),
+      text: commentText.trim(),
+      date: new Date().toISOString()
+    };
+    
+    const updatedComments = [...commentList, newComment];
+    setCommentList(updatedComments);
+    setComments(prev => prev + 1);
+    setCommentText('');
+    setHasCommented(true);
+    
+    try {
+      localStorage.setItem(`news-commentsList-${id}`, JSON.stringify(updatedComments));
+      localStorage.setItem(`news-comments-${id}`, (comments + 1).toString());
+      localStorage.setItem(`news-hasCommented-${id}`, 'true');
+    } catch (error) {
+      console.error('Error saving comment:', error);
+    }
+  };
 
 
   if (!article) {
@@ -790,18 +927,33 @@ const NewsDetailPage: React.FC = () => {
                 <div className="bg-white rounded-lg shadow p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-6">
+                      <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                        <span>{views} views</span>
+                      </div>
                       <button 
                         type="button"
-                        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
+                        onClick={handleLike}
+                        className={`flex items-center gap-1.5 text-sm transition-colors ${
+                          hasLiked 
+                            ? 'text-red-600 hover:text-red-700' 
+                            : 'text-gray-600 hover:text-red-600'
+                        }`}
+                        aria-label={hasLiked ? 'Liked' : 'Like this article'}
                       >
-                        <Heart size={16} />
+                        <Heart size={16} fill={hasLiked ? 'currentColor' : 'none'} />
                         <span>{likes}</span>
                       </button>
                       <button 
                         type="button"
-                        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
+                        onClick={handleComment}
+                        className={`flex items-center gap-1.5 text-sm transition-colors ${
+                          hasCommented || showCommentSection
+                            ? 'text-blue-600 hover:text-blue-700' 
+                            : 'text-gray-600 hover:text-blue-600'
+                        }`}
+                        aria-label={hasCommented ? 'Commented' : 'Comment on this article'}
                       >
-                        <MessageCircle size={16} />
+                        <MessageCircle size={16} fill={hasCommented || showCommentSection ? 'currentColor' : 'none'} />
                         <span>{comments}</span>
                       </button>
                     </div>
@@ -839,6 +991,70 @@ const NewsDetailPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Comment Section */}
+                {showCommentSection && (
+                  <div className="bg-white rounded-lg shadow p-6 space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Comments ({comments})</h3>
+                    
+                    {/* Comment Input */}
+                    <div className="space-y-3">
+                      <textarea
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        placeholder="Write a comment..."
+                        className="w-full min-h-[100px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#030f35] focus:border-transparent resize-none"
+                        rows={4}
+                      />
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={handleSubmitComment}
+                          disabled={!commentText.trim()}
+                          className="px-4 py-2 bg-[#030f35] text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Post Comment
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Comments List */}
+                    {commentList.length > 0 && (
+                      <div className="space-y-4 mt-6 pt-6 border-t border-gray-200">
+                        {commentList.map((comment) => (
+                          <div key={comment.id} className="flex gap-3">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#030f35] flex items-center justify-center text-white text-sm font-semibold">
+                              {displayAuthor ? displayAuthor.charAt(0).toUpperCase() : 'U'}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-sm font-semibold text-gray-900">
+                                  {displayAuthor || 'Anonymous User'}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {new Date(comment.date).toLocaleDateString('en-US', { 
+                                    month: 'short', 
+                                    day: 'numeric',
+                                    year: 'numeric',
+                                    hour: 'numeric',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-700">{comment.text}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {commentList.length === 0 && (
+                      <div className="text-center py-8 text-gray-500 text-sm">
+                        No comments yet. Be the first to comment!
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Questions section */}
                 {displayAuthor && (
                   <div className="text-xs text-gray-600 pt-4">
@@ -847,12 +1063,12 @@ const NewsDetailPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Right Sidebar - Related Announcements */}
+              {/* Right Sidebar - Related News and Announcements */}
               <div className="lg:col-span-1">
                 <div className="sticky top-8 space-y-6">
                   {related && related.length > 0 && (
-                    <section className="bg-white rounded-lg shadow p-6" aria-label="Related Announcements">
-                      <h2 className="text-base font-semibold mb-4">Related Announcements</h2>
+                    <section className="bg-white rounded-lg shadow p-6" aria-label="Related News and Announcements">
+                      <h2 className="text-base font-semibold mb-4">Related News and Announcements</h2>
                       <div className="space-y-3">
                         {related.slice(0, 3).map((item) => {
                           const relatedDate = formatDateShort(item.date);
