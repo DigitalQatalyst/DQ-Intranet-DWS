@@ -34,6 +34,8 @@ import WorkPositionProfilePage from "./pages/WorkPositionProfilePage";
 import RoleProfilePage from "./pages/RoleProfilePage";
 import WomenEntrepreneursPage from "./pages/WomenEntrepreneursPage";
 import OnboardingLanding from "./pages/OnboardingLanding";
+import { OnboardingJourney } from "./pages/OnboardingJourney";
+import GHCLanding from "./pages/GHCLanding";
 
 export function AppRouter() {
 
@@ -62,6 +64,8 @@ export function AppRouter() {
               element={<LmsCourseDetailPageWrapper />} 
             />
             <Route path="/onboarding/welcome" element={<OnboardingLanding />} />
+            <Route path="/onboarding/journey" element={<OnboardingJourney />} />
+            <Route path="/ghc" element={<GHCLanding />} />
             <Route
               path="/onboarding/:itemId"
               element={
