@@ -19,6 +19,7 @@ const GlossaryTermDetailPage = React.lazy(() => import('../guides/GlossaryTermDe
 const SixXDPerspectiveDetailPage = React.lazy(() => import('../guides/SixXDPerspectiveDetailPage'));
 const FAQsPage = React.lazy(() => import('../guides/FAQsPage'));
 const TestimonialsDetailPage = React.lazy(() => import('../guides/TestimonialsDetailPage'));
+const AssociateTestimonialsDetailPage = React.lazy(() => import('../guides/AssociateTestimonialsDetailPage'));
 const ProductDetailPage = React.lazy(() => import('../products/ProductDetailPage'));
 // Promo cards for courses marketplace
 const coursePromoCards = [{
@@ -147,6 +148,7 @@ export const MarketplaceRouter: React.FC = () => {
       <Route path="/guides/6xd-perspective/:perspectiveId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><SixXDPerspectiveDetailPage /></React.Suspense>} />
       <Route path="/guides/faqs" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><FAQsPage /></React.Suspense>} />
       <Route path="/guides/testimonials" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><TestimonialsDetailPage /></React.Suspense>} />
+      <Route path="/guides/associate-testimonials" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><AssociateTestimonialsDetailPage /></React.Suspense>} />
       <Route path="/guides/:itemId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><GuideDetailPage /></React.Suspense>} />
       
       {/* Products Detail Pages */}

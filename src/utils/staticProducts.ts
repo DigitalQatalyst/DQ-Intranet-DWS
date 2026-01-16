@@ -91,8 +91,8 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
   },
   {
     id: 'static-product-dtmb',
-    title: 'DTMB',
-    summary: 'A Digital Transformation Management resource line. Detailed description to follow.',
+    title: 'DTMB - Digital Transformation Management Boost',
+    summary: 'A resource line of boosts, playbooks, and reference material to accelerate DT management.',
     domain: 'Product',
     guideType: 'Marketplace',
     heroImageUrl: '/images/DTMB.jpg',

@@ -254,9 +254,9 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
   },
   'dtmb': {
     slug: 'dtmb',
-    name: 'DTMB',
-    tagline: 'Digital Transformation Management Books and resources.',
-    description: 'A resource line supporting digital transformation management with curated materials.',
+    name: 'DTMB - Digital Transformation Management Boost',
+    tagline: 'Boost kits, references, and playbooks for DT management.',
+    description: 'A resource line of boosts, playbooks, and reference material to accelerate digital transformation management.',
     productType: 'DTMB',
     productStage: 'Preview',
     whatItIs: 'A set of resources that complement DTMA/DTMP with reference material.',

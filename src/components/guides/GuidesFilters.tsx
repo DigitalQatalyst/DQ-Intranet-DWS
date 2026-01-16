@@ -35,11 +35,10 @@ interface Props {
 }
 
 const TESTIMONIAL_CATEGORIES: Facet[] = [
-  { id: 'journey-transformation-story', name: 'Journey / Transformation Story' },
-  { id: 'case-study', name: 'Case Study' },
-  { id: 'leadership-reflection', name: 'Leadership Reflection' },
-  { id: 'client-partner-reference', name: 'Client / Partner Reference' },
-  { id: 'team-employee-experience', name: 'Team / Employee Experience' },
+  { id: 'client-feedback', name: 'Client Feedback' },
+  { id: 'associates', name: 'Associates Feedback' },
+  { id: 'client-partner-reference', name: 'Partner Reference' },
+  { id: 'team-employee-experience', name: 'Employee Experience' },
   { id: 'milestone-achievement', name: 'Milestone / Achievement' }
 ]
 
@@ -573,7 +572,7 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
           <CheckboxList idPrefix={instanceId} name="faq_category" options={FAQ_CATEGORIES} query={query} onChange={onChange} />
         </Section>
       )}
-      {!isGlossarySelected && !isBlueprintSelected && !isFAQsSelected && (
+      {!isGlossarySelected && !isBlueprintSelected && !isFAQsSelected && !isTestimonialsSelected && (
         <>
           {isStrategySelected ? (
             <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
@@ -582,10 +581,6 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
           ) : isGuidelinesSelected ? (
             <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
               <CheckboxList idPrefix={instanceId} name="unit" options={GUIDELINES_UNITS} query={query} onChange={onChange} />
-            </Section>
-          ) : isTestimonialsSelected ? (
-            <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
-              <CheckboxList idPrefix={instanceId} name="unit" options={TESTIMONIAL_UNITS} query={query} onChange={onChange} />
             </Section>
           ) : (
             <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>

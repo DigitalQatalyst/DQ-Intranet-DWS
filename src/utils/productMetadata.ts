@@ -76,14 +76,8 @@ export const PRODUCT_METADATA: Record<string, ProductMetadata> = {
   'DTMB': {
     productType: 'DTMB',
     productStage: 'Preview',
-    description: 'A Digital Transformation Management resource line. Detailed description to follow.',
+    description: 'Boost kits, playbooks, and reference material for digital transformation management.',
     imageUrl: '/images/DTMB.jpg'
-  },
-  'DTMCC': {
-    productType: 'DTMCC',
-    productStage: 'Preview',
-    description: 'A Digital Transformation Management capability. Detailed description to follow.',
-    imageUrl: '/images/DTMCC.jpg'
   },
   'DTMI': {
     productType: 'DTMI',
