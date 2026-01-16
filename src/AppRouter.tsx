@@ -36,6 +36,7 @@ import WomenEntrepreneursPage from "./pages/WomenEntrepreneursPage";
 import OnboardingLanding from "./pages/OnboardingLanding";
 import { OnboardingJourney } from "./pages/OnboardingJourney";
 import GHCLanding from "./pages/GHCLanding";
+import SixXDLanding from "./pages/6XDLanding";
 
 export function AppRouter() {
 
@@ -66,6 +67,7 @@ export function AppRouter() {
             <Route path="/onboarding/welcome" element={<OnboardingLanding />} />
             <Route path="/onboarding/journey" element={<OnboardingJourney />} />
             <Route path="/ghc" element={<GHCLanding />} />
+            <Route path="/6xd" element={<SixXDLanding />} />
             <Route
               path="/onboarding/:itemId"
               element={

@@ -69,7 +69,7 @@ export function OnboardingLanding() {
   };
 
   const handleExplore6XD = () => {
-    navigate('/lms?category=6xd');
+    navigate('/6xd');
   };
 
   const handleViewRole = () => {
@@ -91,6 +91,16 @@ export function OnboardingLanding() {
           0%, 100% { transform: translateY(0px) translateX(0px); }
           33% { transform: translateY(-20px) translateX(10px); }
           66% { transform: translateY(10px) translateX(-10px); }
+        }
+        @keyframes floatSlow {
+          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+          25% { transform: translateY(-30px) translateX(15px) rotate(5deg); }
+          50% { transform: translateY(-15px) translateX(-15px) rotate(-5deg); }
+          75% { transform: translateY(15px) translateX(10px) rotate(3deg); }
+        }
+        @keyframes rotateSlow {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
         @keyframes pulse {
           0%, 100% { opacity: 0.4; transform: scale(1); }
@@ -159,66 +169,171 @@ export function OnboardingLanding() {
       
       <main className="flex-grow">
         {/* SECTION 1 — HERO: Start Your Onboarding Journey */}
-        <section className="relative w-full min-h-[90vh] md:min-h-[100vh] overflow-hidden flex flex-col isolate">
-          {/* Main gradient background - DQ Navy to DQ Blue to DQ Orange */}
+        <section 
+          className="relative w-full h-screen overflow-hidden flex flex-col isolate"
+        >
+          {/* Background Image */}
           <div 
-            className="absolute inset-0"
+            className="absolute inset-0 z-0"
             style={{
-              background: 'linear-gradient(to bottom, #030F35 0%, #1A2E6E 30%, #030F35 70%, #FB5535 100%)'
+              backgroundImage: 'url("https://cdn.corenexis.com/view/2852666168"), linear-gradient(to bottom, #030F35 0%, #1A2E6E 30%, #030F35 70%, #FB5535 100%)',
+              backgroundSize: 'cover, 100% 100%',
+              backgroundPosition: 'center, center',
+              backgroundRepeat: 'no-repeat, no-repeat',
+              backgroundColor: '#030F35'
             }}
           />
-          
-          {/* Background image overlay with parallax - reduced opacity */}
-          <div
-            className="absolute inset-0 transition-transform duration-700 ease-out"
+          {/* Gradient Overlay - Minimal for text readability */}
+          <div 
+            className="absolute inset-0 z-[1]"
             style={{
-              backgroundImage: 'url("https://www.ceotodaymagazine.com/CEO-Today/wp-content/uploads/2024/07/iStock-1473446455.jpg")',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              opacity: 0.15,
-              mixBlendMode: 'overlay',
-              transform: `translateY(${scrollY * 0.2}px)`
+              background: 'linear-gradient(to bottom, rgba(3, 15, 53, 0.15) 0%, rgba(26, 46, 110, 0.12) 30%, rgba(3, 15, 53, 0.15) 70%, rgba(251, 85, 53, 0.12) 100%)',
+              backgroundSize: '100% 100%',
+              backgroundRepeat: 'no-repeat'
             }}
           />
-          
-          {/* Subtle overlay for text readability */}
-          <div 
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.3) 100%)'
-            }}
-          />
-          
-          {/* Stylized mountain range/cityscape at bottom - DQ colors */}
-          <div 
-            className="absolute bottom-0 left-0 right-0 h-48 md:h-64 transition-transform duration-700 ease-out"
-            style={{
-              transform: `translateY(${scrollY * 0.1}px)`,
-              opacity: 0.4
-            }}
-          >
-            <svg
-              viewBox="0 0 1200 200"
-              className="w-full h-full"
-              preserveAspectRatio="none"
-              fill="none"
-            >
+          {/* Elegant Animated Vector Background */}
+          <div className="absolute inset-0 opacity-[0.02] z-[2]">
+            <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="elegantGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.4" />
+                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.1" />
+                </linearGradient>
+                <linearGradient id="elegantGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#FB5535" stopOpacity="0.15" />
+                </linearGradient>
+                <radialGradient id="radialGlow" cx="50%" cy="50%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#030F35" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+              
+              {/* Subtle Grid Pattern */}
+              <g opacity="0.3">
+                {[...Array(8)].map((_, i) => (
+                  <line
+                    key={`v-${i}`}
+                    x1={i * 240}
+                    y1="0"
+                    x2={i * 240}
+                    y2="1080"
+                    stroke="url(#elegantGradient1)"
+                    strokeWidth="1"
+                    style={{
+                      animation: 'pulse 8s ease-in-out infinite',
+                      animationDelay: `${i * 0.5}s`,
+                      opacity: 0.2
+                    }}
+                  />
+                ))}
+                {[...Array(6)].map((_, i) => (
+                  <line
+                    key={`h-${i}`}
+                    x1="0"
+                    y1={i * 180}
+                    x2="1920"
+                    y2={i * 180}
+                    stroke="url(#elegantGradient2)"
+                    strokeWidth="1"
+                    style={{
+                      animation: 'pulse 10s ease-in-out infinite',
+                      animationDelay: `${i * 0.7}s`,
+                      opacity: 0.2
+                    }}
+                  />
+                ))}
+              </g>
+              
+              {/* Flowing Curved Paths */}
               <path
-                d="M0,200 L0,180 L150,120 L300,140 L450,100 L600,130 L750,90 L900,110 L1050,80 L1200,100 L1200,200 Z"
-                fill="#1A2E6E"
-                opacity="0.6"
+                d="M 0 300 Q 400 200, 800 300 T 1600 300"
+                stroke="url(#elegantGradient1)"
+                strokeWidth="2"
+                fill="none"
+                style={{
+                  animation: 'floatSlow 15s ease-in-out infinite',
+                  opacity: 0.4,
+                  strokeDasharray: '5,5'
+                }}
               />
               <path
-                d="M0,200 L0,190 L200,150 L400,170 L600,130 L800,150 L1000,120 L1200,140 L1200,200 Z"
-                fill="#030F35"
-                opacity="0.5"
+                d="M 0 600 Q 500 500, 1000 600 T 1920 600"
+                stroke="url(#elegantGradient2)"
+                strokeWidth="1.5"
+                fill="none"
+                style={{
+                  animation: 'floatSlow 18s ease-in-out infinite reverse',
+                  animationDelay: '3s',
+                  opacity: 0.3,
+                  strokeDasharray: '8,8'
+                }}
               />
+              
+              {/* Elegant Geometric Shapes */}
+              <g style={{ animation: 'floatSlow 12s ease-in-out infinite' }}>
+                <circle cx="300" cy="400" r="60" fill="url(#elegantGradient1)" opacity="0.3" />
+                <circle cx="300" cy="400" r="40" fill="none" stroke="url(#elegantGradient2)" strokeWidth="1.5" opacity="0.4" />
+              </g>
+              
+              <g style={{ animation: 'floatSlow 14s ease-in-out infinite', animationDelay: '2s' }}>
+                <circle cx="1600" cy="700" r="80" fill="url(#elegantGradient2)" opacity="0.25" />
+                <circle cx="1600" cy="700" r="55" fill="none" stroke="url(#elegantGradient1)" strokeWidth="1.5" opacity="0.35" />
+              </g>
+              
+              {/* Subtle Hexagon Pattern */}
+              <g transform="translate(1200, 200)" style={{ animation: 'rotateSlow 30s linear infinite' }}>
+                <polygon
+                  points="0,-50 43,-25 43,25 0,50 -43,25 -43,-25"
+                  fill="none"
+                  stroke="url(#elegantGradient1)"
+                  strokeWidth="1.5"
+                  opacity="0.3"
+                />
+              </g>
+              
+              <g transform="translate(500, 800)" style={{ animation: 'rotateSlow 35s linear infinite reverse' }}>
+                <polygon
+                  points="0,-35 30,-17.5 30,17.5 0,35 -30,17.5 -30,-17.5"
+                  fill="none"
+                  stroke="url(#elegantGradient2)"
+                  strokeWidth="1.5"
+                  opacity="0.3"
+                />
+              </g>
+              
+              {/* Radial Glow Effects */}
+              <circle cx="400" cy="300" r="200" fill="url(#radialGlow)" style={{ animation: 'pulse 8s ease-in-out infinite' }} />
+              <circle cx="1500" cy="600" r="250" fill="url(#radialGlow)" style={{ animation: 'pulse 10s ease-in-out infinite', animationDelay: '4s' }} />
             </svg>
           </div>
+          
+          {/* Subtle Floating Orbs */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full blur-sm"
+                style={{
+                  width: `${60 + i * 20}px`,
+                  height: `${60 + i * 20}px`,
+                  left: `${15 + i * 15}%`,
+                  top: `${20 + (i % 3) * 25}%`,
+                  background: i % 2 === 0 
+                    ? 'radial-gradient(circle, rgba(251, 85, 53, 0.15) 0%, transparent 70%)' 
+                    : 'radial-gradient(circle, rgba(26, 46, 110, 0.15) 0%, transparent 70%)',
+                  animation: `floatSlow ${12 + i * 2}s ease-in-out infinite`,
+                  animationDelay: `${i * 1.5}s`,
+                }}
+              />
+            ))}
+          </div>
 
-          <div className="container mx-auto px-4 md:px-6 lg:px-8 flex-grow flex flex-col justify-center relative z-10">
-            <div className="max-w-5xl">
+          <div className="w-full h-full flex items-center relative z-10">
+            <div className="container mx-auto px-4 md:px-6 lg:px-8 xl:px-12">
+              <div className="max-w-5xl">
               <FadeInUpOnScroll>
                 <h1 
                   className="text-[48px] md:text-[56px] lg:text-[72px] xl:text-[80px] text-white mb-6 text-left font-sans"
@@ -228,10 +343,10 @@ export function OnboardingLanding() {
                     color: '#FFFFFF'
                   }}
                 >
-                  Start Your Onboarding Journey
+                  Welcome to DQ Onboarding
                 </h1>
                 <p className="text-lg md:text-xl text-white/95 mb-8 font-normal leading-relaxed text-left max-w-3xl" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
-                  A structured 3 month onboarding journey that helps you understand how DQ works, align with our culture and values, and confidently step into your role.
+                  Your 3-month onboarding journey helps you integrate into DQ, adopt our DNA, and gain confidence in your role.
                 </p>
               </FadeInUpOnScroll>
 
@@ -244,13 +359,14 @@ export function OnboardingLanding() {
                   onClick={handleStartOnboarding}
                   className="px-8 py-3.5 bg-white text-[#030F35] font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-300 flex items-center justify-center gap-2 text-base group"
                 >
-                  <span>Start My Onboarding Journey</span>
+                  <span>View the 3-Month Onboarding Guide</span>
                   <ArrowRight size={18} color="#FB5535" className="transition-transform group-hover:translate-x-1" />
                 </button>
               </StaggeredFadeIn>
 
               {/* (Hero KPIs removed – hero now focuses only on welcome copy and primary CTA) */}
               </div>
+            </div>
           </div>
         </section>
 
@@ -268,9 +384,10 @@ export function OnboardingLanding() {
                       DQ Organization
                 </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-10 space-y-3">
-                      <p>Before you do anything, understand the organisation you've joined.</p>
-                      <p>DQ is purpose-driven and built on intentional frameworks that shape everything we do.</p>
-                      <p>Knowing this context helps you make sense of how work happens here and why decisions are made the way they are.</p>
+                      <p>Before you dive in, get grounded in the organization you’ve joined.</p>
+                      <p>DigitalQatalyst is a purpose driven digital organisation, built on intentional frameworks that guide how we operate.</p>
+                      <p>Every decision, process, and interaction is designed to convert potential into real execution.</p>
+                      <p>Understanding this foundation will help you navigate how work flows at DQ and why things are done the way they are.</p>
               </div>
                     <button
                       onClick={handleExploreOrganization}
@@ -318,7 +435,7 @@ export function OnboardingLanding() {
                       DQ DNA
                     </p>
                     <h2 className="text-4xl md:text-5xl font-bold text-[#030F35] mb-4 leading-tight">
-                      DQ GHC  The Way We Work at DQ
+                      DQ GHC (Golden Honeycomb of Competencies)
                     </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-10 space-y-3">
                       <p>

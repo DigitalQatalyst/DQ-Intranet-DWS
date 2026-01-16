@@ -15,6 +15,7 @@ interface GHCElement {
   supportingLines?: string[];
   imageSrc?: string;
   imageAlt?: string;
+  storybookUrl?: string;
   route: string;
 }
 
@@ -34,6 +35,7 @@ const ghcElements: GHCElement[] = [
     ],
     imageSrc: 'https://image2url.com/r2/default/images/1768463115775-0daa0af5-bc58-4ea6-a1d4-0f9d34c8d04a.webp',
     imageAlt: 'Digital globe representing connected systems',
+    storybookUrl: 'https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html',
     route: '/marketplace/guides/dq-vision'
   },
   {
@@ -51,6 +53,7 @@ const ghcElements: GHCElement[] = [
     ],
     imageSrc: 'https://image2url.com/r2/default/images/1768466070607-5e1f2ca9-d498-4bb5-afc2-1032992433d1.png',
     imageAlt: 'House of Values culture visual',
+    storybookUrl: 'https://digital-qatalyst.shorthandstories.com/ad30db59-9684-4331-921d-2e564f9dfe58/index.html',
     route: '/marketplace/guides/dq-hov'
   },
   {
@@ -68,6 +71,7 @@ const ghcElements: GHCElement[] = [
     ],
     imageSrc: 'https://image2url.com/r2/default/images/1768465956957-738b44df-0d0b-490d-a0f8-1a42fb51784e.png',
     imageAlt: 'Shared identity and team personas visual',
+    storybookUrl: 'https://digital-qatalyst.shorthandstories.com/30d7e598-4e7c-4492-b070-8001649b4ee4/index.html',
     route: '/marketplace/guides/dq-persona'
   },
   {
@@ -85,6 +89,7 @@ const ghcElements: GHCElement[] = [
     ],
     imageSrc: 'https://image2url.com/r2/default/images/1768468914162-67cf0162-662c-4e20-a446-07555ee3e728.png',
     imageAlt: 'Task planning and execution visual',
+    storybookUrl: 'https://digital-qatalyst.shorthandstories.com/30d7e598-4e7c-4492-b070-8001649b4ee4/index.html',
     route: '/marketplace/guides/dq-agile-tms'
   },
   {
@@ -102,6 +107,7 @@ const ghcElements: GHCElement[] = [
     ],
     imageSrc: 'https://image2url.com/r2/default/images/1768469269842-aa6b9f6f-fe20-4e0a-ad22-0883c281134b.png',
     imageAlt: 'Governance and alignment visual',
+    storybookUrl: 'https://digital-qatalyst.shorthandstories.com/cde3e47f-33f6-47c6-8633-3825276d17dd/index.html',
     route: '/marketplace/guides/dq-agile-sos'
   },
   {
@@ -117,14 +123,15 @@ const ghcElements: GHCElement[] = [
       'It creates clarity on handoffs, ownership, and how different parts of the organisation align.',
       'This reduces fragmentation and helps us deliver impact as one coordinated system.',
     ],
-    imageSrc: '',
-    imageAlt: '',
+    imageSrc: 'https://i.ibb.co/6RNRpDR2/Untitled-design9.jpg',
+    imageAlt: 'Agile Flows value streams visual',
+    storybookUrl: 'https://digital-qatalyst.shorthandstories.com/1201a61d-9475-48a1-a228-5342a75e094c/index.html',
     route: '/marketplace/guides/dq-agile-flows'
   },
   {
     id: 'agile-6xd',
     number: '07',
-    title: 'Agile 6xD (Products)',
+    title: 'Agile 6xD',
     subtitle: 'Products',
     question: '',
     narrative: '',
@@ -133,8 +140,8 @@ const ghcElements: GHCElement[] = [
       'Agile 6xD is how DQ packages its capabilities into six clear perspectives that guide transformation.',
       'It ensures everything we build delivers value, impact, and results that matter.',
     ],
-    imageSrc: '',
-    imageAlt: '',
+    imageSrc: 'https://i.ibb.co/Ldz3kGy0/Untitled-design.jpg',
+    imageAlt: 'Agile 6xD products and capabilities visual',
     route: '/marketplace/guides/dq-agile-6xd'
   }
 ];
@@ -157,10 +164,6 @@ export function GHCLanding() {
   const navigate = useNavigate();
   const handleExploreElement = (route: string) => {
     navigate(route);
-  };
-
-  const handleExploreAll = () => {
-    navigate('/marketplace/guides/dq-ghc');
   };
 
   return (
@@ -221,36 +224,27 @@ export function GHCLanding() {
               <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 items-center">
                   <FadeInUpOnScroll>
-                    <div className="w-full max-w-5xl">
+                    <div className="w-full max-w-4xl">
                       <h1
-                        className="text-[48px] md:text-[56px] lg:text-[72px] xl:text-[80px] text-white mb-6 text-left font-sans"
-                        style={{ fontWeight: 700, lineHeight: 1.1 }}
+                        className="text-[72px] text-white mb-8 md:mb-10 text-left font-sans"
+                        style={{ 
+                          fontWeight: 700, 
+                          lineHeight: 1.15,
+                          letterSpacing: '-0.01em'
+                        }}
                       >
-                        GHC is DQ&apos;s Organisational DNA
+                        GHC: The Organisational DNA of DigitalQatalyst
                       </h1>
 
-                      <div className="mb-12 max-w-4xl space-y-3">
-                        <p className="text-lg md:text-xl text-white/90 leading-relaxed text-left">
-                          The Golden Honeycomb of Competencies (GHC) is the foundation behind how DQ thinks, works, and grows.
-                        </p>
-                        <p className="text-lg md:text-xl text-white/90 leading-relaxed text-left">
-                          It connects purpose, culture, and delivery into one clear system for creating value.
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <button
-                          onClick={handleExploreAll}
-                          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-[#030F35] font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-200"
+                      <div className="mb-12 max-w-4xl">
+                        <p 
+                          className="text-xl md:text-2xl text-white/90 leading-[2.2] text-left font-light"
+                          style={{
+                            fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
+                          }}
                         >
-                          <span>Read GHC Overview</span>
-                        </button>
-                        <button
-                          onClick={() => handleExploreElement('/marketplace/guides/dq-vision')}
-                          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-transparent border-2 border-white/70 text-white font-semibold rounded-lg hover:bg-white/10 transition-all duration-200"
-                        >
-                          <span>Start Exploring</span>
-                        </button>
+                          The GHC is DQ&apos;s shared DNA. It guides how we think, work, and collaborate helping every associate create value, grow with confidence, and contribute consistently to DQ&apos;s digital mission.
+                        </p>
                       </div>
                     </div>
                   </FadeInUpOnScroll>
@@ -322,12 +316,25 @@ export function GHCLanding() {
                           >
                             <span>Explore Course</span>
                           </button>
-                          <button
-                            onClick={() => handleExploreElement(element.route)}
-                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-[#030F35] text-[#030F35] font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200 group"
-                          >
-                            <span>Read Storybook</span>
-                          </button>
+                          {element.storybookUrl ? (
+                            <a
+                              href={element.storybookUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-[#030F35] text-[#030F35] font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200 group"
+                            >
+                              <span>Read Storybook</span>
+                            </a>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled
+                              title="Storybook coming soon"
+                              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-[#030F35]/40 text-[#030F35]/50 font-semibold rounded-lg cursor-not-allowed"
+                            >
+                              <span>Read Storybook</span>
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
