@@ -170,13 +170,13 @@ export function OnboardingLanding() {
       <main className="flex-grow">
         {/* SECTION 1 — HERO: Start Your Onboarding Journey */}
         <section 
-          className="relative w-full h-screen overflow-hidden flex flex-col isolate"
+          className="relative w-full overflow-hidden flex flex-col isolate h-auto md:h-[600px] lg:h-[700px] pt-24 pb-20 md:pt-24 md:pb-20"
         >
           {/* Background Image */}
           <div 
             className="absolute inset-0 z-0"
             style={{
-              backgroundImage: 'url("https://cdn.corenexis.com/view/2852666168"), linear-gradient(to bottom, #030F35 0%, #1A2E6E 30%, #030F35 70%, #FB5535 100%)',
+              backgroundImage: 'url("https://i.ibb.co/TD61HZ9c/Screenshot-2026-01-19-at-5-32-50-PM.png"), linear-gradient(to bottom, #030F35 0%, #1A2E6E 30%, #030F35 70%, #FB5535 100%)',
               backgroundSize: 'cover, 100% 100%',
               backgroundPosition: 'center, center',
               backgroundRepeat: 'no-repeat, no-repeat',
@@ -184,10 +184,11 @@ export function OnboardingLanding() {
             }}
           />
           {/* Gradient Overlay - Minimal for text readability */}
-          <div 
+          <div
             className="absolute inset-0 z-[1]"
             style={{
-              background: 'linear-gradient(to bottom, rgba(3, 15, 53, 0.15) 0%, rgba(26, 46, 110, 0.12) 30%, rgba(3, 15, 53, 0.15) 70%, rgba(251, 85, 53, 0.12) 100%)',
+              background:
+                'linear-gradient(to bottom, rgba(3, 15, 53, 0.7) 0%, rgba(26, 46, 110, 0.6) 35%, rgba(3, 15, 53, 0.45) 80%, rgba(251, 85, 53, 0.18) 100%)',
               backgroundSize: '100% 100%',
               backgroundRepeat: 'no-repeat'
             }}
@@ -210,7 +211,7 @@ export function OnboardingLanding() {
                   <stop offset="100%" stopColor="#030F35" stopOpacity="0" />
                 </radialGradient>
               </defs>
-              
+          
               {/* Subtle Grid Pattern */}
               <g opacity="0.3">
                 {[...Array(8)].map((_, i) => (
@@ -222,12 +223,12 @@ export function OnboardingLanding() {
                     y2="1080"
                     stroke="url(#elegantGradient1)"
                     strokeWidth="1"
-                    style={{
+            style={{
                       animation: 'pulse 8s ease-in-out infinite',
                       animationDelay: `${i * 0.5}s`,
                       opacity: 0.2
-                    }}
-                  />
+            }}
+          />
                 ))}
                 {[...Array(6)].map((_, i) => (
                   <line
@@ -238,7 +239,7 @@ export function OnboardingLanding() {
                     y2={i * 180}
                     stroke="url(#elegantGradient2)"
                     strokeWidth="1"
-                    style={{
+            style={{
                       animation: 'pulse 10s ease-in-out infinite',
                       animationDelay: `${i * 0.7}s`,
                       opacity: 0.2
@@ -301,7 +302,7 @@ export function OnboardingLanding() {
                   stroke="url(#elegantGradient2)"
                   strokeWidth="1.5"
                   opacity="0.3"
-                />
+              />
               </g>
               
               {/* Radial Glow Effects */}
@@ -309,7 +310,7 @@ export function OnboardingLanding() {
               <circle cx="1500" cy="600" r="250" fill="url(#radialGlow)" style={{ animation: 'pulse 10s ease-in-out infinite', animationDelay: '4s' }} />
             </svg>
           </div>
-          
+
           {/* Subtle Floating Orbs */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
             {[...Array(6)].map((_, i) => (
@@ -331,9 +332,9 @@ export function OnboardingLanding() {
             ))}
           </div>
 
-          <div className="w-full h-full flex items-center relative z-10">
+          <div className="w-full flex items-center relative z-10">
             <div className="container mx-auto px-4 md:px-6 lg:px-8 xl:px-12">
-              <div className="max-w-5xl">
+            <div className="max-w-5xl">
               <FadeInUpOnScroll>
                 <h1 
                   className="text-[48px] md:text-[56px] lg:text-[72px] xl:text-[80px] text-white mb-6 text-left font-sans"
@@ -366,7 +367,7 @@ export function OnboardingLanding() {
 
               {/* (Hero KPIs removed – hero now focuses only on welcome copy and primary CTA) */}
               </div>
-            </div>
+              </div>
           </div>
         </section>
 
@@ -435,17 +436,17 @@ export function OnboardingLanding() {
                       DQ DNA
                     </p>
                     <h2 className="text-4xl md:text-5xl font-bold text-[#030F35] mb-4 leading-tight">
-                      DQ GHC (Golden Honeycomb of Competencies)
+                      DQ GHC (The Golden Honeycomb of Competencies)
                     </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-10 space-y-3">
                       <p>
-                        At DQ, everything you do  how you think, collaborate, and make decisions  is guided by one shared system: GHC.
+                        The DQ Golden Honeycomb of Competencies is a master framework defining the complete organisational DNA of DigitalQatalyst globally.
                       </p>
                       <p>
-                        It connects our purpose, culture, and delivery into a single, clear way of working.
+                        It integrates visionary strategic operational psychological and behavioural design dimensions into one coherent and scalable enterprise-wide system structure.
                       </p>
                       <p>
-                        This helps you understand the standard we work to at DQ  and the impact you're here to create.
+                        This framework aligns thinking behaviour execution and decision-making enabling consistency agility and purpose across teams products and markets.
                       </p>
                     </div>
                     <button
@@ -473,7 +474,7 @@ export function OnboardingLanding() {
                       Operational System
                     </p>
                     <h2 className="text-4xl md:text-5xl font-bold text-[#030F35] mb-8 leading-tight">
-                      DQ 6X Digitals
+                      DQ 6x Digitals (6xD)
                 </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-10 space-y-3">
                       <p>This is how work actually happens at DQ.</p>

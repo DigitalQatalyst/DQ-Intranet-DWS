@@ -37,6 +37,7 @@ import OnboardingLanding from "./pages/OnboardingLanding";
 import { OnboardingJourney } from "./pages/OnboardingJourney";
 import GHCLanding from "./pages/GHCLanding";
 import SixXDLanding from "./pages/6XDLanding";
+import DigitalAcceleratorsLanding from "./pages/DigitalAcceleratorsLanding";
 
 export function AppRouter() {
 
@@ -52,13 +53,13 @@ export function AppRouter() {
       <BrowserRouter>
         <AuthProvider>
           <ChatBot />
-          <Routes>
-            <Route path="/discover-dq" element={<DiscoverDQ />} />
+              <Routes>
+                <Route path="/discover-dq" element={<DiscoverDQ />} />
             <Route path="/coming-soon" element={<ComingSoonPage />} />
             <Route path="/growth-sectors-coming-soon" element={<GrowthSectorsComingSoon />} />
-            <Route path="/*" element={<App />} />
-            <Route path="/courses/:itemId" element={<LmsCourseDetailPage />} />
-            <Route path="/lms" element={<LmsCourses />} />
+                <Route path="/*" element={<App />} />
+                <Route path="/courses/:itemId" element={<LmsCourseDetailPage />} />
+                <Route path="/lms" element={<LmsCourses />} />
             <Route path="/lms/:slug/reviews" element={<LmsCourseReviewsPage />} />
             <Route 
               path="/lms/:slug" 
@@ -68,50 +69,51 @@ export function AppRouter() {
             <Route path="/onboarding/journey" element={<OnboardingJourney />} />
             <Route path="/ghc" element={<GHCLanding />} />
             <Route path="/6xd" element={<SixXDLanding />} />
-            <Route
-              path="/onboarding/:itemId"
-              element={
-                <MarketplaceDetailsPage
-                  marketplaceType="onboarding"
+            <Route path="/knowledge-center/products/digital-accelerators" element={<DigitalAcceleratorsLanding />} />
+                <Route
+                  path="/onboarding/:itemId"
+                  element={
+                    <MarketplaceDetailsPage
+                      marketplaceType="onboarding"
+                    />
+                  }
                 />
-              }
-            />
-            <Route
-              path="/onboarding/:itemId/details"
-              element={
-                <MarketplaceDetailsPage
-                  marketplaceType="onboarding"
+                <Route
+                  path="/onboarding/:itemId/details"
+                  element={
+                    <MarketplaceDetailsPage
+                      marketplaceType="onboarding"
+                    />
+                  }
                 />
-              }
-            />
-            <Route path="/marketplace/*" element={<MarketplaceRouter />} />
-            {/* Admin - Guides CRUD */}
-            <Route path="/admin/guides" element={<AdminGuidesList />} />
-            <Route path="/admin/guides/new" element={<GuideEditor />} />
-            <Route path="/admin/guides/:id" element={<GuideEditor />} />
-          {/* Canonical and compatibility routes for Guides marketplace */}
-          <Route path="/guides" element={<Navigate to="/marketplace/guides" replace />} />
-          <Route path="/knowledge-hub" element={<Navigate to="/marketplace/guides" replace />} />
-            <Route
-              path="/dashboard/*"
+                <Route path="/marketplace/*" element={<MarketplaceRouter />} />
+                {/* Admin - Guides CRUD */}
+                <Route path="/admin/guides" element={<AdminGuidesList />} />
+                <Route path="/admin/guides/new" element={<GuideEditor />} />
+                <Route path="/admin/guides/:id" element={<GuideEditor />} />
+                {/* Canonical and compatibility routes for Guides marketplace */}
+                <Route path="/guides" element={<Navigate to="/marketplace/guides" replace />} />
+                <Route path="/knowledge-hub" element={<Navigate to="/marketplace/guides" replace />} />
+                <Route
+                  path="/dashboard/*"
               element={
                 // <ProtectedRoute>
                 <DashboardRouter />
                 // </ProtectedRoute>
               }
-            />
-            <Route path="/asset-library" element={<AssetLibraryPage />} />
-            <Route path="/blueprints" element={<BlueprintsPage />} />
-            <Route path="/blueprints/:projectId" element={<BlueprintsPage />} />
-            <Route
-              path="/blueprints/:projectId/:folderId"
-              element={<BlueprintsPage />}
-            />
-            <Route path="/play/dq-agile-kpis" element={<DQAgileKPIsPage />} />
-            <Route path="/discover-dq" element={<DiscoverDQ />} />
-            <Route path="/thank-you" element={<ThankYou />} />
-            {/* Redirect encoded leading-space path to canonical route */}
-            <Route path="/%20marketplace/news" element={<Navigate to="/marketplace/news" replace />} />
+                />
+                <Route path="/asset-library" element={<AssetLibraryPage />} />
+                <Route path="/blueprints" element={<BlueprintsPage />} />
+                <Route path="/blueprints/:projectId" element={<BlueprintsPage />} />
+                <Route
+                  path="/blueprints/:projectId/:folderId"
+                  element={<BlueprintsPage />}
+                />
+                <Route path="/play/dq-agile-kpis" element={<DQAgileKPIsPage />} />
+                <Route path="/discover-dq" element={<DiscoverDQ />} />
+                <Route path="/thank-you" element={<ThankYou />} />
+                {/* Redirect encoded leading-space path to canonical route */}
+                <Route path="/%20marketplace/news" element={<Navigate to="/marketplace/news" replace />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/communities/*" element={<CommunitiesRouter />} />
             {/* Work Directory Routes */}
@@ -119,14 +121,14 @@ export function AppRouter() {
             <Route path="/work-directory/positions/:slug" element={<WorkPositionProfilePage />} />
             {/* Role Profile Route */}
             <Route path="/roles/:slug" element={<RoleProfilePage />} />
-            <Route
+                <Route
               path="/women-entrepreneurs"
               element={<WomenEntrepreneursPage />}
-            />
-            <Route path="/404" element={<NotFound />} />
+                />
+                <Route path="/404" element={<NotFound />} />
 
-            <Route path="*" element={<Navigate to="/404" replace />} />
-          </Routes>
+                <Route path="*" element={<Navigate to="/404" replace />} />
+              </Routes>
         </AuthProvider>
       </BrowserRouter>
     </ApolloProvider>

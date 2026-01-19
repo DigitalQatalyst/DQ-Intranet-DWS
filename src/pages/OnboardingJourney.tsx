@@ -225,12 +225,12 @@ function HeroSection() {
             {/* Eyebrow Label */}
             <div className="text-sm font-medium text-white/70 mb-6 tracking-wider uppercase">
               DQ Onboarding Framework
-            </div>
+      </div>
 
             {/* Primary Headline */}
             <h1 className="text-[72px] font-bold mb-8 leading-[1.05] font-inter text-white">
               Your First 3 Months at DQ
-            </h1>
+          </h1>
 
             {/* Supporting Description */}
             <p className="text-[23px] text-white/90 mb-8 leading-relaxed font-inter max-w-3xl">

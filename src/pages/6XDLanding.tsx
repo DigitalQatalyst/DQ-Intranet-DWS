@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
 
-import { FadeInUpOnScroll, StaggeredFadeIn } from '../components/AnimationUtils';
+import { FadeInUpOnScroll } from '../components/AnimationUtils';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 
@@ -19,6 +18,8 @@ interface SixXDElement {
   storybookUrl?: string;
   route: string;
   ctaText?: string;
+  secondaryCtaText?: string;
+  secondaryRoute?: string;
 }
 
 const sixXDElements: SixXDElement[] = [
@@ -117,18 +118,20 @@ const sixXDElements: SixXDElement[] = [
     number: '06',
     title: 'Digital Accelerators (Tools)',
     subtitle: 'Products',
-    question: 'When is value realised—and how fast?',
+    question: 'When is value realised — and how fast?',
     narrative: '',
     highlight: '',
     supportingLines: [
-      'Digital Accelerators drive speed, alignment, and execution excellence.',
-      'They compress time-to-value through tools, systems, and strategies that scale impact while maintaining clarity and control.',
-      'Outcome: Faster delivery of measurable value, without sacrificing quality or alignment.',
+      'Digital Accelerators are DQ-owned products and tools that remove friction from delivery and compress time-to-value.',
+      'They create repeatable execution strength: clearer alignment, faster decision cycles, and consistent delivery quality across teams and markets.',
+      'This is where strategy turns into shipped outcomes through practical systems that make progress measurable and momentum sustainable.',
     ],
-    imageSrc: '',
+    imageSrc: 'https://i.ibb.co/XxzLrf63/ef651d21-87a7-4980-be29-dd04b00e6d32.png',
     imageAlt: 'Digital Accelerators visual',
-    route: '/marketplace/guides/digital-accelerators',
-    ctaText: 'View Courses'
+    route: '/knowledge-center/products/digital-accelerators',
+    ctaText: 'Explore Digital Accelerators',
+    secondaryCtaText: 'View Products',
+    secondaryRoute: '/marketplace/directory/products'
   }
 ];
 
@@ -187,7 +190,7 @@ export function SixXDLanding() {
       <main className="flex-grow">
         {/* SECTION 1 — HERO: Agile 6xD Learning & Papers */}
         <section 
-          className="relative w-full h-screen overflow-hidden flex flex-col isolate"
+          className="relative w-full overflow-hidden flex flex-col isolate h-auto md:h-[600px] lg:h-[700px] pt-24 pb-20 md:pt-24 md:pb-20"
         >
           {/* Background Image */}
           <div 
@@ -348,7 +351,7 @@ export function SixXDLanding() {
             ))}
           </div>
 
-          <div className="w-full h-full flex items-center relative z-10">
+          <div className="w-full flex items-center relative z-10">
             <div className="container mx-auto px-4 md:px-6 lg:px-8 xl:px-12">
               <div className="max-w-5xl">
               <FadeInUpOnScroll>
@@ -360,26 +363,14 @@ export function SixXDLanding() {
                     color: '#FFFFFF'
                   }}
                 >
-                  Agile 6xD: Learning & Papers
+                  Agile 6xD Framework
                 </h1>
                 <p className="text-lg md:text-xl text-white/95 mb-8 font-normal leading-relaxed text-left max-w-3xl" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
-                  Explore comprehensive learning resources, papers, and insights about Agile 6xD — DQ&apos;s framework for packaging digital capabilities into six clear perspectives that guide transformation and deliver measurable outcomes.
+                  Agile 6xD is how DQ designs and delivers digital transformation.
+                  <br />
+                  It brings six essential digital perspectives together to help organisations design, execute, and scale change with clarity and speed.
                 </p>
               </FadeInUpOnScroll>
-
-              {/* Primary CTA button */}
-              <StaggeredFadeIn
-                staggerDelay={0.1}
-                className="mb-12"
-              >
-                <button
-                  onClick={() => navigate('/marketplace/guides')}
-                  className="px-8 py-3.5 bg-white text-[#030F35] font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-300 flex items-center justify-center gap-2 text-base group"
-                >
-                  <span>Explore All Courses</span>
-                  <ArrowRight size={18} color="#FB5535" className="transition-transform group-hover:translate-x-1" />
-                </button>
-              </StaggeredFadeIn>
 
               </div>
             </div>
@@ -450,24 +441,38 @@ export function SixXDLanding() {
                           >
                             <span>{element.ctaText || 'View Courses'}</span>
                           </button>
-                          {element.storybookUrl ? (
-                            <a
-                              href={element.storybookUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-[#030F35] text-[#030F35] font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200 group"
-                            >
-                              <span>Read Storybook</span>
-                            </a>
+                          {element.id === 'digital-accelerators' ? (
+                            element.secondaryRoute ? (
+                              <button
+                                type="button"
+                                onClick={() => handleExploreElement(element.secondaryRoute ?? '/knowledge-center/products')}
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-[#030F35] text-[#030F35] font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200 group"
+                              >
+                                <span>{element.secondaryCtaText ?? 'View Products'}</span>
+                              </button>
+                            ) : null
                           ) : (
-                            <button
-                              type="button"
-                              disabled
-                              title="Storybook coming soon"
-                              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-[#030F35]/40 text-[#030F35]/50 font-semibold rounded-lg cursor-not-allowed"
-                            >
-                              <span>Read Storybook</span>
-                            </button>
+                            <>
+                              {element.storybookUrl ? (
+                                <a
+                                  href={element.storybookUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-[#030F35] text-[#030F35] font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200 group"
+                                >
+                                  <span>Read Storybook</span>
+                                </a>
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled
+                                  title="Storybook coming soon"
+                                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-[#030F35]/40 text-[#030F35]/50 font-semibold rounded-lg cursor-not-allowed"
+                                >
+                                  <span>Read Storybook</span>
+                                </button>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>

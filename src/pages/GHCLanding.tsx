@@ -243,7 +243,7 @@ export function GHCLanding() {
                             fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
                           }}
                         >
-                          The GHC is DQ&apos;s shared DNA. It guides how we think, work, and collaborate helping every associate create value, grow with confidence, and contribute consistently to DQ&apos;s digital mission.
+                          The GHC is DQ&apos;s shared DNA—bringing together purpose, ways of working, collaboration, and seven core elements that guide every associate to create value, grow with confidence, and contribute consistently to our digital mission.
                         </p>
                       </div>
                     </div>
