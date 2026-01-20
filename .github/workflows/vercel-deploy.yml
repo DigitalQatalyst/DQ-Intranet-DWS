@@ -28,10 +28,10 @@ jobs:
 
       - name: 📊 Extract commit info
         id: commit_info
+        env:
+          AUTHOR_NAME: ${{ github.event.head_commit.author.name }}
+          AUTHOR_EMAIL: ${{ github.event.head_commit.author.email }}
         run: |
-          AUTHOR_NAME="${{ github.event.head_commit.author.name }}"
-          AUTHOR_EMAIL="${{ github.event.head_commit.author.email }}"
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
           echo "author_name=$AUTHOR_NAME" >> $GITHUB_OUTPUT
           echo "author_email=$AUTHOR_EMAIL" >> $GITHUB_OUTPUT
           echo "🔍 Commit by: $AUTHOR_NAME ($AUTHOR_EMAIL)"
