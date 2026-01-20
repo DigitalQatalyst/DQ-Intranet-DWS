@@ -79,12 +79,12 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
         </div>
       </div>
 
-      {/* Associate Testimonials Service Card */}
+      {/* Associate Feedback Service Card */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col min-h-[340px]">
         {/* Hero Image */}
         <img 
           src={serviceCardImage} 
-          alt="Associate Testimonials" 
+          alt="Associate Feedback" 
           className="w-full h-32 object-cover"
           loading="lazy"
         />
@@ -92,7 +92,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
         {/* Content */}
         <div className="p-4 flex flex-col flex-grow">
           {/* Title */}
-          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">Associate Testimonials</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">Associate Feedback</h3>
           
           {/* Description */}
           <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-2 flex-grow">
