@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
 
 import { FadeInUpOnScroll } from '../components/AnimationUtils';
 import { Footer } from '../components/Footer';
@@ -259,6 +260,21 @@ export function DigitalAcceleratorsLanding() {
               </div>
             </div>
           </div>
+
+          {/* Scroll-down arrow */}
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('da-sections');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="absolute bottom-6 left-1/2 z-20 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-white/40 bg-white/10 text-white shadow-md backdrop-blur-sm transition-all duration-200 hover:bg-white/20 hover:border-white/80 hover:shadow-lg"
+            aria-label="Scroll to Digital Accelerators sections"
+          >
+            <ChevronDown className="h-5 w-5" />
+          </button>
         </section>
 
         {/* SECTIONS — Products-focused capability chapters */}
@@ -268,6 +284,7 @@ export function DigitalAcceleratorsLanding() {
           return (
             <section
               key={section.id}
+              id={index === 0 ? 'da-sections' : undefined}
               className={`py-16 md:py-24 ${isEven ? 'bg-white' : 'bg-[#F7FAFF]'}`}
             >
               <div className="container mx-auto px-4 md:px-6 lg:px-8">

@@ -92,9 +92,9 @@ export default function Community() {
     const [data, err] = await safeFetch(query);
     if (err) {
       setError('Failed to load community');
-      setLoading(false);
-      return;
-    }
+        setLoading(false);
+        return;
+      }
     if (data) {
       setCommunity({
         id: data.id,
@@ -121,7 +121,7 @@ export default function Community() {
         }
       }
     }
-    setLoading(false);
+      setLoading(false);
   };
   const checkMembership = async () => {
     if (!user || !id) return;
@@ -155,7 +155,7 @@ export default function Community() {
       });
       const [, error] = await safeFetch(query);
       if (error) {
-        toast.error('Failed to join community');
+          toast.error('Failed to join community');
       } else {
         toast.success('Joined community!');
         setIsMember(true);
@@ -177,12 +177,12 @@ export default function Community() {
     query = query.order('created_at', {
       ascending: false
     });
-    const [data, err] = await safeFetch(query);
-    if (err) {
+      const [data, err] = await safeFetch(query);
+      if (err) {
       setPostsError('Failed to load posts');
-      setPostsLoading(false);
-      return;
-    }
+        setPostsLoading(false);
+        return;
+      }
     if (data) {
       setPosts(data as Post[]);
     }
@@ -209,7 +209,7 @@ export default function Community() {
     } else {
       toast.success('Community image updated successfully');
       setCommunity(prev => prev ? {
-        ...prev,
+              ...prev,
         imageurl: newImageUrl.trim()
       } : null);
       setImageDialogOpen(false);
@@ -226,7 +226,7 @@ export default function Community() {
     label: 'Communities',
     href: '/communities'
   }, {
-    label: community.name,
+          label: community.name,
     current: true
   }] : [];
   if (loading) {
@@ -300,8 +300,8 @@ export default function Community() {
                   <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between">
                     <div className="md:max-w-3xl">
                       <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-md">
-                        {community.name}
-                      </h1>
+                      {community.name}
+                    </h1>
                       <p className="text-white/90 text-base md:text-lg mt-3 max-w-3xl leading-relaxed">
                         {community.description || 'No description available'}
                       </p>
@@ -330,62 +330,62 @@ export default function Community() {
                             {joinLoading ? 'Processing...' : 'Join Community'}
                           </Button>}
                       </div>
-                    </div>
+                  </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </PageSection>
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Posts Feed */}
-          <div className="lg:col-span-2 space-y-6">
-            <PageSection>
+          {/* Main Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Posts Feed */}
+            <div className="lg:col-span-2 space-y-6">
+              <PageSection>
               <SectionHeader title="Community Posts" description="Latest discussions and updates" />
-              {/* Inline Composer - Only for members */}
+                {/* Inline Composer - Only for members */}
               {user && isMember && <SectionContent className="pb-0 border-b border-gray-200">
                   <InlineComposer communityId={id} onPostCreated={handlePostCreated} />
                 </SectionContent>}
-              {/* Posts List */}
+                {/* Posts List */}
               <SectionContent className={user && isMember ? 'pt-4' : ''}>
                 {postsLoading ? <div className="space-y-4">
                     {[1, 2, 3].map(i => <div key={i} className="bg-gray-50 rounded-lg p-4">
-                        <Skeleton className="h-6 w-1/3 mb-2" />
-                        <Skeleton className="h-4 w-full mb-2" />
-                        <Skeleton className="h-4 w-2/3" />
+                          <Skeleton className="h-6 w-1/3 mb-2" />
+                          <Skeleton className="h-4 w-full mb-2" />
+                          <Skeleton className="h-4 w-2/3" />
                       </div>)}
                   </div> : postsError ? <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-md">
-                    <p>{postsError}</p>
+                      <p>{postsError}</p>
                     <Button variant="outline" size="sm" onClick={fetchPosts} className="mt-2">
-                      Retry
-                    </Button>
+                        Retry
+                      </Button>
                   </div> : posts.length === 0 ? <div className="bg-gray-50 rounded-lg p-8 text-center">
-                    <div className="flex flex-col items-center justify-center">
-                      <div className="bg-gray-100 p-3 rounded-full mb-4">
-                        <AlertCircle className="h-6 w-6 text-gray-400" />
-                      </div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
-                        No posts yet
-                      </h3>
-                      <p className="text-gray-500 mb-4">
-                        Be the first to start a conversation in this community
-                      </p>
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="bg-gray-100 p-3 rounded-full mb-4">
+                          <AlertCircle className="h-6 w-6 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                          No posts yet
+                        </h3>
+                        <p className="text-gray-500 mb-4">
+                          Be the first to start a conversation in this community
+                        </p>
                       {user && isMember && <Button onClick={() => navigate(`/create-post?communityId=${id}`)} className="bg-blue-600 text-white hover:bg-blue-700">
-                          <Plus className="h-4 w-4 mr-2" />
-                          Create Post
+                            <Plus className="h-4 w-4 mr-2" />
+                            Create Post
                         </Button>}
                       {!user && <p className="text-gray-400 text-sm">
-                          Join this community to start posting
+                            Join this community to start posting
                         </p>}
                     </div>
                   </div> : <div className="space-y-4">
                     {posts.map(post => <PostCard key={post.id} post={post} onActionComplete={handlePostCreated} />)}
                   </div>}
-              </SectionContent>
-            </PageSection>
-          </div>
-          {/* Sidebar Column */}
+                </SectionContent>
+              </PageSection>
+            </div>
+            {/* Sidebar Column */}
           <div className="space-y-6">
             {/* Member List */}
             <PageSection>
@@ -397,85 +397,85 @@ export default function Community() {
               </SectionContent>
             </PageSection>
             {/* Community Info Card */}
-            <PageSection>
-              <SectionHeader title="About this Community" />
-              <SectionContent>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                      Category
-                    </p>
-                    <p className="text-sm text-gray-700 font-medium">
-                      {community.category}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                      Created
-                    </p>
-                    <p className="text-sm text-gray-700 font-medium">
+              <PageSection>
+                <SectionHeader title="About this Community" />
+                <SectionContent>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                        Category
+                      </p>
+                      <p className="text-sm text-gray-700 font-medium">
+                        {community.category}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                        Created
+                      </p>
+                      <p className="text-sm text-gray-700 font-medium">
                       {format(new Date(community.created_at), 'MMMM d, yyyy')}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                      Members
-                    </p>
-                    <p className="text-sm text-gray-700 font-medium">
-                      {memberCount} members
-                    </p>
-                  </div>
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
+                        Members
+                      </p>
+                      <p className="text-sm text-gray-700 font-medium">
+                        {memberCount} members
+                      </p>
+                    </div>
                   {(isOwner || isAdmin) && <div className="pt-4 border-t border-gray-200">
                       <Button as={Link} to={`/community/${id}/settings`} variant="outline" className="w-full justify-center">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Manage Community
-                      </Button>
+                          <Settings className="h-4 w-4 mr-2" />
+                          Manage Community
+                        </Button>
                     </div>}
-                </div>
-              </SectionContent>
-            </PageSection>
+                  </div>
+                </SectionContent>
+              </PageSection>
           </div>
-        </div>
-      </PageLayout>
-      {/* Floating Create Post Button */}
+          </div>
+        </PageLayout>
+        {/* Floating Create Post Button */}
       {user && isMember && <Button onClick={() => navigate(`/create-post?communityId=${id}`)} className="fixed bottom-5 right-5 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all bg-blue-600 hover:bg-blue-700 text-white" size="icon">
-          <Plus className="h-6 w-6" />
+            <Plus className="h-6 w-6" />
         </Button>}
-      {/* Image Update Dialog */}
-      <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Update Community Image</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="image-url">Image URL</Label>
+        {/* Image Update Dialog */}
+        <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Update Community Image</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="image-url">Image URL</Label>
               <Input id="image-url" placeholder="https://example.com/image.jpg" value={newImageUrl} onChange={e => setNewImageUrl(e.target.value)} className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-              <p className="text-xs text-muted-foreground">
-                Enter a URL for the community background image
-              </p>
-            </div>
-            {/* Preview */}
+                <p className="text-xs text-muted-foreground">
+                  Enter a URL for the community background image
+                </p>
+              </div>
+              {/* Preview */}
             {newImageUrl && <div className="relative h-32 w-full overflow-hidden rounded-md border border-gray-200">
                 <img src={newImageUrl} alt="Preview" className="h-full w-full object-cover" onError={e => {
               ;
-              (e.target as HTMLImageElement).src = fallbackImageUrl;
+                      (e.target as HTMLImageElement).src = fallbackImageUrl;
             }} />
               </div>}
-            <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => {
-              setImageDialogOpen(false);
+                    setImageDialogOpen(false);
               setNewImageUrl('');
             }} disabled={updateImageLoading}>
-                <X className="h-4 w-4 mr-2" />
-                Cancel
-              </Button>
+                  <X className="h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
               <Button onClick={handleUpdateImage} disabled={updateImageLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
                 {updateImageLoading ? 'Updating...' : 'Update Image'}
-              </Button>
+                </Button>
+              </div>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
     </MainLayout>;
 }

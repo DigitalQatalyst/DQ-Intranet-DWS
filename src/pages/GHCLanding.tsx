@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
 
 import { FadeInUpOnScroll } from '../components/AnimationUtils';
 import { Header } from '../components/Header';
@@ -252,6 +253,21 @@ export function GHCLanding() {
               </div>
             </div>
           </div>
+
+          {/* Scroll-down arrow */}
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('ghc-elements');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="absolute bottom-6 left-1/2 z-20 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-white/40 bg-white/10 text-white shadow-md backdrop-blur-sm transition-all duration-200 hover:bg-white/20 hover:border-white/80 hover:shadow-lg"
+            aria-label="Scroll to GHC elements"
+          >
+            <ChevronDown className="h-5 w-5" />
+          </button>
         </section>
 
         {/* ELEMENTS — Storytelling Chapters with Alternating Layout */}
@@ -261,6 +277,7 @@ export function GHCLanding() {
           return (
             <section
               key={element.id}
+              id={index === 0 ? 'ghc-elements' : undefined}
               className={`py-16 md:py-24 ${isEven ? 'bg-white' : 'bg-[#F7FAFF]'}`}
             >
               <div className="container mx-auto px-4 md:px-6 lg:px-8">
@@ -276,7 +293,7 @@ export function GHCLanding() {
                           <span className="text-sm font-bold tracking-wider text-[#FB5535] uppercase mb-4 block">
                             {element.number} · {element.subtitle.toUpperCase()}
                           </span>
-                          <h2 className="text-4xl md:text-5xl font-bold text-[#030F35] mb-6 leading-tight">
+                          <h2 className="text-[36px] font-bold text-[#030F35] mb-6 leading-tight">
                             {element.title}
                           </h2>
                           {element.question ? (

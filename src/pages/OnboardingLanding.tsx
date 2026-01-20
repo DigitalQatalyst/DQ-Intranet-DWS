@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, User, MessageCircle, BookOpen, Users as UsersIcon, Building2 } from 'lucide-react';
+import { ArrowRight, User, MessageCircle, BookOpen, Users as UsersIcon, ChevronDown } from 'lucide-react';
 import { FadeInUpOnScroll, StaggeredFadeIn } from '../components/AnimationUtils';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
@@ -183,150 +183,184 @@ export function OnboardingLanding() {
               backgroundColor: '#030F35'
             }}
           />
-          {/* Gradient Overlay - Minimal for text readability */}
+          {/* Enhanced Gradient Overlay with Depth */}
           <div
             className="absolute inset-0 z-[1]"
             style={{
               background:
-                'linear-gradient(to bottom, rgba(3, 15, 53, 0.7) 0%, rgba(26, 46, 110, 0.6) 35%, rgba(3, 15, 53, 0.45) 80%, rgba(251, 85, 53, 0.18) 100%)',
+                'linear-gradient(to bottom, rgba(3, 15, 53, 0.75) 0%, rgba(26, 46, 110, 0.65) 35%, rgba(3, 15, 53, 0.5) 80%, rgba(251, 85, 53, 0.2) 100%)',
               backgroundSize: '100% 100%',
               backgroundRepeat: 'no-repeat'
             }}
           />
-          {/* Elegant Animated Vector Background */}
-          <div className="absolute inset-0 opacity-[0.02] z-[2]">
+          {/* Modern Animated Mesh Background */}
+          <div className="absolute inset-0 opacity-[0.15] z-[2]">
             <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
               <defs>
-                <linearGradient id="elegantGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient id="meshGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.6" />
+                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.2" />
+                </linearGradient>
+                <linearGradient id="meshGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.5" />
+                  <stop offset="100%" stopColor="#FB5535" stopOpacity="0.3" />
+                </linearGradient>
+                <radialGradient id="glowEffect" cx="50%" cy="50%">
                   <stop offset="0%" stopColor="#FB5535" stopOpacity="0.4" />
                   <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.2" />
-                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.1" />
-                </linearGradient>
-                <linearGradient id="elegantGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#FB5535" stopOpacity="0.15" />
-                </linearGradient>
-                <radialGradient id="radialGlow" cx="50%" cy="50%">
-                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.2" />
                   <stop offset="100%" stopColor="#030F35" stopOpacity="0" />
                 </radialGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
               </defs>
-          
-              {/* Subtle Grid Pattern */}
-              <g opacity="0.3">
-                {[...Array(8)].map((_, i) => (
+              
+              {/* Dynamic Mesh Grid */}
+              <g opacity="0.4">
+                {[...Array(12)].map((_, i) => (
                   <line
                     key={`v-${i}`}
-                    x1={i * 240}
+                    x1={i * 160}
                     y1="0"
-                    x2={i * 240}
+                    x2={i * 160}
                     y2="1080"
-                    stroke="url(#elegantGradient1)"
-                    strokeWidth="1"
-            style={{
-                      animation: 'pulse 8s ease-in-out infinite',
-                      animationDelay: `${i * 0.5}s`,
-                      opacity: 0.2
-            }}
-          />
+                    stroke="url(#meshGradient1)"
+                    strokeWidth="1.5"
+                    style={{
+                      animation: 'pulse 6s ease-in-out infinite',
+                      animationDelay: `${i * 0.3}s`,
+                      opacity: 0.3
+                    }}
+                  />
                 ))}
-                {[...Array(6)].map((_, i) => (
+                {[...Array(8)].map((_, i) => (
                   <line
                     key={`h-${i}`}
                     x1="0"
-                    y1={i * 180}
+                    y1={i * 135}
                     x2="1920"
-                    y2={i * 180}
-                    stroke="url(#elegantGradient2)"
-                    strokeWidth="1"
-            style={{
-                      animation: 'pulse 10s ease-in-out infinite',
-                      animationDelay: `${i * 0.7}s`,
-                      opacity: 0.2
+                    y2={i * 135}
+                    stroke="url(#meshGradient2)"
+                    strokeWidth="1.5"
+                    style={{
+                      animation: 'pulse 8s ease-in-out infinite',
+                      animationDelay: `${i * 0.5}s`,
+                      opacity: 0.3
                     }}
                   />
                 ))}
               </g>
               
-              {/* Flowing Curved Paths */}
+              {/* Flowing Wave Paths */}
               <path
-                d="M 0 300 Q 400 200, 800 300 T 1600 300"
-                stroke="url(#elegantGradient1)"
-                strokeWidth="2"
+                d="M 0 250 Q 300 150, 600 250 T 1200 250 T 1920 250"
+                stroke="url(#meshGradient1)"
+                strokeWidth="3"
                 fill="none"
+                filter="url(#glow)"
                 style={{
-                  animation: 'floatSlow 15s ease-in-out infinite',
-                  opacity: 0.4,
-                  strokeDasharray: '5,5'
-                }}
-              />
-              <path
-                d="M 0 600 Q 500 500, 1000 600 T 1920 600"
-                stroke="url(#elegantGradient2)"
-                strokeWidth="1.5"
-                fill="none"
-                style={{
-                  animation: 'floatSlow 18s ease-in-out infinite reverse',
-                  animationDelay: '3s',
-                  opacity: 0.3,
+                  animation: 'floatSlow 20s ease-in-out infinite',
+                  opacity: 0.5,
                   strokeDasharray: '8,8'
                 }}
               />
+              <path
+                d="M 0 550 Q 400 450, 800 550 T 1600 550 T 1920 550"
+                stroke="url(#meshGradient2)"
+                strokeWidth="2.5"
+                fill="none"
+                filter="url(#glow)"
+                style={{
+                  animation: 'floatSlow 25s ease-in-out infinite reverse',
+                  animationDelay: '2s',
+                  opacity: 0.4,
+                  strokeDasharray: '10,10'
+                }}
+              />
+              <path
+                d="M 0 800 Q 500 700, 1000 800 T 1920 800"
+                stroke="url(#meshGradient1)"
+                strokeWidth="2"
+                fill="none"
+                filter="url(#glow)"
+                style={{
+                  animation: 'floatSlow 18s ease-in-out infinite',
+                  animationDelay: '4s',
+                  opacity: 0.35,
+                  strokeDasharray: '12,12'
+                }}
+              />
               
-              {/* Elegant Geometric Shapes */}
-              <g style={{ animation: 'floatSlow 12s ease-in-out infinite' }}>
-                <circle cx="300" cy="400" r="60" fill="url(#elegantGradient1)" opacity="0.3" />
-                <circle cx="300" cy="400" r="40" fill="none" stroke="url(#elegantGradient2)" strokeWidth="1.5" opacity="0.4" />
+              {/* Animated Geometric Shapes with Glow */}
+              <g style={{ animation: 'floatSlow 15s ease-in-out infinite' }} filter="url(#glow)">
+                <circle cx="250" cy="350" r="80" fill="url(#meshGradient1)" opacity="0.4" />
+                <circle cx="250" cy="350" r="50" fill="none" stroke="url(#meshGradient2)" strokeWidth="2" opacity="0.5" />
               </g>
               
-              <g style={{ animation: 'floatSlow 14s ease-in-out infinite', animationDelay: '2s' }}>
-                <circle cx="1600" cy="700" r="80" fill="url(#elegantGradient2)" opacity="0.25" />
-                <circle cx="1600" cy="700" r="55" fill="none" stroke="url(#elegantGradient1)" strokeWidth="1.5" opacity="0.35" />
+              <g style={{ animation: 'floatSlow 18s ease-in-out infinite', animationDelay: '3s' }} filter="url(#glow)">
+                <circle cx="1650" cy="650" r="100" fill="url(#meshGradient2)" opacity="0.35" />
+                <circle cx="1650" cy="650" r="65" fill="none" stroke="url(#meshGradient1)" strokeWidth="2" opacity="0.45" />
               </g>
               
-              {/* Subtle Hexagon Pattern */}
-              <g transform="translate(1200, 200)" style={{ animation: 'rotateSlow 30s linear infinite' }}>
+              {/* Hexagon Patterns with Rotation */}
+              <g transform="translate(1100, 180)" style={{ animation: 'rotateSlow 40s linear infinite' }} filter="url(#glow)">
                 <polygon
-                  points="0,-50 43,-25 43,25 0,50 -43,25 -43,-25"
+                  points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30"
                   fill="none"
-                  stroke="url(#elegantGradient1)"
+                  stroke="url(#meshGradient1)"
+                  strokeWidth="2"
+                  opacity="0.4"
+                />
+                <polygon
+                  points="0,-40 35,-20 35,20 0,40 -35,20 -35,-20"
+                  fill="none"
+                  stroke="url(#meshGradient2)"
                   strokeWidth="1.5"
-                  opacity="0.3"
+                  opacity="0.5"
                 />
               </g>
               
-              <g transform="translate(500, 800)" style={{ animation: 'rotateSlow 35s linear infinite reverse' }}>
+              <g transform="translate(450, 750)" style={{ animation: 'rotateSlow 35s linear infinite reverse' }} filter="url(#glow)">
                 <polygon
-                  points="0,-35 30,-17.5 30,17.5 0,35 -30,17.5 -30,-17.5"
+                  points="0,-45 39,-22.5 39,22.5 0,45 -39,22.5 -39,-22.5"
                   fill="none"
-                  stroke="url(#elegantGradient2)"
-                  strokeWidth="1.5"
-                  opacity="0.3"
-              />
+                  stroke="url(#meshGradient2)"
+                  strokeWidth="2"
+                  opacity="0.4"
+                />
               </g>
               
-              {/* Radial Glow Effects */}
-              <circle cx="400" cy="300" r="200" fill="url(#radialGlow)" style={{ animation: 'pulse 8s ease-in-out infinite' }} />
-              <circle cx="1500" cy="600" r="250" fill="url(#radialGlow)" style={{ animation: 'pulse 10s ease-in-out infinite', animationDelay: '4s' }} />
+              {/* Enhanced Radial Glow Effects */}
+              <circle cx="350" cy="280" r="250" fill="url(#glowEffect)" style={{ animation: 'pulse 10s ease-in-out infinite' }} />
+              <circle cx="1550" cy="580" r="300" fill="url(#glowEffect)" style={{ animation: 'pulse 12s ease-in-out infinite', animationDelay: '5s' }} />
+              <circle cx="900" cy="500" r="180" fill="url(#glowEffect)" style={{ animation: 'pulse 9s ease-in-out infinite', animationDelay: '2.5s' }} />
             </svg>
           </div>
 
-          {/* Subtle Floating Orbs */}
+          {/* Enhanced Floating Orbs with More Presence */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(8)].map((_, i) => (
               <div
                 key={i}
-                className="absolute rounded-full blur-sm"
+                className="absolute rounded-full blur-md"
                 style={{
-                  width: `${60 + i * 20}px`,
-                  height: `${60 + i * 20}px`,
-                  left: `${15 + i * 15}%`,
-                  top: `${20 + (i % 3) * 25}%`,
+                  width: `${80 + i * 25}px`,
+                  height: `${80 + i * 25}px`,
+                  left: `${10 + i * 12}%`,
+                  top: `${15 + (i % 3) * 28}%`,
                   background: i % 2 === 0 
-                    ? 'radial-gradient(circle, rgba(251, 85, 53, 0.15) 0%, transparent 70%)' 
-                    : 'radial-gradient(circle, rgba(26, 46, 110, 0.15) 0%, transparent 70%)',
-                  animation: `floatSlow ${12 + i * 2}s ease-in-out infinite`,
-                  animationDelay: `${i * 1.5}s`,
+                    ? 'radial-gradient(circle, rgba(251, 85, 53, 0.25) 0%, rgba(251, 85, 53, 0.1) 50%, transparent 80%)' 
+                    : 'radial-gradient(circle, rgba(26, 46, 110, 0.25) 0%, rgba(26, 46, 110, 0.1) 50%, transparent 80%)',
+                  animation: `floatSlow ${14 + i * 2}s ease-in-out infinite`,
+                  animationDelay: `${i * 1.2}s`,
+                  boxShadow: i % 2 === 0 
+                    ? '0 0 40px rgba(251, 85, 53, 0.2)' 
+                    : '0 0 40px rgba(26, 46, 110, 0.2)',
                 }}
               />
             ))}
@@ -334,45 +368,60 @@ export function OnboardingLanding() {
 
           <div className="w-full flex items-center relative z-10">
             <div className="container mx-auto px-4 md:px-6 lg:px-8 xl:px-12">
-            <div className="max-w-5xl">
-              <FadeInUpOnScroll>
-                <h1 
-                  className="text-[48px] md:text-[56px] lg:text-[72px] xl:text-[80px] text-white mb-6 text-left font-sans"
-                  style={{
-                    fontWeight: 700,
-                    lineHeight: 1.1,
-                    color: '#FFFFFF'
-                  }}
-                >
-                  Welcome to DQ Onboarding
-                </h1>
-                <p className="text-lg md:text-xl text-white/95 mb-8 font-normal leading-relaxed text-left max-w-3xl" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
-                  Your 3-month onboarding journey helps you integrate into DQ, adopt our DNA, and gain confidence in your role.
-                </p>
-              </FadeInUpOnScroll>
+              <div className="max-w-5xl">
+                <FadeInUpOnScroll>
+                  <h1 
+                    className="text-[48px] md:text-[56px] lg:text-[72px] xl:text-[80px] text-white mb-6 text-left font-sans"
+                    style={{
+                      fontWeight: 700,
+                      lineHeight: 1.1,
+                      color: '#FFFFFF'
+                    }}
+                  >
+                    Welcome to DQ Onboarding
+                  </h1>
+                  <p className="text-lg md:text-xl text-white/95 mb-8 font-normal leading-relaxed text-left max-w-3xl" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
+                    Your 3-month onboarding journey helps you integrate into DQ, adopt our DNA, and gain confidence in your role.
+                  </p>
+                </FadeInUpOnScroll>
 
-              {/* Primary CTA button */}
-              <StaggeredFadeIn
-                staggerDelay={0.1}
-                className="mb-12"
-              >
-                <button
-                  onClick={handleStartOnboarding}
-                  className="px-8 py-3.5 bg-white text-[#030F35] font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-300 flex items-center justify-center gap-2 text-base group"
+                {/* Primary CTA button */}
+                <StaggeredFadeIn
+                  staggerDelay={0.1}
+                  className="mb-12"
                 >
-                  <span>View the 3-Month Onboarding Guide</span>
-                  <ArrowRight size={18} color="#FB5535" className="transition-transform group-hover:translate-x-1" />
-                </button>
-              </StaggeredFadeIn>
+                  <button
+                    onClick={handleStartOnboarding}
+                    className="px-8 py-3.5 bg-white text-[#030F35] font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-300 flex items-center justify-center gap-2 text-base group"
+                  >
+                    <span>View the 3-Month Onboarding Guide</span>
+                    <ArrowRight size={18} color="#FB5535" className="transition-transform group-hover:translate-x-1" />
+                  </button>
+                </StaggeredFadeIn>
 
-              {/* (Hero KPIs removed – hero now focuses only on welcome copy and primary CTA) */}
+                {/* (Hero KPIs removed – hero now focuses only on welcome copy and primary CTA) */}
               </div>
-              </div>
+            </div>
           </div>
+
+          {/* Scroll-down arrow */}
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('onboarding-sections');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="absolute bottom-6 left-1/2 z-20 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-white/40 bg-white/10 text-white shadow-md backdrop-blur-sm transition-all duration-200 hover:bg-white/20 hover:border-white/80 hover:shadow-lg"
+            aria-label="Scroll to onboarding sections"
+          >
+            <ChevronDown className="h-5 w-5" />
+          </button>
         </section>
 
         {/* SECTION 2 — DQ Organization */}
-        <section className="py-28 md:py-36 bg-white">
+        <section id="onboarding-sections" className="py-28 md:py-36 bg-white">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
@@ -381,7 +430,7 @@ export function OnboardingLanding() {
                     <p className="text-xs font-bold tracking-[0.15em] uppercase text-[#E95139] mb-5">
                       Getting Started
                     </p>
-                    <h2 className="text-4xl md:text-5xl font-bold text-[#030F35] mb-8 leading-tight">
+                    <h2 className="text-[36px] font-bold text-[#030F35] mb-8 leading-tight">
                       DQ Organization
                 </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-10 space-y-3">
@@ -400,8 +449,12 @@ export function OnboardingLanding() {
                                 </div>
                 </FadeInUpOnScroll>
                 <FadeInUpOnScroll delay={0.1}>
-                  <div className="h-72 md:h-96 soft-panel rounded-2xl border border-slate-200/60 shadow-xl flex items-center justify-center p-8 hover:shadow-2xl transition-all duration-500">
-                    <Building2 size={72} className="text-slate-500 transition-transform hover:scale-110 duration-300" />
+                  <div className="h-72 md:h-96 soft-panel rounded-2xl border border-slate-200/60 shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500">
+                    <img 
+                      src="https://i.ibb.co/hxhnPrKJ/Screenshot-2026-01-20-at-10-05-10-AM.png" 
+                      alt="DQ Organization" 
+                      className="w-full h-full object-cover"
+                    />
                         </div>
                       </FadeInUpOnScroll>
                   </div>
@@ -417,7 +470,7 @@ export function OnboardingLanding() {
                 <FadeInUpOnScroll delay={0.1}>
                   <div className="h-72 md:h-96 soft-panel rounded-2xl border border-indigo-200/40 shadow-xl flex items-center justify-center p-6 md:p-8 overflow-hidden order-2 md:order-1 hover:shadow-2xl transition-all duration-500">
                     <img 
-                      src="/images/knowledge/ghc.png" 
+                      src="https://i.ibb.co/hR2rjJzY/Screenshot-2026-01-20-at-10-45-17-AM.png"
                       alt="Golden Honeycomb of Competence Framework"
                       className="w-full h-full object-contain object-center transition-transform duration-700 hover:scale-105"
                       style={{ maxWidth: '100%', maxHeight: '100%' }}
@@ -435,7 +488,7 @@ export function OnboardingLanding() {
                     <p className="text-xs font-bold tracking-[0.15em] uppercase text-[#E95139] mb-5">
                       DQ DNA
                     </p>
-                    <h2 className="text-4xl md:text-5xl font-bold text-[#030F35] mb-4 leading-tight">
+                    <h2 className="text-[36px] font-bold text-[#030F35] mb-4 leading-tight">
                       DQ GHC (The Golden Honeycomb of Competencies)
                     </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-10 space-y-3">
@@ -473,7 +526,7 @@ export function OnboardingLanding() {
                     <p className="text-xs font-bold tracking-[0.15em] uppercase text-[#E95139] mb-5">
                       Operational System
                     </p>
-                    <h2 className="text-4xl md:text-5xl font-bold text-[#030F35] mb-8 leading-tight">
+                    <h2 className="text-[36px] font-bold text-[#030F35] mb-8 leading-tight">
                       DQ 6x Digitals (6xD)
                 </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-10 space-y-3">
@@ -493,7 +546,7 @@ export function OnboardingLanding() {
                 <FadeInUpOnScroll delay={0.1}>
                   <div className="h-72 md:h-96 soft-panel rounded-2xl border border-teal-200/40 shadow-xl flex items-center justify-center p-6 md:p-8 overflow-hidden hover:shadow-2xl transition-all duration-500">
                     <img 
-                      src="/images/knowledge/6xd.png" 
+                      src="https://i.ibb.co/JWqPMgtz/23.png"
                       alt="D6 Digital Accelerators Framework - 6X Digitals"
                       className="w-full h-full object-contain object-center transition-transform duration-700 hover:scale-105"
                       style={{ maxWidth: '100%', maxHeight: '100%' }}
@@ -521,7 +574,7 @@ export function OnboardingLanding() {
                     <p className="text-xs font-bold tracking-[0.15em] uppercase text-[#E95139] mb-5">
                       Your Role
                 </p>
-                    <h2 className="text-4xl md:text-5xl font-bold text-[#030F35] mb-8 leading-tight">
+                    <h2 className="text-[36px] font-bold text-[#030F35] mb-8 leading-tight">
                       Your Position at DQ
                 </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-10 space-y-3">
@@ -810,7 +863,7 @@ export function OnboardingLanding() {
           <div className="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
             <FadeInUpOnScroll>
               <div className="text-center mb-16">
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+                <h2 className="text-[36px] font-bold text-white mb-4 leading-tight">
                   Need Help Along the Way?
                 </h2>
                 <div className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto space-y-2">
