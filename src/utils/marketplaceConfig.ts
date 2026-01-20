@@ -896,7 +896,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     id: 'guides',
     route: '/marketplace/guides',
     title: 'DQ Knowledge Center',
-    description: 'The Knowledge Center is your starting point for understanding how Digital Qatalyst works and how to work effectively within it.'
+    description: 'The Knowledge Center is your starting point for understanding how DQ works and how to work effectively within it.'
   },
   'design-system': {
     id: 'design-system',
