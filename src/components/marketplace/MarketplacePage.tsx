@@ -247,27 +247,27 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
 
   const TAB_DESCRIPTIONS: Record<WorkGuideTab, { description: string; author?: string }> = {
     strategy: {
-      description: 'Strategic frameworks, transformation journeys, and organizational initiatives that guide decision-making and long-term planning across Digital Qatalyst.',
+      description: 'Learn about our plans and strategies that guide DQ\'s growth and decision-making.',
       author: 'Authored by DQ Leadership and Strategy Teams'
     },
     guidelines: {
-      description: 'Practical guidelines, best practices, and operational procedures that support everyday delivery, collaboration, and excellence across all teams and units.',
+      description: 'Find practical guidelines and best practices to optimize workflow and collaboration across all DQ units.',
       author: 'Authored by DQ Associates, Leads, and Subject Matter Experts'
     },
     blueprints: {
-      description: 'Productized digital platforms, frameworks, and solutions designed to enable execution, adoption, and measurable outcomes across DQ initiatives.',
+      description: 'Explore DQ\'s solutions, created to help organizations succeed and grow through digital transformation.',
       author: 'Product Owner / Practice'
     },
     testimonials: {
-      description: 'Success stories, case studies, and reflections that capture lessons learned, celebrate achievements, and share insights from real-world experiences and transformations.',
+      description: 'Discover how DQ has enabled impactful transformations through our clients\' success feedback and testimonials.',
       author: 'Authored by DQ Teams, Clients, and Partners'
     },
     glossary: {
-      description: 'Comprehensive dictionary of DQ terminology, acronyms, and key concepts to help you understand our language and processes.',
+      description: 'Find clear explanations of key DQ terms, acronyms, and concepts to help you better understand how we operate.',
       author: 'Maintained by DQ Knowledge Management Team'
     },
     faqs: {
-      description: 'Frequently asked questions about DQ processes, tools, workflows, and best practices with detailed answers and guidance.',
+      description: 'Find answers to frequently asked questions about how we work, the tools we use, and the best practices followed across DQ.',
       author: 'Maintained by DQ Knowledge Management Team'
     }
   };
@@ -1828,25 +1828,6 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
         {/* Guides Tabs Section */}
         {isGuides && (
           <>
-            {/* Tab Description - Above Navigation */}
-            {activeTab && TAB_DESCRIPTIONS[activeTab] && (
-              <div className="mb-4 bg-white rounded-lg p-6 border border-gray-200 relative">
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1">
-                    <span className="text-xs uppercase text-gray-500 font-medium tracking-wide">CURRENT FOCUS</span>
-                    <h2 className="text-2xl font-bold text-gray-800 mt-1">{TAB_LABELS[activeTab]}</h2>
-                  </div>
-                  <button className="px-4 py-2 bg-blue-50 text-gray-800 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors border-0">
-                    Tab overview
-                  </button>
-                </div>
-                <p className="text-gray-700 mb-2">{TAB_DESCRIPTIONS[activeTab].description}</p>
-                {TAB_DESCRIPTIONS[activeTab].author && (
-                  <p className="text-sm text-gray-500">{TAB_DESCRIPTIONS[activeTab].author}</p>
-                )}
-              </div>
-            )}
-            
             <div className="mb-6 border-b border-gray-200">
               <nav className="flex space-x-8" aria-label="Guides navigation">
                 {/* Main tabs rendered as buttons */}
@@ -1869,6 +1850,17 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                 ))}
               </nav>
             </div>
+            
+            {/* Tab Description - Below Navigation */}
+            {activeTab && TAB_DESCRIPTIONS[activeTab] && (
+              <div className="mb-4 bg-white rounded-lg p-3 border border-gray-200 relative">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <p className="text-gray-700">{TAB_DESCRIPTIONS[activeTab].description}</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
 
@@ -1906,20 +1898,12 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
             <>
               {/* Tab Description - Above Navigation */}
               {activeDesignSystemTab && DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab] && (
-                <div className="mb-4 bg-white rounded-lg p-6 border border-gray-200 relative">
-                  <div className="flex justify-between items-start mb-3">
+                <div className="mb-4 bg-white rounded-lg p-3 border border-gray-200 relative">
+                  <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <span className="text-xs uppercase text-gray-500 font-medium tracking-wide">CURRENT FOCUS</span>
-                      <h2 className="text-2xl font-bold text-gray-800 mt-1">{DESIGN_SYSTEM_TAB_LABELS[activeDesignSystemTab]}</h2>
+                      <p className="text-gray-700">{DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].description}</p>
                     </div>
-                    <button className="px-4 py-2 bg-blue-50 text-gray-800 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors border-0">
-                      Tab overview
-                    </button>
                   </div>
-                  <p className="text-gray-700 mb-2">{DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].description}</p>
-                  {DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].author && (
-                    <p className="text-sm text-gray-500">{DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].author}</p>
-                  )}
                 </div>
               )}
               
