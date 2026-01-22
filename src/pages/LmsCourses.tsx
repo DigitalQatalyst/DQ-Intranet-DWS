@@ -6,7 +6,7 @@ import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon, Star } from "lucide-reac
 import { SearchBar } from "../components/SearchBar";
 import { FilterSidebar, FilterConfig } from "../components/marketplace/FilterSidebar";
 import { MarketplaceCard } from "../components/marketplace/MarketplaceCard";
-import { useLmsCourses, useLmsCourseDetails } from "../hooks/useLmsCourses";
+import { useLmsCourses, useLmsCourseDetails, useLmsLearningPaths } from "../hooks/useLmsCourses";
 import { ICON_BY_ID } from "../utils/lmsIcons";
 import {
   parseFacets,
@@ -52,6 +52,7 @@ export const LmsCourses: React.FC = () => {
   // Fetch courses from Supabase - MUST be called before any conditional returns
   const { data: LMS_COURSES = [], isLoading: coursesLoading, error: coursesError } = useLmsCourses();
   const { data: LMS_COURSE_DETAILS = [], isLoading: detailsLoading } = useLmsCourseDetails();
+  const { data: LEARNING_PATHS = [], isLoading: learningPathsLoading } = useLmsLearningPaths();
 
   const facets = parseFacets(searchParams);
   
@@ -152,21 +153,50 @@ export const LmsCourses: React.FC = () => {
     return LMS_COURSES.filter((item) => item.courseType !== 'Course (Bundles)').length;
   }, [LMS_COURSES]);
 
-  // Filter courses - exclude bundles for courses tab
+  // Filter courses - exclude bundles for courses tab, use learning paths for tracks tab
   const filteredItems = useMemo(() => {
-    let items = applyFilters(LMS_COURSES, facets);
+    let items: typeof LMS_COURSES;
+    
+    if (activeTab === 'tracks') {
+      // Use learning paths for tracks tab
+      items = LEARNING_PATHS;
+      // Apply filters to learning paths
+      if (facets.category && facets.category.length > 0) {
+        items = items.filter(item => facets.category!.includes(item.courseCategory));
+      }
+      if (facets.provider && facets.provider.length > 0) {
+        items = items.filter(item => facets.provider!.includes(item.provider));
+      }
+      if (facets.sfiaRating && facets.sfiaRating.length > 0) {
+        items = items.filter(item => facets.sfiaRating!.includes(item.levelCode));
+      }
+      if (facets.location && facets.location.length > 0) {
+        items = items.filter(item => 
+          item.locations.some(loc => facets.location!.includes(loc))
+        );
+      }
+      if (facets.audience && facets.audience.length > 0) {
+        items = items.filter(item => 
+          item.audience.some(aud => facets.audience!.includes(aud))
+        );
+      }
+      if (facets.department && facets.department.length > 0) {
+        items = items.filter(item => 
+          item.department.some(dept => facets.department!.includes(dept))
+        );
+      }
+    } else {
+      // Use courses for courses tab
+      items = applyFilters(LMS_COURSES, facets);
     // Filter out bundles for courses tab
     if (activeTab === 'courses') {
       items = items.filter((item) => 
         item.courseType !== 'Course (Bundles)'
       );
     }
-    // Only show bundles for tracks tab
-    if (activeTab === 'tracks') {
-      items = items.filter((item) => 
-        item.courseType === 'Course (Bundles)'
-      );
     }
+    
+    // Apply search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       items = items.filter((item) => {
@@ -188,7 +218,7 @@ export const LmsCourses: React.FC = () => {
       });
     }
     return items;
-  }, [LMS_COURSES, facets, searchQuery, activeTab]);
+  }, [LMS_COURSES, LEARNING_PATHS, facets, searchQuery, activeTab]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
@@ -449,7 +479,7 @@ export const LmsCourses: React.FC = () => {
   }, []);
 
   // Handle loading state
-  if (coursesLoading || detailsLoading) {
+  if (coursesLoading || detailsLoading || (activeTab === 'tracks' && learningPathsLoading)) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Header
@@ -721,23 +751,7 @@ export const LmsCourses: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {paginatedItems.map((track) => {
                     const trackDetail = LMS_COURSE_DETAILS.find(c => c.id === track.id);
-                    if (!trackDetail || !trackDetail.curriculum) return null;
-                    
-                    // Calculate stats
-                    const totalCourses = trackDetail.curriculum.length;
-                    const totalTopics = trackDetail.curriculum.reduce((acc, course) => {
-                      if (course.topics) return acc + course.topics.length;
-                      return acc;
-                    }, 0);
-                    const totalLessons = trackDetail.curriculum.reduce((acc, course) => {
-                      if (course.topics) {
-                        return acc + course.topics.reduce((topicAcc, topic) => {
-                          return topicAcc + (topic.lessons?.length || 0);
-                        }, 0);
-                      }
-                      if (course.lessons) return acc + course.lessons.length;
-                      return acc;
-                    }, 0);
+                    const totalCourses = trackDetail?.curriculum?.length || 0;
                     
                     return (
                       <Link
@@ -746,10 +760,10 @@ export const LmsCourses: React.FC = () => {
                         className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-200 flex flex-col h-full"
                       >
                         {/* Track Image */}
-                        {(track.imageUrl || trackDetail.imageUrl) && (
+                        {track.imageUrl && (
                           <div className="w-full h-48 bg-gray-200 overflow-hidden">
                             <img
-                              src={track.imageUrl || trackDetail.imageUrl}
+                              src={track.imageUrl}
                               alt={track.title}
                               className="w-full h-full object-cover"
                               onError={(e) => {
@@ -763,9 +777,11 @@ export const LmsCourses: React.FC = () => {
                           <p className="text-sm text-gray-600 mb-4 line-clamp-3">{track.summary}</p>
                           
                           {/* Stats */}
+                          {totalCourses > 0 && (
                           <div className="flex flex-wrap gap-3 mb-4 text-sm text-gray-600">
                             <span>{totalCourses} {totalCourses === 1 ? 'Course' : 'Courses'}</span>
                           </div>
+                          )}
                           
                           {/* Tags */}
                           <div className="flex flex-wrap gap-2 mb-4">
@@ -777,12 +793,13 @@ export const LmsCourses: React.FC = () => {
                             </span>
                             {track.rating && (
                               <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3F4F6', color: '#000000' }}>
-                                ⭐ {track.rating} ({track.reviewCount})
+                                ⭐ {typeof track.rating === 'number' ? track.rating.toFixed(1) : track.rating}
                               </span>
                             )}
                           </div>
                           
-                          {/* Course List Preview */}
+                          {/* Course List Preview - Only show if curriculum exists */}
+                          {trackDetail?.curriculum && trackDetail.curriculum.length > 0 && (
                           <div className="mt-4 pt-4 border-t border-gray-100">
                             <div className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Courses in Track</div>
                             <div className="space-y-2">
@@ -801,6 +818,7 @@ export const LmsCourses: React.FC = () => {
                               )}
                             </div>
                           </div>
+                          )}
                           
                           {/* View Button */}
                           <div className="mt-auto pt-4 border-t border-gray-100">

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Clock, Layers } from 'lucide-react';
+import { BookmarkIcon, ScaleIcon, Calendar, MapPin, Building, Clock, Layers } from 'lucide-react';
 import {
   resolveChipIcon
 } from '../../utils/lmsIcons';
@@ -7,6 +7,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 import { resolveServiceImage } from '../../utils/serviceCardImages';
+import { formatDurationFromMinutes } from '../../utils/durationFormatter';
 export interface MarketplaceItemProps {
   item: {
     id: string;
@@ -83,27 +84,27 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       navigate(`/lms/${item.slug}`);
       return;
     }
-    
+
     // Preserve tab parameter when navigating to detail pages for Services Center
     const currentUrl = new URL(window.location.href);
     const tabParam = currentUrl.searchParams.get('tab');
-    const detailUrl = tabParam && marketplaceType === 'non-financial' 
+    const detailUrl = tabParam && marketplaceType === 'non-financial'
       ? `${getItemRoute()}?action=true&tab=${tabParam}`
       : `${getItemRoute()}?action=true`;
     navigate(detailUrl);
   };
   // Display tags if available, otherwise use category and deliveryMode
-  
+
   // Calculate lessons/modules count for courses
   const courseStats = useMemo(() => {
     if (marketplaceType !== 'courses') return null;
-    
+
     const curriculum = item.curriculum || item.raw?.curriculum;
     if (!curriculum || !Array.isArray(curriculum)) return null;
-    
+
     let totalLessons = 0;
     let totalModules = 0;
-    
+
     curriculum.forEach((item: any) => {
       if (item.topics && Array.isArray(item.topics)) {
         totalModules += item.topics.length;
@@ -117,10 +118,10 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
         totalLessons += item.lessons.length;
       }
     });
-    
+
     return { totalLessons, totalModules };
   }, [item, marketplaceType]);
-  
+
   const chipData = useMemo(() => {
     if (marketplaceType !== 'courses') {
       const typeLabel =
@@ -140,142 +141,238 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
         );
         baseTags = hasType
           ? [
-              typeLabel,
-              ...baseTags.filter(
-                tag => !(typeof tag === 'string' && tag.toLowerCase() === lowerType)
-              )
-            ]
+            typeLabel,
+            ...baseTags.filter(
+              tag => !(typeof tag === 'string' && tag.toLowerCase() === lowerType)
+            )
+          ]
           : [typeLabel, ...baseTags];
       }
       return baseTags.map((label, index) => ({ key: `generic-${index}`, label, iconValue: label }));
     }
-    
+
     // For courses: only show duration and modules count with separator
     const chips: Array<{ key: string; label: string; iconValue?: string }> = [];
-    
-    // 1. duration
-    const durationValue = item.duration || item.durationBucket || item.durationLabel;
-    const durationLabel = item.durationLabel || durationValue;
+
+    // 1. duration - use actual duration in minutes if available
+    const durationMinutes = item.durationMinutes;
+    const durationLabel = durationMinutes !== undefined
+      ? formatDurationFromMinutes(durationMinutes)
+      : (item.duration || item.durationBucket || item.durationLabel || '');
     if (durationLabel) {
-      chips.push({ key: 'duration', label: durationLabel, iconValue: durationValue });
+      chips.push({ key: 'duration', label: durationLabel, iconValue: durationLabel });
     }
-    
+
     // 2. modules count (only modules, not lessons)
     if (courseStats && courseStats.totalModules > 0) {
-      chips.push({ 
-        key: 'modules', 
-        label: `${courseStats.totalModules} ${courseStats.totalModules === 1 ? 'module' : 'modules'}` 
+      chips.push({
+        key: 'modules',
+        label: `${courseStats.totalModules} ${courseStats.totalModules === 1 ? 'module' : 'modules'}`
       });
     }
-    
+
     return chips;
   }, [item, marketplaceType]);
-  
+
+  // View Details handler
+  const handleViewDetails = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (marketplaceType === 'courses') {
+      // Use slug if available, otherwise fall back to id
+      const slug = item.slug || item.id;
+      navigate(`/lms/${slug}`);
+      return;
+    }
+    onQuickView();
+  };
+
   // Prefer explicit featuredImageUrl, else mapped image by id/title, else default
   const imageSrc =
     item.featuredImageUrl ||
     resolveServiceImage(item.id, item.title) ||
     '/images/services/DTMP.jpg';
-  
-  return <div className="flex flex-col min-h-[340px] bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200" onClick={onQuickView}>
-      {/* Featured Image */}
-      <div className="relative h-48 bg-gray-200 overflow-hidden">
-        <img 
-          src={imageSrc}
-          alt={item.title}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            // Fallback to a gradient if image fails to load
-            const target = e.target as HTMLImageElement;
-            target.style.display = 'none';
-            if (target.parentElement) {
-              target.parentElement.className = 'relative h-48 bg-gradient-to-br from-gray-400 to-gray-600';
-            }
-          }}
-        />
-      </div>
-      
-      {/* Card Header with fixed height for title and provider */}
-      <div className="px-4 pt-3 pb-2 flex-grow flex flex-col">
-        <div className="flex items-start mb-1">
-          <div className="flex-grow flex flex-col">
-            <h3 className="font-bold text-gray-900 line-clamp-2 leading-tight" style={{ margin: 0, lineHeight: 1.15 }}>
-              {item.title}
-            </h3>
-            <p className="text-sm text-gray-500 mt-0.5" style={{ marginTop: 2, marginBottom: 0 }}>
-              {item.provider.name}
-            </p>
-          </div>
-        </div>
-        {/* Description with consistent height */}
-        <div className="mb-5">
-          <p className="text-sm text-gray-600 line-clamp-3 min-h-[72px] leading-relaxed">
-            {item.description}
-          </p>
-        </div>
-        {/* Tags and Actions in same row - fixed position */}
-        <div className="flex justify-between items-center mt-auto">
-          {marketplaceType !== 'non-financial' && (
-            <div className="flex flex-wrap gap-1 max-w-[70%] items-center">
-              {marketplaceType === 'courses' && chipData.length > 0 ? (
-                <>
-                  {chipData.map((chip, index) => {
-                    const Icon = chip.key === 'duration' ? Clock : chip.key === 'modules' ? Layers : resolveChipIcon(chip.key, chip.iconValue ?? chip.label);
-                    return (
-                      <React.Fragment key={`${chip.key}-${chip.label}-${index}`}>
-                        {index > 0 && <span className="text-gray-400">.</span>}
-                        <span 
-                          className="inline-flex items-center text-xs font-medium truncate text-gray-700"
-                        >
-                          {Icon ? <Icon className="h-3.5 w-3.5 mr-1" /> : null}
-                          {chip.label}
-                        </span>
-                      </React.Fragment>
-                    );
-                  })}
-                </>
-              ) : (
-                chipData.map((chip, index) => {
-                  const Icon = resolveChipIcon(chip.key, chip.iconValue ?? chip.label);
-                  return <span 
-                    key={`${chip.key}-${chip.label}-${index}`} 
-                    className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium truncate"
-                    style={{
-                      backgroundColor: '#F3F4F6',
-                      color: '#000000'
-                    }}
-                  >
-                    {Icon ? <Icon className="h-3.5 w-3.5 mr-1" style={{ color: '#000000' }} /> : null}
-                    {chip.label}
-                  </span>;
-                })
-              )}
+
+  // Render event card layout for events marketplace
+  if (marketplaceType === 'events') {
+    return (
+      <div
+        className="flex flex-col bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+        onClick={onQuickView}
+      >
+        {/* Event Image with Date Badge */}
+        <div className="relative h-48 overflow-hidden bg-gray-200">
+          <img
+            src={item.imageUrl || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80'}
+            alt={item.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80';
+            }}
+          />
+          {item.date && (
+            <div className="absolute top-3 right-3 bg-white px-3 py-1 rounded-md shadow-md">
+              <span className="text-xs font-semibold text-gray-700">{item.date}</span>
             </div>
           )}
         </div>
-      </div>
-      {/* Card Footer - with two buttons */}
-      <div className="mt-auto border-t border-gray-100 p-4 pt-5">
-        <div className="flex justify-between gap-2">
-          {/* View Details button - HIDDEN */}
-          {/* <button 
-            onClick={handleViewDetails} 
-            className="px-4 py-2 text-sm font-medium bg-white border rounded-md hover:opacity-90 transition-colors whitespace-nowrap min-w-[120px] flex-1"
-            style={{ 
-              color: '#030F35',
-              borderColor: '#030F35'
+
+        {/* Event Content */}
+        <div className="p-4 flex-grow flex flex-col">
+          {/* Event Title */}
+          <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-2">
+            {item.title}
+          </h3>
+
+          {/* Event Type and Location */}
+          {(item.eventType || item.type || item.category) && item.location && (
+            <p className="text-sm text-gray-600 mb-4">
+              {item.eventType || item.type || item.category} at {item.location}
+            </p>
+          )}
+
+          {/* Event Details */}
+          <div className="space-y-2 mb-4">
+            {item.date && (
+              <div className="flex items-center text-sm text-gray-500">
+                <Calendar size={14} className="mr-2 flex-shrink-0" />
+                <span>{item.date}</span>
+              </div>
+            )}
+            {item.time && (
+              <div className="flex items-center text-sm text-gray-500">
+                <Clock size={14} className="mr-2 flex-shrink-0" />
+                <span>{item.time}</span>
+              </div>
+            )}
+            {(item.organizer || item.provider?.name) && (
+              <div className="flex items-center text-sm text-gray-500">
+                <Building size={14} className="mr-2 flex-shrink-0" />
+                <span>{item.organizer || item.provider?.name}</span>
+              </div>
+            )}
+            {item.location && (
+              <div className="flex items-center text-sm text-gray-500">
+                <MapPin size={14} className="mr-2 flex-shrink-0" />
+                <span>{item.location}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Register Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetails(e);
             }}
+            className="w-full mt-auto px-4 py-2.5 text-sm font-semibold text-white bg-dq-navy hover:bg-[#13285A] rounded-md transition-colors"
           >
-            {config.secondaryCTA}
-          </button> */}
-          <button 
-            onClick={handlePrimaryAction} 
-            className="px-4 py-2 text-sm font-bold text-white rounded-md hover:opacity-90 transition-colors whitespace-nowrap flex-1"
-            style={{ backgroundColor: '#030F35' }}
-          >
-            {getPrimaryCTAText()}
+            {config.primaryCTA || 'Register Now'}
           </button>
         </div>
       </div>
-    </div>;
+    );
+  }
+
+  return <div className="flex flex-col min-h-[340px] bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200" onClick={onQuickView}>
+    {/* Featured Image */}
+    <div className="relative h-48 bg-gray-200 overflow-hidden">
+      <img
+        src={imageSrc}
+        alt={item.title}
+        className="w-full h-full object-cover"
+        onError={(e) => {
+          // Fallback to a gradient if image fails to load
+          const target = e.target as HTMLImageElement;
+          target.style.display = 'none';
+          if (target.parentElement) {
+            target.parentElement.className = 'relative h-48 bg-gradient-to-br from-gray-400 to-gray-600';
+          }
+        }}
+      />
+    </div>
+
+    {/* Card Header with fixed height for title and provider */}
+    <div className="px-4 pt-3 pb-2 flex-grow flex flex-col">
+      <div className="flex items-start mb-1">
+        <div className="flex-grow flex flex-col">
+          <h3 className="font-bold text-gray-900 line-clamp-2 leading-tight" style={{ margin: 0, lineHeight: 1.15 }}>
+            {item.title}
+          </h3>
+          <p className="text-sm text-gray-500 mt-0.5" style={{ marginTop: 2, marginBottom: 0 }}>
+            {item.provider.name}
+          </p>
+        </div>
+      </div>
+      {/* Description with consistent height */}
+      <div className="mb-5">
+        <p className="text-sm text-gray-600 line-clamp-3 min-h-[72px] leading-relaxed">
+          {item.description}
+        </p>
+      </div>
+      {/* Tags and Actions in same row - fixed position */}
+      <div className="flex justify-between items-center mt-auto">
+        {marketplaceType !== 'non-financial' && (
+          <div className="flex flex-wrap gap-1 max-w-[70%] items-center">
+            {marketplaceType === 'courses' && chipData.length > 0 ? (
+              <>
+                {chipData.map((chip, index) => {
+                  const Icon = chip.key === 'duration' ? Clock : chip.key === 'modules' ? Layers : resolveChipIcon(chip.key, chip.iconValue ?? chip.label);
+                  return (
+                    <React.Fragment key={`${chip.key}-${chip.label}-${index}`}>
+                      {index > 0 && <span className="text-gray-400">.</span>}
+                      <span
+                        className="inline-flex items-center text-xs font-medium truncate text-gray-700"
+                      >
+                        {Icon ? <Icon className="h-3.5 w-3.5 mr-1" /> : null}
+                        {chip.label}
+                      </span>
+                    </React.Fragment>
+                  );
+                })}
+              </>
+            ) : (
+              chipData.map((chip, index) => {
+                const Icon = resolveChipIcon(chip.key, chip.iconValue ?? chip.label);
+                return <span
+                  key={`${chip.key}-${chip.label}-${index}`}
+                  className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium truncate"
+                  style={{
+                    backgroundColor: '#F3F4F6',
+                    color: '#000000'
+                  }}
+                >
+                  {Icon ? <Icon className="h-3.5 w-3.5 mr-1" style={{ color: '#000000' }} /> : null}
+                  {chip.label}
+                </span>;
+              })
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+    {/* Card Footer - with two buttons */}
+    <div className="mt-auto border-t border-gray-100 p-4 pt-5">
+      <div className="flex justify-between gap-2">
+        <button
+          onClick={handleViewDetails}
+          className={`px-4 py-2 text-sm font-medium bg-white border rounded-md transition-colors whitespace-nowrap min-w-[120px] flex-1 ${marketplaceType === 'events'
+              ? 'text-dq-navy border-dq-navy hover:bg-dq-navy/10'
+              : 'text-blue-600 border-blue-600 hover:bg-blue-50'
+            }`}
+        >
+          {config.secondaryCTA}
+        </button>
+        <button
+          onClick={handlePrimaryAction}
+          className={`px-4 py-2 text-sm font-bold text-white rounded-md transition-colors whitespace-nowrap flex-1 ${marketplaceType === 'events'
+              ? 'bg-dq-navy hover:bg-[#13285A]'
+              : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+        >
+          {getPrimaryCTAText()}
+        </button>
+      </div>
+    </div>
+  </div>;
 };
