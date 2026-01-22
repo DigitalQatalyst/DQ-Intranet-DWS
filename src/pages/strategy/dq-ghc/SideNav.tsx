@@ -6,21 +6,15 @@ interface SideNavProps {
 }
 
 const sections = [
-  { id: 'overview', label: 'Our Foundation & DNA' },
-  { id: 'what-is-it', label: 'GHC - What is it' },
-  { id: 'why-such-a-framework', label: 'GHC - Why such a framework' },
-  { id: 'dq-vision', label: '01. The DQ Vision (Purpose)' },
-  { id: 'hov-culture', label: '02. HoV (Culture)' },
-  { id: 'persona-identity', label: '03. Persona (Identity)' },
-  { id: 'agile-tms', label: '04. Agile TMS' },
-  { id: 'agile-sos', label: '05. Agile SoS (Governance)' },
-  { id: 'agile-flows', label: '06. Agile Flows (Value Streams)' },
-  { id: 'agile-6xd', label: '07. Agile 6xD (Products)' },
-  { id: 'in-short', label: 'GHC - In Short' },
+  { id: 'introduction', label: 'Introduction' },
+  { id: 'why-ghc-exists', label: 'Why the GHC Exists' },
+  { id: 'how-ghc-shapes-you', label: 'How the GHC Shapes You' },
+  { id: 'how-work-flows', label: 'How Work Flows at DQ' },
+  { id: 'your-role-as-qatalyst', label: 'Your Role as a Qatalyst' },
 ]
 
 export function SideNav({ activeSection, onSectionClick }: SideNavProps) {
-  const [currentSection, setCurrentSection] = useState(activeSection || 'overview')
+  const [currentSection, setCurrentSection] = useState(activeSection || 'introduction')
 
   useEffect(() => {
     const observerOptions = {

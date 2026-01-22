@@ -233,9 +233,9 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
             onClick()
           }}
             className="w-full inline-flex items-center justify-center rounded-full bg-[var(--guidelines-primary-solid)] text-white text-sm font-semibold px-4 py-2 transition-all hover:bg-[var(--guidelines-primary-solid-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
-            aria-label="View details"
+            aria-label="Read more"
           >
-            View Details
+            Read More
         </button>
       </div>
     </div>

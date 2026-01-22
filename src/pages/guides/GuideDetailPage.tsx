@@ -335,37 +335,38 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
           if (!cancelled) setGuide(data)
         } else {
           const key = String(itemId || '')
-          let { data: row, error: err1 } = await supabaseClient.from('guides').select('*').eq('slug', key).maybeSingle()
+          const { data: row, error: err1 } = await supabaseClient.from('guides').select('*').eq('slug', key).maybeSingle()
           if (err1) throw err1
-          if (!row) {
+          let finalRow = row
+          if (!finalRow) {
             const { data: row2, error: err2 } = await supabaseClient.from('guides').select('*').eq('id', key).maybeSingle()
             if (err2) throw err2
-            row = row2 as any
+            finalRow = row2 as any
           }
-          if (!row) throw new Error('Not found')
+          if (!finalRow) throw new Error('Not found')
           const mapped: GuideRecord = {
-            id: row.id,
-            slug: row.slug,
-            title: row.title,
-            summary: row.summary ?? undefined,
-            heroImageUrl: row.hero_image_url ?? row.heroImageUrl ?? null,
-            domain: row.domain ?? null,
-            guideType: row.guide_type ?? row.guideType ?? null,
-            functionArea: row.function_area ?? null,
-            subDomain: row.sub_domain ?? row.subDomain ?? null,
-            unit: row.unit ?? null,
-            location: row.location ?? null,
-            status: row.status ?? null,
-            complexityLevel: row.complexity_level ?? null,
-            skillLevel: row.skill_level ?? row.skillLevel ?? null,
-            estimatedTimeMin: row.estimated_time_min ?? row.estimatedTimeMin ?? null,
-            lastUpdatedAt: row.last_updated_at ?? row.lastUpdatedAt ?? null,
-            authorName: row.author_name ?? row.authorName ?? null,
-            authorOrg: row.author_org ?? row.authorOrg ?? null,
-            isEditorsPick: row.is_editors_pick ?? row.isEditorsPick ?? null,
-            downloadCount: row.download_count ?? row.downloadCount ?? null,
-            documentUrl: row.document_url ?? row.documentUrl ?? null,
-            body: row.body ?? null,
+            id: finalRow.id,
+            slug: finalRow.slug,
+            title: finalRow.title,
+            summary: finalRow.summary ?? undefined,
+            heroImageUrl: finalRow.hero_image_url ?? finalRow.heroImageUrl ?? null,
+            domain: finalRow.domain ?? null,
+            guideType: finalRow.guide_type ?? finalRow.guideType ?? null,
+            functionArea: finalRow.function_area ?? null,
+            subDomain: finalRow.sub_domain ?? finalRow.subDomain ?? null,
+            unit: finalRow.unit ?? null,
+            location: finalRow.location ?? null,
+            status: finalRow.status ?? null,
+            complexityLevel: finalRow.complexity_level ?? null,
+            skillLevel: finalRow.skill_level ?? finalRow.skillLevel ?? null,
+            estimatedTimeMin: finalRow.estimated_time_min ?? finalRow.estimatedTimeMin ?? null,
+            lastUpdatedAt: finalRow.last_updated_at ?? finalRow.lastUpdatedAt ?? null,
+            authorName: finalRow.author_name ?? finalRow.authorName ?? null,
+            authorOrg: finalRow.author_org ?? finalRow.authorOrg ?? null,
+            isEditorsPick: finalRow.is_editors_pick ?? finalRow.isEditorsPick ?? null,
+            downloadCount: finalRow.download_count ?? finalRow.downloadCount ?? null,
+            documentUrl: finalRow.document_url ?? finalRow.documentUrl ?? null,
+            body: finalRow.body ?? null,
             steps: [], attachments: [], templates: [],
           }
           if (!cancelled) setGuide(mapped)
@@ -394,7 +395,9 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
           const full = await res.json()
           if (!cancelled) setGuide({ ...guide, body: full.body || null })
         }
-      } catch {}
+      } catch (error) {
+        console.error('Error loading guide body:', error)
+      }
     })()
     return () => { cancelled = true }
   }, [guide?.id, guide?.slug])
@@ -759,7 +762,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
             sections[currentSection] = content
           }
         }
-        let sectionTitle = h2Match[1].trim().replace(/\*\*/g, '')
+        const sectionTitle = h2Match[1].trim().replace(/\*\*/g, '')
         const normalized = sectionTitle.toLowerCase()
         currentSection = sectionMappings[normalized] || sectionTitle
         currentContent = []
@@ -968,11 +971,15 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
         title: guide?.title || '',
         text: guide?.summary || '',
         url: window.location.href,
-      }).catch(() => {})
+      }).catch((error) => {
+        console.error('Error sharing:', error)
+      })
     } else {
       navigator.clipboard.writeText(window.location.href).then(() => {
         // Could show a toast notification here
-      }).catch(() => {})
+      }).catch((error) => {
+        console.error('Error copying to clipboard:', error)
+      })
     }
   }
   // CODEx: banner open/download controls for main document
@@ -1250,194 +1257,8 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     return <SuspenseWrapper><BlueprintPage /></SuspenseWrapper>
   }
 
-  // OLD Blueprint rendering - now replaced by BlueprintPage component above
-  if (false && actualIsBlueprintDomain) {
-    return (
-      <div className="min-h-screen flex flex-col guidelines-theme" style={{ minHeight: '100vh' }}>
-        <Header toggleSidebar={() => {}} sidebarOpen={false} />
-        <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl" role="main" style={{ backgroundColor: 'transparent' }}>
-          <nav className="flex mb-6" aria-label="Breadcrumb">
-            <ol className="inline-flex items-center space-x-1 md:space-x-2">
-              <li className="inline-flex items-center">
-                <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
-                  <HomeIcon size={16} className="mr-1" />
-                  <span>Home</span>
-                </Link>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-gray-400" />
-                  <Link to={backHref} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">{breadcrumbLabel}</Link>
-                </div>
-              </li>
-              <li aria-current="page">
-                <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2">{guide.title}</span>
-                </div>
-              </li>
-            </ol>
-          </nav>
-
-          {/* Full Width Layout */}
-          <div className="space-y-6">
-              {/* Hero Image - In left column */}
-              {imageUrl && (
-                <div className="rounded-xl overflow-hidden">
-                  <img 
-                    src={imageUrl} 
-                    alt={guide.title} 
-                    className="w-full h-auto object-cover"
-                    style={{ maxHeight: '400px' }}
-                  />
-                </div>
-              )}
-
-              {/* Title Section - In left column below image */}
-              <div className="mb-8">
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="flex-1">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{guide.title}</h1>
-                    {guide.lastUpdatedAt && (
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span>{new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                      </div>
-                    )}
-                  </div>
-                  <a
-                    href={primaryDocUrl || '#'}
-                    target={primaryDocUrl ? "_blank" : undefined}
-                    rel={primaryDocUrl ? "noopener noreferrer" : undefined}
-                    onClick={(e) => {
-                      if (!primaryDocUrl) {
-                        e.preventDefault()
-                        return
-                      }
-                      const category = actualIsBlueprintDomain ? 'view_blueprint_clicked' : 
-                                     actualIsGuidelinesDomain ? 'view_guideline_clicked' :
-                                     actualIsStrategyDomain ? 'view_strategy_clicked' : 'view_guide_clicked'
-                      track('Guides.CTA', { category, slug: guide.slug || guide.id, title: guide.title })
-                    }}
-                    className={`px-6 py-3 text-white font-semibold rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap ${!primaryDocUrl ? 'opacity-50 cursor-not-allowed' : ''} focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]`}
-                    style={{ 
-                      backgroundColor: '#030E31',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (primaryDocUrl) {
-                        e.currentTarget.style.backgroundColor = '#020A28'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (primaryDocUrl) {
-                        e.currentTarget.style.backgroundColor = '#030E31'
-                      }
-                    }}
-                  >
-                    <ExternalLink size={18} />
-                    <span>
-                      {actualIsBlueprintDomain ? 'View Blueprint' : 
-                       actualIsGuidelinesDomain ? 'View Guideline' :
-                       actualIsStrategyDomain ? 'View Strategy' : 'View Guide'}
-                    </span>
-                  </a>
-                </div>
-              </div>
-              {/* Content Sections as Cards */}
-              {parsedGuideSections.length > 0 ? (
-                <div className="space-y-6">
-                  {parsedGuideSections.map((section, index) => (
-                    <div key={index} className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
-                      <div className="p-6 md:p-8">
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 pl-4 relative">
-                          <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] to-transparent"></span>
-                          {section.title}
-                        </h2>
-                        <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed space-y-4">
-                          <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                            <Markdown body={section.content} />
-                          </React.Suspense>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : guide.body ? (
-                <div className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
-                  <div className="p-6 md:p-8">
-                    <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
-                      <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                        <Markdown body={guide.body} />
-                      </React.Suspense>
-                    </div>
-                  </div>
-                </div>
-              ) : guide.summary ? (
-                <div className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
-                  <div className="p-6 md:p-8">
-                    <p className="text-gray-700 leading-relaxed">{guide.summary}</p>
-                  </div>
-                </div>
-              ) : null}
-          </div>
-
-          {/* Related Guides Section - Full width at bottom */}
-          {related && related.length > 0 && (
-            <div className="mt-12">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Related Guides</h2>
-                <Link 
-                  to={backHref} 
-                  className="font-medium flex items-center transition-colors" 
-                  style={{ color: '#0B1E67' }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = '#092256'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = '#0B1E67'}
-                >
-                  See All Guides
-                  <ChevronRightIcon size={16} className="ml-1" />
-                </Link>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {related.slice(0, 3).map((r) => (
-                  <Link
-                    key={r.slug || r.id}
-                    to={`/marketplace/guides/${encodeURIComponent(r.slug || r.id)}`}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                  >
-                    <img
-                      src={getGuideImageUrl({
-                        heroImageUrl: r.heroImageUrl || undefined,
-                        domain: r.domain || undefined,
-                        guideType: r.guideType || undefined,
-                        subDomain: r.subDomain || (r as any)?.sub_domain || undefined,
-                        id: r.id,
-                        slug: r.slug,
-                        title: r.title,
-                      })}
-                      alt={r.title}
-                      className="w-full h-32 object-cover"
-                      loading="lazy"
-                    />
-                    <div className="p-4">
-                      {r.lastUpdatedAt && (
-                        <p className="text-xs text-gray-500 mb-2">
-                          {new Date(r.lastUpdatedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                        </p>
-                      )}
-                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{r.title}</h3>
-                      {r.summary && (
-                        <p className="text-sm text-gray-600 line-clamp-2">{r.summary}</p>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-        </main>
-        <Footer isLoggedIn={!!user} />
-      </div>
-    )
-  }
+  // OLD Blueprint rendering - removed as it's no longer needed
+  // The code below has been replaced by BlueprintPage component above
 
   // Render all guides with clean card layout (no tabs) - Matching the design image
   // Skip blueprint domain as it has its own special layout

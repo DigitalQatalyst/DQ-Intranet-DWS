@@ -27,8 +27,12 @@ interface MarketplaceDetailsPageProps {
 const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   marketplaceType,
   bookmarkedItems = [],
-  onToggleBookmark: _onToggleBookmark = () => {},
-  onAddToComparison: _onAddToComparison = () => {}
+  onToggleBookmark: _onToggleBookmark = (item) => {
+    console.log('Toggle bookmark:', item)
+  },
+  onAddToComparison: _onAddToComparison = (item) => {
+    console.log('Add to comparison:', item)
+  }
 }) => {
   const {
     itemId
@@ -1214,13 +1218,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             </div>
           </div>;
       }
-      case 'required_documents':
-        return <div className="space-y-6">
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Required Documents</h3>
-              <p className="text-gray-700">No required documents.</p>
-            </div>
-          </div>;
       case 'about':
         return <div className="space-y-6">
             <p className="text-gray-600 text-lg mb-6">
