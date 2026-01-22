@@ -34,7 +34,15 @@ function GuidelinePage() {
         
         if (!cancelled) {
           if (data) {
+            // Validate that the fetched guide matches the expected slug
+            if (data.slug?.toLowerCase() !== currentSlug.toLowerCase()) {
+              console.error(`Slug mismatch! Expected: ${currentSlug}, Got: ${data.slug}`)
+              setError(`Data integrity error: Guide slug mismatch. Expected '${currentSlug}' but got '${data.slug}'`)
+              setLoading(false)
+              return
+            }
             setGuide(data)
+            console.log('Guide loaded:', data.title, 'Slug:', data.slug, 'ID:', data.id)
           } else {
             setError('Guide not found')
           }
