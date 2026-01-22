@@ -176,7 +176,7 @@ export function OnboardingLanding() {
           <div 
             className="absolute inset-0 z-0"
             style={{
-              backgroundImage: 'url("https://i.ibb.co/TD61HZ9c/Screenshot-2026-01-19-at-5-32-50-PM.png"), linear-gradient(to bottom, #030F35 0%, #1A2E6E 30%, #030F35 70%, #FB5535 100%)',
+              backgroundImage: 'url("https://i.ibb.co/bg7Shq8h/employee-onboarding-and-training.jpg"), linear-gradient(to bottom, #030F35 0%, #1A2E6E 30%, #030F35 70%, #FB5535 100%)',
               backgroundSize: 'cover, 100% 100%',
               backgroundPosition: 'center, center',
               backgroundRepeat: 'no-repeat, no-repeat',
@@ -506,7 +506,7 @@ export function OnboardingLanding() {
                       onClick={handleExploreGHC}
                       className="inline-flex items-center gap-2 px-7 py-3.5 bg-[#030F35] text-white font-semibold rounded-lg hover:bg-[#0B1C3F] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
                     >
-                      Explore the GHC Framework 
+                      Explore More about GHC 
                       <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
                     </button>
                   </div>
@@ -530,15 +530,15 @@ export function OnboardingLanding() {
                       DQ 6x Digitals (6xD)
                 </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-10 space-y-3">
-                      <p>This is how work actually happens at DQ.</p>
-                      <p>6XD connects directly to how we deliver — it's where every associate contributes to DQ products through Agile TMS and ATP.</p>
-                      <p>It's not just a framework; it's the operational system that turns vision into real outcomes.</p>
-                              </div>
+                      <p>Transformation isn’t something we talk about; it’s something we deliberately design, build, and improve.</p>
+                      <p>The Agile 6xD Framework is how DQ designs, builds, and scales digital transformation — not as a one-time project, but as a living, evolving process.</p>
+                      <p>It’s built on Six Essential Perspectives — each answering a fundamental question every organisation must face on its path to relevance in the digital age.</p>
+                    </div>
                     <button
                       onClick={handleExplore6XD}
                       className="inline-flex items-center gap-2 px-7 py-3.5 bg-[#030F35] text-white font-semibold rounded-lg hover:bg-[#0B1C3F] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
                               >
-                      Explore 6XD Learning & Papers
+                      Explore More about 6x Digitals
                       <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
                     </button>
                         </div>
@@ -575,36 +575,36 @@ export function OnboardingLanding() {
                       Your Role
                 </p>
                     <h2 className="text-[36px] font-bold text-[#030F35] mb-8 leading-tight">
-                      Your Position at DQ
-                </h2>
+                      Your Role at DQ
+                    </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-10 space-y-3">
-                      <p>This is where everything connects to you.</p>
-                      <p>Every role at DQ is intentionally designed with clear responsibilities and contribution paths.</p>
-                      <p>Understanding your position means knowing how you bridge organizational context with your individual accountability and impact.</p>
+                      <p>This is where DQ&apos;s mission connects directly to your work.</p>
+                      <p>Every role is designed with clear ownership, responsibility, and purpose.</p>
+                      <p>Understanding your role shows how your contribution creates impact across the organisation.</p>
                     </div>
                     <button
-                      onClick={handleViewRole}
-                      className="inline-flex items-center gap-2 px-7 py-3.5 bg-[#030F35] text-white font-semibold rounded-lg hover:bg-[#0B1C3F] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
+                      type="button"
+                      disabled
+                      className="inline-flex items-center gap-2 px-7 py-3.5 bg-gray-300 text-gray-500 font-semibold rounded-lg cursor-not-allowed opacity-80"
                     >
-                      View My Role & Responsibilities
-                      <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+                      Coming Soon
                     </button>
               </div>
             </FadeInUpOnScroll>
                 <FadeInUpOnScroll delay={0.1}>
-                  <div className="h-80 md:h-96 soft-panel rounded-2xl border border-slate-200/60 shadow-xl flex items-center justify-center p-6 md:p-8 overflow-hidden hover:shadow-2xl transition-all duration-500">
+                  <div className="h-80 md:h-96 soft-panel rounded-2xl border border-slate-200/60 shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500">
                     <img 
-                      src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                      alt="Your Position at DQ - Role and Responsibilities"
-                      className="w-full h-full object-cover object-center rounded-xl transition-transform duration-700 hover:scale-105"
-                      style={{ maxWidth: '100%', maxHeight: '100%' }}
+                      src="https://i.ibb.co/Nn1m3yxD/IT-04.webp"
+                      alt="Professional collaborating at DQ - your role in focus"
+                      className="w-full h-full object-cover object-center rounded-2xl transition-transform duration-700 hover:scale-105"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        // Fallback to a different Unsplash image if the first one fails
-                        target.src = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+                        // Fallback to previous onboarding teamwork image if the new one fails
+                        target.src =
+                          'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
                       }}
                     />
-                        </div>
+                  </div>
                 </FadeInUpOnScroll>
                         </div>
                       </div>
@@ -866,11 +866,9 @@ export function OnboardingLanding() {
                 <h2 className="text-[36px] font-bold text-white mb-4 leading-tight">
                   Need Help Along the Way?
                 </h2>
-                <div className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto space-y-2">
-                  <p>You are not expected to do this alone.</p>
-                  <p>Support is available for HR questions, onboarding guidance, and day-to-day work priorities.</p>
-                  <p>Reach out when you need help — that's what these resources are here for.</p>
-                </div>
+                <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
+                  You're not expected to do this alone—support is available for onboarding, HR questions, and everyday work needs.
+                </p>
               </div>
             </FadeInUpOnScroll>
 

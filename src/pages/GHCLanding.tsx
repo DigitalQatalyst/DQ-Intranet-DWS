@@ -30,9 +30,9 @@ const ghcElements: GHCElement[] = [
     narrative: '',
     highlight: 'Our purpose is to perfect life\'s transactions.',
     supportingLines: [
-      'At DQ, we believe progress happens when human needs and digital systems work together intelligently.',
-      'Through Digital Blueprints, we help organisations evolve into Digital Cognitive Organisations (DCOs).',
-      'This purpose guides how we work, what we build, and how we create impact every day.',
+      'At DigitalQatalyst, our purpose defines who we are, grounding belief, behaviour, and direction across everything we design.',
+      'We believe progress emerges when human intent and digital systems align intelligently, consistently, and ethically at scale.',
+      'This shared vision unites our people, guides decisions, and anchors the Golden Honeycomb as our organisational DNA.',
     ],
     imageSrc: 'https://image2url.com/r2/default/images/1768463115775-0daa0af5-bc58-4ea6-a1d4-0f9d34c8d04a.webp',
     imageAlt: 'Digital globe representing connected systems',
@@ -46,11 +46,11 @@ const ghcElements: GHCElement[] = [
     subtitle: 'Culture',
     question: '',
     narrative: '',
-    highlight: 'Our culture is how we behave when it matters most.',
+    highlight: 'Our culture is not something we hope for. It\'s something we deliberately build.',
     supportingLines: [
-      'The House of Values (HoV) is the system that guides how we collaborate, communicate, and make decisions at DQ.',
-      'It brings our expectations into everyday behaviours — especially under pressure, ambiguity, and high stakes.',
-      'This is how we stay aligned, trusted, and consistent as one organisation.',
+      'At DQ, culture is intentionally built, defining how we behave, decide, and collaborate when pressure is high together.',
+      'The House of Values is our operating system, guiding daily behaviour, decision-making, and collaboration across DQ consistently everywhere.',
+      'Through self-development, lean working, and value co-creation, we sustain alignment, trust, and performance as one organisation under pressure.',
     ],
     imageSrc: 'https://image2url.com/r2/default/images/1768466070607-5e1f2ca9-d498-4bb5-afc2-1032992433d1.png',
     imageAlt: 'House of Values culture visual',
@@ -66,9 +66,9 @@ const ghcElements: GHCElement[] = [
     narrative: '',
     highlight: 'Our Personas describe who thrives at DQ.',
     supportingLines: [
-      'They are our shared identity — the traits and mindsets we expect in how we show up and work together.',
-      'This helps create alignment across teams, roles, and moments of pressure or ambiguity.',
-      'It guides how we hire, develop, collaborate, and build a strong culture over time.',
+      'At DigitalQatalyst (DQ), we are on a bold mission: to accelerate life\'s transactions improvements using digital blueprints.',
+      'But this mission cannot be achieved through systems alone. It demands people who bring clarity, courage, precision, and emotional intelligence to every interaction.',
+      'That\'s why we define the DQ Persona — a clear articulation of the traits and behaviours that enable success across our culture, delivery, and ecosystem.',
     ],
     imageSrc: 'https://image2url.com/r2/default/images/1768465956957-738b44df-0d0b-490d-a0f8-1a42fb51784e.png',
     imageAlt: 'Shared identity and team personas visual',
@@ -84,9 +84,9 @@ const ghcElements: GHCElement[] = [
     narrative: '',
     highlight: 'Agile TMS is how work gets done at DQ.',
     supportingLines: [
-      'It provides a clear structure for planning, prioritising, and executing work with shared visibility.',
-      'It helps teams stay aligned through ownership, progress tracking, and regular feedback.',
-      'This keeps delivery consistent, focused, and connected to real outcomes.',
+      'Agile TMS is how DQ turns strategy into daily execution, aligning teams through structured planning, prioritisation, and adaptive delivery.',
+      'It breaks work into clear, owned tasks with urgency and intent, creating momentum and purpose beyond simple task management.',
+      'Through sprints, check-ins, and feedback loops, Agile TMS ensures teams focus on outcomes, not activity, improving continuously together.',
     ],
     imageSrc: 'https://image2url.com/r2/default/images/1768468914162-67cf0162-662c-4e20-a446-07555ee3e728.png',
     imageAlt: 'Task planning and execution visual',
@@ -189,17 +189,21 @@ export function GHCLanding() {
 
       <main className="flex-grow">
         {/* HERO — Light Abstract with Honeycomb Language */}
-        <section className="relative w-full min-h-[80vh] flex flex-col overflow-hidden">
-          {/* Base background (premium gradient + soft radial accents) */}
+        <section className="relative w-full overflow-hidden flex flex-col isolate h-auto md:h-[600px] lg:h-[700px] pt-24 pb-20 md:pt-24 md:pb-20">
+          {/* Base background (hero image + premium gradient + soft radial accents) */}
           <div
             className="absolute inset-0"
             style={{
               backgroundColor: '#030F35',
               backgroundImage: `
+                url("https://i.ibb.co/8Dx3m6qQ/5f052a02-cc59-4a63-b65f-b5f2b391b6d4.png"),
                 radial-gradient(900px circle at 20% 30%, rgba(255, 255, 255, 0.10) 0%, transparent 60%),
                 radial-gradient(700px circle at 85% 70%, rgba(251, 85, 53, 0.22) 0%, transparent 55%),
                 linear-gradient(135deg, #FB5535 0%, #1A2E6E 50%, #030F35 100%)
               `,
+              backgroundSize: 'cover, 900px 900px, 700px 700px, 140% 140%',
+              backgroundPosition: 'center right, 20% 30%, 85% 70%, center',
+              backgroundRepeat: 'no-repeat, no-repeat, no-repeat, no-repeat',
             }}
           />
 
@@ -216,8 +220,20 @@ export function GHCLanding() {
             }}
           />
 
-          {/* Readability overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#030F35]/70 via-[#030F35]/35 to-[#030F35]/70" />
+          {/* Readability overlay + subtle hero image tint */}
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `
+                linear-gradient(to right, rgba(3, 15, 53, 0.80), rgba(3, 15, 53, 0.45), rgba(3, 15, 53, 0.75)),
+                url("https://i.ibb.co/prwYdmmg/Chat-GPT-Image-Jan-21-2026-05-23-35-PM.png")
+              `,
+              backgroundSize: '100% 100%, cover',
+              backgroundPosition: 'center, center',
+              backgroundRepeat: 'no-repeat, no-repeat',
+              mixBlendMode: 'multiply',
+            }}
+          />
 
           {/* Content */}
           <div className="relative z-10 flex-1 flex items-center">
@@ -290,9 +306,6 @@ export function GHCLanding() {
 
                       <div className={`${isEven ? 'lg:order-2' : 'lg:order-1'} flex flex-col justify-center max-w-2xl`}>
                         <div className="mb-6">
-                          <span className="text-sm font-bold tracking-wider text-[#FB5535] uppercase mb-4 block">
-                            {element.number} · {element.subtitle.toUpperCase()}
-                          </span>
                           <h2 className="text-[36px] font-bold text-[#030F35] mb-6 leading-tight">
                             {element.title}
                           </h2>
