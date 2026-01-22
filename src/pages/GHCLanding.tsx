@@ -184,54 +184,328 @@ export function GHCLanding() {
           50% { background-position: 100% 60%; }
           100% { background-position: 0% 0%; }
         }
+        @keyframes gradientDrift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        @keyframes floatSlow {
+          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+          25% { transform: translateY(-30px) translateX(15px) rotate(5deg); }
+          50% { transform: translateY(-15px) translateX(-15px) rotate(-5deg); }
+          75% { transform: translateY(15px) translateX(10px) rotate(3deg); }
+        }
+        @keyframes rotateSlow {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        @keyframes hexagonFloat {
+          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+          33% { transform: translateY(-25px) translateX(20px) rotate(60deg); }
+          66% { transform: translateY(15px) translateX(-15px) rotate(-60deg); }
+        }
+        @keyframes honeycombPulse {
+          0%, 100% { opacity: 0.2; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(1.05); }
+        }
+        @keyframes waveFlow {
+          0% { transform: translateX(0) translateY(0); }
+          25% { transform: translateX(20px) translateY(-10px); }
+          50% { transform: translateX(0) translateY(-20px); }
+          75% { transform: translateX(-20px) translateY(-10px); }
+          100% { transform: translateX(0) translateY(0); }
+        }
       `}</style>
       <Header />
 
       <main className="flex-grow">
         {/* HERO — Light Abstract with Honeycomb Language */}
         <section className="relative w-full overflow-hidden flex flex-col isolate h-auto md:h-[600px] lg:h-[700px] pt-24 pb-20 md:pt-24 md:pb-20">
-          {/* Base background (hero image + premium gradient + soft radial accents) */}
-          <div
-            className="absolute inset-0"
+          {/* Animated DWS Gradient Base */}
+          <div 
+            className="absolute inset-0 z-0"
             style={{
-              backgroundColor: '#030F35',
-              backgroundImage: `
-                url("https://i.ibb.co/8Dx3m6qQ/5f052a02-cc59-4a63-b65f-b5f2b391b6d4.png"),
-                radial-gradient(900px circle at 20% 30%, rgba(255, 255, 255, 0.10) 0%, transparent 60%),
-                radial-gradient(700px circle at 85% 70%, rgba(251, 85, 53, 0.22) 0%, transparent 55%),
-                linear-gradient(135deg, #FB5535 0%, #1A2E6E 50%, #030F35 100%)
-              `,
-              backgroundSize: 'cover, 900px 900px, 700px 700px, 140% 140%',
-              backgroundPosition: 'center right, 20% 30%, 85% 70%, center',
-              backgroundRepeat: 'no-repeat, no-repeat, no-repeat, no-repeat',
+              background: 'linear-gradient(135deg, #030F35 0%, #1A2E6E 25%, #030F35 50%, #1A2E6E 75%, #030F35 100%)',
+              backgroundSize: '300% 300%',
+              animation: 'gradientDrift 20s ease infinite'
             }}
           />
 
-          {/* Honeycomb outlines (image-based, no SVG nodes in DOM) */}
-          <div
-            className="absolute inset-0 pointer-events-none opacity-[0.18]"
-            style={{
-              backgroundImage: 'url("/images/ghc/honeycomb-outline.svg")',
-              backgroundRepeat: 'repeat',
-              backgroundSize: '520px',
-              backgroundPosition: '0% 0%',
-              mixBlendMode: 'overlay',
-              animation: 'honeycombDrift 40s ease-in-out infinite',
-            }}
-          />
+          {/* Animated Honeycomb Pattern Grid */}
+          <div className="absolute inset-0 opacity-[0.15] z-[1]">
+            <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="honeycombGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.4" />
+                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.2" />
+                </linearGradient>
+                <linearGradient id="honeycombGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#FB5535" stopOpacity="0.25" />
+                </linearGradient>
+              </defs>
+              
+              {/* Animated Hexagonal Grid */}
+              <g stroke="url(#honeycombGradient1)" strokeWidth="1.5" fill="none" opacity="0.5">
+                {[...Array(8)].map((_, i) => (
+                  [...Array(6)].map((_, j) => {
+                    const x = 200 + i * 240;
+                    const y = 150 + j * 180;
+                    const size = 60;
+                    const points = [
+                      `${x},${y - size}`,
+                      `${x + size * 0.866},${y - size * 0.5}`,
+                      `${x + size * 0.866},${y + size * 0.5}`,
+                      `${x},${y + size}`,
+                      `${x - size * 0.866},${y + size * 0.5}`,
+                      `${x - size * 0.866},${y - size * 0.5}`
+                    ].join(' ');
+                    return (
+                      <polygon
+                        key={`hex-${i}-${j}`}
+                        points={points}
+                        style={{
+                          animation: `honeycombPulse ${8 + (i + j) * 0.5}s ease-in-out infinite`,
+                          animationDelay: `${(i + j) * 0.3}s`
+                        }}
+                      />
+                    );
+                  })
+                ))}
+              </g>
+            </svg>
+          </div>
 
-          {/* Readability overlay + subtle hero image tint */}
+          {/* Animated Hexagonal Shapes */}
+          <div className="absolute inset-0 z-[2] pointer-events-none">
+            <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="hexGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#1A2E6E" stopOpacity="0.25" />
+                </linearGradient>
+                <linearGradient id="hexGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.2" />
+                </linearGradient>
+                <filter id="hexGlow">
+                  <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              
+              {/* Large Floating Hexagons */}
+              <g transform="translate(400, 300)" style={{ animation: 'hexagonFloat 18s ease-in-out infinite' }} filter="url(#hexGlow)">
+                <polygon
+                  points="0,-100 87,-50 87,50 0,100 -87,50 -87,-50"
+                  fill="url(#hexGradient1)"
+                  opacity="0.4"
+                />
+                <polygon
+                  points="0,-70 61,-35 61,35 0,70 -61,35 -61,-35"
+                  fill="none"
+                  stroke="url(#hexGradient2)"
+                  strokeWidth="2"
+                  opacity="0.5"
+                />
+              </g>
+              
+              <g transform="translate(1400, 500)" style={{ animation: 'hexagonFloat 22s ease-in-out infinite reverse', animationDelay: '3s' }} filter="url(#hexGlow)">
+                <polygon
+                  points="0,-120 104,-60 104,60 0,120 -104,60 -104,-60"
+                  fill="url(#hexGradient2)"
+                  opacity="0.35"
+                />
+                <polygon
+                  points="0,-85 74,-42.5 74,42.5 0,85 -74,42.5 -74,-42.5"
+                  fill="none"
+                  stroke="url(#hexGradient1)"
+                  strokeWidth="2"
+                  opacity="0.45"
+                />
+              </g>
+              
+              <g transform="translate(900, 700)" style={{ animation: 'hexagonFloat 20s ease-in-out infinite', animationDelay: '5s' }} filter="url(#hexGlow)">
+                <polygon
+                  points="0,-90 78,-45 78,45 0,90 -78,45 -78,-45"
+                  fill="url(#hexGradient1)"
+                  opacity="0.3"
+                />
+              </g>
+              
+              {/* Rotating Hexagon Rings */}
+              <g transform="translate(1200, 250)" style={{ animation: 'rotateSlow 35s linear infinite' }} filter="url(#hexGlow)">
+                <polygon
+                  points="0,-80 69,-40 69,40 0,80 -69,40 -69,-40"
+                  fill="none"
+                  stroke="url(#hexGradient1)"
+                  strokeWidth="2.5"
+                  opacity="0.4"
+                />
+                <polygon
+                  points="0,-55 48,-27.5 48,27.5 0,55 -48,27.5 -48,-27.5"
+                  fill="none"
+                  stroke="url(#hexGradient2)"
+                  strokeWidth="2"
+                  opacity="0.5"
+                />
+              </g>
+            </svg>
+          </div>
+
+          {/* Animated Connecting Lines (Honeycomb Network) */}
+          <div className="absolute inset-0 z-[2] pointer-events-none">
+            <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.3" />
+                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#FB5535" stopOpacity="0.3" />
+                </linearGradient>
+              </defs>
+              
+              {/* Network Connection Lines */}
+              <g stroke="url(#lineGradient)" strokeWidth="2" fill="none" opacity="0.4">
+                <path
+                  d="M 400 300 L 600 400 L 800 350 L 1000 450 L 1200 400"
+                  style={{
+                    animation: 'waveFlow 25s ease-in-out infinite',
+                    strokeDasharray: '8,8'
+                  }}
+                />
+                <path
+                  d="M 500 500 L 700 600 L 900 550 L 1100 650 L 1300 600"
+                  style={{
+                    animation: 'waveFlow 28s ease-in-out infinite reverse',
+                    animationDelay: '2s',
+                    strokeDasharray: '10,10'
+                  }}
+                />
+                <path
+                  d="M 300 600 L 500 700 L 700 650 L 900 750 L 1100 700"
+                  style={{
+                    animation: 'waveFlow 30s ease-in-out infinite',
+                    animationDelay: '4s',
+                    strokeDasharray: '12,12'
+                  }}
+                />
+              </g>
+              
+              {/* Connection Nodes */}
+              <g opacity="0.5">
+                <circle cx="400" cy="300" r="6" fill="#FB5535" style={{ animation: 'pulse 3s ease-in-out infinite' }} />
+                <circle cx="600" cy="400" r="6" fill="#1A2E6E" style={{ animation: 'pulse 3.5s ease-in-out infinite', animationDelay: '0.5s' }} />
+                <circle cx="800" cy="350" r="6" fill="#FB5535" style={{ animation: 'pulse 4s ease-in-out infinite', animationDelay: '1s' }} />
+                <circle cx="1000" cy="450" r="6" fill="#1A2E6E" style={{ animation: 'pulse 3.2s ease-in-out infinite', animationDelay: '1.5s' }} />
+                <circle cx="1200" cy="400" r="6" fill="#FB5535" style={{ animation: 'pulse 3.8s ease-in-out infinite', animationDelay: '2s' }} />
+              </g>
+            </svg>
+          </div>
+
+          {/* Animated Floating Particles (Honeycomb-inspired) */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
+            {[...Array(15)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute"
+                style={{
+                  width: `${40 + (i % 3) * 15}px`,
+                  height: `${40 + (i % 3) * 15}px`,
+                  left: `${3 + (i * 6.5)}%`,
+                  top: `${8 + (i % 6) * 15}%`,
+                  background: i % 4 === 0 
+                    ? 'radial-gradient(circle, rgba(251, 85, 53, 0.5) 0%, rgba(251, 85, 53, 0.2) 50%, transparent 80%)' 
+                    : 'radial-gradient(circle, rgba(26, 46, 110, 0.4) 0%, rgba(26, 46, 110, 0.15) 50%, transparent 80%)',
+                  clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                  animation: `floatSlow ${14 + i * 1.5}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.6}s`,
+                  filter: 'blur(15px)',
+                  boxShadow: i % 4 === 0 
+                    ? '0 0 50px rgba(251, 85, 53, 0.4)' 
+                    : '0 0 50px rgba(26, 46, 110, 0.3)',
+                }}
+              />
+            ))}
+                </div>
+
+          {/* Pulsing Radial Glows */}
+          <div className="absolute inset-0 z-[1] pointer-events-none">
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: '800px',
+                height: '800px',
+                left: '15%',
+                top: '25%',
+                background: 'radial-gradient(circle, rgba(251, 85, 53, 0.25) 0%, transparent 70%)',
+                filter: 'blur(100px)',
+                animation: 'pulse 9s ease-in-out infinite'
+              }}
+            />
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: '750px',
+                height: '750px',
+                right: '20%',
+                bottom: '20%',
+                background: 'radial-gradient(circle, rgba(26, 46, 110, 0.3) 0%, transparent 70%)',
+                filter: 'blur(90px)',
+                animation: 'pulse 11s ease-in-out infinite',
+                animationDelay: '3s'
+              }}
+            />
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: '600px',
+                height: '600px',
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                background: 'radial-gradient(circle, rgba(251, 85, 53, 0.15) 0%, transparent 65%)',
+                filter: 'blur(80px)',
+                animation: 'pulse 10s ease-in-out infinite',
+                animationDelay: '5s'
+              }}
+            />
+              </div>
+
+          {/* Animated Light Sweeps */}
+          <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(60deg, transparent 20%, rgba(251, 85, 53, 0.1) 50%, transparent 80%)',
+                animation: 'rotate 30s linear infinite',
+                transformOrigin: 'center center',
+                opacity: 0.7
+              }}
+            />
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(-60deg, transparent 20%, rgba(26, 46, 110, 0.1) 50%, transparent 80%)',
+                animation: 'rotate 35s linear infinite reverse',
+                transformOrigin: 'center center',
+                opacity: 0.6,
+                animationDelay: '2s'
+              }}
+            />
+            </div>
+
+          {/* High Contrast Area on Left for Text Readability */}
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 z-[1]"
             style={{
-              backgroundImage: `
-                linear-gradient(to right, rgba(3, 15, 53, 0.80), rgba(3, 15, 53, 0.45), rgba(3, 15, 53, 0.75)),
-                url("https://i.ibb.co/prwYdmmg/Chat-GPT-Image-Jan-21-2026-05-23-35-PM.png")
-              `,
-              backgroundSize: '100% 100%, cover',
-              backgroundPosition: 'center, center',
-              backgroundRepeat: 'no-repeat, no-repeat',
-              mixBlendMode: 'multiply',
+              background: 'radial-gradient(ellipse 1000px 130% at 0% 50%, rgba(3, 15, 53, 0.7) 0%, rgba(3, 15, 53, 0.35) 50%, transparent 80%)',
             }}
           />
 
@@ -240,7 +514,7 @@ export function GHCLanding() {
             <div className="container mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20">
               <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 items-center">
-                  <FadeInUpOnScroll>
+                <FadeInUpOnScroll>
                     <div className="w-full max-w-4xl">
                       <h1
                         className="text-[72px] text-white mb-8 md:mb-10 text-left font-sans"
@@ -250,8 +524,8 @@ export function GHCLanding() {
                           letterSpacing: '-0.01em'
                         }}
                       >
-                        GHC: The Organisational DNA of DigitalQatalyst
-                      </h1>
+                        DQ Golden Honeycomb of Competencies (GHC)
+                  </h1>
 
                       <div className="mb-12 max-w-4xl">
                         <p 
@@ -260,11 +534,11 @@ export function GHCLanding() {
                             fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
                           }}
                         >
-                          The GHC is DQ&apos;s shared DNA—bringing together purpose, ways of working, collaboration, and seven core elements that guide every associate to create value, grow with confidence, and contribute consistently to our digital mission.
+                          The DQ Golden Honeycomb of Competencies (GHC) is a master framework a Framework of Frameworks that articulates the complete DNA of DigitalQatalyst.
                         </p>
                       </div>
                     </div>
-                  </FadeInUpOnScroll>
+                </FadeInUpOnScroll>
                 </div>
               </div>
             </div>

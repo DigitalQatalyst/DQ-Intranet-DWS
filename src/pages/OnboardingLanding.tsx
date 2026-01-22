@@ -123,6 +123,28 @@ export function OnboardingLanding() {
           0%, 100% { box-shadow: 0 0 20px rgba(251, 85, 53, 0.3); }
           50% { box-shadow: 0 0 40px rgba(251, 85, 53, 0.6), 0 0 60px rgba(3, 15, 53, 0.3); }
         }
+        @keyframes particleFloat {
+          0%, 100% { 
+            transform: translateY(0px) translateX(0px) scale(1); 
+            opacity: 0.6;
+          }
+          25% { 
+            transform: translateY(-40px) translateX(20px) scale(1.1); 
+            opacity: 0.8;
+          }
+          50% { 
+            transform: translateY(-20px) translateX(-20px) scale(0.9); 
+            opacity: 0.7;
+          }
+          75% { 
+            transform: translateY(20px) translateX(15px) scale(1.05); 
+            opacity: 0.75;
+          }
+        }
+        @keyframes meshPulse {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.6; }
+        }
         .cinematic-gradient {
           background: linear-gradient(135deg, #0B1C3F 0%, #0E2A5A 25%, #123A6F 50%, #0E2A5A 75%, #0B1C3F 100%);
           background-size: 200% 200%;
@@ -172,47 +194,104 @@ export function OnboardingLanding() {
         <section 
           className="relative w-full overflow-hidden flex flex-col isolate h-auto md:h-[600px] lg:h-[700px] pt-24 pb-20 md:pt-24 md:pb-20"
         >
-          {/* Background Image */}
+          {/* Animated DWS Gradient Base */}
           <div 
             className="absolute inset-0 z-0"
             style={{
-              backgroundImage: 'url("https://i.ibb.co/bg7Shq8h/employee-onboarding-and-training.jpg"), linear-gradient(to bottom, #030F35 0%, #1A2E6E 30%, #030F35 70%, #FB5535 100%)',
-              backgroundSize: 'cover, 100% 100%',
-              backgroundPosition: 'center, center',
-              backgroundRepeat: 'no-repeat, no-repeat',
-              backgroundColor: '#030F35'
+              background: 'linear-gradient(135deg, #030F35 0%, #1A2E6E 30%, #030F35 60%, #1A2E6E 90%, #030F35 100%)',
+              backgroundSize: '400% 400%',
+              animation: 'gradientDrift 15s ease infinite'
             }}
           />
-          {/* Enhanced Gradient Overlay with Depth */}
-          <div
-            className="absolute inset-0 z-[1]"
-            style={{
-              background:
-                'linear-gradient(to bottom, rgba(3, 15, 53, 0.75) 0%, rgba(26, 46, 110, 0.65) 35%, rgba(3, 15, 53, 0.5) 80%, rgba(251, 85, 53, 0.2) 100%)',
-              backgroundSize: '100% 100%',
-              backgroundRepeat: 'no-repeat'
-            }}
-          />
-          {/* Modern Animated Mesh Background */}
-          <div className="absolute inset-0 opacity-[0.15] z-[2]">
+
+          {/* Animated Mesh Grid */}
+          <div className="absolute inset-0 opacity-[0.12] z-[1]">
             <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
               <defs>
-                <linearGradient id="meshGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.6" />
-                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.2" />
+                <linearGradient id="meshGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.3" />
+                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.15" />
                 </linearGradient>
                 <linearGradient id="meshGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.5" />
-                  <stop offset="100%" stopColor="#FB5535" stopOpacity="0.3" />
+                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#FB5535" stopOpacity="0.2" />
                 </linearGradient>
-                <radialGradient id="glowEffect" cx="50%" cy="50%">
-                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.4" />
-                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.2" />
-                  <stop offset="100%" stopColor="#030F35" stopOpacity="0" />
-                </radialGradient>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              </defs>
+              
+              {/* Animated Grid Lines */}
+              <g stroke="url(#meshGradient)" strokeWidth="1">
+                {[...Array(15)].map((_, i) => (
+                  <line
+                    key={`v-${i}`}
+                    x1={i * 128}
+                    y1="0"
+                    x2={i * 128}
+                    y2="1080"
+                    opacity="0.4"
+                    style={{
+                      animation: `pulse ${6 + i * 0.5}s ease-in-out infinite`,
+                      animationDelay: `${i * 0.2}s`
+                    }}
+                  />
+                ))}
+                {[...Array(12)].map((_, i) => (
+                  <line
+                    key={`h-${i}`}
+                    x1="0"
+                    y1={i * 90}
+                    x2="1920"
+                    y2={i * 90}
+                    opacity="0.4"
+                    style={{
+                      animation: `pulse ${8 + i * 0.5}s ease-in-out infinite`,
+                      animationDelay: `${i * 0.3}s`
+                    }}
+                  />
+                ))}
+              </g>
+            </svg>
+          </div>
+
+          {/* Animated Floating Particles */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
+            {[...Array(12)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  width: `${60 + (i % 4) * 20}px`,
+                  height: `${60 + (i % 4) * 20}px`,
+                  left: `${5 + (i * 8)}%`,
+                  top: `${10 + (i % 5) * 18}%`,
+                  background: i % 3 === 0 
+                    ? 'radial-gradient(circle, rgba(251, 85, 53, 0.4) 0%, rgba(251, 85, 53, 0.1) 50%, transparent 80%)' 
+                    : 'radial-gradient(circle, rgba(26, 46, 110, 0.3) 0%, rgba(26, 46, 110, 0.1) 50%, transparent 80%)',
+                  animation: `floatSlow ${12 + i * 2}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.8}s`,
+                  filter: 'blur(20px)',
+                  boxShadow: i % 3 === 0 
+                    ? '0 0 60px rgba(251, 85, 53, 0.3)' 
+                    : '0 0 60px rgba(26, 46, 110, 0.2)',
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Animated Geometric Shapes */}
+          <div className="absolute inset-0 z-[2] pointer-events-none">
+            <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="shapeGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#1A2E6E" stopOpacity="0.2" />
+                </linearGradient>
+                <linearGradient id="shapeGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.25" />
+                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.15" />
+                </linearGradient>
+                <filter id="glowFilter">
+                  <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
                   <feMerge>
                     <feMergeNode in="coloredBlur"/>
                     <feMergeNode in="SourceGraphic"/>
@@ -220,188 +299,170 @@ export function OnboardingLanding() {
                 </filter>
               </defs>
               
-              {/* Dynamic Mesh Grid */}
-              <g opacity="0.4">
-                {[...Array(12)].map((_, i) => (
-                  <line
-                    key={`v-${i}`}
-                    x1={i * 160}
-                    y1="0"
-                    x2={i * 160}
-                    y2="1080"
-                    stroke="url(#meshGradient1)"
-                    strokeWidth="1.5"
-                    style={{
-                      animation: 'pulse 6s ease-in-out infinite',
-                      animationDelay: `${i * 0.3}s`,
-                      opacity: 0.3
-                    }}
-                  />
-                ))}
-                {[...Array(8)].map((_, i) => (
-                  <line
-                    key={`h-${i}`}
-                    x1="0"
-                    y1={i * 135}
-                    x2="1920"
-                    y2={i * 135}
-                    stroke="url(#meshGradient2)"
-                    strokeWidth="1.5"
-                    style={{
-                      animation: 'pulse 8s ease-in-out infinite',
-                      animationDelay: `${i * 0.5}s`,
-                      opacity: 0.3
-                    }}
-                  />
-                ))}
+              {/* Animated Circles */}
+              <g style={{ animation: 'floatSlow 20s ease-in-out infinite' }} filter="url(#glowFilter)">
+                <circle cx="300" cy="300" r="120" fill="url(#shapeGradient1)" opacity="0.4" />
+                <circle cx="300" cy="300" r="80" fill="none" stroke="url(#shapeGradient2)" strokeWidth="2" opacity="0.5" />
               </g>
               
-              {/* Flowing Wave Paths */}
-              <path
-                d="M 0 250 Q 300 150, 600 250 T 1200 250 T 1920 250"
-                stroke="url(#meshGradient1)"
-                strokeWidth="3"
-                fill="none"
-                filter="url(#glow)"
-                style={{
-                  animation: 'floatSlow 20s ease-in-out infinite',
-                  opacity: 0.5,
-                  strokeDasharray: '8,8'
-                }}
-              />
-              <path
-                d="M 0 550 Q 400 450, 800 550 T 1600 550 T 1920 550"
-                stroke="url(#meshGradient2)"
-                strokeWidth="2.5"
-                fill="none"
-                filter="url(#glow)"
-                style={{
-                  animation: 'floatSlow 25s ease-in-out infinite reverse',
-                  animationDelay: '2s',
-                  opacity: 0.4,
-                  strokeDasharray: '10,10'
-                }}
-              />
-              <path
-                d="M 0 800 Q 500 700, 1000 800 T 1920 800"
-                stroke="url(#meshGradient1)"
-                strokeWidth="2"
-                fill="none"
-                filter="url(#glow)"
-                style={{
-                  animation: 'floatSlow 18s ease-in-out infinite',
-                  animationDelay: '4s',
-                  opacity: 0.35,
-                  strokeDasharray: '12,12'
-                }}
-              />
-              
-              {/* Animated Geometric Shapes with Glow */}
-              <g style={{ animation: 'floatSlow 15s ease-in-out infinite' }} filter="url(#glow)">
-                <circle cx="250" cy="350" r="80" fill="url(#meshGradient1)" opacity="0.4" />
-                <circle cx="250" cy="350" r="50" fill="none" stroke="url(#meshGradient2)" strokeWidth="2" opacity="0.5" />
+              <g style={{ animation: 'floatSlow 25s ease-in-out infinite reverse', animationDelay: '3s' }} filter="url(#glowFilter)">
+                <circle cx="1600" cy="600" r="150" fill="url(#shapeGradient2)" opacity="0.35" />
+                <circle cx="1600" cy="600" r="100" fill="none" stroke="url(#shapeGradient1)" strokeWidth="2" opacity="0.45" />
               </g>
               
-              <g style={{ animation: 'floatSlow 18s ease-in-out infinite', animationDelay: '3s' }} filter="url(#glow)">
-                <circle cx="1650" cy="650" r="100" fill="url(#meshGradient2)" opacity="0.35" />
-                <circle cx="1650" cy="650" r="65" fill="none" stroke="url(#meshGradient1)" strokeWidth="2" opacity="0.45" />
-              </g>
-              
-              {/* Hexagon Patterns with Rotation */}
-              <g transform="translate(1100, 180)" style={{ animation: 'rotateSlow 40s linear infinite' }} filter="url(#glow)">
+              {/* Animated Hexagons */}
+              <g transform="translate(1000, 200)" style={{ animation: 'rotateSlow 40s linear infinite' }} filter="url(#glowFilter)">
                 <polygon
-                  points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30"
+                  points="0,-70 60,-35 60,35 0,70 -60,35 -60,-35"
                   fill="none"
-                  stroke="url(#meshGradient1)"
+                  stroke="url(#shapeGradient1)"
                   strokeWidth="2"
                   opacity="0.4"
                 />
                 <polygon
-                  points="0,-40 35,-20 35,20 0,40 -35,20 -35,-20"
+                  points="0,-50 43,-25 43,25 0,50 -43,25 -43,-25"
                   fill="none"
-                  stroke="url(#meshGradient2)"
+                  stroke="url(#shapeGradient2)"
                   strokeWidth="1.5"
                   opacity="0.5"
                 />
               </g>
               
-              <g transform="translate(450, 750)" style={{ animation: 'rotateSlow 35s linear infinite reverse' }} filter="url(#glow)">
+              <g transform="translate(500, 700)" style={{ animation: 'rotateSlow 35s linear infinite reverse' }} filter="url(#glowFilter)">
                 <polygon
-                  points="0,-45 39,-22.5 39,22.5 0,45 -39,22.5 -39,-22.5"
+                  points="0,-55 48,-27.5 48,27.5 0,55 -48,27.5 -48,-27.5"
                   fill="none"
-                  stroke="url(#meshGradient2)"
+                  stroke="url(#shapeGradient2)"
                   strokeWidth="2"
                   opacity="0.4"
                 />
               </g>
               
-              {/* Enhanced Radial Glow Effects */}
-              <circle cx="350" cy="280" r="250" fill="url(#glowEffect)" style={{ animation: 'pulse 10s ease-in-out infinite' }} />
-              <circle cx="1550" cy="580" r="300" fill="url(#glowEffect)" style={{ animation: 'pulse 12s ease-in-out infinite', animationDelay: '5s' }} />
-              <circle cx="900" cy="500" r="180" fill="url(#glowEffect)" style={{ animation: 'pulse 9s ease-in-out infinite', animationDelay: '2.5s' }} />
+              {/* Animated Wave Paths */}
+              <path
+                d="M 0 400 Q 400 300, 800 400 T 1600 400 T 1920 400"
+                stroke="url(#shapeGradient1)"
+                strokeWidth="3"
+                fill="none"
+                filter="url(#glowFilter)"
+                opacity="0.5"
+                style={{
+                  animation: 'floatSlow 30s ease-in-out infinite',
+                  strokeDasharray: '10,10'
+                }}
+              />
+              <path
+                d="M 0 600 Q 500 500, 1000 600 T 1920 600"
+                stroke="url(#shapeGradient2)"
+                strokeWidth="2.5"
+                fill="none"
+                filter="url(#glowFilter)"
+                opacity="0.4"
+                style={{
+                  animation: 'floatSlow 35s ease-in-out infinite reverse',
+                  animationDelay: '2s',
+                  strokeDasharray: '12,12'
+                }}
+              />
             </svg>
           </div>
 
-          {/* Enhanced Floating Orbs with More Presence */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
-            {[...Array(8)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full blur-md"
-                style={{
-                  width: `${80 + i * 25}px`,
-                  height: `${80 + i * 25}px`,
-                  left: `${10 + i * 12}%`,
-                  top: `${15 + (i % 3) * 28}%`,
-                  background: i % 2 === 0 
-                    ? 'radial-gradient(circle, rgba(251, 85, 53, 0.25) 0%, rgba(251, 85, 53, 0.1) 50%, transparent 80%)' 
-                    : 'radial-gradient(circle, rgba(26, 46, 110, 0.25) 0%, rgba(26, 46, 110, 0.1) 50%, transparent 80%)',
-                  animation: `floatSlow ${14 + i * 2}s ease-in-out infinite`,
-                  animationDelay: `${i * 1.2}s`,
-                  boxShadow: i % 2 === 0 
-                    ? '0 0 40px rgba(251, 85, 53, 0.2)' 
-                    : '0 0 40px rgba(26, 46, 110, 0.2)',
-                }}
-              />
-            ))}
+          {/* Pulsing Glow Effects */}
+          <div className="absolute inset-0 z-[1] pointer-events-none">
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: '600px',
+                height: '600px',
+                left: '20%',
+                top: '30%',
+                background: 'radial-gradient(circle, rgba(251, 85, 53, 0.2) 0%, transparent 70%)',
+                filter: 'blur(80px)',
+                animation: 'pulse 8s ease-in-out infinite'
+              }}
+            />
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: '700px',
+                height: '700px',
+                right: '15%',
+                bottom: '25%',
+                background: 'radial-gradient(circle, rgba(26, 46, 110, 0.25) 0%, transparent 70%)',
+                filter: 'blur(90px)',
+                animation: 'pulse 10s ease-in-out infinite',
+                animationDelay: '4s'
+              }}
+            />
           </div>
+
+          {/* Animated Light Rays */}
+          <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(45deg, transparent 30%, rgba(251, 85, 53, 0.08) 50%, transparent 70%)',
+                animation: 'rotate 25s linear infinite',
+                transformOrigin: 'center center',
+                opacity: 0.6
+              }}
+            />
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(-45deg, transparent 30%, rgba(26, 46, 110, 0.08) 50%, transparent 70%)',
+                animation: 'rotate 30s linear infinite reverse',
+                transformOrigin: 'center center',
+                opacity: 0.5,
+                animationDelay: '2s'
+              }}
+            />
+          </div>
+
+          {/* High Contrast Area on Left for Text Readability */}
+          <div
+            className="absolute inset-0 z-[1]"
+            style={{
+              background: 'radial-gradient(ellipse 900px 120% at 0% 50%, rgba(3, 15, 53, 0.6) 0%, rgba(3, 15, 53, 0.3) 45%, transparent 75%)',
+            }}
+          />
 
           <div className="w-full flex items-center relative z-10">
             <div className="container mx-auto px-4 md:px-6 lg:px-8 xl:px-12">
-              <div className="max-w-5xl">
-                <FadeInUpOnScroll>
-                  <h1 
-                    className="text-[48px] md:text-[56px] lg:text-[72px] xl:text-[80px] text-white mb-6 text-left font-sans"
-                    style={{
-                      fontWeight: 700,
-                      lineHeight: 1.1,
-                      color: '#FFFFFF'
-                    }}
-                  >
-                    Welcome to DQ Onboarding
-                  </h1>
-                  <p className="text-lg md:text-xl text-white/95 mb-8 font-normal leading-relaxed text-left max-w-3xl" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
-                    Your 3-month onboarding journey helps you integrate into DQ, adopt our DNA, and gain confidence in your role.
-                  </p>
-                </FadeInUpOnScroll>
-
-                {/* Primary CTA button */}
-                <StaggeredFadeIn
-                  staggerDelay={0.1}
-                  className="mb-12"
+            <div className="max-w-5xl">
+              <FadeInUpOnScroll>
+                <h1 
+                  className="text-[48px] md:text-[56px] lg:text-[72px] xl:text-[80px] text-white mb-6 text-left font-sans"
+                  style={{
+                    fontWeight: 700,
+                    lineHeight: 1.1,
+                    color: '#FFFFFF'
+                  }}
                 >
-                  <button
-                    onClick={handleStartOnboarding}
-                    className="px-8 py-3.5 bg-white text-[#030F35] font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-300 flex items-center justify-center gap-2 text-base group"
-                  >
-                    <span>View the 3-Month Onboarding Guide</span>
-                    <ArrowRight size={18} color="#FB5535" className="transition-transform group-hover:translate-x-1" />
-                  </button>
-                </StaggeredFadeIn>
+                    Welcome to DQ Onboarding
+                </h1>
+                <p className="text-lg md:text-xl text-white/95 mb-8 font-normal leading-relaxed text-left max-w-3xl" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
+                    Your 3-month onboarding journey helps you integrate into DQ, adopt our DNA, and gain confidence in your role.
+                </p>
+              </FadeInUpOnScroll>
 
-                {/* (Hero KPIs removed – hero now focuses only on welcome copy and primary CTA) */}
+              {/* Primary CTA button */}
+              <StaggeredFadeIn
+                staggerDelay={0.1}
+                className="mb-12"
+              >
+                <button
+                  onClick={handleStartOnboarding}
+                  className="px-8 py-3.5 bg-white text-[#030F35] font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-300 flex items-center justify-center gap-2 text-base group"
+                >
+                    <span>View the 3-Month Onboarding Guide</span>
+                  <ArrowRight size={18} color="#FB5535" className="transition-transform group-hover:translate-x-1" />
+                </button>
+              </StaggeredFadeIn>
+
+              {/* (Hero KPIs removed – hero now focuses only on welcome copy and primary CTA) */}
               </div>
-            </div>
+          </div>
           </div>
 
           {/* Scroll-down arrow */}
@@ -533,7 +594,7 @@ export function OnboardingLanding() {
                       <p>Transformation isn’t something we talk about; it’s something we deliberately design, build, and improve.</p>
                       <p>The Agile 6xD Framework is how DQ designs, builds, and scales digital transformation — not as a one-time project, but as a living, evolving process.</p>
                       <p>It’s built on Six Essential Perspectives — each answering a fundamental question every organisation must face on its path to relevance in the digital age.</p>
-                    </div>
+                              </div>
                     <button
                       onClick={handleExplore6XD}
                       className="inline-flex items-center gap-2 px-7 py-3.5 bg-[#030F35] text-white font-semibold rounded-lg hover:bg-[#0B1C3F] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] group"
@@ -576,7 +637,7 @@ export function OnboardingLanding() {
                 </p>
                     <h2 className="text-[36px] font-bold text-[#030F35] mb-8 leading-tight">
                       Your Role at DQ
-                    </h2>
+                </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-10 space-y-3">
                       <p>This is where DQ&apos;s mission connects directly to your work.</p>
                       <p>Every role is designed with clear ownership, responsibility, and purpose.</p>
@@ -604,7 +665,7 @@ export function OnboardingLanding() {
                           'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
                       }}
                     />
-                  </div>
+                        </div>
                 </FadeInUpOnScroll>
                         </div>
                       </div>
