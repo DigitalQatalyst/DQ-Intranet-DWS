@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from './FilterSidebar.js';
 import { MarketplaceGrid } from './MarketplaceGrid.js';
 import { SearchBar } from '../SearchBar.js';
-import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
+import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon, InfoIcon } from 'lucide-react';
 import { ErrorDisplay, CourseCardSkeleton } from '../SkeletonLoader.js';
 import { fetchMarketplaceItems, fetchMarketplaceFilters } from '../../services/marketplace.js';
 import { getMarketplaceConfig, getTabSpecificFilters } from '../../utils/marketplaceConfig.js';
@@ -1849,18 +1849,20 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                   </button>
                 ))}
               </nav>
-            </div>
-            
-            {/* Tab Description - Below Navigation */}
-            {activeTab && TAB_DESCRIPTIONS[activeTab] && (
-              <div className="mb-4 bg-white rounded-lg p-3 border border-gray-200 relative">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <p className="text-gray-700">{TAB_DESCRIPTIONS[activeTab].description}</p>
-                  </div>
+              {/* Tab Description - Integrated with tabs */}
+              {activeTab && TAB_DESCRIPTIONS[activeTab] && (
+                <div className="pt-4 pb-4">
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {TAB_DESCRIPTIONS[activeTab].description}
+                  </p>
+                  {TAB_DESCRIPTIONS[activeTab].author && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      {TAB_DESCRIPTIONS[activeTab].author}
+                    </p>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </>
         )}
 
@@ -1896,17 +1898,6 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
 
           return (
             <>
-              {/* Tab Description - Above Navigation */}
-              {activeDesignSystemTab && DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab] && (
-                <div className="mb-4 bg-white rounded-lg p-3 border border-gray-200 relative">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <p className="text-gray-700">{DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].description}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
               <div className="mb-6 border-b border-gray-200">
                 <nav className="flex space-x-8" aria-label="Design System navigation">
                   {(['cids', 'vds', 'cds'] as DesignSystemTab[]).map(tab => (
@@ -1927,6 +1918,19 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                     </button>
                   ))}
                 </nav>
+                {/* Tab Description - Integrated with tabs */}
+                {activeDesignSystemTab && DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab] && (
+                  <div className="pt-4 pb-4">
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].description}
+                    </p>
+                    {DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].author && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        {DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].author}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </>
           );
