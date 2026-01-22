@@ -102,6 +102,12 @@ export const SERVICE_CUSTOM_TABS: Record<string, Record<string, CustomTab[]>> = 
       { id: 'role_justification', label: 'Role Justification' },
       { id: 'role_scope_competencies', label: 'Scope & Competencies' },
     ],
+    '23': [ // Work From Home Request
+      { id: 'wfh_process', label: 'WFH Process' },
+      { id: 'roles_responsibilities', label: 'Roles & Responsibilities' },
+      { id: 'daily_requirements', label: 'Daily Requirements' },
+      { id: 'guidelines_principles', label: 'Guidelines & Principles' },
+    ],
     'dw-001': [ // Portfolio Analysis
       { id: 'about', label: 'About' },
       { id: 'requirements', label: 'Requirements' },
@@ -1107,6 +1113,214 @@ const SERVICE_DETAILS_CONTENT: Record<
         ],
         action: {
           label: 'Submit Requisition',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+    },
+    // Work From Home Request
+    '23': {
+      wfh_process: {
+        heading: 'Work From Home Request Process',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'The Work From Home (WFH) Guidelines provide structured and standardized processes for the implementation, approval, and management of remote work across DQ. These guidelines ensure that remote work practices promote accountability, productivity, and collaboration while maintaining operational efficiency and compliance with company standards.',
+          },
+          { type: 'p', text: 'WFH Request Process:' },
+          {
+            type: 'ol',
+            items: [
+              'Step 1: DM or Call HR and Line Manager - Contact the HRA team for approval and notify your line manager via DM, providing details of the situation and the request.',
+              'Step 2: Post in HR Channel - Submit the WFH request in the HR Channel, including reason, date(s), and expected working hours alongside a screenshot of the request on the Approvals app.',
+              'Step 3: Notify the Working Team via Logistics - Once approved, notify current WFH configuration in the logistics channel to ensure the team is aware of the arrangement.',
+            ],
+          },
+          { type: 'p', text: 'Important Requirements:' },
+          {
+            type: 'ul',
+            items: [
+              'Initiate WFH requests at least 24 hours in advance following the approved procedure',
+              'Ensure WFH arrangements do not disrupt workflow or team operations',
+              'Webcam must be turned on for the duration of WFH sessions to ensure accountability',
+              'Remain active on DQ Live24 throughout the workday',
+            ],
+          },
+          {
+            type: 'p',
+            text:
+              'Scope: These guidelines apply to all DQ Associates and cover the end-to-end process of requesting, approving, monitoring, and reporting WFH arrangements to ensure transparency and consistency across all practices.',
+          },
+        ],
+        action: {
+          label: 'Submit WFH Request',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      roles_responsibilities: {
+        heading: 'Roles and Responsibilities',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'The Work From Home process involves collaboration between Associates, Line Managers, HR & Administration, and Scrum Masters to ensure remote work is managed effectively and in compliance with company policies.',
+          },
+          { type: 'p', text: 'Associate Responsibilities:' },
+          {
+            type: 'ul',
+            items: [
+              'Initiate WFH requests at least 24 hours in advance following the approved procedure',
+              'Remain active on DQ Live24 throughout the workday and maintain engagement in team channels',
+              'Submit daily plan updates by 8:00 AM and end-of-day reports by 5:00 PM in the HR Channel',
+              'Comply with all WFH and WR communication, attendance, and behavior requirements',
+              'Ensure that WFH arrangements do not disrupt workflow',
+              'Webcam should be turned on for the duration of WFH sessions to ensure accountability and active participation',
+            ],
+          },
+          { type: 'p', text: 'Line Manager Responsibilities:' },
+          {
+            type: 'ul',
+            items: [
+              'Monitor deliverables and track performance of remote associates',
+              'Flag repeated non-compliance to HR for corrective action',
+              'Ensure team productivity is maintained during WFH periods',
+            ],
+          },
+          { type: 'p', text: 'Human Resources & Administration (HRA) Responsibilities:' },
+          {
+            type: 'ul',
+            items: [
+              'Review and provide approval for WFH requests based on operational needs and policy alignment',
+              'Maintain records of approved requests and ensure policy compliance across all units',
+              'Oversee overall WFH compliance and governance',
+              'Track participation, flag policy breaches, and recommend corrective actions when required',
+            ],
+          },
+          { type: 'p', text: 'Scrum Master Responsibilities:' },
+          {
+            type: 'ul',
+            items: [
+              'Monitor team engagement and punctuality in working rooms',
+              'Ensure associates log in by 8:00 AM and participate actively in working rooms',
+              'Escalate any issues to HR promptly',
+              'Monitor webcam usage to ensure compliance with participation requirements',
+            ],
+          },
+        ],
+        action: {
+          label: 'Submit WFH Request',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      daily_requirements: {
+        heading: 'Daily Work Requirements',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'Associates working from home must adhere to specific daily requirements to ensure productivity, accountability, and seamless collaboration with the team.',
+          },
+          { type: 'p', text: 'Login & Sync Requirement:' },
+          {
+            type: 'ul',
+            items: [
+              'Log in to DQ Live24 and Working Rooms by 9:00 AM sharp (DXB Time)',
+              'Immediately sync with the Scrum Master for alignment on team priorities and tasks',
+              'Ensure webcam is turned on for tracking and participation verification',
+            ],
+          },
+          { type: 'p', text: 'Daily Plan Submission (9:00 AM DXB Time):' },
+          {
+            type: 'ul',
+            items: [
+              'Post a daily plan in the HR Channel detailing key actions, deliverables, and relevant channel engagement links',
+            ],
+          },
+          { type: 'p', text: 'Work Execution & Communication:' },
+          {
+            type: 'ul',
+            items: [
+              'Maintain active participation in Working Rooms',
+              'Follow Working Rooms guidelines throughout the workday',
+              'Be responsive and available for team communication',
+            ],
+          },
+          { type: 'p', text: 'End-of-Day Update (6:00 PM DXB Time):' },
+          {
+            type: 'ul',
+            items: [
+              'Post a concise end-of-day summary in the HR thread',
+              'Outline completed tasks, pending actions, and any blockers encountered',
+            ],
+          },
+          { type: 'p', text: 'Behavior and Conduct in Working Rooms:' },
+          {
+            type: 'ul',
+            items: [
+              'Active Participation: Associates must participate in their respective working sessions',
+              'Adherence to Rules: Be punctual, professional, and responsive during all work sessions',
+              'Tracking: Scrum Masters will monitor attendance, daily plan submissions, and engagement levels',
+            ],
+          },
+        ],
+        action: {
+          label: 'Submit WFH Request',
+          urlField: 'requestUrl',
+          fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
+        },
+      },
+      guidelines_principles: {
+        heading: 'Guiding Principles & Controls',
+        blocks: [
+          {
+            type: 'p',
+            text:
+              'The Work From Home guidelines are built on core principles that ensure remote work arrangements benefit both the associate and the organization while maintaining high standards of accountability and productivity.',
+          },
+          { type: 'p', text: 'WFH Guiding Principles:' },
+          {
+            type: 'ul',
+            items: [
+              'Transparency: Ensure all WFH activities and deliverables are visible to Line Managers, HR, and Scrum Masters',
+              'Accountability: Associates must deliver results and maintain communication discipline',
+              'Fairness: Approvals are based on performance, suitability, and operational requirements',
+              'Compliance: Adherence to defined WFH workflows and timelines is mandatory',
+              'Collaboration: Use approved DQ tools for communication and updates',
+              'Data Security: Ensure confidentiality and safeguard company data while working remotely',
+            ],
+          },
+          { type: 'p', text: 'Key Controls:' },
+          {
+            type: 'ul',
+            items: [
+              'WFH requests must be submitted at least 24 hours in advance',
+              'All requests require HR approval before implementation',
+              'Daily plan and end-of-day updates are mandatory',
+              'Webcam must remain on during work hours for accountability',
+              'Non-compliance will be flagged and may result in corrective action',
+            ],
+          },
+          { type: 'p', text: 'Compliance and Governance:' },
+          {
+            type: 'ul',
+            items: [
+              'All WFH arrangements must comply with DQ operational policies',
+              'HR maintains records of all approved requests for audit purposes',
+              'Regular monitoring ensures policy adherence across all units',
+              'Scrum Masters track engagement and report non-compliance to HR',
+            ],
+          },
+          {
+            type: 'p',
+            text:
+              'Important: Associates are expected to maintain the same level of productivity and professionalism while working from home as they would in the office. Any violations of these guidelines may result in WFH privileges being revoked.',
+          },
+        ],
+        action: {
+          label: 'Submit WFH Request',
           urlField: 'requestUrl',
           fallbackUrl: 'https://teams.microsoft.com/l/app/7c316234-ded0-4f95-8a83-8453d0876592?source=app-bar-share-entrypoint',
         },

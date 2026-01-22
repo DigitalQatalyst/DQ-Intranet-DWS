@@ -95,9 +95,6 @@ export const mockNonFinancialServicesData = {
       id: 'digital_worker',
       name: 'Digital Worker'
     }, {
-      id: 'prompt_library',
-      name: 'Prompt Library'
-    }, {
       id: 'ai_tools',
       name: 'AI Tools'
     }],
@@ -832,9 +829,6 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
         id: 'digital_worker',
         name: 'Digital Worker'
       }, {
-        id: 'prompt_library',
-        name: 'Prompt Library'
-      }, {
         id: 'ai_tools',
         name: 'AI Tools'
       }]
@@ -1031,21 +1025,6 @@ export const getTabSpecificFilters = (tabId?: string): FilterCategoryConfig[] =>
     }
   ];
 
-  // Tab-specific filters for Prompt Library category
-  const promptLibrarySpecificFilters: FilterCategoryConfig[] = [
-    {
-      id: 'promptType',
-      title: 'Prompt Type',
-      options: [
-        { id: 'business', name: 'Business (Admin, HR, Finance, Ops)' },
-        { id: 'tech', name: 'Tech (Hardware, Software)' },
-        { id: 'dev_prompts', name: 'Dev Prompts (Software Development)' },
-        { id: 'devops_prompts', name: 'DevOps Prompts (Deployment)' },
-        { id: 'ai', name: 'AI (Machine Learning)' }
-      ]
-    }
-  ];
-
   // Tab-specific filters for AI Tools category
   const aiToolsSpecificFilters: FilterCategoryConfig[] = [
     {
@@ -1072,11 +1051,7 @@ export const getTabSpecificFilters = (tabId?: string): FilterCategoryConfig[] =>
   if (tabId === 'digital_worker') {
     return [...baseFilters, ...digitalWorkerSpecificFilters];
   }
-  
-  if (tabId === 'prompt_library') {
-    return [...baseFilters, ...promptLibrarySpecificFilters];
-  }
-  
+
   if (tabId === 'ai_tools') {
     return [...baseFilters, ...aiToolsSpecificFilters];
   }

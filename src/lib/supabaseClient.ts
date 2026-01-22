@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Vite injects these at build time. They must be defined.
+// Vite injects these at build time. They must be prefixed with VITE_
 const url = import.meta.env.VITE_SUPABASE_URL as string
 const anon = import.meta.env.VITE_SUPABASE_ANON_KEY as string
 

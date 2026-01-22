@@ -44,11 +44,6 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
 
   // Compute primary CTA text (can vary by category)
   const getPrimaryCTAText = () => {
-    // Service Center / Prompt Library items
-    if (marketplaceType === 'non-financial' && item.category === 'Prompt Library') {
-      return 'View Prompt';
-    }
-
     // Service Center / Digital Worker items
     if (marketplaceType === 'non-financial' && item.category === 'Digital Worker') {
       return 'View Details';

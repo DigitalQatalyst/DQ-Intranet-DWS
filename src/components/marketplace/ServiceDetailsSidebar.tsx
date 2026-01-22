@@ -7,7 +7,6 @@ export interface ServiceDetailsSidebarProps {
   marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding';
   primaryAction: string;
   onPrimaryActionClick?: () => void;
-  isPromptLibrary?: boolean;
   isDigitalWorker?: boolean;
   sourceUrl?: string | null;
   summaryCardRef?: React.RefObject<HTMLDivElement>;
@@ -28,7 +27,6 @@ export function ServiceDetailsSidebar({
   marketplaceType,
   primaryAction,
   onPrimaryActionClick,
-  isPromptLibrary = false,
   isDigitalWorker = false,
   sourceUrl = null,
   summaryCardRef
@@ -79,8 +77,7 @@ export function ServiceDetailsSidebar({
           </ul>
         </div>
         {/* Hide button for Digital Worker category */}
-        {/* Hide button for Prompt Library items when sourceUrl is null */}
-        {!isDigitalWorker && !(isPromptLibrary && !sourceUrl) && (
+        {!isDigitalWorker && (
           <button
             id="action-section"
             className="w-full px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md mb-3 flex items-center justify-center gap-2"
@@ -89,24 +86,7 @@ export function ServiceDetailsSidebar({
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#030F35')}
             onClick={onPrimaryActionClick}
           >
-            {isPromptLibrary ? (
-              <>
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
-                Visit Page
-              </>
-            ) : (
+            {(
               primaryAction
             )}
           </button>

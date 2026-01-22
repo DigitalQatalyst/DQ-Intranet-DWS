@@ -178,7 +178,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   // Service Center tabs - sync with URL params
   const getServiceTabFromParams = useCallback((params: URLSearchParams): string => {
     const tab = params.get('tab');
-    const validTabs = ['technology', 'business', 'digital_worker', 'prompt_library', 'ai_tools'];
+    const validTabs = ['technology', 'business', 'digital_worker', 'ai_tools'];
     return tab && validTabs.includes(tab) ? tab : 'technology';
   }, []);
   const [activeServiceTab, setActiveServiceTab] = useState<string>(() => 
@@ -191,7 +191,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   useEffect(() => {
     if (isServicesCenter) {
       const currentTab = searchParams.get('tab');
-      const validTabs = ['technology', 'business', 'digital_worker', 'prompt_library', 'ai_tools'];
+      const validTabs = ['technology', 'business', 'digital_worker', 'ai_tools'];
       if (currentTab && validTabs.includes(currentTab) && currentTab !== activeServiceTab) {
         setActiveServiceTab(currentTab);
       } else if (!currentTab || !validTabs.includes(currentTab)) {
@@ -1006,7 +1006,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             'technology': 'Technology',
             'business': 'Employee Services',
             'digital_worker': 'Digital Worker',
-            'prompt_library': 'Prompt Library',
             'ai_tools': 'AI Tools'
           };
           
@@ -1296,7 +1295,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             'technology': 'Technology',
             'business': 'Employee Services',
             'digital_worker': 'Digital Worker',
-            'prompt_library': 'Prompt Library',
             'ai_tools': 'AI Tools'
           };
           
@@ -1446,7 +1444,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                         {activeServiceTab === 'technology' && 'Technology'}
                         {activeServiceTab === 'business' && 'Employee Services'}
                         {activeServiceTab === 'digital_worker' && 'Digital Worker'}
-                        {activeServiceTab === 'prompt_library' && 'Prompt Library'}
                         {activeServiceTab === 'ai_tools' && 'AI Tools'}
                       </span>
                     </div>
@@ -1471,7 +1468,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                     {activeServiceTab === 'technology' && 'Technology'}
                     {activeServiceTab === 'business' && 'Employee Services'}
                     {activeServiceTab === 'digital_worker' && 'Digital Worker'}
-                    {activeServiceTab === 'prompt_library' && 'Prompt Library'}
                     {activeServiceTab === 'ai_tools' && 'AI Tools'}
                   </p>
                 </div>
@@ -1483,14 +1479,12 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 {activeServiceTab === 'technology' && 'Access technology-related services including IT support, software requests, system access, and technical assistance.'}
                 {activeServiceTab === 'business' && 'Explore employee services including HR support, finance services, administrative requests, and operational assistance.'}
                 {activeServiceTab === 'digital_worker' && 'Discover digital worker services including automation solutions, AI agents requests, AI tools and usage guidelines'}
-                {activeServiceTab === 'prompt_library' && "A curated collection of your team's best and previously used prompts to speed up workflows and boost productivity."}
                 {activeServiceTab === 'ai_tools' && 'A centralized hub showcasing all AI tools and solutions used across the company.'}
               </p>
               <p className="text-xs text-gray-500">
                 {activeServiceTab === 'technology' && 'Managed by DQ IT Support and Technical teams.'}
                 {activeServiceTab === 'business' && 'Provided by DQ HR, Finance, and Administrative teams.'}
                 {activeServiceTab === 'digital_worker' && 'Handled by DQ Automation Teams.'}
-                {activeServiceTab === 'prompt_library' && 'Curated and maintained by DQ Digital Innovation Teams.'}
                 {activeServiceTab === 'ai_tools' && 'Provided by DQ AI & Innovation Teams.'}
               </p>
             </div>
@@ -1505,7 +1499,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 { id: 'technology', label: 'Technology' },
                 { id: 'business', label: 'Employee Services' },
                 { id: 'digital_worker', label: 'Digital Worker' },
-                { id: 'prompt_library', label: 'Prompt Library' },
                 { id: 'ai_tools', label: 'AI Tools' }
               ].map((tab) => {
                 const isActive = activeServiceTab === tab.id;

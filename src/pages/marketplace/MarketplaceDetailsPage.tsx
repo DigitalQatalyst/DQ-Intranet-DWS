@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Calendar, MapPin, CheckCircleIcon, ExternalLinkIcon, ChevronRightIcon, HomeIcon, FileText, ChevronLeft, ChevronRight, MoreHorizontal, XIcon, Plus, Minus } from 'lucide-react';
+import { Calendar, MapPin, CheckCircleIcon, ExternalLinkIcon, ChevronRightIcon, HomeIcon, FileText, ChevronLeft, ChevronRight, MoreHorizontal, Plus, Minus } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
@@ -48,7 +48,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       'technology': 'Technology',
       'business': 'Employee Services',
       'digital_worker': 'Digital Worker',
-      'prompt_library': 'Prompt Library',
       'ai_tools': 'AI Tools'
     };
     return tabMap[tab] || '';
@@ -331,14 +330,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const itemTitle = item.title;
   const itemDescription = item.description;
   const provider = item.provider;
-  const isPromptLibrary = item.id === '17' || item.category === 'Prompt Library';
   const isAITool = item.category === 'AI Tools';
   const isDigitalWorker = item.category === 'Digital Worker';
   const isLeaveApplication = item.id === '13';
   const isITSupportService = marketplaceType === 'non-financial' && ['1', '2', '3'].includes(item.id);
   const primaryAction =
     isLeaveApplication ? 'Apply For Leave'
-    : isPromptLibrary ? 'View Prompt'
     : isDigitalWorker ? 'View Details'
     : isAITool ? 'Request Tool'
     : config.primaryCTA;
@@ -1167,16 +1164,13 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         const content = getServiceTabContent(marketplaceType, item?.id, tabId);
         const urlField = content?.action?.urlField;
         const computedUrl = (urlField && item && item[urlField]) || content?.action?.fallbackUrl || '#';
-        
-        // Check if this is a prompt library item (service 17)
-        const isPromptLibrary = item?.id === '17' || item?.category === 'Prompt Library';
-        
+
         return <div className="space-y-6">
             <div className="prose max-w-none">
               {content?.heading && <h3 className="text-xl font-bold text-gray-900 mb-2">{content.heading}</h3>}
               {renderBlocks(content?.blocks || [])}
             </div>
-            {!isPromptLibrary && content?.action && <div>
+            {content?.action && <div>
                 <button 
                   id="action-section" 
                   className="px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md" 
@@ -1677,8 +1671,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       setIsRequestFormOpen(true);
     } else if (isITSupportService) {
       setIsTechSupportFormOpen(true);
-    } else if (isPromptLibrary && item.sourceUrl) {
-      window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
     } else if (isAITool) {
       setIsTechSupportFormOpen(true);
     }
@@ -1817,7 +1809,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   marketplaceType={marketplaceType}
                   primaryAction={primaryAction}
                   onPrimaryActionClick={handlePrimaryActionClick}
-                  isPromptLibrary={isPromptLibrary}
                   isDigitalWorker={isDigitalWorker}
                   sourceUrl={item?.sourceUrl}
                   summaryCardRef={summaryCardRef}
@@ -1833,7 +1824,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   marketplaceType={marketplaceType}
                   primaryAction={primaryAction}
                   onPrimaryActionClick={handlePrimaryActionClick}
-                  isPromptLibrary={isPromptLibrary}
                   isDigitalWorker={isDigitalWorker}
                   sourceUrl={item?.sourceUrl}
                   summaryCardRef={summaryCardRef}
@@ -1893,10 +1883,10 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   {item.duration || item.serviceType || ''}
                 </div>
               </div>
-              <button 
+              <button
                 className="flex-1 px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md flex items-center justify-center gap-2"
-                style={{ backgroundColor: '#030F35' }} 
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#020a23')} 
+                style={{ backgroundColor: '#030F35' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#020a23')}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#030F35')}
                 onClick={() => {
                   // Check if this is Leave Application service (id '13')
@@ -1904,23 +1894,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     setIsRequestFormOpen(true);
                   } else if (isITSupportService) {
                     setIsTechSupportFormOpen(true);
-                  } else if (isPromptLibrary && item.sourceUrl) {
-                    window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
                   } else if (isAITool) {
                     setIsTechSupportFormOpen(true);
                   }
                 }}
               >
-                {isPromptLibrary ? (
-                  <>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    Visit Page
-                  </>
-                ) : (
-                  primaryAction
-                )}
+                {primaryAction}
               </button>
             </div>
           </div>}

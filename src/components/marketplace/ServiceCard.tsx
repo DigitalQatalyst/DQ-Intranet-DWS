@@ -44,11 +44,6 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
   };
   // Generate appropriate CTA text based on marketplace type
   const getPrimaryCTAText = () => {
-    // Prompt Library cards should say "View Prompt"
-    if (item.category === 'Prompt Library') {
-      return 'View Prompt';
-    }
-
     // AI Tools cards should say "Request Access"
     if (item.category === 'AI Tools') {
       return 'Request Access';

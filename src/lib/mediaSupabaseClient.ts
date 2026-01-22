@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 
-const url = (import.meta.env.REACT_APP_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL) as string | undefined
-const anon = (import.meta.env.REACT_APP_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY) as string | undefined
+const url = (import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL) as string | undefined
+const anon = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY) as string | undefined
 
 if (!url || !anon) {
-  console.error('Supabase URL or anon key is missing for media center. Check your .env file.')
+  console.error('Supabase URL or VITE_SUPABASE_PUBLISHABLE_KEY is missing for media center. Check your .env file.')
   throw new Error('Supabase environment not configured')
 }
 

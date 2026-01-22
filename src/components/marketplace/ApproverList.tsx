@@ -5,9 +5,10 @@ import { User } from '../../utils/types';
 interface ApproverListProps {
   approvers: User[];
   onRemove: (id: string) => void;
+  onAdd?: () => void;
 }
 
-const ApproverList: React.FC<ApproverListProps> = ({ approvers, onRemove }) => {
+const ApproverList: React.FC<ApproverListProps> = ({ approvers, onRemove, onAdd }) => {
   return (
     <div className="flex flex-wrap gap-2 bg-gray-50 p-2 rounded-lg border border-gray-100 min-h-[60px]">
       {approvers.length === 0 && (
@@ -42,10 +43,16 @@ const ApproverList: React.FC<ApproverListProps> = ({ approvers, onRemove }) => {
         </div>
       ))}
       
-      {/* Mock Add Button to mimic potential functionality */}
-      <button className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-300 border-dashed text-gray-400 hover:text-indigo-600 hover:border-indigo-600 transition-colors ml-1">
-        <span className="text-lg leading-none mb-0.5">+</span>
-      </button>
+      {/* Add Button */}
+      {onAdd && (
+        <button
+          onClick={onAdd}
+          className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-300 border-dashed text-gray-400 hover:text-indigo-600 hover:border-indigo-600 transition-colors ml-1"
+          aria-label="Add approver"
+        >
+          <span className="text-lg leading-none mb-0.5">+</span>
+        </button>
+      )}
     </div>
   );
 };

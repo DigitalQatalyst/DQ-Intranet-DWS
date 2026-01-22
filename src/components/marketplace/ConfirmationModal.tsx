@@ -5,13 +5,15 @@ interface ConfirmationModalProps {
   onClose: () => void;
   title?: string;
   message?: string;
+  ticketNumber?: string | null;
 }
 
-export function ConfirmationModal({ 
-  isOpen, 
-  onClose, 
+export function ConfirmationModal({
+  isOpen,
+  onClose,
   title = 'This request has been fulfilled!',
-  message = 'Thank you for your cooperation!'
+  message = 'Thank you for your cooperation!',
+  ticketNumber
 }: ConfirmationModalProps) {
   if (!isOpen) return null;
 
@@ -38,9 +40,17 @@ export function ConfirmationModal({
         </h2>
 
         {/* Message */}
-        <p className="text-gray-600 mb-8">
+        <p className="text-gray-600 mb-4">
           {message}
         </p>
+
+        {/* Ticket Number */}
+        {ticketNumber && (
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <p className="text-sm text-gray-500 mb-1">Your Ticket Number</p>
+            <p className="text-lg font-semibold text-gray-800 font-mono">{ticketNumber}</p>
+          </div>
+        )}
 
         {/* Close Button */}
         <button

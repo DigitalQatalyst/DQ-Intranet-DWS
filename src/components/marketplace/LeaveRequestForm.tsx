@@ -3,7 +3,7 @@ import { X, ChevronLeft, ChevronDown, CalendarDays } from 'lucide-react';
 import { User, LeaveType } from '../../utils/types';
 import ApproverList from './ApproverList';
 import ConfirmationModal from './ConfirmationModal';
-import { addLeaveRequest } from '../../utils/userRequests';
+import { submitLeaveRequestWithApprovers, fetchActiveApprovers } from '../../lib/leaveRequestService';
 
 interface LeaveRequestFormProps {
   isOpen: boolean;
@@ -11,27 +11,50 @@ interface LeaveRequestFormProps {
   initialApprovers: User[];
 }
 
-const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose, initialApprovers }) => {
+const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose }) => {
   const [requestName, setRequestName] = useState('');
-  const [approvers, setApprovers] = useState<User[]>(initialApprovers);
+  const [email, setEmail] = useState('');
+  const [approvers, setApprovers] = useState<User[]>([]);
   const [selectedLeaveType, setSelectedLeaveType] = useState<string>('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [reason, setReason] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showApproverModal, setShowApproverModal] = useState(false);
+  const [availableApprovers, setAvailableApprovers] = useState<User[]>([]);
+  const [isLoadingApprovers, setIsLoadingApprovers] = useState(false);
 
   useEffect(() => {
+    // Email validation helper
+    const isValidEmail = (email: string): boolean => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email.trim());
+    };
+
     // Simple validation logic
     const isValid =
       requestName.trim().length > 0 &&
+      email.trim().length > 0 &&
+      isValidEmail(email) &&
       selectedLeaveType !== '' &&
       startDate !== '' &&
       endDate !== '' &&
       reason.trim().length > 0 &&
-      approvers.length > 0;
+      approvers.length > 0 &&
+      // Validate date range: end date must be >= start date
+      (startDate && endDate ? new Date(endDate) >= new Date(startDate) : true);
     setIsFormValid(isValid);
-  }, [requestName, selectedLeaveType, startDate, endDate, approvers, reason]);
+  }, [requestName, email, selectedLeaveType, startDate, endDate, approvers, reason]);
+
+  // Reset error when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setSubmitError(null);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -39,37 +62,85 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose, in
     setApprovers((prev) => prev.filter((user) => user.id !== id));
   };
 
-  const handleSubmit = () => {
-    if (!isFormValid) return;
+  const handleOpenApproverModal = async () => {
+    setShowApproverModal(true);
+    setIsLoadingApprovers(true);
 
-    // Create the request object
-    const leaveRequest = {
-      requestName,
-      leaveType: selectedLeaveType,
-      startDate,
-      endDate,
-      approvers,
-      reason,
-    };
+    try {
+      const approversFromDb = await fetchActiveApprovers();
+      setAvailableApprovers(approversFromDb);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to fetch approvers:', error);
+      setAvailableApprovers([]);
+    } finally {
+      setIsLoadingApprovers(false);
+    }
+  };
 
-    // Save to localStorage
-    addLeaveRequest(leaveRequest);
+  const handleAddApprover = (approver: User) => {
+    // Check if approver is already added
+    if (!approvers.find((a) => a.id === approver.id)) {
+      setApprovers((prev) => [...prev, approver]);
+    }
+  };
 
-    // Show confirmation modal
-    setShowConfirmation(true);
+  const handleCloseApproverModal = () => {
+    setShowApproverModal(false);
+  };
+
+  const handleSubmit = async () => {
+    if (!isFormValid || isSubmitting) return;
+
+    // Reset error state
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    try {
+      // Create the request payload for Supabase
+      const payload = {
+        request_name: requestName.trim(),
+        leave_type: selectedLeaveType,
+        start_date: startDate,
+        end_date: endDate,
+        reason: reason.trim(),
+        submitted_by_email: email.trim(),
+        approvers,
+      };
+
+      // Submit to Supabase
+      await submitLeaveRequestWithApprovers(payload);
+
+      // Show confirmation modal on success
+      setShowConfirmation(true);
+    } catch (error) {
+      // Handle error
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'An unexpected error occurred. Please try again.';
+
+      setSubmitError(errorMessage);
+      // eslint-disable-next-line no-console
+      console.error('Leave request submission error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleConfirmationClose = () => {
     setShowConfirmation(false);
-    
+
     // Reset form
     setRequestName('');
+    setEmail('');
     setSelectedLeaveType('');
     setStartDate('');
     setEndDate('');
     setReason('');
-    setApprovers(initialApprovers);
-    
+    setApprovers([]);
+    setSubmitError(null);
+
     // Close the request form
     onClose();
   };
@@ -126,12 +197,30 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose, in
             />
           </div>
 
+          {/* Email Input */}
+          <div className="group">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Your Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email address"
+              className="w-full bg-gray-50 border border-gray-200 text-gray-700 py-3 px-4 rounded focus:outline-none focus:bg-white focus:border-indigo-500 transition-colors"
+            />
+          </div>
+
           {/* Approvers Section */}
           <div>
             <label className="block text-sm font-bold text-gray-600 mb-3">
               Approvers <span className="text-red-500">*</span>
             </label>
-            <ApproverList approvers={approvers} onRemove={handleRemoveApprover} />
+            <ApproverList
+              approvers={approvers}
+              onRemove={handleRemoveApprover}
+              onAdd={handleOpenApproverModal}
+            />
             <p className="text-sm text-gray-500 mt-2">
               Require a response from one of approvers
             </p>
@@ -192,6 +281,7 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose, in
                 <input
                   type="date"
                   value={endDate}
+                  min={startDate || undefined}
                   onChange={(e) => setEndDate(e.target.value)}
                   onClick={(e) => {
                     // Show date picker on click
@@ -208,6 +298,13 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose, in
             </div>
           </div>
 
+          {/* Date Range Validation Error */}
+          {startDate && endDate && new Date(endDate) < new Date(startDate) && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded -mt-4">
+              <p className="text-sm">End date cannot be before start date</p>
+            </div>
+          )}
+
           {/* Reason Textarea */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -221,6 +318,13 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose, in
               className="w-full bg-gray-100 border-none text-gray-700 p-4 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors resize-none placeholder-gray-500"
             />
           </div>
+
+          {/* Error Message */}
+          {submitError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              <p className="text-sm">{submitError}</p>
+            </div>
+          )}
 
           {/* Spacing for bottom scroll */}
           <div className="h-4"></div>
@@ -237,37 +341,107 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose, in
           </button>
           
           <button
-            disabled={!isFormValid}
+            disabled={!isFormValid || isSubmitting}
             onClick={handleSubmit}
             className={`px-8 py-2 rounded font-medium transition-all ${
-              isFormValid 
-                ? 'text-white shadow-md' 
+              isFormValid && !isSubmitting
+                ? 'text-white shadow-md'
                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
             }`}
-            style={isFormValid ? { backgroundColor: '#030F35' } : {}}
+            style={isFormValid && !isSubmitting ? { backgroundColor: '#030F35' } : {}}
             onMouseEnter={(e) => {
-              if (isFormValid) {
+              if (isFormValid && !isSubmitting) {
                 e.currentTarget.style.backgroundColor = '#020a23';
               }
             }}
             onMouseLeave={(e) => {
-              if (isFormValid) {
+              if (isFormValid && !isSubmitting) {
                 e.currentTarget.style.backgroundColor = '#030F35';
               }
             }}
           >
-            Send
+            {isSubmitting ? 'Submitting...' : 'Send'}
           </button>
         </div>
       </div>
 
       {/* Confirmation Modal */}
-      <ConfirmationModal 
+      <ConfirmationModal
         isOpen={showConfirmation}
         onClose={handleConfirmationClose}
         title="Request has been submitted!"
         message="Your leave request has been sent to the approvers. You will be notified once it's reviewed."
       />
+
+      {/* Approver Selection Modal */}
+      {showApproverModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={handleCloseApproverModal}
+          />
+
+          <div className="relative bg-white rounded-lg shadow-2xl w-full max-w-md max-h-[70vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-lg font-bold text-gray-900">Select Approver</h3>
+              <button
+                onClick={handleCloseApproverModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {isLoadingApprovers ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-gray-500">Loading approvers...</div>
+                </div>
+              ) : availableApprovers.length === 0 ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-gray-500">No approvers available</div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {availableApprovers.map((approver) => {
+                    const isAlreadyAdded = approvers.find((a) => a.id === approver.id);
+                    return (
+                      <button
+                        key={approver.id}
+                        onClick={() => {
+                          handleAddApprover(approver);
+                          handleCloseApproverModal();
+                        }}
+                        disabled={!!isAlreadyAdded}
+                        className={`w-full flex items-center p-3 rounded-lg border transition-all ${
+                          isAlreadyAdded
+                            ? 'bg-gray-50 border-gray-200 cursor-not-allowed opacity-50'
+                            : 'bg-white border-gray-200 hover:border-indigo-500 hover:bg-indigo-50 cursor-pointer'
+                        }`}
+                      >
+                        {/* Avatar */}
+                        <div className={`${approver.color} w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium mr-3`}>
+                          {approver.initials}
+                        </div>
+
+                        {/* Name and Status */}
+                        <div className="flex-1 text-left">
+                          <div className="text-sm font-medium text-gray-900">{approver.name}</div>
+                          {isAlreadyAdded && (
+                            <div className="text-xs text-gray-500">Already added</div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

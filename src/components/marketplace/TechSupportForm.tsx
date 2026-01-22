@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, ChevronLeft, Upload, Cloud } from 'lucide-react';
 
+import { supabase } from '@/lib/supabaseClient';
 import ConfirmationModal from './ConfirmationModal';
 
 interface TechSupportFormProps {
@@ -9,6 +10,7 @@ interface TechSupportFormProps {
 }
 
 interface UploadedFile {
+  file: File;
   name: string;
   size: number;
 }
@@ -23,31 +25,96 @@ const CATEGORY_OPTIONS = [
 
 type CategoryOption = (typeof CATEGORY_OPTIONS)[number];
 
+const PRIORITY_OPTIONS = ['High', 'Medium', 'Low'] as const;
+type PriorityOption = (typeof PRIORITY_OPTIONS)[number];
+
 // Email validation helper
 const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email.trim());
 };
 
-// Power Automate API endpoint
-const POWER_AUTOMATE_API_URL =
-  'https://default199ebd0d29864f3d86594388c5b2a7.24.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a97703c6c67e42eab0ea14418e9d4089/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Yk6kzrG5FUx7QdlWvY4KQVytDZw9OCcng3tlEaLp06w';
+// Generate unique Ticket Number for each submission
+// Format: TSR-YYYYMMDD-XXXX (e.g., TSR-20260115-A7B3)
+const generateTicketNumber = (): string => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const datePart = `${year}${month}${day}`;
 
-interface ApiRequestPayload {
+  // Generate 4-character alphanumeric code
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let randomPart = '';
+  for (let i = 0; i < 4; i++) {
+    randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+
+  return `TSR-${datePart}-${randomPart}`;
+};
+
+// Generate current timestamp in TIMESTAMPTZ format
+// Format: YYYY-MM-DDTHH:MM:SS.sss+00:00
+const getCurrentTimestamp = (): string => {
+  return new Date().toISOString();
+};
+
+// Upload files to Supabase Storage
+const uploadFilesToStorage = async (
+  files: UploadedFile[],
+  ticketNumber: string
+): Promise<string[]> => {
+  const uploadedUrls: string[] = [];
+
+  for (const uploadedFile of files) {
+    const { file } = uploadedFile;
+    // Create unique file path: ticket-number/original-filename
+    const filePath = `${ticketNumber}/${file.name}`;
+
+    const { data, error } = await supabase.storage
+      .from('tech-support-attachments')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (error) {
+      throw new Error(`Failed to upload file ${file.name}: ${error.message}`);
+    }
+
+    // Get public URL for the uploaded file
+    const {
+      data: { publicUrl },
+    } = supabase.storage.from('tech-support-attachments').getPublicUrl(data.path);
+
+    uploadedUrls.push(publicUrl);
+  }
+
+  return uploadedUrls;
+};
+
+// Supabase table insert payload interface
+interface TechSupportRequestPayload {
+  ticket_number: string;
   email: string;
-  selectedCategory: string;
-  issueDescription: string;
+  selected_category: string;
+  issue_description: string;
+  priority: string;
+  created_at: string;
+  attachment_urls?: string[];
 }
 
 export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
   const [email, setEmail] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryOption | ''>('');
   const [issueDescription, setIssueDescription] = useState('');
+  const [priority, setPriority] = useState<PriorityOption>('Medium');
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isFormValid, setIsFormValid] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submittedTicketNumber, setSubmittedTicketNumber] = useState<string | null>(null);
 
   useEffect(() => {
     const isValid =
@@ -65,11 +132,13 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
       setEmail('');
       setSelectedCategory('');
       setIssueDescription('');
+      setPriority('Medium');
       setUploadedFiles([]);
       setIsFormValid(false);
       setShowConfirmation(false);
       setIsSubmitting(false);
       setSubmitError(null);
+      setSubmittedTicketNumber(null);
     }
   }, [isOpen]);
 
@@ -78,6 +147,7 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
   const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     const mappedFiles: UploadedFile[] = files.map((file) => ({
+      file,
       name: file.name,
       size: file.size,
     }));
@@ -85,33 +155,54 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
     setUploadedFiles(mappedFiles);
   };
 
-  const submitTechSupportRequest = async (payload: ApiRequestPayload): Promise<void> => {
-    const response = await fetch(POWER_AUTOMATE_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+  const submitTechSupportRequest = async (payload: TechSupportRequestPayload): Promise<void> => {
+    const { data, error } = await supabase
+      .from('tech_support_requests')
+      .insert([payload])
+      .select();
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Request Failed ${response.status} ${response.statusText}. ${errorText}`
-      );
+    if (error) {
+      throw new Error(`Failed to submit request: ${error.message}`);
     }
 
-    // Power Automate may return empty body or success response
-    const responseData = await response.text();
-    if (responseData) {
-      try {
-        const parsed = JSON.parse(responseData);
-        // Handle any response data if needed
-        // eslint-disable-next-line no-console
-        console.log('API response:', parsed);
-      } catch {
-        // Response is not JSON, which is fine for Power Automate
+    // eslint-disable-next-line no-console
+    console.log('Tech support request created:', data);
+  };
+
+  const notifyUserViaPowerAutomate = async (payload: {
+    email: string;
+    created_at: string;
+    ticket_number: string;
+    selected_category: string;
+    priority: string;
+  }): Promise<void> => {
+    const powerAutomateUrl = import.meta.env.VITE_POWER_AUTOMATE_EMAIL_NOTIFICATION as string;
+
+    if (!powerAutomateUrl) {
+      // eslint-disable-next-line no-console
+      console.warn('Power Automate URL not configured. Skipping email notification.');
+      return;
+    }
+
+    try {
+      const response = await fetch(powerAutomateUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Power Automate notification failed: ${response.statusText}`);
       }
+
+      // eslint-disable-next-line no-console
+      console.log('User notification sent via Power Automate');
+    } catch (error) {
+      // Log error but don't fail the entire submission if notification fails
+      // eslint-disable-next-line no-console
+      console.error('Failed to send Power Automate notification:', error);
     }
   };
 
@@ -123,16 +214,39 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
     setIsSubmitting(true);
 
     try {
-      // Map form data to API payload based on schema
-      const payload: ApiRequestPayload = {
+      // Generate unique Ticket Number for this submission
+      const ticketNumber = generateTicketNumber();
+
+      // Upload files to Supabase Storage if any
+      let attachmentUrls: string[] = [];
+      if (uploadedFiles.length > 0) {
+        attachmentUrls = await uploadFilesToStorage(uploadedFiles, ticketNumber);
+      }
+
+      // Map form data to Supabase table columns (snake_case)
+      const payload: TechSupportRequestPayload = {
+        ticket_number: ticketNumber,
         email: email.trim(),
-        selectedCategory: selectedCategory as string,
-        issueDescription: issueDescription.trim(),
+        selected_category: selectedCategory as string,
+        issue_description: issueDescription.trim(),
+        priority,
+        created_at: getCurrentTimestamp(),
+        attachment_urls: attachmentUrls.length > 0 ? attachmentUrls : undefined,
       };
 
       await submitTechSupportRequest(payload);
 
-      // Success - show confirmation
+      // Send notification via Power Automate
+      await notifyUserViaPowerAutomate({
+        email: email.trim(),
+        created_at: getCurrentTimestamp(),
+        ticket_number: ticketNumber,
+        selected_category: selectedCategory as string,
+        priority,
+      });
+
+      // Success - store Ticket Number and show confirmation
+      setSubmittedTicketNumber(ticketNumber);
       setShowConfirmation(true);
     } catch (error) {
       // Handle error
@@ -283,10 +397,41 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
             </div>
           </div>
 
-          {/* Question 3: Upload files */}
+          {/* Question 4: Priority */}
+          <div>
+            <p className="block text-sm font-medium text-gray-700 mb-2">
+              4. Priority Level{' '}
+              <span className="text-xs text-gray-500">(Optional)</span>
+            </p>
+            <p className="text-xs text-gray-500 mb-3">
+              Select the urgency of your request
+            </p>
+            <div className="flex gap-3">
+              {PRIORITY_OPTIONS.map((option) => (
+                <label
+                  key={option}
+                  className={`flex items-center justify-center px-4 py-2 rounded-lg border-2 cursor-pointer transition-all ${
+                    priority === option
+                      ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                      : 'border-gray-200 bg-gray-50 text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    className="sr-only"
+                    checked={priority === option}
+                    onChange={() => setPriority(option)}
+                  />
+                  <span className="text-sm font-medium">{option}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Question 5: Upload files */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              4. Do you want to add any screenshots?{' '}
+              5. Do you want to add any screenshots?{' '}
               <span className="text-xs text-gray-500">(Optional)</span>
             </label>
             <p className="text-xs text-gray-500 mb-4">
@@ -392,6 +537,7 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
         onClose={handleConfirmationClose}
         title="Request has been submitted!"
         message="Your technology support request has been sent. The IT team will review it and follow up with you."
+        ticketNumber={submittedTicketNumber}
       />
     </>
   );
