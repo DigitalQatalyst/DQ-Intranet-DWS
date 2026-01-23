@@ -4,6 +4,7 @@ import { supabaseClient } from '../../../lib/supabaseClient';
 import { Header } from '../../../components/Header';
 import { Footer } from '../../../components/Footer';
 import { useAuth } from '../../../components/Header/context/AuthContext';
+import { DefinitiveDiagnosis } from './DefinitiveDiagnosis';
 
 const GHC_SLUGS = [
   'dq-vision',
@@ -195,6 +196,9 @@ export default function GHCInspectorPage() {
 
         {!loading && !error && (
           <>
+            {/* Definitive Diagnosis */}
+            <DefinitiveDiagnosis />
+
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-white rounded-lg shadow p-4 border border-gray-200">
