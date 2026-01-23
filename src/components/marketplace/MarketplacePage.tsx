@@ -1851,15 +1851,10 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               </nav>
               {/* Tab Description - Integrated with tabs */}
               {activeTab && TAB_DESCRIPTIONS[activeTab] && (
-                <div className="pt-4 pb-4">
+                <div className="pt-2 pb-2 mt-3 border border-gray-200 rounded-lg bg-white p-3 shadow-sm">
                   <p className="text-sm text-gray-600 leading-relaxed">
                     {TAB_DESCRIPTIONS[activeTab].description}
                   </p>
-                  {TAB_DESCRIPTIONS[activeTab].author && (
-                    <p className="text-xs text-gray-500 mt-2">
-                      {TAB_DESCRIPTIONS[activeTab].author}
-                    </p>
-                  )}
                 </div>
               )}
             </div>
