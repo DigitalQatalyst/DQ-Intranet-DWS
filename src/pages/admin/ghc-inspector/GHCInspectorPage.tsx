@@ -434,6 +434,7 @@ export default function GHCInspectorPage() {
                     <li>Each GHC page fetches by unique slug: <code className="bg-blue-100 px-1 rounded">.eq('slug', 'dq-vision')</code></li>
                     <li>Validation ensures the fetched guide matches the expected slug</li>
                     <li>Each page displays the content from its own database record</li>
+                    <li>Check browser console (F12) to see detailed logs for each page</li>
                   </ul>
                 </div>
                 <div>
@@ -446,10 +447,20 @@ export default function GHCInspectorPage() {
                   </ul>
                 </div>
                 <div className="mt-4 p-3 bg-white rounded border border-blue-300">
-                  <p className="font-semibold text-blue-900">💡 Solution:</p>
+                  <p className="font-semibold text-blue-900 mb-2">💡 How to Verify:</p>
+                  <ol className="list-decimal list-inside space-y-1 text-blue-700">
+                    <li>Open browser console (F12 or right-click → Inspect → Console)</li>
+                    <li>Visit each GHC element page (dq-vision, dq-hov, dq-persona, etc.)</li>
+                    <li>Look for logs like: <code className="bg-blue-100 px-1 rounded">✅ [DQ-VISION] Guide loaded:</code></li>
+                    <li>Check if the IDs and body content are different for each page</li>
+                    <li>If body content is the same, that confirms it's a database issue</li>
+                  </ol>
+                </div>
+                <div className="mt-4 p-3 bg-white rounded border border-blue-300">
+                  <p className="font-semibold text-blue-900">🔧 Solution:</p>
                   <p className="text-blue-700">
                     Edit each GHC guide individually in the admin interface and make sure each has <strong>unique content</strong> in the "body" field. 
-                    The inspector above shows exactly which guides share content.
+                    The inspector above shows exactly which guides share content. Click "Edit" links to fix them.
                   </p>
                 </div>
               </div>
