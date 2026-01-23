@@ -28,11 +28,12 @@ interface Guide {
   guide_type: string | null;
 }
 
-function GHCInspectorPage() {
+export default function GHCInspectorPage() {
   const { user } = useAuth();
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchGuides() {
@@ -71,17 +72,24 @@ function GHCInspectorPage() {
   const foundSlugs = new Set(guides.map(g => g.slug));
   const missingSlugs = GHC_SLUGS.filter(slug => !foundSlugs.has(slug));
 
-  // Check for shared body content
+  // Check for shared body content - EXACT matches
   const bodyMap = new Map<string, Guide[]>();
   guides.forEach(guide => {
-    if (!guide.body) return;
-    const bodyHash = guide.body.substring(0, 500);
-    if (!bodyMap.has(bodyHash)) {
-      bodyMap.set(bodyHash, []);
+    if (!guide.body || guide.body.trim().length === 0) return;
+    // Use full body for exact matching
+    const bodyKey = guide.body.trim();
+    if (!bodyMap.has(bodyKey)) {
+      bodyMap.set(bodyKey, []);
     }
-    bodyMap.get(bodyHash)!.push(guide);
+    bodyMap.get(bodyKey)!.push(guide);
   });
   const sharedBodies = Array.from(bodyMap.entries()).filter(([hash, guides]) => guides.length > 1);
+
+  // Get guides with shared content for highlighting
+  const guidesWithSharedContent = new Set<string>();
+  sharedBodies.forEach(([hash, guidesWithSameBody]) => {
+    guidesWithSameBody.forEach(g => guidesWithSharedContent.add(g.id));
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -145,6 +153,55 @@ function GHCInspectorPage() {
               </div>
             </div>
 
+            {/* Critical Issue Alert */}
+            {sharedBodies.length > 0 && (
+              <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6 mb-6">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <h3 className="text-lg font-bold text-red-800 mb-2">
+                      ⚠️ CRITICAL ISSUE: Shared Content Detected
+                    </h3>
+                    <p className="text-red-700 mb-4">
+                      Multiple GHC elements have <strong>identical body content</strong>. This is why changes to one element appear on others.
+                    </p>
+                    <div className="space-y-3">
+                      {sharedBodies.map(([bodyHash, guidesWithSameBody], idx) => (
+                        <div key={idx} className="bg-white rounded p-4 border border-red-200">
+                          <p className="font-semibold text-red-800 mb-2">
+                            Group {idx + 1}: {guidesWithSameBody.length} guide(s) with identical content
+                          </p>
+                          <ul className="list-disc list-inside text-red-700 space-y-1">
+                            {guidesWithSameBody.map(g => (
+                              <li key={g.id}>
+                                <strong>{g.slug}</strong> (ID: {g.id}) - {g.title}
+                                <Link 
+                                  to={`/admin/guides/${g.id}`}
+                                  className="ml-2 text-blue-600 hover:underline"
+                                >
+                                  Edit
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                          <p className="text-xs text-red-600 mt-2 italic">
+                            Content preview: {bodyHash.substring(0, 150)}...
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-red-700 mt-4 font-semibold">
+                      💡 Solution: Edit each guide individually and ensure they have unique content. Click "Edit" links above.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Issues */}
             {missingSlugs.length > 0 && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
@@ -176,27 +233,6 @@ function GHCInspectorPage() {
               </div>
             )}
 
-            {sharedBodies.length > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <p className="text-red-800 font-semibold mb-2">❌ Shared Body Content Detected:</p>
-                {sharedBodies.map(([hash, guidesWithSameBody], idx) => (
-                  <div key={idx} className="mb-4">
-                    <p className="text-red-700 font-medium mb-1">
-                      Found in {guidesWithSameBody.length} guide(s):
-                    </p>
-                    <ul className="list-disc list-inside text-red-600 ml-4">
-                      {guidesWithSameBody.map(g => (
-                        <li key={g.id}>{g.slug} (ID: {g.id})</li>
-                      ))}
-                    </ul>
-                    <p className="text-xs text-red-500 mt-1">
-                      Preview: {hash.substring(0, 100)}...
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
             {/* Guide Details */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Guide Details</h2>
@@ -204,31 +240,46 @@ function GHCInspectorPage() {
                 {guides.map((guide) => {
                   const bodyLength = guide.body ? guide.body.length : 0;
                   const bodyPreview = guide.body 
-                    ? guide.body.substring(0, 150).replace(/\n/g, ' ').trim()
+                    ? guide.body.substring(0, 200).replace(/\n/g, ' ').trim()
                     : 'EMPTY';
                   
                   const sameBodyGuides = guides.filter(g => 
                     g.id !== guide.id && 
                     g.body && 
                     guide.body && 
-                    g.body === guide.body
+                    g.body.trim() === guide.body.trim()
                   );
 
+                  const hasSharedContent = guidesWithSharedContent.has(guide.id);
+
                   return (
-                    <div key={guide.id} className="border-b border-gray-200 pb-6 last:border-b-0 last:pb-0">
+                    <div 
+                      key={guide.id} 
+                      className={`border-b border-gray-200 pb-6 last:border-b-0 last:pb-0 ${
+                        hasSharedContent ? 'bg-red-50 p-4 rounded-lg border-2 border-red-300' : ''
+                      }`}
+                    >
                       <div className="flex items-start justify-between mb-3">
                         <div>
                           <h3 className="text-lg font-bold text-gray-900">{guide.slug}</h3>
                           <p className="text-sm text-gray-600">{guide.title || '(no title)'}</p>
                         </div>
-                        {sameBodyGuides.length > 0 && (
-                          <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded">
-                            ⚠️ Shared Content
-                          </span>
-                        )}
+                        <div className="flex gap-2">
+                          {hasSharedContent && (
+                            <span className="px-3 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded">
+                              ⚠️ Shared Content
+                            </span>
+                          )}
+                          <Link 
+                            to={`/admin/guides/${guide.id}`}
+                            className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                          >
+                            Edit
+                          </Link>
+                        </div>
                       </div>
                       
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
                         <div>
                           <span className="text-gray-500">ID:</span>
                           <p className="font-mono text-xs text-gray-700 break-all">{guide.id}</p>
@@ -258,21 +309,29 @@ function GHCInspectorPage() {
                             Length: {bodyLength} characters
                           </p>
                           <p className="text-sm text-gray-700 font-mono whitespace-pre-wrap break-words">
-                            {bodyPreview}{bodyLength > 150 ? '...' : ''}
+                            {bodyPreview}{bodyLength > 200 ? '...' : ''}
                           </p>
                         </div>
                       </div>
 
                       {sameBodyGuides.length > 0 && (
-                        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
-                          <p className="text-xs text-red-700 font-semibold">
+                        <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
+                          <p className="text-xs text-red-700 font-semibold mb-2">
                             ⚠️ This content is IDENTICAL to:
                           </p>
-                          <ul className="text-xs text-red-600 mt-1">
+                          <ul className="text-xs text-red-600 space-y-1">
                             {sameBodyGuides.map(g => (
-                              <li key={g.id}>• {g.slug} (ID: {g.id})</li>
+                              <li key={g.id}>
+                                • <strong>{g.slug}</strong> (ID: {g.id}) - 
+                                <Link to={`/admin/guides/${g.id}`} className="ml-1 text-blue-600 hover:underline">
+                                  Edit
+                                </Link>
+                              </li>
                             ))}
                           </ul>
+                          <p className="text-xs text-red-600 mt-2 italic">
+                            This is why changes to one appear on the other!
+                          </p>
                         </div>
                       )}
                     </div>
@@ -288,5 +347,3 @@ function GHCInspectorPage() {
     </div>
   );
 }
-
-export default GHCInspectorPage;
