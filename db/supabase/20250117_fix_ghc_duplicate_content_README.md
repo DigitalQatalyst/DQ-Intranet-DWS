@@ -39,14 +39,28 @@ These 7 slugs are considered GHC guides:
 
 ## How to Use
 
-### Step 1: Run the Migration
+### Step 1: Run the Migration ✅
 
 1. Open Supabase Dashboard → SQL Editor
 2. Copy the contents of `20250117_fix_ghc_duplicate_content.sql`
 3. Paste and run in SQL Editor
 4. Wait for completion
+5. **Expected result:** "Success. No rows returned" (this is correct for DDL migrations)
 
-### Step 2: Check for Existing Duplicates
+### Step 2: Verify Migration Applied
+
+Run the verification script to confirm everything was created:
+
+```sql
+-- Run: db/supabase/verify_ghc_migration.sql
+-- This will show:
+-- - All functions exist
+-- - Trigger is active
+-- - Current GHC guide status
+-- - Any existing duplicates
+```
+
+### Step 3: Check for Existing Duplicates
 
 ```sql
 -- See all duplicate groups
