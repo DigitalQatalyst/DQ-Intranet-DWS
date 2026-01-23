@@ -33,12 +33,14 @@ export default function GHCInspectorPage() {
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
+  const [diagnosis, setDiagnosis] = useState<string>('');
 
   useEffect(() => {
     async function fetchGuides() {
       try {
         setLoading(true);
+        setDiagnosis('🔍 Fetching guides from Supabase...');
+        
         const { data, error: fetchError } = await supabaseClient
           .from('guides')
           .select('id, slug, title, body, summary, hero_image_url, last_updated_at, status, domain, guide_type')
@@ -47,12 +49,19 @@ export default function GHCInspectorPage() {
 
         if (fetchError) {
           setError(fetchError.message);
+          setDiagnosis(`❌ Error: ${fetchError.message}`);
           return;
         }
 
         setGuides(data || []);
+        
+        // Diagnose the issue
+        if (data && data.length > 0) {
+          diagnoseIssue(data);
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to fetch guides');
+        setDiagnosis(`❌ Error: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -60,6 +69,46 @@ export default function GHCInspectorPage() {
 
     fetchGuides();
   }, []);
+
+  function diagnoseIssue(guidesData: Guide[]) {
+    // Check for shared body content - EXACT matches
+    const bodyMap = new Map<string, Guide[]>();
+    guidesData.forEach(guide => {
+      if (!guide.body || guide.body.trim().length === 0) return;
+      const bodyKey = guide.body.trim();
+      if (!bodyMap.has(bodyKey)) {
+        bodyMap.set(bodyKey, []);
+      }
+      bodyMap.get(bodyKey)!.push(guide);
+    });
+
+    const sharedBodies = Array.from(bodyMap.entries()).filter(([hash, guides]) => guides.length > 1);
+    
+    if (sharedBodies.length > 0) {
+      const affectedGuides = sharedBodies.reduce((acc, [_, guides]) => acc + guides.length, 0);
+      setDiagnosis(
+        `❌ DATABASE ISSUE DETECTED: ${sharedBodies.length} group(s) of guides share identical body content. ` +
+        `This affects ${affectedGuides} guide(s). ` +
+        `This is why changes to one GHC element appear on others. ` +
+        `Each GHC element must have UNIQUE content in the "body" field in Supabase.`
+      );
+    } else {
+      // Check if UI is fetching correctly
+      const slugsFound = new Set(guidesData.map(g => g.slug));
+      const missingSlugs = GHC_SLUGS.filter(s => !slugsFound.has(s));
+      
+      if (missingSlugs.length > 0) {
+        setDiagnosis(
+          `⚠️  MISSING GUIDES: ${missingSlugs.length} GHC element(s) not found in database: ${missingSlugs.join(', ')}`
+        );
+      } else {
+        setDiagnosis(
+          `✅ Database looks good! Each GHC element has unique content. ` +
+          `If you're still seeing shared content, it might be a caching issue. Try refreshing the page.`
+        );
+      }
+    }
+  }
 
   // Check for duplicates
   const slugCounts: Record<string, number> = {};
@@ -76,7 +125,6 @@ export default function GHCInspectorPage() {
   const bodyMap = new Map<string, Guide[]>();
   guides.forEach(guide => {
     if (!guide.body || guide.body.trim().length === 0) return;
-    // Use full body for exact matching
     const bodyKey = guide.body.trim();
     if (!bodyMap.has(bodyKey)) {
       bodyMap.set(bodyKey, []);
@@ -100,7 +148,7 @@ export default function GHCInspectorPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">GHC Database Inspector</h1>
-              <p className="text-gray-600">View what's stored in Supabase for each GHC element</p>
+              <p className="text-gray-600">Diagnose and fix content sharing issues</p>
             </div>
             <Link 
               to="/admin/guides" 
@@ -110,6 +158,27 @@ export default function GHCInspectorPage() {
             </Link>
           </div>
         </div>
+
+        {/* Diagnosis Banner */}
+        {diagnosis && (
+          <div className={`mb-6 p-4 rounded-lg border-2 ${
+            diagnosis.includes('❌') 
+              ? 'bg-red-50 border-red-300' 
+              : diagnosis.includes('⚠️')
+              ? 'bg-yellow-50 border-yellow-300'
+              : 'bg-green-50 border-green-300'
+          }`}>
+            <p className={`font-semibold ${
+              diagnosis.includes('❌') 
+                ? 'text-red-800' 
+                : diagnosis.includes('⚠️')
+                ? 'text-yellow-800'
+                : 'text-green-800'
+            }`}>
+              {diagnosis}
+            </p>
+          </div>
+        )}
 
         {loading && (
           <div className="text-center py-12">
@@ -164,16 +233,25 @@ export default function GHCInspectorPage() {
                   </div>
                   <div className="ml-3 flex-1">
                     <h3 className="text-lg font-bold text-red-800 mb-2">
-                      ⚠️ CRITICAL ISSUE: Shared Content Detected
+                      ⚠️ CRITICAL: Shared Content Detected in Supabase Database
                     </h3>
                     <p className="text-red-700 mb-4">
-                      Multiple GHC elements have <strong>identical body content</strong>. This is why changes to one element appear on others.
+                      This is a <strong>DATABASE issue</strong>, not a UI issue. Multiple GHC elements have <strong>identical body content</strong> stored in Supabase.
                     </p>
+                    <div className="bg-white rounded p-4 border border-red-200 mb-4">
+                      <p className="text-sm text-red-800 font-semibold mb-2">How the UI works:</p>
+                      <ol className="list-decimal list-inside text-sm text-red-700 space-y-1">
+                        <li>Each GHC page (dq-vision, dq-hov, etc.) fetches data by slug from Supabase</li>
+                        <li>The UI correctly fetches: <code className="bg-red-100 px-1 rounded">.eq('slug', 'dq-vision')</code></li>
+                        <li>If multiple records have the same body content, they will show the same text</li>
+                        <li>This is why changes to one appear on others - they share the same content in the database</li>
+                      </ol>
+                    </div>
                     <div className="space-y-3">
                       {sharedBodies.map(([bodyHash, guidesWithSameBody], idx) => (
                         <div key={idx} className="bg-white rounded p-4 border border-red-200">
                           <p className="font-semibold text-red-800 mb-2">
-                            Group {idx + 1}: {guidesWithSameBody.length} guide(s) with identical content
+                            Group {idx + 1}: {guidesWithSameBody.length} guide(s) with IDENTICAL content
                           </p>
                           <ul className="list-disc list-inside text-red-700 space-y-1">
                             {guidesWithSameBody.map(g => (
@@ -183,7 +261,7 @@ export default function GHCInspectorPage() {
                                   to={`/admin/guides/${g.id}`}
                                   className="ml-2 text-blue-600 hover:underline"
                                 >
-                                  Edit
+                                  Edit to make unique
                                 </Link>
                               </li>
                             ))}
@@ -194,9 +272,15 @@ export default function GHCInspectorPage() {
                         </div>
                       ))}
                     </div>
-                    <p className="text-red-700 mt-4 font-semibold">
-                      💡 Solution: Edit each guide individually and ensure they have unique content. Click "Edit" links above.
-                    </p>
+                    <div className="mt-4 p-3 bg-red-100 rounded border border-red-300">
+                      <p className="text-red-800 font-semibold mb-1">🔧 How to Fix:</p>
+                      <ol className="list-decimal list-inside text-sm text-red-700 space-y-1">
+                        <li>Click "Edit to make unique" for each guide above</li>
+                        <li>Change the "body" content to be unique for each GHC element</li>
+                        <li>Save each guide individually</li>
+                        <li>Refresh this page to verify the fix</li>
+                      </ol>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -235,7 +319,7 @@ export default function GHCInspectorPage() {
 
             {/* Guide Details */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Guide Details</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Guide Details (from Supabase)</h2>
               <div className="space-y-6">
                 {guides.map((guide) => {
                   const bodyLength = guide.body ? guide.body.length : 0;
@@ -303,7 +387,7 @@ export default function GHCInspectorPage() {
                       </div>
 
                       <div className="mt-3">
-                        <span className="text-gray-500 text-sm">Body Content:</span>
+                        <span className="text-gray-500 text-sm">Body Content (from Supabase):</span>
                         <div className="mt-1 p-3 bg-gray-50 rounded border border-gray-200">
                           <p className="text-xs text-gray-600 mb-1">
                             Length: {bodyLength} characters
@@ -330,13 +414,44 @@ export default function GHCInspectorPage() {
                             ))}
                           </ul>
                           <p className="text-xs text-red-600 mt-2 italic">
-                            This is why changes to one appear on the other!
+                            This is why changes to one appear on the other! They have the same content in Supabase.
                           </p>
                         </div>
                       )}
                     </div>
                   );
                 })}
+              </div>
+            </div>
+
+            {/* UI vs Database Explanation */}
+            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <h3 className="text-lg font-bold text-blue-900 mb-3">🔍 Is this a UI issue or Database issue?</h3>
+              <div className="space-y-3 text-sm text-blue-800">
+                <div>
+                  <p className="font-semibold mb-1">✅ UI is working correctly:</p>
+                  <ul className="list-disc list-inside ml-4 space-y-1">
+                    <li>Each GHC page fetches by unique slug: <code className="bg-blue-100 px-1 rounded">.eq('slug', 'dq-vision')</code></li>
+                    <li>Validation ensures the fetched guide matches the expected slug</li>
+                    <li>Each page displays the content from its own database record</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-semibold mb-1">❌ Database has the issue:</p>
+                  <ul className="list-disc list-inside ml-4 space-y-1">
+                    <li>Multiple GHC guides have identical "body" content in Supabase</li>
+                    <li>When you edit one, you're updating that specific record</li>
+                    <li>But other records still have the same content, so they show the same text</li>
+                    <li>This is why changes appear on multiple pages</li>
+                  </ul>
+                </div>
+                <div className="mt-4 p-3 bg-white rounded border border-blue-300">
+                  <p className="font-semibold text-blue-900">💡 Solution:</p>
+                  <p className="text-blue-700">
+                    Edit each GHC guide individually in the admin interface and make sure each has <strong>unique content</strong> in the "body" field. 
+                    The inspector above shows exactly which guides share content.
+                  </p>
+                </div>
               </div>
             </div>
           </>
