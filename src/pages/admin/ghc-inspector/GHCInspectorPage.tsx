@@ -28,7 +28,7 @@ interface Guide {
   guide_type: string | null;
 }
 
-export default function GHCInspectorPage() {
+function GHCInspectorPage() {
   const { user } = useAuth();
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
