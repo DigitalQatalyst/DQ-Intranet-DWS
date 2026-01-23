@@ -34,9 +34,57 @@ const GuideEditor: React.FC = () => {
     e.preventDefault();
     const payload: Guide = { ...guide };
     if (typeof payload.contributors === 'string') payload.contributors = parseList(payload.contributors as any);
+    
     if (id) {
-      await updateGuide(id, payload as any)
-      navigate('/admin/guides')
+      // GHC element slugs - prevent accidental changes
+      const GHC_SLUGS = ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd']
+      const isGHCGuide = guide.slug && GHC_SLUGS.includes(guide.slug)
+      
+      // Verify we're updating the correct guide by checking slug matches
+      if (payload.slug && guide.slug && payload.slug !== guide.slug) {
+        if (isGHCGuide && GHC_SLUGS.includes(payload.slug)) {
+          alert(
+            `❌ ERROR: Cannot change GHC element slug!\n\n` +
+            `You are trying to change "${guide.slug}" to "${payload.slug}".\n\n` +
+            `GHC element slugs are fixed and cannot be changed to other GHC slugs.\n` +
+            `This prevents content from being shared between GHC elements.\n\n` +
+            `Please keep the slug as "${guide.slug}".`
+          );
+          return;
+        }
+        
+        const confirmChange = window.confirm(
+          `⚠️ Warning: You are changing the slug from "${guide.slug}" to "${payload.slug}".\n\n` +
+          `This will affect how the guide is accessed.\n\n` +
+          `Are you sure you want to continue?`
+        );
+        if (!confirmChange) return;
+      }
+      
+      // For GHC guides, add extra validation
+      if (isGHCGuide) {
+        console.log(`[Admin Editor] Updating GHC guide: ${guide.slug} (ID: ${id})`);
+        console.log(`[Admin Editor] Title: ${guide.title}`);
+        console.log(`[Admin Editor] Body length: ${payload.body?.length || 0} chars`);
+        
+        // Double-check the slug hasn't changed
+        if (payload.slug !== guide.slug) {
+          console.error(`[Admin Editor] ERROR: Slug mismatch detected! Expected: ${guide.slug}, Got: ${payload.slug}`);
+        }
+      } else {
+        console.log(`[Admin Editor] Updating guide: id=${id}, slug=${guide.slug}, title=${guide.title}`);
+      }
+      
+      try {
+        await updateGuide(id, payload as any)
+        if (isGHCGuide) {
+          console.log(`[Admin Editor] ✅ Successfully updated GHC guide: ${guide.slug}`);
+        }
+        navigate('/admin/guides')
+      } catch (error: any) {
+        console.error('[Admin Editor] Update failed:', error);
+        alert(`Failed to update guide: ${error.message || 'Unknown error'}`);
+      }
     } else {
       const res = await createGuide(payload)
       navigate(`/admin/guides/${(res as any).id}`)
@@ -49,6 +97,38 @@ const GuideEditor: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-6">
       <h1 className="text-2xl font-bold mb-4">{id ? 'Edit Guide' : 'New Guide'}</h1>
+      {id && guide.slug && (
+        <div className={`mb-4 p-3 border rounded-lg ${
+          ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
+            ? 'bg-amber-50 border-amber-300' 
+            : 'bg-blue-50 border-blue-200'
+        }`}>
+          <p className={`text-sm font-semibold ${
+            ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
+              ? 'text-amber-900' 
+              : 'text-blue-800'
+          }`}>
+            <strong>Editing:</strong> <code className={`px-2 py-1 rounded ${
+              ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
+                ? 'bg-amber-100' 
+                : 'bg-blue-100'
+            }`}>{guide.slug}</code> 
+            {guide.title && <span className="ml-2">({guide.title})</span>}
+          </p>
+          {['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug) && (
+            <p className="text-xs text-amber-700 mt-1 font-medium">
+              ⚠️ GHC Element: Slug is fixed and cannot be changed to another GHC slug
+            </p>
+          )}
+          <p className={`text-xs mt-1 ${
+            ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
+              ? 'text-amber-600' 
+              : 'text-blue-600'
+          }`}>
+            Guide ID: {id}
+          </p>
+        </div>
+      )}
       <form className="space-y-4 max-w-3xl" onSubmit={handleSubmit}>
         <div>
           <label className="block text-sm font-medium">Title</label>
@@ -61,7 +141,33 @@ const GuideEditor: React.FC = () => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium">Slug</label>
-            <input className="border rounded px-3 py-2 w-full" value={guide.slug || ''} onChange={e => onChange('slug', e.target.value)} />
+            {['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug || '') ? (
+              <div>
+                <input 
+                  className="border rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed" 
+                  value={guide.slug || ''} 
+                  readOnly
+                  disabled
+                />
+                <p className="text-xs text-amber-600 mt-1 font-medium">
+                  ⚠️ GHC Element: Slug is locked and cannot be changed
+                </p>
+              </div>
+            ) : (
+              <>
+                <input 
+                  className="border rounded px-3 py-2 w-full" 
+                  value={guide.slug || ''} 
+                  onChange={e => onChange('slug', e.target.value)}
+                  placeholder="e.g., dq-vision, dq-hov"
+                />
+                {guide.slug && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Current slug: <code className="bg-gray-100 px-1 rounded">{guide.slug}</code>
+                  </p>
+                )}
+              </>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium">Hero Image URL</label>
