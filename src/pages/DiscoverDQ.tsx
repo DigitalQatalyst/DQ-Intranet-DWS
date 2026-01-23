@@ -59,6 +59,29 @@ const DiscoverDQ: React.FC = () => {
       >
         {/* Hero */}
         <Discover_HeroSection />
+        <div className="sticky top-16 z-[110] bg-[#030F35] border-b border-slate-800/80 backdrop-blur-sm">
+          <nav
+            className="mx-auto flex max-w-6xl items-center gap-3 overflow-x-auto px-6 py-3 text-xs text-slate-100 sm:px-10 sm:text-sm lg:px-12"
+            aria-label="On this page"
+          >
+            <span className="mr-1 hidden whitespace-nowrap text-slate-300 sm:inline">On this page:</span>
+            {[
+              { href: '#growth-areas', label: 'DQ in 90 seconds' },
+              { href: '#dq-dna', label: 'DNA & language' },
+              { href: '#dq-timeline', label: "What's changed & frameworks" },
+              { href: '#dq-voices', label: 'Voices & moments' },
+              { href: '#dq-actions', label: 'Quick actions & signals' },
+            ].map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="whitespace-nowrap rounded-full px-3 py-1 font-medium text-slate-100/80 transition-colors duration-200 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        </div>
         {/* Identity snapshot: DQ in 90 seconds */}
         <section
           id="growth-areas"
@@ -88,7 +111,7 @@ const DiscoverDQ: React.FC = () => {
                 ].map((stat) => (
                   <div
                     key={stat.label}
-                    className="rounded-2xl bg-slate-50 px-4 py-3 shadow-sm"
+                    className="rounded-2xl bg-slate-50 px-4 py-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                   >
                     <div className="text-xl font-semibold text-[#162862]">{stat.value}</div>
                     <div className="mt-1 text-xs font-medium text-slate-500 uppercase tracking-[0.14em]">
@@ -100,7 +123,7 @@ const DiscoverDQ: React.FC = () => {
             </div>
 
             <div className="mt-8 grid gap-6 md:grid-cols-3">
-              <div className="rounded-2xl bg-slate-50 p-5">
+              <div className="rounded-2xl bg-slate-50 p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                 <h3 className="text-sm font-semibold text-[#162862] tracking-[0.16em] uppercase">
                   Big idea
                 </h3>
@@ -109,7 +132,7 @@ const DiscoverDQ: React.FC = () => {
                   from day one and beyond.
                 </p>
               </div>
-              <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+              <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                 <h3 className="text-sm font-semibold text-[#162862] tracking-[0.16em] uppercase">
                   For new joiners
                 </h3>
@@ -118,7 +141,7 @@ const DiscoverDQ: React.FC = () => {
                   across DWS.
                 </p>
               </div>
-              <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+              <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                 <h3 className="text-sm font-semibold text-[#162862] tracking-[0.16em] uppercase">
                   For existing associates
                 </h3>
@@ -131,7 +154,7 @@ const DiscoverDQ: React.FC = () => {
         </section>
 
         {/* DNA and orientation */}
-        <section className="bg-slate-50 py-16">
+        <section id="dq-dna" className="bg-slate-50 py-16 scroll-mt-[72px]">
           <div className="mx-auto max-w-6xl px-6 sm:px-10 lg:px-12 text-left">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="max-w-xl">
@@ -145,12 +168,20 @@ const DiscoverDQ: React.FC = () => {
               </p>
             </div>
 
-            <div className="mt-8 grid gap-6 md:grid-cols-3">
-              <div className="space-y-4">
-                <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.1fr)]">
+              {/* Left: core DNA behaviours, spread across the width */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                   <h3 className="text-sm font-semibold text-[#162862]">Client-outcome obsession</h3>
                   <p className="mt-2 text-sm text-slate-700">
                     We start from the outcomes our clients and DWS are trying to achieve, then design backwards.
+                  </p>
+                </div>
+                <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+                  <h3 className="text-sm font-semibold text-[#162862]">Deliberate simplicity</h3>
+                  <p className="mt-2 text-sm text-slate-700">
+                    We strip language and visuals back to the essentials so teams can reuse them without a
+                    facilitator.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
@@ -158,16 +189,6 @@ const DiscoverDQ: React.FC = () => {
                   <p className="mt-2 text-sm text-slate-700">
                     Strategy, operating model and delivery are always connected on one map, not treated as separate
                     tracks.
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
-                  <h3 className="text-sm font-semibold text-[#162862]">Deliberate simplicity</h3>
-                  <p className="mt-2 text-sm text-slate-700">
-                    We strip language and visuals back to the essentials so teams can reuse them without a
-                    facilitator.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
@@ -178,8 +199,9 @@ const DiscoverDQ: React.FC = () => {
                 </div>
               </div>
 
+              {/* Right: orientation and language helpers */}
               <div className="space-y-4">
-                <div className="rounded-2xl bg-slate-900 p-5 text-white">
+                <div className="rounded-2xl bg-slate-900 p-5 text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                   <h3 className="text-sm font-semibold tracking-[0.16em] uppercase text-white/80">
                     If you are new, start here
                   </h3>
@@ -212,7 +234,7 @@ const DiscoverDQ: React.FC = () => {
         </section>
 
         {/* Timeline and frameworks */}
-        <section className="bg-white py-16 border-t border-gray-100">
+        <section id="dq-timeline" className="bg-white py-16 border-t border-gray-100 scroll-mt-[72px]">
           <div className="mx-auto max-w-6xl px-6 sm:px-10 lg:px-12 text-left">
             <div className="grid gap-10 lg:grid-cols-2">
               <div>
@@ -255,7 +277,7 @@ const DiscoverDQ: React.FC = () => {
                   <p className="mt-2 text-sm text-slate-700">
                     Highlighting the lenses most used across current engagements.
                   </p>
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {[
                       {
                         name: "DQ Strategy Map",
@@ -272,7 +294,7 @@ const DiscoverDQ: React.FC = () => {
                     ].map((framework) => (
                       <article
                         key={framework.name}
-                        className="rounded-2xl bg-slate-50 p-4 shadow-sm ring-1 ring-slate-200"
+                        className="rounded-2xl bg-slate-50 p-4 shadow-sm ring-1 ring-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                       >
                         <h3 className="text-sm font-semibold text-[#162862]">{framework.name}</h3>
                         <p className="mt-2 text-xs sm:text-sm text-slate-700">{framework.use}</p>
@@ -284,7 +306,7 @@ const DiscoverDQ: React.FC = () => {
                 <div>
                   <h2 className="text-base sm:text-lg font-semibold text-[#162862]">Inside DQ: then vs now</h2>
                   <div className="mt-3 grid gap-4 sm:grid-cols-2 text-sm text-slate-700">
-                    <div className="rounded-2xl bg-slate-50 p-4">
+                    <div className="rounded-2xl bg-slate-50 p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Before</p>
                       <ul className="mt-2 space-y-1">
                         <li>Separate decks for every client story.</li>
@@ -292,7 +314,7 @@ const DiscoverDQ: React.FC = () => {
                         <li>Hard to see how work fits the bigger picture.</li>
                       </ul>
                     </div>
-                    <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+                    <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#0E1446]">Now with DQ</p>
                       <ul className="mt-2 space-y-1">
                         <li>One shared narrative and visual backbone.</li>
@@ -308,7 +330,7 @@ const DiscoverDQ: React.FC = () => {
         </section>
 
         {/* Human stories and signals */}
-        <section className="bg-slate-900 py-16 text-white">
+        <section id="dq-voices" className="bg-slate-900 py-16 text-white scroll-mt-[72px]">
           <div className="mx-auto max-w-6xl px-6 sm:px-10 lg:px-12 text-left">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div>
@@ -326,7 +348,7 @@ const DiscoverDQ: React.FC = () => {
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold tracking-[0.16em] uppercase text-white/80">DQ voices</h3>
                 <ul className="space-y-3 text-sm text-white/90">
-                  <li className="rounded-2xl bg-white/5 p-4">
+                  <li className="rounded-2xl bg-white/5 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10">
                     "DQ gives us a single story to explain why our portfolio looks the way it does."
                     <span className="block text-xs text-white/70 mt-2">Engagement Lead</span>
                   </li>
@@ -344,7 +366,7 @@ const DiscoverDQ: React.FC = () => {
               <div className="space-y-4">
                 <h3 className="text-sm font-semibold tracking-[0.16em] uppercase text-white/80">Moments that define DQ</h3>
                 <ul className="space-y-3 text-sm text-white/90">
-                  <li className="rounded-2xl bg-white/5 p-4">
+                  <li className="rounded-2xl bg-white/5 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10">
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300">
                       First cross-practice DQ program
                     </p>
@@ -373,7 +395,7 @@ const DiscoverDQ: React.FC = () => {
         </section>
 
         {/* Utility and quick actions */}
-        <section className="bg-white py-16 border-t border-gray-100">
+        <section id="dq-actions" className="bg-white py-16 border-t border-gray-100 scroll-mt-[72px]">
           <div className="mx-auto max-w-6xl px-6 sm:px-10 lg:px-12 text-left">
             <div className="grid gap-10 md:grid-cols-2">
               <div>
@@ -420,7 +442,7 @@ const DiscoverDQ: React.FC = () => {
                   A compact view of what has just changed, what is in motion and what is coming next.
                 </p>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-2xl bg-slate-50 p-4">
+                  <div className="rounded-2xl bg-slate-50 p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
                     <h3 className="text-sm font-semibold text-[#162862]">Pulse updates</h3>
                     <ul className="mt-2 space-y-1 text-xs sm:text-sm text-slate-700">
                       <li>New narrative framing for enterprise programs published.</li>
