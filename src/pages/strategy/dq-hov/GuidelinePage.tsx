@@ -159,6 +159,7 @@ function GuidelinePage() {
         title={guide.title}
         subtitle="DQ Leadership • Digital Qatalyst"
         imageUrl={guide.hero_image_url || undefined}
+        badge="Strategy Framework"
       />
 
       <main className="flex-1">

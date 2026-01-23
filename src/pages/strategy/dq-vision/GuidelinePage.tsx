@@ -24,13 +24,18 @@ function GuidelinePage() {
     ;(async () => {
       try {
         setLoading(true)
+        // Force fresh fetch - add timestamp to bypass cache
+        const timestamp = Date.now()
         const { data, error: fetchError } = await supabaseClient
           .from('guides')
           .select('*')
           .eq('slug', currentSlug)
           .maybeSingle()
         
-        if (fetchError) throw fetchError
+        if (fetchError) {
+          console.error('❌ [DQ-VISION] Fetch error:', fetchError)
+          throw fetchError
+        }
         
         if (!cancelled) {
           if (data) {
@@ -160,6 +165,7 @@ function GuidelinePage() {
         title={guide.title}
         subtitle="DQ Leadership • Digital Qatalyst"
         imageUrl={guide.hero_image_url || undefined}
+        badge="Strategy Framework"
       />
 
       <main className="flex-1">

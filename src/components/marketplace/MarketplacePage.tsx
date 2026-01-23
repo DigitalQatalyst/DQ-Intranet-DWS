@@ -1085,13 +1085,15 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               return strategyFrameworks.some(selectedFramework => {
                 const normalizedSelected = slugify(selectedFramework);
                 // Check various fields for framework matches
+                if (selectedFramework === 'ghc') {
+                  return allText.includes('ghc') || allText.includes('golden honeycomb');
+                } else if (selectedFramework === 'hov') {
+                  return allText.includes('hov') || 
+                         allText.includes('house of values') ||
+                         allText.includes('competencies');
+                }
                 return allText.includes(selectedFramework.toLowerCase()) ||
-                       allText.includes(normalizedSelected) ||
-                       (selectedFramework === '6xd' && (allText.includes('6xd') || allText.includes('digital-framework'))) ||
-                       (selectedFramework === 'ghc' && allText.includes('ghc')) ||
-                       (selectedFramework === 'clients' && allText.includes('client')) ||
-                       (selectedFramework === 'ghc-leader' && allText.includes('ghc-leader')) ||
-                       (selectedFramework === 'testimonials-insights' && (allText.includes('testimonial') || allText.includes('insight')));
+                       allText.includes(normalizedSelected);
               });
             });
           }

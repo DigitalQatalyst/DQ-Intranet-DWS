@@ -155,7 +155,25 @@ const GuideDetailPage: React.FC = () => {
   const isDQGHC = useMemo(() => {
     const slug = (guide?.slug || '').toLowerCase()
     const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-ghc' || slug === 'ghc' || slug === 'golden-honeycomb' || title.includes('ghc') || title.includes('golden honeycomb') || (title.includes('foundation') && title.includes('dna'))
+    // Only match the main GHC overview page by slug (most reliable)
+    // Exclude GHC competency/element pages which have different slugs
+    if (slug === 'dq-ghc' || slug === 'ghc' || slug === 'golden-honeycomb') {
+      return true
+    }
+    // Fallback: Only match title if it's exactly the main GHC overview page
+    // Exclude any page that is a GHC competency or element (they have specific slugs)
+    const isGHCCompetencyOrElement = slug.includes('competency') || slug.includes('vision') || 
+                                      slug.includes('hov') || slug.includes('persona') || 
+                                      slug.includes('agile-tms') || slug.includes('agile-sos') ||
+                                      slug.includes('agile-flows') || slug.includes('agile-6xd')
+    if (isGHCCompetencyOrElement) {
+      return false
+    }
+    // Match main GHC page title patterns (only if not a competency/element)
+    return (title.includes('golden honeycomb of competencies') && 
+            !title.includes('competency:') && 
+            !title.includes('ghc competency')) ||
+           (title.includes('foundation') && title.includes('dna'))
   }, [guide?.slug, guide?.title])
   const isDQVision = useMemo(() => {
     const slug = (guide?.slug || '').toLowerCase()

@@ -7,6 +7,26 @@ interface GuidelineSectionProps {
 }
 
 export function GuidelineSection({ id, title, children }: GuidelineSectionProps) {
+  const isProTipSection = title.toLowerCase().startsWith('pro tip')
+
+  if (isProTipSection) {
+    return (
+      <section id={id} className="mb-16 scroll-mt-24">
+        <div
+          className="mb-6 p-6 rounded-lg border-l-4"
+          style={{ backgroundColor: 'var(--guidelines-primary-surface)', borderColor: 'var(--guidelines-primary)' }}
+        >
+          <p className="text-lg font-semibold text-gray-800 mb-2">
+            {title}
+          </p>
+          <div className="text-gray-700 leading-relaxed">
+            {children}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section id={id} className="mb-16 scroll-mt-24">
       <div className="relative flex items-center">

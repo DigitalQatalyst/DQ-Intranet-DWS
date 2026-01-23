@@ -53,7 +53,37 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
     const cleaned = value.toLowerCase().replace(/[_-]+/g, ' ').trim()
     return cleaned.endsWith('s') ? cleaned.slice(0, -1) : cleaned
   }
-  const domainLabel = isBlueprint ? 'Product' : formatLabel(domain)
+  
+  // Determine the badge label based on framework for Strategy guides
+  const getBadgeLabel = (): string => {
+    if (isBlueprint) return 'Product'
+    if (domain?.toLowerCase() === 'strategy') {
+      const slug = (guide.slug || '').toLowerCase()
+      const subDomain = (guide.subDomain || (guide as any).sub_domain || '').toLowerCase()
+      
+      // Check for HoV framework first (more specific)
+      // HoV includes: dq-hov and all dq-competencies-* guides
+      if (slug === 'dq-hov' || slug.includes('competencies') || subDomain.includes('hov') || subDomain.includes('competencies')) {
+        return 'HoV'
+      }
+      
+      // Check for GHC framework
+      // GHC includes: dq-ghc, dq-vision, dq-persona, dq-agile-*
+      if (slug === 'dq-ghc' || 
+          slug === 'dq-vision' || 
+          slug === 'dq-persona' || 
+          slug.includes('agile-') ||
+          (subDomain.includes('ghc') && !subDomain.includes('competencies'))) {
+        return 'GHC'
+      }
+      
+      // Default to Strategy if no framework match
+      return formatLabel(domain)
+    }
+    return formatLabel(domain)
+  }
+  
+  const domainLabel = getBadgeLabel()
   const isDuplicateTag = normalizeTag(domain) !== '' && normalizeTag(domain) === normalizeTag(guide.guideType)
   
   // Get product metadata if this is a product
