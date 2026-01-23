@@ -22,10 +22,10 @@ WHERE slug = 'dq-hov';
 
 -- 4. List all 7 expected GHC guides
 SELECT 
-  slug,
-  title,
+  g.slug,
+  guides.title,
   CASE 
-    WHEN EXISTS (SELECT 1 FROM guides WHERE slug = g.slug) THEN 'EXISTS'
+    WHEN guides.slug IS NOT NULL THEN 'EXISTS'
     ELSE 'MISSING'
   END as status
 FROM (VALUES 

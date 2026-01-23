@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react'
 
+interface Section {
+  id: string
+  label: string
+}
+
 interface SideNavProps {
+  sections?: Section[]
   activeSection?: string
   onSectionClick?: (sectionId: string) => void
 }
 
-const sections = [
+// Fallback sections if none provided
+const defaultSections: Section[] = [
   { id: 'introduction', label: 'Introduction' },
   { id: 'why-ghc-exists', label: 'Why the GHC Exists' },
   { id: 'seven-competencies', label: 'The 7 Competencies of the GHC' },
@@ -14,8 +21,8 @@ const sections = [
   { id: 'your-role-as-qatalyst', label: 'Your Role as a Qatalyst' },
 ]
 
-export function SideNav({ activeSection, onSectionClick }: SideNavProps) {
-  const [currentSection, setCurrentSection] = useState(activeSection || 'introduction')
+export function SideNav({ sections = defaultSections, activeSection, onSectionClick }: SideNavProps) {
+  const [currentSection, setCurrentSection] = useState(activeSection || sections[0]?.id || 'overview')
 
   useEffect(() => {
     const observerOptions = {
@@ -47,7 +54,7 @@ export function SideNav({ activeSection, onSectionClick }: SideNavProps) {
     return () => {
       observer.disconnect()
     }
-  }, [])
+  }, [sections])
 
   useEffect(() => {
     if (activeSection) {
@@ -63,6 +70,10 @@ export function SideNav({ activeSection, onSectionClick }: SideNavProps) {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
+  }
+
+  if (sections.length === 0) {
+    return null
   }
 
   return (
