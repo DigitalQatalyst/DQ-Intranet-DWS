@@ -42,7 +42,15 @@ function GuidelinePage() {
               return
             }
             setGuide(data)
-            console.log('Guide loaded:', data.title, 'Slug:', data.slug, 'ID:', data.id, 'Body length:', data.body?.length || 0)
+            console.log('✅ [DQ-VISION] Guide loaded:', {
+              id: data.id,
+              slug: data.slug,
+              title: data.title,
+              bodyLength: data.body?.length || 0,
+              bodyPreview: data.body ? data.body.substring(0, 100).replace(/\n/g, ' ') : 'EMPTY',
+              expectedSlug: currentSlug,
+              match: data.slug?.toLowerCase() === currentSlug.toLowerCase()
+            })
           } else {
             console.error('Guide not found for slug:', currentSlug)
             setError('Guide not found')
