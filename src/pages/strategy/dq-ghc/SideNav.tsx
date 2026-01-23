@@ -8,6 +8,7 @@ interface SideNavProps {
 const sections = [
   { id: 'introduction', label: 'Introduction' },
   { id: 'why-ghc-exists', label: 'Why the GHC Exists' },
+  { id: 'seven-competencies', label: 'The 7 Competencies of the GHC' },
   { id: 'how-ghc-shapes-you', label: 'How the GHC Shapes You' },
   { id: 'how-work-flows', label: 'How Work Flows at DQ' },
   { id: 'your-role-as-qatalyst', label: 'Your Role as a Qatalyst' },
