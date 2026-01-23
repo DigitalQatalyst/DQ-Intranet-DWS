@@ -891,6 +891,62 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     route: '/marketplace/guides',
     title: 'DQ Knowledge Center',
     description: 'Access practical guidelines, templates, and processes to support everyday delivery and collaboration.'
+  },
+  // Events marketplace configuration
+  events: {
+    id: 'events',
+    title: 'Events',
+    description: 'Discover upcoming events, workshops, and networking opportunities.',
+    route: '/marketplace/events',
+    primaryCTA: 'Register',
+    secondaryCTA: 'View Details',
+    itemName: 'Event',
+    itemNamePlural: 'Events',
+    attributes: [
+      {
+        key: 'date',
+        label: 'Date',
+        icon: React.createElement(Calendar, { size: 18, className: "mr-2" })
+      },
+      {
+        key: 'location',
+        label: 'Location',
+        icon: React.createElement(MapPin, { size: 18, className: "mr-2" })
+      },
+      {
+        key: 'duration',
+        label: 'Duration',
+        icon: React.createElement(Clock, { size: 18, className: "mr-2" })
+      }
+    ],
+    detailSections: ['description', 'schedule', 'location', 'registration'],
+    tabs: [],
+    filterCategories: [
+      {
+        id: 'eventType',
+        title: 'Event Type',
+        options: [
+          { id: 'workshop', name: 'Workshop' },
+          { id: 'conference', name: 'Conference' },
+          { id: 'networking', name: 'Networking' },
+          { id: 'training', name: 'Training' }
+        ]
+      },
+      {
+        id: 'date',
+        title: 'Date',
+        options: [
+          { id: 'upcoming', name: 'Upcoming' },
+          { id: 'this_week', name: 'This Week' },
+          { id: 'this_month', name: 'This Month' }
+        ]
+      }
+    ],
+    mockData: {
+      items: [],
+      filterOptions: {},
+      providers: []
+    }
   }
 };
 // Helper to get config by marketplace type

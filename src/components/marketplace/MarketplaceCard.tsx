@@ -351,24 +351,28 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
         )}
       </div>
     </div>
-    {/* Card Footer - with two buttons */}
-    <div className="mt-auto border-t border-gray-100 p-4 pt-5">
+    {/* Card Footer - Single button for Services Center, two buttons for others */}
+    <div className="mt-auto border-t border-gray-100 px-4 py-2.5">
       <div className="flex justify-between gap-2">
-        <button
-          onClick={handleViewDetails}
-          className={`px-4 py-2 text-sm font-medium bg-white border rounded-md transition-colors whitespace-nowrap min-w-[120px] flex-1 ${marketplaceType === 'events'
-              ? 'text-dq-navy border-dq-navy hover:bg-dq-navy/10'
-              : 'text-blue-600 border-blue-600 hover:bg-blue-50'
-            }`}
-        >
-          {config.secondaryCTA}
-        </button>
+        {/* View Details button - HIDDEN for Services Center */}
+        {marketplaceType !== 'non-financial' && (
+          <button
+            onClick={handleViewDetails}
+            className={`px-4 py-2 text-sm font-medium bg-white border rounded-md transition-colors whitespace-nowrap min-w-[120px] flex-1 ${marketplaceType === 'events'
+                ? 'text-dq-navy border-dq-navy hover:bg-dq-navy/10'
+                : 'text-blue-600 border-blue-600 hover:bg-blue-50'
+              }`}
+          >
+            {config.secondaryCTA}
+          </button>
+        )}
+        {/* Primary Action button */}
         <button
           onClick={handlePrimaryAction}
-          className={`px-4 py-2 text-sm font-bold text-white rounded-md transition-colors whitespace-nowrap flex-1 ${marketplaceType === 'events'
-              ? 'bg-dq-navy hover:bg-[#13285A]'
-              : 'bg-blue-600 hover:bg-blue-700'
-            }`}
+          className="px-4 py-2 text-sm font-bold text-white rounded-md transition-colors whitespace-nowrap flex-1"
+          style={{ backgroundColor: '#030F35' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#020a23'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030F35'}
         >
           {getPrimaryCTAText()}
         </button>

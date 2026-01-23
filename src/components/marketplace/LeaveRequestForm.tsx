@@ -4,6 +4,7 @@ import { User, LeaveType } from '../../utils/types';
 import ApproverList from './ApproverList';
 import ConfirmationModal from './ConfirmationModal';
 import { submitLeaveRequestWithApprovers, fetchActiveApprovers } from '../../lib/leaveRequestService';
+import { useAuth } from '../Header/context/AuthContext';
 
 interface LeaveRequestFormProps {
   isOpen: boolean;
@@ -12,6 +13,10 @@ interface LeaveRequestFormProps {
 }
 
 const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose }) => {
+  // Get authenticated user
+  const { user } = useAuth();
+  const userEmail = user?.email || '';
+
   const [requestName, setRequestName] = useState('');
   const [email, setEmail] = useState('');
   const [approvers, setApprovers] = useState<User[]>([]);
@@ -27,18 +32,18 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose }) 
   const [availableApprovers, setAvailableApprovers] = useState<User[]>([]);
   const [isLoadingApprovers, setIsLoadingApprovers] = useState(false);
 
+  // Auto-populate email from authenticated user
   useEffect(() => {
-    // Email validation helper
-    const isValidEmail = (email: string): boolean => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(email.trim());
-    };
+    if (userEmail) {
+      setEmail(userEmail);
+    }
+  }, [userEmail]);
 
+  useEffect(() => {
     // Simple validation logic
     const isValid =
       requestName.trim().length > 0 &&
       email.trim().length > 0 &&
-      isValidEmail(email) &&
       selectedLeaveType !== '' &&
       startDate !== '' &&
       endDate !== '' &&
@@ -57,6 +62,30 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose }) 
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  // Require authentication
+  if (!userEmail) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+        <div className="relative bg-white p-6 rounded-lg shadow-xl max-w-md">
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Authentication Required</h3>
+          <p className="text-gray-600 mb-4">
+            Please sign in to submit a leave request.
+          </p>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-white rounded hover:bg-indigo-700 transition-colors"
+            style={{ backgroundColor: '#030F35' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#020a23'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030F35'}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleRemoveApprover = (id: string) => {
     setApprovers((prev) => prev.filter((user) => user.id !== id));
@@ -205,10 +234,13 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose }) 
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email address"
-              className="w-full bg-gray-50 border border-gray-200 text-gray-700 py-3 px-4 rounded focus:outline-none focus:bg-white focus:border-indigo-500 transition-colors"
+              readOnly
+              disabled
+              className="w-full bg-gray-50 border border-gray-300 text-gray-600 py-3 px-4 rounded cursor-not-allowed"
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Email automatically populated from your account
+            </p>
           </div>
 
           {/* Approvers Section */}

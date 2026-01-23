@@ -3,6 +3,7 @@ import { X, ChevronLeft, Upload, Cloud } from 'lucide-react';
 
 import { supabase } from '@/lib/supabaseClient';
 import ConfirmationModal from './ConfirmationModal';
+import { useAuth } from '../Header/context/AuthContext';
 
 interface TechSupportFormProps {
   isOpen: boolean;
@@ -27,12 +28,6 @@ type CategoryOption = (typeof CATEGORY_OPTIONS)[number];
 
 const PRIORITY_OPTIONS = ['High', 'Medium', 'Low'] as const;
 type PriorityOption = (typeof PRIORITY_OPTIONS)[number];
-
-// Email validation helper
-const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email.trim());
-};
 
 // Generate unique Ticket Number for each submission
 // Format: TSR-YYYYMMDD-XXXX (e.g., TSR-20260115-A7B3)
@@ -105,6 +100,18 @@ interface TechSupportRequestPayload {
 }
 
 export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
+  // Get authenticated user
+  const { user } = useAuth();
+  const userEmail = user?.email || '';
+
+  // Debug: Log authentication state
+  console.log('🔐 TechSupportForm - Auth Debug:', {
+    user,
+    userEmail,
+    hasUser: !!user,
+    hasEmail: !!userEmail
+  });
+
   const [email, setEmail] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryOption | ''>('');
   const [issueDescription, setIssueDescription] = useState('');
@@ -116,9 +123,16 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submittedTicketNumber, setSubmittedTicketNumber] = useState<string | null>(null);
 
+  // Auto-populate email from authenticated user
+  useEffect(() => {
+    if (userEmail) {
+      setEmail(userEmail);
+    }
+  }, [userEmail]);
+
   useEffect(() => {
     const isValid =
-      isValidEmail(email) &&
+      email.trim().length > 0 &&
       selectedCategory !== '' &&
       issueDescription.trim().length > 0 &&
       issueDescription.trim().length <= MAX_DESCRIPTION_LENGTH;
@@ -143,6 +157,30 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  // Require authentication
+  if (!userEmail) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+        <div className="relative bg-white p-6 rounded-lg shadow-xl max-w-md">
+          <h3 className="text-lg font-bold text-gray-900 mb-2">Authentication Required</h3>
+          <p className="text-gray-600 mb-4">
+            Please sign in to submit a support request.
+          </p>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-white rounded hover:bg-indigo-700 transition-colors"
+            style={{ backgroundColor: '#030F35' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#020a23'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030F35'}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -333,19 +371,21 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
             <input
               type="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="your.email@example.com"
-              className={`w-full bg-gray-100 border-none text-gray-700 p-4 rounded focus:outline-none focus:ring-2 transition-colors ${
-                email && !isValidEmail(email)
-                  ? 'focus:ring-red-500 border-red-300'
-                  : 'focus:ring-indigo-500'
+              onChange={(e) => !userEmail && setEmail(e.target.value)}
+              readOnly={!!userEmail}
+              disabled={!!userEmail}
+              placeholder={userEmail ? '' : 'your.email@example.com'}
+              className={`w-full p-4 rounded ${
+                userEmail
+                  ? 'bg-gray-50 border border-gray-300 text-gray-600 cursor-not-allowed'
+                  : 'bg-gray-100 border-none text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500'
               }`}
             />
-            {email && !isValidEmail(email) && (
-              <p className="mt-1 text-xs text-red-600">
-                Please enter a valid email address
-              </p>
-            )}
+            <p className="mt-1 text-xs text-gray-500">
+              {userEmail
+                ? `Email automatically populated from your account (${userEmail})`
+                : 'Please sign in or enter your email manually'}
+            </p>
           </div>
 
           {/* Question 2: Category */}

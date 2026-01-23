@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/communities/integrations/supabase/types';
+import type { Database } from '../communities/integrations/supabase/types';
 
 // Support both REACT_APP_ and VITE_ prefixes (prioritize VITE_ for consistency with your project)
 const url = (import.meta.env.VITE_SUPABASE_URL || import.meta.env.REACT_APP_SUPABASE_URL) as string;
