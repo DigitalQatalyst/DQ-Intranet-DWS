@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { getGuide, getGuideTaxonomies } from '../../../services/guides';
 import { createGuide, updateGuide } from '../../../services/adminGuides';
 import { Guide, GuideTaxonomies } from '../../../types/guide';
+import { supabaseClient } from '../../../lib/supabaseClient';
 
 const empty: Guide = { title: '', status: 'draft', contributors: [], steps: [], attachments: [], templates: [], relatedTools: [] };
 
@@ -11,6 +12,7 @@ const GuideEditor: React.FC = () => {
   const [guide, setGuide] = useState<Guide>(empty);
   const [tax, setTax] = useState<GuideTaxonomies | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sharedContentWarning, setSharedContentWarning] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,9 +24,42 @@ const GuideEditor: React.FC = () => {
         ]);
         setTax(t);
         setGuide(g);
+        
+        // Check for shared content if this is a GHC guide
+        if (id && g.slug && ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(g.slug)) {
+          checkForSharedContent(g.slug, g.body || '');
+        }
       } finally { setLoading(false); }
     })();
   }, [id]);
+
+  async function checkForSharedContent(currentSlug: string, currentBody: string) {
+    if (!currentBody || currentBody.trim().length === 0) return;
+    
+    try {
+      const { data: allGHCGuides } = await supabaseClient
+        .from('guides')
+        .select('id, slug, title, body')
+        .in('slug', ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd']);
+      
+      if (!allGHCGuides) return;
+      
+      const sharedWith = allGHCGuides.filter(g => 
+        g.slug !== currentSlug && 
+        g.body && 
+        g.body.trim() === currentBody.trim()
+      );
+      
+      if (sharedWith.length > 0) {
+        setSharedContentWarning(
+          `⚠️ WARNING: This content is IDENTICAL to ${sharedWith.length} other GHC element(s): ${sharedWith.map(g => g.slug).join(', ')}. ` +
+          `This is why changes appear on multiple pages. Please make the content unique for each element.`
+        );
+      }
+    } catch (err) {
+      console.error('Error checking shared content:', err);
+    }
+  }
 
   const onChange = (k: keyof Guide, v: any) => setGuide(prev => ({ ...prev, [k]: v }));
 
@@ -98,36 +133,58 @@ const GuideEditor: React.FC = () => {
     <div className="container mx-auto px-4 py-6">
       <h1 className="text-2xl font-bold mb-4">{id ? 'Edit Guide' : 'New Guide'}</h1>
       {id && guide.slug && (
-        <div className={`mb-4 p-3 border rounded-lg ${
-          ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
-            ? 'bg-amber-50 border-amber-300' 
-            : 'bg-blue-50 border-blue-200'
-        }`}>
-          <p className={`text-sm font-semibold ${
+        <>
+          <div className={`mb-4 p-3 border rounded-lg ${
             ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
-              ? 'text-amber-900' 
-              : 'text-blue-800'
+              ? 'bg-amber-50 border-amber-300' 
+              : 'bg-blue-50 border-blue-200'
           }`}>
-            <strong>Editing:</strong> <code className={`px-2 py-1 rounded ${
+            <p className={`text-sm font-semibold ${
               ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
-                ? 'bg-amber-100' 
-                : 'bg-blue-100'
-            }`}>{guide.slug}</code> 
-            {guide.title && <span className="ml-2">({guide.title})</span>}
-          </p>
-          {['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug) && (
-            <p className="text-xs text-amber-700 mt-1 font-medium">
-              ⚠️ GHC Element: Slug is fixed and cannot be changed to another GHC slug
+                ? 'text-amber-900' 
+                : 'text-blue-800'
+            }`}>
+              <strong>Editing:</strong> <code className={`px-2 py-1 rounded ${
+                ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
+                  ? 'bg-amber-100' 
+                  : 'bg-blue-100'
+              }`}>{guide.slug}</code> 
+              {guide.title && <span className="ml-2">({guide.title})</span>}
             </p>
+            {['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug) && (
+              <p className="text-xs text-amber-700 mt-1 font-medium">
+                ⚠️ GHC Element: Slug is fixed and cannot be changed to another GHC slug
+              </p>
+            )}
+            <p className={`text-xs mt-1 ${
+              ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
+                ? 'text-amber-600' 
+                : 'text-blue-600'
+            }`}>
+              Guide ID: {id}
+            </p>
+          </div>
+          
+          {sharedContentWarning && (
+            <div className="mb-4 p-4 bg-red-50 border-2 border-red-300 rounded-lg">
+              <div className="flex items-start">
+                <svg className="h-5 w-5 text-red-600 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-red-800 font-semibold mb-1">CRITICAL: Shared Content Detected</p>
+                  <p className="text-red-700 text-sm">{sharedContentWarning}</p>
+                  <Link 
+                    to="/admin/ghc-inspector"
+                    className="mt-2 inline-block text-sm text-blue-600 hover:underline font-medium"
+                  >
+                    View GHC Inspector to see all shared content →
+                  </Link>
+                </div>
+              </div>
+            </div>
           )}
-          <p className={`text-xs mt-1 ${
-            ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
-              ? 'text-amber-600' 
-              : 'text-blue-600'
-          }`}>
-            Guide ID: {id}
-          </p>
-        </div>
+        </>
       )}
       <form className="space-y-4 max-w-3xl" onSubmit={handleSubmit}>
         <div>
