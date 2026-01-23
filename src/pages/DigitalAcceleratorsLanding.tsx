@@ -90,7 +90,7 @@ const acceleratorSections: AcceleratorSection[] = [
     title: 'DTMA (Digital Transformation Management Academy)',
     question: 'How do professionals learn and apply digital transformation effectively?',
     supportingLines: [
-      'DTMA is DQ’s structured learning platform for understanding digital transformation and AI in real organisational contexts.',
+      'DTMA is DQ\'s structured learning platform for understanding digital transformation and AI in real organisational contexts.',
       'It combines curated courses, practical tools, and guided learning to support confident planning and execution.',
       'By linking learning directly to practice, DTMA helps professionals apply knowledge to real transformation initiatives.',
     ],
@@ -98,6 +98,22 @@ const acceleratorSections: AcceleratorSection[] = [
     imageAlt: 'DTMA visual',
     primaryCtaText: 'View Products',
     primaryRoute: '/marketplace/directory/products',
+  },
+  {
+    id: 'dws',
+    number: '06',
+    subtitle: 'Products',
+    title: 'Digital Working Studios (DWS)',
+    question: 'How do digital workers collaborate effectively with AI in Economy 4.0?',
+    supportingLines: [
+      'Digital Working Studios (DWS) are DQ\'s purpose-built environments for AI-augmented work and collaboration.',
+      'They provide the physical and digital infrastructure where professionals combine human intelligence with machine intelligence to deliver outcomes faster and smarter.',
+      'Starting in Nairobi (Babadogo) and expanding globally, DWS enables the next generation of digital workers to thrive.',
+    ],
+    imageSrc: 'https://i.ibb.co/YrMFv7w/photo-1497366216548-37526070297c.jpg',
+    imageAlt: 'Digital Working Studios visual',
+    primaryCtaText: 'Join Waitlist',
+    primaryRoute: '/dws/waitlist',
   },
 ];
 
@@ -126,16 +142,64 @@ export function DigitalAcceleratorsLanding() {
     <div className="flex min-h-screen flex-col bg-white">
       <style>{`
         @keyframes floatSlow {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          50% { transform: translateY(-30px) translateX(15px); }
+          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+          25% { transform: translateY(-30px) translateX(15px) rotate(5deg); }
+          50% { transform: translateY(-15px) translateX(-15px) rotate(-5deg); }
+          75% { transform: translateY(15px) translateX(10px) rotate(3deg); }
         }
         @keyframes rotateSlow {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
         @keyframes pulse {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 0.4; }
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        @keyframes gradientDrift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        @keyframes accelerate {
+          0% { transform: translateX(-200px) translateY(0) scale(0.8); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateX(200px) translateY(0) scale(1.2); opacity: 0; }
+        }
+        @keyframes speedLine {
+          0% { transform: translateX(-100px) scaleX(0); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateX(100px) scaleX(1); opacity: 0; }
+        }
+        @keyframes platformPulse {
+          0%, 100% { opacity: 0.3; transform: scale(1) translateY(0); }
+          50% { opacity: 0.6; transform: scale(1.1) translateY(-10px); }
+        }
+        @keyframes deliveryFlow {
+          0% { transform: translateY(-100px) translateX(0); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateY(100px) translateX(0); opacity: 0; }
+        }
+        @keyframes velocityStreak {
+          0% { transform: translateX(-150px) skewX(-20deg); opacity: 0; }
+          50% { opacity: 0.8; }
+          100% { transform: translateX(150px) skewX(-20deg); opacity: 0; }
+        }
+        @keyframes productModule {
+          0%, 100% { opacity: 0.4; transform: scale(1) translateY(0); }
+          50% { opacity: 0.7; transform: scale(1.05) translateY(-5px); }
+        }
+        @keyframes dataStream {
+          0% { transform: translateX(-100px) translateY(0); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateX(100px) translateY(0); opacity: 0; }
+        }
+        @keyframes serviceFlow {
+          0% { stroke-dashoffset: 0; opacity: 0.3; }
+          50% { stroke-dashoffset: -30; opacity: 0.6; }
+          100% { stroke-dashoffset: -60; opacity: 0.3; }
+        }
+        @keyframes toolPulse {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.1); }
         }
       `}</style>
 
@@ -144,98 +208,321 @@ export function DigitalAcceleratorsLanding() {
       <main className="flex-grow">
         {/* SECTION 1 — HERO: Digital Accelerators */}
         <section className="relative w-full overflow-hidden flex flex-col isolate h-auto md:h-[600px] lg:h-[700px] pt-24 pb-20 md:pt-24 md:pb-20">
-          <div
+          {/* Animated DWS Gradient Base */}
+          <div 
             className="absolute inset-0 z-0"
             style={{
-              backgroundImage:
-                'url("https://i.ibb.co/0HVQCQg/ai-images.jpg"), linear-gradient(135deg, #030F35 0%, #1A2E6E 35%, #3A2C7A 65%, #FB5535 100%)',
-              backgroundSize: 'cover, 120% 120%',
-              backgroundPosition: 'center, center',
-              backgroundRepeat: 'no-repeat, no-repeat',
-              backgroundColor: '#030F35',
-            }}
-          />
-          <div
-            className="absolute inset-0 z-[1]"
-            style={{
-              background:
-                'linear-gradient(to bottom, rgba(3, 15, 53, 0.4) 0%, rgba(26, 46, 110, 0.28) 35%, rgba(3, 15, 53, 0.32) 70%, rgba(251, 85, 53, 0.18) 100%)',
-              backgroundSize: '100% 100%',
-              backgroundRepeat: 'no-repeat',
+              background: 'linear-gradient(135deg, #030F35 0%, #1A2E6E 30%, #030F35 60%, #1A2E6E 90%, #030F35 100%)',
+              backgroundSize: '300% 300%',
+              animation: 'gradientDrift 16s ease infinite'
             }}
           />
 
-          {/* Subtle animated geometry (low contrast) */}
-          <div className="absolute inset-0 opacity-[0.03] z-[2]">
+          {/* Digital Accelerators Products - Platform & Tool Visualizations */}
+          <div className="absolute inset-0 z-[2] pointer-events-none">
             <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
               <defs>
-                <linearGradient id="daGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.35" />
-                  <stop offset="55%" stopColor="#1A2E6E" stopOpacity="0.18" />
+                <linearGradient id="productGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#1A2E6E" stopOpacity="0.3" />
+                </linearGradient>
+                <linearGradient id="productGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.25" />
+                </linearGradient>
+                <linearGradient id="serviceGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0" />
+                  <stop offset="50%" stopColor="#FB5535" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#FB5535" stopOpacity="0" />
+                </linearGradient>
+                <filter id="productGlow">
+                  <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              
+              {/* Product Platform Modules - Representing DTMP, TMaaS, Plant4.0 */}
+              <g opacity="0.5">
+                {/* DTMP Platform Module */}
+                <g transform="translate(300, 350)">
+                  <rect x="0" y="0" width="200" height="80" rx="6" fill="url(#productGradient1)" style={{ animation: 'productModule 6s ease-in-out infinite' }} filter="url(#productGlow)" />
+                  <rect x="0" y="0" width="200" height="80" rx="6" fill="none" stroke="url(#productGradient2)" strokeWidth="2.5" opacity="0.6" />
+                  {/* Internal panel lines */}
+                  <line x1="20" y1="25" x2="180" y2="25" stroke="url(#productGradient2)" strokeWidth="1.5" opacity="0.4" />
+                  <line x1="20" y1="45" x2="140" y2="45" stroke="url(#productGradient2)" strokeWidth="1.5" opacity="0.4" />
+                  <line x1="20" y1="65" x2="160" y2="65" stroke="url(#productGradient2)" strokeWidth="1.5" opacity="0.4" />
+                </g>
+                
+                {/* TMaaS Service Module */}
+                <g transform="translate(700, 450)">
+                  <rect x="0" y="0" width="220" height="90" rx="6" fill="url(#productGradient1)" style={{ animation: 'productModule 6.5s ease-in-out infinite', animationDelay: '1s' }} filter="url(#productGlow)" />
+                  <rect x="0" y="0" width="220" height="90" rx="6" fill="none" stroke="url(#productGradient2)" strokeWidth="2.5" opacity="0.6" />
+                  {/* Service flow indicators */}
+                  <circle cx="30" cy="30" r="8" fill="url(#productGradient2)" opacity="0.5" style={{ animation: 'toolPulse 3s ease-in-out infinite' }} />
+                  <circle cx="30" cy="60" r="8" fill="url(#productGradient2)" opacity="0.5" style={{ animation: 'toolPulse 3.5s ease-in-out infinite', animationDelay: '0.5s' }} />
+                  <path d="M 50 30 L 190 30" stroke="url(#serviceGradient)" strokeWidth="2" opacity="0.4" strokeDasharray="4,4" style={{ animation: 'serviceFlow 4s ease-in-out infinite' }} />
+                  <path d="M 50 60 L 190 60" stroke="url(#serviceGradient)" strokeWidth="2" opacity="0.4" strokeDasharray="4,4" style={{ animation: 'serviceFlow 4.5s ease-in-out infinite', animationDelay: '0.5s' }} />
+                </g>
+                
+                {/* Plant4.0 Industrial Module */}
+                <g transform="translate(1200, 500)">
+                  <rect x="0" y="0" width="240" height="100" rx="6" fill="url(#productGradient1)" style={{ animation: 'productModule 7s ease-in-out infinite', animationDelay: '2s' }} filter="url(#productGlow)" />
+                  <rect x="0" y="0" width="240" height="100" rx="6" fill="none" stroke="url(#productGradient2)" strokeWidth="2.5" opacity="0.6" />
+                  {/* Industrial connection nodes */}
+                  <circle cx="40" cy="30" r="6" fill="#FB5535" opacity="0.6" style={{ animation: 'toolPulse 2.5s ease-in-out infinite' }} />
+                  <circle cx="40" cy="50" r="6" fill="#FB5535" opacity="0.6" style={{ animation: 'toolPulse 2.8s ease-in-out infinite', animationDelay: '0.3s' }} />
+                  <circle cx="40" cy="70" r="6" fill="#FB5535" opacity="0.6" style={{ animation: 'toolPulse 3s ease-in-out infinite', animationDelay: '0.6s' }} />
+                  <line x1="55" y1="30" x2="200" y2="30" stroke="url(#productGradient2)" strokeWidth="2" opacity="0.4" />
+                  <line x1="55" y1="50" x2="200" y2="50" stroke="url(#productGradient2)" strokeWidth="2" opacity="0.4" />
+                  <line x1="55" y1="70" x2="200" y2="70" stroke="url(#productGradient2)" strokeWidth="2" opacity="0.4" />
+                </g>
+                
+                {/* DTMA Learning Module */}
+                <g transform="translate(500, 700)">
+                  <rect x="0" y="0" width="180" height="70" rx="6" fill="url(#productGradient1)" style={{ animation: 'productModule 6.8s ease-in-out infinite', animationDelay: '3s' }} filter="url(#productGlow)" />
+                  <rect x="0" y="0" width="180" height="70" rx="6" fill="none" stroke="url(#productGradient2)" strokeWidth="2.5" opacity="0.6" />
+                  {/* Learning progress indicators */}
+                  <rect x="20" y="20" width="140" height="8" rx="4" fill="url(#productGradient2)" opacity="0.3" />
+                  <rect x="20" y="20" width="100" height="8" rx="4" fill="#FB5535" opacity="0.6" style={{ animation: 'serviceFlow 5s ease-in-out infinite' }} />
+                  <rect x="20" y="35" width="140" height="8" rx="4" fill="url(#productGradient2)" opacity="0.3" />
+                  <rect x="20" y="35" width="80" height="8" rx="4" fill="#FB5535" opacity="0.6" style={{ animation: 'serviceFlow 5.5s ease-in-out infinite', animationDelay: '0.5s' }} />
+                </g>
+              </g>
+              
+              {/* Service Delivery Flows - TMaaS Service Connections */}
+              <g stroke="url(#serviceGradient)" strokeWidth="2.5" fill="none" opacity="0.5" strokeDasharray="10,5">
+                <path
+                  d="M 400 390 L 700 495"
+                  style={{
+                    animation: 'serviceFlow 8s ease-in-out infinite'
+                  }}
+                />
+                <path
+                  d="M 920 495 L 1200 550"
+                  style={{
+                    animation: 'serviceFlow 8.5s ease-in-out infinite',
+                    animationDelay: '1s'
+                  }}
+                />
+                <path
+                  d="M 680 540 L 500 735"
+                  style={{
+                    animation: 'serviceFlow 9s ease-in-out infinite',
+                    animationDelay: '2s'
+                  }}
+                />
+                <path
+                  d="M 1440 550 L 1200 600"
+                  style={{
+                    animation: 'serviceFlow 9.5s ease-in-out infinite',
+                    animationDelay: '3s'
+                  }}
+                />
+              </g>
+              
+              {/* Data Streams - Platform Data Flow */}
+              <g opacity="0.6">
+                {[...Array(10)].map((_, i) => (
+                  <circle
+                    key={`data-${i}`}
+                    cx={250 + (i * 150)}
+                    cy={400 + (i % 4) * 120}
+                    r="4"
+                    fill="#FB5535"
+                    style={{
+                      animation: `dataStream ${4 + i * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${i * 0.4}s`
+                    }}
+                    filter="url(#productGlow)"
+                  />
+                ))}
+                {[...Array(8)].map((_, i) => (
+                  <circle
+                    key={`data2-${i}`}
+                    cx={300 + (i * 180)}
+                    cy={500 + (i % 3) * 100}
+                    r="3"
+                    fill="#1A2E6E"
+                    style={{
+                      animation: `dataStream ${5 + i * 0.3}s ease-in-out infinite reverse`,
+                      animationDelay: `${i * 0.5}s`
+                    }}
+                    filter="url(#productGlow)"
+                  />
+                ))}
+              </g>
+              
+              {/* Tool Icons - Representing Product Tools */}
+              <g opacity="0.4">
+                {/* Tool 1 - Management Tool */}
+                <g transform="translate(150, 250)" style={{ animation: 'toolPulse 4s ease-in-out infinite' }}>
+                  <rect x="0" y="0" width="40" height="40" rx="4" fill="url(#productGradient1)" filter="url(#productGlow)" />
+                  <line x1="10" y1="10" x2="30" y2="10" stroke="#FFFFFF" strokeWidth="2" opacity="0.6" />
+                  <line x1="10" y1="20" x2="25" y2="20" stroke="#FFFFFF" strokeWidth="2" opacity="0.6" />
+                  <line x1="10" y1="30" x2="30" y2="30" stroke="#FFFFFF" strokeWidth="2" opacity="0.6" />
+                </g>
+                
+                {/* Tool 2 - Service Tool */}
+                <g transform="translate(1600, 300)" style={{ animation: 'toolPulse 4.5s ease-in-out infinite', animationDelay: '1s' }}>
+                  <circle cx="20" cy="20" r="18" fill="url(#productGradient1)" filter="url(#productGlow)" />
+                  <path d="M 20 8 L 20 32 M 8 20 L 32 20" stroke="#FFFFFF" strokeWidth="2.5" opacity="0.6" />
+                </g>
+                
+                {/* Tool 3 - Industrial Tool */}
+                <g transform="translate(200, 750)" style={{ animation: 'toolPulse 5s ease-in-out infinite', animationDelay: '2s' }}>
+                  <polygon points="20,5 35,15 30,35 10,35 5,15" fill="url(#productGradient1)" filter="url(#productGlow)" />
+                  <circle cx="20" cy="20" r="3" fill="#FFFFFF" opacity="0.6" />
+                </g>
+                
+                {/* Tool 4 - Learning Tool */}
+                <g transform="translate(1500, 750)" style={{ animation: 'toolPulse 4.8s ease-in-out infinite', animationDelay: '3s' }}>
+                  <rect x="5" y="5" width="30" height="30" rx="2" fill="url(#productGradient1)" filter="url(#productGlow)" />
+                  <path d="M 15 15 L 25 20 L 15 25 Z" fill="#FFFFFF" opacity="0.6" />
+                </g>
+              </g>
+              
+              {/* Acceleration Indicators - Speed Lines */}
+              {[...Array(6)].map((_, i) => (
+                <line
+                  key={`accel-${i}`}
+                  x1={300 + i * 250}
+                  y1={250 + (i % 2) * 150}
+                  x2={500 + i * 250}
+                  y2={250 + (i % 2) * 150}
+                  stroke="url(#serviceGradient)"
+                  strokeWidth="2"
+                  opacity="0.4"
+                  style={{
+                    animation: `velocityStreak ${3 + i * 0.4}s ease-in-out infinite`,
+                    animationDelay: `${i * 0.6}s`
+                  }}
+                  filter="url(#productGlow)"
+                />
+              ))}
+            </svg>
+          </div>
+
+          {/* Animated Platform Grid */}
+          <div className="absolute inset-0 opacity-[0.12] z-[1]">
+            <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="gridGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.2" />
+                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.15" />
                   <stop offset="100%" stopColor="#030F35" stopOpacity="0.1" />
                 </linearGradient>
-                <linearGradient id="daGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.18" />
-                  <stop offset="100%" stopColor="#FB5535" stopOpacity="0.12" />
-                </linearGradient>
               </defs>
-
-              <g opacity="0.35">
-                {[...Array(8)].map((_, i) => (
+              
+              {/* Platform Grid Lines */}
+              <g stroke="url(#gridGradient)" strokeWidth="0.8">
+                {[...Array(10)].map((_, i) => (
                   <line
                     key={`v-${i}`}
-                    x1={i * 240}
+                    x1={i * 192}
                     y1="0"
-                    x2={i * 240}
+                    x2={i * 192}
                     y2="1080"
-                    stroke="url(#daGrad1)"
-                    strokeWidth="1"
+                    opacity="0.3"
                     style={{
-                      animation: 'pulse 9s ease-in-out infinite',
-                      animationDelay: `${i * 0.6}s`,
-                      opacity: 0.25,
+                      animation: `pulse ${7 + i * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${i * 0.2}s`
                     }}
                   />
                 ))}
-                {[...Array(6)].map((_, i) => (
+                {[...Array(8)].map((_, i) => (
                   <line
                     key={`h-${i}`}
                     x1="0"
-                    y1={i * 180}
+                    y1={i * 135}
                     x2="1920"
-                    y2={i * 180}
-                    stroke="url(#daGrad2)"
-                    strokeWidth="1"
+                    y2={i * 135}
+                    opacity="0.3"
                     style={{
-                      animation: 'pulse 11s ease-in-out infinite',
-                      animationDelay: `${i * 0.75}s`,
-                      opacity: 0.2,
+                      animation: `pulse ${9 + i * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${i * 0.3}s`
                     }}
                   />
                 ))}
               </g>
-
-              <g transform="translate(1450, 280)" style={{ animation: 'rotateSlow 36s linear infinite' }}>
-                <polygon
-                  points="0,-64 55,-32 55,32 0,64 -55,32 -55,-32"
-                  fill="none"
-                  stroke="url(#daGrad1)"
-                  strokeWidth="1.5"
-                  opacity="0.35"
-                />
-              </g>
-
-              <g transform="translate(520, 760)" style={{ animation: 'rotateSlow 44s linear infinite reverse' }}>
-                <polygon
-                  points="0,-44 38,-22 38,22 0,44 -38,22 -38,-22"
-                  fill="none"
-                  stroke="url(#daGrad2)"
-                  strokeWidth="1.5"
-                  opacity="0.3"
-                />
-              </g>
             </svg>
           </div>
+
+          {/* Pulsing Acceleration Glows */}
+          <div className="absolute inset-0 z-[1] pointer-events-none">
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: '600px',
+                height: '600px',
+                left: '25%',
+                top: '30%',
+                background: 'radial-gradient(circle, rgba(251, 85, 53, 0.25) 0%, transparent 70%)',
+                filter: 'blur(80px)',
+                animation: 'pulse 7s ease-in-out infinite'
+              }}
+            />
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: '700px',
+                height: '700px',
+                right: '20%',
+                bottom: '25%',
+                background: 'radial-gradient(circle, rgba(26, 46, 110, 0.3) 0%, transparent 70%)',
+                filter: 'blur(90px)',
+                animation: 'pulse 9s ease-in-out infinite',
+                animationDelay: '3s'
+              }}
+            />
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: '550px',
+                height: '550px',
+                left: '60%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                background: 'radial-gradient(circle, rgba(251, 85, 53, 0.2) 0%, transparent 65%)',
+                filter: 'blur(70px)',
+                animation: 'pulse 8s ease-in-out infinite',
+                animationDelay: '5s'
+              }}
+            />
+          </div>
+
+          {/* Animated Light Sweeps - Speed Effect */}
+          <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(20deg, transparent 20%, rgba(251, 85, 53, 0.1) 50%, transparent 80%)',
+                animation: 'rotate 22s linear infinite',
+                transformOrigin: 'center center',
+                opacity: 0.7
+              }}
+            />
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(-20deg, transparent 20%, rgba(26, 46, 110, 0.1) 50%, transparent 80%)',
+                animation: 'rotate 26s linear infinite reverse',
+                transformOrigin: 'center center',
+                opacity: 0.6,
+                animationDelay: '2s'
+              }}
+            />
+          </div>
+
+          {/* High Contrast Area on Left for Text Readability */}
+          <div
+            className="absolute inset-0 z-[1]"
+            style={{
+              background: 'radial-gradient(ellipse 1000px 130% at 0% 50%, rgba(3, 15, 53, 0.7) 0%, rgba(3, 15, 53, 0.35) 50%, transparent 80%)',
+            }}
+          />
 
           <div className="w-full flex items-center relative z-10">
             <div className="container mx-auto px-4 md:px-6 lg:px-8 xl:px-12">

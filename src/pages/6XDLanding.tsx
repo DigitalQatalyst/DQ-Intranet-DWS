@@ -174,16 +174,40 @@ export function SixXDLanding() {
           100% { background-position: 0% 0%; }
         }
         @keyframes floatSlow {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          50% { transform: translateY(-30px) translateX(15px); }
+          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+          25% { transform: translateY(-30px) translateX(15px) rotate(5deg); }
+          50% { transform: translateY(-15px) translateX(-15px) rotate(-5deg); }
+          75% { transform: translateY(15px) translateX(10px) rotate(3deg); }
         }
         @keyframes rotateSlow {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
         @keyframes pulse {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 0.4; }
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.1); }
+        }
+        @keyframes gradientDrift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        @keyframes perspectivePulse {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.15); }
+        }
+        @keyframes dataFlow {
+          0% { transform: translateX(-100px) translateY(0); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateX(100px) translateY(0); opacity: 0; }
+        }
+        @keyframes nodeConnect {
+          0%, 100% { stroke-dashoffset: 0; opacity: 0.3; }
+          50% { stroke-dashoffset: -20; opacity: 0.6; }
+        }
+        @keyframes radialExpand {
+          0% { transform: scale(0.8); opacity: 0.2; }
+          50% { transform: scale(1.2); opacity: 0.4; }
+          100% { transform: scale(0.8); opacity: 0.2; }
         }
       `}</style>
       <Header />
@@ -193,164 +217,368 @@ export function SixXDLanding() {
         <section 
           className="relative w-full overflow-hidden flex flex-col isolate h-auto md:h-[600px] lg:h-[700px] pt-24 pb-20 md:pt-24 md:pb-20"
         >
-          {/* Background Image */}
+          {/* Animated DWS Gradient Base */}
           <div 
             className="absolute inset-0 z-0"
             style={{
-              backgroundImage: 'url("https://i.ibb.co/cSns2rjc/bddb0034-2a97-4524-94a3-187c93a43884.png"), linear-gradient(to bottom, #030F35 0%, #1A2E6E 30%, #030F35 70%, #FB5535 100%)',
-              backgroundSize: 'cover, 120% 120%',
-              backgroundPosition: 'center, top',
-              backgroundRepeat: 'no-repeat, no-repeat',
-              backgroundColor: '#030F35'
+              background: 'linear-gradient(135deg, #030F35 0%, #1A2E6E 25%, #030F35 50%, #1A2E6E 75%, #030F35 100%)',
+              backgroundSize: '300% 300%',
+              animation: 'gradientDrift 18s ease infinite'
             }}
           />
-          {/* Gradient Overlay - Minimal for text readability */}
-          <div 
-            className="absolute inset-0 z-[1]"
-            style={{
-              background: 'linear-gradient(to bottom, rgba(3, 15, 53, 0.78) 0%, rgba(26, 46, 110, 0.72) 30%, rgba(3, 15, 53, 0.75) 70%, rgba(251, 85, 53, 0.28) 100%)',
-              backgroundSize: '100% 100%',
-              backgroundRepeat: 'no-repeat'
-            }}
-          />
-          {/* Elegant Animated Vector Background */}
-          <div className="absolute inset-0 opacity-[0.02] z-[2]">
+
+          {/* 6XD Framework: Six Perspective Nodes */}
+          <div className="absolute inset-0 z-[2] pointer-events-none">
             <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
               <defs>
-                <linearGradient id="elegantGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient id="perspectiveGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#FB5535" stopOpacity="0.4" />
-                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.2" />
-                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.1" />
+                  <stop offset="100%" stopColor="#1A2E6E" stopOpacity="0.3" />
                 </linearGradient>
-                <linearGradient id="elegantGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#FB5535" stopOpacity="0.15" />
+                <linearGradient id="perspectiveGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.25" />
                 </linearGradient>
-                <radialGradient id="radialGlow" cx="50%" cy="50%">
-                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.2" />
+                <radialGradient id="nodeGlow" cx="50%" cy="50%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.5" />
+                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.3" />
                   <stop offset="100%" stopColor="#030F35" stopOpacity="0" />
                 </radialGradient>
+                <filter id="perspectiveGlow">
+                  <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
               </defs>
               
-              {/* Subtle Grid Pattern */}
-              <g opacity="0.3">
-                {[...Array(8)].map((_, i) => (
+              {/* Six Perspective Nodes - Arranged in Framework Pattern */}
+              {/* Node 1 - Top Left */}
+              <g>
+                <circle cx="400" cy="250" r="80" fill="url(#nodeGlow)" opacity="0.4" style={{ animation: 'perspectivePulse 4s ease-in-out infinite' }} filter="url(#perspectiveGlow)" />
+                <circle cx="400" cy="250" r="50" fill="none" stroke="url(#perspectiveGradient1)" strokeWidth="2.5" opacity="0.5" style={{ animation: 'perspectivePulse 4s ease-in-out infinite', animationDelay: '0.5s' }} />
+                {/* Radial lines from node */}
+                {[...Array(6)].map((_, i) => (
                   <line
-                    key={`v-${i}`}
-                    x1={i * 240}
-                    y1="0"
-                    x2={i * 240}
-                    y2="1080"
-                    stroke="url(#elegantGradient1)"
-                    strokeWidth="1"
+                    key={`radial-1-${i}`}
+                    x1="400"
+                    y1="250"
+                    x2={400 + Math.cos((i * 60) * Math.PI / 180) * 120}
+                    y2={250 + Math.sin((i * 60) * Math.PI / 180) * 120}
+                    stroke="url(#perspectiveGradient1)"
+                    strokeWidth="1.5"
+                    opacity="0.3"
                     style={{
-                      animation: 'pulse 8s ease-in-out infinite',
-                      animationDelay: `${i * 0.5}s`,
-                      opacity: 0.2
+                      animation: `radialExpand ${3 + i * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${i * 0.2}s`
+                    }}
+                  />
+                ))}
+              </g>
+              
+              {/* Node 2 - Top Right */}
+              <g>
+                <circle cx="1520" cy="280" r="75" fill="url(#nodeGlow)" opacity="0.4" style={{ animation: 'perspectivePulse 4.5s ease-in-out infinite', animationDelay: '0.7s' }} filter="url(#perspectiveGlow)" />
+                <circle cx="1520" cy="280" r="48" fill="none" stroke="url(#perspectiveGradient2)" strokeWidth="2.5" opacity="0.5" style={{ animation: 'perspectivePulse 4.5s ease-in-out infinite', animationDelay: '1.2s' }} />
+                {[...Array(6)].map((_, i) => (
+                  <line
+                    key={`radial-2-${i}`}
+                    x1="1520"
+                    y1="280"
+                    x2={1520 + Math.cos((i * 60) * Math.PI / 180) * 110}
+                    y2={280 + Math.sin((i * 60) * Math.PI / 180) * 110}
+                    stroke="url(#perspectiveGradient2)"
+                    strokeWidth="1.5"
+                    opacity="0.3"
+                    style={{
+                      animation: `radialExpand ${3.5 + i * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${0.7 + i * 0.2}s`
+                    }}
+                  />
+                ))}
+              </g>
+              
+              {/* Node 3 - Middle Left */}
+              <g>
+                <circle cx="350" cy="540" r="70" fill="url(#nodeGlow)" opacity="0.4" style={{ animation: 'perspectivePulse 5s ease-in-out infinite', animationDelay: '1.4s' }} filter="url(#perspectiveGlow)" />
+                <circle cx="350" cy="540" r="45" fill="none" stroke="url(#perspectiveGradient1)" strokeWidth="2.5" opacity="0.5" style={{ animation: 'perspectivePulse 5s ease-in-out infinite', animationDelay: '1.9s' }} />
+                {[...Array(6)].map((_, i) => (
+                  <line
+                    key={`radial-3-${i}`}
+                    x1="350"
+                    y1="540"
+                    x2={350 + Math.cos((i * 60) * Math.PI / 180) * 100}
+                    y2={540 + Math.sin((i * 60) * Math.PI / 180) * 100}
+                    stroke="url(#perspectiveGradient1)"
+                    strokeWidth="1.5"
+                    opacity="0.3"
+                    style={{
+                      animation: `radialExpand ${4 + i * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${1.4 + i * 0.2}s`
+                    }}
+                  />
+                ))}
+              </g>
+              
+              {/* Node 4 - Center */}
+              <g>
+                <circle cx="960" cy="540" r="90" fill="url(#nodeGlow)" opacity="0.45" style={{ animation: 'perspectivePulse 3.5s ease-in-out infinite' }} filter="url(#perspectiveGlow)" />
+                <circle cx="960" cy="540" r="60" fill="none" stroke="url(#perspectiveGradient1)" strokeWidth="3" opacity="0.6" style={{ animation: 'perspectivePulse 3.5s ease-in-out infinite', animationDelay: '0.3s' }} />
+                {[...Array(6)].map((_, i) => (
+                  <line
+                    key={`radial-4-${i}`}
+                    x1="960"
+                    y1="540"
+                    x2={960 + Math.cos((i * 60) * Math.PI / 180) * 140}
+                    y2={540 + Math.sin((i * 60) * Math.PI / 180) * 140}
+                    stroke="url(#perspectiveGradient1)"
+                    strokeWidth="2"
+                    opacity="0.35"
+                    style={{
+                      animation: `radialExpand ${2.5 + i * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${i * 0.15}s`
+                    }}
+                  />
+                ))}
+              </g>
+              
+              {/* Node 5 - Middle Right */}
+              <g>
+                <circle cx="1570" cy="540" r="70" fill="url(#nodeGlow)" opacity="0.4" style={{ animation: 'perspectivePulse 4.8s ease-in-out infinite', animationDelay: '2.1s' }} filter="url(#perspectiveGlow)" />
+                <circle cx="1570" cy="540" r="45" fill="none" stroke="url(#perspectiveGradient2)" strokeWidth="2.5" opacity="0.5" style={{ animation: 'perspectivePulse 4.8s ease-in-out infinite', animationDelay: '2.6s' }} />
+                {[...Array(6)].map((_, i) => (
+                  <line
+                    key={`radial-5-${i}`}
+                    x1="1570"
+                    y1="540"
+                    x2={1570 + Math.cos((i * 60) * Math.PI / 180) * 100}
+                    y2={540 + Math.sin((i * 60) * Math.PI / 180) * 100}
+                    stroke="url(#perspectiveGradient2)"
+                    strokeWidth="1.5"
+                    opacity="0.3"
+                    style={{
+                      animation: `radialExpand ${4.2 + i * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${2.1 + i * 0.2}s`
+                    }}
+                  />
+                ))}
+              </g>
+              
+              {/* Node 6 - Bottom Center */}
+              <g>
+                <circle cx="960" cy="830" r="75" fill="url(#nodeGlow)" opacity="0.4" style={{ animation: 'perspectivePulse 5.2s ease-in-out infinite', animationDelay: '2.8s' }} filter="url(#perspectiveGlow)" />
+                <circle cx="960" cy="830" r="48" fill="none" stroke="url(#perspectiveGradient2)" strokeWidth="2.5" opacity="0.5" style={{ animation: 'perspectivePulse 5.2s ease-in-out infinite', animationDelay: '3.3s' }} />
+                {[...Array(6)].map((_, i) => (
+                  <line
+                    key={`radial-6-${i}`}
+                    x1="960"
+                    y1="830"
+                    x2={960 + Math.cos((i * 60) * Math.PI / 180) * 110}
+                    y2={830 + Math.sin((i * 60) * Math.PI / 180) * 110}
+                    stroke="url(#perspectiveGradient2)"
+                    strokeWidth="1.5"
+                    opacity="0.3"
+                    style={{
+                      animation: `radialExpand ${4.5 + i * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${2.8 + i * 0.2}s`
+                    }}
+                  />
+                ))}
+              </g>
+              
+              {/* Framework Connection Lines - Connecting the 6 Perspectives */}
+              <g stroke="url(#perspectiveGradient1)" strokeWidth="2" fill="none" opacity="0.4" strokeDasharray="6,4">
+                {/* Connections from center node to others */}
+                <path
+                  d="M 960 540 L 400 250"
+                  style={{
+                    animation: 'nodeConnect 8s ease-in-out infinite'
+                  }}
+                />
+                <path
+                  d="M 960 540 L 1520 280"
+                  style={{
+                    animation: 'nodeConnect 8s ease-in-out infinite',
+                    animationDelay: '1s'
+                  }}
+                />
+                <path
+                  d="M 960 540 L 350 540"
+                  style={{
+                    animation: 'nodeConnect 8s ease-in-out infinite',
+                    animationDelay: '2s'
+                  }}
+                />
+                <path
+                  d="M 960 540 L 1570 540"
+                  style={{
+                    animation: 'nodeConnect 8s ease-in-out infinite',
+                    animationDelay: '3s'
+                  }}
+                />
+                <path
+                  d="M 960 540 L 960 830"
+                  style={{
+                    animation: 'nodeConnect 8s ease-in-out infinite',
+                    animationDelay: '4s'
+                  }}
+                />
+                {/* Additional connections */}
+                <path
+                  d="M 400 250 L 1520 280"
+                  style={{
+                    animation: 'nodeConnect 10s ease-in-out infinite',
+                    animationDelay: '5s'
+                  }}
+                />
+                <path
+                  d="M 350 540 L 1570 540"
+                  style={{
+                    animation: 'nodeConnect 10s ease-in-out infinite',
+                    animationDelay: '6s'
+                  }}
+                />
+              </g>
+              
+              {/* Flowing Data Streams */}
+              <g opacity="0.5">
+                {[...Array(8)].map((_, i) => (
+                  <circle
+                    key={`data-${i}`}
+                    cx={300 + i * 200}
+                    cy={400 + (i % 3) * 100}
+                    r="4"
+                    fill="#FB5535"
+                    style={{
+                      animation: `dataFlow ${6 + i * 0.5}s ease-in-out infinite`,
+                      animationDelay: `${i * 0.8}s`
                     }}
                   />
                 ))}
                 {[...Array(6)].map((_, i) => (
-                  <line
-                    key={`h-${i}`}
-                    x1="0"
-                    y1={i * 180}
-                    x2="1920"
-                    y2={i * 180}
-                    stroke="url(#elegantGradient2)"
-                    strokeWidth="1"
+                  <circle
+                    key={`data2-${i}`}
+                    cx={500 + i * 150}
+                    cy={600 + (i % 2) * 80}
+                    r="3"
+                    fill="#1A2E6E"
                     style={{
-                      animation: 'pulse 10s ease-in-out infinite',
-                      animationDelay: `${i * 0.7}s`,
-                      opacity: 0.2
+                      animation: `dataFlow ${7 + i * 0.5}s ease-in-out infinite reverse`,
+                      animationDelay: `${i * 1.2}s`
                     }}
                   />
                 ))}
               </g>
-              
-              {/* Flowing Curved Paths */}
-              <path
-                d="M 0 300 Q 400 200, 800 300 T 1600 300"
-                stroke="url(#elegantGradient1)"
-                strokeWidth="2"
-                fill="none"
-                style={{
-                  animation: 'floatSlow 15s ease-in-out infinite',
-                  opacity: 0.4,
-                  strokeDasharray: '5,5'
-                }}
-              />
-              <path
-                d="M 0 600 Q 500 500, 1000 600 T 1920 600"
-                stroke="url(#elegantGradient2)"
-                strokeWidth="1.5"
-                fill="none"
-                style={{
-                  animation: 'floatSlow 18s ease-in-out infinite reverse',
-                  animationDelay: '3s',
-                  opacity: 0.3,
-                  strokeDasharray: '8,8'
-                }}
-              />
-              
-              {/* Elegant Geometric Shapes */}
-              <g style={{ animation: 'floatSlow 12s ease-in-out infinite' }}>
-                <circle cx="300" cy="400" r="60" fill="url(#elegantGradient1)" opacity="0.3" />
-                <circle cx="300" cy="400" r="40" fill="none" stroke="url(#elegantGradient2)" strokeWidth="1.5" opacity="0.4" />
-              </g>
-              
-              <g style={{ animation: 'floatSlow 14s ease-in-out infinite', animationDelay: '2s' }}>
-                <circle cx="1600" cy="700" r="80" fill="url(#elegantGradient2)" opacity="0.25" />
-                <circle cx="1600" cy="700" r="55" fill="none" stroke="url(#elegantGradient1)" strokeWidth="1.5" opacity="0.35" />
-              </g>
-              
-              {/* Subtle Hexagon Pattern */}
-              <g transform="translate(1200, 200)" style={{ animation: 'rotateSlow 30s linear infinite' }}>
-                <polygon
-                  points="0,-50 43,-25 43,25 0,50 -43,25 -43,-25"
-                  fill="none"
-                  stroke="url(#elegantGradient1)"
-                  strokeWidth="1.5"
-                  opacity="0.3"
-                />
-              </g>
-              
-              <g transform="translate(500, 800)" style={{ animation: 'rotateSlow 35s linear infinite reverse' }}>
-                <polygon
-                  points="0,-35 30,-17.5 30,17.5 0,35 -30,17.5 -30,-17.5"
-                  fill="none"
-                  stroke="url(#elegantGradient2)"
-                  strokeWidth="1.5"
-                  opacity="0.3"
-                />
-              </g>
-              
-              {/* Radial Glow Effects */}
-              <circle cx="400" cy="300" r="200" fill="url(#radialGlow)" style={{ animation: 'pulse 8s ease-in-out infinite' }} />
-              <circle cx="1500" cy="600" r="250" fill="url(#radialGlow)" style={{ animation: 'pulse 10s ease-in-out infinite', animationDelay: '4s' }} />
             </svg>
           </div>
-          
-          {/* Subtle Floating Orbs */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none z-[3]">
-            {[...Array(6)].map((_, i) => (
+
+          {/* Animated Framework Grid */}
+          <div className="absolute inset-0 opacity-[0.1] z-[1]">
+            <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <linearGradient id="gridGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.2" />
+                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.15" />
+                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.1" />
+                </linearGradient>
+              </defs>
+              
+              {/* Framework Grid Lines */}
+              <g stroke="url(#gridGradient)" strokeWidth="0.8">
+                {[...Array(12)].map((_, i) => (
+                  <line
+                    key={`v-${i}`}
+                    x1={i * 160}
+                    y1="0"
+                    x2={i * 160}
+                    y2="1080"
+                    opacity="0.3"
+                    style={{
+                      animation: `pulse ${8 + i * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${i * 0.2}s`
+                    }}
+                  />
+                ))}
+                {[...Array(9)].map((_, i) => (
+                  <line
+                    key={`h-${i}`}
+                    x1="0"
+                    y1={i * 120}
+                    x2="1920"
+                    y2={i * 120}
+                    opacity="0.3"
+                    style={{
+                      animation: `pulse ${10 + i * 0.3}s ease-in-out infinite`,
+                      animationDelay: `${i * 0.3}s`
+                    }}
+                  />
+                ))}
+              </g>
+            </svg>
+          </div>
+
+          {/* Pulsing Radial Glows at Each Node */}
+          <div className="absolute inset-0 z-[1] pointer-events-none">
+            {/* Glow for each of the 6 nodes */}
+            {[
+              { x: '20.8%', y: '23.1%', delay: '0s' },
+              { x: '79.2%', y: '25.9%', delay: '0.7s' },
+              { x: '18.2%', y: '50%', delay: '1.4s' },
+              { x: '50%', y: '50%', delay: '0s' },
+              { x: '81.8%', y: '50%', delay: '2.1s' },
+              { x: '50%', y: '76.9%', delay: '2.8s' }
+            ].map((node, i) => (
               <div
                 key={i}
-                className="absolute rounded-full blur-sm"
+                className="absolute rounded-full"
                 style={{
-                  width: `${60 + i * 20}px`,
-                  height: `${60 + i * 20}px`,
-                  left: `${15 + i * 15}%`,
-                  top: `${20 + (i % 3) * 25}%`,
+                  width: '200px',
+                  height: '200px',
+                  left: node.x,
+                  top: node.y,
+                  transform: 'translate(-50%, -50%)',
                   background: i % 2 === 0 
-                    ? 'radial-gradient(circle, rgba(251, 85, 53, 0.15) 0%, transparent 70%)' 
-                    : 'radial-gradient(circle, rgba(26, 46, 110, 0.15) 0%, transparent 70%)',
-                  animation: `floatSlow ${12 + i * 2}s ease-in-out infinite`,
-                  animationDelay: `${i * 1.5}s`,
+                    ? 'radial-gradient(circle, rgba(251, 85, 53, 0.2) 0%, transparent 70%)' 
+                    : 'radial-gradient(circle, rgba(26, 46, 110, 0.25) 0%, transparent 70%)',
+                  filter: 'blur(60px)',
+                  animation: 'pulse 6s ease-in-out infinite',
+                  animationDelay: node.delay
                 }}
               />
             ))}
           </div>
+
+          {/* Animated Light Sweeps */}
+          <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(30deg, transparent 25%, rgba(251, 85, 53, 0.08) 50%, transparent 75%)',
+                animation: 'rotate 28s linear infinite',
+                transformOrigin: 'center center',
+                opacity: 0.6
+              }}
+            />
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(-30deg, transparent 25%, rgba(26, 46, 110, 0.08) 50%, transparent 75%)',
+                animation: 'rotate 32s linear infinite reverse',
+                transformOrigin: 'center center',
+                opacity: 0.5,
+                animationDelay: '2s'
+              }}
+            />
+          </div>
+
+          {/* High Contrast Area on Left for Text Readability */}
+          <div
+            className="absolute inset-0 z-[1]"
+            style={{
+              background: 'radial-gradient(ellipse 1000px 130% at 0% 50%, rgba(3, 15, 53, 0.65) 0%, rgba(3, 15, 53, 0.3) 50%, transparent 80%)',
+            }}
+          />
 
           <div className="w-full flex items-center relative z-10">
             <div className="container mx-auto px-4 md:px-6 lg:px-8 xl:px-12">
