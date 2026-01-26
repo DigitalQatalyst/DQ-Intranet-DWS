@@ -132,13 +132,12 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
 
   useEffect(() => {
     const isValid =
-      email.trim().length > 0 &&
       selectedCategory !== '' &&
       issueDescription.trim().length > 0 &&
       issueDescription.trim().length <= MAX_DESCRIPTION_LENGTH;
 
     setIsFormValid(isValid);
-  }, [email, selectedCategory, issueDescription]);
+  }, [selectedCategory, issueDescription]);
 
   // Reset state when the modal is closed
   useEffect(() => {
@@ -194,6 +193,11 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
   };
 
   const submitTechSupportRequest = async (payload: TechSupportRequestPayload): Promise<void> => {
+    // Final safety check - ensure email is not blank before inserting to Supabase
+    if (!payload.email || payload.email.trim().length === 0) {
+      throw new Error('Email is required. Please ensure you are signed in.');
+    }
+
     const { data, error } = await supabase
       .from('tech_support_requests')
       .insert([payload])
@@ -247,6 +251,13 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
   const handleSubmit = async () => {
     if (!isFormValid || isSubmitting) return;
 
+    // Validate email is present (from authentication)
+    if (!userEmail || userEmail.trim().length === 0) {
+      setSubmitError('Authentication required. Please sign in to submit a support request.');
+      alert('You must be signed in to submit a support request. Please log in and try again.');
+      return;
+    }
+
     // Reset error state
     setSubmitError(null);
     setIsSubmitting(true);
@@ -264,7 +275,7 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
       // Map form data to Supabase table columns (snake_case)
       const payload: TechSupportRequestPayload = {
         ticket_number: ticketNumber,
-        email: email.trim(),
+        email: userEmail.trim(),
         selected_category: selectedCategory as string,
         issue_description: issueDescription.trim(),
         priority,
@@ -361,37 +372,31 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
           </button>
         </div>
 
+        {/* Authentication Warning Banner */}
+        {!userEmail && (
+          <div className="mx-6 mt-2 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <div className="text-yellow-600 mt-0.5">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-yellow-800">Authentication Required</h3>
+                <p className="text-sm text-yellow-700 mt-1">
+                  You must be signed in to submit a support request. Please log in to continue.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto custom-scrollbar px-6 sm:px-8 py-4 space-y-8">
-          {/* Email Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-             1. Your Email <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => !userEmail && setEmail(e.target.value)}
-              readOnly={!!userEmail}
-              disabled={!!userEmail}
-              placeholder={userEmail ? '' : 'your.email@example.com'}
-              className={`w-full p-4 rounded ${
-                userEmail
-                  ? 'bg-gray-50 border border-gray-300 text-gray-600 cursor-not-allowed'
-                  : 'bg-gray-100 border-none text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500'
-              }`}
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              {userEmail
-                ? `Email automatically populated from your account (${userEmail})`
-                : 'Please sign in or enter your email manually'}
-            </p>
-          </div>
-
-          {/* Question 2: Category */}
+          {/* Question 1: Category */}
           <div>
             <p className="block text-sm font-medium text-gray-700 mb-2">
-              2. What do you need help with? <span className="text-red-500">*</span>
+              1. What do you need help with? <span className="text-red-500">*</span>
             </p>
             <p className="text-xs text-gray-500 mb-3">
               Select the most appropriate option
@@ -419,7 +424,7 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
           {/* Question 2: Issue description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              3. What is the issue? <span className="text-red-500">*</span>
+              2. What is the issue? <span className="text-red-500">*</span>
             </label>
             <p className="text-xs text-gray-500 mb-2">
               Please provide as much detail as possible
@@ -437,10 +442,10 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
             </div>
           </div>
 
-          {/* Question 4: Priority */}
+          {/* Question 3: Priority */}
           <div>
             <p className="block text-sm font-medium text-gray-700 mb-2">
-              4. Priority Level{' '}
+              3. Priority Level{' '}
               <span className="text-xs text-gray-500">(Optional)</span>
             </p>
             <p className="text-xs text-gray-500 mb-3">
@@ -468,10 +473,10 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
             </div>
           </div>
 
-          {/* Question 5: Upload files */}
+          {/* Question 4: Upload files */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              5. Do you want to add any screenshots?{' '}
+              4. Do you want to add any screenshots?{' '}
               <span className="text-xs text-gray-500">(Optional)</span>
             </label>
             <p className="text-xs text-gray-500 mb-4">

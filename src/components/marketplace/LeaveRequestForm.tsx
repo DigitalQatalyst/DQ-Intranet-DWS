@@ -18,7 +18,6 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose }) 
   const userEmail = user?.email || '';
 
   const [requestName, setRequestName] = useState('');
-  const [email, setEmail] = useState('');
   const [approvers, setApprovers] = useState<User[]>([]);
   const [selectedLeaveType, setSelectedLeaveType] = useState<string>('');
   const [startDate, setStartDate] = useState('');
@@ -32,18 +31,10 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose }) 
   const [availableApprovers, setAvailableApprovers] = useState<User[]>([]);
   const [isLoadingApprovers, setIsLoadingApprovers] = useState(false);
 
-  // Auto-populate email from authenticated user
-  useEffect(() => {
-    if (userEmail) {
-      setEmail(userEmail);
-    }
-  }, [userEmail]);
-
   useEffect(() => {
     // Simple validation logic
     const isValid =
       requestName.trim().length > 0 &&
-      email.trim().length > 0 &&
       selectedLeaveType !== '' &&
       startDate !== '' &&
       endDate !== '' &&
@@ -52,7 +43,7 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose }) 
       // Validate date range: end date must be >= start date
       (startDate && endDate ? new Date(endDate) >= new Date(startDate) : true);
     setIsFormValid(isValid);
-  }, [requestName, email, selectedLeaveType, startDate, endDate, approvers, reason]);
+  }, [requestName, selectedLeaveType, startDate, endDate, approvers, reason]);
 
   // Reset error when modal opens
   useEffect(() => {
@@ -121,6 +112,13 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose }) 
   const handleSubmit = async () => {
     if (!isFormValid || isSubmitting) return;
 
+    // Validate email is present (from authentication)
+    if (!userEmail || userEmail.trim().length === 0) {
+      setSubmitError('Authentication required. Please sign in to submit a leave request.');
+      alert('You must be signed in to submit a leave request. Please log in and try again.');
+      return;
+    }
+
     // Reset error state
     setSubmitError(null);
     setIsSubmitting(true);
@@ -133,7 +131,7 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose }) 
         start_date: startDate,
         end_date: endDate,
         reason: reason.trim(),
-        submitted_by_email: email.trim(),
+        submitted_by_email: userEmail.trim(),
         approvers,
       };
 
@@ -162,7 +160,6 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose }) 
 
     // Reset form
     setRequestName('');
-    setEmail('');
     setSelectedLeaveType('');
     setStartDate('');
     setEndDate('');
@@ -226,22 +223,24 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ isOpen, onClose }) 
             />
           </div>
 
-          {/* Email Input */}
-          <div className="group">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Your Email <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email"
-              value={email}
-              readOnly
-              disabled
-              className="w-full bg-gray-50 border border-gray-300 text-gray-600 py-3 px-4 rounded cursor-not-allowed"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Email automatically populated from your account
-            </p>
-          </div>
+          {/* Authentication Warning Banner */}
+          {!userEmail && (
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <div className="text-yellow-600 mt-0.5">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-yellow-800">Authentication Required</h3>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    You must be signed in to submit a leave request. Please log in to continue.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Approvers Section */}
           <div>

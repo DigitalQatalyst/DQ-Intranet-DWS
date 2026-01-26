@@ -94,9 +94,6 @@ if (computedAuthority.includes('/common')) {
 }
 
 // Log the computed authority for debugging (remove in production if needed)
-console.log('🔐 Azure AD Authority:', computedAuthority);
-console.log('🔐 Azure AD Client ID:', CLIENT_ID);
-console.log('🔐 Azure AD Tenant ID:', TENANT_ID);
 
 
 // Known authorities for MSAL (hostnames only)

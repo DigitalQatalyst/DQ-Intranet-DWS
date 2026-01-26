@@ -40,6 +40,7 @@ export function AuthProvider({
   const [emailOverride, setEmailOverride] = useState<string | undefined>(undefined);
   const viteEnv = (import.meta as any).env as Record<string, string | undefined>;
   const enableGraphFallback = (viteEnv?.VITE_MSAL_ENABLE_GRAPH_FALLBACK || viteEnv?.NEXT_PUBLIC_MSAL_ENABLE_GRAPH_FALLBACK) === 'true';
+  const azureAdPassword = viteEnv?.VITE_AZURE_AD_PASSWORD;
 
   // Ensure active account is set for convenience
   useEffect(() => {
@@ -78,7 +79,7 @@ export function AuthProvider({
           name: name,
           username: username,
           azure_id: azureId,
-          password: 'AZURE_AD_AUTHENTICATED',
+          password: azureAdPassword,
           role: 'member',
           updated_at: new Date().toISOString()
         }, {
@@ -87,7 +88,7 @@ export function AuthProvider({
     } catch (error) {
       // Silent fail - sync will retry on next login
     }
-  }, []);
+  }, [azureAdPassword]);
 
   // Ensure active account is set on successful login/redirect events
   useEffect(() => {
