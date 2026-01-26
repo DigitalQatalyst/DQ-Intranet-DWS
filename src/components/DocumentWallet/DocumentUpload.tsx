@@ -145,7 +145,7 @@ export function DocumentUpload({ onClose, onUpload, categories, preSelectedDocTy
             setUploadProgress(100);
 
             const newDocument = {
-                id: Math.random().toString(36).substr(2, 9),
+                id: crypto.randomUUID(),
                 employee_id: employeeId,
                 name: formData.name,
                 category: CATEGORIES.find(c => c.value === selectedCategory)?.label || 'Other',

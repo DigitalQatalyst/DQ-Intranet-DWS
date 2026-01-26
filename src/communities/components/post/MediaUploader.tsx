@@ -29,8 +29,12 @@ export function MediaUploader({
   const [dragActive, setDragActive] = useState(false);
   const uploadFile = async (file: File): Promise<UploadedFile | null> => {
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${userId}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileExt = file.name.includes('.')
+        ? file.name.split('.').pop()!
+        : 'bin';
+
+      const randomId = crypto.randomUUID();
+      const fileName = `${userId}/${Date.now()}-${randomId}.${fileExt}`;
       const {
         data,
         error

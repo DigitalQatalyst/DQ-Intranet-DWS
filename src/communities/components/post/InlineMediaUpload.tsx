@@ -24,8 +24,12 @@ export function InlineMediaUpload({
   const uploadFile = async (selectedFile: File) => {
     try {
       setUploading(true);
-      const fileExt = selectedFile.name.split('.').pop();
-      const fileName = `${userId}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const fileExt = selectedFile.name.includes('.')
+        ? selectedFile.name.split('.').pop()!
+        : 'bin';
+
+      const randomId = crypto.randomUUID();
+      const fileName = `${userId}/${Date.now()}-${randomId}.${fileExt}`;
       const {
         data,
         error

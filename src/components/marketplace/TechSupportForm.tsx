@@ -38,14 +38,10 @@ const generateTicketNumber = (): string => {
   const day = String(now.getDate()).padStart(2, '0');
   const datePart = `${year}${month}${day}`;
 
-  // Generate 4-character alphanumeric code
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let randomPart = '';
-  for (let i = 0; i < 4; i++) {
-    randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
+  // Generate cryptographically secure random code (first 8 chars of UUID)
+  const randomId = crypto.randomUUID().split('-')[0].toUpperCase();
 
-  return `TSR-${datePart}-${randomPart}`;
+  return `TSR-${datePart}-${randomId}`;
 };
 
 // Generate current timestamp in TIMESTAMPTZ format

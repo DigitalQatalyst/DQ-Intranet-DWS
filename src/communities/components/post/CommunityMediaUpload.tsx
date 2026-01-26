@@ -86,9 +86,13 @@ export const CommunityMediaUpload: React.FC<CommunityMediaUploadProps> = ({
         if (file.type.startsWith('image/')) assetType = 'image';
         else if (file.type.startsWith('video/')) assetType = 'video';
 
-        // Generate unique file path
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${userId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        // Generate unique file path with cryptographically secure random ID
+        const fileExt = file.name.includes('.')
+          ? file.name.split('.').pop()!
+          : 'bin';
+
+        const randomId = crypto.randomUUID();
+        const fileName = `${userId}/${Date.now()}-${randomId}.${fileExt}`;
         const storagePath = `community-assets/${communityId}/${fileName}`;
 
         // Upload to Supabase Storage
