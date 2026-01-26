@@ -8,17 +8,43 @@ function isValidEmail(email: string): boolean {
   const trimmed = email.trim();
   if (trimmed.length === 0) return false;
 
+  // Check for whitespace (emails shouldn't contain spaces)
+  if (trimmed.indexOf(' ') !== -1) return false;
+
   // Check for @ symbol and basic structure
   const atIndex = trimmed.indexOf('@');
   if (atIndex <= 0 || atIndex === trimmed.length - 1) return false;
 
+  // Ensure only one @ symbol
+  if (trimmed.indexOf('@', atIndex + 1) !== -1) return false;
+
+  // Check local part (before @)
+  const localPart = trimmed.substring(0, atIndex);
+  if (localPart.length === 0 || localPart.length > 64) return false;
+
   // Check for domain part after @
   const domain = trimmed.substring(atIndex + 1);
-  if (!domain || domain.indexOf('.') === -1) return false;
+  if (!domain || domain.length === 0 || domain.length > 255) return false;
 
-  // Use simple regex for final validation (safe pattern)
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(trimmed);
+  // Domain must have at least one dot
+  const dotIndex = domain.indexOf('.');
+  if (dotIndex === -1) return false;
+
+  // Dot can't be at the beginning or end of domain
+  if (dotIndex === 0 || dotIndex === domain.length - 1) return false;
+
+  // Domain must have at least 2 characters after the last dot (TLD)
+  const lastDotIndex = domain.lastIndexOf('.');
+  const tld = domain.substring(lastDotIndex + 1);
+  if (tld.length < 2) return false;
+
+  // Basic character validation - no special characters that would be invalid
+  const invalidChars = ['<', '>', '(', ')', '[', ']', '\\', ',', ';', ':', '"', '|'];
+  for (const char of invalidChars) {
+    if (trimmed.indexOf(char) !== -1) return false;
+  }
+
+  return true;
 }
 
 export function validateFormField(field, value) {
