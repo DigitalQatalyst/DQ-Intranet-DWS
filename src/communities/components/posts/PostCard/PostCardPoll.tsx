@@ -12,6 +12,13 @@ export const PostCardPoll: React.FC<PostCardPollProps> = ({
 }) => {
   const [pollOptions, setPollOptions] = useState<PollOption[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Safe HTML stripping using DOMParser (prevents XSS and ReDoS)
+  const stripHtml = (html: string): string => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || '';
+  };
+
   useEffect(() => {
     fetchPollOptions();
   }, [post.id]);
@@ -31,15 +38,12 @@ export const PostCardPoll: React.FC<PostCardPollProps> = ({
   
   // Check if post has media in content
   const hasMedia = post.content && (
-    post.content.includes('<div class="media-content">') || 
-    post.content.includes('<img') ||
-    post.content.match(/<img[^>]+src/i)
+    post.content.includes('<div class="media-content">') ||
+    post.content.includes('<img')
   );
-  
-  // Extract text content (without media HTML)
-  const textContent = post.content 
-    ? post.content.replace(/<div[^>]*class\s*=\s*["']media-content["'][^>]*>.*?<\/div>/is, '').trim()
-    : '';
+
+  // Extract text content (strip HTML safely)
+  const textContent = post.content ? stripHtml(post.content).trim() : '';
   
   return <div className="space-y-3">
       {/* Display media if present */}
@@ -51,7 +55,7 @@ export const PostCardPoll: React.FC<PostCardPollProps> = ({
       
       {/* Display text content if present and not empty */}
       {textContent && (
-        <p className="text-sm text-gray-600 line-clamp-2">{textContent.replace(/<[^>]*>/g, '')}</p>
+        <p className="text-sm text-gray-600 line-clamp-2">{textContent}</p>
       )}
       
       {loading ? <div className="space-y-2">

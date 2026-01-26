@@ -53,6 +53,17 @@ const EventRegistrationForm: React.FC<EventRegistrationFormProps> = ({
       })
     }
   }
+  // Safe email validation
+  const isValidEmail = (email: string): boolean => {
+    if (!email || typeof email !== 'string') return false;
+    const trimmed = email.trim();
+    if (trimmed.length === 0) return false;
+    const atIndex = trimmed.indexOf('@');
+    if (atIndex <= 0 || atIndex === trimmed.length - 1) return false;
+    const domain = trimmed.substring(atIndex + 1);
+    return domain.indexOf('.') !== -1;
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
     if (!formData.name.trim()) {
@@ -60,7 +71,7 @@ const EventRegistrationForm: React.FC<EventRegistrationFormProps> = ({
     }
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required'
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!isValidEmail(formData.email)) {
       newErrors.email = 'Email is invalid'
     }
     if (!formData.phone.trim()) {

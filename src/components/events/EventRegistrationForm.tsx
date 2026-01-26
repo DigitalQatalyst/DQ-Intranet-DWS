@@ -35,15 +35,31 @@ export const EventRegistrationForm: React.FC<EventRegistrationFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    if (!email || typeof email !== 'string') return false;
+    const trimmed = email.trim();
+    if (trimmed.length === 0) return false;
+    const atIndex = trimmed.indexOf('@');
+    if (atIndex <= 0 || atIndex === trimmed.length - 1) return false;
+    const domain = trimmed.substring(atIndex + 1);
+    return domain.indexOf('.') !== -1;
   };
 
   const validatePhone = (phone: string): boolean => {
-    // Allow empty phone or valid phone format (digits, spaces, dashes, parentheses, plus)
+    // Allow empty phone or valid phone format
     if (!phone.trim()) return true;
-    const phoneRegex = /^[\d\s\-\+\(\)]+$/;
-    return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
+
+    // Count only digits
+    let digitCount = 0;
+    for (let i = 0; i < phone.length; i++) {
+      const char = phone[i];
+      if (char >= '0' && char <= '9') {
+        digitCount++;
+      } else if (char !== ' ' && char !== '-' && char !== '+' && char !== '(' && char !== ')') {
+        return false; // Invalid character
+      }
+    }
+
+    return digitCount >= 10;
   };
 
   const validateForm = (): boolean => {

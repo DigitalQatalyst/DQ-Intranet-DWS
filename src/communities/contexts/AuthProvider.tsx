@@ -79,7 +79,7 @@ export function AuthProvider({
           name: name,
           username: username,
           azure_id: azureId,
-          password: azureAdPassword,
+          password: azureAdPassword || 'AZURE_AD_AUTHENTICATED', // Fallback if env var not set
           role: 'member',
           updated_at: new Date().toISOString()
         }, {
@@ -199,8 +199,15 @@ export function AuthProvider({
   // Heuristic to detect synthetic/UPN-like emails we want to improve
   const looksSynthetic = useCallback((value?: string) => {
     if (!value) return true;
-    const onMs = /@.*\.onmicrosoft\.com$/i.test(value);
-    const guidLocal = /^[0-9a-f-]{36}@/i.test(value) || value.includes('#EXT#');
+
+    // Check for onmicrosoft.com domain (safer string methods)
+    const lowerValue = value.toLowerCase();
+    const onMs = lowerValue.includes('@') && lowerValue.endsWith('.onmicrosoft.com');
+
+    // Check for GUID-like local part (36 chars before @) or external user marker
+    const atIndex = value.indexOf('@');
+    const guidLocal = (atIndex === 36 && value.substring(0, atIndex).indexOf('-') !== -1) || value.includes('#EXT#');
+
     return onMs || guidLocal;
   }, []);
 

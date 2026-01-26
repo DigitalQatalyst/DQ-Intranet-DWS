@@ -99,13 +99,9 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 
 // Test user credentials
 const TEST_EMAIL = 'testuser@example.com';
-const TEST_PASSWORD = 'TestUser123!';
+//const TEST_PASSWORD = 'TestUser123!';
 
 async function createTestUser() {
-  console.log('Creating test user...');
-  console.log(`Email: ${TEST_EMAIL}`);
-  console.log(`Password: ${TEST_PASSWORD}`);
-  console.log('');
 
   try {
     // Step 1: Check if user already exists in auth.users
@@ -144,7 +140,7 @@ async function createTestUser() {
       console.log('Resetting password for existing user...');
       const { error: updateError } = await supabase.auth.admin.updateUserById(
         userId,
-        { password: TEST_PASSWORD }
+       // { password: TEST_PASSWORD }
       );
 
       if (updateError) {
@@ -157,7 +153,7 @@ async function createTestUser() {
       console.log('Step 2: Creating new user in auth.users...');
       const { data: signUpData, error: signUpError } = await supabase.auth.admin.createUser({
         email: TEST_EMAIL,
-        password: TEST_PASSWORD,
+        //password: TEST_PASSWORD,
         email_confirm: true, // Auto-confirm email
       });
 
@@ -267,7 +263,7 @@ async function createTestUser() {
     console.log('');
     console.log('Credentials:');
     console.log(`  Email: ${TEST_EMAIL}`);
-    console.log(`  Password: ${TEST_PASSWORD}`);
+   
     console.log('');
     console.log('You can now use these credentials to sign in.');
     console.log('');

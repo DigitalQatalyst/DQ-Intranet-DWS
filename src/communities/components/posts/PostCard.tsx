@@ -39,6 +39,12 @@ export function PostCard({ post, onActionComplete, isMember = false }: PostCardP
   const { user } = useAuth();
   const [showComments, setShowComments] = useState(false);
 
+  // Safe HTML stripping using DOMParser (prevents XSS and ReDoS)
+  const stripHtml = (html: string): string => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || '';
+  };
+
   const getPostTypeBadge = (type: string) => {
     const badges = {
       event: 'bg-green-100 text-green-800',
@@ -129,10 +135,9 @@ export function PostCard({ post, onActionComplete, isMember = false }: PostCardP
         
         {/* Check if content has media (either post_type is media OR content contains media HTML) */}
         {(() => {
-          const hasMedia = post.post_type === 'media' || 
-                          (post.content && (post.content.includes('<div class="media-content">') || 
-                                           post.content.includes('<img') ||
-                                           post.content.match(/<img[^>]+src/i)));
+          const hasMedia = post.post_type === 'media' ||
+                          (post.content && (post.content.includes('<div class="media-content">') ||
+                                           post.content.includes('<img')));
           
           if (hasMedia) {
             return (
@@ -140,13 +145,13 @@ export function PostCard({ post, onActionComplete, isMember = false }: PostCardP
                 <PostCardMedia post={post as any} />
                 {/* Show text content only if it doesn't contain media HTML */}
                 {post.content && !post.content.includes('<div class="media-content">') && !post.content.includes('<img') && (
-                  <p className="text-gray-700 leading-relaxed mt-3">{post.content.replace(/<[^>]*>/g, '')}</p>
+                  <p className="text-gray-700 leading-relaxed mt-3">{stripHtml(post.content)}</p>
                 )}
               </div>
             );
           } else {
             return (
-              <p className="text-gray-700 leading-relaxed line-clamp-3">{post.content?.replace(/<[^>]*>/g, '') || post.content}</p>
+              <p className="text-gray-700 leading-relaxed line-clamp-3">{post.content ? stripHtml(post.content) : post.content}</p>
             );
           }
         })()}
