@@ -1571,8 +1571,31 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           </ol>
         </nav>
 
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">{config.title}</h1>
-        <p className="text-gray-600 mb-6">{config.description}</p>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-6 gap-4">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">{config.title}</h1>
+            <p className="text-gray-600">{config.description}</p>
+          </div>
+          {isGuides && activeTab !== 'glossary' && activeTab !== 'faqs' && (
+            <button
+              onClick={() => {
+                const next = new URLSearchParams(queryParams.toString());
+                next.delete('page');
+                next.set('pageSize', '10000');
+                const qs = next.toString();
+                if (typeof window !== 'undefined') {
+                  window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                setQueryParams(new URLSearchParams(next.toString()));
+                track('Guides.ViewAll', { tab: activeTab });
+              }}
+              className="sm:ml-4 px-4 py-2 bg-[var(--guidelines-primary)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity whitespace-nowrap self-start sm:self-auto"
+            >
+              View All
+            </button>
+          )}
+        </div>
 
         {/* Service Center Tab Description Section */}
         {isServicesCenter && (
@@ -1909,29 +1932,49 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                         });
                       }}
                     />
-                    {totalPages > 1 && (
-                      <div className="mt-6 flex items-center justify-center gap-4">
-                    <button
-                      type="button"
-                      onClick={() => goToPage(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                    <span className="text-sm text-gray-600">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => goToPage(currentPage + 1)}
-                      disabled={currentPage >= totalPages}
-                      className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                      </div>
-                    )}
+                    <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+                      {totalPages > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => goToPage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Previous
+                          </button>
+                          <span className="text-sm text-gray-600">
+                            Page {currentPage} of {totalPages}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => goToPage(currentPage + 1)}
+                            disabled={currentPage >= totalPages}
+                            className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Next
+                          </button>
+                        </>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = new URLSearchParams(queryParams.toString());
+                          next.delete('page');
+                          next.set('pageSize', '10000');
+                          const qs = next.toString();
+                          if (typeof window !== 'undefined') {
+                            window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }
+                          setQueryParams(new URLSearchParams(next.toString()));
+                          track('Guides.ViewAll', { tab: activeTab, location: 'bottom' });
+                        }}
+                        className="px-4 py-2 bg-[var(--guidelines-primary)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+                      >
+                        View All
+                      </button>
+                    </div>
                   </>
                 )}
               </>

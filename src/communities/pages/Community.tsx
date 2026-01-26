@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/communities/contexts/AuthProvider';
 import { supabase } from '@/communities/integrations/supabase/client';
 import { safeFetch } from '@/communities/utils/safeFetch';
 import { MainLayout } from '@/communities/components/layout/MainLayout';
 import { Button } from '@/communities/components/ui/button';
-import { StickyActionButton } from '@/communities/components/DesignSystem/Button';
-import { Users, UserPlus, UserMinus, AlertCircle, Plus, Settings, Home, ChevronRight, Upload, X, Pencil, Calendar } from 'lucide-react';
+import { Users, AlertCircle, Plus, Settings, Home, X, Pencil, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { MemberList } from '@/communities/components/communities/MemberList';
 import { InlineComposer } from '@/communities/components/post/InlineComposer';
@@ -17,7 +16,8 @@ import { format } from 'date-fns';
 import { PostCard } from '@/communities/components/posts/PostCard';
 import { Skeleton } from '@/communities/components/ui/skeleton';
 // Import PageLayout components
-import { PageLayout, PageSection, SectionHeader, SectionContent, Breadcrumbs, BreadcrumbItem } from '@/communities/components/DesignSystem/PageLayout';
+import { PageLayout, PageSection, SectionHeader, SectionContent } from '@/communities/components/DesignSystem/PageLayout/PageLayout';
+import type { BreadcrumbItem } from '@/communities/components/DesignSystem/PageLayout/PageLayout';
 interface Community {
   id: string;
   name: string;
@@ -56,6 +56,7 @@ export default function Community() {
     user
   } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [community, setCommunity] = useState<Community | null>(null);
   const [memberCount, setMemberCount] = useState(0);
   const [isMember, setIsMember] = useState(false);
@@ -86,6 +87,7 @@ export default function Community() {
     }
   }, [refreshKey]);
   const fetchCommunity = async () => {
+    if (!id) return;
     setLoading(true);
     setError(null);
     const query = supabase.from('communities_with_counts').select('*').eq('id', id).single();
@@ -106,7 +108,7 @@ export default function Community() {
       });
       setMemberCount(data.member_count || 0);
       // Fetch the community's creator to check ownership
-      if (user) {
+      if (user && id) {
         const ownerQuery = supabase.from('communities').select('created_by').eq('id', id).maybeSingle();
         const [ownerData] = await safeFetch(ownerQuery);
         const isUserOwner = ownerData?.created_by === user.id;
@@ -114,7 +116,7 @@ export default function Community() {
         // Check if user is admin
         if (!isUserOwner && user.role === 'admin') {
           setIsAdmin(true);
-        } else if (!isUserOwner) {
+        } else if (!isUserOwner && id) {
           const roleQuery = supabase.from('community_roles').select('role').eq('community_id', id).eq('user_id', user.id).maybeSingle();
           const [roleData] = await safeFetch(roleQuery);
           setIsAdmin(roleData?.role === 'admin');
@@ -231,7 +233,7 @@ export default function Community() {
   }] : [];
   if (loading) {
     return <MainLayout hidePageLayout>
-        <PageLayout>
+        <PageLayout title="Loading">
           <div className="flex justify-center items-center min-h-[60vh]">
             <div className="flex flex-col items-center gap-4">
               <div className="w-12 h-12 rounded-full border-4 border-t-blue-600 border-gray-200 animate-spin"></div>
@@ -243,7 +245,7 @@ export default function Community() {
   }
   if (error || !community) {
     return <MainLayout hidePageLayout>
-        <PageLayout>
+        <PageLayout title={error || 'Community not found'}>
           <PageSection>
             <SectionContent>
               <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -261,8 +263,8 @@ export default function Community() {
                   <Button variant="outline" onClick={fetchCommunity}>
                     Try Again
                   </Button>
-                  <Button as={Link} to="/communities" variant="default">
-                    Browse Communities
+                  <Button asChild>
+                    <Link to="/communities">Browse Communities</Link>
                   </Button>
                 </div>
               </div>
@@ -274,7 +276,7 @@ export default function Community() {
   // Fallback image URL if community image is missing
   const fallbackImageUrl = 'https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1400&q=80';
   return <MainLayout hidePageLayout>
-      <PageLayout breadcrumbs={breadcrumbItems}>
+      <PageLayout title={community.name} breadcrumbs={breadcrumbItems}>
         {/* Hero Section */}
         <PageSection className="p-0 overflow-hidden mb-6">
           <div className="relative">
@@ -289,9 +291,11 @@ export default function Community() {
                     <Pencil className="h-3.5 w-3.5 mr-1.5" />
                     Edit Cover Image
                   </Button>
-                  <Button as={Link} to={`/community/${id}/settings`} variant="secondary" className="bg-white/90 text-gray-700 hover:bg-white" size="sm">
-                    <Settings className="h-3.5 w-3.5 mr-1.5" />
-                    Settings
+                  <Button asChild variant="secondary" className="bg-white/90 text-gray-700 hover:bg-white" size="sm">
+                    <Link to={`/community/${id}/settings`}>
+                      <Settings className="h-3.5 w-3.5 mr-1.5" />
+                      Settings
+                    </Link>
                   </Button>
                 </div>}
               {/* Content Container - Centered vertically */}
@@ -318,6 +322,13 @@ export default function Community() {
                             {format(new Date(community.created_at), 'MMM yyyy')}
                           </span>
                         </div>
+                        <Link
+                          to={`/community/${id}/events`}
+                          className="flex items-center bg-black/30 text-white px-3 py-1.5 rounded-full text-sm hover:bg-black/50 transition-colors"
+                        >
+                          <Calendar className="h-4 w-4 mr-2" />
+                          <span>Events</span>
+                        </Link>
                       </div>
                     </div>
                     <div className="mt-6 md:mt-0 md:ml-8">
@@ -335,6 +346,50 @@ export default function Community() {
                 </div>
               </div>
             </div>
+          </div>
+        </PageSection>
+        {/* Navigation Tabs */}
+        <PageSection className="p-0 border-b border-gray-200">
+          <div className="flex items-center gap-1 overflow-x-auto">
+            <Button
+              asChild
+              variant="ghost"
+              className={`rounded-none border-b-2 border-transparent hover:border-gray-300 ${
+                location.pathname === `/community/${id}` || location.pathname === `/community/${id}/`
+                  ? 'border-blue-600 text-blue-600'
+                  : ''
+              }`}
+            >
+              <Link to={`/community/${id}`}>Posts</Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className={`rounded-none border-b-2 border-transparent hover:border-gray-300 ${
+                location.pathname === `/community/${id}/events`
+                  ? 'border-blue-600 text-blue-600'
+                  : ''
+              }`}
+            >
+              <Link to={`/community/${id}/events`}>
+                <Calendar className="h-4 w-4 mr-2" />
+                Events
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="ghost"
+              className={`rounded-none border-b-2 border-transparent hover:border-gray-300 ${
+                location.pathname === `/community/${id}/members`
+                  ? 'border-blue-600 text-blue-600'
+                  : ''
+              }`}
+            >
+              <Link to={`/community/${id}/members`}>
+                <Users className="h-4 w-4 mr-2" />
+                Members
+              </Link>
+            </Button>
           </div>
         </PageSection>
           {/* Main Content */}
@@ -389,11 +444,11 @@ export default function Community() {
           <div className="space-y-6">
             {/* Member List */}
             <PageSection>
-              <SectionHeader title="Community Members" actions={<Button as={Link} to={`/community/${id}/members`} variant="outline" size="sm">
-                    View All
+              <SectionHeader title="Community Members" actions={<Button asChild variant="outline" size="sm">
+                    <Link to={`/community/${id}/members`}>View All</Link>
                   </Button>} />
               <SectionContent className="p-0">
-                <MemberList communityId={id!} limit={5} hideHeader={true} />
+                <MemberList communityId={id || ''} limit={5} hideHeader={true} />
               </SectionContent>
             </PageSection>
             {/* Community Info Card */}
@@ -426,10 +481,12 @@ export default function Community() {
                       </p>
                     </div>
                   {(isOwner || isAdmin) && <div className="pt-4 border-t border-gray-200">
-                      <Button as={Link} to={`/community/${id}/settings`} variant="outline" className="w-full justify-center">
+                      <Button asChild variant="outline" className="w-full justify-center">
+                        <Link to={`/community/${id}/settings`}>
                           <Settings className="h-4 w-4 mr-2" />
                           Manage Community
-                        </Button>
+                        </Link>
+                      </Button>
                     </div>}
                   </div>
                 </SectionContent>

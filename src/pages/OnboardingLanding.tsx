@@ -432,7 +432,7 @@ export function OnboardingLanding() {
             <div className="max-w-5xl">
               <FadeInUpOnScroll>
                 <h1 
-                  className="text-[48px] md:text-[56px] lg:text-[72px] xl:text-[80px] text-white mb-6 text-left font-sans"
+                  className="text-[76px] text-white mb-6 text-left font-sans"
                   style={{
                     fontWeight: 700,
                     lineHeight: 1.1,

@@ -16,6 +16,8 @@ interface AcceleratorSection {
   imageAlt?: string;
   primaryCtaText?: string;
   primaryRoute?: string;
+  secondaryCtaText?: string;
+  secondaryRoute?: string;
 }
 
 const acceleratorSections: AcceleratorSection[] = [
@@ -23,81 +25,91 @@ const acceleratorSections: AcceleratorSection[] = [
     id: 'overview',
     number: '01',
     subtitle: 'Products',
-    title: 'DTMP (Digital Transformation Management Platform)',
-    question: 'What makes transformation execution repeatable  not chaotic?',
+    title: 'Digital Transformation Management Platform (DTMP)',
+    question: 'How does DQ manage transformation execution?',
     supportingLines: [
-      'DTMP is DQ’s central platform for managing, monitoring, and accelerating digital transformation across the organisation.',
-      'It brings strategy, data, delivery, and governance into one connected system with real-time visibility and clear ownership.',
-      'By standardising planning, tracking, and delivery, DTMP turns complex transformation into measurable, repeatable outcomes.',
+      'DTMP is DQ’s core platform for planning, tracking, and governing digital transformation initiatives across the organisation consistently securely.',
+      'It connects strategy, data, delivery workflows, and governance into one system, giving teams visibility, ownership, and execution control.',
+      'By standardising repositories, analytics, portals, and documentation, DTMP helps teams execute change predictably, collaboratively, and at scale enterprise-wide safely.',
     ],
-    imageSrc: 'https://i.ibb.co/m5MnzXQ7/8d76d1b2-6bba-4eab-ac4c-bb3aa8c39f07.png',
+    imageSrc: 'https://i.ibb.co/5hcV7c4Q/dtmp-image.png',
     imageAlt: 'DTMP overview visual',
-    primaryCtaText: 'View Products',
+    primaryCtaText: 'View Platform',
     primaryRoute: '/marketplace/directory/products',
+    secondaryCtaText: 'Explore Courses',
+    secondaryRoute: '/marketplace/courses',
   },
   {
     id: 'portfolio',
     number: '02',
     subtitle: 'Products',
-    title: 'TMaaS (Transformation Management as a Service)',
-    question: 'How can transformation stay flexible, fast, and execution-focused?',
+    title: 'Transformation Management as a Service (TMaaS)',
+    question: 'How does DQ execute transformation as a service?',
     supportingLines: [
-      'TMaaS is DQ’s on-demand model for delivering digital transformation as modular, execution-ready services.',
-      'It removes rigid programs by enabling organisations to start small, adapt continuously, and scale only when needed.',
-      'By shifting transformation to a service-based approach, TMaaS improves speed, lowers risk, and increases delivery success.',
+      'TMaaS is DQ\'s service-based model for delivering digital transformation through modular, execution-ready capabilities rather than rigid programmes.',
+      'It enables organisations to start small, adapt continuously, and scale transformation initiatives only when real value is proven.',
+      'By treating transformation as a service, TMaaS improves speed, reduces delivery risk, and increases the likelihood of successful outcomes.',
     ],
-    imageSrc: 'https://i.ibb.co/398L9Zfq/f135c3d3-96bd-4fc4-8785-b1c06452747c.png',
+    imageSrc: 'https://i.ibb.co/NgTVgKKd/tmaas-image.png',
     imageAlt: 'Accelerator portfolio visual',
-    primaryCtaText: 'View Products',
+    primaryCtaText: 'View Platform',
     primaryRoute: '/marketplace/directory/products',
+    secondaryCtaText: 'Explore Courses',
+    secondaryRoute: '/marketplace/courses',
   },
   {
     id: 'delivery-flow',
     number: '03',
     subtitle: 'Products',
-    title: 'Plant4.0 (Industrial Operations & Performance Platform)',
-    question: 'How can industrial plants operate as connected, intelligent systems?',
+    title: 'Plant 4.0 (Plant 4.0)',
+    question: 'How does DQ transform industrial operations?',
     supportingLines: [
-      'Plant4.0 is a unified platform for managing industrial assets, processes, energy, performance, and OT cybersecurity.',
-      'It connects OT and IT data into one structured workspace across plants, sites, and vendors.',
-      'By standardising industrial data and workflows, Plant4.0 enables safer, more efficient, continuously improving operations.',
+      "Plant 4.0 is DQ's platform for managing digital transformation in asset-intensive industries such as manufacturing, utilities, and energy.",
+      'It helps teams monitor assets, optimise performance, and improve operational decisions using real-time data and automation.',
+      'By combining operational efficiency and sustainability, Plant 4.0 supports safer, more resilient, and future-ready industrial environments.',
     ],
-    imageSrc: 'https://i.ibb.co/GQT006bF/7dfa801b-5e41-44c9-9c9a-3d8c65875680.png',
-    imageAlt: 'Plant4.0 delivery flow visual',
-    primaryCtaText: 'Explore Digital Accelerators',
+    imageSrc: 'https://i.ibb.co/CK60cQxP/plant4-0-image.png',
+    imageAlt: 'Plant 4.0 delivery flow visual',
+    primaryCtaText: 'View Platform',
     primaryRoute: '/knowledge-center/products/digital-accelerators',
+    secondaryCtaText: 'Explore Courses',
+    secondaryRoute: '/marketplace/courses',
   },
   {
     id: 'alignment',
     number: '04',
     subtitle: 'Products',
-    title: 'DTMB (Digital Transformation Management Books)',
-    question: 'How can digital transformation knowledge become practical, clear, and repeatable?',
+    title: 'Digital Transformation Management Book (DTMB)',
+    question: 'How does DQ share transformation thinking?',
     supportingLines: [
-      'DTMB is DQ\'s structured portfolio of publications that make digital transformation understandable and actionable.',
-      'It translates complex transformation concepts into clear frameworks, real-world use cases, and applied guidance.',
-      'By organising insight through the D6 Framework, DTMB connects strategy to execution with practical decision support.',
+      "DTMB is DQ's series of concise books that explain digital transformation concepts for leaders and decision-makers.",
+      'They translate complex ideas into clear frameworks, real-world examples, and practical guidance that supports informed decision-making.',
+      'By making transformation knowledge accessible, DTMB helps organisations align strategy, execution, and leadership in the digital economy.',
     ],
-    imageSrc: 'https://i.ibb.co/M5grg9P9/9405b249-558c-445d-abc3-5ce577338df6.png',
+    imageSrc: 'https://i.ibb.co/gMmx1t7S/photo-1495446815901-a7297e633e8d-1.jpg',
     imageAlt: 'DTMB visual',
-    primaryCtaText: 'View Products',
+    primaryCtaText: 'View Platform',
     primaryRoute: '/marketplace/directory/products',
+    secondaryCtaText: 'Explore Courses',
+    secondaryRoute: '/marketplace/courses',
   },
   {
     id: 'automation',
     number: '05',
     subtitle: 'Products',
-    title: 'DTMA (Digital Transformation Management Academy)',
-    question: 'How do professionals learn and apply digital transformation effectively?',
+    title: 'Digital Transformation Management Academy (DTMA)',
+    question: 'How does DQ build transformation capability?',
     supportingLines: [
-      'DTMA is DQ\'s structured learning platform for understanding digital transformation and AI in real organisational contexts.',
-      'It combines curated courses, practical tools, and guided learning to support confident planning and execution.',
-      'By linking learning directly to practice, DTMA helps professionals apply knowledge to real transformation initiatives.',
+      "DTMA is DQ's learning platform for building digital transformation knowledge and skills across individuals, teams, and organisations.",
+      'It provides structured courses, certifications, and practical learning aligned to Economy 4.0 and real transformation challenges.',
+      'By combining learning with application, DTMA helps professionals confidently plan, lead, and deliver digital transformation initiatives.',
     ],
-    imageSrc: 'https://i.ibb.co/BVC7d2KP/1edc4860-4810-4d1d-8533-95ddd6d1d212.png',
+    imageSrc: 'https://i.ibb.co/FL82B5q5/photo-1523240795612-9a054b0db644.jpg',
     imageAlt: 'DTMA visual',
-    primaryCtaText: 'View Products',
-    primaryRoute: '/marketplace/directory/products',
+    primaryCtaText: 'View Platform',
+    primaryRoute: '/marketplace/courses',
+    secondaryCtaText: 'Explore Courses',
+    secondaryRoute: '/marketplace/courses',
   },
   {
     id: 'dws',
@@ -112,8 +124,10 @@ const acceleratorSections: AcceleratorSection[] = [
     ],
     imageSrc: 'https://i.ibb.co/YrMFv7w/photo-1497366216548-37526070297c.jpg',
     imageAlt: 'Digital Working Studios visual',
-    primaryCtaText: 'Join Waitlist',
+    primaryCtaText: 'View Platform',
     primaryRoute: '/dws/waitlist',
+    secondaryCtaText: 'Explore Courses',
+    secondaryRoute: '/marketplace/courses',
   },
 ];
 
@@ -528,20 +542,17 @@ export function DigitalAcceleratorsLanding() {
             <div className="container mx-auto px-4 md:px-6 lg:px-8 xl:px-12">
               <div className="max-w-3xl">
                 <FadeInUpOnScroll>
-                  <p className="text-xs font-bold tracking-[0.15em] uppercase text-white/80 mb-5">
-                    06 · PRODUCTS
-                  </p>
                   <h1
-                    className="text-[48px] md:text-[56px] lg:text-[72px] xl:text-[80px] text-white mb-6 text-left font-sans"
+                    className="text-[76px] text-white mb-6 text-left font-sans"
                     style={{ fontWeight: 700, lineHeight: 1.1 }}
                   >
-                    Accelerate Digital Transformation
+                    Accelerating Digital Transformation at DQ
                   </h1>
                   <p
                     className="text-lg md:text-xl text-white/95 mb-10 font-normal leading-relaxed text-left max-w-2xl"
                     style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}
                   >
-                    Explore our products - tailored solutions designed to drive efficiency across your digital transformation initiatives.
+                    Explore DQ's products and platforms designed to support how we plan, execute, and scale digital transformation across organisations.
                   </p>
                 </FadeInUpOnScroll>
               </div>
@@ -598,7 +609,7 @@ export function DigitalAcceleratorsLanding() {
 
                         <div className="mb-10 space-y-4">
                           <div className="border-l-4 border-[#FB5535] pl-4 mb-6">
-                            <p className="text-xl md:text-2xl font-semibold text-[#030F35] max-w-2xl">
+                            <p className="text-[20px] font-semibold text-[#030F35] max-w-2xl">
                               {section.question}
                             </p>
                           </div>
@@ -612,15 +623,26 @@ export function DigitalAcceleratorsLanding() {
                           </div>
                         </div>
 
-                        {section.primaryRoute ? (
+                        {(section.primaryRoute || section.secondaryRoute) ? (
                           <div className="flex flex-col sm:flex-row gap-4">
-                            <button
-                              type="button"
-                              onClick={() => handleNavigate(section.primaryRoute ?? '/marketplace/directory/products')}
-                              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#FB5535] text-white font-semibold rounded-lg hover:bg-[#E95139] transition-all duration-200 group shadow-md"
-                            >
-                              <span>{section.primaryCtaText ?? 'View Products'}</span>
-                            </button>
+                            {section.primaryRoute && (
+                              <button
+                                type="button"
+                                onClick={() => handleNavigate(section.primaryRoute ?? '/marketplace/directory/products')}
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#FB5535] text-white font-semibold rounded-lg hover:bg-[#E95139] transition-all duration-200 group shadow-md"
+                              >
+                                <span>{section.primaryCtaText ?? 'View Products'}</span>
+                              </button>
+                            )}
+                            {section.secondaryRoute && (
+                              <button
+                                type="button"
+                                onClick={() => handleNavigate(section.secondaryRoute ?? '/marketplace/courses')}
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3 border-2 border-[#030F35] text-[#030F35] font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200 group"
+                              >
+                                <span>{section.secondaryCtaText ?? 'Explore Courses'}</span>
+                              </button>
+                            )}
                           </div>
                         ) : null}
                       </div>
