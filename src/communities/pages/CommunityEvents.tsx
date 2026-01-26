@@ -27,8 +27,10 @@ interface Event {
   description: string | null;
   event_date: string;
   event_time: string | null;
+  location: string | null;
   created_by: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 export default function CommunityEvents() {
@@ -97,10 +99,11 @@ export default function CommunityEvents() {
     if (!id) return;
     setEventsLoading(true);
     const query = supabase
-      .from('events')
+      .from('community_events')
       .select('*')
       .eq('community_id', id)
-      .order('event_date', { ascending: true });
+      .order('event_date', { ascending: true })
+      .order('event_time', { ascending: true, nullsFirst: false });
     const [data, err] = await safeFetch(query);
     if (err) {
       toast.error('Failed to load events');
