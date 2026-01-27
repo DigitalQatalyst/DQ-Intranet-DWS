@@ -262,6 +262,11 @@ export const getNewsImageSrc = (
   if (item.format === 'Podcast' || item.tags?.some(tag => tag.toLowerCase().includes('podcast'))) {
     return '/podcasts.jpg';
   }
+  // Use a dedicated image for all announcement-style items shown in the
+  // News & Announcements tab (Announcements, Guidelines, Notices)
+  if (item.type === 'Announcement' || item.type === 'Guidelines' || item.type === 'Notice') {
+    return '/image (5).jpg';
+  }
   // Use specific images based on newsType
   if (item.newsType === 'Policy Update') {
     return '/policy update.png';

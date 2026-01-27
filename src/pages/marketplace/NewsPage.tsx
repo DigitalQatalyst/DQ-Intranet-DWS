@@ -90,6 +90,11 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
       key: 'channel',
       label: 'Channel',
       options: ['Email', 'Townhall', 'Portal', 'Social']
+    },
+    {
+      key: 'dateRange',
+      label: 'Date',
+      options: ['Last 7 days', 'Last 30 days', 'Last 90 days', 'This year']
     }
   ],
   insights: [

@@ -33,6 +33,7 @@ import {
 import ServiceCarousel from './marketplace/ServiceCarousel';
 import { fetchServicesByCategory } from '../services/homeContentService';
 import type { ServiceCard as ServiceCardRecord } from '../services/homeContentService';
+import { truncateWords } from '../utils/textUtils';
 
 /* ----------------------------- AI Chatbot ----------------------------- */
 const AIChatbot = () => {
@@ -158,6 +159,7 @@ const ServiceCard = ({
   const titleClass = `${
     isComingSoon ? "text-white/80" : sectionStyle.headingClass
   } text-base font-semibold text-white mb-1 truncate`;
+  const displayTitle = truncateWords(service.title, 5);
 
   return (
     <div
@@ -179,7 +181,7 @@ const ServiceCard = ({
         >
           {iconElement}
         </div>
-        <h2 className={titleClass}>{service.title}</h2>
+        <h2 className={titleClass} title={service.title}>{displayTitle}</h2>
       </div>
 
       <p className={descriptionClasses}>{service.description}</p>

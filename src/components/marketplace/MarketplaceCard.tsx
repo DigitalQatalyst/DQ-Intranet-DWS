@@ -7,6 +7,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 import { resolveServiceImage } from '../../utils/serviceCardImages';
+import { truncateWords } from '../../utils/textUtils';
 export interface MarketplaceItemProps {
   item: {
     id: string;
@@ -181,6 +182,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
     item.featuredImageUrl ||
     resolveServiceImage(item.id, item.title) ||
     '/images/services/DTMP.jpg';
+  const displayTitle = truncateWords(item.title, 5);
   
   return <div className="flex flex-col min-h-[340px] bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200" onClick={onQuickView}>
       {/* Featured Image */}
@@ -204,8 +206,12 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       <div className="px-4 pt-3 pb-2 flex-grow flex flex-col">
         <div className="flex items-start mb-1">
           <div className="flex-grow flex flex-col">
-            <h3 className="font-bold text-gray-900 line-clamp-2 leading-tight" style={{ margin: 0, lineHeight: 1.15 }}>
-              {item.title}
+            <h3
+              className="font-bold text-gray-900 line-clamp-2 leading-tight"
+              style={{ margin: 0, lineHeight: 1.15 }}
+              title={item.title}
+            >
+              {displayTitle}
             </h3>
             <p className="text-sm text-gray-500 mt-0.5" style={{ marginTop: 2, marginBottom: 0 }}>
               {item.provider.name}
