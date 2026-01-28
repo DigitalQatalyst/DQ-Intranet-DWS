@@ -546,7 +546,7 @@ export const LmsCourses: React.FC = () => {
         <h1 className="text-3xl font-bold text-gray-800 mb-2">DQ Learning Center</h1>
         <p className="text-gray-600 mb-6 leading-relaxed max-w-5xl">
           {activeTab === 'courses'
-            ? "Designed for continuous upskilling. We provide the certifications and training to help you maximize your potential and maintain DQ's high standards of excellence."
+            ? "Designed for continuous upskilling and certification, it helps associates grow, enhance their skills, and stay aligned with DQ’s commitment to excellence."
             : "Explore authentic reviews and testimonials from learners across DQ. Discover how courses have transformed work practices, developed skills, and shaped professional journeys within our learning community."}
         </p>
 
