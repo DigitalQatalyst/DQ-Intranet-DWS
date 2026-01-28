@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Radio, Clock, Calendar, Play } from 'lucide-react';
 
-const PODCAST_IMAGE = '/podcasts.jpg';
-
 interface PodcastSeriesCardProps {
   href?: string;
   title?: string;
@@ -14,13 +12,17 @@ export function PodcastSeriesCard({
   title = 'Action-Solver Podcast',
   label = 'Action-Solver Series',
 }: PodcastSeriesCardProps) {
+  const coverImage =
+    title === 'Action-Solver Podcast' || label === 'Action-Solver Series'
+      ? '/image (12).png'
+      : '/podcasts.jpg';
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       {/* Cover Image Section */}
       <div className="relative h-40 w-full overflow-hidden bg-gray-900">
         {/* Abstract wave-like shapes on the right */}
         <img
-          src={PODCAST_IMAGE}
+          src={coverImage}
           alt={`${title} cover art`}
           className="h-full w-full object-cover"
           loading="lazy"

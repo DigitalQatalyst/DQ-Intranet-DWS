@@ -1,6 +1,6 @@
 import type { NewsItem } from '@/data/media/news';
 import { Link } from 'react-router-dom';
-import { formatDateVeryShort, generateTitle, getFallbackImage } from '@/utils/newsUtils';
+import { formatDateVeryShort, generateTitle, getNewsImageSrc } from '@/utils/newsUtils';
 
 const fallbackImages = [
   'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80',
@@ -21,7 +21,7 @@ interface BlogCardProps {
 export function BlogCard({ item, href }: BlogCardProps) {
   // Check if this is a podcast
   const isPodcast = item.format === 'Podcast' || item.tags?.some(tag => tag.toLowerCase().includes('podcast'));
-  const imageSrc = isPodcast ? '/podcasts.jpg' : '/blogs.jpg';
+  const imageSrc = getNewsImageSrc(item, fallbackImages);
   const authorName = item.byline || item.author || 'DQ Media Team';
   const displayTitle = generateTitle(item);
   const categoryLabel = isPodcast ? 'Podcast' : 'Blog';

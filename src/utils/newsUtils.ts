@@ -254,13 +254,23 @@ export const getNewsImageSrc = (
   fallbackImages: string[],
   fallbackHero?: string
 ): string => {
-  // Use /blogs.jpg for blog articles
+  // Use /image (7).jpg for blog articles (Thought Leadership)
   if (item.type === 'Thought Leadership') {
-    return '/blogs.jpg';
+    return '/image (7).jpg';
   }
-  // Use /podcasts.jpg for podcast articles
+  // Use series-specific images for podcast articles
   if (item.format === 'Podcast' || item.tags?.some(tag => tag.toLowerCase().includes('podcast'))) {
-    return '/podcasts.jpg';
+    const isExecutionMindset =
+      item.tags?.some(tag => tag.toLowerCase().includes('series-2')) ||
+      (item.audioUrl && item.audioUrl.includes('/02. Series 02 - The Execution Mindset/'));
+
+    // Series 2 (The Execution Mindset) retains the generic podcasts image
+    if (isExecutionMindset) {
+      return '/podcasts.jpg';
+    }
+
+    // Default for Series 1 (Action-Solver) and other podcasts
+    return '/image (12).png';
   }
   // Use a dedicated image for all announcement-style items shown in the
   // News & Announcements tab (Announcements, Guidelines, Notices)

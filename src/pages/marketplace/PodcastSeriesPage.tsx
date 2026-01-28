@@ -310,6 +310,8 @@ export default function PodcastSeriesPage() {
       }, 0) / episodes.length)
     : 13;
 
+  const seriesHeroImage = isExecutionMindsetSeries ? PODCAST_IMAGE : '/image (12).png';
+
   // Audio player event handlers - re-run when currentlyPlaying changes
   useEffect(() => {
     const audio = audioRef.current;
@@ -872,18 +874,17 @@ export default function PodcastSeriesPage() {
         </div>
         </section>
 
-        {/* Hero Section with Blurred Background - Matching Blog Style */}
+        {/* Hero Section with Background Image */}
         <section className="relative min-h-[320px] md:min-h-[400px] flex items-center" aria-labelledby="podcast-title">
           {/* Background Image */}
           <div 
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: `url(${PODCAST_IMAGE})`,
-              filter: 'blur(2px)',
+              backgroundImage: `url('${seriesHeroImage}')`,
             }}
           />
-          {/* Dark Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-800/85 to-slate-900/90" />
+          {/* Dark Overlay (slightly lighter to reveal image) */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-900/75 via-slate-800/70 to-slate-900/80" />
           
           {/* Content */}
           <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-24 w-full">

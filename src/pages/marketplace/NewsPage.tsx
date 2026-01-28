@@ -710,10 +710,18 @@ const NewsPage: React.FC = () => {
                 <PodcastsGrid query={query} items={newsItems} />
               </TabsContent>
               <TabsContent value="opportunities">
-                <div className="flex items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
-                  <div>
+                <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+                  <div className="relative h-56 w-full bg-gray-200">
+                    <img
+                      src="/image (8).jpg"
+                      alt="Job Openings Coming Soon"
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="px-6 py-5 text-center">
                     <p className="text-sm font-semibold text-gray-900 mb-1">Job Openings Coming Soon</p>
-                    <p className="text-sm text-gray-600 max-w-md">
+                    <p className="text-sm text-gray-600 max-w-xl mx-auto">
                       Internal job postings will be published here once the Job Openings feature is live.
                     </p>
                   </div>
