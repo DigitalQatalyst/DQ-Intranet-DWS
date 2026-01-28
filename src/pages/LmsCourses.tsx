@@ -544,49 +544,12 @@ export const LmsCourses: React.FC = () => {
           </ol>
         </nav>
         <h1 className="text-3xl font-bold text-gray-800 mb-2">DQ Learning Center</h1>
-        <p className="text-gray-600 mb-6 leading-relaxed max-w-5xl">
-          {activeTab === 'courses'
-            ? "Designed for continuous upskilling. We provide the certifications and training to help you maximize your potential and maintain DQ's high standards of excellence."
-            : "Explore authentic reviews and testimonials from learners across DQ. Discover how courses have transformed work practices, developed skills, and shaped professional journeys within our learning community."}
+        <p className="text-gray-600 mb-6 leading-relaxed">
+          Designed for your continuous growth. Access the upskilling and certification tools you need to deliver excellence.
         </p>
 
-        {/* Tab Overview Container */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">CURRENT FOCUS</div>
-              <h2 className="text-2xl font-bold mb-3" style={{ color: '#030F35' }}>
-                {activeTab === 'courses' ? 'Courses & Curricula' : activeTab === 'tracks' ? 'Learning Tracks' : 'Reviews & Testimonials'}
-              </h2>
-              <p className="text-gray-600 text-sm leading-relaxed mb-2">
-                {activeTab === 'courses'
-                  ? "Browse comprehensive learning tracks, individual courses, and structured curricula designed to enhance your skills across GHC and 6xD frameworks."
-                  : activeTab === 'tracks'
-                    ? "Explore structured learning tracks that combine multiple courses into comprehensive learning journeys. Each track includes courses, topics, and lessons designed to master specific skills and competencies."
-                    : "Read real experiences and insights from DQ associates who have completed courses. Learn how training has impacted their work, improved their skills, and advanced their careers."}
-              </p>
-              <p className="text-gray-500 text-xs mt-2">
-                {activeTab === 'courses'
-                  ? "Sourced from DQ Learning & Development, GHC and 6xD teams."
-                  : activeTab === 'tracks'
-                    ? "Sourced from DQ Learning & Development teams and structured learning programs."
-                    : "Sourced from course participants and verified learners across DQ studios."}
-              </p>
-            </div>
-            <div
-              className="px-3 py-1.5 text-xs font-medium rounded-full ml-4"
-              style={{
-                backgroundColor: '#F0F4FF',
-                color: '#030F35'
-              }}
-            >
-              Tab overview
-            </div>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6" data-tabs-section>
+        {/* Navigation Tabs as Text Links */}
+        <div className="mb-6 border-b border-gray-200">
           <div className="flex space-x-8">
             <button
               onClick={() => setActiveTab('courses')}
