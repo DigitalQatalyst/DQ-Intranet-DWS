@@ -1,0 +1,265 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { DWS_KNOWLEDGE } from '../src/data/dwsChatKnowledge.js';
+
+type ChatRole = 'system' | 'user' | 'assistant';
+
+type ChatMessage = {
+  role: ChatRole;
+  content: string;
+};
+
+type EmbedRecord = {
+  topicId: string;
+  text: string;
+  embedding: number[];
+};
+
+const DEFAULT_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+const DEFAULT_EMBED_MODEL = process.env.OPENAI_EMBED_MODEL || 'text-embedding-3-small';
+const OPENAI_BASE_URL = (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '');
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || process.env.OPENAI_API_TOKEN;
+
+let cachedEmbeddings: EmbedRecord[] | null = null;
+
+function buildSystemPrompt(context?: string) {
+  const base =
+    "You are the DQ Digital Workspace AI Assistant. Be concise, specific, and actionable. You can answer anything about DQ, the Digital Workspace, onboarding, services, learning, governance, or general knowledge. If a question is unclear, ask a brief clarifying question. If you don't have high confidence, say so and propose the next step. Respond in Markdown with short paragraphs or bullets.";
+  if (!context) return base;
+  const trimmedContext = String(context).slice(0, 4000);
+  return `${base}\n\nUse this DWS context when relevant:\n${trimmedContext}`;
+}
+
+function sanitizeMessages(raw: any): ChatMessage[] {
+  if (!Array.isArray(raw)) return [];
+  const allowed: ChatRole[] = ['system', 'user', 'assistant'];
+  return raw
+    .map((m) => ({
+      role: allowed.includes(m?.role) ? (m.role as ChatRole) : 'user',
+      content: typeof m?.content === 'string' ? m.content.trim() : '',
+    }))
+    .filter((m) => m.content.length > 0)
+    .slice(-30); // cap history to avoid runaway tokens
+}
+
+function cosineSimilarity(a: number[], b: number[]) {
+  if (!a.length || !b.length || a.length !== b.length) return 0;
+  let dot = 0;
+  let na = 0;
+  let nb = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    na += a[i] * a[i];
+    nb += b[i] * b[i];
+  }
+  return dot / (Math.sqrt(na) * Math.sqrt(nb) + 1e-9);
+}
+
+async function getKnowledgeEmbeddings(): Promise<EmbedRecord[]> {
+  if (cachedEmbeddings) return cachedEmbeddings;
+
+  const entries = Object.entries(DWS_KNOWLEDGE).map(([topicId, entry]) => ({
+    topicId,
+    text: `${entry.summary}\n\n${entry.details}`,
+  }));
+
+  const payload = {
+    model: DEFAULT_EMBED_MODEL,
+    input: entries.map((e) => e.text.slice(0, 4000)),
+  };
+
+  const resp = await fetch(`${OPENAI_BASE_URL}/embeddings`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!resp.ok) {
+    const detail = await resp.text();
+    throw new Error(`Embeddings failed: ${resp.status} ${detail}`);
+  }
+
+  const data = await resp.json();
+  const vectors = data?.data;
+  if (!Array.isArray(vectors) || vectors.length !== entries.length) {
+    throw new Error('Embeddings response malformed');
+  }
+
+  cachedEmbeddings = entries.map((entry, idx) => ({
+    ...entry,
+    embedding: vectors[idx].embedding as number[],
+  }));
+
+  return cachedEmbeddings;
+}
+
+async function embedQuery(text: string): Promise<number[]> {
+  const resp = await fetch(`${OPENAI_BASE_URL}/embeddings`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: DEFAULT_EMBED_MODEL,
+      input: text.slice(0, 4000),
+    }),
+  });
+
+  if (!resp.ok) {
+    const detail = await resp.text();
+    throw new Error(`Query embedding failed: ${resp.status} ${detail}`);
+  }
+
+  const data = await resp.json();
+  const vec = data?.data?.[0]?.embedding;
+  if (!Array.isArray(vec)) {
+    throw new Error('Query embedding missing');
+  }
+  return vec as number[];
+}
+
+async function buildRetrievalContext(query: string): Promise<string | null> {
+  try {
+    const [records, queryVec] = await Promise.all([getKnowledgeEmbeddings(), embedQuery(query)]);
+    const scored = records
+      .map((r) => ({
+        ...r,
+        score: cosineSimilarity(r.embedding, queryVec),
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .filter((r) => r.score > 0.2);
+
+    if (!scored.length) return null;
+    return scored
+      .map(
+        (r, i) =>
+          `DQ Context #${i + 1} (score ${(r.score * 100).toFixed(1)}):\n${r.text}`
+      )
+      .join('\n\n---\n\n');
+  } catch (err) {
+    console.error('Retrieval context error', err);
+    return null;
+  }
+}
+
+function setCors(res: VercelResponse) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method === 'OPTIONS') {
+    setCors(res);
+    return res.status(204).end();
+  }
+
+  if (req.method === 'GET') {
+    setCors(res);
+    if (!OPENAI_API_KEY) {
+      return res.status(503).json({ ok: false, error: 'OPENAI_API_KEY not configured' });
+    }
+    return res.status(200).json({
+      ok: true,
+      model: DEFAULT_MODEL,
+      embedModel: DEFAULT_EMBED_MODEL,
+    });
+  }
+
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'GET, POST, OPTIONS');
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  if (!OPENAI_API_KEY) {
+    return res.status(500).json({ error: 'OPENAI_API_KEY is not configured in the server environment.' });
+  }
+
+  const { messages: rawMessages, context, temperature, model, stream } = req.body ?? {};
+  const messages = sanitizeMessages(rawMessages);
+  if (!messages.length) {
+    return res.status(400).json({ error: 'messages array is required' });
+  }
+
+  const retrievalContext = await buildRetrievalContext(messages[messages.length - 1].content);
+  const mergedContext = [context, retrievalContext].filter(Boolean).join('\n\n');
+
+  const systemPrompt = buildSystemPrompt(mergedContext || undefined);
+  const payload: any = {
+    model: typeof model === 'string' && model.trim() ? model.trim() : DEFAULT_MODEL,
+    temperature: typeof temperature === 'number' ? Math.min(Math.max(temperature, 0), 1) : 0.2,
+    max_tokens: 600,
+    stream: !!stream,
+    messages: [
+      {
+        role: 'system',
+        content: systemPrompt,
+      },
+      ...messages,
+    ].slice(-30),
+  };
+
+  try {
+    const upstream = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!upstream.ok) {
+      const detail = await upstream.text();
+      console.error('AI upstream error', upstream.status, detail);
+      return res.status(502).json({
+        error: 'Upstream AI provider returned an error',
+        detail: detail?.slice(0, 2000),
+      });
+    }
+
+    if (stream) {
+      setCors(res);
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache, no-transform');
+      res.setHeader('Connection', 'keep-alive');
+
+      if (!upstream.body) {
+        return res.status(500).json({ error: 'Upstream streaming body missing' });
+      }
+
+      const reader = (upstream.body as any).getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) res.write(Buffer.from(value));
+      }
+      res.end();
+      return;
+    }
+
+    const data = await upstream.json();
+    const reply = data?.choices?.[0]?.message?.content?.trim?.();
+    if (!reply) {
+      return res.status(500).json({ error: 'AI provider did not return a message' });
+    }
+
+    setCors(res);
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(200).json({
+      reply,
+      finishReason: data?.choices?.[0]?.finish_reason ?? null,
+      usage: data?.usage ?? null,
+    });
+  } catch (error: any) {
+    console.error('AI chat handler error', error);
+    return res.status(500).json({
+      error: 'Failed to generate AI response',
+      detail: error?.message || String(error),
+    });
+  }
+}

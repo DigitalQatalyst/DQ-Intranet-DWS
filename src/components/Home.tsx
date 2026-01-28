@@ -11,7 +11,6 @@ import {
   Calendar,
   Book as BookIcon,
   MessageCircle,
-  X,
   Clock,
   Compass,
   HeartHandshake,
@@ -34,54 +33,6 @@ import ServiceCarousel from './marketplace/ServiceCarousel';
 import { fetchServicesByCategory } from '../services/homeContentService';
 import type { ServiceCard as ServiceCardRecord } from '../services/homeContentService';
 
-/* ----------------------------- AI Chatbot ----------------------------- */
-const AIChatbot = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  return (
-    <>
-      {/* Floating button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[image:var(--dq-cta-gradient)] text-white flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 z-50 animate-pulse hover:animate-none hover:brightness-105"
-        aria-label="Open AI Assistant"
-      >
-        <MessageCircle size={24} />
-      </button>
-
-      {/* Chat modal */}
-      {isOpen && (
-        <div className="fixed bottom-24 right-6 w-80 sm:w-96 bg-white rounded-lg shadow-xl z-50 overflow-hidden border border-gray-200 animate-fade-in-up">
-          <div className="bg-[image:var(--dq-cta-gradient)] p-4 text-white flex justify-between items-center">
-            <h3 className="font-medium">AI Assistant</h3>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="text-white hover:text-gray-200 transition-colors"
-              aria-label="Close AI Assistant"
-            >
-              <X size={18} />
-            </button>
-          </div>
-          <div className="p-4 h-80 overflow-y-auto bg-gray-50">
-            <div className="bg-dq-navy/10 p-3 rounded-lg rounded-tl-none inline-block max-w-[85%] animate-fade-in">
-              <p className="text-gray-800">
-                Hi there! How can I help you navigate the Abu Dhabi Enterprise
-                Journey Platform?
-              </p>
-            </div>
-            <div className="mt-4">
-              <input
-                type="text"
-                placeholder="Type your question here..."
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dq-coral/40 transition-all duration-300"
-                autoFocus
-              />
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-};
 
 /* ------------------------- Types & Defaults -------------------------- */
 interface SectionStyle {
@@ -255,7 +206,16 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   const fallbackSections = {
-    learningWorkGuides: [
+    // 1. Learning & Knowledge - "I want to understand DQ or learn something"
+    learningKnowledge: [
+      {
+        id: 'knowledge-library',
+        title: 'Library',
+        description: 'Browse glossaries, FAQs, playbooks, and reference resources for everyday work.',
+        icon: <BookIcon />,
+        path: '/marketplace/guides?tab=glossary',
+        isActive: true
+      },
       {
         id: 'courses-curricula',
         title: 'Courses & Curricula',
@@ -273,14 +233,6 @@ export const HomePage: React.FC = () => {
         isActive: false
       },
       {
-        id: 'prompt-library',
-        title: 'Prompt Library',
-        description: 'Curated, reusable AI prompts and patterns to accelerate delivery and decision-making.',
-        icon: <Wand2 />,
-        path: '/marketplace/services-center?tab=prompt_library',
-        isActive: true
-      },
-      {
         id: 'learning-reviews',
         title: 'Reviews',
         description: 'Capture feedback and reviews on courses, bootcamps, and learning experiences.',
@@ -289,26 +241,43 @@ export const HomePage: React.FC = () => {
         isActive: false
       },
       {
-        id: 'knowledge-library',
-        title: 'Library',
-        description: 'Browse glossaries, FAQs, playbooks, and reference resources for everyday work.',
-        icon: <BookIcon />,
-        path: '/marketplace/guides?tab=glossary',
+        id: 'blueprints-library',
+        title: 'Knowledge Centre',
+        description: 'Apply delivery blueprints for 6xD design, DevOps, DBP, DXP, and DWS execution.',
+        icon: <Compass />,
+        path: '/marketplace/guides?tab=blueprints',
         isActive: true
       },
       {
-        id: 'learning-testimonials',
-        title: 'Testimonials',
-        description: 'Read stories and testimonials from associates on their learning journeys.',
-        icon: <HeartHandshake />,
-        path: '/marketplace/guides?tab=testimonials',
+        id: 'dq-guidelines',
+        title: 'Guidelines',
+        description: 'Official standards, governance models, and ways of working that guide execution across DQ.',
+        icon: <ScrollText />,
+        path: '/marketplace/guides?tab=guidelines',
         isActive: true
       },
+      {
+        id: 'work-guide-strategy',
+        title: 'Strategy',
+        description: "Understand DQ's journey, strategy, 6xD, initiatives, clients, and operating models.",
+        icon: <BarChart />,
+        path: '/marketplace/guides?tab=strategy',
+        isActive: true
+      },
+      {
+        id: 'prompt-library',
+        title: 'Prompt Library',
+        description: 'Curated, reusable AI prompts and patterns to accelerate delivery and decision-making.',
+        icon: <Wand2 />,
+        path: '/marketplace/services-center?tab=prompt_library',
+        isActive: true
+      }
     ],
-    servicesDigitalWorkforce: [
+    // 2. Services & Enablement - "I need access, tools, or support"
+    servicesEnablement: [
       {
         id: 'services-center-technology',
-        title: 'Technology',
+        title: 'Technology Services',
         description: 'Request environments, access, support, and tooling for DQ technology platforms.',
         icon: <Globe />,
         path: '/marketplace/services-center?tab=technology',
@@ -323,34 +292,27 @@ export const HomePage: React.FC = () => {
         isActive: true
       },
       {
-        id: 'ai-tools',
-        title: 'AI Tools',
-        description: 'AI-powered tools and copilots that support execution, automation, and delivery across DQ.',
-        icon: <Bot />,
-        path: '/marketplace/services-center?tab=ai_tools',
-        isActive: true
-      },
-      {
         id: 'digital-worker-tools',
-        title: 'Digital Worker',
+        title: 'Digital Worker Services',
         description: 'Use Doc Writers, prompting kits, AI tools, agents, and BPM helpers to speed up delivery.',
         icon: <Lightbulb />,
         path: '/marketplace/services-center?tab=digital_worker',
         isActive: true
       },
       {
-        id: 'blueprints-library',
-        title: 'Blueprints',
-        description: 'Apply delivery blueprints for 6xD design, DevOps, DBP, DXP, and DWS execution.',
-        icon: <Compass />,
-        path: '/marketplace/guides?tab=blueprints',
+        id: 'ai-tools',
+        title: 'AI Tools',
+        description: 'AI-powered tools and copilots that support execution, automation, and delivery across DQ.',
+        icon: <Bot />,
+        path: '/marketplace/services-center?tab=ai_tools',
         isActive: true
       }
     ],
-    workManagementHub: [
+    // 3. Work Execution - "I'm doing the work"
+    workExecution: [
       {
         id: 'activities-sessions',
-        title: 'Activities – Sessions',
+        title: 'Work Sessions',
         description: 'Plan and run daily and weekly work sessions, reviews, retros, and check-ins.',
         icon: <Calendar />,
         path: '/activities/sessions',
@@ -358,7 +320,7 @@ export const HomePage: React.FC = () => {
       },
       {
         id: 'activities-projects-tasks',
-        title: 'Activities – Projects / Tasks',
+        title: 'Projects & Tasks',
         description: 'Organize projects, tasks, and boards so work stays visible and on track.',
         icon: <ClipboardList />,
         path: '/activities/projects',
@@ -366,15 +328,18 @@ export const HomePage: React.FC = () => {
       },
       {
         id: 'activities-trackers',
-        title: 'Activities – Trackers',
+        title: 'Trackers',
         description: 'Follow statuses, categories, and live updates across activities and workflows.',
         icon: <BarChart />,
         path: '/activities/trackers',
         isActive: false
-      },
+      }
+    ],
+    // 4. Collaboration & Communities - "I need alignment, feedback, or discussion"
+    collaborationCommunities: [
       {
         id: 'communities-discussion',
-        title: 'Discussion',
+        title: 'Discussions',
         description: 'Open discussion spaces for DNA practices, learnings, Q&A, and team topics.',
         icon: <MessageCircle />,
         path: '/communities/discussion',
@@ -387,9 +352,18 @@ export const HomePage: React.FC = () => {
         icon: <HeartHandshake />,
         path: '/communities/pulse',
         isActive: false
+      },
+      {
+        id: 'events',
+        title: 'Working Events',
+        description: 'Discover upcoming events, townhalls, and experience sessions across DQ.',
+        icon: <Calendar />,
+        path: '/communities/events',
+        isActive: false
       }
     ],
-    cultureEventsNetworking: [
+    // 5. Updates & Culture - "What's happening at DQ?"
+    updatesCulture: [
       {
         id: 'news-announcements',
         title: 'News & Announcements',
@@ -397,14 +371,6 @@ export const HomePage: React.FC = () => {
         icon: <Newspaper />,
         path: '/marketplace/opportunities?tab=announcements',
         isActive: true
-      },
-      {
-        id: 'events',
-        title: 'Events',
-        description: 'Discover upcoming events, townhalls, and experience sessions across DQ.',
-        icon: <Calendar />,
-        path: '/communities/events',
-        isActive: false
       },
       {
         id: 'blogs',
@@ -415,23 +381,16 @@ export const HomePage: React.FC = () => {
         isActive: true
       },
       {
-        id: 'dq-guidelines',
-        title: 'DQ Guidelines',
-        description: 'Official standards, governance models, and ways of working that guide execution across DQ.',
-        icon: <ScrollText />,
-        path: '/marketplace/guides?tab=guidelines',
-        isActive: true
-      },
-      {
-        id: 'work-guide-strategy',
-        title: 'Strategy',
-        description: "Understand DQ's journey, strategy, 6xD, initiatives, clients, and operating models.",
-        icon: <BarChart />,
-        path: '/marketplace/guides?tab=strategy',
+        id: 'jobs-openings',
+        title: 'Job Openings',
+        description: 'Browse open roles and internal opportunities across DQ.',
+        icon: <JobIcon />,
+        path: '/marketplace/opportunities?tab=opportunities',
         isActive: true
       }
     ],
-    peopleDirectory: [
+    // 6. People & Organization - "Who does what here?"
+    peopleOrganization: [
       {
         id: 'directory-units',
         title: 'Units',
@@ -455,14 +414,6 @@ export const HomePage: React.FC = () => {
         icon: <Users />,
         path: '/marketplace/work-directory?tab=associates',
         isActive: false
-      },
-      {
-        id: 'jobs-openings',
-        title: 'Job Openings',
-        description: 'Browse open roles and internal opportunities across DQ.',
-        icon: <JobIcon />,
-        path: '/marketplace/opportunities?tab=opportunities',
-        isActive: true
       }
     ]
   };
@@ -483,24 +434,27 @@ export const HomePage: React.FC = () => {
       try {
         const [
           learning,
-          servicesDigital,
+          services,
           work,
-          culture,
+          collaboration,
+          updates,
           people
         ] = await Promise.all([
-          fetchServicesByCategory('Learning & Work Knowledge Hub'),
-          fetchServicesByCategory('Services & Digital Enablement'),
-          fetchServicesByCategory('Work Execution & Collaboration'),
-          fetchServicesByCategory('Culture, Events & Communications'),
-          fetchServicesByCategory('People & Organization Hub')
+          fetchServicesByCategory('Learning & Knowledge'),
+          fetchServicesByCategory('Services & Enablement'),
+          fetchServicesByCategory('Work Execution'),
+          fetchServicesByCategory('Collaboration & Communities'),
+          fetchServicesByCategory('Updates & Culture'),
+          fetchServicesByCategory('People & Organization')
         ]);
 
         setHomeSections(prev => ({
-          learningWorkGuides: learning.length ? learning.map(mapServiceToCard) : prev.learningWorkGuides,
-          servicesDigitalWorkforce: servicesDigital.length ? servicesDigital.map(mapServiceToCard) : prev.servicesDigitalWorkforce,
-          workManagementHub: work.length ? work.map(mapServiceToCard) : prev.workManagementHub,
-          cultureEventsNetworking: culture.length ? culture.map(mapServiceToCard) : prev.cultureEventsNetworking,
-          peopleDirectory: people.length ? people.map(mapServiceToCard) : prev.peopleDirectory
+          learningKnowledge: learning.length ? learning.map(mapServiceToCard) : prev.learningKnowledge,
+          servicesEnablement: services.length ? services.map(mapServiceToCard) : prev.servicesEnablement,
+          workExecution: work.length ? work.map(mapServiceToCard) : prev.workExecution,
+          collaborationCommunities: collaboration.length ? collaboration.map(mapServiceToCard) : prev.collaborationCommunities,
+          updatesCulture: updates.length ? updates.map(mapServiceToCard) : prev.updatesCulture,
+          peopleOrganization: people.length ? people.map(mapServiceToCard) : prev.peopleOrganization
         }));
       } catch (err) {
         console.error('Failed to load home sections from Supabase', err);
@@ -512,8 +466,8 @@ export const HomePage: React.FC = () => {
 
   /* --------- ROW COLORS + DQ BUTTON/ICON TREATMENT (UPDATED) --------- */
   const sectionStyles: Record<string, SectionStyle> = {
-    // ROW 1 — Navy gradient
-    'Learning & Work Knowledge Hub': {
+    // 1. Learning & Knowledge
+    'Learning & Knowledge': {
       cardClasses:
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
       headingClass: "text-white",
@@ -528,8 +482,8 @@ export const HomePage: React.FC = () => {
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed",
     },
 
-    // ROW 2 — Navy gradient (matching primary style)
-    'Services & Digital Enablement': {
+    // 2. Services & Enablement
+    'Services & Enablement': {
       cardClasses:
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
       headingClass: "text-white",
@@ -544,8 +498,8 @@ export const HomePage: React.FC = () => {
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed",
     },
 
-    // ROW 3 — Navy gradient
-    'Work Execution & Collaboration': {
+    // 3. Work Execution
+    'Work Execution': {
       cardClasses:
         'bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white',
       headingClass: 'text-white',
@@ -560,8 +514,8 @@ export const HomePage: React.FC = () => {
         'bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed'
     },
 
-    // ROW 4 — Navy gradient (matching primary style)
-    'Culture, Events & Communications': {
+    // 4. Collaboration & Communities
+    'Collaboration & Communities': {
       cardClasses:
         'bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white',
       headingClass: 'text-white',
@@ -576,8 +530,24 @@ export const HomePage: React.FC = () => {
         'bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed'
     },
 
-    // ROW 5 — Navy gradient
-    'People & Organization Hub': {
+    // 5. Updates & Culture
+    'Updates & Culture': {
+      cardClasses:
+        'bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white',
+      headingClass: 'text-white',
+      descriptionClass: 'text-white/90',
+      iconClass: 'text-[#030F35]',
+      buttonClasses:
+        'text-white bg-[#030F35] hover:bg-[#13285A] ' +
+        'border border-[rgba(255,255,255,0.22)] focus:ring-[#030F35] focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200',
+      hoverOverlayClass: 'bg-white/10',
+      iconWrapperClass: 'w-10 h-10',
+      disabledCardClasses:
+        'bg-[linear-gradient(90deg,rgba(3,15,53,0.65)0%,rgba(3,15,53,0.55)100%)] border border-[rgba(255,255,255,0.12)] text-white/50 cursor-not-allowed'
+    },
+
+    // 6. People & Organization
+    'People & Organization': {
       cardClasses:
         "bg-[linear-gradient(90deg,rgba(3,15,53,0.95)0%,rgba(3,15,53,0.80)100%)] border border-[rgba(255,255,255,0.18)] text-white",
       headingClass: "text-white",
@@ -606,138 +576,164 @@ export const HomePage: React.FC = () => {
             </h2>
             <div>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto clamp-2">
-                Explore the tools, spaces, and learning paths that fuel growth
-                and collaboration inside DQ.
+                Everything you need to get started, work smarter, and unlock real progress at DQ all from one digital workspace.
               </p>
             </div>
           </FadeInUpOnScroll>
 
-          {/* Row 1 */}
-          <div className="mb-10">
-            <FadeInUpOnScroll>
-              <CategoryHeader
-                icon={<GraduationCap size={24} />}
-                title="Learning & Work Knowledge Hub"
-                count={homeSections.learningWorkGuides.length}
-              />
-            </FadeInUpOnScroll>
-            <ServiceCarousel
-              services={homeSections.learningWorkGuides}
-              renderCard={service => {
-                const index = homeSections.learningWorkGuides.findIndex(item => item.id === service.id);
-                return (
-                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
-                    <ServiceCard
-                      service={service}
-                      sectionStyle={sectionStyles['Learning & Work Knowledge Hub']}
-                      onClick={() => handleServiceClick(service.path)}
-                      isComingSoon={!service.isActive}
-                    />
-                  </FadeInUpOnScroll>
-                );
-              }}
-            />
-          </div>
-
-          {/* Row 2 */}
-          <div className="mb-10">
-            <FadeInUpOnScroll>
-              <CategoryHeader
-                icon={<Briefcase size={24} />}
-                title="Services & Digital Enablement"
-                count={homeSections.servicesDigitalWorkforce.length}
-              />
-            </FadeInUpOnScroll>
-            <ServiceCarousel
-              services={homeSections.servicesDigitalWorkforce}
-              renderCard={service => {
-                const index = homeSections.servicesDigitalWorkforce.findIndex(item => item.id === service.id);
-                return (
-                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
-                    <ServiceCard
-                      service={service}
-                      sectionStyle={sectionStyles['Services & Digital Enablement']}
-                      onClick={() => handleServiceClick(service.path)}
-                      isComingSoon={!service.isActive}
-                    />
-                  </FadeInUpOnScroll>
-                );
-              }}
-            />
-          </div>
-
-          {/* Row 3 */}
-          <div className="mb-10">
-            <FadeInUpOnScroll>
-              <CategoryHeader
-                icon={<Users size={24} />}
-                title="Work Execution & Collaboration"
-                count={homeSections.workManagementHub.length}
-              />
-            </FadeInUpOnScroll>
-            <ServiceCarousel
-              services={homeSections.workManagementHub}
-              renderCard={service => {
-                const index = homeSections.workManagementHub.findIndex(item => item.id === service.id);
-                return (
-                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
-                    <ServiceCard
-                      service={service}
-                      sectionStyle={sectionStyles['Work Execution & Collaboration']}
-                      onClick={() => handleServiceClick(service.path)}
-                      isComingSoon={!service.isActive}
-                    />
-                  </FadeInUpOnScroll>
-                );
-              }}
-            />
-          </div>
-
-          {/* Row 4 */}
-          <div className="mb-10">
-            <FadeInUpOnScroll>
-              <CategoryHeader
-                icon={<Newspaper size={24} />}
-                title="Culture, Events & Communications"
-                count={homeSections.cultureEventsNetworking.length}
-              />
-            </FadeInUpOnScroll>
-            <ServiceCarousel
-              services={homeSections.cultureEventsNetworking}
-              renderCard={service => {
-                const index = homeSections.cultureEventsNetworking.findIndex(item => item.id === service.id);
-                return (
-                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
-                    <ServiceCard
-                      service={service}
-                      sectionStyle={sectionStyles['Culture, Events & Communications']}
-                      onClick={() => handleServiceClick(service.path)}
-                      isComingSoon={!service.isActive}
-                    />
-                  </FadeInUpOnScroll>
-                );
-              }}
-            />
-          </div>
-
-          {/* Row 5 */}
+          {/* 1. Learning & Knowledge */}
           <div className="mb-10">
             <FadeInUpOnScroll>
               <CategoryHeader
                 icon={<BookOpen size={24} />}
-                title="People & Organization Hub"
-                count={homeSections.peopleDirectory.length}
+                title="Learning & Knowledge"
+                count={homeSections.learningKnowledge.length}
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
-              services={homeSections.peopleDirectory}
+              services={homeSections.learningKnowledge}
               renderCard={service => {
-                const index = homeSections.peopleDirectory.findIndex(item => item.id === service.id);
+                const index = homeSections.learningKnowledge.findIndex(item => item.id === service.id);
                 return (
                   <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
                     <ServiceCard
                       service={service}
-                      sectionStyle={sectionStyles['People & Organization Hub']}
+                      sectionStyle={sectionStyles['Learning & Knowledge']}
+                      onClick={() => handleServiceClick(service.path)}
+                      isComingSoon={!service.isActive}
+                    />
+                  </FadeInUpOnScroll>
+                );
+              }}
+            />
+          </div>
+
+          {/* 2. Services & Enablement */}
+          <div className="mb-10">
+            <FadeInUpOnScroll>
+              <CategoryHeader
+                icon={<Briefcase size={24} />}
+                title="Services & Enablement"
+                count={homeSections.servicesEnablement.length}
+              />
+            </FadeInUpOnScroll>
+            <ServiceCarousel
+              services={homeSections.servicesEnablement}
+              renderCard={service => {
+                const index = homeSections.servicesEnablement.findIndex(item => item.id === service.id);
+                return (
+                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
+                    <ServiceCard
+                      service={service}
+                      sectionStyle={sectionStyles['Services & Enablement']}
+                      onClick={() => handleServiceClick(service.path)}
+                      isComingSoon={!service.isActive}
+                    />
+                  </FadeInUpOnScroll>
+                );
+              }}
+            />
+          </div>
+
+          {/* 3. Work Execution */}
+          <div className="mb-10">
+            <FadeInUpOnScroll>
+              <CategoryHeader
+                icon={<ClipboardList size={24} />}
+                title="Work Execution"
+                count={homeSections.workExecution.length}
+              />
+            </FadeInUpOnScroll>
+            <ServiceCarousel
+              services={homeSections.workExecution}
+              renderCard={service => {
+                const index = homeSections.workExecution.findIndex(item => item.id === service.id);
+                return (
+                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
+                    <ServiceCard
+                      service={service}
+                      sectionStyle={sectionStyles['Work Execution']}
+                      onClick={() => handleServiceClick(service.path)}
+                      isComingSoon={!service.isActive}
+                    />
+                  </FadeInUpOnScroll>
+                );
+              }}
+            />
+          </div>
+
+          {/* 4. Collaboration & Communities */}
+          <div className="mb-10">
+            <FadeInUpOnScroll>
+              <CategoryHeader
+                icon={<MessageCircle size={24} />}
+                title="Collaboration & Communities"
+                count={homeSections.collaborationCommunities.length}
+              />
+            </FadeInUpOnScroll>
+            <ServiceCarousel
+              services={homeSections.collaborationCommunities}
+              renderCard={service => {
+                const index = homeSections.collaborationCommunities.findIndex(item => item.id === service.id);
+                return (
+                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
+                    <ServiceCard
+                      service={service}
+                      sectionStyle={sectionStyles['Collaboration & Communities']}
+                      onClick={() => handleServiceClick(service.path)}
+                      isComingSoon={!service.isActive}
+                    />
+                  </FadeInUpOnScroll>
+                );
+              }}
+            />
+          </div>
+
+          {/* 5. Updates & Culture */}
+          <div className="mb-10">
+            <FadeInUpOnScroll>
+              <CategoryHeader
+                icon={<Newspaper size={24} />}
+                title="Updates & Culture"
+                count={homeSections.updatesCulture.length}
+              />
+            </FadeInUpOnScroll>
+            <ServiceCarousel
+              services={homeSections.updatesCulture}
+              renderCard={service => {
+                const index = homeSections.updatesCulture.findIndex(item => item.id === service.id);
+                return (
+                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
+                    <ServiceCard
+                      service={service}
+                      sectionStyle={sectionStyles['Updates & Culture']}
+                      onClick={() => handleServiceClick(service.path)}
+                      isComingSoon={!service.isActive}
+                    />
+                  </FadeInUpOnScroll>
+                );
+              }}
+            />
+          </div>
+
+          {/* 6. People & Organization */}
+          <div className="mb-10">
+            <FadeInUpOnScroll>
+              <CategoryHeader
+                icon={<Users size={24} />}
+                title="People & Organization"
+                count={homeSections.peopleOrganization.length}
+              />
+            </FadeInUpOnScroll>
+            <ServiceCarousel
+              services={homeSections.peopleOrganization}
+              renderCard={service => {
+                const index = homeSections.peopleOrganization.findIndex(item => item.id === service.id);
+                return (
+                  <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
+                    <ServiceCard
+                      service={service}
+                      sectionStyle={sectionStyles['People & Organization']}
                       onClick={() => handleServiceClick(service.path)}
                       isComingSoon={!service.isActive}
                     />
@@ -749,9 +745,6 @@ export const HomePage: React.FC = () => {
 
         </div>
       </div>
-
-      {/* AI Chatbot */}
-      <AIChatbot />
 
       {/* animations + DQ CTA styles */}
       <style>{`

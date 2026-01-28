@@ -27,7 +27,7 @@ import GuideEditor from "./pages/admin/guides/GuideEditor";
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import EventsPage from "./pages/events/EventsPage";
-import ChatBot from "./bot/ChatBot";
+import { DWSChatProvider } from "./components/DWSChatProvider";
 import ThankYou from "./pages/ThankYou";
 import UnitProfilePage from "./pages/UnitProfilePage";
 import WorkPositionProfilePage from "./pages/WorkPositionProfilePage";
@@ -47,8 +47,8 @@ export function AppRouter() {
     <ApolloProvider client={client}>
       <BrowserRouter>
         <AuthProvider>
-          <ChatBot />
-          <Routes>
+          <DWSChatProvider>
+            <Routes>
             <Route path="/discover-dq" element={<DiscoverDQ />} />
             <Route path="/coming-soon" element={<ComingSoonPage />} />
             <Route path="/growth-sectors-coming-soon" element={<GrowthSectorsComingSoon />} />
@@ -119,6 +119,7 @@ export function AppRouter() {
 
             <Route path="*" element={<Navigate to="/404" replace />} />
           </Routes>
+          </DWSChatProvider>
         </AuthProvider>
       </BrowserRouter>
     </ApolloProvider>

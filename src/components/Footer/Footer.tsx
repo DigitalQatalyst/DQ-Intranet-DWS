@@ -52,13 +52,6 @@ export function Footer({
       href: 'https://digitalqatalyst.com/'
     }
   ];
-  const getToKnowUsLinks = [
-    'About DQ Workspace',
-    'Help Centre',
-    'DQ Governance & Guidelines',
-    'Privacy Policy',
-    'Terms of Use'
-  ];
   const forYouLinks = [
     'DQ LMS Courses',
     'Services & Requests',
@@ -80,187 +73,190 @@ export function Footer({
       </footer>;
   }
   // Full Website Footer (Pre-login)
-  return <footer data-id={dataId} className="bg-dq-navy text-white w-full">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  return (
+    <footer
+      data-id={dataId}
+      className="bg-dq-navy text-white w-full"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
         {/* Mobile Layout */}
         <div className="block lg:hidden">
-          {/* Logo */}
-          <div className="mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
+          <div className="mb-8">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
               DQ | Digital
               <br />
-              Workspace
+              <span className="text-white/95">Workspace</span>
             </h2>
           </div>
-          {/* Newsletter - Mobile Full Width */}
-          <div className="mb-8">
-            <p className="text-white/80 text-sm mb-4 leading-relaxed">
+
+          <div className="mb-8 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+            <p className="text-white/90 text-sm mb-4 leading-relaxed">
               Stay connected with the latest tools, learning resources, and workspace updates from DQ.
             </p>
-            <div className="space-y-3">
-              <input type="email" placeholder="Enter your DQ email" className="w-full px-4 py-3 rounded-md text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-dq-coral/40" aria-label="Email address for newsletter" />
-              <button type="submit" className="w-full bg-white text-dq-navy px-4 py-3 rounded-md hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-dq-coral/40 transition-colors font-medium" aria-label="Subscribe to newsletter">
+            <div className="flex gap-2">
+              <input
+                type="email"
+                placeholder="Enter your DQ email"
+                className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-dq-coral/50 focus:border-transparent transition-shadow"
+                aria-label="Email address for newsletter"
+              />
+              <button
+                type="submit"
+                className="px-5 py-3 rounded-lg bg-dq-coral text-white font-semibold hover:bg-dq-coral/90 focus:outline-none focus:ring-2 focus:ring-dq-coral/50 transition-all shrink-0"
+                aria-label="Subscribe to newsletter"
+              >
                 Subscribe
               </button>
             </div>
           </div>
-          {/* Accordion Sections */}
+
           <div className="mb-8">
-            <AccordionSection title="Get to Know Us">
-              <ul className="space-y-3">
-                {getToKnowUsLinks.map((label) => (
-                  <li key={label}>
-                    <button
-                      type="button"
-                      onClick={() => handleFooterLinkClick(label)}
-                      className="text-white/90 hover:text-white transition-colors text-sm block text-left w-full"
-                    >
-                      {label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </AccordionSection>
             <AccordionSection title="For You">
-              <ul className="space-y-3">
+              <ul className="space-y-2 pt-1">
                 <li>
-                  <a href="/lms" className="text-white/90 hover:text-white transition-colors text-sm block">
+                  <a
+                    href="/lms"
+                    className="text-white/90 hover:text-white transition-colors text-sm block py-2 border-b border-white/5 last:border-0"
+                  >
                     Learning Center
                   </a>
                 </li>
-                {forYouLinks.filter(label => label !== 'DQ LMS Courses').map((label) => (
-                  <li key={label}>
-                    <button
-                      type="button"
-                      onClick={() => handleFooterLinkClick(label)}
-                      className="text-white/90 hover:text-white transition-colors text-sm block text-left w-full"
-                    >
-                      {label}
-                    </button>
-                  </li>
-                ))}
+                {forYouLinks
+                  .filter((label) => label !== 'DQ LMS Courses')
+                  .map((label) => (
+                    <li key={label}>
+                      <button
+                        type="button"
+                        onClick={() => handleFooterLinkClick(label)}
+                        className="text-white/90 hover:text-white transition-colors text-sm block text-left w-full py-2 border-b border-white/5 last:border-0"
+                      >
+                        {label}
+                      </button>
+                    </li>
+                  ))}
               </ul>
             </AccordionSection>
             <AccordionSection title="Find Us">
-              <ul className="space-y-3">
+              <ul className="space-y-2 pt-1">
                 {externalLinks.map((item) => (
                   <li key={item.label}>
                     <a
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-white/90 hover:text-white transition-colors text-sm flex items-center gap-2"
+                      className="text-white/90 hover:text-white transition-colors text-sm flex items-center gap-2 py-2 border-b border-white/5 last:border-0"
                     >
-                      {item.label} →
-                      <ExternalLink size={14} />
+                      {item.label}
+                      <ExternalLink size={14} className="opacity-70" />
                     </a>
                   </li>
                 ))}
               </ul>
             </AccordionSection>
           </div>
-          {/* Copyright - Mobile */}
-          <div className="border-t border-dq-navy/20 pt-6 text-center">
-            <p className="text-white/70 text-xs">
+
+          <div className="pt-6 border-t border-white/10 text-center space-y-1">
+            <p className="text-white/60 text-xs">
               © 2025 DQ | Digital Workspace. All rights reserved.
             </p>
-            <p className="text-white/70 text-xs mt-1">Version v2.1.0</p>
+            <p className="text-white/50 text-xs">Version v2.1.0</p>
           </div>
         </div>
+
         {/* Desktop Layout */}
         <div className="hidden lg:block">
-          {/* Main Footer Content */}
-          <div className="grid grid-cols-4 gap-12 mb-8">
-            {/* Logo and Newsletter Section */}
-            <div>
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold tracking-tight">
-                  DQ | Digital
-                  <br />
-                  Workspace
-                </h2>
-              </div>
-              <div className="mb-6">
-                <p className="text-white/80 text-sm mb-4 leading-relaxed">
+          <div className="grid grid-cols-3 gap-16 mb-10">
+            {/* Logo + Newsletter */}
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold tracking-tight text-white">
+                DQ | Digital
+                <br />
+                <span className="text-white/95">Workspace</span>
+              </h2>
+              <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                <p className="text-white/90 text-sm mb-4 leading-relaxed">
                   Stay connected with the latest tools, learning resources, and workspace updates from DQ.
                 </p>
-                <div className="bg-white rounded-md flex items-center justify-between px-4 py-3">
-                  <span className="text-gray-600 text-sm">
-                    Enter your DQ email
-                  </span>
-                  <button type="submit" className="bg-white text-dq-navy p-2 rounded-md hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-dq-coral/40 transition-colors" aria-label="Subscribe to newsletter">
-                    <ArrowRight size={16} />
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    placeholder="Enter your DQ email"
+                    className="flex-1 px-4 py-2.5 rounded-lg text-gray-900 placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-dq-coral/50 transition-shadow"
+                    aria-label="Email address for newsletter"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2.5 rounded-lg bg-dq-coral text-white text-sm font-semibold hover:bg-dq-coral/90 focus:outline-none focus:ring-2 focus:ring-dq-coral/50 transition-all shrink-0 flex items-center gap-1"
+                    aria-label="Subscribe to newsletter"
+                  >
+                    Join
+                    <ArrowRight size={14} />
                   </button>
                 </div>
               </div>
             </div>
-            {/* Get to Know Us */}
-            <div>
-              <h3 className="font-semibold text-lg mb-6">Get to Know Us</h3>
-              <ul className="space-y-4">
-                {getToKnowUsLinks.map((label) => (
-                  <li key={label}>
-                    <button
-                      type="button"
-                      onClick={() => handleFooterLinkClick(label)}
-                      className="text-white/90 hover:text-white transition-colors text-sm text-left w-full"
-                    >
-                      {label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
+
             {/* For You */}
             <div>
-              <h3 className="font-semibold text-lg mb-6">For You</h3>
-              <ul className="space-y-4">
+              <h3 className="font-semibold text-base text-white mb-5 pb-2 border-b border-dq-coral/40 w-fit">
+                For You
+              </h3>
+              <ul className="space-y-3">
                 <li>
-                  <a href="/lms" className="text-white/90 hover:text-white transition-colors text-sm">
+                  <a
+                    href="/lms"
+                    className="text-white/85 hover:text-white text-sm transition-colors inline-block hover:underline underline-offset-2"
+                  >
                     Learning Center
                   </a>
                 </li>
-                {forYouLinks.filter(label => label !== 'DQ LMS Courses').map((label) => (
-                  <li key={label}>
-                    <button
-                      type="button"
-                      onClick={() => handleFooterLinkClick(label)}
-                      className="text-white/90 hover:text-white transition-colors text-sm text-left w-full"
-                    >
-                      {label}
-                    </button>
-                  </li>
-                ))}
+                {forYouLinks
+                  .filter((label) => label !== 'DQ LMS Courses')
+                  .map((label) => (
+                    <li key={label}>
+                      <button
+                        type="button"
+                        onClick={() => handleFooterLinkClick(label)}
+                        className="text-white/85 hover:text-white text-sm text-left transition-colors hover:underline underline-offset-2"
+                      >
+                        {label}
+                      </button>
+                    </li>
+                  ))}
               </ul>
             </div>
+
             {/* Find Us */}
             <div>
-              <h3 className="font-semibold text-lg mb-6">Find Us</h3>
-              <ul className="space-y-4">
+              <h3 className="font-semibold text-base text-white mb-5 pb-2 border-b border-dq-coral/40 w-fit">
+                Find Us
+              </h3>
+              <ul className="space-y-3">
                 {externalLinks.map((item) => (
                   <li key={item.label}>
                     <a
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-white/90 hover:text-white transition-colors text-sm inline-flex items-center gap-2"
+                      className="text-white/85 hover:text-white text-sm inline-flex items-center gap-2 transition-colors hover:underline underline-offset-2 group"
                     >
                       {item.label}
-                      <ExternalLink size={14} />
+                      <ExternalLink size={14} className="opacity-60 group-hover:opacity-100 transition-opacity" />
                     </a>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
-          {/* Copyright - Desktop */}
-          <div className="border-t border-dq-navy/20 pt-6 flex items-center justify-between">
-            <p className="text-white/70 text-sm">
+
+          <div className="pt-8 border-t border-white/10 flex items-center justify-between">
+            <p className="text-white/60 text-sm">
               © 2025 DQ | Digital Workspace. All rights reserved.
             </p>
-            <p className="text-white/70 text-sm">Version v2.1.0</p>
+            <p className="text-white/50 text-sm">Version v2.1.0</p>
           </div>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 }

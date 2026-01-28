@@ -13,6 +13,7 @@ import {
   Calculator,
   Loader,
   AlertCircle,
+  Radio,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { FadeInUpOnScroll, StaggeredFadeIn, useInView } from "./AnimationUtils";
@@ -273,7 +274,7 @@ const resources: Resource[] = [
 ];
 
 // Define interface for tab items
-type TabId = "news" | "events" | "resources";
+type TabId = "news" | "podcast";
 
 interface TabItem {
   id: TabId;
@@ -355,14 +356,9 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
       icon: <Newspaper size={16} className="#030F35-600" />,
     },
     {
-      id: "events",
-      label: "Events",
-      icon: <Calendar size={16} className="#030F35-600" />,
-    },
-    {
-      id: "resources",
-      label: "Resources",
-      icon: <BookOpen size={16} className="#030F35-600" />,
+      id: "podcast",
+      label: "Podcast",
+      icon: <Radio size={16} className="#030F35-600" />,
     },
   ];
 
@@ -560,8 +556,8 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
               ))}
             </div>
           )}
-          {/* Events Tab */}
-          {activeTab === "events" && !isLoading && !error && (
+          {/* Podcast Tab */}
+          {activeTab === "podcast" && !isLoading && !error && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {getEventsData().map((event, index) => (
                 <div
@@ -584,38 +580,6 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
                     isUpcoming={index === 0}
                     onQuickView={() => navigate(`/events/${event.id}`)}
                     onRegister={() => handleEventRegister(event)}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-          {/* Resources Tab */}
-          {activeTab === "resources" && !isLoading && !error && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {getResourcesData().map((resource, index) => (
-                <div
-                  key={resource.id}
-                  className="animate-zoom-in"
-                  style={{
-                    animationDelay: `${index * 0.1}s`,
-                  }}
-                >
-                  <ResourceCard
-                    content={{
-                      title: resource.title,
-                      description: resource.description,
-                      type: resource.type,
-                      icon: resource.icon,
-                      tags: resource.tags,
-                      downloadUrl: resource.downloadUrl,
-                      fileSize: resource.fileSize,
-                      downloadCount: resource.downloadCount,
-                      lastUpdated: resource.lastUpdated,
-                      isExternal: resource.isExternal,
-                    }}
-                    onQuickView={() => navigate(`/resources/${resource.id}`)}
-                    onAccessResource={() => handleResourceAccess(resource)}
-                    onDownload={() => handleResourceDownload(resource)}
                   />
                 </div>
               ))}

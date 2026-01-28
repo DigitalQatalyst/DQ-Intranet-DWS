@@ -192,6 +192,12 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
           aria-orientation="vertical"
           aria-labelledby="explore-menu"
         >
+          <div className="px-4 py-2 border-b border-gray-100">
+            <h3 className="text-sm font-semibold text-dq-navy">Explore DWS</h3>
+            <p className="text-xs text-dq-navy/70 mt-1 line-clamp-2">
+              Your entry point to how work, learning, and collaboration happen at DigitalQatalyst.
+            </p>
+          </div>
           <div className="max-h-[480px] overflow-y-auto">
             {marketplaces.map((marketplace, index) => {
               const Icon = marketplace.icon;
