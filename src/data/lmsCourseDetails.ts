@@ -61,6 +61,7 @@ export type LmsDetail = {
   audience: Array<'Associate' | 'Lead'>;
   status: 'live' | 'coming-soon';
   summary: string;
+  excerpt?: string;
   highlights: string[];
   outcomes: string[];
   courseType?: 'Course (Single Lesson)' | 'Course (Multi-Lessons)' | 'Course (Bundles)';
@@ -144,6 +145,7 @@ type DBCourse = {
   title: string;
   provider: string;
   description: string | null;
+  excerpt: string | null;
   category: string;
   delivery_mode: 'online' | 'in-person' | 'hybrid' | null;
   duration: number; // minutes
@@ -438,6 +440,7 @@ function transformCourseToLmsDetail(
     audience: parseTextToArray(course.audience) as Array<'Associate' | 'Lead'>,
     status: normalizeStatus(course.status),
     summary: course.description || course.title,
+    excerpt: course.excerpt || undefined,
     highlights: course.highlights || [],
     outcomes: course.outcomes || [],
     courseType: course.course_type || undefined,
@@ -566,6 +569,7 @@ export type LmsCard = {
   audience: string[];
   status: string;
   summary: string;
+  excerpt?: string;
   department: string[];
   courseType?: 'Course (Single Lesson)' | 'Course (Multi-Lessons)' | 'Course (Bundles)';
   track?: string;
@@ -595,6 +599,7 @@ export async function getLmsCourses(): Promise<LmsCard[]> {
     audience: detail.audience,
     status: detail.status,
     summary: detail.summary,
+    excerpt: detail.excerpt,
     department: detail.department,
     courseType: detail.courseType || 'Course (Single Lesson)',
     track: detail.track,
