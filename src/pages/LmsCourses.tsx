@@ -538,64 +538,89 @@ export const LmsCourses: React.FC = () => {
             <li aria-current="page">
               <div className="flex items-center">
                 <ChevronRightIcon size={16} className="text-gray-400" />
-                <span className="ml-1 text-gray-500 md:ml-2">DQ Learning Center</span>
+                <span className="ml-1 text-gray-500 md:ml-2">courses</span>
               </div>
             </li>
           </ol>
         </nav>
-
-        {/* Header Section */}
         <h1 className="text-3xl font-bold text-gray-800 mb-2">DQ Learning Center</h1>
-        <p className="text-gray-600 mb-6 leading-relaxed">
-          Designed for your continuous growth. Access the upskilling and certification tools you need to deliver excellence.
+        <p className="text-gray-600 mb-6 leading-relaxed max-w-5xl">
+          {activeTab === 'courses'
+            ? "Designed for continuous upskilling. We provide the certifications and training to help you maximize your potential and maintain DQ's high standards of excellence."
+            : "Explore authentic reviews and testimonials from learners across DQ. Discover how courses have transformed work practices, developed skills, and shaped professional journeys within our learning community."}
         </p>
 
-        {/* Navigation Tabs as Text Links */}
-        <div className="mb-6 border-b border-gray-200">
+        {/* Tab Overview Container */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">CURRENT FOCUS</div>
+              <h2 className="text-2xl font-bold mb-3" style={{ color: '#030F35' }}>
+                {activeTab === 'courses' ? 'Courses & Curricula' : activeTab === 'tracks' ? 'Learning Tracks' : 'Reviews & Testimonials'}
+              </h2>
+              <p className="text-gray-600 text-sm leading-relaxed mb-2">
+                {activeTab === 'courses'
+                  ? "Browse comprehensive learning tracks, individual courses, and structured curricula designed to enhance your skills across GHC and 6xD frameworks."
+                  : activeTab === 'tracks'
+                    ? "Explore structured learning tracks that combine multiple courses into comprehensive learning journeys. Each track includes courses, topics, and lessons designed to master specific skills and competencies."
+                    : "Read real experiences and insights from DQ associates who have completed courses. Learn how training has impacted their work, improved their skills, and advanced their careers."}
+              </p>
+              <p className="text-gray-500 text-xs mt-2">
+                {activeTab === 'courses'
+                  ? "Sourced from DQ Learning & Development, GHC and 6xD teams."
+                  : activeTab === 'tracks'
+                    ? "Sourced from DQ Learning & Development teams and structured learning programs."
+                    : "Sourced from course participants and verified learners across DQ studios."}
+              </p>
+            </div>
+            <div
+              className="px-3 py-1.5 text-xs font-medium rounded-full ml-4"
+              style={{
+                backgroundColor: '#F0F4FF',
+                color: '#030F35'
+              }}
+            >
+              Tab overview
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="border-b border-gray-200 mb-6" data-tabs-section>
           <div className="flex space-x-8">
             <button
               onClick={() => setActiveTab('courses')}
-              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === 'courses'
-                  ? 'border-gray-800 text-gray-900'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'courses'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              style={activeTab === 'courses' ? { borderColor: '#030F35', color: '#030F35' } : {}}
             >
               Courses
             </button>
             <button
               onClick={() => setActiveTab('tracks')}
-              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === 'tracks'
-                  ? 'border-gray-800 text-gray-900'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'tracks'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              style={activeTab === 'tracks' ? { borderColor: '#030F35', color: '#030F35' } : {}}
             >
               Learning Tracks
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
-              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${
-                activeTab === 'reviews'
-                  ? 'border-gray-800 text-gray-900'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'reviews'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              style={activeTab === 'reviews' ? { borderColor: '#030F35', color: '#030F35' } : {}}
             >
               Reviews
             </button>
           </div>
         </div>
 
-        {/* Search Context Text */}
-        <p className="text-gray-600 mb-4 text-sm border border-gray-300 rounded-md px-4 py-3 bg-white">
-          {activeTab === 'courses'
-            ? "Find exactly what you need. Pick and choose individual courses to build your expertise one topic at a time."
-            : activeTab === 'tracks'
-            ? "Start a journey. These guided paths combine multiple courses to help you master complex subjects step-by-step."
-            : "Get the inside scoop. Browse authentic reviews to find the most highly-rated training."}
-        </p>
-
-        {/* Search Bar */}
         <div className="mb-6">
           <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         </div>
@@ -718,8 +743,8 @@ export const LmsCourses: React.FC = () => {
                     {filteredItems.length} Learning Tracks
                   </h2>
                 </div>
-                {/* 3-Column Grid Layout for Tracks */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                {/* Premium Grid Layout for Tracks */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {paginatedItems.map((track) => {
                     const trackDetail = LMS_COURSE_DETAILS.find(c => c.id === track.id);
 
