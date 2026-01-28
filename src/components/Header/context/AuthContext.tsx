@@ -59,7 +59,8 @@ export function AuthProvider({
 }: Readonly<{
   children: ReactNode;
 }>) {
-  const { instance, accounts, inProgress } = useMsal();
+  const { instance, accounts } = useMsal();
+  console.log('MSAL instance and accounts', instance, accounts)
   const isAuthenticated = useIsAuthenticated();
 
   const [isLoading, setIsLoading] = useState(true);

@@ -9,6 +9,9 @@ import { ProtectedRouteWithAuthAndRole } from "./components/ProtectedRouteWithRo
 import MarketplaceDetailsPage from "./pages/marketplace/MarketplaceDetailsPage";
 import LmsCourseDetailPage from "./pages/lms/LmsCourseDetailPage";
 import LmsCourseReviewsPage from "./pages/lms/LmsCourseReviewsPage";
+import LmsLessonPage from "./pages/lms/LmsLessonPage";
+import LmsCourseAssessmentPage from "./pages/lms/LmsCourseAssessmentPage";
+import MyLearningDashboard from "./pages/lms/MyLearningDashboard";
 
 // Wrapper component to force remount on slug change
 const LmsCourseDetailPageWrapper = () => {
@@ -52,73 +55,19 @@ export function AppRouter() {
         <AuthProvider>
           <ChatBot />
           <Routes>
-            {/* Sign-in page is the ONLY public route */}
-            <Route path="/signin" element={<SignInPage />} />
-            
-            {/* All other routes require authentication */}
-            <Route
-              path="/discover-dq"
-              element={
-                <ProtectedRoute>
-                  <DiscoverDQ />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/coming-soon"
-              element={
-                <ProtectedRoute>
-                  <ComingSoonPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/growth-sectors-coming-soon"
-              element={
-                <ProtectedRoute>
-                  <GrowthSectorsComingSoon />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/*"
-              element={
-                <ProtectedRoute>
-                  <App />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/:itemId"
-              element={
-                <ProtectedRoute>
-                  <LmsCourseDetailPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/lms"
-              element={
-                <ProtectedRoute>
-                  <LmsCourses />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/lms/:slug/reviews"
-              element={
-                <ProtectedRoute>
-                  <LmsCourseReviewsPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/discover-dq" element={<DiscoverDQ />} />
+            <Route path="/coming-soon" element={<ComingSoonPage />} />
+            <Route path="/growth-sectors-coming-soon" element={<GrowthSectorsComingSoon />} />
+            <Route path="/*" element={<App />} />
+            <Route path="/courses/:itemId" element={<LmsCourseDetailPage />} />
+            <Route path="/lms" element={<LmsCourses />} />
+            <Route path="/lms/my-learning" element={<MyLearningDashboard />} />
+            <Route path="/lms/:courseSlug/lesson/:lessonId" element={<LmsLessonPage />} />
+            <Route path="/lms/:slug/reviews" element={<LmsCourseReviewsPage />} />
+            <Route path="/lms/:slug/assessment" element={<LmsCourseAssessmentPage />} />
             <Route
               path="/lms/:slug"
-              element={
-                <ProtectedRoute>
-                  <LmsCourseDetailPageWrapper />
-                </ProtectedRoute>
-              }
+              element={<LmsCourseDetailPageWrapper />}
             />
             <Route
               path="/onboarding/:itemId"
@@ -199,6 +148,14 @@ export function AppRouter() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/marketplace/*" element={<MarketplaceRouter />} />
+            {/* Admin - Guides CRUD */}
+            <Route path="/admin/guides" element={<AdminGuidesList />} />
+            <Route path="/admin/guides/new" element={<GuideEditor />} />
+            <Route path="/admin/guides/:id" element={<GuideEditor />} />
+            {/* Canonical and compatibility routes for Guides marketplace */}
+            <Route path="/guides" element={<Navigate to="/marketplace/guides" replace />} />
+            <Route path="/knowledge-hub" element={<Navigate to="/marketplace/guides" replace />} />
             <Route
               path="/dashboard/*"
               element={
