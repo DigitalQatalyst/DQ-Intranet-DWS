@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useMsal } from '@azure/msal-react';
+
 import { useAuth } from '@/components/Header';
 import { apiClient } from '@/lib/apiClient';
 
@@ -52,30 +52,13 @@ export function useLogout() {
 }
 
 /**
- * useAccessToken() - Get MSAL access token
+ * useAccessToken() - Get access token
  * Per spec Section 6
  */
 export function useAccessToken() {
-  const { instance } = useMsal();
-
   const getAccessToken = useCallback(async (): Promise<string | null> => {
-    try {
-      const account = instance.getActiveAccount();
-      if (!account) {
-        return null;
-      }
-
-      const response = await instance.acquireTokenSilent({
-        scopes: ['openid', 'profile', 'email'],
-        account,
-      });
-
-      return response.accessToken;
-    } catch (error) {
-      console.error('Failed to acquire access token:', error);
-      return null;
-    }
-  }, [instance]);
+    return "dummy-access-token";
+  }, []);
 
   return { getAccessToken };
 }

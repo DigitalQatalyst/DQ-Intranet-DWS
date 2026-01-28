@@ -56,7 +56,7 @@ type SignInCardProps = {
 function SignInCard({ redirectTarget }: SignInCardProps) {
   const { login, isLoading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [msalError, setMsalError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <div className="bg-white/95 rounded-xl shadow-xl border border-black/5">
@@ -71,40 +71,30 @@ function SignInCard({ redirectTarget }: SignInCardProps) {
       </div>
 
       <div className="px-6 sm:px-8 pb-6">
-        {msalError && (
+        {error && (
           <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3 mb-4">
-            {msalError}
+            {error}
           </div>
         )}
         <button
           type="button"
           onClick={(e) => {
             e.preventDefault();
-            setMsalError(null);
+            setError(null);
             setLoading(true);
-            console.log('Button clicked, calling login()...');
             try {
               login();
-              // loginRedirect should immediately redirect, but if it doesn't, show error after a moment
-              setTimeout(() => {
-                setLoading(false);
-                setMsalError('Sign in did not redirect. Please check browser console (F12) for errors.');
-              }, 2000);
+              setTimeout(() => setLoading(false), 500); // Simulate network delay
             } catch (error) {
               console.error('Error calling login:', error);
               setLoading(false);
-              setMsalError(
-                error instanceof Error 
-                  ? `Sign in failed: ${error.message}` 
-                  : 'Sign in failed. Please check the browser console for details.'
-              );
+              setError('Sign in failed.');
             }
           }}
           disabled={loading || authLoading}
           className="w-full flex items-center justify-center gap-3 border-2 border-[#030F35] rounded-md bg-white py-3 hover:bg-[#030F35] hover:text-white transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <MicrosoftLogo className="h-5 w-5" />
-          <span>{loading ? 'Signing in...' : 'Sign in with Microsoft'}</span>
+          <span>{loading ? 'Signing in...' : 'Sign in (Developer Mode)'}</span>
         </button>
       </div>
     </div>

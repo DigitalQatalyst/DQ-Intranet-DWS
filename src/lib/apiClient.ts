@@ -1,15 +1,5 @@
-import { PublicClientApplication } from '@azure/msal-browser';
-import { msalInstance } from '@/services/auth/msal';
-
 /**
- * API Client with MSAL token attachment
- * 
- * Per Global_Authentication_v1.md spec Section 3.4:
- * - Attach Bearer token to all requests
- * - Retry once on 401 → silent refresh
- * - On repeat failure → logout + redirect
- * - Return 403 for RBAC failures
- * - Never store tokens in localStorage or query params
+ * API Client without MSAL
  */
 
 interface ApiClientOptions extends RequestInit {
@@ -18,33 +8,13 @@ interface ApiClientOptions extends RequestInit {
 }
 
 class ApiClient {
-  private instance: PublicClientApplication;
-
-  constructor(instance: PublicClientApplication) {
-    this.instance = instance;
-  }
+  constructor() { }
 
   /**
-   * Get MSAL access token for API calls
+   * Get dummy access token for API calls
    */
   private async getAccessToken(): Promise<string | null> {
-    try {
-      const account = this.instance.getActiveAccount();
-      if (!account) {
-        return null;
-      }
-
-      // Try to get token silently first
-      const response = await this.instance.acquireTokenSilent({
-        scopes: ['openid', 'profile', 'email'],
-        account,
-      });
-
-      return response.accessToken;
-    } catch (error) {
-      console.error('Failed to acquire token:', error);
-      return null;
-    }
+    return "dummy-access-token";
   }
 
   /**
@@ -60,9 +30,7 @@ class ApiClient {
     let accessToken: string | null = null;
     if (requireAuth) {
       accessToken = await this.getAccessToken();
-      if (!accessToken) {
-        throw new Error('No access token available. Please sign in.');
-      }
+      // Logic for real auth removed
     }
 
     // Prepare headers
@@ -82,32 +50,11 @@ class ApiClient {
 
     let response = await makeRequest();
 
-    // Handle 401 Unauthorized - retry once with token refresh
+    // Handle 401 Unauthorized - retry logic removed since no real token refresh
     if (response.status === 401 && retryOn401 && requireAuth) {
-      try {
-        // Try to refresh token
-        const account = this.instance.getActiveAccount();
-        if (account) {
-          await this.instance.acquireTokenSilent({
-            scopes: ['openid', 'profile', 'email'],
-            account,
-          });
-
-          // Retry request with new token
-          const newToken = await this.getAccessToken();
-          if (newToken) {
-            headers.set('Authorization', `Bearer ${newToken}`);
-            response = await makeRequest();
-          }
-        }
-      } catch (refreshError) {
-        console.error('Token refresh failed:', refreshError);
-        // On repeat failure, logout and redirect
-        this.instance.logoutRedirect({
-          postLogoutRedirectUri: window.location.origin + '/signin',
-        });
-        throw new Error('Session expired. Please sign in again.');
-      }
+      // Just logout
+      window.location.href = '/signin';
+      throw new Error('Session expired. Please sign in again.');
     }
 
     // Handle 403 Forbidden (RBAC failure)
@@ -166,4 +113,4 @@ class ApiClient {
 }
 
 // Export singleton instance
-export const apiClient = new ApiClient(msalInstance);
+export const apiClient = new ApiClient();

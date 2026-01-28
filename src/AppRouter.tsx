@@ -36,6 +36,7 @@ import WorkPositionProfilePage from "./pages/WorkPositionProfilePage";
 import RoleProfilePage from "./pages/RoleProfilePage";
 import WomenEntrepreneursPage from "./pages/WomenEntrepreneursPage";
 import SignInPage from "./pages/SignInPage";
+import ComingSoonLanding from "./pages/ComingSoonLanding";
 
 export function AppRouter() {
 
@@ -54,7 +55,7 @@ export function AppRouter() {
           <Routes>
             {/* Sign-in page is the ONLY public route */}
             <Route path="/signin" element={<SignInPage />} />
-            
+
             {/* All other routes require authentication */}
             <Route
               path="/discover-dq"
@@ -326,8 +327,11 @@ export function AppRouter() {
               }
             />
 
-            {/* Catch-all redirects to sign-in if not authenticated */}
-            <Route path="*" element={<Navigate to="/signin" replace />} />
+            {/* Public Coming Soon Landing */}
+            <Route path="/" element={<ComingSoonLanding />} />
+
+            {/* Catch-all redirects to "/" */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
