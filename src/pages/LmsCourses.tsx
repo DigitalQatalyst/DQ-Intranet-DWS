@@ -45,7 +45,7 @@ export const LmsCourses: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('courses');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12; // Show 12 items per page
-  
+
   // Track previous filter state to detect actual changes
   const prevFilterKeyRef = React.useRef<string>('');
 
@@ -54,7 +54,7 @@ export const LmsCourses: React.FC = () => {
   const { data: LMS_COURSE_DETAILS = [], isLoading: detailsLoading } = useLmsCourseDetails();
 
   const facets = parseFacets(searchParams);
-  
+
   // Get all reviews from courses
   const allReviews = useMemo(() => {
     const reviews: Array<{
@@ -71,7 +71,7 @@ export const LmsCourses: React.FC = () => {
       audience?: Array<'Associate' | 'Lead'>;
       department?: string[];
     }> = [];
-    
+
     LMS_COURSE_DETAILS.forEach((course) => {
       if (course.testimonials) {
         course.testimonials.forEach((testimonial, index) => {
@@ -89,42 +89,42 @@ export const LmsCourses: React.FC = () => {
         });
       }
     });
-    
+
     return reviews;
   }, [LMS_COURSE_DETAILS]);
 
   // Filter reviews based on search and filters
   const filteredReviews = useMemo(() => {
     let items = allReviews;
-    
+
     // Filter by course type if selected
     if (facets.courseType && facets.courseType.length > 0) {
-      items = items.filter((item) => 
+      items = items.filter((item) =>
         item.courseType && facets.courseType?.includes(item.courseType)
       );
     }
-    
+
     // Filter by provider if selected
     if (facets.provider && facets.provider.length > 0) {
-      items = items.filter((item) => 
+      items = items.filter((item) =>
         item.provider && facets.provider?.includes(item.provider)
       );
     }
-    
+
     // Filter by audience if selected
     if (facets.audience && facets.audience.length > 0) {
-      items = items.filter((item) => 
+      items = items.filter((item) =>
         item.audience && item.audience.some(aud => facets.audience?.includes(aud))
       );
     }
-    
+
     // Filter by department if selected
     if (facets.department && facets.department.length > 0) {
-      items = items.filter((item) => 
+      items = items.filter((item) =>
         item.department && item.department.some(dept => facets.department?.includes(dept))
       );
     }
-    
+
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -143,7 +143,7 @@ export const LmsCourses: React.FC = () => {
         return searchableText.includes(query);
       });
     }
-    
+
     return items;
   }, [allReviews, facets, searchQuery]);
 
@@ -157,13 +157,13 @@ export const LmsCourses: React.FC = () => {
     let items = applyFilters(LMS_COURSES, facets);
     // Filter out bundles for courses tab
     if (activeTab === 'courses') {
-      items = items.filter((item) => 
+      items = items.filter((item) =>
         item.courseType !== 'Course (Bundles)'
       );
     }
     // Only show bundles for tracks tab
     if (activeTab === 'tracks') {
-      items = items.filter((item) => 
+      items = items.filter((item) =>
         item.courseType === 'Course (Bundles)'
       );
     }
@@ -320,31 +320,31 @@ export const LmsCourses: React.FC = () => {
       } else {
         // For courses: show all filters except delivery mode, course types only Single Lesson and Multi-Lessons
         return [
-      {
-        id: "department",
-        title: "Department",
-        options: [
-          { id: "HRA (People)", name: "HRA (People)" },
-          { id: "Finance", name: "Finance" },
-          { id: "Deals", name: "Deals" },
-          { id: "Stories", name: "Stories" },
-          { id: "Intelligence", name: "Intelligence" },
-          { id: "Solutions", name: "Solutions" },
-          { id: "SecDevOps", name: "SecDevOps" },
-          { id: "Products", name: "Products" },
-          { id: "Delivery — Deploys", name: "Delivery — Deploys" },
-          { id: "Delivery — Designs", name: "Delivery — Designs" },
-          { id: "DCO Operations", name: "DCO Operations" },
-          { id: "DBP Platform", name: "DBP Platform" },
-          { id: "DBP Delivery", name: "DBP Delivery" }
-        ]
-      },
-      {
-        id: "category",
-        title: "Course Category",
-        options: CATEGORY_OPTS.map((c) => ({ id: c, name: c }))
-      },
-      {
+          {
+            id: "department",
+            title: "Department",
+            options: [
+              { id: "HRA (People)", name: "HRA (People)" },
+              { id: "Finance", name: "Finance" },
+              { id: "Deals", name: "Deals" },
+              { id: "Stories", name: "Stories" },
+              { id: "Intelligence", name: "Intelligence" },
+              { id: "Solutions", name: "Solutions" },
+              { id: "SecDevOps", name: "SecDevOps" },
+              { id: "Products", name: "Products" },
+              { id: "Delivery — Deploys", name: "Delivery — Deploys" },
+              { id: "Delivery — Designs", name: "Delivery — Designs" },
+              { id: "DCO Operations", name: "DCO Operations" },
+              { id: "DBP Platform", name: "DBP Platform" },
+              { id: "DBP Delivery", name: "DBP Delivery" }
+            ]
+          },
+          {
+            id: "category",
+            title: "Course Category",
+            options: CATEGORY_OPTS.map((c) => ({ id: c, name: c }))
+          },
+          {
             id: "provider",
             title: "LMS Item Provider",
             options: [
@@ -362,25 +362,25 @@ export const LmsCourses: React.FC = () => {
               { id: "Course (Single Lesson)", name: "Course (Single Lesson)" },
               { id: "Course (Multi-Lessons)", name: "Course (Multi-Lessons)" }
             ]
-      },
-      {
-        id: "sfiaRating",
-        title: "Rating - SFIA",
-        options: SFIA_LEVELS.map((level) => ({ id: level.code, name: level.label }))
-      },
-      {
-        id: "location",
-        title: "Location/Studio",
-        options: LOCATION_OPTS.map((l) => ({ id: l, name: l }))
-      },
-      {
-        id: "audience",
-        title: "Audience",
-        options: [
-          { id: "Associate", name: "Associate" },
-          { id: "Lead", name: "Lead" }
-        ]
-      }
+          },
+          {
+            id: "sfiaRating",
+            title: "Rating - SFIA",
+            options: SFIA_LEVELS.map((level) => ({ id: level.code, name: level.label }))
+          },
+          {
+            id: "location",
+            title: "Location/Studio",
+            options: LOCATION_OPTS.map((l) => ({ id: l, name: l }))
+          },
+          {
+            id: "audience",
+            title: "Audience",
+            options: [
+              { id: "Associate", name: "Associate" },
+              { id: "Lead", name: "Lead" }
+            ]
+          }
         ];
       }
     },
@@ -407,13 +407,13 @@ export const LmsCourses: React.FC = () => {
         };
       } else {
         return {
-      category: facets.category || [],
+          category: facets.category || [],
           provider: facets.provider || [],
           courseType: facets.courseType || [],
-      sfiaRating: facets.sfiaRating || [],
-      location: facets.location || [],
-      audience: facets.audience || [],
-      department: facets.department || []
+          sfiaRating: facets.sfiaRating || [],
+          location: facets.location || [],
+          audience: facets.audience || [],
+          department: facets.department || []
         };
       }
     },
@@ -512,81 +512,40 @@ export const LmsCourses: React.FC = () => {
             </li>
           </ol>
         </nav>
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Learning Center</h1>
-        <p className="text-gray-600 mb-6">
-          {activeTab === 'courses' 
-            ? "Centralized platform that enables associates to access structured learning modules from GHC, 6xD, DWS, and DXP, supporting continuous upskilling and certification within the DQ ecosystem."
-            : "Explore authentic reviews and testimonials from learners across DQ. Discover how courses have transformed work practices, developed skills, and shaped professional journeys within our learning community."}
+
+        {/* Header Section */}
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">DQ Learning Center</h1>
+        <p className="text-gray-600 mb-6 leading-relaxed">
+          Designed for your continuous growth. Access the upskilling and certification tools you need to deliver excellence.
         </p>
-        
-        {/* Tab Overview Container */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">CURRENT FOCUS</div>
-              <h2 className="text-2xl font-bold mb-3" style={{ color: '#030F35' }}>
-                {activeTab === 'courses' ? 'Courses & Curricula' : activeTab === 'tracks' ? 'Learning Tracks' : 'Reviews & Testimonials'}
-              </h2>
-              <p className="text-gray-600 text-sm leading-relaxed mb-2">
-                {activeTab === 'courses' 
-                  ? "Browse comprehensive learning tracks, individual courses, and structured curricula designed to enhance your skills across GHC, 6xD, DWS, and DXP frameworks."
-                  : activeTab === 'tracks'
-                  ? "Explore structured learning tracks that combine multiple courses into comprehensive learning journeys. Each track includes courses, topics, and lessons designed to master specific skills and competencies."
-                  : "Read real experiences and insights from DQ associates who have completed courses. Learn how training has impacted their work, improved their skills, and advanced their careers."}
-              </p>
-              <p className="text-gray-500 text-xs mt-2">
-                {activeTab === 'courses' 
-                  ? "Sourced from DQ Learning & Development, GHC, 6xD, DWS, and DXP teams."
-                  : activeTab === 'tracks'
-                  ? "Sourced from DQ Learning & Development teams and structured learning programs."
-                  : "Sourced from course participants and verified learners across DQ studios."}
-              </p>
-            </div>
-            <div 
-              className="px-3 py-1.5 text-xs font-medium rounded-full ml-4"
-              style={{ 
-                backgroundColor: '#F0F4FF',
-                color: '#030F35'
-              }}
-            >
-              Tab overview
-            </div>
-          </div>
-        </div>
-        
-        {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6" data-tabs-section>
+
+        {/* Navigation Tabs as Text Links */}
+        <div className="mb-6 border-b border-gray-200">
           <div className="flex space-x-8">
             <button
               onClick={() => setActiveTab('courses')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'courses'
-                  ? 'border-blue-600 text-blue-600'
+              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'courses'
+                  ? 'border-gray-800 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-              style={activeTab === 'courses' ? { borderColor: '#030F35', color: '#030F35' } : {}}
+                }`}
             >
               Courses
             </button>
             <button
               onClick={() => setActiveTab('tracks')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'tracks'
-                  ? 'border-blue-600 text-blue-600'
+              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'tracks'
+                  ? 'border-gray-800 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-              style={activeTab === 'tracks' ? { borderColor: '#030F35', color: '#030F35' } : {}}
+                }`}
             >
               Learning Tracks
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'reviews'
-                  ? 'border-blue-600 text-blue-600'
+              className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === 'reviews'
+                  ? 'border-gray-800 text-gray-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-              style={activeTab === 'reviews' ? { borderColor: '#030F35', color: '#030F35' } : {}}
+                }`}
             >
               Reviews
             </button>
@@ -637,17 +596,15 @@ export const LmsCourses: React.FC = () => {
 
           {/* Filter sidebar - mobile/tablet */}
           <div
-            className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${
-              showFilters ? "opacity-100" : "opacity-0 pointer-events-none"
-            }`}
+            className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${showFilters ? "opacity-100" : "opacity-0 pointer-events-none"
+              }`}
             onClick={toggleFilters}
             aria-hidden={!showFilters}
           >
             <div
               id="filter-sidebar"
-              className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-                showFilters ? "translate-x-0" : "-translate-x-full"
-              }`}
+              className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${showFilters ? "translate-x-0" : "-translate-x-full"
+                }`}
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
@@ -717,12 +674,12 @@ export const LmsCourses: React.FC = () => {
                     {filteredItems.length} Learning Tracks
                   </h2>
                 </div>
-                {/* Compact Grid Layout */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 3-Column Grid Layout for Tracks */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                   {paginatedItems.map((track) => {
                     const trackDetail = LMS_COURSE_DETAILS.find(c => c.id === track.id);
                     if (!trackDetail || !trackDetail.curriculum) return null;
-                    
+
                     // Calculate stats
                     const totalCourses = trackDetail.curriculum.length;
                     const totalTopics = trackDetail.curriculum.reduce((acc, course) => {
@@ -738,7 +695,7 @@ export const LmsCourses: React.FC = () => {
                       if (course.lessons) return acc + course.lessons.length;
                       return acc;
                     }, 0);
-                    
+
                     return (
                       <Link
                         key={track.id}
@@ -761,12 +718,12 @@ export const LmsCourses: React.FC = () => {
                         <div className="flex-1 p-6 flex flex-col">
                           <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{track.title}</h3>
                           <p className="text-sm text-gray-600 mb-4 line-clamp-3">{track.summary}</p>
-                          
+
                           {/* Stats */}
                           <div className="flex flex-wrap gap-3 mb-4 text-sm text-gray-600">
                             <span>{totalCourses} {totalCourses === 1 ? 'Course' : 'Courses'}</span>
                           </div>
-                          
+
                           {/* Tags */}
                           <div className="flex flex-wrap gap-2 mb-4">
                             <span className="px-3 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3F4F6', color: '#000000' }}>
@@ -781,7 +738,7 @@ export const LmsCourses: React.FC = () => {
                               </span>
                             )}
                           </div>
-                          
+
                           {/* Course List Preview */}
                           <div className="mt-4 pt-4 border-t border-gray-100">
                             <div className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Courses in Track</div>
@@ -801,7 +758,7 @@ export const LmsCourses: React.FC = () => {
                               )}
                             </div>
                           </div>
-                          
+
                           {/* View Button */}
                           <div className="mt-auto pt-4 border-t border-gray-100">
                             <div className="flex items-center justify-between text-sm font-medium" style={{ color: '#030F35' }}>
@@ -821,7 +778,7 @@ export const LmsCourses: React.FC = () => {
                     </div>
                   )}
                 </div>
-                
+
                 {/* Pagination for tracks */}
                 {activeTab === 'tracks' && totalPages > 1 && (
                   <div className="mt-8 flex items-center justify-center gap-2">
@@ -829,14 +786,14 @@ export const LmsCourses: React.FC = () => {
                       onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                       disabled={currentPage === 1}
                       className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                      style={{ 
+                      style={{
                         color: currentPage === 1 ? '#9CA3AF' : '#030F35',
                         borderColor: currentPage === 1 ? '#D1D5DB' : '#030F35'
                       }}
                     >
                       Previous
                     </button>
-                    
+
                     <div className="flex items-center gap-1">
                       {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
                         if (
@@ -848,11 +805,10 @@ export const LmsCourses: React.FC = () => {
                             <button
                               key={page}
                               onClick={() => setCurrentPage(page)}
-                              className={`px-3 py-2 text-sm font-medium rounded-md ${
-                                currentPage === page
+                              className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
                                   ? 'text-white'
                                   : 'text-gray-700 hover:bg-gray-50'
-                              }`}
+                                }`}
                               style={
                                 currentPage === page
                                   ? { backgroundColor: '#030F35' }
@@ -875,12 +831,12 @@ export const LmsCourses: React.FC = () => {
                         return null;
                       })}
                     </div>
-                    
+
                     <button
                       onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                       disabled={currentPage === totalPages}
                       className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                      style={{ 
+                      style={{
                         color: currentPage === totalPages ? '#9CA3AF' : '#030F35',
                         borderColor: currentPage === totalPages ? '#D1D5DB' : '#030F35'
                       }}
@@ -910,7 +866,7 @@ export const LmsCourses: React.FC = () => {
                     const colonIndex = review.text.indexOf(':');
                     const hasTitle = colonIndex > 0 && colonIndex < 50; // Title should be reasonably short
                     const title = hasTitle ? review.text.substring(0, colonIndex).trim() : null;
-                    const body = hasTitle 
+                    const body = hasTitle
                       ? review.text.substring(colonIndex + 1).trim()
                       : review.text;
 
@@ -970,108 +926,107 @@ export const LmsCourses: React.FC = () => {
               </>
             ) : (
               <>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800 hidden sm:block">
-                Available Courses ({filteredItems.length})
-              </h2>
-              <div className="text-sm text-gray-500 hidden sm:block">
-                Showing {paginatedItems.length} of {filteredItems.length} {filteredItems.length === 1 ? 'course' : 'courses'}
-              </div>
-              <h2 className="text-lg font-medium text-gray-800 sm:hidden">
-                {filteredItems.length} Courses Available
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {paginatedItems.map((item) => {
-                const Icon = ICON_BY_ID[item.id] || BookOpenCheck;
-                const courseDetail = LMS_COURSE_DETAILS.find(c => c.id === item.id);
-                return (
-                  <MarketplaceCard
-                    key={item.id}
-                    item={{
-                      ...item,
-                      provider: { name: item.provider, logoUrl: "/DWS-Logo.png" },
-                      description: item.summary,
-                      imageUrl: item.imageUrl,
-                      curriculum: courseDetail?.curriculum
-                    }}
-                    marketplaceType="courses"
-                    isBookmarked={false}
-                    onToggleBookmark={() => {}}
-                    onAddToComparison={() => {}}
-                    onQuickView={() => {}}
-                  />
-                );
-              })}
-            </div>
-            
-            {/* Pagination for courses */}
-            {activeTab === 'courses' && totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-center gap-2">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                  style={{ 
-                    color: currentPage === 1 ? '#9CA3AF' : '#030F35',
-                    borderColor: currentPage === 1 ? '#D1D5DB' : '#030F35'
-                  }}
-                >
-                  Previous
-                </button>
-                
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                    if (
-                      page === 1 ||
-                      page === totalPages ||
-                      (page >= currentPage - 1 && page <= currentPage + 1)
-                    ) {
-                      return (
-                        <button
-                          key={page}
-                          onClick={() => setCurrentPage(page)}
-                          className={`px-3 py-2 text-sm font-medium rounded-md ${
-                            currentPage === page
-                              ? 'text-white'
-                              : 'text-gray-700 hover:bg-gray-50'
-                          }`}
-                          style={
-                            currentPage === page
-                              ? { backgroundColor: '#030F35' }
-                              : {}
-                          }
-                        >
-                          {page}
-                        </button>
-                      );
-                    } else if (
-                      page === currentPage - 2 ||
-                      page === currentPage + 2
-                    ) {
-                      return (
-                        <span key={page} className="px-2 text-gray-500">
-                          ...
-                        </span>
-                      );
-                    }
-                    return null;
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold text-gray-800 hidden sm:block">
+                    Available Courses ({filteredItems.length})
+                  </h2>
+                  <div className="text-sm text-gray-500 hidden sm:block">
+                    Showing {paginatedItems.length} of {filteredItems.length} {filteredItems.length === 1 ? 'course' : 'courses'}
+                  </div>
+                  <h2 className="text-lg font-medium text-gray-800 sm:hidden">
+                    {filteredItems.length} Courses Available
+                  </h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                  {paginatedItems.map((item) => {
+                    const Icon = ICON_BY_ID[item.id] || BookOpenCheck;
+                    const courseDetail = LMS_COURSE_DETAILS.find(c => c.id === item.id);
+                    return (
+                      <MarketplaceCard
+                        key={item.id}
+                        item={{
+                          ...item,
+                          provider: { name: item.provider, logoUrl: "/DWS-Logo.png" },
+                          description: item.summary,
+                          imageUrl: item.imageUrl,
+                          curriculum: courseDetail?.curriculum
+                        }}
+                        marketplaceType="courses"
+                        isBookmarked={false}
+                        onToggleBookmark={() => { }}
+                        onAddToComparison={() => { }}
+                        onQuickView={() => { }}
+                      />
+                    );
                   })}
                 </div>
-                
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                  style={{ 
-                    color: currentPage === totalPages ? '#9CA3AF' : '#030F35',
-                    borderColor: currentPage === totalPages ? '#D1D5DB' : '#030F35'
-                  }}
-                >
-                  Next
-                </button>
-              </div>
-            )}
+
+                {/* Pagination for courses */}
+                {activeTab === 'courses' && totalPages > 1 && (
+                  <div className="mt-8 flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      style={{
+                        color: currentPage === 1 ? '#9CA3AF' : '#030F35',
+                        borderColor: currentPage === 1 ? '#D1D5DB' : '#030F35'
+                      }}
+                    >
+                      Previous
+                    </button>
+
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                        if (
+                          page === 1 ||
+                          page === totalPages ||
+                          (page >= currentPage - 1 && page <= currentPage + 1)
+                        ) {
+                          return (
+                            <button
+                              key={page}
+                              onClick={() => setCurrentPage(page)}
+                              className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === page
+                                  ? 'text-white'
+                                  : 'text-gray-700 hover:bg-gray-50'
+                                }`}
+                              style={
+                                currentPage === page
+                                  ? { backgroundColor: '#030F35' }
+                                  : {}
+                              }
+                            >
+                              {page}
+                            </button>
+                          );
+                        } else if (
+                          page === currentPage - 2 ||
+                          page === currentPage + 2
+                        ) {
+                          return (
+                            <span key={page} className="px-2 text-gray-500">
+                              ...
+                            </span>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                      className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      style={{
+                        color: currentPage === totalPages ? '#9CA3AF' : '#030F35',
+                        borderColor: currentPage === totalPages ? '#D1D5DB' : '#030F35'
+                      }}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </div>
