@@ -1,18 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   Star,
-  Award,
-  Users,
   Play,
   X,
   ChevronLeft,
   ChevronRight,
-  Building2,
-  Landmark,
-  Network,
-  Users2,
-  Clock,
-  BookOpen,
 } from 'lucide-react';
 import {
   AnimatedCounter,
@@ -21,165 +13,88 @@ import {
   HorizontalScrollReveal,
   useInView,
 } from './AnimationUtils';
+import {
+  testimonials,
+  partnerCategories,
+  featuredSectors,
+  impactStats,
+  type Testimonial,
+} from '../data/landingPageContent';
 
-interface Testimonial {
-  id: string;
-  name: string;
-  position: string;
-  company: string;
-  companyLogo: string;
-  avatar: string;
-  quote: string;
-  fullQuote: string;
-  rating: number;
-  videoThumbnail: string;
-  videoUrl: string;
-  metric: string;
-  metricLabel: string;
-  metricColor: 'green' | 'blue' | 'orange';
-}
+const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
+  const disclaimer = '(not approved for external publication)'
+  const initials =
+    testimonial.name
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join("") || "?";
 
-const testimonials: Testimonial[] = [
-  {
-    id: "1",
-    name: "Salem Wasike",
-    position: "Product Owner - DQ Deploys",
-    company: "Digital Qatalyst",
-    companyLogo:
-      "https://image2url.com/images/1760524231537-47b810dd-94eb-4571-a6a9-0a9c6fbfb390.jpg",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    quote:
-      "Agile Essentials and DTMF learning paths reduced blockers by 40% and sped up feature delivery.",
-    fullQuote:
-      "Through the DQ LMS, our teams completed Agile Essentials and DTMF learning paths. The shared practices cut delivery blockers by 40% and improved flow, which helped us ship features faster and with clearer ownership.",
-    rating: 5,
-    videoThumbnail:
-      "https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-5s.mp4",
-    metric: "40%",
-    metricLabel: "Faster Task Completion",
-    metricColor: "green",
-  },
-  {
-    id: "2",
-    name: "Sharavi Chander",
-    position: "Head of DQ Deploys",
-    company: "Digital Qatalyst",
-    companyLogo:
-      "https://image2url.com/images/1760524231537-47b810dd-94eb-4571-a6a9-0a9c6fbfb390.jpg",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    quote:
-      "80+ team certifications built a learning culture that lifted consistency across releases.",
-    fullQuote:
-      "The LMS pathways and peer sessions led to 80+ certifications across Deploys. That shared foundation in tooling and governance raised our consistency and confidence from planning through release.",
-    rating: 5,
-    videoThumbnail:
-      "https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-10s.mp4",
-    metric: "80+",
-    metricLabel: "Team Certifications",
-    metricColor: "orange",
-  },
-  {
-    id: "3",
-    name: "Mohamed Thameez",
-    position: "Product Manager",
-    company: "Digital Qatalyst",
-    companyLogo:
-      "https://image2url.com/images/1760524231537-47b810dd-94eb-4571-a6a9-0a9c6fbfb390.jpg",
-    avatar: "https://randomuser.me/api/portraits/men/22.jpg",
-    quote: "Cross-unit learning spaces cut our feature turnaround time by 30%.",
-    fullQuote:
-      "Standard playbooks, shared boards, and course-led upskilling created tighter handoffs between Design, Build, and Deploy. As a result, our feature turnaround time improved by 30% with fewer reworks.",
-    rating: 4,
-    videoThumbnail:
-      "https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    videoUrl: "https://samplelib.com/lib/preview/mp4/sample-15s.mp4",
-    metric: "3x",
-    metricLabel: "Collaboration Growth",
-    metricColor: "blue",
-  },
-];
+  return (
+    <div className="h-full rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md flex flex-col">
+      <div className="flex items-center gap-4 mb-4">
+        <div className="w-12 h-12 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center flex-shrink-0">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="text-gray-600"
+          >
+            <path
+              d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
+              fill="currentColor"
+            />
+            <path
+              d="M12 14C7.58172 14 4 16.6863 4 20V22H20V20C20 16.6863 16.4183 14 12 14Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+        <div>
+          <p className="text-base font-semibold text-gray-900">
+            {testimonial.name}
+          </p>
+          <p className="text-sm text-gray-500">{testimonial.context}</p>
+          <p className="text-sm text-gray-400">{testimonial.role}</p>
+        </div>
+      </div>
+      <p className="text-gray-600 leading-relaxed text-base">
+        "{testimonial.quote}"
+        <span className="block text-xs text-gray-500 italic mt-2">{disclaimer}</span>
+      </p>
+      {testimonial.note && testimonial.note.toLowerCase().trim() !== disclaimer.replace(/[()]/g, '').toLowerCase() && (
+        <p className="text-xs text-amber-600 mt-4">
+          {testimonial.note}
+        </p>
+      )}
+    </div>
+  );
+};
 
-// Partner categories for the grid
-const partnerCategories = [
-  {
-    id: "government",
-    title: "Governance Sector",
-    subtitle:
-      "Leadership, strategy, and value management for enterprise alignment",
-    icon: <Building2 size={28} />,
-    metric: "4+",
-    color: "indigo-600",
-  },
-  {
-    id: "financial",
-    title: "Operations Sector",
-    subtitle:
-      "HR, Finance, and Deals support factories for day-to-day enablement",
-    icon: <Landmark size={28} />,
-    metric: "5+",
-    color: "yellow-500",
-  },
-  {
-    id: "service",
-    title: "Platform Sector",
-    subtitle:
-      "Intelligence, Solutions, Security, and Products driving digital platforms",
-    icon: <Users2 size={28} />,
-    metric: "6+",
-    color: "blue-600",
-  },
-  {
-    id: "network",
-    title: "Delivery Sector",
-    subtitle:
-      "Design, Deploys, and Accounts teams ensuring outcomes and engagements",
-    icon: <Network size={28} />,
-    metric: "3+",
-    color: "orange-500",
-  },
-];
-
-const featuredSectors = [
-  { id: 'ce', name: 'CE', logo: '/logo/prodev.png' },
-  { id: 'soldev', name: 'Soldev', logo: '/logo/soldev.png' },
-  { id: 'finance', name: 'Finance', logo: '/logo/finance.png' },
-  { id: 'hra', name: 'HRA', logo: '/logo/hra.png' },
-  { id: 'inteldev', name: 'IntelDev', logo: '/logo/inteldev.png' },
-];
-
-/* =========================
-   ✅ UPDATED KPI CONTENT
-   ========================= */
-const impactStats = [
-  {
-    label: 'Faster Task Closure',
-    value: 80,
-    prefix: 'Over',
-    suffix: '%',
-    icon: <Users size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
-  },
-  {
-    label: 'Focus Time Saved',
-    value: 6,
-    prefix: '+',
-    suffix: 'hrs',
-    icon: <Clock size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
-  },
-  {
-    label: 'Concepts Learned Daily',
-    value: 5,
-    prefix: '+',
-    icon: <BookOpen size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
-  },
-  {
-    label: 'Collaboration Growth Rate',
-    value: 87,
-    suffix: '%',
-    icon: <Award size={20} strokeWidth={2.5} className="text-[#FB5535]" />,
-  },
-];
+const TestimonialsShowcase = () => {
+  return (
+    <div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {testimonials.map((testimonial, index) => (
+          <FadeInUpOnScroll key={testimonial.id} delay={index * 0.08}>
+            <TestimonialCard testimonial={testimonial} />
+          </FadeInUpOnScroll>
+        ))}
+      </div>
+      <div className="flex justify-center mt-6">
+        <button
+          type="button"
+          className="px-5 py-2 text-sm font-semibold text-[var(--guidelines-primary-dark)] border border-gray-200 rounded-full bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
+        >
+          Show more stories
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const VideoTestimonialCard = ({
   testimonial,
@@ -251,6 +166,10 @@ const VideoTestimonialCard = ({
             className={`text-2xl font-bold mb-1 ${
               testimonial.metricColor === "green"
                 ? "text-green-500"
+                : testimonial.metricColor === "orange"
+                ? "text-orange-500"
+                : testimonial.metricColor === "red"
+                ? "text-red-500"
                 : "text-dq-coral"
             }`}
           >
@@ -396,22 +315,13 @@ const TestimonialModal = ({
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                    testimonial.metricColor === "green"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-dq-coral/10 text-dq-coral"
-                  }`}
-                >
+                <p className="text-sm font-semibold text-gray-900">
                   {testimonial.metric} {testimonial.metricLabel}
-                </span>
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Impact achieved through DQ Workspace
+                </p>
               </div>
-              <button
-                className="text-dq-coral hover:brightness-110 text-sm font-medium flex items-center"
-                onClick={onClose}
-              >
-                Close
-              </button>
             </div>
           </div>
         </div>
@@ -477,18 +387,18 @@ const VideoTestimonialCarousel = () => {
 
       <div className="absolute top-1/2 left-0 right-0 flex justify-between items-center transform -translate-y-1/2 pointer-events-none px-4">
         <button
-          className="w-10 h-10 rounded-full bg-white/80 shadow-md flex items-center justify-center text-gray-800 hover:bg-white transition-all pointer-events-auto"
+          className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-white pointer-events-auto flex items-center justify-center transition-all"
           onClick={handlePrev}
           aria-label="Previous testimonial"
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft size={24} />
         </button>
         <button
-          className="w-10 h-10 rounded-full bg-white/80 shadow-md flex items-center justify-center text-gray-800 hover:bg-white transition-all pointer-events-auto"
+          className="p-0 bg-transparent shadow-none border-none backdrop-blur-0 hover:bg-transparent cursor-pointer text-white pointer-events-auto flex items-center justify-center transition-all"
           onClick={handleNext}
           aria-label="Next testimonial"
         >
-          <ChevronRight size={20} />
+          <ChevronRight size={24} />
         </button>
       </div>
 
@@ -561,7 +471,7 @@ const PartnerCategoryCard = ({ category }) => {
             isHovered ? "animate-bounce-subtle" : ""
           }`}
         >
-          {category.icon}
+          {React.createElement(category.iconComponent, { size: category.iconSize || 28 })}
         </div>
       </div>
 
@@ -649,7 +559,7 @@ const FeaturedPartnersCarousel = () => {
   };
 
   return (
-    <div className="relative pt-6 pb-4 md:pt-8 md:pb-6">
+    <div className="relative h-auto pt-6 pb-2 md:pt-8 md:pb-3">
       <FadeInUpOnScroll className="text-center mb-6">
         <h3 className="text-2xl font-bold text-gray-900 mb-2">
           Featured Sectors
@@ -659,7 +569,7 @@ const FeaturedPartnersCarousel = () => {
         </p>
       </FadeInUpOnScroll>
 
-      <div className="relative overflow-hidden">
+      <div className="relative h-auto overflow-visible">
         <div
           ref={carouselRef}
           className="flex overflow-x-auto py-2 scrollbar-hide gap-6"
@@ -725,14 +635,19 @@ const ProofAndTrust: React.FC = () => {
                 >
                   <div className="flex justify-center mb-4">
                     <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#FB5535]/10 text-[#FB5535]">
-                      {stat.icon}
+                      {React.createElement(stat.iconComponent, {
+                        size: stat.iconSize || 20,
+                        strokeWidth: 2.5,
+                        className: stat.iconClassName,
+                      })}
                     </span>
                   </div>
                   <div className="text-3xl font-bold text-dq-navy mb-1 flex items-baseline justify-center">
                     {stat.prefix && <span className="mr-1">{stat.prefix}</span>}
                     <span className="inline-flex items-baseline tabular-nums">
-                      <AnimatedCounter value={stat.value} />
-                      <span>{stat.suffix ?? ""}</span>
+                      <AnimatedCounter value={stat.value} />{stat.suffix ? (
+                        <span>{stat.suffix}</span>
+                      ) : null}
                     </span>
                   </div>
                   <div className="text-sm text-gray-600 text-center leading-tight mt-1 whitespace-normal break-words [text-overflow:clip] [overflow:visible] [display:block]">
@@ -757,11 +672,11 @@ const ProofAndTrust: React.FC = () => {
               </p>
             </div>
           </FadeInUpOnScroll>
-          <VideoTestimonialCarousel />
-        </div>
+            <VideoTestimonialCarousel />
+          </div>
 
         {/* Powered by Strategic Partnerships - NEW SECTION */}
-        <div className="mb-16 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 md:p-12 overflow-hidden relative">
+        <div className="mb-16 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 md:p-12 overflow-visible relative">
           <HorizontalScrollReveal
             direction="left"
             className="text-center mb-10 relative z-10"

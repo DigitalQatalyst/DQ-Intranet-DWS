@@ -34,6 +34,7 @@ interface MarketplaceGridProps {
   bookmarkedItems: string[];
   onToggleBookmark: (itemId: string) => void;
   promoCards?: PromoCardData[];
+  activeServiceTab?: string;
 }
 export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
   items,
@@ -53,6 +54,47 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
   const overallCount = typeof totalCount === 'number' ? totalCount : nonPromoItems.length;
   const visibleCount = nonPromoItems.length;
   if (visibleCount === 0) {
+    // Creative "Coming Soon" page for Digital Worker tab
+    if (activeServiceTab === 'digital_worker') {
+      return (
+        <div className="flex items-center justify-center min-h-[500px] bg-gradient-to-br from-gray-50 to-white rounded-2xl border border-gray-100">
+          <div className="text-center">
+            {/* Small decorative stars */}
+            <div className="flex justify-center items-center gap-8 mb-6">
+              <span className="text-gray-300 text-2xl">✦</span>
+              <span className="text-gray-400 text-xl">✦</span>
+            </div>
+            
+            {/* Coming Soon Text */}
+            <div className="mb-4">
+              <h2 className="text-6xl md:text-7xl font-light text-gray-800 tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
+                Coming
+              </h2>
+              <h2 className="text-7xl md:text-8xl font-normal text-gray-900 tracking-tight mt-2" style={{ fontFamily: 'Georgia, serif' }}>
+                SOON.
+              </h2>
+            </div>
+            
+            {/* Stay Tuned with line */}
+            <div className="flex items-center justify-center gap-4 mt-8">
+              <div className="h-px w-16 bg-gray-300"></div>
+              <p className="text-sm text-gray-500 uppercase tracking-widest">
+                AI powered Document Writer
+              </p>
+              <div className="h-px w-16 bg-gray-300"></div>
+            </div>
+            
+            {/* Small decorative stars at bottom */}
+            <div className="flex justify-center items-center gap-8 mt-8">
+              <span className="text-gray-400 text-xl">✦</span>
+              <span className="text-gray-300 text-2xl">✦</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    // Default empty state for other tabs
     return <div className="bg-white rounded-lg shadow p-8 text-center">
       <h3 className="text-xl font-medium text-gray-900 mb-2">
         No items found
@@ -62,14 +104,14 @@ export const MarketplaceGrid: React.FC<MarketplaceGridProps> = ({
       </p>
     </div>;
   }
-  // Insert promo cards after every 6 regular items
+  // Insert promo cards after every 6 regular items (but not on digital_worker tab)
   const itemsWithPromos = nonPromoItems.reduce((acc, item, index) => {
     acc.push({
       type: 'item',
       data: item
     });
-    // Insert a promo card after every 6 items
-    if ((index + 1) % 6 === 0 && promoCards.length > 0 && promoCards[Math.floor(index / 6) % promoCards.length]) {
+    // Insert a promo card after every 6 items (skip on digital_worker tab)
+    if ((index + 1) % 6 === 0 && promoCards.length > 0 && promoCards[Math.floor(index / 6) % promoCards.length] && activeServiceTab !== 'digital_worker') {
       const promoIndex = Math.floor(index / 6) % promoCards.length;
       acc.push({
         type: 'promo',

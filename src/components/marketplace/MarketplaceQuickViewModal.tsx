@@ -44,8 +44,6 @@ export const MarketplaceQuickViewModal: React.FC<MarketplaceQuickViewModalProps>
   const keyHighlights = item.highlights || item.learningOutcomes || item.details || (item.eligibility ? [`Eligibility: ${item.eligibility}`] : []);
   // Limit to 3 highlights for consistency
   const highlightItems = keyHighlights.slice(0, 3);
-  // Extract tags from item - use tags if available, otherwise use category and other relevant fields
-  const displayTags = item.tags || [item.category, item.deliveryMode, item.businessStage, item.serviceType].filter(Boolean).slice(0, 3);
   return <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div ref={modalRef} className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
       <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">

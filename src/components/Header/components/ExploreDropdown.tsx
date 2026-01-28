@@ -1,7 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CalendarIcon, ChevronDownIcon } from 'lucide-react';
-import { BuildingIcon, CreditCardIcon, GraduationCapIcon, UsersIcon, NewspaperIcon, SparklesIcon, FileText, LucideProps, BookOpen } from 'lucide-react';
+import {
+  BuildingIcon,
+  GraduationCapIcon,
+  UsersIcon,
+  NewspaperIcon,
+  SparklesIcon,
+  LucideProps,
+  BookOpen,
+} from 'lucide-react';
 
 interface Marketplace {
   id: string;
@@ -9,6 +17,7 @@ interface Marketplace {
   description: string;
   icon: React.ComponentType<LucideProps>;
   href: string;
+  isComingSoon?: boolean;
 }
 
 
@@ -54,41 +63,37 @@ const marketplaces: Marketplace[] = [
     description: '7x GHC, 6x Digital, 12x HoV, 1x Day in DQ, Key Tools.',
     icon: GraduationCapIcon,
     href: '/lms',
+    isComingSoon: true,
   },
   {
     id: 'services-center',
     name: 'DQ Services Center',
     description: 'Business services, technology services, and digital worker tools.',
     icon: BuildingIcon,
-    href: '/dq-services-center',
+    href: '/marketplace/services-center',
   },
   {
-    id: 'calendar',
-    name: 'Calendar & Events',
-    description: 'Digital platform that connects event organizers with attendees, vendors, and service providers.',
+    id: 'work-center',
+    name: 'DQ Work Center',
+    description: 'Daily sessions, project work, and execution trackers.',
     icon: CalendarIcon,
     href: '/events',
-  },
-  {
-    id: 'guidelines',
-    name: 'Guidelines Marketplace',
-    description: 'Access practical guidelines, templates, and processes.',
-    icon: BookOpen,
-    href: '/marketplace/guides',
+    isComingSoon: true,
   },
   {
     id: 'work-directory',
     name: 'DQ Work Directory',
     description: 'Units, positions, and associate profiles.',
     icon: UsersIcon,
-    href: '/dq-work-directory',
+    href: '/marketplace/work-directory',
+    isComingSoon: true,
   },
   {
-    id: 'media-center',
+    id: 'news-center',
     name: 'DQ Media Center',
-    description: 'News, announcements, job openings, and blogs.',
+    description: 'View DQ updates, corporate news, blogs, job openings, and essential announcements.',
     icon: NewspaperIcon,
-    href: '/dq-media-center',
+    href: '/marketplace/opportunities?tab=announcements',
   },
   {
     id: 'work-communities',
@@ -96,20 +101,14 @@ const marketplaces: Marketplace[] = [
     description: 'Discussion rooms, pulse updates, and events.',
     icon: SparklesIcon,
     href: '/dq-work-communities',
+    isComingSoon: true,
   },
   {
     id: 'knowledge-center',
     name: 'DQ Knowledge Center',
     description: 'Strategy guides, blueprints, libraries, and testimonials.',
-    icon: FileText,
-    href: '/dq-knowledge-center',
-  },
-  {
-    id: 'communities',
-    name: 'DQ Communities',
-    description: 'Connect, collaborate, and engage with peers in vibrant communities.',
-    icon: UsersIcon,
-    href: '/communities',
+    icon: BookOpen,
+    href: '/marketplace/guides',
   },
 ];
 
@@ -219,10 +218,11 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
           aria-orientation="vertical"
           aria-labelledby="explore-menu"
         >
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-[480px] overflow-y-auto">
             {marketplaces.map((marketplace, index) => {
               const Icon = marketplace.icon;
-              const isActive = marketplace.id === 'guides' && (location.pathname.startsWith('/marketplace/guides') || location.pathname.startsWith('/marketplace/knowledge-hub'));
+              const isComingSoon = marketplace.isComingSoon;
+              const isActive = marketplace.id === 'news-center' && (location.pathname.startsWith('/marketplace/opportunities') || location.pathname.startsWith('/marketplace/news'));
               return (
                 <a
                   key={marketplace.id}
@@ -233,8 +233,10 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
                   role="menuitem"
                   tabIndex={-1}
                   aria-current={isActive ? 'page' : undefined}
+                  aria-disabled={isComingSoon || undefined}
                   onClick={(e) => {
                     e.preventDefault();
+                    if (isComingSoon) return;
                     handleItemClick(marketplace.href);
                   }}
                   onMouseEnter={() => setFocusedIndex(index)}

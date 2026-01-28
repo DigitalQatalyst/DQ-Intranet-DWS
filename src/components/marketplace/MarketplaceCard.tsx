@@ -46,7 +46,18 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
       navigate(`/lms/${slug}`);
       return;
     }
-    onQuickView();
+
+    // Service Center / Digital Worker items
+    if (marketplaceType === 'non-financial' && item.category === 'Digital Worker') {
+      return 'View Details';
+    }
+
+    if (marketplaceType === 'non-financial' && item.category === 'AI Tools') {
+      return 'Request Tool';
+    }
+
+    // Fallback to marketplace-level default
+    return config.primaryCTA;
   };
 
   const handlePrimaryAction = (e: React.MouseEvent) => {

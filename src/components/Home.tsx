@@ -6,12 +6,10 @@ import {
   Users,
   Newspaper,
   Lightbulb,
-  TrendingUp,
   Briefcase as JobIcon,
   Globe,
   Calendar,
   Book as BookIcon,
-  Award,
   MessageCircle,
   X,
   Clock,
@@ -23,6 +21,9 @@ import {
   BarChart,
   CircleDot,
   ClipboardList,
+  ScrollText,
+  Wand2,
+  Bot,
 } from 'lucide-react';
 import {
   AnimatedCounter,
@@ -121,8 +122,6 @@ const ServiceCard = ({
   isComingSoon?: boolean;
   sectionStyle?: SectionStyle;
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
   const activeCardClasses = `${sectionStyle.cardClasses} hover:shadow-md hover:-translate-y-0.5 cursor-pointer`;
   const disabledClasses =
     sectionStyle.disabledCardClasses ??
@@ -137,7 +136,6 @@ const ServiceCard = ({
   const iconColorClass = isComingSoon
     ? "text-gray-500"
     : sectionStyle.iconClass ?? "text-[#1A2E6E]";
-  const hoverOverlayClass = sectionStyle.hoverOverlayClass ?? "bg-white/10";
   const iconWrapperClasses = sectionStyle.iconWrapperClass ?? "w-12 h-12";
   const descriptionClasses = `text-sm text-gray-600 leading-snug text-balance line-clamp-2 mt-3 mb-4 ${
     isComingSoon ? "text-white/70" : sectionStyle.descriptionClass
@@ -165,8 +163,6 @@ const ServiceCard = ({
     <div
       className={wrapperClasses}
       onClick={isComingSoon ? undefined : onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       role="button"
       aria-disabled={isComingSoon}
     >
@@ -189,7 +185,7 @@ const ServiceCard = ({
       <p className={descriptionClasses}>{service.description}</p>
 
       <button
-        className={isComingSoon ? disabledButtonClasses : "cta-ejp"}
+        className={isComingSoon ? disabledButtonClasses : "cta-dq"}
         disabled={isComingSoon}
         onClick={(e) => {
           if (!isComingSoon) {
@@ -209,13 +205,6 @@ const ServiceCard = ({
           </>
         )}
       </button>
-
-      {!isComingSoon && (
-        <div
-          className={`absolute inset-0 ${hoverOverlayClass} opacity-0 transition-opacity duration-500 rounded-2xl`}
-          style={{ opacity: isHovered ? 1 : 0 }}
-        />
-      )}
     </div>
   );
 };
@@ -269,186 +258,210 @@ export const HomePage: React.FC = () => {
     learningWorkGuides: [
       {
         id: 'courses-curricula',
-        title: 'Courses',
-        description: 'Explore LMS courses across GHC, 6xD, DWS, DXP, and core curricula.',
+        title: 'Courses & Curricula',
+        description: 'Explore core and advanced LMS curricula across GHC, 6xD, DWS, DXP, and key tools.',
         icon: <GraduationCap />,
         path: '/learning/courses',
+        isActive: false
+      },
+      {
+        id: 'learning-tracks',
+        title: 'Learning Tracks',
+        description: 'Follow guided learning paths tailored to roles, journeys, and competencies.',
+        icon: <GraduationCap />,
+        path: '/learning/courses',
+        isActive: false
+      },
+      {
+        id: 'prompt-library',
+        title: 'Prompt Library',
+        description: 'Curated, reusable AI prompts and patterns to accelerate delivery and decision-making.',
+        icon: <Wand2 />,
+        path: '/marketplace/services-center?tab=prompt_library',
         isActive: true
       },
       {
-        id: 'onboarding-flows',
-        title: 'Onboarding',
-        description: 'Follow onboarding tracks to complete role-based learning and setup.',
-        icon: <Compass />,
-        path: '/learning/onboarding-flows',
-        isActive: true
-      },
-      {
-        id: 'work-guide-strategy',
-        title: 'Strategy Guide',
-        description: 'Understand DQ’s journey, history, 6xD, initiatives, clients, and operating models.',
+        id: 'learning-reviews',
+        title: 'Reviews',
+        description: 'Capture feedback and reviews on courses, bootcamps, and learning experiences.',
         icon: <BarChart />,
-        path: '/work-guides/strategy',
-        isActive: true
-      },
-      {
-        id: 'work-guide-guidelines',
-        title: 'Operational Guide',
-        description: 'Access operational guidelines, policies, templates, and governance playbooks.',
-        icon: <ClipboardList />,
-        path: '/work-guides/guidelines',
-        isActive: true
+        path: '/learning/courses',
+        isActive: false
       },
       {
         id: 'knowledge-library',
-        title: 'Knowledge Library',
-        description: 'Browse glossaries, FAQs, and reference resources for everyday work.',
+        title: 'Library',
+        description: 'Browse glossaries, FAQs, playbooks, and reference resources for everyday work.',
         icon: <BookIcon />,
-        path: '/knowledge/library',
+        path: '/marketplace/guides?tab=glossary',
         isActive: true
-      }
+      },
+      {
+        id: 'learning-testimonials',
+        title: 'Testimonials',
+        description: 'Read stories and testimonials from associates on their learning journeys.',
+        icon: <HeartHandshake />,
+        path: '/marketplace/guides?tab=testimonials',
+        isActive: true
+      },
     ],
     servicesDigitalWorkforce: [
       {
         id: 'services-center-technology',
-        title: 'Technology Services',
-        description: 'Submit technology requests: queries, support, environments, and self-service tools.',
+        title: 'Technology',
+        description: 'Request environments, access, support, and tooling for DQ technology platforms.',
         icon: <Globe />,
-        path: '/services/technology',
+        path: '/marketplace/services-center?tab=technology',
         isActive: true
       },
       {
         id: 'services-center-business',
-        title: 'Business Services',
-        description: 'Submit business, finance, and admin requests through a unified console.',
+        title: 'Employee Services',
+        description: 'Submit finance, HR, and admin requests through a single, trackable console.',
         icon: <Briefcase />,
-        path: '/services/business',
+        path: '/marketplace/services-center?tab=business',
+        isActive: true
+      },
+      {
+        id: 'ai-tools',
+        title: 'AI Tools',
+        description: 'AI-powered tools and copilots that support execution, automation, and delivery across DQ.',
+        icon: <Bot />,
+        path: '/marketplace/services-center?tab=ai_tools',
         isActive: true
       },
       {
         id: 'digital-worker-tools',
-        title: 'Digital Worker Tools',
-        description: 'Use Doc Writers, prompting kits, AI tools, agents, and BPM helpers for delivery.',
+        title: 'Digital Worker',
+        description: 'Use Doc Writers, prompting kits, AI tools, agents, and BPM helpers to speed up delivery.',
         icon: <Lightbulb />,
-        path: '/services/digital-worker-tools',
+        path: '/marketplace/services-center?tab=digital_worker',
         isActive: true
       },
       {
         id: 'blueprints-library',
-        title: 'Blueprint Library',
-        description: 'Access blueprint packs for 6xD design, DevOps, DBP, DXP, and DWS delivery.',
+        title: 'Products',
+        description: 'Explore DQ products, solutions, and digital offerings across platforms and services.',
         icon: <Compass />,
-        path: '/resources/blueprints-library',
+        path: '/marketplace/guides?tab=blueprints',
         isActive: true
       }
     ],
     workManagementHub: [
       {
         id: 'activities-sessions',
-        title: 'Work Sessions',
-        description: 'Run daily and weekly work sessions, reviews, retros, and collaborator touchpoints.',
+        title: 'Activities – Sessions',
+        description: 'Plan and run daily and weekly work sessions, reviews, retros, and check-ins.',
         icon: <Calendar />,
         path: '/activities/sessions',
-        isActive: true
+        isActive: false
       },
       {
         id: 'activities-projects-tasks',
-        title: 'Projects & Tasks',
-        description: 'Manage tasks, planners, chat threads, and ATP delivery activities.',
+        title: 'Activities – Projects / Tasks',
+        description: 'Organize projects, tasks, and boards so work stays visible and on track.',
         icon: <ClipboardList />,
         path: '/activities/projects',
-        isActive: true
+        isActive: false
       },
       {
         id: 'activities-trackers',
-        title: 'Performance Trackers',
-        description: 'Track statuses, categories, descriptions, and live workflow updates.',
+        title: 'Activities – Trackers',
+        description: 'Follow statuses, categories, and live updates across activities and workflows.',
         icon: <BarChart />,
         path: '/activities/trackers',
-        isActive: true
+        isActive: false
       },
       {
         id: 'communities-discussion',
-        title: 'Team Discussions',
-        description: 'Join forums on topics, DNA practices, learnings, and team conversations.',
+        title: 'Discussion',
+        description: 'Open discussion spaces for DNA practices, learnings, Q&A, and team topics.',
         icon: <MessageCircle />,
         path: '/communities/discussion',
-        isActive: true
+        isActive: false
       },
       {
         id: 'communities-pulse',
-        title: 'Pulse Insights',
-        description: 'Share insights through polls, surveys, and feedback loops.',
+        title: 'Pulse',
+        description: 'Use quick polls and surveys to capture team sentiment and feedback.',
         icon: <HeartHandshake />,
         path: '/communities/pulse',
-        isActive: true
+        isActive: false
       }
     ],
     cultureEventsNetworking: [
       {
         id: 'news-announcements',
         title: 'News & Announcements',
-        description: 'View DQ updates, corporate news, trends, and essential announcements.',
+        description: 'View official DQ news, platform releases, and important organizational updates.',
         icon: <Newspaper />,
-        path: '/updates/news',
+        path: '/marketplace/opportunities?tab=announcements',
         isActive: true
       },
       {
-        id: 'jobs-openings',
-        title: 'Career Opportunities',
-        description: 'Browse new job postings and internal career opportunities.',
-        icon: <JobIcon />,
-        path: '/updates/jobs',
-        isActive: true
+        id: 'events',
+        title: 'Events',
+        description: 'Discover upcoming events, townhalls, and experience sessions across DQ.',
+        icon: <Calendar />,
+        path: '/communities/events',
+        isActive: false
       },
       {
         id: 'blogs',
         title: 'Blogs & Stories',
-        description: 'Read stories, updates, and insights from teams across DQ.',
+        description: 'Read stories, updates, and perspectives from teams and leaders across DQ.',
         icon: <BookIcon />,
-        path: '/updates/blogs',
+        path: '/marketplace/opportunities?tab=insights',
         isActive: true
       },
       {
-        id: 'communities-events-calendars',
-        title: 'Events & Calendars',
-        description: 'Stay aligned with scheduled huddles, events, calendars, and logistics.',
-        icon: <Calendar />,
-        path: '/communities/events',
+        id: 'dq-guidelines',
+        title: 'DQ Guidelines',
+        description: 'Official standards, governance models, and ways of working that guide execution across DQ.',
+        icon: <ScrollText />,
+        path: '/marketplace/guides?tab=guidelines',
+        isActive: true
+      },
+      {
+        id: 'work-guide-strategy',
+        title: 'Strategy',
+        description: "Understand DQ's journey, strategy, 6xD, initiatives, clients, and operating models.",
+        icon: <BarChart />,
+        path: '/marketplace/guides?tab=strategy',
         isActive: true
       }
     ],
     peopleDirectory: [
       {
         id: 'directory-units',
-        title: 'Units Directory',
-        description: 'Explore sectors, units, mandates, priorities, and performance data.',
+        title: 'Units',
+        description: 'Explore sectors, units, mandates, priorities, and performance metrics.',
         icon: <Building />,
-        path: '/directory/units',
-        isActive: true
+        path: '/marketplace/work-directory?tab=units',
+        isActive: false
       },
       {
         id: 'directory-positions',
-        title: 'Positions Directory',
+        title: 'Positions',
         description: 'Browse DQ positions, role descriptions, and key responsibilities.',
         icon: <Briefcase />,
-        path: '/directory/positions',
-        isActive: true
+        path: '/marketplace/work-directory?tab=positions',
+        isActive: false
       },
       {
         id: 'directory-associates',
-        title: 'Associates Directory',
+        title: 'Associates',
         description: 'View associate profiles, contacts, skills, and performance details.',
         icon: <Users />,
-        path: '/directory/associates',
-        isActive: true
+        path: '/marketplace/work-directory?tab=associates',
+        isActive: false
       },
       {
-        id: 'client-testimonials',
-        title: 'Client Testimonials',
-        description: 'Explore client stories, cases, achievements, and leadership references.',
-        icon: <HeartHandshake />,
-        path: '/resources/testimonials',
+        id: 'jobs-openings',
+        title: 'Job Openings',
+        description: 'Browse open roles and internal opportunities across DQ.',
+        icon: <JobIcon />,
+        path: '/marketplace/opportunities?tab=opportunities',
         isActive: true
       }
     ]
@@ -497,7 +510,7 @@ export const HomePage: React.FC = () => {
     loadSections();
   }, []);
 
-  /* --------- ROW COLORS + EJP BUTTON/ICON TREATMENT (UPDATED) --------- */
+  /* --------- ROW COLORS + DQ BUTTON/ICON TREATMENT (UPDATED) --------- */
   const sectionStyles: Record<string, SectionStyle> = {
     // ROW 1 — Navy gradient
     'Learning & Work Knowledge Hub': {
@@ -740,7 +753,7 @@ export const HomePage: React.FC = () => {
       {/* AI Chatbot */}
       <AIChatbot />
 
-      {/* animations + EJP CTA styles */}
+      {/* animations + DQ CTA styles */}
       <style>{`
         @keyframes fade-in-up {
           from {
@@ -795,8 +808,8 @@ export const HomePage: React.FC = () => {
           transform: scale(1.02);
         }
 
-        /* ---------- EJP-style CTA (dark translucent -> white on hover) ---------- */
-        .cta-ejp {
+        /* ---------- DQ-style CTA (dark translucent -> white on hover) ---------- */
+        .cta-dq {
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -813,17 +826,17 @@ export const HomePage: React.FC = () => {
           -webkit-backdrop-filter: saturate(140%) blur(4px);
           transition: all 0.3s ease;
         }
-        .cta-ejp:hover {
+        .cta-dq:hover {
           color: #1a2e6e;
           background: rgba(255, 255, 255, 0.95);
           border-color: rgba(255, 255, 255, 0.9);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
           transform: translateY(-1px);
         }
-        .cta-ejp .chev {
+        .cta-dq .chev {
           transition: transform 0.3s ease;
         }
-        .cta-ejp:hover .chev {
+        .cta-dq:hover .chev {
           transform: translateX(4px);
         }
       `}</style>

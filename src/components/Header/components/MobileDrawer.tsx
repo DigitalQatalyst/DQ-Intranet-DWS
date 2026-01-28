@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MenuIcon, XIcon, ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
-import { BuildingIcon, CreditCardIcon, GraduationCapIcon, CalendarIcon, UsersIcon, NewspaperIcon, SparklesIcon, BookOpen } from 'lucide-react';
+import {
+  BuildingIcon,
+  GraduationCapIcon,
+  CalendarIcon,
+  UsersIcon,
+  NewspaperIcon,
+  SparklesIcon,
+  BookOpen,
+} from 'lucide-react';
 import { scrollToSupport } from '../../../utils/scroll';
 interface MobileDrawerProps {
   isCompact?: boolean;
@@ -159,7 +167,17 @@ export function MobileDrawer({
                   {marketplaces.map(marketplace => {
                     const Icon = marketplace.icon;
                     const isActive = marketplace.id === 'guides' && (location.pathname.startsWith('/marketplace/guides') || location.pathname.startsWith('/marketplace/knowledge-hub'));
-                    return <button key={marketplace.id} className={`w-full flex items-start px-2.5 py-2 text-left hover:bg-dq-coral/10 rounded-lg transition-colors md:py-1.5 sm:py-1 ${isActive ? 'border-l-4 border-dq-coral bg-dq-coral/5 font-semibold' : ''}`} onClick={() => handleMarketplaceClick(marketplace.href)} aria-current={isActive ? 'page' : undefined}>
+                    const isComingSoon = marketplace.isComingSoon;
+                    return <button
+                      key={marketplace.id}
+                      className={`w-full flex items-start px-2.5 py-2 text-left hover:bg-dq-coral/10 rounded-lg transition-colors md:py-1.5 sm:py-1 ${isActive ? 'border-l-4 border-dq-coral bg-dq-coral/5 font-semibold' : ''} ${isComingSoon ? 'cursor-not-allowed opacity-60' : ''}`}
+                      onClick={() => {
+                        if (isComingSoon) return;
+                        handleMarketplaceClick(marketplace.href);
+                      }}
+                      aria-current={isActive ? 'page' : undefined}
+                      aria-disabled={isComingSoon || undefined}
+                    >
                       <div className="flex-shrink-0 mt-0.5">
                         <Icon size={14} className="text-dq-coral md:w-3 md:h-3 sm:w-3 sm:h-3" />
                       </div>

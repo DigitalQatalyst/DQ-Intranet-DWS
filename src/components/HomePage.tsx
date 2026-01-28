@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
+import { useAuth } from '../components/Header';
 import HeroSection from './HeroSection';
+import { FeaturedNationalProgram } from './FeaturedNationalProgram';
 import ProofAndTrust from './ProofAndTrust';
 import EnterpriseStages from './EnterpriseStages';
 import Home from './Home';
@@ -13,6 +15,7 @@ const HomePage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
+  const { user, isLoading: authLoading } = useAuth();
 
   // Reset loading state when navigating to home page
   useEffect(() => {
@@ -23,7 +26,12 @@ const HomePage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
-  if (isLoading) {
+  // Redirect to sign-in if not authenticated
+  if (!authLoading && !user) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  if (isLoading || authLoading) {
     return (
       <div className="fixed inset-0 bg-gradient-to-r from-blue-900 to-indigo-900 flex items-center justify-center z-50">
         <div className="text-center">
@@ -48,6 +56,11 @@ const HomePage: React.FC = () => {
       />
       <main className="flex-grow">
         <HeroSection />
+        <div className="bg-white py-12">
+          <div className="container mx-auto px-4">
+            <FeaturedNationalProgram />
+          </div>
+        </div>
         <ProofAndTrust />
         <EnterpriseStages />
         <Home />

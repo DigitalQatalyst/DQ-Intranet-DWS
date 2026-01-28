@@ -17,6 +17,9 @@ import {
 import { useNavigate } from "react-router-dom";
 import { FadeInUpOnScroll, StaggeredFadeIn, useInView } from "./AnimationUtils";
 import { EventCard, NewsCard, ResourceCard } from "./CardComponents";
+import { fetchAllNews } from '@/services/mediaCenterService';
+import type { NewsItem as MediaCenterNewsItem } from '@/data/media/news';
+import { supabaseClient } from '@/lib/supabaseClient';
 
 interface NewsItem {
   id: string;
@@ -26,8 +29,6 @@ interface NewsItem {
   category: string;
   imageUrl: string;
   source?: string;
-  slug?: string;
-  detailPath?: string;
 }
 
 interface Event {
@@ -47,7 +48,6 @@ interface Resource {
   description: string;
   icon: React.ReactNode;
   downloadUrl?: string;
-  link?: string;
   fileSize?: string;
   downloadCount?: number;
   lastUpdated?: string;
@@ -347,6 +347,8 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
   const [isTabChanging, setIsTabChanging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<{ message: string } | null>(null);
+  const [mediaCenterNews, setMediaCenterNews] = useState<MediaCenterNewsItem[]>([]);
+  const [guides, setGuides] = useState<Guide[]>([]);
 
   const tabs: TabItem[] = [
     {
@@ -376,10 +378,186 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
     }, 300);
   };
 
-  // Get data based on active tab
-  const getNewsData = () => newsItems;
+  // Fetch latest news from Media Center
+  useEffect(() => {
+    async function loadMediaCenterNews() {
+      if (activeTab !== "news") return;
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const allNews = await fetchAllNews();
+        
+        // Filter to only announcements and limit to 6
+        const announcements = allNews
+          .filter(item => 
+            item.type === 'Announcement' || 
+            item.newsType === 'Company News' ||
+            item.newsType === 'Policy Update' ||
+            item.newsType === 'Upcoming Events'
+          )
+          .slice(0, 6);
+        
+        setMediaCenterNews(announcements);
+      } catch (err) {
+        console.error('Error loading Media Center news:', err);
+        setError({ 
+          message: 'Unable to load latest news. Showing cached content.' 
+        });
+        // Fallback to mock data on error
+        setMediaCenterNews([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadMediaCenterNews();
+  }, [activeTab]);
+
+  // Fetch guides from DQ Knowledge Center Guidelines tab for Resources tab
+  useEffect(() => {
+    async function loadGuides() {
+      if (activeTab !== "resources") return;
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        // Use exact same logic as Guidelines tab in MarketplacePage
+        // Exclude removed guidelines from frontend
+        const excludedSlugs = ['atp-guidelines', 'agile-working-guidelines', 'client-session-guidelines', 'dbp-support-guidelines'];
+        
+        let q = supabaseClient
+          .from('guides')
+          .select('id, slug, title, summary, hero_image_url, last_updated_at, download_count, guide_type, domain, function_area, status, is_editors_pick, sub_domain')
+          .eq('status', 'Approved');
+        
+        // Exclude removed guidelines
+        excludedSlugs.forEach(slug => {
+          q = q.neq('slug', slug);
+        });
+        
+        // Order by editors pick, then download count, then last updated (same as Guidelines tab)
+        q = q
+          .order('is_editors_pick', { ascending: false })
+          .order('download_count', { ascending: false, nullsFirst: false })
+          .order('last_updated_at', { ascending: false, nullsFirst: false })
+          .limit(100); // Fetch enough to filter, then limit to 6
+        
+        const { data, error: supabaseError } = await q;
+        
+        if (supabaseError) {
+          throw supabaseError;
+        }
+        
+        // Filter for guidelines: exclude Strategy, Blueprint, and Testimonial (exact same logic as Guidelines tab)
+        const guidelinesGuides = (data || []).filter((guide: any) => {
+          const domain = (guide.domain || '').toLowerCase().trim();
+          const guideType = (guide.guide_type || '').toLowerCase().trim();
+          
+          // Exclude if domain or guide_type contains strategy, blueprint, or testimonial
+          // This is CRITICAL to prevent Strategy guides from showing in Guidelines tab
+          const hasStrategy = domain.includes('strategy') || guideType.includes('strategy');
+          const hasBlueprint = domain.includes('blueprint') || guideType.includes('blueprint');
+          const hasTestimonial = domain.includes('testimonial') || guideType.includes('testimonial');
+          
+          // Only include if it doesn't have any of these - be very strict
+          if (hasStrategy || hasBlueprint || hasTestimonial) {
+            return false; // Explicitly exclude
+          }
+          return true; // Include only if it's definitely not Strategy/Blueprint/Testimonial
+        }).slice(0, 6); // Limit to 6 after filtering
+        
+        // Map Supabase response to guide format
+        const mappedGuides = guidelinesGuides.map((guide: any) => ({
+          id: guide.id,
+          slug: guide.slug,
+          title: guide.title,
+          summary: guide.summary,
+          heroImageUrl: guide.hero_image_url,
+          lastUpdatedAt: guide.last_updated_at,
+          downloadCount: guide.download_count,
+          guideType: guide.guide_type,
+          domain: guide.domain,
+          functionArea: guide.function_area,
+          status: guide.status,
+        }));
+        
+        setGuides(mappedGuides);
+      } catch (err) {
+        console.error('Error loading guides:', err);
+        // Don't show error, just use fallback mock data
+        setGuides([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadGuides();
+  }, [activeTab]);
+
+  // Get data based on active tab - updated to use Media Center news
+  const getNewsData = () => {
+    // If we have Media Center news, use it; otherwise fallback to mock data
+    if (mediaCenterNews.length > 0) {
+      return mediaCenterNews.map(item => ({
+        id: item.id,
+        title: item.title,
+        excerpt: item.excerpt,
+        date: item.date,
+        category: item.department || item.newsType || 'News',
+        source: item.newsSource || item.byline || item.author || 'DQ Media Center',
+        imageUrl: item.image || undefined,
+      }));
+    }
+    // Fallback to mock data
+    return newsItems;
+  };
   const getEventsData = () => events;
-  const getResourcesData = () => resources;
+  
+  // Map guides to Resource format
+  const getResourcesData = (): Resource[] => {
+    // If we have guides from Supabase, use them; otherwise fallback to mock data
+    if (guides.length > 0) {
+      return guides.map((guide: any) => {
+        // Determine resource type based on guide properties
+        let resourceType = 'Guide';
+        if (guide.guideType) {
+          const typeLower = guide.guideType.toLowerCase();
+          if (typeLower.includes('template')) resourceType = 'Template';
+          else if (typeLower.includes('tool')) resourceType = 'Tool';
+          else if (typeLower.includes('guide')) resourceType = 'Guide';
+        }
+
+        // Format last updated date
+        const lastUpdated = guide.lastUpdatedAt 
+          ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+          : 'Recently';
+
+        // Create tags from domain and guideType
+        const tags: string[] = [];
+        if (guide.domain) tags.push(guide.domain);
+        if (guide.guideType && guide.guideType !== guide.domain) tags.push(guide.guideType);
+
+        return {
+          id: guide.id || guide.slug || '',
+          title: guide.title,
+          type: resourceType,
+          description: guide.summary || guide.title,
+          icon: <BookOpen size={24} className="text-blue-600" />,
+          downloadUrl: guide.slug ? `/marketplace/guides/${guide.slug}` : (guide.id ? `/marketplace/guides/${guide.id}` : undefined),
+          fileSize: undefined,
+          downloadCount: guide.downloadCount || 0,
+          lastUpdated: lastUpdated,
+          isExternal: false,
+          tags: tags.length > 0 ? tags : ['Guide'],
+        };
+      });
+    }
+    // Fallback to mock data
+    return resources;
+  };
 
   // Helper function to get the appropriate icon for a resource type
   const getResourceIconByType = (type) => {
@@ -397,7 +575,17 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
 
   // Add this function to handle event registration
   const handleEventRegister = (event: Event) => {
-    navigate(`/event-coming-soon?title=${encodeURIComponent(event.title)}`);
+    // Here you can implement what happens when someone registers for an event
+    // For example, open a registration modal, navigate to a registration page, etc.
+    console.log("Registering for event:", event.title);
+
+    // Example: Open a registration URL if available
+    // if (event.registrationUrl) {
+    //   window.open(event.registrationUrl, '_blank');
+    // }
+
+    // Or show a confirmation message
+    alert(`Registration for "${event.title}" will be available soon!`);
   };
 
   // Add function to handle resource downloads
@@ -430,18 +618,22 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
 
   // Add function to handle resource access
   const handleResourceAccess = (resource: Resource) => {
-    if (resource.link && resource.link !== '#') {
-      window.open(resource.link, '_blank', 'noopener,noreferrer');
-      return;
+    console.log("Accessing resource:", resource.title);
+
+    if (resource.isExternal) {
+      // For external resources, open in new tab
+      if (resource.downloadUrl) {
+        window.open(resource.downloadUrl, "_blank");
+      }
+    } else {
+      // For guides, navigate to guide detail page
+      if (resource.downloadUrl && resource.downloadUrl.startsWith('/marketplace/guides/')) {
+        navigate(resource.downloadUrl);
+      } else {
+        // Fallback for other internal resources
+        navigate(`/resources/${resource.id}`);
+      }
     }
-    if (resource.isExternal && resource.downloadUrl && resource.downloadUrl !== '#') {
-      window.open(resource.downloadUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
-    navigate(`/resource-coming-soon?title=${encodeURIComponent(resource.title)}`);
-  };
-  const handleNewsReadMore = (news: NewsItem) => {
-    navigate(`/insight-coming-soon?title=${encodeURIComponent(news.title)}`);
   };
 
   return (
@@ -473,7 +665,7 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
           {/* Error State */}
           {error && !isLoading && <ErrorMessage message={error.message} />}
           {/* News Tab */}
-          {activeTab === 'news' && !isLoading && !error && (
+          {activeTab === "news" && !isLoading && !error && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {getNewsData().map((item, index) => (
                 <div
@@ -492,8 +684,8 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
                       date: item.date,
                       source: item.source,
                     }}
-                    onQuickView={() => navigate(`/news/${item.id}`)}
-                    onReadMore={() => handleNewsReadMore(item)}
+                    onQuickView={() => navigate(`/marketplace/news/${item.id}`)}
+                    onReadMore={() => navigate(`/marketplace/news/${item.id}`)}
                   />
                 </div>
               ))}
@@ -552,7 +744,14 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
                       lastUpdated: resource.lastUpdated,
                       isExternal: resource.isExternal,
                     }}
-                    onQuickView={() => navigate(`/resources/${resource.id}`)}
+                    onQuickView={() => {
+                      // For guides, navigate to guide detail page
+                      if (resource.downloadUrl && resource.downloadUrl.startsWith('/marketplace/guides/')) {
+                        navigate(resource.downloadUrl);
+                      } else {
+                        navigate(`/resources/${resource.id}`);
+                      }
+                    }}
                     onAccessResource={() => handleResourceAccess(resource)}
                     onDownload={() => handleResourceDownload(resource)}
                   />

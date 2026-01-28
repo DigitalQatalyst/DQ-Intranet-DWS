@@ -1,4 +1,4 @@
-import { FormEvent, SVGProps, useEffect, useMemo, useState } from "react";
+import { SVGProps, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../components/Header";
 
@@ -17,7 +17,7 @@ type SignInPageProps = {
  */
 
 export default function SignInPage({ redirectTo = "/onboarding/start" }: SignInPageProps = {}) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, login } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const redirectTarget = useMemo(() => {
@@ -54,39 +54,9 @@ type SignInCardProps = {
 };
 
 function SignInCard({ redirectTarget }: SignInCardProps) {
-  const [email, setEmail] = useState("");
+  const { login, isLoading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-
-  async function handleNext(e: FormEvent) {
-    e.preventDefault();
-    setMessage(null);
-    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!ok) {
-      setMessage("Please enter a valid email address.");
-      return;
-    }
-    try {
-      setLoading(true);
-      const res = await fetch("/api/auth/request-access", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      if (!res.ok) throw new Error("Request failed");
-      setMessage("Check your inbox for a magic link / OTP to continue.");
-    } catch {
-      setMessage("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function microsoftSignIn() {
-    // Your server should start the OAuth flow here and redirect to Microsoft
-    const params = new URLSearchParams({ redirect: redirectTarget });
-    window.location.href = `/api/auth/microsoft?${params.toString()}`;
-  }
+  const [msalError, setMsalError] = useState<string | null>(null);
 
   return (
     <div className="bg-white/95 rounded-xl shadow-xl border border-black/5">
@@ -98,51 +68,43 @@ function SignInCard({ redirectTarget }: SignInCardProps) {
         <p className="text-sm text-gray-600 mt-1">
           Sign in to access <span className="font-medium">DQ Workspace</span>
         </p>
-
-        <form onSubmit={handleNext} className="mt-6 space-y-4">
-          <div>
-            <label className="block text-sm text-gray-700 mb-2">Email address</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#FB5535]"
-              placeholder="name@company.com"
-              autoComplete="email"
-              required
-            />
-          </div>
-
-          <div className="flex items-center justify-between text-sm">
-            <a href="/signup" className="text-[#030F35] hover:underline">
-              No account? <span className="font-medium">Create one</span>
-            </a>
-          </div>
-
-          {message && (
-            <div className="text-sm text-[#030F35] bg-[#030F35]/5 rounded-md p-2">
-              {message}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className="w-28 ml-auto block rounded-md bg-[#1f4ed8] text-white py-2 font-medium disabled:opacity-50"
-            disabled={loading}
-          >
-            {loading ? "Sending…" : "Next"}
-          </button>
-        </form>
       </div>
 
       <div className="px-6 sm:px-8 pb-6">
+        {msalError && (
+          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+            {msalError}
+          </div>
+        )}
         <button
           type="button"
-          onClick={microsoftSignIn}
-          className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-md bg-white py-2 hover:bg-gray-50"
+          onClick={(e) => {
+            e.preventDefault();
+            setMsalError(null);
+            setLoading(true);
+            console.log('Button clicked, calling login()...');
+            try {
+              login();
+              // loginRedirect should immediately redirect, but if it doesn't, show error after a moment
+              setTimeout(() => {
+                setLoading(false);
+                setMsalError('Sign in did not redirect. Please check browser console (F12) for errors.');
+              }, 2000);
+            } catch (error) {
+              console.error('Error calling login:', error);
+              setLoading(false);
+              setMsalError(
+                error instanceof Error 
+                  ? `Sign in failed: ${error.message}` 
+                  : 'Sign in failed. Please check the browser console for details.'
+              );
+            }
+          }}
+          disabled={loading || authLoading}
+          className="w-full flex items-center justify-center gap-3 border-2 border-[#030F35] rounded-md bg-white py-3 hover:bg-[#030F35] hover:text-white transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <MicrosoftLogo className="h-5 w-5" />
-          <span className="text-sm">Sign in with Microsoft</span>
+          <span>{loading ? 'Signing in...' : 'Sign in with Microsoft'}</span>
         </button>
       </div>
     </div>
