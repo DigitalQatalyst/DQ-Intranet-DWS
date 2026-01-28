@@ -1,6 +1,7 @@
 import type { NewsItem } from '@/data/media/news';
 import { Link } from 'react-router-dom';
 import { formatDateVeryShort, generateTitle, getNewsTypeDisplay, getNewsImageSrc } from '@/utils/newsUtils';
+import { buildShortTitle } from '@/utils/textUtils';
 
 interface NewsCardProps {
   item: NewsItem;
@@ -20,7 +21,8 @@ const fallbackHero =
 export function NewsCard({ item, href }: NewsCardProps) {
   // Use shared utility function to ensure consistency with detail pages
   const imageSrc = getNewsImageSrc(item, fallbackImages, fallbackHero);
-  const displayTitle = generateTitle(item);
+  const rawTitle = generateTitle(item);
+  const displayTitle = buildShortTitle(rawTitle, 5);
   const newsTypeDisplay = getNewsTypeDisplay(item);
   
   // Get views from localStorage (synced with details page)

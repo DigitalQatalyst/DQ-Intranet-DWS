@@ -9,7 +9,6 @@ import FiltersPanel from '@/components/media-center/FiltersPanel';
 import AnnouncementsGrid from '@/components/media-center/AnnouncementsGrid';
 import BlogsGrid from '@/components/media-center/BlogsGrid';
 import PodcastsGrid from '@/components/media-center/PodcastsGrid';
-import JobsGrid from '@/components/media-center/JobsGrid';
 import type { FacetConfig, FiltersValue, MediaCenterTabKey } from '@/components/media-center/types';
 import type { NewsItem } from '@/data/media/news';
 import type { JobItem } from '@/data/media/jobs';
@@ -492,25 +491,12 @@ const NewsPage: React.FC = () => {
           </ol>
         </nav>
 
-        <header className="mb-6 space-y-4">
+        <header className="mb-6 space-y-2">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">DQ Media Center</h1>
             <p className="text-gray-600">
               Discover the latest stories, highlights, and announcements from across DQ.
             </p>
-          </div>
-          <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Current focus</p>
-                <p className="mt-1 text-base font-semibold text-[#1A2E6E]">{TAB_SUMMARIES[tab].title}</p>
-                <p className="mt-1 text-sm text-gray-700">{TAB_SUMMARIES[tab].description}</p>
-                {TAB_SUMMARIES[tab].meta && <p className="mt-2 text-xs text-gray-500">{TAB_SUMMARIES[tab].meta}</p>}
-              </div>
-              <div className="rounded-xl bg-[#EEF2FF] px-3 py-1 text-xs font-semibold text-[#1A2E6E]">
-                Tab overview
-              </div>
-            </div>
           </div>
         </header>
 
@@ -558,6 +544,15 @@ const NewsPage: React.FC = () => {
             </TabsList>
           </div>
 
+          {/* Tab-specific about block below navigation (compact 1–2 line description) */}
+          <div className="mt-3 mb-4">
+            <div className="bg-white rounded-lg border border-gray-200 px-4 py-3">
+              <p className="text-sm text-gray-700 leading-snug line-clamp-2">
+                {TAB_SUMMARIES[tab].description}
+              </p>
+            </div>
+          </div>
+
           <div className="mt-4 mb-4 flex flex-col gap-3 md:mb-6 md:flex-row md:items-center md:justify-between">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -595,100 +590,106 @@ const NewsPage: React.FC = () => {
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-3 md:hidden">
-              <button
-                type="button"
-                onClick={toggleFilters}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm"
-              >
-                <FilterIcon className="h-4 w-4" />
-                {showFilters ? 'Hide Filters' : 'Show Filters'}
-              </button>
-              {hasActiveFilters && (
-                <button type="button" className="text-sm font-medium text-[#1A2E6E]" onClick={clearFilters}>
-                  Clear
+            {tab !== 'opportunities' && (
+              <div className="flex items-center gap-3 md:hidden">
+                <button
+                  type="button"
+                  onClick={toggleFilters}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm"
+                >
+                  <FilterIcon className="h-4 w-4" />
+                  {showFilters ? 'Hide Filters' : 'Show Filters'}
                 </button>
-              )}
-            </div>
-          </div>
-
-          <div
-            className={`fixed inset-0 z-30 bg-black/50 transition-opacity md:hidden ${
-              showFilters ? 'opacity-100' : 'pointer-events-none opacity-0'
-            }`}
-            onClick={toggleFilters}
-            aria-hidden={!showFilters}
-          >
-            <div
-              className={`absolute inset-y-0 left-0 w-full max-w-sm transform bg-white shadow-xl transition-transform duration-300 ${
-                showFilters ? 'translate-x-0' : '-translate-x-full'
-              }`}
-              onClick={(e) => e.stopPropagation()}
-              role="dialog"
-              aria-modal="true"
-              aria-label="Filters"
-            >
-              <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-                <h2 className="text-lg font-semibold">Filters</h2>
-                <button onClick={toggleFilters} className="rounded-full p-1 hover:bg-gray-100" aria-label="Close filters">
-                  <XIcon size={20} />
-                </button>
-              </div>
-              <div className="h-full overflow-y-auto px-4 pb-6 pt-4 space-y-4">
-                <FiltersPanel
-                  facets={facets}
-                  values={filters}
-                  onChange={setFilters}
-                  onClear={clearFilters}
-                  groupOrder={{ pinned: ['department', 'location'] }}
-                />
                 {hasActiveFilters && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      clearFilters();
-                      toggleFilters();
-                    }}
-                    className="mt-2 w-full rounded-md border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700"
-                  >
-                    Clear filters
+                  <button type="button" className="text-sm font-medium text-[#1A2E6E]" onClick={clearFilters}>
+                    Clear
                   </button>
                 )}
               </div>
-            </div>
+            )}
           </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-            <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
-              <div className="rounded-xl bg-white p-4 shadow">
-                <div className="mb-2 flex items-center justify-between">
+          {tab !== 'opportunities' && (
+            <div
+              className={`fixed inset-0 z-30 bg-black/50 transition-opacity md:hidden ${
+                showFilters ? 'opacity-100' : 'pointer-events-none opacity-0'
+              }`}
+              onClick={toggleFilters}
+              aria-hidden={!showFilters}
+            >
+              <div
+                className={`absolute inset-y-0 left-0 w-full max-w-sm transform bg-white shadow-xl transition-transform duration-300 ${
+                  showFilters ? 'translate-x-0' : '-translate-x-full'
+                }`}
+                onClick={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Filters"
+              >
+                <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
                   <h2 className="text-lg font-semibold">Filters</h2>
-                  <div className="flex items-center gap-3">
-                    {hasActiveFilters && (
-                      <button type="button" className="text-sm font-medium text-[#1A2E6E]" onClick={clearFilters}>
-                        Reset All
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      className="text-sm font-medium text-gray-600 hover:text-gray-900"
-                      onClick={() => setSidebarCollapsed((v) => !v)}
-                    >
-                      {sidebarCollapsed ? 'Show' : 'Hide'}
-                    </button>
-                  </div>
+                  <button onClick={toggleFilters} className="rounded-full p-1 hover:bg-gray-100" aria-label="Close filters">
+                    <XIcon size={20} />
+                  </button>
                 </div>
-                {!sidebarCollapsed && (
+                <div className="h-full overflow-y-auto px-4 pb-6 pt-4 space-y-4">
                   <FiltersPanel
                     facets={facets}
                     values={filters}
                     onChange={setFilters}
-                    onClear={hasActiveFilters ? clearFilters : undefined}
+                    onClear={clearFilters}
                     groupOrder={{ pinned: ['department', 'location'] }}
                   />
-                )}
+                  {hasActiveFilters && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        clearFilters();
+                        toggleFilters();
+                      }}
+                      className="mt-2 w-full rounded-md border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700"
+                    >
+                      Clear filters
+                    </button>
+                  )}
+                </div>
               </div>
-            </aside>
+            </div>
+          )}
+
+          <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+            {tab !== 'opportunities' && (
+              <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
+                <div className="rounded-xl bg-white p-4 shadow">
+                  <div className="mb-2 flex items-center justify-between">
+                    <h2 className="text-lg font-semibold">Filters</h2>
+                    <div className="flex items-center gap-3">
+                      {hasActiveFilters && (
+                        <button type="button" className="text-sm font-medium text-[#1A2E6E]" onClick={clearFilters}>
+                          Reset All
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className="text-sm font-medium text-gray-600 hover:text-gray-900"
+                        onClick={() => setSidebarCollapsed((v) => !v)}
+                      >
+                        {sidebarCollapsed ? 'Show' : 'Hide'}
+                      </button>
+                    </div>
+                  </div>
+                  {!sidebarCollapsed && (
+                    <FiltersPanel
+                      facets={facets}
+                      values={filters}
+                      onChange={setFilters}
+                      onClear={hasActiveFilters ? clearFilters : undefined}
+                      groupOrder={{ pinned: ['department', 'location'] }}
+                    />
+                  )}
+                </div>
+              </aside>
+            )}
 
             <section className="space-y-6">
               {isLoadingData && !newsItems.length && !jobItems.length && (
@@ -709,7 +710,14 @@ const NewsPage: React.FC = () => {
                 <PodcastsGrid query={query} items={newsItems} />
               </TabsContent>
               <TabsContent value="opportunities">
-                <JobsGrid query={query} jobs={jobItems} />
+                <div className="flex items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 mb-1">Job Openings Coming Soon</p>
+                    <p className="text-sm text-gray-600 max-w-md">
+                      Internal job postings will be published here once the Job Openings feature is live.
+                    </p>
+                  </div>
+                </div>
               </TabsContent>
             </section>
           </div>

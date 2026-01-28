@@ -1,7 +1,7 @@
 import React from 'react';
 import { resolveServiceImage } from '../../utils/serviceCardImages';
 import { useNavigate } from 'react-router-dom';
-import { truncateWords } from '../../utils/textUtils';
+import { buildShortTitle } from '../../utils/textUtils';
 export interface ServiceCardProps {
   item: {
     id: string;
@@ -84,7 +84,7 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
     item.featuredImageUrl ||
     resolveServiceImage(item.id, item.title) ||
     '/images/services/DTMP.jpg';
-  const displayTitle = truncateWords(item.title, 5);
+  const displayTitle = buildShortTitle(item.title, 5);
   
   return <div className="flex flex-col min-h-[340px] bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200" onClick={onQuickView}>
       {/* Featured Image */}

@@ -2418,5 +2418,325 @@ Shift the organizational focus from mere "activity" to "tangible progress" by en
 Foster a culture of improvement and transparency over fear and defense, by making metrics visible to the people doing the work.
 
 Refine the role of leadership to prioritize "unblocking" over "micromanagement". The impact is to empower leaders to use execution data—like "Blocker Age"—to know exactly when to step in to simplify decisions or reduce scope, ensuring that the metrics used align with and signal a core value for execution.`
+  },
+  {
+    id: 'ownership-mindset-single-driver',
+    title: 'Ownership Mindset: Why Every Task Needs a Single Driver',
+    type: 'Thought Leadership',
+    date: '2025-01-10',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt:
+      'Explore why every task needs a single, clearly named owner and how ownership mindset accelerates execution across teams.',
+    department: 'DQ Leadership',
+    domain: 'People',
+    theme: 'Leadership',
+    tags: ['podcast', 'execution mindset', 'ownership', 'series-2'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl:
+      '/02. Series 02 - The Execution Mindset/Ep 1_Ownership Mindset - Why Every Task Needs a Single Driver.m4a',
+    content: `# Ownership Mindset: Why Every Task Needs a Single Driver
+
+## Focus of the Episode
+
+Why tasks without a clearly named owner stall, and how single-point ownership creates momentum, accountability, and cleaner handoffs.
+
+## Intended Impact
+
+Help listeners adopt an ownership mindset for every task and initiative, making it obvious who is responsible for moving work forward at any given time.`
+  },
+  {
+    id: 'psychology-of-follow-through',
+    title: 'The Psychology of Follow-through: How to Finish What You Start',
+    type: 'Thought Leadership',
+    date: '2025-01-11',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt:
+      'Understand the mental barriers that stop us from finishing and learn simple tools to close the loop on commitments.',
+    department: 'DQ Leadership',
+    domain: 'People',
+    theme: 'Leadership',
+    tags: ['podcast', 'execution mindset', 'follow-through', 'series-2'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl:
+      '/02. Series 02 - The Execution Mindset/Ep 2_The Psychology of Follow-through - How to Finish What You Start.m4a',
+    content: `# The Psychology of Follow-through: How to Finish What You Start
+
+## Focus of the Episode
+
+Why good intentions fade after the first burst of energy, and what practical routines help you close loops consistently.
+
+## Intended Impact
+
+Equip listeners with simple mental models and habits that make finishing work feel natural, not exceptional.`
+  },
+  {
+    id: 'dont-mistake-motion-for-progress',
+    title: "Don't Mistake Motion for Progress", 
+    type: 'Thought Leadership',
+    date: '2025-01-12',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt:
+      'Learn to separate activity from real movement so you can stop spinning and start advancing meaningful work.',
+    department: 'DQ Leadership',
+    domain: 'Business',
+    theme: 'Delivery',
+    tags: ['podcast', 'execution mindset', 'focus', 'series-2'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl:
+      "/02. Series 02 - The Execution Mindset/Don_t_Mistake_Motion_For_Progress (2).m4a",
+    content: `# Don't Mistake Motion for Progress
+
+## Focus of the Episode
+
+Why constant updates, meetings, and activity can hide the fact that nothing important is actually moving.
+
+## Intended Impact
+
+Help teams and individuals develop a sharper radar for progress, reducing wasted motion and redirecting effort to what really moves the needle.`
+  },
+  {
+    id: 'cutting-the-noise-focus-habits',
+    title: 'Cutting the Noise: Focus Habits for Digital Workers',
+    type: 'Thought Leadership',
+    date: '2025-01-13',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt:
+      'Practical focus habits for digital workers who are overwhelmed by pings, channels, and constant micro-requests.',
+    department: 'DQ Leadership',
+    domain: 'People',
+    theme: 'Delivery',
+    tags: ['podcast', 'execution mindset', 'focus', 'digital workers', 'series-2'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl:
+      '/02. Series 02 - The Execution Mindset/Ep 8_Cutting the Noise - Focus Habits for Digital Workers.m4a',
+    content: `# Cutting the Noise: Focus Habits for Digital Workers
+
+## Focus of the Episode
+
+How to design focus blocks, reduce digital noise, and protect execution time in high-notification environments.
+
+## Intended Impact
+
+Help listeners create conditions where deep work is possible, even inside chatty, fast-moving teams.`
+  },
+  {
+    id: 'build-high-velocity-team-culture',
+    title: 'How to Build a High-Velocity Team Culture',
+    type: 'Thought Leadership',
+    date: '2025-01-14',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt:
+      'Explore the cultural rules and rituals that separate high-velocity teams from well-intentioned but slow ones.',
+    department: 'DQ Leadership',
+    domain: 'Operations',
+    theme: 'Leadership',
+    tags: ['podcast', 'execution mindset', 'team culture', 'series-2'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl:
+      '/02. Series 02 - The Execution Mindset/Ep 9_How to Build a High-Velocity Team Culture.m4a',
+    content: `# How to Build a High-Velocity Team Culture
+
+## Focus of the Episode
+
+What behaviours, norms, and rituals create teams that move quickly without burning out or dropping quality.
+
+## Intended Impact
+
+Give leaders and teams a practical picture of what a high-velocity culture looks like day to day, so they can start building it intentionally.`
+  },
+  {
+    id: 'micro-actions-beat-big-plans',
+    title: 'Micro Actions Beat Big Plans',
+    type: 'Thought Leadership',
+    date: '2025-01-15',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt:
+      'Why tiny, well-chosen moves out-perform grand plans that never quite get off the ground.',
+    department: 'DQ Leadership',
+    domain: 'Business',
+    theme: 'Delivery',
+    tags: ['podcast', 'execution mindset', 'micro actions', 'series-2'],
+    readingTime: '10–20',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl:
+      '/02. Series 02 - The Execution Mindset/Micro_Actions_Beat_Big_Plans (1).m4a',
+    content: `# Micro Actions Beat Big Plans
+
+## Focus of the Episode
+
+Why large, complex plans often stall while small, well-targeted moves quietly change reality.
+
+## Intended Impact
+
+Encourage listeners to bias toward the next small, concrete move rather than designing the perfect masterplan.`
+  },
+  {
+    id: 'micro-actions-convert-intention-into-traction',
+    title: 'Micro-Actions: Converting Intention into Traction',
+    type: 'Thought Leadership',
+    date: '2025-01-16',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt:
+      'A practical walkthrough of how to turn vague intentions into small, trackable movements that compound.',
+    department: 'DQ Leadership',
+    domain: 'Business',
+    theme: 'Delivery',
+    tags: ['podcast', 'execution mindset', 'traction', 'series-2'],
+    readingTime: '10–20',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl:
+      '/02. Series 02 - The Execution Mindset/Micro-Actions_Convert_Intention_Into_Traction.m4a',
+    content: `# Micro-Actions: Converting Intention into Traction
+
+## Focus of the Episode
+
+How to break fuzzy goals into micro-actions you can actually see on your board and calendar.
+
+## Intended Impact
+
+Help listeners design a simple pipeline from intention → task → visible movement.`
+  },
+  {
+    id: 'stop-discussion-start-action-clarity',
+    title: 'Stop Discussion, Start Action Through Clarity',
+    type: 'Thought Leadership',
+    date: '2025-01-17',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt:
+      'Why unclear ownership, fuzzy outcomes, and vague next steps keep teams in discussion loops instead of decisive action.',
+    department: 'DQ Leadership',
+    domain: 'Business',
+    theme: 'Leadership',
+    tags: ['podcast', 'execution mindset', 'clarity', 'series-2'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl:
+      '/02. Series 02 - The Execution Mindset/Stop_Discussion_Start_Action_Through_Clarity.m4a',
+    content: `# Stop Discussion, Start Action Through Clarity
+
+## Focus of the Episode
+
+Why many conversations never produce real movement, and how clarity on owner, outcome, and first step flips talk into action.
+
+## Intended Impact
+
+Equip listeners with a simple checklist to exit meetings with decisions, named owners, and a clear first task so work can move immediately.`
+  },
+  {
+    id: 'cutting-the-noise-focus-habits-alt',
+    title: 'Cutting the Noise - Focus Habits for Digital Workers',
+    type: 'Thought Leadership',
+    date: '2025-01-18',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt:
+      'An additional recording of "Cutting the Noise - Focus Habits for Digital Workers" for digital workers who want more options for how they listen and learn.',
+    department: 'DQ Leadership',
+    domain: 'People',
+    theme: 'Delivery',
+    tags: ['podcast', 'execution mindset', 'focus', 'digital workers', 'series-2'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl:
+      '/02. Series 02 - The Execution Mindset/Cutting the Noise - Focus Habits for Digital Workers.m4a',
+    content: `# Cutting the Noise: Focus Habits for Digital Workers (Alternate Recording)
+
+## Focus of the Episode
+
+How to design focus blocks, reduce digital noise, and protect execution time in high-notification environments.
+
+## Intended Impact
+
+Help listeners create conditions where deep work is possible, even inside chatty, fast-moving teams.`
+  },
+  {
+    id: 'cutting-the-noise-focus-habits-alt-1',
+    title: 'Cutting the Noise - Focus Habits for Digital Workers (1)',
+    type: 'Thought Leadership',
+    date: '2025-01-19',
+    author: 'DQ Leadership',
+    byline: 'DQ Leadership',
+    views: 0,
+    excerpt:
+      'Another alternate recording of "Cutting the Noise - Focus Habits for Digital Workers" so teams can choose the version that suits their context.',
+    department: 'DQ Leadership',
+    domain: 'People',
+    theme: 'Delivery',
+    tags: ['podcast', 'execution mindset', 'focus', 'digital workers', 'series-2'],
+    readingTime: '20+',
+    newsType: 'Company News',
+    newsSource: 'DQ Leadership',
+    focusArea: 'Culture & People',
+    format: 'Podcast',
+    source: 'DigitalQatalyst',
+    audioUrl:
+      '/02. Series 02 - The Execution Mindset/Cutting the Noise - Focus Habits for Digital Workers (1).m4a',
+    content: `# Cutting the Noise: Focus Habits for Digital Workers (Alternate Recording 2)
+
+## Focus of the Episode
+
+How to design focus blocks, reduce digital noise, and protect execution time in high-notification environments.
+
+## Intended Impact
+
+Help listeners create conditions where deep work is possible, even inside chatty, fast-moving teams.`
   }
 ];

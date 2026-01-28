@@ -12,7 +12,7 @@ import { Breadcrumb } from '@/components/media-center/shared/Breadcrumb';
 const PODCAST_IMAGE = '/podcasts.jpg';
 
 // Explicit canonical order of Action-Solver podcast episodes (EP1..EP10)
-const PODCAST_EPISODE_ORDER: string[] = [
+const ACTION_SOLVER_EPISODE_ORDER: string[] = [
   'why-execution-beats-intelligence',
   'why-we-misdiagnose-problems',
   'turning-conversations-into-action',
@@ -29,6 +29,12 @@ const PODCAST_EPISODE_ORDER: string[] = [
 export default function PodcastSeriesPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const isExecutionMindsetSeries = location.pathname.includes('the-execution-mindset');
+  const seriesTitle = isExecutionMindsetSeries ? 'The Execution Mindset' : 'Action-Solver Podcast';
+  const seriesLabel = isExecutionMindsetSeries ? 'Execution Mindset Series' : 'Action-Solver Series';
+  const seriesDescription = isExecutionMindsetSeries
+    ? 'The Execution Mindset series explores practical habits and mental models that help digital workers cut noise, move from intention to action, and build high-velocity team cultures.'
+    : 'The Action-Solver Podcast delivers concise, actionable insights for busy professionals. Each episode tackles a specific challenge faced by DQ teams, providing practical frameworks and strategies you can implement immediately. Perfect for your commute, lunch break, or quick learning moment.';
   const [episodes, setEpisodes] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<'latest' | 'most-listened'>('latest');
@@ -130,14 +136,25 @@ export default function PodcastSeriesPage() {
     const loadEpisodes = async () => {
       try {
         const allNews = await fetchAllNews();
-        const podcastEpisodes = allNews.filter(
+        const allPodcastEpisodes = allNews.filter(
           (item) => item.format === 'Podcast' || item.tags?.some((tag) => tag.toLowerCase().includes('podcast'))
         );
-        setEpisodes(podcastEpisodes);
+
+        // Filter episodes by series based on audioUrl path
+        const seriesEpisodes = allPodcastEpisodes.filter((item) => {
+          if (!item.audioUrl) return false;
+          if (isExecutionMindsetSeries) {
+            return item.audioUrl.includes('/02. Series 02 - The Execution Mindset/');
+          }
+          // Default: Action-Solver and other /Podcasts-based episodes
+          return item.audioUrl.startsWith('/Podcasts/');
+        });
+
+        setEpisodes(seriesEpisodes);
         
         // Preload audio durations for all episodes
         const durations = new Map<string, number>();
-        const loadPromises = podcastEpisodes.map((episode) => {
+        const loadPromises = seriesEpisodes.map((episode) => {
           if (!episode.audioUrl) return Promise.resolve();
           
           return new Promise<void>((resolve) => {
@@ -164,7 +181,7 @@ export default function PodcastSeriesPage() {
       }
     };
     loadEpisodes();
-  }, []);
+  }, [isExecutionMindsetSeries]);
 
   const filteredAndSortedEpisodes = useMemo(() => {
     let filtered = [...episodes];
@@ -225,7 +242,7 @@ export default function PodcastSeriesPage() {
     if (sortBy === 'latest') {
       // Sort by explicit episode number from PODCAST_EPISODE_ORDER (EP10 at top, EP1 at bottom)
       const orderMap = new Map<string, number>(
-        PODCAST_EPISODE_ORDER.map((id, index) => [id, index + 1])
+        ACTION_SOLVER_EPISODE_ORDER.map((id, index) => [id, index + 1])
       );
 
       filtered.sort((a, b) => {
@@ -250,25 +267,41 @@ export default function PodcastSeriesPage() {
   const episodeNumberMap = useMemo(() => {
     const map = new Map<string, number>();
 
-    // Assign numbers based on the explicit canonical order from PODCAST_EPISODE_ORDER
-    PODCAST_EPISODE_ORDER.forEach((id, index) => {
-      if (episodes.some(ep => ep.id === id)) {
-        map.set(id, index + 1);
-      }
-    });
+    if (!isExecutionMindsetSeries) {
+      // Action-Solver series: use explicit canonical ordering
+      ACTION_SOLVER_EPISODE_ORDER.forEach((id, index) => {
+        if (episodes.some((ep) => ep.id === id)) {
+          map.set(id, index + 1);
+        }
+      });
 
-    // If any additional podcast episodes exist, number them after the known series
-    let nextNumber = PODCAST_EPISODE_ORDER.length + 1;
-    episodes.forEach(ep => {
-      if (!map.has(ep.id)) {
-        map.set(ep.id, nextNumber++);
-      }
-    });
+      // Any additional Action-Solver podcast episodes get numbered after the known series
+      let nextNumber = ACTION_SOLVER_EPISODE_ORDER.length + 1;
+      episodes.forEach((ep) => {
+        if (!map.has(ep.id)) {
+          map.set(ep.id, nextNumber++);
+        }
+      });
+    } else {
+      // Execution Mindset series: number episodes sequentially by date (oldest = EP1)
+      const sortedByDateAsc = [...episodes].sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+
+      sortedByDateAsc.forEach((ep, index) => {
+        map.set(ep.id, index + 1);
+      });
+    }
 
     return map;
-  }, [episodes]);
+  }, [episodes, isExecutionMindsetSeries]);
 
-  const latestEpisode = episodes.length > 0 ? episodes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0] : null;
+  const latestEpisode =
+    episodes.length > 0
+      ? [...episodes].sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        )[0]
+      : null;
   const averageDuration = episodes.length > 0
     ? Math.round(episodes.reduce((sum, ep) => {
         const dur = formatDuration(ep.readingTime);
@@ -563,12 +596,16 @@ export default function PodcastSeriesPage() {
   const handleSelectEpisodeFromSearch = (episodeId: string) => {
     setSearchQuery('');
 
-    // Ensure URL always points to the series page with tab=podcasts & the specific episode
+    // Ensure URL always points to the current series page with tab=podcasts & the specific episode
     const params = new URLSearchParams(location.search);
     params.set('tab', 'podcasts');
     params.set('episode', episodeId);
 
-    navigate(`/marketplace/news/action-solver-podcast?${params.toString()}`);
+    const basePath = isExecutionMindsetSeries
+      ? '/marketplace/news/the-execution-mindset'
+      : '/marketplace/news/action-solver-podcast';
+
+    navigate(`${basePath}?${params.toString()}`);
   };
 
   // Share functionality
@@ -793,7 +830,7 @@ export default function PodcastSeriesPage() {
                   label: 'DQ Media Center'
                 },
                 {
-                  label: 'Action-Solver Podcast'
+                  label: seriesTitle
                 }
               ]}
             />
@@ -803,7 +840,7 @@ export default function PodcastSeriesPage() {
                 onClick={() => {
                   const shareUrl = window.location.href;
                   if (navigator.share) {
-                    navigator.share({ title: 'Action-Solver Podcast', url: shareUrl }).catch(() => {
+                    navigator.share({ title: seriesTitle, url: shareUrl }).catch(() => {
                       navigator.clipboard.writeText(shareUrl).catch(() => {
                         // Clipboard error
                       });
@@ -853,12 +890,12 @@ export default function PodcastSeriesPage() {
             <div className="max-w-4xl">
               {/* Category Tag */}
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-white/20 backdrop-blur-sm text-white mb-4">
-                    Action-Solver Series
+                    {seriesLabel}
                   </span>
               
               {/* Title */}
               <h1 id="podcast-title" className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
-                Action-Solver Podcast
+                {seriesTitle}
               </h1>
 
               {/* Description */}
@@ -902,7 +939,7 @@ export default function PodcastSeriesPage() {
           <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="mb-3 text-xl font-bold text-gray-900">About</h2>
             <p className="mb-4 text-gray-700 leading-relaxed">
-              The Action-Solver Podcast delivers concise, actionable insights for busy professionals. Each episode tackles a specific challenge faced by DQ teams, providing practical frameworks and strategies you can implement immediately. Perfect for your commute, lunch break, or quick learning moment.
+              {seriesDescription}
             </p>
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">

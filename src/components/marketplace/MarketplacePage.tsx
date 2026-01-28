@@ -1652,28 +1652,9 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         {/* Guides Tabs Section */}
         {isGuides && (
           <>
-            {/* Tab Description - Above Navigation */}
-            {activeTab && TAB_DESCRIPTIONS[activeTab] && (
-              <div className="mb-4 bg-white rounded-lg p-6 border border-gray-200 relative">
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1">
-                    <span className="text-xs uppercase text-gray-500 font-medium tracking-wide">CURRENT FOCUS</span>
-                    <h2 className="text-2xl font-bold text-gray-800 mt-1">{TAB_LABELS[activeTab]}</h2>
-                  </div>
-                  <button className="px-4 py-2 bg-blue-50 text-gray-800 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors border-0">
-                    Tab overview
-                  </button>
-                </div>
-                <p className="text-gray-700 mb-2">{TAB_DESCRIPTIONS[activeTab].description}</p>
-                {TAB_DESCRIPTIONS[activeTab].author && (
-                  <p className="text-sm text-gray-500">{TAB_DESCRIPTIONS[activeTab].author}</p>
-                )}
-              </div>
-            )}
-            
-            <div className="mb-6 border-b border-gray-200">
+            {/* Guides tab navigation */}
+            <div className="mb-3 border-b border-gray-200">
               <nav className="flex space-x-8" aria-label="Guides navigation">
-                {/* Main tabs rendered as buttons */}
                 {(['strategy', 'guidelines', 'blueprints', 'testimonials', 'glossary', 'faqs'] as WorkGuideTab[]).map(tab => (
                   <button
                     key={tab}
@@ -1693,6 +1674,17 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 ))}
               </nav>
             </div>
+
+            {/* Compact tab description card - single line below title, shared across all tabs */}
+            {activeTab && TAB_DESCRIPTIONS[activeTab] && (
+              <div className="mb-6">
+                <div className="bg-white rounded-lg border border-gray-200 px-4 py-3">
+                  <p className="text-sm text-gray-700 leading-snug line-clamp-1">
+                    {TAB_DESCRIPTIONS[activeTab].description}
+                  </p>
+                </div>
+              </div>
+            )}
           </>
         )}
 

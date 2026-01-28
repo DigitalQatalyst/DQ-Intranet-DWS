@@ -5,9 +5,15 @@ const PODCAST_IMAGE = '/podcasts.jpg';
 
 interface PodcastSeriesCardProps {
   href?: string;
+  title?: string;
+  label?: string;
 }
 
-export function PodcastSeriesCard({ href }: PodcastSeriesCardProps) {
+export function PodcastSeriesCard({
+  href,
+  title = 'Action-Solver Podcast',
+  label = 'Action-Solver Series',
+}: PodcastSeriesCardProps) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       {/* Cover Image Section */}
@@ -15,7 +21,7 @@ export function PodcastSeriesCard({ href }: PodcastSeriesCardProps) {
         {/* Abstract wave-like shapes on the right */}
         <img
           src={PODCAST_IMAGE}
-          alt="Action-Solver Podcast cover art"
+          alt={`${title} cover art`}
           className="h-full w-full object-cover"
           loading="lazy"
         />
@@ -24,7 +30,7 @@ export function PodcastSeriesCard({ href }: PodcastSeriesCardProps) {
         {/* Series Label */}
         <div className="absolute left-3 top-3 z-10">
           <span className="inline-flex items-center rounded-full bg-teal-500/90 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-            Action-Solver Series
+            {label}
           </span>
         </div>
       </div>
@@ -34,7 +40,7 @@ export function PodcastSeriesCard({ href }: PodcastSeriesCardProps) {
         <div className="flex flex-1 flex-col">
           {/* Title */}
           <h3 className="text-lg font-semibold text-gray-900">
-            Action-Solver Podcast
+            {title}
           </h3>
           
           {/* Tagline */}
