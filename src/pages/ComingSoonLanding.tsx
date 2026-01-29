@@ -14,7 +14,7 @@ export default function ComingSoonLanding() {
     function calculateTimeLeft() {
         // Target date: Feb 16, 2026
         // Current metadata year is 2026, so this is the correct target.
-        const targetDate = new Date('2026-02-16T00:00:00');
+        const targetDate = new Date('2026-02-16T07:00:00');
         const now = new Date();
         const difference = targetDate.getTime() - now.getTime();
 
