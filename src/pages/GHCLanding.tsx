@@ -1,659 +1,1075 @@
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
+import { motion, useInView } from 'framer-motion';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Hexagon,
+  RefreshCw,
+  Layers,
+  GraduationCap,
+  BookOpen,
+  ArrowRight,
+  Users,
+  Briefcase,
+  Zap,
+  Target,
+  Heart,
+  User,
+  Shield,
+  GitBranch,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react';
 
-import { FadeInUpOnScroll } from '../components/AnimationUtils';
-import { Header } from '../components/Header';
-import { Footer } from '../components/Footer';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
-interface GHCElement {
+/* -----------------------------------------
+   Types & data
+   ----------------------------------------- */
+
+interface CompetencyCard {
   id: string;
-  number: string;
+  number: number;
+  category: string;
   title: string;
-  subtitle: string;
-  question: string;
-  narrative: string;
-  highlight?: string;
-  supportingLines?: string[];
-  imageSrc?: string;
-  imageAlt?: string;
-  storybookUrl?: string;
+  story: string;
+  problem: string;
+  response: string;
   route: string;
+  icon: LucideIcon;
+  gradient: string; // Tailwind gradient classes
+  accent: string; // Hex or hsl string for highlights
 }
 
-const ghcElements: GHCElement[] = [
+const COMPETENCY_CARDS: CompetencyCard[] = [
   {
-    id: 'dq-vision',
-    number: '01',
-    title: 'The DQ Vision (Purpose)',
-    subtitle: 'Purpose',
-    question: '',
-    narrative: '',
-    highlight: 'Our purpose is to perfect life\'s transactions.',
-    supportingLines: [
-      'At DigitalQatalyst, Vision is the guiding star that connects every decision, project, and innovation across our fast-moving digital ecosystem.',
-      'We believe progress happens when human needs and digital systems are designed to work together intelligently and consistently.',
-      'This shared vision gives direction, aligns our people, and grounds the Golden Honeycomb as the foundation of how DQ operates.',
-    ],
-    imageSrc: 'https://image2url.com/r2/default/images/1768463115775-0daa0af5-bc58-4ea6-a1d4-0f9d34c8d04a.webp',
-    imageAlt: 'Digital globe representing connected systems',
-    storybookUrl: 'https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html',
-    route: '/marketplace/guides/dq-vision'
+    id: 'purpose',
+    number: 1,
+    category: 'Purpose/Vision',
+    title: 'Vision',
+    story:
+      'Work drifts when pressure hits. Vision keeps your direction stable so daily decisions line up with purpose.',
+    problem: 'Teams drift when pressure hits.',
+    response: 'Vision keeps direction stable so your daily decisions stay aligned.',
+    route: '/marketplace/guides/dq-vision',
+    icon: Target,
+    gradient: 'bg-gradient-to-br from-[#131e42] via-[#1d2f64] to-[#e1513b]',
+    accent: '#f0f6ff',
   },
   {
-    id: 'hov',
-    number: '02',
-    title: 'HoV (Culture)',
-    subtitle: 'Culture',
-    question: '',
-    narrative: '',
-    highlight: 'Our culture is something we deliberately build and live.',
-    supportingLines: [
-      'At DigitalQatalyst, culture defines how we behave, decide, and collaborate — especially when work is complex or pressure is high.',
-      'The House of Values provides a shared behavioural system that keeps teams aligned, resilient, and effective across DQ.',
-      'Through self-development, lean working, and value co-creation, we sustain trust, clarity, and performance as one organisation.',
-    ],
-    imageSrc: 'https://image2url.com/r2/default/images/1768466070607-5e1f2ca9-d498-4bb5-afc2-1032992433d1.png',
-    imageAlt: 'House of Values culture visual',
-    storybookUrl: 'https://digital-qatalyst.shorthandstories.com/ad30db59-9684-4331-921d-2e564f9dfe58/index.html',
-    route: '/marketplace/guides/dq-hov'
+    id: 'culture',
+    number: 2,
+    category: 'Culture / House of Values',
+    title: 'House of Values',
+    story:
+      'Misaligned incentives slow decisions. Values give your team a shared rulebook so speed and trust hold under pressure.',
+    problem: 'Decisions slow when incentives split.',
+    response: 'Values give a shared rulebook so teams move fast with trust.',
+    route: '/marketplace/guides/dq-hov',
+    icon: Heart,
+    gradient: 'bg-gradient-to-br from-[#1b2553] via-[#243a75] to-[#e1513b]',
+    accent: '#f0f6ff',
   },
   {
-    id: 'persona',
-    number: '03',
-    title: 'Persona (Identity)',
-    subtitle: 'Identity',
-    question: '',
-    narrative: '',
-    highlight: 'Who we are and how we show up at DQ.',
-    supportingLines: [
-      'At DigitalQatalyst, Persona defines the shared identity of every Qatalyst and the behaviours that consistently drive impact.',
-      'It reflects how we think, act, and collaborate across roles by being purpose-driven, perceptive, proactive, persevering, and precise.',
-      'This common identity creates alignment, strengthens trust, and ensures we deliver value with clarity and consistency.',
-    ],
-    imageSrc: 'https://image2url.com/r2/default/images/1768465956957-738b44df-0d0b-490d-a0f8-1a42fb51784e.png',
-    imageAlt: 'Shared identity and team personas visual',
-    storybookUrl: 'https://digital-qatalyst.shorthandstories.com/30d7e598-4e7c-4492-b070-8001649b4ee4/index.html',
-    route: '/marketplace/guides/dq-persona'
+    id: 'identity',
+    number: 3,
+    category: 'Identity/Persona',
+    title: 'Persona',
+    story:
+      'Roles change weekly. Persona clarifies the value you promise every squad so your impact stays consistent.',
+    problem: 'Roles shift; titles lose meaning.',
+    response: 'Persona makes your contribution clear in any team.',
+    route: '/marketplace/guides/dq-persona',
+    icon: User,
+    gradient: 'bg-gradient-to-br from-[#131e42] via-[#30478a] to-[#f0f6ff]',
+    accent: '#f0f6ff',
   },
   {
-    id: 'agile-tms',
-    number: '04',
-    title: 'Agile TMS (Task Management System)',
-    subtitle: 'Tasks',
-    question: '',
-    narrative: '',
-    highlight: 'How we turn strategy into daily execution.',
-    supportingLines: [
-      'At DigitalQatalyst, Agile TMS structures how ideas, priorities, and plans become clear, actionable work every day.',
-      'It provides rhythm through sprints, check-ins, and reviews, ensuring focus, alignment, and momentum across teams.',
-      'By treating tasks as signals for learning and outcomes, Agile TMS keeps work purposeful, adaptive, and value-driven.',
-    ],
-    imageSrc: 'https://image2url.com/r2/default/images/1768468914162-67cf0162-662c-4e20-a446-07555ee3e728.png',
-    imageAlt: 'Task planning and execution visual',
-    storybookUrl: 'https://digital-qatalyst.shorthandstories.com/30d7e598-4e7c-4492-b070-8001649b4ee4/index.html',
-    route: '/marketplace/guides/dq-agile-tms'
+    id: 'execution',
+    number: 4,
+    category: 'Execution / Agile TMS',
+    title: 'Agile TMS',
+    story:
+      'Strategy shifts faster than backlogs. Agile TMS turns direction into adaptive missions so teams can adjust without losing control.',
+    problem: 'Strategy changes faster than plans.',
+    response: 'Agile TMS turns direction into adaptive missions and cadence.',
+    route: '/marketplace/guides/dq-agile-tms',
+    icon: Zap,
+    gradient: 'bg-gradient-to-br from-[#1f2c63] via-[#2d3f80] to-[#e1513b]',
+    accent: '#f0f6ff',
   },
   {
-    id: 'agile-sos',
-    number: '05',
-    title: 'Agile SoS (Governance)',
-    subtitle: 'Governance',
-    question: '',
-    narrative: '',
-    highlight: 'How we stay aligned while moving fast.',
-    supportingLines: [
-      'At DigitalQatalyst, Agile SoS ensures governance enables progress by keeping strategy, quality, and outcomes connected.',
-      'It provides a coordinated system that allows teams to act quickly while maintaining alignment, discipline, and accountability.',
-      'Through governance, quality, value, and discipline systems, Agile SoS keeps delivery coherent, scalable, and impact-focused.',
-    ],
-    imageSrc: 'https://image2url.com/r2/default/images/1768469269842-aa6b9f6f-fe20-4e0a-ad22-0883c281134b.png',
-    imageAlt: 'Governance and alignment visual',
-    storybookUrl: 'https://digital-qatalyst.shorthandstories.com/cde3e47f-33f6-47c6-8633-3825276d17dd/index.html',
-    route: '/marketplace/guides/dq-agile-sos'
+    id: 'governance',
+    number: 5,
+    category: 'Governance / Agile SoS',
+    title: 'Agile SoS',
+    story:
+      'Traditional governance slows high-speed teams. Agile SoS installs light guardrails, quality signals, and risk rhythms so confidence rises with speed instead of fighting it.',
+    problem: 'Heavy governance stalls speed.',
+    response: 'Agile SoS uses light guardrails and signals so you ship fast with quality.',
+    route: '/marketplace/guides/dq-agile-sos',
+    icon: Shield,
+    gradient: 'bg-gradient-to-br from-[#131e42] via-[#1b2553] to-[#e1513b]',
+    accent: '#f0f6ff',
   },
   {
-    id: 'agile-flows',
-    number: '06',
-    title: 'Agile Flows (Value Streams)',
-    subtitle: 'Value Streams',
-    question: '',
-    narrative: '',
-    highlight: 'How work moves from ideas to impact.',
-    supportingLines: [
-      'At DigitalQatalyst, Agile Flows structures how work travels end-to-end across teams, tools, and delivery stages.',
-      'It connects initiatives from market insight through delivery and outcomes, ensuring visibility, coordination, and shared ownership.',
-      'By organising work as value streams, Agile Flows reduces friction, prevents silos, and enables consistent, timely delivery.',
-    ],
-    imageSrc: 'https://i.ibb.co/6RNRpDR2/Untitled-design9.jpg',
-    imageAlt: 'Agile Flows value streams visual',
-    storybookUrl: 'https://digital-qatalyst.shorthandstories.com/1201a61d-9475-48a1-a228-5342a75e094c/index.html',
-    route: '/marketplace/guides/dq-agile-flows'
+    id: 'flow',
+    number: 6,
+    category: 'Flow / Agile Flows',
+    title: 'Agile Flows',
+    story:
+      'Value evaporates in handoffs. Agile Flows connects intent to outcomes end-to-end so feedback outruns blockers.',
+    problem: 'Work breaks in handoffs.',
+    response: 'Agile Flows connects intent to outcomes so feedback moves faster than blockers.',
+    route: '/marketplace/guides/dq-agile-flows',
+    icon: GitBranch,
+    gradient: 'bg-gradient-to-br from-[#1b2553] via-[#30478a] to-[#e1513b]',
+    accent: '#f0f6ff',
   },
   {
-    id: 'agile-6xd',
-    number: '07',
-    title: 'Agile 6xD (Digital Accelerators - Tools)',
-    subtitle: 'Products',
-    question: '',
-    narrative: '',
-    highlight: 'How we design and deliver digital transformation.',
-    supportingLines: [
-      'At DigitalQatalyst, Agile 6xD is the framework that structures how transformation is designed, built, and scaled.',
-      'It brings together six essential digital perspectives that guide what to change, how to deliver, and where value is created.',
-      'By using Agile 6xD, DQ ensures transformation is repeatable, measurable, and continuously evolving across products and initiatives.',
-    ],
-    imageSrc: 'https://i.ibb.co/Ldz3kGy0/Untitled-design.jpg',
-    imageAlt: 'Agile 6xD products and capabilities visual',
-    route: '/marketplace/guides/dq-agile-6xd'
-  }
+    id: 'transform',
+    number: 7,
+    category: 'Transform / Agile 6xD',
+    title: 'Agile 6xD',
+    story:
+      'Transformations stall after pilots. Agile 6xD makes change repeatable—diagnose, design, deliver, deploy, drive, defend—so evolution becomes normal work.',
+    problem: 'Pilots succeed but change stalls.',
+    response: '6xD makes transformation repeatable—diagnose, design, deliver, deploy, drive, defend.',
+    route: '/marketplace/guides/dq-agile-6xd',
+    icon: Sparkles,
+    gradient: 'bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b]',
+    accent: '#f0f6ff',
+  },
 ];
 
-function SectionImage({ src, alt }: { src?: string; alt?: string }) {
-  if (!src) {
-  return (
-      <div className="w-full max-w-full lg:w-[736px] h-[416px] rounded-2xl border border-white/15 bg-white/10 backdrop-blur-sm" />
-    );
-  }
+const FEATURE_CARDS = [
+  {
+    title: 'Operating DNA',
+    icon: Hexagon,
+    description: 'How you analyse situations, make decisions, and act with clarity under complexity.',
+  },
+  {
+    title: 'Built for Change',
+    icon: RefreshCw,
+    description: 'Designed for work that never stands still, where fixed roles and plans break down.',
+  },
+  {
+    title: 'Seven Elements',
+    icon: Layers,
+    description: 'Seven connected responses forming one unified operating system for modern work.',
+  },
+];
+
+const ACTION_CARDS = [
+  {
+    title: 'Learn by doing',
+    icon: GraduationCap,
+    badge: 'Courses',
+    description: 'Built on real work. Execute inside live projects.',
+    tags: ['Self-paced', 'Real projects', 'Mentorship'],
+    cta: 'Explore Courses',
+    path: '/lms',
+    bg: 'bg-[#f0f6ff]',
+    accent: 'text-[#131e42]',
+    badgeColor: 'text-[#131e42]',
+    iconColor: '#e1513b',
+  },
+  {
+    title: 'See the stories',
+    icon: BookOpen,
+    badge: 'Storybooks',
+    description: 'Real journeys and decisions. GHC through the people who use it.',
+    tags: ['Case studies', 'Behind the scenes', 'Lessons learned'],
+    cta: 'Read Storybooks',
+    path: '/marketplace/guides/dq-ghc',
+    bg: 'bg-[#fde6de]',
+    accent: 'text-[#e1513b]',
+    badgeColor: 'text-[#e1513b]',
+    iconColor: '#e1513b',
+  },
+  {
+    title: 'Join the work',
+    icon: Users,
+    badge: 'Programs',
+    description: 'Practise competencies on live challenges.',
+    tags: ['Cohort-based', 'Live challenges', 'Community'],
+    cta: 'Join a Program',
+    path: '/marketplace',
+    bg: 'bg-[#e6ebff]',
+    accent: 'text-[#131e42]',
+    badgeColor: 'text-[#131e42]',
+    iconColor: '#131e42',
+  },
+  {
+    title: 'See it in action',
+    icon: Briefcase,
+    badge: 'Workspace',
+    description: 'Tools, rituals, and daily work inside DQ.',
+    tags: ['Templates', 'Rituals', 'Best practices'],
+    cta: 'Explore Workspace',
+    path: '/',
+    bg: 'bg-white',
+    accent: 'text-[#131e42]',
+    badgeColor: 'text-[#131e42]',
+    iconColor: '#e1513b',
+  },
+];
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: (i: number) => ({
+    opacity: 1,
+    transition: { staggerChildren: 0.12, delayChildren: i * 0.05 },
+  }),
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 },
+};
+
+/* -----------------------------------------
+   Honeycomb SVG background
+   ----------------------------------------- */
+
+function HoneycombPattern() {
+  const rows = 6;
+  const cols = 10;
+  const size = 48;
+  const width = size * Math.sqrt(3);
+  const height = size * 2;
+  const offsetX = width / 2;
+  const offsetY = height / 2;
 
   return (
-    <div className="w-full max-w-full lg:w-[736px] h-[416px] overflow-hidden rounded-2xl border border-white/15 bg-white/10 shadow-lg">
-      <img src={src} alt={alt ?? ''} className="h-full w-full object-cover" loading="lazy" />
+    <svg
+      className="absolute inset-0 w-full h-full opacity-[0.4]"
+      viewBox={`0 0 ${cols * width + offsetX} ${rows * height + offsetY}`}
+      preserveAspectRatio="xMidYMid slice"
+      aria-hidden
+    >
+      <defs>
+        <linearGradient id="ghc-hex-fill" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="hsl(0,0%,70%)" stopOpacity="0.06" />
+          <stop offset="100%" stopColor="hsl(0,0%,70%)" stopOpacity="0.02" />
+        </linearGradient>
+        <linearGradient id="ghc-hex-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="hsl(0,0%,60%)" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="hsl(0,0%,60%)" stopOpacity="0.08" />
+        </linearGradient>
+      </defs>
+      <g fill="url(#ghc-hex-fill)" stroke="url(#ghc-hex-stroke)" strokeWidth="1">
+        {Array.from({ length: rows }).map((_, row) =>
+          Array.from({ length: cols }).map((_, col) => {
+            const x = col * width + (row % 2) * (width / 2) + offsetX;
+            const y = row * (height * 0.75) + offsetY;
+            const points = [
+              [x, y - size],
+              [x + (size * Math.sqrt(3)) / 2, y - size / 2],
+              [x + (size * Math.sqrt(3)) / 2, y + size / 2],
+              [x, y + size],
+              [x - (size * Math.sqrt(3)) / 2, y + size / 2],
+              [x - (size * Math.sqrt(3)) / 2, y - size / 2],
+            ]
+              .map(([px, py]) => `${px},${py}`)
+              .join(' ');
+            return <polygon key={`${row}-${col}`} points={points} />;
+          })
+        )}
+      </g>
+    </svg>
+  );
+}
+
+/* -----------------------------------------
+   Floating orbs (framer-motion)
+   ----------------------------------------- */
+
+function FloatingOrbs() {
+  const orbs = [
+    { size: 60, x: '12%', y: '18%', delay: 0, duration: 8 },
+    { size: 45, x: '85%', y: '22%', delay: 1, duration: 10 },
+    { size: 55, x: '72%', y: '58%', delay: 2, duration: 9 },
+    { size: 40, x: '22%', y: '68%', delay: 0.5, duration: 11 },
+    { size: 50, x: '48%', y: '38%', delay: 1.5, duration: 7 },
+  ];
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
+      {orbs.map((orb, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full bg-[#d4a574] opacity-[0.15]"
+          style={{
+            width: orb.size,
+            height: orb.size,
+            left: orb.x,
+            top: orb.y,
+          }}
+          animate={{
+            x: [0, 20, -15, 0],
+            y: [0, -18, 12, 0],
+            scale: [1, 1.08, 1],
+          }}
+          transition={{
+            duration: orb.duration,
+            repeat: Infinity,
+            delay: orb.delay,
+          }}
+        />
+      ))}
     </div>
   );
 }
 
+/* -----------------------------------------
+   Main component
+   ----------------------------------------- */
+
 export function GHCLanding() {
   const navigate = useNavigate();
-  const handleExploreElement = (route: string) => {
-    navigate(route);
-  };
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [isCarouselPaused, setCarouselPaused] = useState(false);
+
+  const handleEnterHoneycomb = useCallback(() => {
+    navigate('/marketplace/guides/dq-ghc');
+  }, [navigate]);
+
+  const handleReadStorybook = useCallback(() => {
+    const el = document.getElementById('ghc-what');
+    el?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
+  const scrollToCarousel = useCallback(() => {
+    document.getElementById('ghc-carousel')?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
+  const scrollToNext = useCallback(() => {
+    if (!carouselRef.current) return;
+    const cardWidth = carouselRef.current.scrollWidth / COMPETENCY_CARDS.length;
+    const nextIndex = Math.min(carouselIndex + 1, COMPETENCY_CARDS.length - 1);
+    carouselRef.current.scrollTo({ left: nextIndex * cardWidth, behavior: 'smooth' });
+    setCarouselIndex(nextIndex);
+  }, [carouselIndex]);
+
+  const scrollToPrev = useCallback(() => {
+    if (!carouselRef.current) return;
+    const cardWidth = carouselRef.current.scrollWidth / COMPETENCY_CARDS.length;
+    const nextIndex = Math.max(carouselIndex - 1, 0);
+    carouselRef.current.scrollTo({ left: nextIndex * cardWidth, behavior: 'smooth' });
+    setCarouselIndex(nextIndex);
+  }, [carouselIndex]);
+
+  const handleCarouselScroll = useCallback(() => {
+    if (!carouselRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+    const cardWidth = scrollWidth / COMPETENCY_CARDS.length;
+    const index = Math.round(scrollLeft / cardWidth);
+    setCarouselIndex(Math.min(index, COMPETENCY_CARDS.length - 1));
+  }, []);
+
+  const goToSlide = useCallback((index: number) => {
+    if (!carouselRef.current) return;
+    const cardWidth = carouselRef.current.scrollWidth / COMPETENCY_CARDS.length;
+    carouselRef.current.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
+    setCarouselIndex(index);
+  }, []);
+
+  useEffect(() => {
+    if (isCarouselPaused) return;
+
+    const id = window.setInterval(() => {
+      setCarouselIndex((prev) => {
+        const nextIndex = (prev + 1) % COMPETENCY_CARDS.length;
+        const track = carouselRef.current;
+
+        if (track) {
+          const cardWidth = track.scrollWidth / COMPETENCY_CARDS.length;
+          track.scrollTo({ left: nextIndex * cardWidth, behavior: 'smooth' });
+        }
+
+        return nextIndex;
+      });
+    }, 5000);
+
+    return () => window.clearInterval(id);
+  }, [isCarouselPaused]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          33% { transform: translateY(-20px) translateX(10px); }
-          66% { transform: translateY(10px) translateX(-10px); }
-        }
-        @keyframes rotate {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        @keyframes honeycombDrift {
-          0% { background-position: 0% 0%; }
-          50% { background-position: 100% 60%; }
-          100% { background-position: 0% 0%; }
-        }
-        @keyframes gradientDrift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        @keyframes floatSlow {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-          25% { transform: translateY(-30px) translateX(15px) rotate(5deg); }
-          50% { transform: translateY(-15px) translateX(-15px) rotate(-5deg); }
-          75% { transform: translateY(15px) translateX(10px) rotate(3deg); }
-        }
-        @keyframes rotateSlow {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.1); }
-        }
-        @keyframes hexagonFloat {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-          33% { transform: translateY(-25px) translateX(20px) rotate(60deg); }
-          66% { transform: translateY(15px) translateX(-15px) rotate(-60deg); }
-        }
-        @keyframes honeycombPulse {
-          0%, 100% { opacity: 0.2; transform: scale(1); }
-          50% { opacity: 0.4; transform: scale(1.05); }
-        }
-        @keyframes waveFlow {
-          0% { transform: translateX(0) translateY(0); }
-          25% { transform: translateX(20px) translateY(-10px); }
-          50% { transform: translateX(0) translateY(-20px); }
-          75% { transform: translateX(-20px) translateY(-10px); }
-          100% { transform: translateX(0) translateY(0); }
-        }
-      `}</style>
+    <div className="ghc-page flex min-h-screen flex-col bg-[hsl(var(--ghc-background))]">
       <Header />
 
-      <main className="flex-grow">
-        {/* HERO — Light Abstract with Honeycomb Language */}
-        <section className="relative w-full overflow-hidden flex flex-col isolate h-auto md:h-[600px] lg:h-[700px] pt-24 pb-20 md:pt-24 md:pb-20">
-          {/* Animated DWS Gradient Base */}
-          <div 
-            className="absolute inset-0 z-0"
-            style={{
-              background: 'linear-gradient(135deg, #030F35 0%, #1A2E6E 25%, #030F35 50%, #1A2E6E 75%, #030F35 100%)',
-              backgroundSize: '300% 300%',
-              animation: 'gradientDrift 20s ease infinite'
-            }}
-          />
+      {/* -----------------------------------------
+          1. HERO SECTION — match reference hero UI
+          ----------------------------------------- */}
+      <section
+        className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden pt-24 pb-16"
+        style={{
+          background: 'linear-gradient(135deg, #131e42 0%, #1b2553 45%, #e1513b 100%)',
+        }}
+      >
+        <div className="absolute inset-0 z-0">
+          <HoneycombPattern />
+        </div>
+        <FloatingOrbs />
 
-          {/* Animated Honeycomb Pattern Grid */}
-          <div className="absolute inset-0 opacity-[0.15] z-[1]">
-            <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="honeycombGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.4" />
-                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.2" />
-                </linearGradient>
-                <linearGradient id="honeycombGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#FB5535" stopOpacity="0.25" />
-                </linearGradient>
-              </defs>
-              
-              {/* Animated Hexagonal Grid */}
-              <g stroke="url(#honeycombGradient1)" strokeWidth="1.5" fill="none" opacity="0.5">
-                {[...Array(8)].map((_, i) => (
-                  [...Array(6)].map((_, j) => {
-                    const x = 200 + i * 240;
-                    const y = 150 + j * 180;
-                    const size = 60;
-                    const points = [
-                      `${x},${y - size}`,
-                      `${x + size * 0.866},${y - size * 0.5}`,
-                      `${x + size * 0.866},${y + size * 0.5}`,
-                      `${x},${y + size}`,
-                      `${x - size * 0.866},${y + size * 0.5}`,
-                      `${x - size * 0.866},${y - size * 0.5}`
-                    ].join(' ');
-                    return (
-                      <polygon
-                        key={`hex-${i}-${j}`}
-                        points={points}
-                        style={{
-                          animation: `honeycombPulse ${8 + (i + j) * 0.5}s ease-in-out infinite`,
-                          animationDelay: `${(i + j) * 0.3}s`
-                        }}
-                      />
-                    );
-                  })
-                ))}
-              </g>
-            </svg>
-          </div>
-
-          {/* Animated Hexagonal Shapes */}
-          <div className="absolute inset-0 z-[2] pointer-events-none">
-            <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="hexGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#1A2E6E" stopOpacity="0.25" />
-                </linearGradient>
-                <linearGradient id="hexGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#1A2E6E" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#030F35" stopOpacity="0.2" />
-                </linearGradient>
-                <filter id="hexGlow">
-                  <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              
-              {/* Large Floating Hexagons */}
-              <g transform="translate(400, 300)" style={{ animation: 'hexagonFloat 18s ease-in-out infinite' }} filter="url(#hexGlow)">
-                <polygon
-                  points="0,-100 87,-50 87,50 0,100 -87,50 -87,-50"
-                  fill="url(#hexGradient1)"
-                  opacity="0.4"
-                />
-                <polygon
-                  points="0,-70 61,-35 61,35 0,70 -61,35 -61,-35"
-                  fill="none"
-                  stroke="url(#hexGradient2)"
-                  strokeWidth="2"
-                  opacity="0.5"
-                />
-              </g>
-              
-              <g transform="translate(1400, 500)" style={{ animation: 'hexagonFloat 22s ease-in-out infinite reverse', animationDelay: '3s' }} filter="url(#hexGlow)">
-                <polygon
-                  points="0,-120 104,-60 104,60 0,120 -104,60 -104,-60"
-                  fill="url(#hexGradient2)"
-                  opacity="0.35"
-                />
-                <polygon
-                  points="0,-85 74,-42.5 74,42.5 0,85 -74,42.5 -74,-42.5"
-                  fill="none"
-                  stroke="url(#hexGradient1)"
-                  strokeWidth="2"
-                  opacity="0.45"
-                />
-              </g>
-              
-              <g transform="translate(900, 700)" style={{ animation: 'hexagonFloat 20s ease-in-out infinite', animationDelay: '5s' }} filter="url(#hexGlow)">
-                <polygon
-                  points="0,-90 78,-45 78,45 0,90 -78,45 -78,-45"
-                  fill="url(#hexGradient1)"
-                  opacity="0.3"
-                />
-              </g>
-              
-              {/* Rotating Hexagon Rings */}
-              <g transform="translate(1200, 250)" style={{ animation: 'rotateSlow 35s linear infinite' }} filter="url(#hexGlow)">
-                <polygon
-                  points="0,-80 69,-40 69,40 0,80 -69,40 -69,-40"
-                  fill="none"
-                  stroke="url(#hexGradient1)"
-                  strokeWidth="2.5"
-                  opacity="0.4"
-                />
-                <polygon
-                  points="0,-55 48,-27.5 48,27.5 0,55 -48,27.5 -48,-27.5"
-                  fill="none"
-                  stroke="url(#hexGradient2)"
-                  strokeWidth="2"
-                  opacity="0.5"
-                />
-              </g>
-            </svg>
-          </div>
-
-          {/* Animated Connecting Lines (Honeycomb Network) */}
-          <div className="absolute inset-0 z-[2] pointer-events-none">
-            <svg className="w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-              <defs>
-                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#FB5535" stopOpacity="0.3" />
-                  <stop offset="50%" stopColor="#1A2E6E" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#FB5535" stopOpacity="0.3" />
-                </linearGradient>
-              </defs>
-              
-              {/* Network Connection Lines */}
-              <g stroke="url(#lineGradient)" strokeWidth="2" fill="none" opacity="0.4">
-                <path
-                  d="M 400 300 L 600 400 L 800 350 L 1000 450 L 1200 400"
-                  style={{
-                    animation: 'waveFlow 25s ease-in-out infinite',
-                    strokeDasharray: '8,8'
-                  }}
-                />
-                <path
-                  d="M 500 500 L 700 600 L 900 550 L 1100 650 L 1300 600"
-                  style={{
-                    animation: 'waveFlow 28s ease-in-out infinite reverse',
-                    animationDelay: '2s',
-                    strokeDasharray: '10,10'
-                  }}
-                />
-                <path
-                  d="M 300 600 L 500 700 L 700 650 L 900 750 L 1100 700"
-                  style={{
-                    animation: 'waveFlow 30s ease-in-out infinite',
-                    animationDelay: '4s',
-                    strokeDasharray: '12,12'
-                  }}
-                />
-              </g>
-              
-              {/* Connection Nodes */}
-              <g opacity="0.5">
-                <circle cx="400" cy="300" r="6" fill="#FB5535" style={{ animation: 'pulse 3s ease-in-out infinite' }} />
-                <circle cx="600" cy="400" r="6" fill="#1A2E6E" style={{ animation: 'pulse 3.5s ease-in-out infinite', animationDelay: '0.5s' }} />
-                <circle cx="800" cy="350" r="6" fill="#FB5535" style={{ animation: 'pulse 4s ease-in-out infinite', animationDelay: '1s' }} />
-                <circle cx="1000" cy="450" r="6" fill="#1A2E6E" style={{ animation: 'pulse 3.2s ease-in-out infinite', animationDelay: '1.5s' }} />
-                <circle cx="1200" cy="400" r="6" fill="#FB5535" style={{ animation: 'pulse 3.8s ease-in-out infinite', animationDelay: '2s' }} />
-              </g>
-            </svg>
-          </div>
-
-          {/* Animated Floating Particles (Honeycomb-inspired) */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
-            {[...Array(15)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute"
-                style={{
-                  width: `${40 + (i % 3) * 15}px`,
-                  height: `${40 + (i % 3) * 15}px`,
-                  left: `${3 + (i * 6.5)}%`,
-                  top: `${8 + (i % 6) * 15}%`,
-                  background: i % 4 === 0 
-                    ? 'radial-gradient(circle, rgba(251, 85, 53, 0.5) 0%, rgba(251, 85, 53, 0.2) 50%, transparent 80%)' 
-                    : 'radial-gradient(circle, rgba(26, 46, 110, 0.4) 0%, rgba(26, 46, 110, 0.15) 50%, transparent 80%)',
-                  clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                  animation: `floatSlow ${14 + i * 1.5}s ease-in-out infinite`,
-                  animationDelay: `${i * 0.6}s`,
-                  filter: 'blur(15px)',
-                  boxShadow: i % 4 === 0 
-                    ? '0 0 50px rgba(251, 85, 53, 0.4)' 
-                    : '0 0 50px rgba(26, 46, 110, 0.3)',
-                }}
-              />
-            ))}
-                </div>
-
-          {/* Pulsing Radial Glows */}
-          <div className="absolute inset-0 z-[1] pointer-events-none">
-            <div
-              className="absolute rounded-full"
-              style={{
-                width: '800px',
-                height: '800px',
-                left: '15%',
-                top: '25%',
-                background: 'radial-gradient(circle, rgba(251, 85, 53, 0.25) 0%, transparent 70%)',
-                filter: 'blur(100px)',
-                animation: 'pulse 9s ease-in-out infinite'
-              }}
-            />
-            <div
-              className="absolute rounded-full"
-              style={{
-                width: '750px',
-                height: '750px',
-                right: '20%',
-                bottom: '20%',
-                background: 'radial-gradient(circle, rgba(26, 46, 110, 0.3) 0%, transparent 70%)',
-                filter: 'blur(90px)',
-                animation: 'pulse 11s ease-in-out infinite',
-                animationDelay: '3s'
-              }}
-            />
-            <div
-              className="absolute rounded-full"
-              style={{
-                width: '600px',
-                height: '600px',
-                left: '50%',
-                top: '50%',
-                transform: 'translate(-50%, -50%)',
-                background: 'radial-gradient(circle, rgba(251, 85, 53, 0.15) 0%, transparent 65%)',
-                filter: 'blur(80px)',
-                animation: 'pulse 10s ease-in-out infinite',
-                animationDelay: '5s'
-              }}
-            />
-              </div>
-
-          {/* Animated Light Sweeps */}
-          <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
-            <div
-              className="absolute w-full h-full"
-              style={{
-                background: 'linear-gradient(60deg, transparent 20%, rgba(251, 85, 53, 0.1) 50%, transparent 80%)',
-                animation: 'rotate 30s linear infinite',
-                transformOrigin: 'center center',
-                opacity: 0.7
-              }}
-            />
-            <div
-              className="absolute w-full h-full"
-              style={{
-                background: 'linear-gradient(-60deg, transparent 20%, rgba(26, 46, 110, 0.1) 50%, transparent 80%)',
-                animation: 'rotate 35s linear infinite reverse',
-                transformOrigin: 'center center',
-                opacity: 0.6,
-                animationDelay: '2s'
-              }}
-            />
-            </div>
-
-          {/* High Contrast Area on Left for Text Readability */}
-          <div
-            className="absolute inset-0 z-[1]"
-            style={{
-              background: 'radial-gradient(ellipse 1000px 130% at 0% 50%, rgba(3, 15, 53, 0.7) 0%, rgba(3, 15, 53, 0.35) 50%, transparent 80%)',
-            }}
-          />
-
-          {/* Content */}
-          <div className="relative z-10 flex-1 flex items-center">
-            <div className="container mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-20">
-              <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 items-center">
-                <FadeInUpOnScroll>
-                    <div className="w-full max-w-4xl">
-                      <h1
-                        className="text-[76px] text-white mb-8 md:mb-10 text-left font-sans"
-                        style={{ 
-                          fontWeight: 700, 
-                          lineHeight: 1.15,
-                          letterSpacing: '-0.01em'
-                        }}
-                      >
-                        DQ Golden Honeycomb of Competencies (GHC)
-                  </h1>
-
-                      <div className="mb-12 max-w-4xl">
-                        <p 
-                          className="text-xl md:text-2xl text-white/90 leading-[2.2] text-left font-light"
-                          style={{
-                            fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
-                          }}
-                        >
-                          The DQ Golden Honeycomb of Competencies (GHC) is a master framework a Framework of Frameworks that articulates the complete DNA of DigitalQatalyst.
-                        </p>
-                      </div>
-                    </div>
-                </FadeInUpOnScroll>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Scroll-down arrow */}
-          <button
-            type="button"
-            onClick={() => {
-              const el = document.getElementById('ghc-elements');
-              if (el) {
-                el.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-            className="absolute bottom-6 left-1/2 z-20 flex h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-white/40 bg-white/10 text-white shadow-md backdrop-blur-sm transition-all duration-200 hover:bg-white/20 hover:border-white/80 hover:shadow-lg"
-            aria-label="Scroll to GHC elements"
+        <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-8 text-center max-w-4xl">
+          <motion.div
+            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/20 border border-[#f0f6ff]/40 shadow-sm px-4 py-1.5 text-sm text-[#f0f6ff] mb-6"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <ChevronDown className="h-5 w-5" />
-          </button>
-        </section>
-
-        {/* ELEMENTS — Storytelling Chapters with Alternating Layout */}
-        {ghcElements.map((element, index) => {
-          const isEven = index % 2 === 0;
-
-          return (
-            <section
-              key={element.id}
-              id={index === 0 ? 'ghc-elements' : undefined}
-              className={`py-16 md:py-24 ${isEven ? 'bg-white' : 'bg-[#F7FAFF]'}`}
+            <Sparkles className="h-4 w-4 text-[#f0f6ff]" />
+            <span>Welcome to the Golden Honeycomb</span>
+          </motion.div>
+          <motion.h1
+            className="ghc-font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            The world of work is{' '}
+            <span className="text-[#e1513b] underline decoration-[#e1513b] decoration-4 underline-offset-8">
+              broken.
+            </span>
+          </motion.h1>
+          <motion.p
+            className="text-lg sm:text-xl text-white/85 mb-10 max-w-2xl mx-auto leading-relaxed"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+          >
+            DQ built a <span className="font-semibold text-white">new operating system</span>. Every competency is a{' '}
+            <span className="sm:hidden">response.</span>
+            <span className="hidden sm:inline">
+              <br />
+              response.
+            </span>
+          </motion.p>
+          <motion.div
+            className="flex flex-wrap gap-4 justify-center mb-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <button
+              type="button"
+              onClick={handleEnterHoneycomb}
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-white bg-[#e1513b] hover:bg-[#c84330] transition-colors shadow-md"
             >
-              <div className="container mx-auto px-4 md:px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
-                  <FadeInUpOnScroll>
-                    <div className={`grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start ${!isEven ? 'lg:flex-row-reverse' : ''}`}>
-                      <div className={isEven ? 'lg:order-1' : 'lg:order-2'}>
-                        <SectionImage src={element.imageSrc} alt={element.imageAlt} />
-                      </div>
+              <Sparkles className="h-5 w-5" />
+              Start Your Journey
+            </button>
+            <button
+              type="button"
+              onClick={handleReadStorybook}
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold border border-[#f0f6ff]/50 text-[#f0f6ff] bg-white/10 hover:bg-white/15 transition-colors shadow-sm"
+            >
+              <BookOpen className="h-5 w-5 text-white" />
+              Read the Storybook
+              <ArrowRight className="h-5 w-5 text-white" />
+            </button>
+          </motion.div>
+          <motion.div
+            className="flex items-center justify-center gap-8 text-sm text-white/80 mt-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45 }}
+          >
+            <div className="flex items-baseline gap-2">
+              <span className="text-white font-semibold text-lg">7</span>
+              <span>Competencies</span>
+            </div>
+            <span className="h-5 w-px bg-white/40" aria-hidden />
+            <div className="flex items-baseline gap-2">
+              <span className="text-white font-semibold text-lg">1</span>
+              <span>System</span>
+            </div>
+            <span className="h-5 w-px bg-white/40" aria-hidden />
+            <div className="flex items-baseline gap-2">
+              <span className="text-white font-semibold text-lg">∞</span>
+              <span>Impact</span>
+            </div>
+          </motion.div>
+        </div>
 
-                      <div className={`${isEven ? 'lg:order-2' : 'lg:order-1'} flex flex-col justify-center max-w-2xl`}>
-                        <div className="mb-6">
-                          <h2 className="text-[36px] font-bold text-[#030F35] mb-6 leading-tight">
-                            {element.title}
-                          </h2>
-                          {element.question ? (
-                          <p className="text-2xl md:text-3xl font-semibold text-[#FB5535] mb-8 leading-tight">
-                            {element.question}
-                          </p>
-                          ) : null}
-                        </div>
+        <motion.button
+          type="button"
+          onClick={scrollToCarousel}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-[#b0b0b0] hover:text-[#2c2c2c] transition-colors"
+          aria-label="Scroll to next section"
+        >
+          <span className="text-[10px] uppercase tracking-[0.35em] font-medium">DISCOVER</span>
+          <motion.span animate={{ y: [0, 6, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+            <ChevronDown className="h-5 w-5" />
+          </motion.span>
+        </motion.button>
+      </section>
 
-                        <div className="mb-10 space-y-4">
-                          {element.highlight ? (
-                            <div className="border-l-4 border-[#FB5535] pl-4">
-                              <p className="text-xl md:text-2xl font-semibold text-[#030F35] max-w-2xl">
-                                {element.highlight}
-                              </p>
-                            </div>
-                          ) : null}
-                          {element.supportingLines ? (
-                            <div className="space-y-2">
-                              {element.supportingLines.map((line) => (
-                                <p key={line} className="text-lg md:text-xl leading-relaxed text-gray-700 max-w-2xl">
-                                  {line}
-                                </p>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-lg md:text-xl leading-relaxed text-gray-700 max-w-2xl">
-                              {element.narrative}
-                            </p>
-                          )}
-                        </div>
+      {/* -----------------------------------------
+          2. WHAT IS GHC SECTION
+          ----------------------------------------- */}
+      <SectionWhatIsGHC onReadStorybook={handleEnterHoneycomb} />
 
-                        <div className="flex flex-col sm:flex-row gap-4">
-                          <button
-                            onClick={() => handleExploreElement(element.route)}
-                            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#FB5535] text-white font-semibold rounded-lg hover:bg-[#E95139] transition-all duration-200 group shadow-md"
-                          >
-                            <span>Explore Course</span>
-                          </button>
-                          {element.storybookUrl ? (
-                            <a
-                              href={element.storybookUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-[#030F35] text-[#030F35] font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200 group"
-                            >
-                              <span>Read Storybook</span>
-                            </a>
-                          ) : (
-                            <button
-                              type="button"
-                              disabled
-                              title="Storybook coming soon"
-                              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-[#030F35]/40 text-[#030F35]/50 font-semibold rounded-lg cursor-not-allowed"
-                            >
-                              <span>Read Storybook</span>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </FadeInUpOnScroll>
-                </div>
-              </div>
-            </section>
-          );
-        })}
+      {/* -----------------------------------------
+          3. SEVEN RESPONSES CAROUSEL
+          ----------------------------------------- */}
+      <SectionCarousel
+        carouselRef={carouselRef}
+        carouselIndex={carouselIndex}
+        onPrev={scrollToPrev}
+        onNext={scrollToNext}
+        onScroll={handleCarouselScroll}
+        onDotClick={goToSlide}
+        onPause={() => setCarouselPaused(true)}
+        onResume={() => setCarouselPaused(false)}
+        onExploreMarketplace={() => navigate('/marketplace')}
+      />
 
-      </main>
+      {/* -----------------------------------------
+          4. TAKE ACTION SECTION
+          ----------------------------------------- */}
+      <SectionTakeAction navigate={navigate} />
+
+      {/* -----------------------------------------
+          5. FINAL CTA SECTION
+          ----------------------------------------- */}
+      <SectionFinalCTA navigate={navigate} />
 
       <Footer isLoggedIn={false} />
     </div>
+  );
+}
+
+/* -----------------------------------------
+   Section: What is GHC
+   ----------------------------------------- */
+
+interface SectionWhatIsGHCProps {
+  onReadStorybook: () => void;
+}
+
+function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+
+  return (
+    <section id="ghc-what" ref={ref} className="py-20 md:py-28 bg-[#f0f6ff]">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8">
+        <motion.div
+          className="text-center max-w-4xl mx-auto"
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          variants={containerVariants}
+          custom={0}
+        >
+          <motion.p
+            variants={itemVariants}
+            className="text-xs uppercase tracking-[0.2em] font-medium text-[#e1513b] mb-4"
+          >
+            THE FOUNDATION
+          </motion.p>
+          <motion.h2
+            variants={itemVariants}
+            className="ghc-font-display text-4xl md:text-6xl font-bold text-[#131e42] mb-5"
+          >
+            What is the Golden Honeycomb?
+          </motion.h2>
+          <motion.p
+            variants={itemVariants}
+            className="text-[#4a5678] text-base md:text-lg leading-relaxed max-w-3xl mx-auto"
+          >
+            Clarity. Adaptability. Alignment. Execution at scale. Not a framework to memorise — a system
+            <br />
+            you live inside.
+          </motion.p>
+
+        </motion.div>
+
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-14 max-w-6xl mx-auto"
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          variants={containerVariants}
+          custom={1}
+        >
+          {FEATURE_CARDS.map((card) => (
+            <motion.div
+              key={card.title}
+              variants={itemVariants}
+              whileHover={{ y: -6 }}
+              className="rounded-3xl bg-white border border-[#e0e7ff] shadow-sm hover:shadow-md transition-shadow text-center px-10 py-10"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-[#ffe7e0] flex items-center justify-center mx-auto mb-6">
+                <card.icon className="h-6 w-6 text-[#e1513b]" />
+              </div>
+              <h3 className="ghc-font-display text-2xl font-semibold text-[#131e42] mb-4">
+                {card.title}
+              </h3>
+              <p className="text-[#4a5678] text-sm leading-relaxed max-w-[22rem] mx-auto">
+                {card.description}
+              </p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <motion.div
+          variants={itemVariants}
+          className="mt-10 flex justify-center max-w-6xl mx-auto px-2"
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
+          <button
+            type="button"
+            onClick={onReadStorybook}
+            className="inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold border border-[#d9e3ff] text-[#131e42] bg-white hover:bg-[#e8eefc] transition-colors shadow-sm"
+          >
+            <BookOpen className="h-5 w-5" />
+            Read the full GHC storybook
+            <ArrowRight className="h-5 w-5" />
+          </button>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* -----------------------------------------
+   Section: Seven Responses Carousel
+   ----------------------------------------- */
+
+interface SectionCarouselProps {
+  carouselRef: React.RefObject<HTMLDivElement | null>;
+  carouselIndex: number;
+  onPrev: () => void;
+  onNext: () => void;
+  onScroll: () => void;
+  onDotClick: (index: number) => void;
+  onPause: () => void;
+  onResume: () => void;
+  onExploreMarketplace: () => void;
+}
+
+function SectionCarousel({
+  carouselRef,
+  carouselIndex,
+  onPrev,
+  onNext,
+  onScroll,
+  onDotClick,
+  onPause,
+  onResume,
+  onExploreMarketplace,
+}: SectionCarouselProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.1 });
+
+  return (
+    <section
+      id="ghc-carousel"
+      ref={ref}
+      className="relative py-24 bg-white"
+    >
+      <div className="container mx-auto px-4 md:px-6 lg:px-10">
+        <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
+          <motion.span
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#fde6de] text-[#e1513b] shadow-sm"
+            initial={{ opacity: 0, y: 12 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.35 }}
+          >
+            THE FRAMEWORK
+          </motion.span>
+          <motion.h2
+            className="ghc-font-display text-4xl md:text-5xl font-semibold text-[#131e42] mt-4 max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 16 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.45, delay: 0.1 }}
+          >
+            Seven responses
+          </motion.h2>
+          <motion.p
+            className="text-[#4a5678] max-w-2xl mx-auto mt-3 text-lg md:text-xl"
+            initial={{ opacity: 0, y: 14 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.45, delay: 0.2 }}
+          >
+            Each exists because something in traditional work stopped working. Problem → response.
+          </motion.p>
+        </motion.div>
+
+        <div className="relative">
+          <div className="absolute inset-y-10 left-0 right-0 mx-auto max-w-6xl pointer-events-none">
+            <div className="h-full bg-gradient-to-r from-white via-transparent to-white opacity-90" />
+          </div>
+
+          <div className="absolute right-3 sm:right-6 -top-10 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onPrev}
+              className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
+              aria-label="Previous competency"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={onNext}
+              className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
+              aria-label="Next competency"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div
+            ref={carouselRef}
+            onScroll={onScroll}
+            onMouseEnter={onPause}
+            onMouseLeave={onResume}
+            onTouchStart={onPause}
+            onTouchEnd={onResume}
+            className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory py-6 px-6 scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {COMPETENCY_CARDS.map((card, index) => (
+              <motion.div
+                key={card.id}
+                className="flex-shrink-0 min-w-[calc(100vw-48px)] md:min-w-[760px] lg:min-w-[900px] max-w-[900px] snap-center"
+                initial={{ opacity: 0, y: 30 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.45, delay: index * 0.08 + 0.08 }}
+              >
+                <CompetencyCard card={card} index={index} />
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="flex justify-center gap-2 mt-10">
+            {COMPETENCY_CARDS.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => onDotClick(i)}
+                className={`transition-all duration-300 rounded-full ${
+                  i === carouselIndex
+                    ? 'w-6 h-2 bg-[#e1513b]'
+                    : 'w-2 h-2 bg-[#131e42]/50 hover:bg-[#131e42]/70'
+                }`}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        <motion.div
+          className="text-center mt-8"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.25 }}
+        >
+          <button
+            type="button"
+            onClick={onExploreMarketplace}
+            className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
+          >
+            Explore all 7 elements in the Marketplace
+            <ArrowRight className="h-5 w-5" />
+          </button>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+interface CompetencyCardProps {
+  card: CompetencyCard;
+  index: number;
+}
+
+function CompetencyCard({ card, index }: CompetencyCardProps) {
+  const navigate = useNavigate();
+  const Icon = card.icon;
+  const [open, setOpen] = useState(false);
+  const patternId = `ghc-pattern-${card.id}`;
+
+  return (
+    <motion.article
+      className={`relative overflow-hidden rounded-3xl min-h-[400px] md:min-h-[430px] w-full cursor-pointer text-white shadow-[0_18px_40px_rgba(19,30,66,0.18)] hover:shadow-[0_24px_48px_rgba(19,30,66,0.24)] transition-shadow ${card.gradient}`}
+      whileHover={{ scale: 1.01 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+    >
+      <div className="absolute inset-0">
+        <svg className="w-full h-full opacity-12" aria-hidden>
+          <defs>
+            <pattern id={patternId} x="0" y="0" width="64" height="32" patternUnits="userSpaceOnUse">
+              <rect x="6" y="6" width="36" height="14" rx="7" fill="white" fillOpacity="0.22" />
+              <rect x="26" y="18" width="36" height="14" rx="7" fill="white" fillOpacity="0.16" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill={`url(#${patternId})`} />
+        </svg>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
+      </div>
+
+      <div className="absolute right-8 top-7 text-3xl font-display font-medium tracking-tight text-white/20">
+        {String(card.number).padStart(2, '0')}
+      </div>
+
+      <div className="relative flex h-full flex-col justify-between gap-5 p-8 md:p-12 z-10">
+        <div className="flex items-center justify-between">
+          <motion.span
+            className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] backdrop-blur-sm"
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.08 + 0.2 }}
+          >
+            <Icon className="h-4 w-4" />
+            {card.category}
+          </motion.span>
+        </div>
+
+        <div className="space-y-3 max-w-3xl">
+          <h3 className="ghc-font-display text-3xl md:text-4xl font-semibold leading-tight drop-shadow-sm">
+            {card.title}
+          </h3>
+          <p className="text-base md:text-lg leading-relaxed text-white/90">{card.story}</p>
+        </div>
+
+        <div className="mt-auto space-y-4">
+          <button
+            type="button"
+            onClick={() => setOpen((prev) => !prev)}
+            className="inline-flex items-center justify-between w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-medium tracking-wide text-white/80 backdrop-blur transition hover:bg-white/15 hover:text-white"
+            aria-expanded={open}
+          >
+            <span className="flex items-center gap-2">
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`}
+                style={{ color: '#f0f6ff' }}
+              />
+              {open ? 'Hide Problem & Response' : 'View Problem & Response'}
+            </span>
+            <span className="text-xs font-medium text-white/80">Tap to {open ? 'collapse' : 'reveal'}</span>
+          </button>
+
+          <motion.div
+            initial={false}
+            animate={{ height: open ? 'auto' : 0, opacity: open ? 1 : 0 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className="pt-3 mt-3 border-t border-white/20 space-y-2 text-sm md:text-base leading-relaxed">
+              <p className="text-white/90">
+                <span className="font-semibold text-white">Problem: </span>
+                {card.problem}
+              </p>
+              <p className="text-white/95">
+                <span className="font-semibold text-white">Response: </span>
+                {card.response}
+              </p>
+            </div>
+          </motion.div>
+
+          <button
+            type="button"
+            onClick={() => navigate(card.route)}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white transition-transform group"
+          >
+            Explore in Marketplace
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </button>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
+/* -----------------------------------------
+   Section: Take Action
+   ----------------------------------------- */
+
+function SectionTakeAction({ navigate }: { navigate: (path: string) => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.15 });
+
+  return (
+    <section
+      ref={ref}
+      className="py-20 md:py-24"
+      style={{
+        background: 'linear-gradient(180deg, #f0f6ff 0%, #ffffff 55%, #f0f6ff 100%)',
+      }}
+    >
+      <div className="container mx-auto px-4 md:px-6 lg:px-10">
+        <motion.div
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5 }}
+        >
+          <p className="text-xs uppercase tracking-[0.24em] font-semibold text-[#e1513b] mb-2">
+            TAKE ACTION
+          </p>
+          <h2 className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3">
+            Bring it to life
+          </h2>
+          <p className="text-[#4a5678] max-w-2xl mx-auto text-lg">
+            Understanding is the start. Real learning happens by doing.
+          </p>
+        </motion.div>
+
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto"
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          variants={containerVariants}
+          custom={0}
+        >
+          {ACTION_CARDS.map((item, i) => (
+            <motion.div
+              key={item.title}
+              variants={itemVariants}
+              whileHover={{ y: -8 }}
+            className={`group relative p-7 md:p-9 rounded-3xl ${item.bg} shadow-[0_10px_24px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_32px_rgba(0,0,0,0.08)] transition-all cursor-pointer`}
+            onClick={() => navigate(item.path)}
+          >
+            <div className="flex items-start gap-4 md:gap-5">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white shadow-[0_6px_16px_rgba(0,0,0,0.08)] flex items-center justify-center">
+                <item.icon className="h-6 w-6" style={{ color: item.iconColor }} />
+              </div>
+              <div className="flex-1 space-y-1">
+                <p className={`text-xs font-semibold tracking-[0.18em] uppercase ${item.badgeColor}`}>
+                  {item.badge}
+                </p>
+                <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42]">
+                  {item.title}
+                </h3>
+                <p className="text-sm md:text-base text-[#4a5678]">{item.description}</p>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {item.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1 rounded-full bg-white/75 text-[#131e42] px-3 py-1 text-xs font-medium shadow-sm"
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.iconColor }} />
+                      {tag}
+                    </span>
+                  ))}
+                  </div>
+                </div>
+              </div>
+
+              <span
+                className={`inline-flex items-center gap-1 text-sm font-semibold mt-6 ${item.accent} group-hover:underline`}
+              >
+                {item.cta}
+                <ArrowRight className="h-4 w-4" />
+              </span>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/* -----------------------------------------
+   Section: Final CTA
+   ----------------------------------------- */
+
+function SectionFinalCTA({ navigate }: { navigate: (path: string) => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  return (
+    <section
+      ref={ref}
+      className="relative overflow-hidden"
+      style={{
+        background:
+          'radial-gradient(circle at 20% 20%, rgba(240,246,255,0.35), transparent 45%), radial-gradient(circle at 80% 30%, rgba(225,81,59,0.25), transparent 45%), linear-gradient(115deg, #131e42 0%, #1f2d5c 60%, #e1513b 100%)',
+      }}
+    >
+      <div className="container mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
+        <div className="relative min-h-[420px] lg:min-h-[520px] flex items-center">
+          {/* Animated background orbs */}
+          <motion.div
+            className="absolute w-[420px] h-[420px] rounded-full blur-3xl"
+            style={{ left: '-10%', top: '10%', backgroundColor: 'rgba(240,246,255,0.28)' }}
+            animate={{ x: [0, 30, -10, 0], y: [0, -20, 10, 0], scale: [1, 1.06, 1] }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute w-[360px] h-[360px] rounded-full blur-3xl"
+            style={{ right: '5%', bottom: '-5%', backgroundColor: 'rgba(225,81,59,0.28)' }}
+            animate={{ x: [0, -25, 15, 0], y: [0, 18, -12, 0], scale: [1, 1.05, 1] }}
+            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+          />
+
+          <motion.div
+            className="relative z-10 max-w-3xl py-16 md:py-20 px-2 sm:px-4 md:px-0 text-left"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6 }}
+          >
+            <motion.p
+              className="text-xs font-semibold uppercase tracking-[0.24em] text-white/80 mb-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.15 }}
+            >
+              Join the community
+            </motion.p>
+            <motion.h2
+              className="ghc-font-display font-bold text-4xl sm:text-5xl md:text-5xl lg:text-6xl leading-[1.1] text-white tracking-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.15 }}
+            >
+              Continue the journey inside the Golden Honeycomb
+            </motion.h2>
+            <motion.p
+              className="mt-6 text-base sm:text-lg md:text-xl text-white/85 max-w-2xl leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.25 }}
+            >
+              Connect with a vibrant community of Qatalysts. Share your story, access resources, and help shape the future of meaningful work.
+            </motion.p>
+
+            <motion.div
+              className="mt-8 flex flex-wrap gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.5, delay: 0.35 }}
+            >
+            <button
+              type="button"
+              onClick={() => navigate('/lms')}
+              className="inline-flex items-center gap-2.5 h-[52px] px-7 rounded-lg bg-white text-[#131e42] font-semibold text-base shadow-xl shadow-black/12 transition transform hover:-translate-y-0.5 hover:bg-white/95"
+            >
+              Join a Course
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/marketplace/guides/dq-ghc')}
+              className="group inline-flex items-center gap-2 h-[52px] px-7 rounded-lg border-2 border-white/60 text-white font-semibold text-base transition transform hover:-translate-y-0.5 hover:bg-white/10 hover:border-white/80"
+            >
+              Read the Storybook
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </button>
+        </motion.div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
   );
 }
 

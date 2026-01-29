@@ -419,3 +419,29 @@ textarea:-webkit-autofill {
 .dq-products-bg {
   background-color: #F8FAFC !important;
 }
+
+/* GHC Landing Page – warm editorial design system */
+.ghc-page {
+  --ghc-primary: 32 58% 58%; /* #d4a574 gold/amber */
+  --ghc-primary-foreground: 24 10% 10%;
+  --ghc-secondary: 28 25% 92%;
+  --ghc-accent: 38 45% 50%;
+  --ghc-muted: 30 15% 94%;
+  --ghc-background: 40 20% 98%;
+  --ghc-foreground: 24 10% 10%;
+  --ghc-amber-border: 38 92% 50%;
+  --ghc-green-border: 142 71% 45%;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.ghc-page .ghc-font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.ghc-page .scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.ghc-page .scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
