@@ -185,7 +185,6 @@ const STRATEGY_UNITS: Facet[] = [
 
 const STRATEGY_FRAMEWORKS: Facet[] = [
   { id: 'ghc', name: 'GHC' },
-  { id: 'hov', name: 'HoV' }
 ]
 
 // All possible filter categories - default to ALL collapsed
