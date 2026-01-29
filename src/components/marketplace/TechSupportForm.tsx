@@ -100,13 +100,7 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
   const { user } = useAuth();
   const userEmail = user?.email || '';
 
-  // Debug: Log authentication state
-  console.log('🔐 TechSupportForm - Auth Debug:', {
-    user,
-    userEmail,
-    hasUser: !!user,
-    hasEmail: !!userEmail
-  });
+
 
   const [email, setEmail] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<CategoryOption | ''>('');

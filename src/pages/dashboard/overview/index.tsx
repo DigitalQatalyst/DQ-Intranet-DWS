@@ -43,7 +43,7 @@ export const Overview: React.FC = () => {
 
     // Quick stats mock data
     const stats = [
-        { label: "Active Requests", value: "12", subLabel: "+3 this month", color: "bg-blue-500", icon: FileText },
+        { label: "Active Requests", value: "55", subLabel: "+3 this month", color: "bg-blue-500", icon: FileText },
         { label: "Pending Tasks", value: "8", subLabel: "2 due today", color: "bg-orange-500", icon: Clock },
         { label: "Approvals", value: "5", subLabel: "Verified records", color: "bg-green-500", icon: CheckCircle2 },
         { label: "Alerts", value: "2", subLabel: "Action required", color: "bg-red-500", icon: AlertCircle }

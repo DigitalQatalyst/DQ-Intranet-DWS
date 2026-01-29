@@ -84,12 +84,12 @@ export const SERVICE_CUSTOM_TABS: Record<string, Record<string, CustomTab[]>> = 
       { id: 'maternity_leave', label: 'Maternity Leave' },
       { id: 'compassionate_leave', label: 'Compassionate Leave' },
     ],
-    '14': [ // Shifts Allocation
-      { id: 'shift_allocation', label: 'Shift Allocation' },
-      { id: 'request_change', label: 'Request Shift Change' },
-      { id: 'clock_in_out', label: 'Clock In/Out' },
-      { id: 'guidelines_compliance', label: 'Guidelines & Compliance' },
-    ],
+    // '14': [ // Shifts Allocation
+    //   { id: 'shift_allocation', label: 'Shift Allocation' },
+    //   { id: 'request_change', label: 'Request Shift Change' },
+    //   { id: 'clock_in_out', label: 'Clock In/Out' },
+    //   { id: 'guidelines_compliance', label: 'Guidelines & Compliance' },
+    // ],
     '15': [ // Flight Tickets Reimbursement
       { id: 'eligibility_process', label: 'Eligibility & Process' },
       { id: 'booking_procedure', label: 'Booking Procedure' },
@@ -516,195 +516,195 @@ const SERVICE_DETAILS_CONTENT: Record<
         },
       },
     },
-    // Shifts Allocation
-    '14': {
-      shift_allocation: {
-        heading: 'Shift Allocation Process',
-        blocks: [
-          {
-            type: 'p',
-            text:
-              'The Shift Allocation Process ensures efficiency, fairness, and legal compliance in assigning work schedules. All shifts are published by Wednesday each week, and associates must confirm their shifts immediately upon publication, no later than Friday.',
-          },
-          { type: 'p', text: 'Roles and Responsibilities:' },
-          {
-            type: 'ul',
-            items: [
-              'Associates: Confirm assigned shifts upon publication (by Friday each week), clock in and out at designated times.',
-              'Line Managers: Review and approve shift assignments, ensure fair allocation, approve/deny shift change requests.',
-              'Admin: Confirm associate availability through line managers, publish finalized shifts by Wednesday, process approved shift changes.',
-            ],
-          },
-          { type: 'p', text: 'Step-by-Step Process:' },
-          {
-            type: 'ol',
-            items: [
-              'Confirm Availability: Admin collaborates with line managers to confirm associate availability.',
-              'Assign Shifts: Shifts are assigned based on associate availability and operational needs (morning, evening, split shifts, remote).',
-              'Publish Shifts: Admin publishes shifts by Wednesday each week via Shifts app.',
-              'Confirm Shift Assignments: Associates must confirm shifts immediately upon publication (deadline: Friday).',
-              'View Shifts: Access your assigned shifts in the Shifts app and add them to your calendar.',
-            ],
-          },
-          {
-            type: 'p',
-            text:
-              'Important: Failure to confirm shifts on time will result in the inability to request a shift change for that cycle. All shift assignments comply with local labor laws regarding working hours and rest periods.',
-          },
-        ],
-        action: {
-          label: 'Open Shifts App',
-          urlField: 'requestUrl',
-          fallbackUrl: 'https://teams.microsoft.com/l/app/shifts',
-        },
-      },
-      request_change: {
-        heading: 'Request Shift Change Process',
-        blocks: [
-          {
-            type: 'p',
-            text:
-              'Associates can request shift changes through the proper channels by providing valid reasons to their line manager. All shift change requests must be approved before being processed.',
-          },
-          { type: 'p', text: 'Procedure to request a shift change:' },
-          {
-            type: 'ol',
-            items: [
-              'Requesting Change: Associate submits shift change request to line manager via Teams chat with valid reason (e.g., personal emergency, medical appointment, unavoidable conflict).',
-              'Approval: Line manager reviews request and approves or denies based on operational needs and business availability.',
-              'Processing: Once approved by line manager, they inform Admin to update and process the shift change.',
-              'Confirmation: Admin processes the approved shift change and updates records in the Shifts app.',
-              'Notification: Admin promptly informs associates of the shift change with adequate notice.',
-            ],
-          },
-          { type: 'p', text: 'Key Requirements:' },
-          {
-            type: 'ul',
-            items: [
-              'Request must be submitted through line manager (not directly to Admin)',
-              'Provide valid and clear reason for the change',
-              'Request should be made as early as possible to allow proper planning',
-              'Line manager must inform Admin after approval',
-              'Associates must have confirmed their original shifts to be eligible for change requests',
-            ],
-          },
-          {
-            type: 'p',
-            text:
-              'Consequences: Unauthorized shift changes will not be counted for payroll. Excessive shift change requests (repeated, unnecessary) will be denied, and the associate will be prohibited from future requests.',
-          },
-        ],
-        action: {
-          label: 'Contact Line Manager',
-          urlField: 'requestUrl',
-          fallbackUrl: 'https://teams.microsoft.com/l/app/shifts',
-        },
-      },
-      clock_in_out: {
-        heading: 'Clock In/Out Reporting Process',
-        blocks: [
-          {
-            type: 'p',
-            text:
-              'Associates are required to clock in and out at designated times for each assigned shift. Accurate clock-in/clock-out reporting is essential for payroll processing and operational tracking. 100% compliance is required.',
-          },
-          { type: 'p', text: 'Clock In/Out Procedure:' },
-          {
-            type: 'ol',
-            items: [
-              'Clock In: At the start of your shift, open the Shifts app and clock in at your designated time.',
-              'During Shift: Remain clocked in for the duration of your assigned shift. For split shifts, clock out and in accordingly.',
-              'Clock Out: At the end of your shift, open the Shifts app and clock out at the designated time.',
-              'Verify Record: Check that your clock-in/clock-out times are accurately recorded in the system.',
-            ],
-          },
-          { type: 'p', text: 'Report Deviations:' },
-          {
-            type: 'ul',
-            items: [
-              'If you experience technical issues with clocking in/out, immediately report to your line manager and Admin via Teams chat.',
-              'If you forget to clock in or out, notify your line manager and Admin as soon as possible with the actual times worked.',
-              'Any discrepancies in clock-in/clock-out records must be reported promptly for correction.',
-              'Documentation may be required for corrections (e.g., screenshot, email confirmation).',
-            ],
-          },
-          {
-            type: 'p',
-            text:
-              'Tracking: Admin tracks and reports all clock-in and clock-out data for operational accuracy and payroll processing. All attendance records are documented for compliance purposes.',
-          },
-        ],
-        action: {
-          label: 'Open Shifts App',
-          urlField: 'requestUrl',
-          fallbackUrl: 'https://teams.microsoft.com/l/app/shifts',
-        },
-      },
-      guidelines_compliance: {
-        heading: 'Guidelines, KPIs & Compliance',
-        blocks: [
-          {
-            type: 'p',
-            text:
-              'The Shifts Allocation Guidelines ensure operational efficiency, fairness, and legal compliance. All associates must adhere to these guidelines to support Live24\'s operational goals.',
-          },
-          { type: 'p', text: 'Key Performance Indicators (KPIs):' },
-          {
-            type: 'ul',
-            items: [
-              'Shift Confirmation Rate: 100% confirmation of assigned shifts by associates by the published deadline (Friday).',
-              'Shift Change Request Compliance: 100% of shift changes processed through proper channels (via line manager).',
-              'Clock-in/Clock-out Compliance: 100% accurate clock-in/clock-out reporting by associates.',
-              'Shift Adherence: 100% adherence to assigned shifts by associates.',
-            ],
-          },
-          { type: 'p', text: 'Guiding Principles:' },
-          {
-            type: 'ul',
-            items: [
-              'Shift Confirmation: Associates must confirm assigned shifts immediately upon publication (deadline: Friday).',
-              'Shift Change Requests: Must be requested via line manager with valid reasons.',
-              'Communication: Admin will promptly inform associates of any shift changes with adequate notice.',
-              'Publication Timeline: All shifts must be published by Wednesday each week.',
-              'Shift Reporting: Clock in and out on time; deviations must be reported immediately.',
-            ],
-          },
-          { type: 'p', text: 'Consequences for Non-Compliance:' },
-          {
-            type: 'ul',
-            items: [
-              'Unapproved Absences: Failure to show up for assigned shifts without approval will result in the day not being counted for payroll. 3 unapproved absences in a month will warrant reconsideration of engagement by HR.',
-              'Unauthorized Shift Changes: Will not be counted for payroll purposes.',
-              'Failure to Confirm Shifts: Results in inability to request shift changes for that cycle.',
-              'Excessive Shift Change Requests: Repeated, unnecessary requests will be denied, and associate prohibited from future requests.',
-            ],
-          },
-          { type: 'p', text: 'Compliance and Governance:' },
-          {
-            type: 'ul',
-            items: [
-              'Legal Compliance: All shift assignments comply with local labor laws regarding working hours and rest periods.',
-              'Operational Compliance: Shifts align with business needs and ensure fairness.',
-              'Documentation: All shift assignments, changes, and attendance records documented for compliance.',
-              'Quarterly Review: Guidelines reviewed quarterly to meet evolving operational needs.',
-            ],
-          },
-          { type: 'p', text: 'Tools and Resources:' },
-          {
-            type: 'ul',
-            items: [
-              'Shifts App: Used for scheduling, tracking, and modifying shifts.',
-              'Teams Chat: Communication channel for shift changes, confirmations, and inquiries.',
-            ],
-          },
-        ],
-        action: {
-          label: 'Open Shifts App',
-          urlField: 'requestUrl',
-          fallbackUrl: 'https://teams.microsoft.com/l/app/shifts',
-        },
-      },
-    },
+    // // Shifts Allocation
+    // '14': {
+    //   shift_allocation: {
+    //     heading: 'Shift Allocation Process',
+    //     blocks: [
+    //       {
+    //         type: 'p',
+    //         text:
+    //           'The Shift Allocation Process ensures efficiency, fairness, and legal compliance in assigning work schedules. All shifts are published by Wednesday each week, and associates must confirm their shifts immediately upon publication, no later than Friday.',
+    //       },
+    //       { type: 'p', text: 'Roles and Responsibilities:' },
+    //       {
+    //         type: 'ul',
+    //         items: [
+    //           'Associates: Confirm assigned shifts upon publication (by Friday each week), clock in and out at designated times.',
+    //           'Line Managers: Review and approve shift assignments, ensure fair allocation, approve/deny shift change requests.',
+    //           'Admin: Confirm associate availability through line managers, publish finalized shifts by Wednesday, process approved shift changes.',
+    //         ],
+    //       },
+    //       { type: 'p', text: 'Step-by-Step Process:' },
+    //       {
+    //         type: 'ol',
+    //         items: [
+    //           'Confirm Availability: Admin collaborates with line managers to confirm associate availability.',
+    //           'Assign Shifts: Shifts are assigned based on associate availability and operational needs (morning, evening, split shifts, remote).',
+    //           'Publish Shifts: Admin publishes shifts by Wednesday each week via Shifts app.',
+    //           'Confirm Shift Assignments: Associates must confirm shifts immediately upon publication (deadline: Friday).',
+    //           'View Shifts: Access your assigned shifts in the Shifts app and add them to your calendar.',
+    //         ],
+    //       },
+    //       {
+    //         type: 'p',
+    //         text:
+    //           'Important: Failure to confirm shifts on time will result in the inability to request a shift change for that cycle. All shift assignments comply with local labor laws regarding working hours and rest periods.',
+    //       },
+    //     ],
+    //     action: {
+    //       label: 'Open Shifts App',
+    //       urlField: 'requestUrl',
+    //       fallbackUrl: 'https://teams.microsoft.com/l/app/shifts',
+    //     },
+    //   },
+    //   request_change: {
+    //     heading: 'Request Shift Change Process',
+    //     blocks: [
+    //       {
+    //         type: 'p',
+    //         text:
+    //           'Associates can request shift changes through the proper channels by providing valid reasons to their line manager. All shift change requests must be approved before being processed.',
+    //       },
+    //       { type: 'p', text: 'Procedure to request a shift change:' },
+    //       {
+    //         type: 'ol',
+    //         items: [
+    //           'Requesting Change: Associate submits shift change request to line manager via Teams chat with valid reason (e.g., personal emergency, medical appointment, unavoidable conflict).',
+    //           'Approval: Line manager reviews request and approves or denies based on operational needs and business availability.',
+    //           'Processing: Once approved by line manager, they inform Admin to update and process the shift change.',
+    //           'Confirmation: Admin processes the approved shift change and updates records in the Shifts app.',
+    //           'Notification: Admin promptly informs associates of the shift change with adequate notice.',
+    //         ],
+    //       },
+    //       { type: 'p', text: 'Key Requirements:' },
+    //       {
+    //         type: 'ul',
+    //         items: [
+    //           'Request must be submitted through line manager (not directly to Admin)',
+    //           'Provide valid and clear reason for the change',
+    //           'Request should be made as early as possible to allow proper planning',
+    //           'Line manager must inform Admin after approval',
+    //           'Associates must have confirmed their original shifts to be eligible for change requests',
+    //         ],
+    //       },
+    //       {
+    //         type: 'p',
+    //         text:
+    //           'Consequences: Unauthorized shift changes will not be counted for payroll. Excessive shift change requests (repeated, unnecessary) will be denied, and the associate will be prohibited from future requests.',
+    //       },
+    //     ],
+    //     action: {
+    //       label: 'Contact Line Manager',
+    //       urlField: 'requestUrl',
+    //       fallbackUrl: 'https://teams.microsoft.com/l/app/shifts',
+    //     },
+    //   },
+    //   clock_in_out: {
+    //     heading: 'Clock In/Out Reporting Process',
+    //     blocks: [
+    //       {
+    //         type: 'p',
+    //         text:
+    //           'Associates are required to clock in and out at designated times for each assigned shift. Accurate clock-in/clock-out reporting is essential for payroll processing and operational tracking. 100% compliance is required.',
+    //       },
+    //       { type: 'p', text: 'Clock In/Out Procedure:' },
+    //       {
+    //         type: 'ol',
+    //         items: [
+    //           'Clock In: At the start of your shift, open the Shifts app and clock in at your designated time.',
+    //           'During Shift: Remain clocked in for the duration of your assigned shift. For split shifts, clock out and in accordingly.',
+    //           'Clock Out: At the end of your shift, open the Shifts app and clock out at the designated time.',
+    //           'Verify Record: Check that your clock-in/clock-out times are accurately recorded in the system.',
+    //         ],
+    //       },
+    //       { type: 'p', text: 'Report Deviations:' },
+    //       {
+    //         type: 'ul',
+    //         items: [
+    //           'If you experience technical issues with clocking in/out, immediately report to your line manager and Admin via Teams chat.',
+    //           'If you forget to clock in or out, notify your line manager and Admin as soon as possible with the actual times worked.',
+    //           'Any discrepancies in clock-in/clock-out records must be reported promptly for correction.',
+    //           'Documentation may be required for corrections (e.g., screenshot, email confirmation).',
+    //         ],
+    //       },
+    //       {
+    //         type: 'p',
+    //         text:
+    //           'Tracking: Admin tracks and reports all clock-in and clock-out data for operational accuracy and payroll processing. All attendance records are documented for compliance purposes.',
+    //       },
+    //     ],
+    //     action: {
+    //       label: 'Open Shifts App',
+    //       urlField: 'requestUrl',
+    //       fallbackUrl: 'https://teams.microsoft.com/l/app/shifts',
+    //     },
+    //   },
+    //   guidelines_compliance: {
+    //     heading: 'Guidelines, KPIs & Compliance',
+    //     blocks: [
+    //       {
+    //         type: 'p',
+    //         text:
+    //           'The Shifts Allocation Guidelines ensure operational efficiency, fairness, and legal compliance. All associates must adhere to these guidelines to support Live24\'s operational goals.',
+    //       },
+    //       { type: 'p', text: 'Key Performance Indicators (KPIs):' },
+    //       {
+    //         type: 'ul',
+    //         items: [
+    //           'Shift Confirmation Rate: 100% confirmation of assigned shifts by associates by the published deadline (Friday).',
+    //           'Shift Change Request Compliance: 100% of shift changes processed through proper channels (via line manager).',
+    //           'Clock-in/Clock-out Compliance: 100% accurate clock-in/clock-out reporting by associates.',
+    //           'Shift Adherence: 100% adherence to assigned shifts by associates.',
+    //         ],
+    //       },
+    //       { type: 'p', text: 'Guiding Principles:' },
+    //       {
+    //         type: 'ul',
+    //         items: [
+    //           'Shift Confirmation: Associates must confirm assigned shifts immediately upon publication (deadline: Friday).',
+    //           'Shift Change Requests: Must be requested via line manager with valid reasons.',
+    //           'Communication: Admin will promptly inform associates of any shift changes with adequate notice.',
+    //           'Publication Timeline: All shifts must be published by Wednesday each week.',
+    //           'Shift Reporting: Clock in and out on time; deviations must be reported immediately.',
+    //         ],
+    //       },
+    //       { type: 'p', text: 'Consequences for Non-Compliance:' },
+    //       {
+    //         type: 'ul',
+    //         items: [
+    //           'Unapproved Absences: Failure to show up for assigned shifts without approval will result in the day not being counted for payroll. 3 unapproved absences in a month will warrant reconsideration of engagement by HR.',
+    //           'Unauthorized Shift Changes: Will not be counted for payroll purposes.',
+    //           'Failure to Confirm Shifts: Results in inability to request shift changes for that cycle.',
+    //           'Excessive Shift Change Requests: Repeated, unnecessary requests will be denied, and associate prohibited from future requests.',
+    //         ],
+    //       },
+    //       { type: 'p', text: 'Compliance and Governance:' },
+    //       {
+    //         type: 'ul',
+    //         items: [
+    //           'Legal Compliance: All shift assignments comply with local labor laws regarding working hours and rest periods.',
+    //           'Operational Compliance: Shifts align with business needs and ensure fairness.',
+    //           'Documentation: All shift assignments, changes, and attendance records documented for compliance.',
+    //           'Quarterly Review: Guidelines reviewed quarterly to meet evolving operational needs.',
+    //         ],
+    //       },
+    //       { type: 'p', text: 'Tools and Resources:' },
+    //       {
+    //         type: 'ul',
+    //         items: [
+    //           'Shifts App: Used for scheduling, tracking, and modifying shifts.',
+    //           'Teams Chat: Communication channel for shift changes, confirmations, and inquiries.',
+    //         ],
+    //       },
+    //     ],
+    //     action: {
+    //       label: 'Open Shifts App',
+    //       urlField: 'requestUrl',
+    //       fallbackUrl: 'https://teams.microsoft.com/l/app/shifts',
+    //     },
+    //   },
+    // },
     // Flight Tickets Reimbursement
     '15': {
       eligibility_process: {

@@ -73,11 +73,11 @@ export function ServiceHeroSection({
         </h1>
 
         {/* Meta line with tags, separated by dot (no provider name) */}
-        {item.tags && item.tags.length > 0 && (
+        {/* {item.tags && item.tags.length > 0 && (
           <p className="text-sm md:text-base text-white/85">
             {item.tags.join(' · ')}
           </p>
-        )}
+        )} */}
       </div>
     </div>
   );

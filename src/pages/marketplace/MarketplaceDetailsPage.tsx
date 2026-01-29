@@ -15,6 +15,7 @@ import { getDigitalWorkerServiceById } from '../../utils/digitalWorkerData';
 import { ProcedureStages, procedureStagesConfigs } from '../../components/ProcedureStages';
 import LeaveRequestForm from '../../components/marketplace/LeaveRequestForm';
 import { TechSupportForm } from '../../components/marketplace/TechSupportForm';
+import WFHRequestForm from '../../components/marketplace/WFHRequestForm';
 import { INITIAL_APPROVERS } from '../../utils/mockApprovers';
 import { ServiceHeroSection } from '../../components/marketplace/ServiceHeroSection';
 import { ServiceDetailsSidebar } from '../../components/marketplace/ServiceDetailsSidebar';
@@ -79,6 +80,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout | null>(null);
   const [isRequestFormOpen, setIsRequestFormOpen] = useState(false);
   const [isTechSupportFormOpen, setIsTechSupportFormOpen] = useState(false);
+  const [isWFHFormOpen, setIsWFHFormOpen] = useState(false);
   const mainContentRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -333,9 +335,11 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const isAITool = item.category === 'AI Tools';
   const isDigitalWorker = item.category === 'Digital Worker';
   const isLeaveApplication = item.id === '13';
+  const isWFHService = item.id === '23';
   const isITSupportService = marketplaceType === 'non-financial' && ['1', '2', '3'].includes(item.id);
   const primaryAction =
     isLeaveApplication ? 'Apply For Leave'
+    : isWFHService ? 'Submit WFH Request'
     : isDigitalWorker ? 'View Details'
     : isAITool ? 'Request Tool'
     : config.primaryCTA;
@@ -818,7 +822,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             {content.heading && <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-3 border-b border-gray-200">{content.heading}</h2>}
             {renderBlocks(content.blocks || [])}
           </div>
-          {content.action && content.action.label !== 'Apply For Leave' && <div className="pt-4">
+          {content.action && content.action.label !== 'Apply For Leave' && content.action.label !== 'Submit WFH Request' && <div className="pt-4">
               <button id="action-section" className="px-6 py-3.5 text-white text-base font-bold rounded-md transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5" style={{ backgroundColor: '#030F35' }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#020a23')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#030F35')} onClick={() => {
               const urlField = content.action?.urlField;
               const computedUrl = (urlField && item && item[urlField]) || content.action?.fallbackUrl || '#';
@@ -1180,6 +1184,8 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   onClick={() => {
                     if (isITSupportService) {
                       setIsTechSupportFormOpen(true);
+                    } else if (isWFHService) {
+                      setIsWFHFormOpen(true);
                     } else {
                       window.open(computedUrl, '_blank', 'noopener');
                     }
@@ -1669,6 +1675,8 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     // Check if this is Leave Application service (id '13')
     if (isLeaveApplication) {
       setIsRequestFormOpen(true);
+    } else if (isWFHService) {
+      setIsWFHFormOpen(true);
     } else if (isITSupportService) {
       setIsTechSupportFormOpen(true);
     } else if (isAITool) {
@@ -1892,6 +1900,8 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   // Check if this is Leave Application service (id '13')
                   if (isLeaveApplication) {
                     setIsRequestFormOpen(true);
+                  } else if (isWFHService) {
+                    setIsWFHFormOpen(true);
                   } else if (isITSupportService) {
                     setIsTechSupportFormOpen(true);
                   } else if (isAITool) {
@@ -1914,9 +1924,16 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       />
 
       {/* Technology Support Form Modal (IT Support service) */}
-      <TechSupportForm 
+      <TechSupportForm
         isOpen={isTechSupportFormOpen}
         onClose={() => setIsTechSupportFormOpen(false)}
+      />
+
+      {/* Work From Home Request Form Modal (WFH service id '23') */}
+      <WFHRequestForm
+        isOpen={isWFHFormOpen}
+        onClose={() => setIsWFHFormOpen(false)}
+        initialApprovers={INITIAL_APPROVERS}
       />
     </div>;
 };
