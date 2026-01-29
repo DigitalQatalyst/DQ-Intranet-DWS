@@ -40,55 +40,11 @@ const PINNED_FACETS: FacetConfig[] = [
 
 const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
   announcements: [
-    {
-      key: 'department',
-      label: 'Department',
-      options: [
-        'HRA (People)',
-        'Finance',
-        'Deals',
-        'Stories',
-        'Intelligence',
-        'Solutions',
-        'SecDevOps',
-        'Products',
-        'Delivery — Deploys',
-        'Delivery — Designs',
-        'DCO Operations',
-        'DBP Platform',
-        'DBP Delivery'
-      ]
-    },
     { key: 'location', label: 'Location', options: ['Dubai', 'Nairobi', 'Riyadh', 'Remote'] },
     {
       key: 'newsType',
       label: 'Type',
-      options: [
-        'Policy Update',
-        'Upcoming Events',
-        'Company News',
-        'Holidays'
-      ]
-    },
-    {
-      key: 'newsSource',
-      label: 'News Source',
-      options: ['DQ Leadership', 'DQ Operations', 'DQ Communications']
-    },
-    {
-      key: 'focusArea',
-      label: 'Topic / Focus Area',
-      options: ['GHC', 'DWS', 'Culture & People']
-    },
-    {
-      key: 'audience',
-      label: 'Audience',
-      options: ['All Hands', 'Leads', 'Partners', 'Public']
-    },
-    {
-      key: 'channel',
-      label: 'Channel',
-      options: ['Email', 'Townhall', 'Portal', 'Social']
+      options: ['Policy Update', 'Upcoming Events', 'Company News', 'Holidays']
     },
     {
       key: 'dateRange',
@@ -97,11 +53,6 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
     }
   ],
   insights: [
-    {
-      key: 'format',
-      label: 'Format',
-      options: ['Blog', 'Article', 'Research Report']
-    },
     {
       key: 'department',
       label: 'Department',
@@ -269,25 +220,25 @@ const TAB_SUMMARIES: Record<
   announcements: {
     title: 'News & Announcements',
     description:
-      'Live corporate announcements, product / project updates, events, and comms so every studio keeps pace with what is shipping across DQ.',
+      'Discover what is happening in DQ, including important announcements, and what teams are building.',
     meta: 'Sourced from DQ Leadership, Operations, and Communications.'
   },
   insights: {
     title: 'Blogs',
     description:
-      'Long-form blogs and thought-leadership pieces that codify craft, behaviours, and delivery lessons from across chapters.',
+      'Dive into thought leadership, personal stories, and expert insights written by colleagues across DQ.',
     meta: 'Authored by DQ Associates, Leads, and Partners.'
   },
   podcasts: {
     title: 'Podcasts',
     description:
-      'Audio content featuring interviews, discussions, and insights from DQ leaders, associates, and industry experts.',
+      'Tune in to conversations, stories, and expert insights from DQ leaders and associates.',
     meta: 'Listen to conversations that matter.'
   },
   opportunities: {
     title: 'Job Openings',
     description:
-      'Internal mobility postings for current DQ teammates looking to rotate into a new role, studio, or craft without leaving the company.',
+      'Ready for a new challenge? Grow with us. Explore open roles exclusively for DQ associates.',
     meta: 'Use Department, Location, Role Type, and SFIA to find the right internal match.'
   }
 };
@@ -494,8 +445,8 @@ const NewsPage: React.FC = () => {
         <header className="mb-6 space-y-2">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">DQ Media Center</h1>
-            <p className="text-gray-600">
-              Discover the latest stories, highlights, and announcements from across DQ.
+            <p className="mt-2 max-w-2xl text-sm text-gray-600">
+              Your starting point for news, stories, podcasts, and career opportunities at DQ.
             </p>
           </div>
         </header>
@@ -590,106 +541,100 @@ const NewsPage: React.FC = () => {
                 </div>
               )}
             </div>
-            {tab !== 'opportunities' && (
-              <div className="flex items-center gap-3 md:hidden">
-                <button
-                  type="button"
-                  onClick={toggleFilters}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm"
-                >
-                  <FilterIcon className="h-4 w-4" />
-                  {showFilters ? 'Hide Filters' : 'Show Filters'}
+            <div className="flex items-center gap-3 md:hidden">
+              <button
+                type="button"
+                onClick={toggleFilters}
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm"
+              >
+                <FilterIcon className="h-4 w-4" />
+                {showFilters ? 'Hide Filters' : 'Show Filters'}
+              </button>
+              {hasActiveFilters && (
+                <button type="button" className="text-sm font-medium text-[#1A2E6E]" onClick={clearFilters}>
+                  Clear
                 </button>
+              )}
+            </div>
+          </div>
+
+          <div
+            className={`fixed inset-0 z-30 bg-black/50 transition-opacity md:hidden ${
+              showFilters ? 'opacity-100' : 'pointer-events-none opacity-0'
+            }`}
+            onClick={toggleFilters}
+            aria-hidden={!showFilters}
+          >
+            <div
+              className={`absolute inset-y-0 left-0 w-full max-w-sm transform bg-white shadow-xl transition-transform duration-300 ${
+                showFilters ? 'translate-x-0' : '-translate-x-full'
+              }`}
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Filters"
+            >
+              <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+                <h2 className="text-lg font-semibold">Filters</h2>
+                <button onClick={toggleFilters} className="rounded-full p-1 hover:bg-gray-100" aria-label="Close filters">
+                  <XIcon size={20} />
+                </button>
+              </div>
+              <div className="h-full overflow-y-auto px-4 pb-6 pt-4 space-y-4">
+                <FiltersPanel
+                  facets={facets}
+                  values={filters}
+                  onChange={setFilters}
+                  onClear={clearFilters}
+                  groupOrder={{ pinned: ['department', 'location'] }}
+                />
                 {hasActiveFilters && (
-                  <button type="button" className="text-sm font-medium text-[#1A2E6E]" onClick={clearFilters}>
-                    Clear
+                  <button
+                    type="button"
+                    onClick={() => {
+                      clearFilters();
+                      toggleFilters();
+                    }}
+                    className="mt-2 w-full rounded-md border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700"
+                  >
+                    Clear filters
                   </button>
                 )}
               </div>
-            )}
+            </div>
           </div>
 
-          {tab !== 'opportunities' && (
-            <div
-              className={`fixed inset-0 z-30 bg-black/50 transition-opacity md:hidden ${
-                showFilters ? 'opacity-100' : 'pointer-events-none opacity-0'
-              }`}
-              onClick={toggleFilters}
-              aria-hidden={!showFilters}
-            >
-              <div
-                className={`absolute inset-y-0 left-0 w-full max-w-sm transform bg-white shadow-xl transition-transform duration-300 ${
-                  showFilters ? 'translate-x-0' : '-translate-x-full'
-                }`}
-                onClick={(e) => e.stopPropagation()}
-                role="dialog"
-                aria-modal="true"
-                aria-label="Filters"
-              >
-                <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+          <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+            <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
+              <div className="rounded-xl bg-white p-4 shadow">
+                <div className="mb-2 flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Filters</h2>
-                  <button onClick={toggleFilters} className="rounded-full p-1 hover:bg-gray-100" aria-label="Close filters">
-                    <XIcon size={20} />
-                  </button>
+                  <div className="flex items-center gap-3">
+                    {hasActiveFilters && (
+                      <button type="button" className="text-sm font-medium text-[#1A2E6E]" onClick={clearFilters}>
+                        Reset All
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="text-sm font-medium text-gray-600 hover:text-gray-900"
+                      onClick={() => setSidebarCollapsed((v) => !v)}
+                    >
+                      {sidebarCollapsed ? 'Show' : 'Hide'}
+                    </button>
+                  </div>
                 </div>
-                <div className="h-full overflow-y-auto px-4 pb-6 pt-4 space-y-4">
+                {!sidebarCollapsed && (
                   <FiltersPanel
                     facets={facets}
                     values={filters}
                     onChange={setFilters}
-                    onClear={clearFilters}
+                    onClear={hasActiveFilters ? clearFilters : undefined}
                     groupOrder={{ pinned: ['department', 'location'] }}
                   />
-                  {hasActiveFilters && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        clearFilters();
-                        toggleFilters();
-                      }}
-                      className="mt-2 w-full rounded-md border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700"
-                    >
-                      Clear filters
-                    </button>
-                  )}
-                </div>
+                )}
               </div>
-            </div>
-          )}
-
-          <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-            {tab !== 'opportunities' && (
-              <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
-                <div className="rounded-xl bg-white p-4 shadow">
-                  <div className="mb-2 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold">Filters</h2>
-                    <div className="flex items-center gap-3">
-                      {hasActiveFilters && (
-                        <button type="button" className="text-sm font-medium text-[#1A2E6E]" onClick={clearFilters}>
-                          Reset All
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        className="text-sm font-medium text-gray-600 hover:text-gray-900"
-                        onClick={() => setSidebarCollapsed((v) => !v)}
-                      >
-                        {sidebarCollapsed ? 'Show' : 'Hide'}
-                      </button>
-                    </div>
-                  </div>
-                  {!sidebarCollapsed && (
-                    <FiltersPanel
-                      facets={facets}
-                      values={filters}
-                      onChange={setFilters}
-                      onClear={hasActiveFilters ? clearFilters : undefined}
-                      groupOrder={{ pinned: ['department', 'location'] }}
-                    />
-                  )}
-                </div>
-              </aside>
-            )}
+            </aside>
 
             <section className="space-y-6">
               {isLoadingData && !newsItems.length && !jobItems.length && (
