@@ -425,7 +425,7 @@ export function GHCLanding() {
             transition={{ duration: 0.5 }}
           >
             <Sparkles className="h-4 w-4 text-[#f0f6ff]" />
-            <span>Welcome to the Golden Honeycomb</span>
+            <span>Welcome to the Golden Honeycomb of Competencies (GHC)</span>
           </motion.div>
           <motion.h1
             className="ghc-font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6"
