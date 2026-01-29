@@ -99,7 +99,58 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
   
   // Transform title to remove "Blueprint" and use proper product naming
   const getDisplayTitle = (): string => {
-    if (!isBlueprint) return guide.title || ''
+    if (!isBlueprint) {
+      const rawTitle = guide.title || ''
+      const slug = (guide.slug || '').toLowerCase()
+      
+      // Canonical GHC element titles with numbering
+      const ghcTitleBySlug: Record<string, string> = {
+        'dq-ghc': 'GHC Overview',
+        'dq-vision': 'GHC 1 - Vision',
+        'dq-hov': 'GHC 2 - House of Values (HoV)',
+        'dq-persona': 'GHC 3 - Personas',
+        'dq-agile-tms': 'GHC 4 - Agile TMS',
+        'dq-agile-sos': 'GHC 5 - Agile SoS',
+        'dq-agile-flows': 'GHC 6 - Agile Flows',
+        'dq-agile-6xd': 'GHC 7 - Agile 6xD (Products)',
+      }
+      const hovOrder = [
+        'dq-competencies-emotional-intelligence',
+        'dq-competencies-growth-mindset',
+        'dq-competencies-purpose',
+        'dq-competencies-perceptive',
+        'dq-competencies-proactive',
+        'dq-competencies-perseverance',
+        'dq-competencies-precision',
+        'dq-competencies-customer',
+        'dq-competencies-learning',
+        'dq-competencies-collaboration',
+        'dq-competencies-responsibility',
+        'dq-competencies-trust'
+      ]
+      const hovTitleFromSlug = (s: string): string | null => {
+        const idx = hovOrder.indexOf(s)
+        if (idx === -1) return null
+        const label = s.replace('dq-competencies-', '').replace(/-/g, ' ')
+        const nice = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+        return `HoV ${idx + 1} - ${nice}`
+      }
+      if (slug && ghcTitleBySlug[slug]) return ghcTitleBySlug[slug]
+      const hovTitle = slug ? hovTitleFromSlug(slug) : null
+      if (hovTitle) return hovTitle
+      
+      // Title-based fallback for GHC overview
+      const lowerTitle = rawTitle.toLowerCase()
+      if (lowerTitle.includes('golden honeycomb')) return 'GHC Overview'
+      
+      // Regex rename for legacy "GHC Competency N: X"
+      const ghcCompetencyMatch = rawTitle.match(/^GHC\s+Competency\s+(\d+):\s*(.+)$/i)
+      if (ghcCompetencyMatch) {
+        const [, num, rest] = ghcCompetencyMatch
+        return `GHC ${num} - ${rest.trim()}`
+      }
+      return rawTitle
+    }
     
     const title = guide.title || ''
     

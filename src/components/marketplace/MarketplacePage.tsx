@@ -237,7 +237,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
   );
 
   const TAB_LABELS: Record<WorkGuideTab, string> = {
-    strategy: 'Strategy',
+    strategy: 'GHC',
     guidelines: 'Guidelines',
     blueprints: 'Products',
     testimonials: 'Testimonials',
@@ -1254,6 +1254,67 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
           const subDomainFacets = allowedForFacets.size
             ? subDomainFacetsRaw.filter(opt => allowedForFacets.has(opt.id))
             : subDomainFacetsRaw;
+
+          // Strategy (GHC) tab: enforce deterministic ordering of GHC overview and competencies
+          if (isGuides && activeTab === 'strategy') {
+            const ghcOrder = [
+              'dq-ghc',
+              'dq-vision',
+              'dq-hov',
+              'dq-persona',
+              'dq-agile-tms',
+              'dq-agile-sos',
+              'dq-agile-flows',
+              'dq-agile-6xd'
+            ];
+            const hovOrder = [
+              'dq-competencies-emotional-intelligence',
+              'dq-competencies-growth-mindset',
+              'dq-competencies-purpose',
+              'dq-competencies-perceptive',
+              'dq-competencies-proactive',
+              'dq-competencies-perseverance',
+              'dq-competencies-precision',
+              'dq-competencies-customer',
+              'dq-competencies-learning',
+              'dq-competencies-collaboration',
+              'dq-competencies-responsibility',
+              'dq-competencies-trust'
+            ];
+            const titleOrder = [
+              'dq golden honeycomb of competencies',
+              'dq vision',
+              'house of values',
+              'dq persona',
+              'agile tms',
+              'agile sos',
+              'agile flows',
+              'agile 6xd',
+              'emotional intelligence',
+              'growth mindset',
+              'purpose',
+              'perceptive',
+              'proactive',
+              'perseverance',
+              'precision',
+              'customer',
+              'learning',
+              'collaboration',
+              'responsibility',
+              'trust'
+            ];
+            const orderIndex = (item: any) => {
+              const slug = (item.slug || '').toLowerCase();
+              const title = (item.title || '').toLowerCase();
+              const slugIdx = ghcOrder.indexOf(slug);
+              if (slugIdx >= 0) return slugIdx;
+              const hovIdx = hovOrder.indexOf(slug);
+              if (hovIdx >= 0) return ghcOrder.length + hovIdx;
+              const titleIdx = titleOrder.findIndex(t => title.includes(t));
+              return titleIdx >= 0 ? titleIdx : Number.MAX_SAFE_INTEGER;
+            };
+            out = [...out].sort((a, b) => orderIndex(a) - orderIndex(b));
+          }
 
           setItems(out);
           setFilteredItems(out);

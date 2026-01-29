@@ -183,11 +183,6 @@ const STRATEGY_UNITS: Facet[] = [
   { id: 'stories', name: 'Stories' }
 ]
 
-const STRATEGY_TYPES: Facet[] = [
-  { id: 'journey', name: 'Journey' },
-  { id: 'history', name: 'History' }
-]
-
 const STRATEGY_FRAMEWORKS: Facet[] = [
   { id: 'ghc', name: 'GHC' },
   { id: 'hov', name: 'HoV' }
@@ -197,7 +192,7 @@ const STRATEGY_FRAMEWORKS: Facet[] = [
 const ALL_CATEGORIES = [
   'guide_type', 'sub_domain', 'unit', 'location', 'testimonial_category',
   'product_type', 'product_stage', 'guidelines_category',
-  'strategy_type', 'strategy_framework',
+  'strategy_framework',
   'glossary_knowledge_system', 'glossary_ghc_dimension', 'glossary_6xd_perspective', 'glossary_letter',
   'faq_category'
 ]
@@ -276,23 +271,6 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
   const isFAQsSelected = activeTab === 'faqs'
   const isResourcesSelected = activeTab === 'resources'
   const prevTabRef = useRef<typeof activeTab>(activeTab)
-  
-  // Filter strategy options based on available data in facets
-  // Only show filter options that have matching guides in the database
-  const availableStrategyTypes = useMemo(() => {
-    if (!isStrategySelected) return []
-    // If facets are not loaded yet, show all options (they'll be filtered once data loads)
-    if (!facets.sub_domain || facets.sub_domain.length === 0) return STRATEGY_TYPES
-    
-    const subDomainIds = new Set(facets.sub_domain.map(f => f.id.toLowerCase()))
-    return STRATEGY_TYPES.filter(type => {
-      const typeId = type.id.toLowerCase()
-      // Check if any sub_domain matches this type (strategy filters check sub_domain field)
-      return Array.from(subDomainIds).some(sd => 
-        sd.includes(typeId) || typeId.includes(sd) || sd === typeId
-      )
-    })
-  }, [isStrategySelected, facets.sub_domain])
   
   const availableStrategyFrameworks = useMemo(() => {
     if (!isStrategySelected) return []
@@ -593,20 +571,17 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
         </>
       )}
       {isTestimonialsSelected && (
-        <Section idPrefix={instanceId} title="Story Type" category="testimonial_category" collapsed={collapsedSet.has('testimonial_category')} onToggle={toggleCollapsed}>
-          <CheckboxList idPrefix={instanceId} name="testimonial_category" options={TESTIMONIAL_CATEGORIES} query={query} onChange={onChange} />
+      <Section idPrefix={instanceId} title="Story Type" category="testimonial_category" collapsed={collapsedSet.has('testimonial_category')} onToggle={toggleCollapsed}>
+        <CheckboxList idPrefix={instanceId} name="testimonial_category" options={TESTIMONIAL_CATEGORIES} query={query} onChange={onChange} />
+      </Section>
+    )}
+    {isStrategySelected && (
+      <>
+        <Section idPrefix={instanceId} title="Framework" category="strategy_framework" collapsed={collapsedSet.has('strategy_framework')} onToggle={toggleCollapsed}>
+          <CheckboxList idPrefix={instanceId} name="strategy_framework" options={availableStrategyFrameworks.length > 0 ? availableStrategyFrameworks : STRATEGY_FRAMEWORKS} query={query} onChange={onChange} />
         </Section>
-      )}
-      {isStrategySelected && (
-        <>
-          <Section idPrefix={instanceId} title="Strategy Type" category="strategy_type" collapsed={collapsedSet.has('strategy_type')} onToggle={toggleCollapsed}>
-            <CheckboxList idPrefix={instanceId} name="strategy_type" options={availableStrategyTypes.length > 0 ? availableStrategyTypes : STRATEGY_TYPES} query={query} onChange={onChange} />
-          </Section>
-          <Section idPrefix={instanceId} title="Framework" category="strategy_framework" collapsed={collapsedSet.has('strategy_framework')} onToggle={toggleCollapsed}>
-            <CheckboxList idPrefix={instanceId} name="strategy_framework" options={availableStrategyFrameworks.length > 0 ? availableStrategyFrameworks : STRATEGY_FRAMEWORKS} query={query} onChange={onChange} />
-          </Section>
-        </>
-      )}
+      </>
+    )}
       {!isGlossarySelected && !isBlueprintSelected && !isStrategySelected && (
         <>
           {(isGuidelinesSelected || isFAQsSelected) ? (
