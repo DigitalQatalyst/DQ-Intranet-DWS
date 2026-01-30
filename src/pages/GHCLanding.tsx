@@ -431,10 +431,8 @@ export function GHCLanding() {
             className="ghc-font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-4"
             style={{
               whiteSpace: 'nowrap',
-              fontSize: 'clamp(48px, 6vw, 72px)',
+              fontSize: 'clamp(40px, 6vw, 72px)',
               lineHeight: 1.05,
-              textOverflow: 'ellipsis',
-              overflow: 'hidden',
             }}
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -449,9 +447,7 @@ export function GHCLanding() {
             className="text-[18px] text-white/85 mb-10 max-w-2xl mx-auto leading-relaxed"
             style={{
               whiteSpace: 'nowrap',
-              fontSize: 'clamp(16px, 3vw, 22px)',
-              textOverflow: 'ellipsis',
-              overflow: 'hidden',
+              fontSize: 'clamp(16px, 3vw, 20px)',
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
