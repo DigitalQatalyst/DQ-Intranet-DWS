@@ -454,7 +454,7 @@ textarea:-webkit-autofill {
 }
 
 .ghc-page .ghc-font-display {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: var(--dq-font);
 }
 
 .ghc-page .scrollbar-hide {
