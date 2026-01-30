@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Clock, Layers } from 'lucide-react';
+import { toTitleCase } from '../../utils/textUtils';
 import {
   resolveChipIcon
 } from '../../utils/lmsIcons';
@@ -7,7 +8,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 import { resolveServiceImage } from '../../utils/serviceCardImages';
-import { buildShortTitle } from '../../utils/textUtils';
 export interface MarketplaceItemProps {
   item: {
     id: string;
@@ -182,15 +182,15 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
     item.featuredImageUrl ||
     resolveServiceImage(item.id, item.title) ||
     '/images/services/DTMP.jpg';
-  const displayTitle = buildShortTitle(item.title, 5);
+  const displayTitle = toTitleCase(item.title);
   
   return <div className="flex flex-col min-h-[340px] bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200" onClick={onQuickView}>
       {/* Featured Image */}
       <div className="relative h-48 bg-gray-200 overflow-hidden">
         <img 
           src={imageSrc}
-          alt={item.title}
-          className="w-full h-full object-cover"
+          alt={toTitleCase(item.title)}
+          className="w-full h-full object-cover object-top"
           onError={(e) => {
             // Fallback to a gradient if image fails to load
             const target = e.target as HTMLImageElement;
@@ -209,7 +209,7 @@ export const MarketplaceCard: React.FC<MarketplaceItemProps> = ({
             <h3
               className="font-bold text-gray-900 line-clamp-2 leading-tight"
               style={{ margin: 0, lineHeight: 1.15 }}
-              title={item.title}
+              title={displayTitle}
             >
               {displayTitle}
             </h3>

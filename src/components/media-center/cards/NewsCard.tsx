@@ -1,7 +1,6 @@
 import type { NewsItem } from '@/data/media/news';
 import { Link } from 'react-router-dom';
 import { formatDateVeryShort, generateTitle, getNewsTypeDisplay, getNewsImageSrc } from '@/utils/newsUtils';
-import { buildShortTitle } from '@/utils/textUtils';
 
 interface NewsCardProps {
   item: NewsItem;
@@ -21,8 +20,7 @@ const fallbackHero =
 export function NewsCard({ item, href }: NewsCardProps) {
   // Use shared utility function to ensure consistency with detail pages
   const imageSrc = getNewsImageSrc(item, fallbackImages, fallbackHero);
-  const rawTitle = generateTitle(item);
-  const displayTitle = buildShortTitle(rawTitle, 5);
+  const displayTitle = generateTitle(item);
   const newsTypeDisplay = getNewsTypeDisplay(item);
   
   // Get views from localStorage (synced with details page)
@@ -32,7 +30,7 @@ export function NewsCard({ item, href }: NewsCardProps) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className="relative">
-        <img src={imageSrc} alt={displayTitle} className="h-40 w-full object-cover" loading="lazy" />
+        <img src={imageSrc} alt={displayTitle} className="h-48 w-full object-cover object-top" loading="lazy" />
         <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/40 bg-white/80 px-3 py-1 text-xs font-semibold text-gray-700 backdrop-blur">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: newsTypeDisplay.color }} />
           {newsTypeDisplay.label}
@@ -50,14 +48,6 @@ export function NewsCard({ item, href }: NewsCardProps) {
           <div className="mt-3 text-xs text-gray-500">
             {views} views {item.location ? ` · ${item.location}` : ''}
           </div>
-
-          {(item.newsType || item.focusArea || item.newsSource) && (
-            <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-gray-600">
-              {item.newsType && <span className="rounded-full bg-gray-100 px-2 py-1">{item.newsType}</span>}
-              {item.newsSource && <span className="rounded-full bg-gray-100 px-2 py-1">{item.newsSource}</span>}
-              {item.focusArea && <span className="rounded-full bg-gray-100 px-2 py-1">{item.focusArea}</span>}
-            </div>
-          )}
         </div>
 
         <div className="mt-auto pt-4">

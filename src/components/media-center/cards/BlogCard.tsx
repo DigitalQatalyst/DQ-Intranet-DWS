@@ -35,7 +35,7 @@ export function BlogCard({ item, href }: BlogCardProps) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className="relative">
-        <img src={imageSrc} alt={displayTitle} className="h-40 w-full object-cover" loading="lazy" />
+        <img src={imageSrc} alt={displayTitle} className="h-48 w-full object-cover object-top" loading="lazy" />
         {/* Category tag with unique color */}
         <div className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/40 bg-white/80 px-3 py-1 text-xs font-semibold text-gray-700 backdrop-blur">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: categoryColor }} />
@@ -54,12 +54,6 @@ export function BlogCard({ item, href }: BlogCardProps) {
           <div className="mt-3 text-xs text-gray-500">
             {isPodcast ? `${views} listens` : `${views} views`}
           </div>
-
-          {item.source && (
-            <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-gray-600">
-              <span className="rounded-full bg-gray-100 px-2 py-1">{item.source}</span>
-            </div>
-          )}
         </div>
 
         <div className="mt-auto pt-4">

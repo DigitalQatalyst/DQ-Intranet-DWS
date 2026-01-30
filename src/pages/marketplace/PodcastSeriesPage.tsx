@@ -2,14 +2,15 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { Radio, Clock, Calendar, Play, Pause, Plus, ArrowUpDown, Share2, Download, Bookmark, HomeIcon, ChevronRightIcon, BookmarkIcon, Volume2, VolumeX, RotateCcw, RotateCw } from 'lucide-react';
+import { Radio, Clock, Play, Pause, Plus, ArrowUpDown, Share2, Download, Bookmark, HomeIcon, ChevronRightIcon, BookmarkIcon, Volume2, VolumeX, RotateCcw, RotateCw } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
 import { fetchAllNews } from '@/services/mediaCenterService';
 import { formatDateVeryShort, formatDuration, formatListens, formatTime } from '@/utils/newsUtils';
 import { parseBold } from '@/utils/contentParsing';
 import { Breadcrumb } from '@/components/media-center/shared/Breadcrumb';
 
-const PODCAST_IMAGE = '/podcasts.jpg';
+// Use the Action-Solver series image for both podcast series heroes
+const PODCAST_IMAGE = '/image (12).png';
 
 // Explicit canonical order of Action-Solver podcast episodes (EP1..EP10)
 const ACTION_SOLVER_EPISODE_ORDER: string[] = [
@@ -876,9 +877,9 @@ export default function PodcastSeriesPage() {
 
         {/* Hero Section with Background Image */}
         <section className="relative min-h-[320px] md:min-h-[400px] flex items-center" aria-labelledby="podcast-title">
-          {/* Background Image */}
+          {/* Background Image - top aligned to keep DQ logo visible */}
           <div 
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover bg-top"
             style={{
               backgroundImage: `url('${seriesHeroImage}')`,
             }}
@@ -889,10 +890,10 @@ export default function PodcastSeriesPage() {
           {/* Content */}
           <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-24 w-full">
             <div className="max-w-4xl">
-              {/* Category Tag */}
+              {/* Category Tag - always show GHC */}
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-white/20 backdrop-blur-sm text-white mb-4">
-                    {seriesLabel}
-                  </span>
+                GHC
+              </span>
               
               {/* Title */}
               <h1 id="podcast-title" className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
@@ -903,20 +904,16 @@ export default function PodcastSeriesPage() {
               <p className="text-white/90 text-lg mb-6">
                 Short conversations that solve real work problems at DQ
               </p>
-                
-                {/* Metadata */}
+
+              {/* Metadata */}
               <div className="flex flex-wrap items-center gap-6 text-white/90 text-sm mb-6">
-                  <div className="flex items-center gap-2">
-                    <Radio size={16} />
-                    <span>{episodes.length} episodes</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock size={16} />
-                    <span>~{averageDuration} min avg</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} />
-                    <span>Weekly</span>
+                <div className="flex items-center gap-2">
+                  <Radio size={16} />
+                  <span>10 episodes</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock size={16} />
+                  <span>~13 min avg</span>
                 </div>
               </div>
 
@@ -945,12 +942,6 @@ export default function PodcastSeriesPage() {
             <div className="flex flex-wrap gap-2">
               <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
                 GHC
-              </span>
-              <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
-                Execution
-              </span>
-              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-                Leadership
               </span>
             </div>
           </div>

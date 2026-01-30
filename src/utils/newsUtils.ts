@@ -78,7 +78,7 @@ export const toTitleCase = (text: string): string => {
 export const generateTitle = (item: NewsItem): string => {
   // If title exists and is not empty, return it
   if (item.title?.trim()) {
-    return item.title;
+    return toTitleCase(item.title.trim());
   }
 
   // Generate title based on available information
@@ -113,7 +113,8 @@ export const generateTitle = (item: NewsItem): string => {
       // Take first 8 words and capitalize
       const titleFromExcerpt = excerptWords.slice(0, 8).join(' ');
       if (titleFromExcerpt.length > 20) {
-        return parts.length > 0 ? `${parts.join(' | ')} | ${titleFromExcerpt}` : titleFromExcerpt;
+        const generated = parts.length > 0 ? `${parts.join(' | ')} | ${titleFromExcerpt}` : titleFromExcerpt;
+        return toTitleCase(generated);
       }
     }
   }
@@ -124,7 +125,8 @@ export const generateTitle = (item: NewsItem): string => {
     if (firstLine) {
       const cleanLine = firstLine.trim().replace(/^#+\s+/, '').replace(/\*\*/g, '').substring(0, 60);
       if (cleanLine.length > 15) {
-        return parts.length > 0 ? `${parts.join(' | ')} | ${cleanLine}` : cleanLine;
+        const generated = parts.length > 0 ? `${parts.join(' | ')} | ${cleanLine}` : cleanLine;
+        return toTitleCase(generated);
       }
     }
   }
@@ -138,13 +140,15 @@ export const generateTitle = (item: NewsItem): string => {
     
     if (meaningfulParts.length > 0) {
       const idTitle = meaningfulParts.join(' ');
-      return parts.length > 0 ? `${parts.join(' | ')} | ${idTitle}` : idTitle;
+      const generated = parts.length > 0 ? `${parts.join(' | ')} | ${idTitle}` : idTitle;
+      return toTitleCase(generated);
     }
   }
 
   // Final fallback
   const typeLabel = item.type === 'Thought Leadership' ? 'Blog' : (item.newsType || item.type || 'Announcement');
-  return parts.length > 0 ? `${parts.join(' | ')} | ${typeLabel}` : typeLabel;
+  const generated = parts.length > 0 ? `${parts.join(' | ')} | ${typeLabel}` : typeLabel;
+  return toTitleCase(generated);
 };
 
 /**
@@ -258,18 +262,8 @@ export const getNewsImageSrc = (
   if (item.type === 'Thought Leadership') {
     return '/image (7).jpg';
   }
-  // Use series-specific images for podcast articles
+  // Use a single series image for all podcast articles (both series)
   if (item.format === 'Podcast' || item.tags?.some(tag => tag.toLowerCase().includes('podcast'))) {
-    const isExecutionMindset =
-      item.tags?.some(tag => tag.toLowerCase().includes('series-2')) ||
-      (item.audioUrl && item.audioUrl.includes('/02. Series 02 - The Execution Mindset/'));
-
-    // Series 2 (The Execution Mindset) retains the generic podcasts image
-    if (isExecutionMindset) {
-      return '/podcasts.jpg';
-    }
-
-    // Default for Series 1 (Action-Solver) and other podcasts
     return '/image (12).png';
   }
   // Use a dedicated image for all announcement-style items shown in the

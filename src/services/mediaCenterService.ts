@@ -3,17 +3,25 @@ import type { JobItem } from '@/data/media/jobs'
 import { NEWS } from '@/data/media/news'
 import { JOBS } from '@/data/media/jobs'
 
+// Temporarily exclude specific legacy announcements from UI listings
+const EXCLUDED_NEWS_IDS: string[] = [
+  'dq-dxb-ksa-christmas-new-year-schedule',
+  'dq-nbo-christmas-new-year-schedule'
+]
+
 /**
  * Fetch all news items from local data
  * Returns news sorted by date (newest first)
  */
 export async function fetchAllNews(): Promise<NewsItem[]> {
   // Return local data sorted by date (newest first)
-  return [...NEWS].sort((a, b) => {
-    const dateA = new Date(a.date).getTime()
-    const dateB = new Date(b.date).getTime()
-    return dateB - dateA
-  })
+  return [...NEWS]
+    .filter(item => !EXCLUDED_NEWS_IDS.includes(item.id))
+    .sort((a, b) => {
+      const dateA = new Date(a.date).getTime()
+      const dateB = new Date(b.date).getTime()
+      return dateB - dateA
+    })
 }
 
 /**

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { FilterIcon, HomeIcon, XIcon, ChevronRightIcon, Search } from 'lucide-react';
+import { FilterIcon, HomeIcon, XIcon, ChevronRightIcon } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import FiltersPanel from '@/components/media-center/FiltersPanel';
@@ -506,12 +506,11 @@ const NewsPage: React.FC = () => {
 
           <div className="mt-4 mb-4 flex flex-col gap-3 md:mb-6 md:flex-row md:items-center md:justify-between">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
                 value={queryText}
                 onChange={(e) => setQueryText(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="h-11 pl-10 w-full"
+                className="h-11 w-full"
               />
               {tab === 'podcasts' && queryText.trim() && (
                 <div className="absolute z-20 mt-1 w-full max-h-64 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
@@ -655,20 +654,27 @@ const NewsPage: React.FC = () => {
                 <PodcastsGrid query={query} items={newsItems} />
               </TabsContent>
               <TabsContent value="opportunities">
-                <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-                  <div className="relative h-56 w-full bg-gray-200">
-                    <img
-                      src="/image (8).jpg"
-                      alt="Job Openings Coming Soon"
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="px-6 py-5 text-center">
-                    <p className="text-sm font-semibold text-gray-900 mb-1">Job Openings Coming Soon</p>
-                    <p className="text-sm text-gray-600 max-w-xl mx-auto">
-                      Internal job postings will be published here once the Job Openings feature is live.
-                    </p>
+                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                    <div className="relative h-48 w-full bg-gray-200">
+                      <img
+                        src="/image (8).jpg"
+                        alt="Job Openings Coming Soon"
+                        className="h-full w-full object-cover object-top"
+                        loading="lazy"
+                      />
+                      {/* Centered overlay text across the image */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="rounded-full bg-black/60 px-5 py-2">
+                          <p className="text-sm font-semibold text-white">Job Openings Coming Soon</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="px-6 py-4 text-center">
+                      <p className="text-sm text-gray-600 max-w-xl mx-auto">
+                        Internal job postings will be published here once the Job Openings feature is live.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </TabsContent>

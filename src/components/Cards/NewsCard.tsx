@@ -1,8 +1,7 @@
 import React from 'react';
 import { UnifiedCard, CardContent, CardVariantConfig } from './UnifiedCard';
 import { ExternalLink } from 'lucide-react';
-
-import { buildShortTitle } from '../../utils/textUtils';
+import { toTitleCase } from '../../utils/textUtils';
 
 export interface NewsItem {
   id: string;
@@ -34,7 +33,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({
     onReadMore();
   };
 
-  const displayTitle = buildShortTitle(item.title, 5);
+  const displayTitle = toTitleCase(item.title);
 
   const content: CardContent = {
     title: displayTitle,
