@@ -247,7 +247,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
 
   const TAB_DESCRIPTIONS: Record<WorkGuideTab, { description: string; author?: string }> = {
     strategy: {
-      description: 'Learn about our plans and strategies that guide DQ\'s growth and decision-making.',
+      description: 'Explore the Golden Honeycomb of Competencies (GHC), the system behind how DQ works and delivers value.',
       author: 'Authored by DQ Leadership and Strategy Teams'
     },
     guidelines: {
