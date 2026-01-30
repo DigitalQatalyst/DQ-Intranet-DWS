@@ -584,29 +584,31 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
           >
             THE FOUNDATION
           </motion.p>
-          <motion.h2
-            variants={itemVariants}
-            className="ghc-font-display text-4xl md:text-6xl font-bold text-[#131e42] mb-5"
-            style={{
-              whiteSpace: 'nowrap',
-              fontSize: 'clamp(32px, 5vw, 56px)',
-              lineHeight: 1.05,
-              textAlign: 'center',
-            }}
-          >
-            What is the Golden Honeycomb?
-          </motion.h2>
-          <motion.p
-            variants={itemVariants}
-            className="text-[#4a5678] text-base md:text-lg leading-relaxed max-w-3xl mx-auto"
-            style={{
-              whiteSpace: 'nowrap',
-              fontSize: 'clamp(15px, 2.6vw, 20px)',
-              textAlign: 'center',
-            }}
-          >
-            Not a framework to memorise — an operating system for modern work that guides how you think, decide, adapt, and create impact.
-          </motion.p>
+          <div className="mx-auto w-fit text-center space-y-3">
+            <motion.h2
+              variants={itemVariants}
+              className="ghc-font-display text-4xl md:text-6xl font-bold text-[#131e42]"
+              style={{
+                whiteSpace: 'nowrap',
+                fontSize: 'clamp(32px, 5vw, 56px)',
+                lineHeight: 1.05,
+              }}
+            >
+              What is the Golden Honeycomb?
+            </motion.h2>
+            <motion.p
+              variants={itemVariants}
+              className="text-[#4a5678] text-base md:text-lg leading-relaxed"
+              style={{
+                whiteSpace: 'nowrap',
+                fontSize: 'clamp(15px, 2.6vw, 20px)',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+              }}
+            >
+              Not a framework to memorise — an operating system for modern work that guides how you think, decide, adapt, and create impact.
+            </motion.p>
+          </div>
 
         </motion.div>
 
