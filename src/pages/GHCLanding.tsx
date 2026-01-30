@@ -720,9 +720,8 @@ function SectionCarousel({
         </motion.div>
 
         <div className="relative overflow-hidden">
-          <div className="absolute inset-y-10 left-0 right-0 mx-auto max-w-6xl pointer-events-none">
-            <div className="h-full bg-gradient-to-r from-white via-transparent to-white opacity-90" />
-          </div>
+          <div className="pointer-events-none absolute inset-y-6 left-0 w-16 bg-gradient-to-r from-white via-white/60 to-transparent" />
+          <div className="pointer-events-none absolute inset-y-6 right-0 w-16 bg-gradient-to-l from-white via-white/60 to-transparent" />
 
           <div
             ref={carouselRef}
