@@ -169,7 +169,7 @@ const FEATURE_CARDS = [
   {
     title: 'Seven elements',
     icon: IconSeven,
-    description: 'Seven connected competency areas working together as one operating system for modern work.',
+    description: 'Connected competency areas working together as one operating system for modern work.',
   },
 ];
 
