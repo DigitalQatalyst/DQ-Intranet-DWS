@@ -448,6 +448,9 @@ export function GHCLanding() {
             style={{
               whiteSpace: 'nowrap',
               fontSize: 'clamp(16px, 3vw, 20px)',
+              textAlign: 'center',
+              marginLeft: 'auto',
+              marginRight: 'auto',
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
