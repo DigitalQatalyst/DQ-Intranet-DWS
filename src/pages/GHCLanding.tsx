@@ -580,7 +580,7 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
         >
           <motion.p
             variants={itemVariants}
-            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/20 border border-[#f0f6ff]/40 shadow-sm px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-[#e1513b] mb-4"
+            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/35 border border-[#e1513b]/50 shadow-sm px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-[#e1513b] mb-4"
           >
             THE FOUNDATION
           </motion.p>
