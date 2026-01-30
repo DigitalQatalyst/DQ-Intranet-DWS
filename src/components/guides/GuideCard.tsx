@@ -247,13 +247,13 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
   }
   
   return (
-    <div className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col" onClick={onClick}>
+    <div className="bg-white rounded-lg shadow p-3 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col" onClick={onClick}>
       {imageUrl && (
         <div className={`rounded-lg overflow-hidden mb-3 ${isBlueprint ? 'bg-slate-100' : ''}`}>
           <img 
             src={imageUrl} 
             alt={displayTitle} 
-            className={`w-full h-48 ${isBlueprint ? 'object-contain p-2' : 'object-cover'}`} 
+            className={`w-full h-40 ${isBlueprint ? 'object-contain p-2' : 'object-cover'}`} 
             loading="lazy" 
             decoding="async" 
             width={640} 
@@ -263,9 +263,9 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
           />
         </div>
       )}
-      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 min-h-[40px]" title={displayTitle}>{displayTitle}</h3>
-      <p className="text-sm text-gray-600 line-clamp-3 min-h-[60px] mb-3">{displayDescription}</p>
-      <div className="flex flex-wrap gap-2 mb-3 min-h-[32px]">
+      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2" title={displayTitle}>{displayTitle}</h3>
+      <p className="text-sm text-gray-600 line-clamp-3 mb-2">{displayDescription}</p>
+      <div className="flex flex-wrap gap-2 mb-2">
         {!isBlueprint && (
           <>
             {domain && (

@@ -113,6 +113,11 @@ const GuideDetailPage: React.FC = () => {
     const title = (guide?.title || '').toLowerCase()
     return slug === 'dq-rescue-shift-guidelines' || slug === 'rescue-shift-guidelines' || title.includes('rescue shift')
   }, [guide?.slug, guide?.title])
+  const isVisionGuide = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    const title = (guide?.title || '').toLowerCase()
+    return slug === 'dq-vision' || title.includes('vision')
+  }, [guide?.slug, guide?.title])
   const isRAID = useMemo(() => {
     const slug = (guide?.slug || '').toLowerCase()
     const title = (guide?.title || '').toLowerCase()
@@ -619,13 +624,20 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     return (guideSections || [])?.find((s: any) => s.id === 'overview') || null
   }, [guideSections])
   const sectionsForTabs = useMemo(() => {
+    if (isVisionGuide) {
+      return [
+        { id: 'overview', title: 'Overview - Short Summary', content: '' },
+        { id: 'story', title: 'Explore Story Book', content: '' },
+        { id: 'course', title: 'Course - Learning Center', content: '' },
+      ]
+    }
     if (!guideSections) return null
     // If there's an Overview section, show it separately and put other sections in tabs
     // Otherwise, show all sections as tabs
     return overviewSection ? guideSections.filter((s: any) => s.id !== 'overview') : guideSections
-  }, [guideSections, overviewSection])
+  }, [guideSections, overviewSection, isVisionGuide])
   const hasTabsEffective = !!(sectionsForTabs && sectionsForTabs.length > 0)
-  const hasOverviewSection = !!overviewSection
+  const hasOverviewSection = isVisionGuide ? false : !!overviewSection
 
   // If Overview is separated and active tab is overview, default to first remaining section
   useEffect(() => {
@@ -1619,8 +1631,8 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                 {sectionsForTabs.map((section) => (
                   <button
                     key={section.id}
-                    onClick={() => setActiveContentTab(section.id)}
-                    className={`px-0 py-4 text-sm font-medium border-b-2 transition-colors ${
+                  onClick={() => setActiveContentTab(section.id)}
+                  className={`px-0 py-4 text-sm font-medium border-b-2 transition-colors ${
                       activeContentTab === section.id
                         ? 'border-blue-600 text-blue-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -1643,15 +1655,62 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                   role="tabpanel"
                   aria-labelledby={`tab-${section.id}`}
                 >
-                  <article
-                    ref={articleRef}
-                    className="markdown-body"
-                    dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}
-                  >
-                    <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                      <Markdown body={formatSectionContent(section)} />
-                    </React.Suspense>
-                  </article>
+                  {isVisionGuide && section.id === 'overview' && (
+                    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Overview - Short Summary</h3>
+                      <p className="text-gray-700">
+                        {guide?.summary || 'This guide introduces the Vision—why DQ exists, what makes it unique, and how it directs all competencies.'}
+                      </p>
+                    </div>
+                  )}
+                  {isVisionGuide && section.id === 'story' && (
+                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Explore the Story Book</h3>
+                      <p className="text-gray-700 mb-4">
+                        Dive deeper into the Vision story—why DQ exists, our mission, and how the GHC shapes the journey.
+                      </p>
+                      <a
+                        href={guide?.documentUrl || guide?.heroImageUrl || '#'}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center px-4 py-2 rounded-md text-white bg-blue-700 hover:bg-blue-800 transition-colors"
+                        style={{ backgroundColor: '#030F35' }}
+                      >
+                        Open Story Book
+                        <ExternalLink size={16} className="ml-2" />
+                      </a>
+                      {!(guide?.documentUrl || guide?.heroImageUrl) && (
+                        <p className="text-xs text-gray-500 mt-2">Story book link not provided yet.</p>
+                      )}
+                    </div>
+                  )}
+                  {isVisionGuide && section.id === 'course' && (
+                    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Course - Learning Center</h3>
+                      <p className="text-gray-700 mb-4">
+                        Continue your learning with the GHC Course in the Learning Center.
+                      </p>
+                      <a
+                        href="/lms/ghc-course"
+                        className="inline-flex items-center px-4 py-2 rounded-md text-white bg-blue-700 hover:bg-blue-800 transition-colors"
+                        style={{ backgroundColor: '#030F35' }}
+                      >
+                        Go to Course
+                        <ExternalLink size={16} className="ml-2" />
+                      </a>
+                    </div>
+                  )}
+                  {!isVisionGuide && (
+                    <article
+                      ref={articleRef}
+                      className="markdown-body"
+                      dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}
+                    >
+                      <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
+                        <Markdown body={formatSectionContent(section)} />
+                      </React.Suspense>
+                    </article>
+                  )}
                 </div>
               ))}
             </div>
