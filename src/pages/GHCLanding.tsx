@@ -167,7 +167,7 @@ const FEATURE_CARDS = [
     description: 'Designed for environments where work never stands still, and roles, priorities, and learning shift in real time.',
   },
   {
-    title: 'Seven Competency Areas',
+    title: 'Seven elements',
     icon: IconSeven,
     description: 'Seven connected competency areas working together as one operating system for modern work.',
   },
