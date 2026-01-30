@@ -670,52 +670,50 @@ function SectionCarousel({
       className="relative py-24 bg-white"
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-10">
-        <motion.div className="mb-12" initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6">
-            <div className="text-center md:text-left">
-              <motion.span
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur"
-                initial={{ opacity: 0, y: 12 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.35 }}
-              >
-                THE FRAMEWORK
-              </motion.span>
-              <motion.h2
-                className="ghc-font-display text-4xl md:text-5xl font-semibold text-[#131e42] mt-4 max-w-3xl"
-                initial={{ opacity: 0, y: 16 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.45, delay: 0.1 }}
-              >
-                Seven responses
-              </motion.h2>
-              <motion.p
-                className="text-[#4a5678] max-w-2xl mt-3 text-lg md:text-xl"
-                initial={{ opacity: 0, y: 14 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.45, delay: 0.2 }}
-              >
-                Each exists because something in traditional work stopped working. Problem → response.
-              </motion.p>
-            </div>
-            <div className="flex items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={onPrev}
-                className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
-                aria-label="Previous competency"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                onClick={onNext}
-                className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
-                aria-label="Next competency"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-            </div>
+        <motion.div className="mb-12 relative" initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
+          <div className="text-center mx-auto">
+            <motion.span
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur"
+              initial={{ opacity: 0, y: 12 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.35 }}
+            >
+              THE FRAMEWORK
+            </motion.span>
+            <motion.h2
+              className="ghc-font-display text-4xl md:text-5xl font-semibold text-[#131e42] mt-4 max-w-3xl mx-auto"
+              initial={{ opacity: 0, y: 16 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.45, delay: 0.1 }}
+            >
+              Seven responses
+            </motion.h2>
+            <motion.p
+              className="text-[#4a5678] max-w-2xl mx-auto mt-3 text-lg md:text-xl"
+              initial={{ opacity: 0, y: 14 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.45, delay: 0.2 }}
+            >
+              Each exists because something in traditional work stopped working. Problem → response.
+            </motion.p>
+          </div>
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onPrev}
+              className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
+              aria-label="Previous competency"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={onNext}
+              className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
+              aria-label="Next competency"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
         </motion.div>
 
