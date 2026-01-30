@@ -429,12 +429,12 @@ export function GHCLanding() {
 
         <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-8 text-center max-w-4xl">
           <motion.div
-            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/20 border border-[#f0f6ff]/40 shadow-sm px-4 py-1.5 text-sm text-[#f0f6ff] mb-6"
+            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/20 border border-[#e1513b]/50 shadow-sm px-4 py-1.5 text-sm text-[#e1513b] backdrop-blur mb-6"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Sparkles className="h-4 w-4 text-[#f0f6ff]" />
+            <Sparkles className="h-4 w-4 text-[#e1513b]" />
             <span>The Golden Honeycomb of Competencies (GHC)</span>
           </motion.div>
           <motion.div
@@ -580,7 +580,7 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
         >
           <motion.p
             variants={itemVariants}
-            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/20 border border-[#f0f6ff]/40 shadow-sm px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-[#f0f6ff] backdrop-blur mb-4"
+            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/20 border border-[#e1513b]/50 shadow-sm px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-[#e1513b] backdrop-blur mb-4"
           >
             THE FOUNDATION
           </motion.p>
@@ -699,7 +699,7 @@ function SectionCarousel({
       <div className="container mx-auto px-4 md:px-6 lg:px-10">
         <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
           <motion.span
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#f0f6ff]/40 text-[#f0f6ff] shadow-sm backdrop-blur"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur"
             initial={{ opacity: 0, y: 12 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.35 }}
@@ -934,7 +934,7 @@ function SectionTakeAction({ navigate }: { navigate: (path: string) => void }) {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
         >
-          <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#f0f6ff]/40 text-[#f0f6ff] shadow-sm backdrop-blur mx-auto mb-2">
+          <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur mx-auto mb-2">
             TAKE ACTION
           </p>
           <h2 className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3">
@@ -1039,14 +1039,14 @@ function SectionFinalCTA({ navigate }: { navigate: (path: string) => void }) {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
           >
-            <motion.p
-              className="text-xs font-semibold uppercase tracking-[0.24em] text-white/80 mb-3"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.15 }}
-            >
-              Join the community
-            </motion.p>
+          <motion.p
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-white/15 border border-[#e1513b]/50 text-[#e1513b] backdrop-blur mb-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.15 }}
+          >
+            Join the community
+          </motion.p>
             <motion.h2
               className="ghc-font-display font-bold text-4xl sm:text-5xl md:text-5xl lg:text-6xl leading-[1.1] text-white tracking-tight"
               initial={{ opacity: 0, y: 20 }}
