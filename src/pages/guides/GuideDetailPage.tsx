@@ -624,19 +624,20 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     return (guideSections || [])?.find((s: any) => s.id === 'overview') || null
   }, [guideSections])
   const sectionsForTabs = useMemo(() => {
-    if (!guideSections) return null
     if (isVisionGuide) {
       return [
+        { id: 'overview', title: 'Overview - Short Summary', content: '' },
         { id: 'story', title: 'Explore Story Book', content: '' },
         { id: 'course', title: 'Course - Learning Center', content: '' },
       ]
     }
+    if (!guideSections) return null
     // If there's an Overview section, show it separately and put other sections in tabs
     // Otherwise, show all sections as tabs
     return overviewSection ? guideSections.filter((s: any) => s.id !== 'overview') : guideSections
   }, [guideSections, overviewSection, isVisionGuide])
   const hasTabsEffective = !!(sectionsForTabs && sectionsForTabs.length > 0)
-  const hasOverviewSection = !!overviewSection
+  const hasOverviewSection = isVisionGuide ? false : !!overviewSection
 
   // If Overview is separated and active tab is overview, default to first remaining section
   useEffect(() => {
@@ -1627,9 +1628,9 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
             {/* Tabs */}
             <div className="border-b border-gray-200">
               <nav className="flex space-x-8 px-6" aria-label="Content tabs">
-              {sectionsForTabs.map((section) => (
-                <button
-                  key={section.id}
+                {sectionsForTabs.map((section) => (
+                  <button
+                    key={section.id}
                   onClick={() => setActiveContentTab(section.id)}
                   className={`px-0 py-4 text-sm font-medium border-b-2 transition-colors ${
                       activeContentTab === section.id
@@ -1654,6 +1655,14 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                   role="tabpanel"
                   aria-labelledby={`tab-${section.id}`}
                 >
+                  {isVisionGuide && section.id === 'overview' && (
+                    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">Overview - Short Summary</h3>
+                      <p className="text-gray-700">
+                        {guide?.summary || 'This guide introduces the Vision—why DQ exists, what makes it unique, and how it directs all competencies.'}
+                      </p>
+                    </div>
+                  )}
                   {isVisionGuide && section.id === 'story' && (
                     <div className="bg-blue-50 border border-blue-100 rounded-lg p-6">
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">Explore the Story Book</h3>
