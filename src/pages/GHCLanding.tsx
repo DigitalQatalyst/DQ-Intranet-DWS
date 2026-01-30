@@ -149,17 +149,17 @@ const FEATURE_CARDS = [
   {
     title: 'Operating DNA',
     icon: Hexagon,
-    description: 'How you analyse situations, make decisions, and act with clarity when work becomes complex and unpredictable.',
+    description: 'How GHC guides you to think, decide, and act with clarity when work is complex and unpredictable.',
   },
   {
     title: 'Built for Change',
     icon: RefreshCw,
-    description: 'Designed for work that never stands still, where roles shift, priorities change, and learning happens through action.',
+    description: 'Designed for environments where work never stands still, and roles, priorities, and learning shift in real time.',
   },
   {
-    title: 'Seven Elements',
+    title: 'Seven Competency Areas',
     icon: Layers,
-    description: 'Seven connected responses working together as one operating system for the reality of modern work.',
+    description: 'Seven connected competency areas working together as one operating system for modern work.',
   },
 ];
 
@@ -584,7 +584,7 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
             variants={itemVariants}
             className="text-[#4a5678] text-base md:text-lg leading-relaxed max-w-3xl mx-auto"
           >
-            Not a framework to memorise — a system you live inside, guiding how you think, decide, adapt, and create impact.
+            Not a framework to memorise — an operating system for modern work that guides how you think, decide, adapt, and create impact.
           </motion.p>
 
         </motion.div>
