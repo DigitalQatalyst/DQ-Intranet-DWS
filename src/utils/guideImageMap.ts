@@ -30,7 +30,7 @@ const typeFallbacks: Record<string, string> = {
 const GHC_IMAGE = '/images/honeycomb.png'
 
 // HoV (House of Values) main image
-const HOV_IMAGE = '/images/house-of-values.png'
+const HOV_IMAGE = '/images/House%20of%20Values.png'
 
 // Guidelines image
 const GUIDELINES_IMAGE = '/images/guidelines.PNG'
@@ -74,7 +74,7 @@ const strategyFallbacks: string[] = [
   '/images/Agile%20TMS.png',
   '/images/Agile%20SoS.png',
   '/images/Agile%20Flows.png',
-  '/images/Hov.png',
+  '/images/House%20of%20Values.png',
 ]
 
 // Explicit strategy/GHC mappings keyed by slug fragments to ensure card names get the right image
@@ -97,8 +97,8 @@ const strategyGuideImages: Record<string, string> = {
   'vision': '/images/Vision.png',
   'dq-persona': '/images/Persona.png',
   'persona': '/images/Persona.png',
-  'dq-hov': '/images/Hov.png',
-  'hov': '/images/Hov.png'
+  'dq-hov': '/images/House%20of%20Values.png',
+  'hov': '/images/House%20of%20Values.png'
 }
 
 const neutralFallback = '/image.png'
