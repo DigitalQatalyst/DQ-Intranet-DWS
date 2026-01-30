@@ -1081,19 +1081,23 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               const subDomain = (it.subDomain || '').toLowerCase();
               const domain = (it.domain || '').toLowerCase();
               const guideType = (it.guideType || '').toLowerCase();
-              const allText = `${subDomain} ${domain} ${guideType}`.toLowerCase();
-              return strategyFrameworks.some(selectedFramework => {
-                const normalizedSelected = slugify(selectedFramework);
-                // Check various fields for framework matches
-                if (selectedFramework === 'ghc') {
-                  return allText.includes('ghc') || allText.includes('golden honeycomb');
-                } else if (selectedFramework === 'hov') {
-                  return allText.includes('hov') || 
-                         allText.includes('house of values') ||
-                         allText.includes('competencies');
-                }
-                return allText.includes(selectedFramework.toLowerCase()) ||
-                       allText.includes(normalizedSelected);
+              const title = (it.title || '').toLowerCase();
+              const slug = (it.slug || '').toLowerCase();
+              const allText = `${subDomain} ${domain} ${guideType} ${title} ${slug}`.toLowerCase();
+
+              const frameworkKeywords: Record<string, string[]> = {
+                'ghc1': ['vision'],
+                'ghc2': ['hov', 'house of values'],
+                'ghc3': ['persona'],
+                'ghc4': ['agile tms', 'tms'],
+                'ghc5': ['agile sos', 'sos'],
+                'ghc6': ['agile flows', 'flows'],
+                'ghc7': ['agile 6xd', '6xd'],
+              };
+
+              return strategyFrameworks.some(selected => {
+                const keywords = frameworkKeywords[selected] || [selected];
+                return keywords.some(kw => allText.includes(kw));
               });
             });
           }
