@@ -799,10 +799,14 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
 
   return (
     <motion.article
-      className="relative overflow-hidden rounded-3xl min-h-[400px] md:min-h-[430px] w-full cursor-pointer text-white shadow-[0_18px_40px_rgba(19,30,66,0.12)] hover:shadow-[0_24px_48px_rgba(19,30,66,0.18)] transition-shadow bg-[#131e42] border border-white/5"
+      className="relative overflow-hidden rounded-3xl min-h-[400px] md:min-h-[430px] w-full cursor-pointer text-white shadow-[0_18px_40px_rgba(19,30,66,0.14)] hover:shadow-[0_24px_52px_rgba(19,30,66,0.2)] transition-shadow"
+      style={{
+        background: 'linear-gradient(135deg, #131e42 0%, #1f2d5c 45%, #e1513b 100%)',
+      }}
       whileHover={{ scale: 1.01 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
     >
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(19,30,66,0.35) 0%, rgba(19,30,66,0.55) 55%, rgba(19,30,66,0.35) 100%)' }} />
       <div className="absolute inset-x-0 top-0 h-1.5 bg-[#e1513b]" />
 
       <div className="absolute right-8 top-7 text-3xl font-display font-medium tracking-tight text-white/25">
@@ -812,7 +816,7 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
       <div className="relative flex h-full flex-col justify-between gap-5 p-8 md:p-12 z-10">
         <div className="flex items-center justify-between">
           <motion.span
-            className="inline-flex items-center gap-2 rounded-full bg-[#e1513b]/25 text-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] backdrop-blur-sm"
+            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/15 text-[#f0f6ff] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] backdrop-blur-sm border border-[#f0f6ff]/25"
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: index * 0.08 + 0.2 }}
@@ -833,7 +837,7 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
-            className="inline-flex items-center justify-between w-full rounded-xl border border-white/15 bg-white/05 px-4 py-3 text-sm font-medium tracking-wide text-white transition hover:border-white/30 hover:bg-white/10"
+            className="inline-flex items-center justify-between w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-medium tracking-wide text-white transition hover:border-white/30 hover:bg-white/14"
             aria-expanded={open}
           >
             <span className="flex items-center gap-2">
