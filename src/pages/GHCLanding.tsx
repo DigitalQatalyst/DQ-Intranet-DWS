@@ -167,7 +167,7 @@ const FEATURE_CARDS = [
     description: 'Designed for environments where work never stands still, and roles, priorities, and learning shift in real time.',
   },
   {
-    title: 'Seven elements',
+    title: 'Seven Competency Areas',
     icon: IconSeven,
     description: 'Connected competency areas working together as one operating system for modern work.',
   },
@@ -178,7 +178,7 @@ const ACTION_CARDS = [
     title: 'Learn by doing',
     icon: GraduationCap,
     badge: 'Courses',
-    description: 'Built on real work. Execute inside live projects.',
+    description: 'Learn by executing inside live projects and real work.',
     tags: ['Self-paced', 'Real projects', 'Mentorship'],
     cta: 'Explore Courses',
     path: '/lms',
@@ -191,7 +191,7 @@ const ACTION_CARDS = [
     title: 'See the stories',
     icon: BookOpen,
     badge: 'Storybooks',
-    description: 'Real journeys and decisions. GHC through the people who use it.',
+    description: 'Understand through real journeys and decisions from people using GHC.',
     tags: ['Case studies', 'Behind the scenes', 'Lessons learned'],
     cta: 'Read Storybooks',
     path: '/marketplace/guides/dq-ghc',
@@ -204,7 +204,7 @@ const ACTION_CARDS = [
     title: 'Join the work',
     icon: Users,
     badge: 'Programs',
-    description: 'Practise competencies on live challenges.',
+    description: 'Practise the competencies on live challenges with peers.',
     tags: ['Cohort-based', 'Live challenges', 'Community'],
     cta: 'Join a Program',
     path: '/marketplace',
@@ -217,7 +217,7 @@ const ACTION_CARDS = [
     title: 'See it in action',
     icon: Briefcase,
     badge: 'Workspace',
-    description: 'Tools, rituals, and daily work inside DQ.',
+    description: 'Apply tools, rituals, and daily work patterns inside DQ.',
     tags: ['Templates', 'Rituals', 'Best practices'],
     cta: 'Explore Workspace',
     path: '/',
@@ -445,7 +445,7 @@ export function GHCLanding() {
                 whiteSpace: 'normal',
               }}
             >
-              DQ built a new operating system for modern work designed for complexity, change, and impact.
+              The Golden Honeycomb is DQ’s operating system for modern work—created because traditional ways break under complexity and change.
             </span>
           </motion.div>
           <motion.div
@@ -472,7 +472,7 @@ export function GHCLanding() {
           >
             <div className="flex items-baseline gap-2">
               <span className="text-white font-semibold text-lg">7</span>
-              <span>Competencies</span>
+              <span>Competency Areas</span>
             </div>
             <span className="h-5 w-px bg-white/40" aria-hidden />
             <div className="flex items-baseline gap-2">
@@ -482,7 +482,7 @@ export function GHCLanding() {
             <span className="h-5 w-px bg-white/40" aria-hidden />
             <div className="flex items-baseline gap-2">
               <span className="text-white font-semibold text-lg">∞</span>
-              <span>Impact</span>
+              <span>Real Impact</span>
             </div>
           </motion.div>
         </div>
@@ -704,7 +704,7 @@ function SectionCarousel({
                 lineHeight: 1.2,
               }}
             >
-              Each exists because something in traditional work stopped working. Problem → response.
+              Each exists because something in traditional work stopped working—every response fixes that gap.
             </motion.p>
           </div>
           <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-3">
@@ -778,7 +778,7 @@ function SectionCarousel({
             onClick={onExploreMarketplace}
             className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
           >
-            Explore all 7 elements in the Marketplace
+            Explore and apply all 7 elements in the Marketplace
             <ArrowRight className="h-5 w-5" />
           </button>
         </motion.div>
@@ -1032,7 +1032,7 @@ function SectionFinalCTA({ navigate }: { navigate: (path: string) => void }) {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.25 }}
             >
-              Connect with a vibrant community of Qatalysts. Share your story, access resources, and help shape the future of meaningful work.
+              Continue applying the Golden Honeycomb in real work—connect with Qatalysts, share outcomes, and shape the future of meaningful work.
             </motion.p>
 
             <motion.div
