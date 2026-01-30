@@ -428,15 +428,19 @@ export function GHCLanding() {
             <span>Welcome to the Golden Honeycomb of Competencies (GHC)</span>
           </motion.div>
           <motion.div
-            className="mx-auto flex items-center justify-center gap-3 text-center"
-            style={{ whiteSpace: 'nowrap' }}
+            className="mx-auto flex flex-col items-center justify-center text-center"
+            style={{ maxWidth: '100%' }}
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
             <span
               className="ghc-font-display font-bold text-white"
-              style={{ fontSize: 'clamp(40px, 5vw, 72px)', lineHeight: 1.05 }}
+              style={{
+                fontSize: 'clamp(40px, 5vw, 72px)',
+                lineHeight: 1.05,
+                whiteSpace: 'nowrap',
+              }}
             >
               The world of work is{' '}
               <span className="text-[#e1513b] underline decoration-[#e1513b] decoration-4 underline-offset-8">
@@ -445,7 +449,12 @@ export function GHCLanding() {
             </span>
             <span
               className="text-white/85"
-              style={{ fontSize: 'clamp(16px, 2.6vw, 20px)', lineHeight: 1.1 }}
+              style={{
+                fontSize: 'clamp(16px, 2.6vw, 20px)',
+                lineHeight: 1.1,
+                maxWidth: '100%',
+                whiteSpace: 'normal',
+              }}
             >
               DQ built a new operating system for modern work designed for complexity, change, and impact.
             </span>
