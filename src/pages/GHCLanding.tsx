@@ -343,7 +343,6 @@ export function GHCLanding() {
   const navigate = useNavigate();
   const carouselRef = useRef<HTMLDivElement>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
-  const [isCarouselPaused, setCarouselPaused] = useState(false);
 
   const handleEnterHoneycomb = useCallback(() => {
     navigate('/marketplace/guides/dq-ghc');
@@ -388,26 +387,6 @@ export function GHCLanding() {
     carouselRef.current.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
     setCarouselIndex(index);
   }, []);
-
-  useEffect(() => {
-    if (isCarouselPaused) return;
-
-    const id = window.setInterval(() => {
-      setCarouselIndex((prev) => {
-        const nextIndex = (prev + 1) % COMPETENCY_CARDS.length;
-        const track = carouselRef.current;
-
-        if (track) {
-          const cardWidth = track.scrollWidth / COMPETENCY_CARDS.length;
-          track.scrollTo({ left: nextIndex * cardWidth, behavior: 'smooth' });
-        }
-
-        return nextIndex;
-      });
-    }, 5000);
-
-    return () => window.clearInterval(id);
-  }, [isCarouselPaused]);
 
   return (
     <div className="ghc-page flex min-h-screen flex-col bg-[hsl(var(--ghc-background))]">
@@ -536,8 +515,6 @@ export function GHCLanding() {
         onNext={scrollToNext}
         onScroll={handleCarouselScroll}
         onDotClick={goToSlide}
-        onPause={() => setCarouselPaused(true)}
-        onResume={() => setCarouselPaused(false)}
         onExploreMarketplace={() => navigate('/marketplace')}
       />
 
@@ -671,8 +648,6 @@ interface SectionCarouselProps {
   onNext: () => void;
   onScroll: () => void;
   onDotClick: (index: number) => void;
-  onPause: () => void;
-  onResume: () => void;
   onExploreMarketplace: () => void;
 }
 
@@ -683,8 +658,6 @@ function SectionCarousel({
   onNext,
   onScroll,
   onDotClick,
-  onPause,
-  onResume,
   onExploreMarketplace,
 }: SectionCarouselProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -697,71 +670,70 @@ function SectionCarousel({
       className="relative py-24 bg-white"
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-10">
-        <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
-          <motion.span
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur"
-            initial={{ opacity: 0, y: 12 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.35 }}
-          >
-            THE FRAMEWORK
-          </motion.span>
-          <motion.h2
-            className="ghc-font-display text-4xl md:text-5xl font-semibold text-[#131e42] mt-4 max-w-3xl mx-auto"
-            initial={{ opacity: 0, y: 16 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.45, delay: 0.1 }}
-          >
-            Seven responses
-          </motion.h2>
-          <motion.p
-            className="text-[#4a5678] max-w-2xl mx-auto mt-3 text-lg md:text-xl"
-            initial={{ opacity: 0, y: 14 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.45, delay: 0.2 }}
-          >
-            Each exists because something in traditional work stopped working. Problem → response.
-          </motion.p>
+        <motion.div className="mb-12" initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6">
+            <div className="text-center md:text-left">
+              <motion.span
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur"
+                initial={{ opacity: 0, y: 12 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.35 }}
+              >
+                THE FRAMEWORK
+              </motion.span>
+              <motion.h2
+                className="ghc-font-display text-4xl md:text-5xl font-semibold text-[#131e42] mt-4 max-w-3xl"
+                initial={{ opacity: 0, y: 16 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.45, delay: 0.1 }}
+              >
+                Seven responses
+              </motion.h2>
+              <motion.p
+                className="text-[#4a5678] max-w-2xl mt-3 text-lg md:text-xl"
+                initial={{ opacity: 0, y: 14 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.45, delay: 0.2 }}
+              >
+                Each exists because something in traditional work stopped working. Problem → response.
+              </motion.p>
+            </div>
+            <div className="flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={onPrev}
+                className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
+                aria-label="Previous competency"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={onNext}
+                className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
+                aria-label="Next competency"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
         </motion.div>
 
-        <div className="relative">
+        <div className="relative overflow-hidden">
           <div className="absolute inset-y-10 left-0 right-0 mx-auto max-w-6xl pointer-events-none">
             <div className="h-full bg-gradient-to-r from-white via-transparent to-white opacity-90" />
-          </div>
-
-          <div className="absolute right-3 sm:right-6 -top-10 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onPrev}
-              className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
-              aria-label="Previous competency"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={onNext}
-              className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
-              aria-label="Next competency"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
           </div>
 
           <div
             ref={carouselRef}
             onScroll={onScroll}
-            onMouseEnter={onPause}
-            onMouseLeave={onResume}
-            onTouchStart={onPause}
-            onTouchEnd={onResume}
             className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory py-6 px-6 scrollbar-hide"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {COMPETENCY_CARDS.map((card, index) => (
               <motion.div
                 key={card.id}
-                className="flex-shrink-0 min-w-[calc(100vw-48px)] md:min-w-[760px] lg:min-w-[900px] max-w-[900px] snap-center"
+                className="flex-shrink-0 min-w-[82vw] md:min-w-[70vw] lg:min-w-[62rem] max-w-[900px] snap-center"
                 initial={{ opacity: 0, y: 30 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.45, delay: index * 0.08 + 0.08 }}
