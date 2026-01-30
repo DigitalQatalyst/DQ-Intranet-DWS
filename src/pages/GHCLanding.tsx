@@ -572,7 +572,7 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
     <section id="ghc-what" ref={ref} className="py-20 md:py-28 bg-[#f0f6ff]">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <motion.div
-          className="text-center max-w-4xl mx-auto"
+          className="text-center max-w-6xl mx-auto"
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
           variants={containerVariants}
