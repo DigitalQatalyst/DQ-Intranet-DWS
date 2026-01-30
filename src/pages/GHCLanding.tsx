@@ -26,6 +26,16 @@ import {
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
+const IconGlyph = ({ glyph, className }: { glyph: string; className?: string }) => (
+  <span className={`inline-flex items-center justify-center leading-none font-semibold ${className ?? ''}`}>
+    {glyph}
+  </span>
+);
+
+const IconOne = (props: { className?: string }) => <IconGlyph glyph="1" {...props} />;
+const IconInfinity = (props: { className?: string }) => <IconGlyph glyph="∞" {...props} />;
+const IconSeven = (props: { className?: string }) => <IconGlyph glyph="7" {...props} />;
+
 /* -----------------------------------------
    Types & data
    ----------------------------------------- */
@@ -148,17 +158,17 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
 const FEATURE_CARDS = [
   {
     title: 'Operating DNA',
-    icon: Hexagon,
+    icon: IconOne,
     description: 'How GHC guides you to think, decide, and act with clarity when work is complex and unpredictable.',
   },
   {
     title: 'Built for Change',
-    icon: RefreshCw,
+    icon: IconInfinity,
     description: 'Designed for environments where work never stands still, and roles, priorities, and learning shift in real time.',
   },
   {
     title: 'Seven Competency Areas',
-    icon: Layers,
+    icon: IconSeven,
     description: 'Seven connected competency areas working together as one operating system for modern work.',
   },
 ];
