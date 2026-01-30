@@ -685,6 +685,11 @@ function SectionCarousel({
               initial={{ opacity: 0, y: 16 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.45, delay: 0.1 }}
+              style={{
+                whiteSpace: 'nowrap',
+                fontSize: 'clamp(32px, 4.2vw, 56px)',
+                lineHeight: 1.05,
+              }}
             >
               Seven responses
             </motion.h2>
@@ -693,6 +698,11 @@ function SectionCarousel({
               initial={{ opacity: 0, y: 14 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.45, delay: 0.2 }}
+              style={{
+                whiteSpace: 'nowrap',
+                fontSize: 'clamp(15px, 2.2vw, 20px)',
+                lineHeight: 1.2,
+              }}
             >
               Each exists because something in traditional work stopped working. Problem → response.
             </motion.p>
