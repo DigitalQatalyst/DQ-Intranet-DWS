@@ -454,14 +454,6 @@ export function GHCLanding() {
           >
             <button
               type="button"
-              onClick={handleEnterHoneycomb}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-white bg-[#e1513b] hover:bg-[#c84330] transition-colors shadow-md"
-            >
-              <Sparkles className="h-5 w-5" />
-              Start Your Journey
-            </button>
-            <button
-              type="button"
               onClick={handleReadStorybook}
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold border border-[#f0f6ff]/50 text-[#f0f6ff] bg-white/10 hover:bg-white/15 transition-colors shadow-sm"
             >
