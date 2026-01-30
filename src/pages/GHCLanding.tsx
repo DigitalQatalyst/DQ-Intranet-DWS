@@ -444,7 +444,7 @@ export function GHCLanding() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
           >
-            DQ built a new operating system; every competency exists as a response to that reality.
+            DQ built a new operating system for modern work—designed for complexity, change, and impact.
           </motion.p>
           <motion.div
             className="flex flex-wrap gap-4 justify-center mb-10"
