@@ -235,6 +235,11 @@ export function getGuideImageUrl(g: GuideLike): string {
     return GUIDELINES_IMAGE
   }
 
+  // HoV: always use local House of Values image (override remote heroImage)
+  if (isHOVGuide(g)) {
+    return HOV_IMAGE
+  }
+
   // For the main GHC overview card, force the overview image even if a heroImageUrl exists
   if (isMainGHC()) {
     return '/images/DQ%20GHC%20Overview%20.png'

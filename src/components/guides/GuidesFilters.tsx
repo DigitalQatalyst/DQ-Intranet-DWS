@@ -184,7 +184,13 @@ const STRATEGY_UNITS: Facet[] = [
 ]
 
 const STRATEGY_FRAMEWORKS: Facet[] = [
-  { id: 'ghc', name: 'GHC' },
+  { id: 'vision', name: 'GHC 1 - Vision' },
+  { id: 'hov', name: 'GHC 2 - House of Values (HoV)' },
+  { id: 'personas', name: 'GHC 3 - Personas' },
+  { id: 'agile-tms', name: 'GHC 4 - Agile TMS' },
+  { id: 'agile-sos', name: 'GHC 5 - Agile SoS' },
+  { id: 'agile-flows', name: 'GHC 6 - Agile Flows' },
+  { id: 'agile-6xd', name: 'GHC 7 - Agile 6xD (Products)' },
 ]
 
 // All possible filter categories - default to ALL collapsed
@@ -576,7 +582,7 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
     )}
     {isStrategySelected && (
       <>
-        <Section idPrefix={instanceId} title="Framework" category="strategy_framework" collapsed={collapsedSet.has('strategy_framework')} onToggle={toggleCollapsed}>
+          <Section idPrefix={instanceId} title="GHC Types" category="strategy_framework" collapsed={collapsedSet.has('strategy_framework')} onToggle={toggleCollapsed}>
           <CheckboxList idPrefix={instanceId} name="strategy_framework" options={availableStrategyFrameworks.length > 0 ? availableStrategyFrameworks : STRATEGY_FRAMEWORKS} query={query} onChange={onChange} />
         </Section>
       </>
