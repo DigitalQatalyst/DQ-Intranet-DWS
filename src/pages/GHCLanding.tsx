@@ -580,7 +580,7 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
         >
           <motion.p
             variants={itemVariants}
-            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/35 border border-[#e1513b]/50 shadow-sm px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-[#e1513b] mb-4"
+            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/20 border border-[#f0f6ff]/40 shadow-sm px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-[#f0f6ff] backdrop-blur mb-4"
           >
             THE FOUNDATION
           </motion.p>
@@ -699,7 +699,7 @@ function SectionCarousel({
       <div className="container mx-auto px-4 md:px-6 lg:px-10">
         <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
           <motion.span
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#fde6de] text-[#e1513b] shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#f0f6ff]/40 text-[#f0f6ff] shadow-sm backdrop-blur"
             initial={{ opacity: 0, y: 12 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.35 }}
@@ -934,7 +934,7 @@ function SectionTakeAction({ navigate }: { navigate: (path: string) => void }) {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
         >
-          <p className="text-xs uppercase tracking-[0.24em] font-semibold text-[#e1513b] mb-2">
+          <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#f0f6ff]/40 text-[#f0f6ff] shadow-sm backdrop-blur mx-auto mb-2">
             TAKE ACTION
           </p>
           <h2 className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3">
