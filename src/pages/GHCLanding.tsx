@@ -439,12 +439,12 @@ export function GHCLanding() {
             </span>
           </motion.h1>
           <motion.p
-            className="text-lg sm:text-xl text-white/85 mb-10 max-w-2xl mx-auto leading-relaxed"
+            className="text-[18px] text-white/85 mb-10 max-w-2xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
           >
-            DQ built a new operating system for modern work—designed for complexity, change, and impact.
+            DQ built a new operating system for modern work designed for complexity, change, and impact.
           </motion.p>
           <motion.div
             className="flex flex-wrap gap-4 justify-center mb-10"
