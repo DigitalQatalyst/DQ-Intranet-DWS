@@ -796,22 +796,28 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
   const navigate = useNavigate();
   const Icon = card.icon;
   const [open, setOpen] = useState(false);
-  const patternId = `ghc-pattern-${card.id}`;
+  const gradientStyle =
+    index % 2 === 0
+      ? 'linear-gradient(90deg, rgba(250, 247, 247, 0.98) 0%, rgba(22, 40, 98, 1) 52%)'
+      : 'linear-gradient(90deg, rgba(250, 247, 247, 0.98) 0%, rgba(232, 75, 39, 1) 52%)';
 
   return (
     <motion.article
-      className="relative overflow-hidden rounded-3xl min-h-[400px] md:min-h-[430px] w-full cursor-pointer bg-white border border-[#e0e7ff] text-[#131e42] shadow-[0_18px_40px_rgba(19,30,66,0.12)] hover:shadow-[0_24px_48px_rgba(19,30,66,0.18)] transition-shadow"
+      className="relative overflow-hidden rounded-3xl min-h-[400px] md:min-h-[430px] w-full cursor-pointer text-white shadow-[0_18px_40px_rgba(19,30,66,0.12)] hover:shadow-[0_24px_48px_rgba(19,30,66,0.18)] transition-shadow"
+      style={{ background: gradientStyle }}
       whileHover={{ scale: 1.01 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
     >
-      <div className="absolute right-8 top-7 text-3xl font-display font-medium tracking-tight text-[#131e42]/15">
+      <div className="absolute inset-0 bg-black/18" />
+
+      <div className="absolute right-8 top-7 text-3xl font-display font-medium tracking-tight text-white/25">
         {String(card.number).padStart(2, '0')}
       </div>
 
       <div className="relative flex h-full flex-col justify-between gap-5 p-8 md:p-12 z-10">
         <div className="flex items-center justify-between">
           <motion.span
-            className="inline-flex items-center gap-2 rounded-full bg-[#e1513b]/12 text-[#e1513b] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] backdrop-blur-sm"
+            className="inline-flex items-center gap-2 rounded-full bg-white/18 text-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] backdrop-blur-sm"
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: index * 0.08 + 0.2 }}
@@ -825,24 +831,24 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
           <h3 className="ghc-font-display text-3xl md:text-4xl font-semibold leading-tight">
             {card.title}
           </h3>
-          <p className="text-base md:text-lg leading-relaxed text-[#4a5678]">{card.story}</p>
+          <p className="text-base md:text-lg leading-relaxed text-white/90">{card.story}</p>
         </div>
 
         <div className="mt-auto space-y-4">
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
-            className="inline-flex items-center justify-between w-full rounded-xl border border-[#e0e7ff] bg-white px-4 py-3 text-sm font-medium tracking-wide text-[#131e42] transition hover:border-[#d0d9ff] hover:shadow-sm"
+            className="inline-flex items-center justify-between w-full rounded-xl border border-white/30 bg-white/10 px-4 py-3 text-sm font-medium tracking-wide text-white transition hover:border-white/45 hover:bg-white/14"
             aria-expanded={open}
           >
             <span className="flex items-center gap-2">
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`}
-                style={{ color: '#e1513b' }}
+                style={{ color: '#f0f6ff' }}
               />
               {open ? 'Hide Problem & Response' : 'View Problem & Response'}
             </span>
-            <span className="text-xs font-medium text-[#4a5678]">Tap to {open ? 'collapse' : 'reveal'}</span>
+            <span className="text-xs font-medium text-white/80">Tap to {open ? 'collapse' : 'reveal'}</span>
           </button>
 
           <motion.div
@@ -851,13 +857,13 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="pt-3 mt-3 border-t border-[#e0e7ff] space-y-2 text-sm md:text-base leading-relaxed">
-              <p className="text-[#4a5678]">
-                <span className="font-semibold text-[#131e42]">Problem: </span>
+            <div className="pt-3 mt-3 border-t border-white/25 space-y-2 text-sm md:text-base leading-relaxed">
+              <p className="text-white/90">
+                <span className="font-semibold text-white">Problem: </span>
                 {card.problem}
               </p>
-              <p className="text-[#4a5678]">
-                <span className="font-semibold text-[#131e42]">Response: </span>
+              <p className="text-white/95">
+                <span className="font-semibold text-white">Response: </span>
                 {card.response}
               </p>
             </div>
@@ -866,7 +872,7 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
           <button
             type="button"
             onClick={() => navigate(card.route)}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#e1513b] hover:underline transition-transform group"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-white transition-transform group"
           >
             Explore in Marketplace
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
