@@ -796,19 +796,14 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
   const navigate = useNavigate();
   const Icon = card.icon;
   const [open, setOpen] = useState(false);
-  const gradientStyle =
-    index % 2 === 0
-      ? 'linear-gradient(90deg, rgba(250, 247, 247, 0.98) 0%, rgba(22, 40, 98, 1) 52%)'
-      : 'linear-gradient(90deg, rgba(250, 247, 247, 0.98) 0%, rgba(232, 75, 39, 1) 52%)';
 
   return (
     <motion.article
-      className="relative overflow-hidden rounded-3xl min-h-[400px] md:min-h-[430px] w-full cursor-pointer text-white shadow-[0_18px_40px_rgba(19,30,66,0.12)] hover:shadow-[0_24px_48px_rgba(19,30,66,0.18)] transition-shadow"
-      style={{ background: gradientStyle }}
+      className="relative overflow-hidden rounded-3xl min-h-[400px] md:min-h-[430px] w-full cursor-pointer text-white shadow-[0_18px_40px_rgba(19,30,66,0.12)] hover:shadow-[0_24px_48px_rgba(19,30,66,0.18)] transition-shadow bg-[#131e42] border border-white/5"
       whileHover={{ scale: 1.01 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
     >
-      <div className="absolute inset-0 bg-black/18" />
+      <div className="absolute inset-x-0 top-0 h-1.5 bg-[#e1513b]" />
 
       <div className="absolute right-8 top-7 text-3xl font-display font-medium tracking-tight text-white/25">
         {String(card.number).padStart(2, '0')}
@@ -817,7 +812,7 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
       <div className="relative flex h-full flex-col justify-between gap-5 p-8 md:p-12 z-10">
         <div className="flex items-center justify-between">
           <motion.span
-            className="inline-flex items-center gap-2 rounded-full bg-white/18 text-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] backdrop-blur-sm"
+            className="inline-flex items-center gap-2 rounded-full bg-[#e1513b]/25 text-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] backdrop-blur-sm"
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: index * 0.08 + 0.2 }}
@@ -838,7 +833,7 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
-            className="inline-flex items-center justify-between w-full rounded-xl border border-white/30 bg-white/10 px-4 py-3 text-sm font-medium tracking-wide text-white transition hover:border-white/45 hover:bg-white/14"
+            className="inline-flex items-center justify-between w-full rounded-xl border border-white/15 bg-white/05 px-4 py-3 text-sm font-medium tracking-wide text-white transition hover:border-white/30 hover:bg-white/10"
             aria-expanded={open}
           >
             <span className="flex items-center gap-2">
@@ -857,7 +852,7 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
             transition={{ duration: 0.2, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="pt-3 mt-3 border-t border-white/25 space-y-2 text-sm md:text-base leading-relaxed">
+            <div className="pt-3 mt-3 border-t border-white/15 space-y-2 text-sm md:text-base leading-relaxed">
               <p className="text-white/90">
                 <span className="font-semibold text-white">Problem: </span>
                 {card.problem}
