@@ -149,17 +149,17 @@ const FEATURE_CARDS = [
   {
     title: 'Operating DNA',
     icon: Hexagon,
-    description: 'How you analyse situations, make decisions, and act with clarity under complexity.',
+    description: 'How you analyse situations, make decisions, and act with clarity when work becomes complex and unpredictable.',
   },
   {
     title: 'Built for Change',
     icon: RefreshCw,
-    description: 'Designed for work that never stands still, where fixed roles and plans break down.',
+    description: 'Designed for work that never stands still, where roles shift, priorities change, and learning happens through action.',
   },
   {
     title: 'Seven Elements',
     icon: Layers,
-    description: 'Seven connected responses forming one unified operating system for modern work.',
+    description: 'Seven connected responses working together as one operating system for the reality of modern work.',
   },
 ];
 
@@ -428,7 +428,7 @@ export function GHCLanding() {
             <span>Welcome to the Golden Honeycomb of Competencies (GHC)</span>
           </motion.div>
           <motion.h1
-            className="ghc-font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6"
+            className="ghc-font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-4"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -444,12 +444,7 @@ export function GHCLanding() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
           >
-            DQ built a <span className="font-semibold text-white">new operating system</span>. Every competency is a{' '}
-            <span className="sm:hidden">response.</span>
-            <span className="hidden sm:inline">
-              <br />
-              response.
-            </span>
+            DQ built a new operating system; every competency exists as a response to that reality.
           </motion.p>
           <motion.div
             className="flex flex-wrap gap-4 justify-center mb-10"
@@ -584,9 +579,7 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
             variants={itemVariants}
             className="text-[#4a5678] text-base md:text-lg leading-relaxed max-w-3xl mx-auto"
           >
-            Clarity. Adaptability. Alignment. Execution at scale. Not a framework to memorise — a system
-            <br />
-            you live inside.
+            Not a framework to memorise — a system you live inside, guiding how you think, decide, adapt, and create impact.
           </motion.p>
 
         </motion.div>
