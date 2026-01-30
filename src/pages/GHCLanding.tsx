@@ -427,37 +427,29 @@ export function GHCLanding() {
             <Sparkles className="h-4 w-4 text-[#f0f6ff]" />
             <span>Welcome to the Golden Honeycomb of Competencies (GHC)</span>
           </motion.div>
-          <div className="mx-auto w-fit text-center">
-            <motion.h1
-              className="ghc-font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-4"
-              style={{
-                fontSize: 'clamp(40px, 6vw, 72px)',
-                lineHeight: 1.05,
-              }}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+          <motion.div
+            className="mx-auto flex items-center justify-center gap-3 text-center"
+            style={{ whiteSpace: 'nowrap' }}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <span
+              className="ghc-font-display font-bold text-white"
+              style={{ fontSize: 'clamp(40px, 5vw, 72px)', lineHeight: 1.05 }}
             >
               The world of work is{' '}
               <span className="text-[#e1513b] underline decoration-[#e1513b] decoration-4 underline-offset-8">
                 broken.
               </span>
-            </motion.h1>
-            <motion.p
-              className="text-[18px] text-white/85 mb-10 leading-relaxed"
-              style={{
-                fontSize: 'clamp(16px, 3vw, 20px)',
-                textAlign: 'center',
-                marginLeft: 'auto',
-                marginRight: 'auto',
-              }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.15 }}
+            </span>
+            <span
+              className="text-white/85"
+              style={{ fontSize: 'clamp(16px, 2.6vw, 20px)', lineHeight: 1.1 }}
             >
               DQ built a new operating system for modern work designed for complexity, change, and impact.
-            </motion.p>
-          </div>
+            </span>
+          </motion.div>
           <motion.div
             className="flex flex-wrap gap-4 justify-center mb-10"
             initial={{ opacity: 0 }}
