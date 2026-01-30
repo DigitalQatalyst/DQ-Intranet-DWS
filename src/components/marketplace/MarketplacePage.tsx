@@ -1087,7 +1087,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
 
               const frameworkKeywords: Record<string, string[]> = {
                 'ghc1': ['vision'],
-                'ghc2': ['hov', 'house of values'],
+                'ghc2': ['dq-hov', 'house of values'],
                 'ghc3': ['persona'],
                 'ghc4': ['agile tms', 'tms'],
                 'ghc5': ['agile sos', 'sos'],
@@ -1096,6 +1096,12 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               };
 
               return strategyFrameworks.some(selected => {
+                // Special case: GHC 2 should only show the main HoV card
+                if (selected === 'ghc2') {
+                  if (slug === 'dq-hov') return true;
+                  const isHoVTitle = title.includes('house of values') && !title.includes('competencies');
+                  return isHoVTitle;
+                }
                 const keywords = frameworkKeywords[selected] || [selected];
                 return keywords.some(kw => allText.includes(kw));
               });
