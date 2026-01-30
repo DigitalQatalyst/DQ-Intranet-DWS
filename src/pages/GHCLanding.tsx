@@ -428,7 +428,7 @@ export function GHCLanding() {
             <span>Welcome to the Golden Honeycomb of Competencies (GHC)</span>
           </motion.div>
           <motion.div
-            className="mx-auto flex flex-col items-center justify-center text-center"
+            className="mx-auto flex flex-col items-center justify-center text-center gap-4"
             style={{ maxWidth: '100%' }}
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -460,7 +460,7 @@ export function GHCLanding() {
             </span>
           </motion.div>
           <motion.div
-            className="flex flex-wrap gap-4 justify-center mb-10"
+            className="flex flex-wrap gap-4 justify-center mt-6 mb-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
