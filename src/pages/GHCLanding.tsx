@@ -928,8 +928,7 @@ function SectionTakeAction({ navigate }: { navigate: (path: string) => void }) {
               key={item.title}
               variants={itemVariants}
               whileHover={{ y: -8 }}
-            className={`group relative p-7 md:p-9 rounded-3xl ${item.bg} shadow-[0_10px_24px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_32px_rgba(0,0,0,0.08)] transition-all cursor-pointer`}
-            onClick={() => navigate(item.path)}
+            className={`group relative p-7 md:p-9 rounded-3xl ${item.bg} shadow-[0_10px_24px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_32px_rgba(0,0,0,0.08)] transition-all`}
           >
             <div className="flex items-start gap-4 md:gap-5">
               <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white shadow-[0_6px_16px_rgba(0,0,0,0.08)] flex items-center justify-center">
@@ -947,7 +946,7 @@ function SectionTakeAction({ navigate }: { navigate: (path: string) => void }) {
                   {item.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 rounded-full bg-white/75 text-[#131e42] px-3 py-1 text-xs font-medium shadow-sm"
+                      className="inline-flex items-center gap-1 rounded-full bg-white/75 text-[#131e42] px-3 py-1 text-xs font-medium shadow-sm cursor-default"
                     >
                       <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.iconColor }} />
                       {tag}
