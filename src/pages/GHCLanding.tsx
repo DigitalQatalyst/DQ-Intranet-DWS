@@ -873,7 +873,6 @@ interface CompetencyCardProps {
 function CompetencyCard({ card, index }: CompetencyCardProps) {
   const navigate = useNavigate();
   const Icon = card.icon;
-  const [open, setOpen] = useState(false);
 
   return (
     <motion.article
@@ -918,37 +917,12 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
         <div className="mt-auto">
           <button
             type="button"
-            onClick={() => setOpen((prev) => !prev)}
+            onClick={() => navigate(card.route)}
             className="text-[#e1513b] font-semibold inline-flex items-center gap-1 hover:underline"
           >
-            Read the response
+            Explore in Knowledge Center
             <ArrowRight className="h-4 w-4" />
           </button>
-          <motion.div
-            initial={false}
-            animate={{ height: open ? 'auto' : 0, opacity: open ? 1 : 0 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
-            <div className="pt-3 mt-3 border-t border-[#e5e9f5] space-y-2 text-sm text-[#4a5678] leading-relaxed">
-              <p>
-                <span className="font-semibold text-[#131e42]">Situation: </span>
-                {card.situation}
-              </p>
-              <div>
-                <span className="font-semibold text-[#131e42]">What changed:</span>
-                <ul className="list-disc list-inside space-y-1 mt-1">
-                  {card.changes.map((c) => (
-                    <li key={c}>{c}</li>
-                  ))}
-                </ul>
-              </div>
-              <p>
-                <span className="font-semibold text-[#131e42]">Impact: </span>
-                {card.impact}
-              </p>
-            </div>
-          </motion.div>
         </div>
       </div>
     </motion.article>
