@@ -167,7 +167,7 @@ const FEATURE_CARDS = [
     description: 'Designed for environments where work never stands still, and roles, priorities, and learning shift in real time.',
   },
   {
-    title: 'Seven Competency Areas',
+    title: 'Seven elements',
     icon: IconSeven,
     description: 'Connected competency areas working together as one operating system for modern work.',
   },
@@ -178,7 +178,7 @@ const ACTION_CARDS = [
     title: 'Learn by doing',
     icon: GraduationCap,
     badge: 'Courses',
-    description: 'Learn by executing inside live projects and real work.',
+    description: 'Built on real work. Execute inside live projects.',
     tags: ['Self-paced', 'Real projects', 'Mentorship'],
     cta: 'Explore Courses',
     path: '/lms',
@@ -191,7 +191,7 @@ const ACTION_CARDS = [
     title: 'See the stories',
     icon: BookOpen,
     badge: 'Storybooks',
-    description: 'Understand through real journeys and decisions from people using GHC.',
+    description: 'Real journeys and decisions. GHC through the people who use it.',
     tags: ['Case studies', 'Behind the scenes', 'Lessons learned'],
     cta: 'Read Storybooks',
     path: '/marketplace/guides/dq-ghc',
@@ -204,7 +204,7 @@ const ACTION_CARDS = [
     title: 'Join the work',
     icon: Users,
     badge: 'Programs',
-    description: 'Practise the competencies on live challenges with peers.',
+    description: 'Practise competencies on live challenges.',
     tags: ['Cohort-based', 'Live challenges', 'Community'],
     cta: 'Join a Program',
     path: '/marketplace',
@@ -217,7 +217,7 @@ const ACTION_CARDS = [
     title: 'See it in action',
     icon: Briefcase,
     badge: 'Workspace',
-    description: 'Apply tools, rituals, and daily work patterns inside DQ.',
+    description: 'Tools, rituals, and daily work inside DQ.',
     tags: ['Templates', 'Rituals', 'Best practices'],
     cta: 'Explore Workspace',
     path: '/',
@@ -445,7 +445,7 @@ export function GHCLanding() {
                 whiteSpace: 'normal',
               }}
             >
-              The Golden Honeycomb is DQ’s operating system for modern work—created because traditional ways break under complexity and change.
+              DQ built a new operating system for modern work designed for complexity, change, and impact.
             </span>
           </motion.div>
           <motion.div
@@ -472,7 +472,7 @@ export function GHCLanding() {
           >
             <div className="flex items-baseline gap-2">
               <span className="text-white font-semibold text-lg">7</span>
-              <span>Competency Areas</span>
+              <span>Competencies</span>
             </div>
             <span className="h-5 w-px bg-white/40" aria-hidden />
             <div className="flex items-baseline gap-2">
@@ -482,7 +482,7 @@ export function GHCLanding() {
             <span className="h-5 w-px bg-white/40" aria-hidden />
             <div className="flex items-baseline gap-2">
               <span className="text-white font-semibold text-lg">∞</span>
-              <span>Real Impact</span>
+              <span>Impact</span>
             </div>
           </motion.div>
         </div>
@@ -704,7 +704,7 @@ function SectionCarousel({
                 lineHeight: 1.2,
               }}
             >
-              Each exists because something in traditional work stopped working—every response fixes that gap.
+              Each exists because something in traditional work stopped working. Problem → response.
             </motion.p>
           </div>
           <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-3">
@@ -778,7 +778,7 @@ function SectionCarousel({
             onClick={onExploreMarketplace}
             className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
           >
-            Explore and apply all 7 elements in the Marketplace
+            Explore all 7 elements in the Marketplace
             <ArrowRight className="h-5 w-5" />
           </button>
         </motion.div>
@@ -1016,7 +1016,7 @@ function SectionFinalCTA({ navigate }: { navigate: (path: string) => void }) {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.15 }}
           >
-            Join the community
+            DQ Digital Workspace
           </motion.p>
             <motion.h2
               className="ghc-font-display font-bold text-4xl sm:text-5xl md:text-5xl lg:text-6xl leading-[1.1] text-white tracking-tight"
@@ -1024,7 +1024,7 @@ function SectionFinalCTA({ navigate }: { navigate: (path: string) => void }) {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.15 }}
             >
-              Continue the journey inside the Golden Honeycomb
+              Work aligned inside the Golden Honeycomb
             </motion.h2>
             <motion.p
               className="mt-6 text-base sm:text-lg md:text-xl text-white/85 max-w-2xl leading-relaxed"
@@ -1032,7 +1032,7 @@ function SectionFinalCTA({ navigate }: { navigate: (path: string) => void }) {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.25 }}
             >
-              Continue applying the Golden Honeycomb in real work—connect with Qatalysts, share outcomes, and shape the future of meaningful work.
+              The Golden Honeycomb comes to life inside the DQ Digital Workspace, guiding tools, decisions, and daily work.
             </motion.p>
 
             <motion.div
@@ -1046,7 +1046,7 @@ function SectionFinalCTA({ navigate }: { navigate: (path: string) => void }) {
               onClick={() => navigate('/lms')}
               className="inline-flex items-center gap-2.5 h-[52px] px-7 rounded-lg bg-white text-[#131e42] font-semibold text-base shadow-xl shadow-black/12 transition transform hover:-translate-y-0.5 hover:bg-white/95"
             >
-              Join a Course
+              Start working in DWS
               <ArrowRight className="h-4 w-4" />
             </button>
             <button
@@ -1054,7 +1054,7 @@ function SectionFinalCTA({ navigate }: { navigate: (path: string) => void }) {
               onClick={() => navigate('/marketplace/guides/dq-ghc')}
               className="group inline-flex items-center gap-2 h-[52px] px-7 rounded-lg border-2 border-white/60 text-white font-semibold text-base transition transform hover:-translate-y-0.5 hover:bg-white/10 hover:border-white/80"
             >
-              Read the Storybook
+              Explore the Digital Workspace
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </button>
         </motion.div>
