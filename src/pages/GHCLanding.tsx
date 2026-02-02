@@ -178,7 +178,7 @@ const ACTION_CARDS = [
     title: 'Learn by doing',
     icon: GraduationCap,
     badge: 'Courses',
-    description: 'Learn GHC through real work, applying competencies inside live projects and guided practice.',
+    description: 'Learn Golden Honeycomb competencies by applying them directly inside real situations, decisions, and work scenarios.',
     tags: ['Self-paced', 'Real projects', 'Mentorship'],
     cta: 'Explore Courses',
     path: '/lms',
@@ -191,8 +191,8 @@ const ACTION_CARDS = [
     title: 'See the stories',
     icon: BookOpen,
     badge: 'Storybooks',
-    description: 'The complete GHC story — why it exists, how it works, and how the seven competencies connect.',
-    tags: ['Full framework', 'Element deep-dives', 'Decision logic'],
+    description: 'The complete Golden Honeycomb story — why it exists, how it works, and how the competencies connect as one system.',
+    tags: ['System overview', 'Design logic', 'Competency relationships'],
     cta: 'Read Storybooks',
     path: '/marketplace/guides/dq-ghc',
     bg: 'bg-[#fde6de]',
@@ -204,7 +204,7 @@ const ACTION_CARDS = [
     title: 'Join the work',
     icon: Users,
     badge: 'Programs',
-    description: 'Practise GHC competencies through structured programmes built around real organisational challenges.',
+    description: 'Practise Golden Honeycomb competencies through guided programs built around real challenges and collective problem-solving.',
     tags: ['Cohort-based', 'Live challenges', 'Community'],
     cta: 'Join a Program',
     path: '/marketplace',
@@ -217,7 +217,7 @@ const ACTION_CARDS = [
     title: 'See it in action',
     icon: Briefcase,
     badge: 'Workspace',
-    description: 'Practical examples of how GHC shows up in tools, rituals, templates, and ways of working.',
+    description: 'Explore practical examples of how Golden Honeycomb competencies appear in tools, rituals, templates, and working patterns.',
     tags: ['Templates', 'Rituals', 'Best practices'],
     cta: 'Explore Workspace',
     path: '/marketplace/guides',
@@ -912,7 +912,7 @@ function SectionTakeAction({ navigate }: { navigate: (path: string) => void }) {
             Bring it to life
           </h2>
           <p className="text-[#4a5678] max-w-2xl mx-auto text-lg">
-            Understanding is the start. GHC becomes real through practice, application, and lived experience.
+            Understanding is the start. GHC becomes real through application, practice, and lived experience.
           </p>
         </motion.div>
 
