@@ -116,7 +116,7 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     icon: User,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#30478a] to-[#f0f6ff]',
     accent: '#f0f6ff',
-    image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://image2url.com/r2/default/images/1770021424913-1f4da872-0e43-488d-b842-a0e724f6c2c4.png',
   },
   {
     id: 'execution',
