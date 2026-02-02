@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import {
@@ -725,6 +725,16 @@ function SectionCarousel({
 }: SectionCarouselProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
+  const [activeTag, setActiveTag] = useState(0);
+
+  useEffect(() => {
+    setActiveTag(carouselIndex);
+  }, [carouselIndex]);
+
+  const handleTagClick = (index: number) => {
+    setActiveTag(index);
+    onDotClick(index);
+  };
 
   return (
     <section
@@ -794,14 +804,16 @@ function SectionCarousel({
 
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
           {RESPONSE_TAGS.map((tag, i) => (
-            <span
+            <button
               key={tag}
+              type="button"
+              onClick={() => handleTagClick(i)}
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-300 ${
-                i === 0 ? 'bg-[#131e42] text-white shadow-md' : 'bg-[#f0f6ff] text-[#131e42]'
-              } cursor-default`}
+                i === activeTag ? 'bg-[#131e42] text-white shadow-md' : 'bg-[#f0f6ff] text-[#131e42]'
+              }`}
             >
               {tag}
-            </span>
+            </button>
           ))}
         </div>
 
