@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback, useEffect } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import {
@@ -6,8 +6,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Hexagon,
-  RefreshCw,
-  Layers,
   GraduationCap,
   BookOpen,
   ArrowRight,
@@ -52,6 +50,7 @@ interface CompetencyCard {
   icon: LucideIcon;
   gradient: string; // Tailwind gradient classes
   accent: string; // Hex or hsl string for highlights
+  image: string;
 }
 
 const COMPETENCY_CARDS: CompetencyCard[] = [
@@ -68,6 +67,7 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     icon: Target,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1d2f64] to-[#e1513b]',
     accent: '#f0f6ff',
+    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
   },
   {
     id: 'culture',
@@ -82,6 +82,7 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     icon: Heart,
     gradient: 'bg-gradient-to-br from-[#1b2553] via-[#243a75] to-[#e1513b]',
     accent: '#f0f6ff',
+    image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80',
   },
   {
     id: 'identity',
@@ -96,6 +97,7 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     icon: User,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#30478a] to-[#f0f6ff]',
     accent: '#f0f6ff',
+    image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80',
   },
   {
     id: 'execution',
@@ -103,13 +105,14 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     category: 'Ways of Working',
     title: 'Plans froze while priorities changed',
     story:
-      'Problem: static plans broke when priorities shifted. Response: Ways of Working (Agile TMS) reframed direction into adaptive missions. Outcome: execution kept pace with strategy.',
+      'Problem: static plans broke when priorities shifted. Response: Ways of Working reframed direction into adaptive missions. Outcome: execution kept pace with strategy.',
     problem: 'Static plans broke when priorities shifted.',
     response: 'Adaptive missions kept execution in sync with strategy.',
     route: '/marketplace/guides/dq-agile-tms',
     icon: Zap,
     gradient: 'bg-gradient-to-br from-[#1f2c63] via-[#2d3f80] to-[#e1513b]',
     accent: '#f0f6ff',
+    image: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1200&q=80',
   },
   {
     id: 'governance',
@@ -124,6 +127,7 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     icon: Shield,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1b2553] to-[#e1513b]',
     accent: '#f0f6ff',
+    image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=1200&q=80',
   },
   {
     id: 'flow',
@@ -131,13 +135,14 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     category: 'Capability',
     title: 'Handoffs killed momentum',
     story:
-      'Problem: value died in handoffs and delays. Response: Capability response (Agile Flows) connected intent to outcomes end-to-end. Outcome: feedback outran blockers.',
+      'Problem: value died in handoffs and delays. Response: Capability response connected intent to outcomes end-to-end. Outcome: feedback outran blockers.',
     problem: 'Value died in handoffs and delays.',
     response: 'End-to-end flows made feedback outrun blockers.',
     route: '/marketplace/guides/dq-agile-flows',
     icon: GitBranch,
     gradient: 'bg-gradient-to-br from-[#1b2553] via-[#30478a] to-[#e1513b]',
     accent: '#f0f6ff',
+    image: 'https://images.unsplash.com/photo-1529429617124-aee0bd5d8e2a?auto=format&fit=crop&w=1200&q=80',
   },
   {
     id: 'transform',
@@ -145,13 +150,14 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     category: 'Leadership',
     title: 'Change stalled after the pilot',
     story:
-      'Problem: pilots worked but scaling died. Response: Leadership response (Agile 6xD) made change repeatable step-by-step. Outcome: evolution became normal work.',
+      'Problem: pilots worked but scaling died. Response: Leadership response made change repeatable step-by-step. Outcome: evolution became normal work.',
     problem: 'Pilots worked but scaling died.',
     response: '6xD made change repeatable so evolution became normal work.',
     route: '/marketplace/guides/dq-agile-6xd',
     icon: Sparkles,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b]',
     accent: '#f0f6ff',
+    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
   },
 ];
 
@@ -171,6 +177,17 @@ const FEATURE_CARDS = [
     icon: IconSeven,
     description: 'Connected competency areas working together as one operating system for modern work.',
   },
+];
+
+const RESPONSE_TAGS = [
+  'All responses',
+  'Vision',
+  'House of Values',
+  'Structure',
+  'Ways of Working',
+  'Technology',
+  'Capability',
+  'Leadership',
 ];
 
 const ACTION_CARDS = [
@@ -642,7 +659,7 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
    ----------------------------------------- */
 
 interface SectionCarouselProps {
-  carouselRef: React.RefObject<HTMLDivElement | null>;
+  carouselRef: React.RefObject<HTMLDivElement>;
   carouselIndex: number;
   onPrev: () => void;
   onNext: () => void;
@@ -670,8 +687,9 @@ function SectionCarousel({
       className="relative py-24 bg-white"
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-10">
-        <motion.div className="mb-12 relative" initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
-          <div className="text-center mx-auto">
+        <motion.div className="mb-8 relative" initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
             <motion.span
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur"
               initial={{ opacity: 0, y: 12 }}
@@ -706,8 +724,8 @@ function SectionCarousel({
             >
               Real moments where work broke down—and how each response realigned it with clarity, alignment, and execution.
             </motion.p>
-          </div>
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-3">
+            </div>
+            <div className="flex items-center gap-3 self-end">
             <button
               type="button"
               onClick={onPrev}
@@ -725,7 +743,21 @@ function SectionCarousel({
               <ChevronRight className="h-5 w-5" />
             </button>
           </div>
+          </div>
         </motion.div>
+
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
+          {RESPONSE_TAGS.map((tag, i) => (
+            <span
+              key={tag}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-300 ${
+                i === 0 ? 'bg-[#131e42] text-white shadow-md' : 'bg-[#f0f6ff] text-[#131e42]'
+              } cursor-default`}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
 
         <div className="relative overflow-hidden">
           <div className="pointer-events-none absolute inset-y-6 left-0 w-16 bg-gradient-to-r from-white via-white/60 to-transparent" />
@@ -734,13 +766,13 @@ function SectionCarousel({
           <div
             ref={carouselRef}
             onScroll={onScroll}
-            className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory py-6 px-6 scrollbar-hide"
+            className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-6 pt-2 px-1 md:px-2 scrollbar-hide"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {COMPETENCY_CARDS.map((card, index) => (
               <motion.div
                 key={card.id}
-                className="flex-shrink-0 min-w-[82vw] md:min-w-[70vw] lg:min-w-[62rem] max-w-[900px] snap-center"
+                className="flex-shrink-0 min-w-[320px] max-w-[380px] md:min-w-[360px] md:max-w-[420px] lg:min-w-[420px] lg:max-w-[460px] snap-start"
                 initial={{ opacity: 0, y: 30 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.45, delay: index * 0.08 + 0.08 }}
@@ -795,86 +827,48 @@ interface CompetencyCardProps {
 function CompetencyCard({ card, index }: CompetencyCardProps) {
   const navigate = useNavigate();
   const Icon = card.icon;
-  const [open, setOpen] = useState(false);
 
   return (
     <motion.article
-      className="relative overflow-hidden rounded-3xl min-h-[400px] md:min-h-[430px] w-full cursor-pointer text-white shadow-[0_18px_40px_rgba(19,30,66,0.14)] hover:shadow-[0_24px_52px_rgba(19,30,66,0.2)] transition-shadow"
-      style={{
-        background: 'linear-gradient(135deg, #131e42 0%, #1f2d5c 45%, #e1513b 100%)',
-      }}
-      whileHover={{ scale: 1.01 }}
+      className="relative overflow-hidden rounded-3xl bg-white border border-[#e5e9f5] shadow-sm hover:shadow-lg transition-all flex flex-col min-h-[480px]"
+      whileHover={{ y: -4 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
     >
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(19,30,66,0.35) 0%, rgba(19,30,66,0.55) 55%, rgba(19,30,66,0.35) 100%)' }} />
-      <div className="absolute inset-x-0 top-0 h-1.5 bg-[#e1513b]" />
-
-      <div className="absolute right-8 top-7 text-3xl font-display font-medium tracking-tight text-white/25">
-        {String(card.number).padStart(2, '0')}
+      <div className="h-52 w-full overflow-hidden">
+        <img
+          src={card.image}
+          alt={card.title}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
       </div>
 
-      <div className="relative flex h-full flex-col justify-between gap-5 p-8 md:p-12 z-10">
-        <div className="flex items-center justify-between">
-          <motion.span
-            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/15 text-[#f0f6ff] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] backdrop-blur-sm border border-[#f0f6ff]/25"
-            initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.08 + 0.2 }}
-          >
-            <Icon className="h-4 w-4" />
-            {card.category}
-          </motion.span>
-        </div>
-
-        <div className="space-y-3 max-w-3xl">
-          <h3 className="ghc-font-display text-3xl md:text-4xl font-semibold leading-tight">
+      <div className="flex flex-col flex-1 p-6 gap-4">
+        <div className="flex items-start justify-between">
+          <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42] max-w-[80%]">
             {card.title}
           </h3>
-          <p className="text-base md:text-lg leading-relaxed text-white/90">{card.story}</p>
+          <span className="bg-[#f0f6ff] text-[#1f2d5c] text-xs px-3 py-1 rounded-full font-semibold tracking-wide">
+            {card.category}
+          </span>
         </div>
 
-        <div className="mt-auto space-y-4">
-          <button
-            type="button"
-            onClick={() => setOpen((prev) => !prev)}
-            className="inline-flex items-center justify-between w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-medium tracking-wide text-white transition hover:border-white/30 hover:bg-white/14"
-            aria-expanded={open}
-          >
-            <span className="flex items-center gap-2">
-              <ChevronDown
-                className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`}
-                style={{ color: '#f0f6ff' }}
-              />
-              {open ? 'Hide Problem & Response' : 'View Problem & Response'}
-            </span>
-            <span className="text-xs font-medium text-white/80">Tap to {open ? 'collapse' : 'reveal'}</span>
-          </button>
+        <div className="flex items-center gap-2 text-sm text-[#6b7390]">
+          <Hexagon className="h-4 w-4" />
+          <span>DQ Workspace • Real scenario</span>
+        </div>
 
-          <motion.div
-            initial={false}
-            animate={{ height: open ? 'auto' : 0, opacity: open ? 1 : 0 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
-            <div className="pt-3 mt-3 border-t border-white/15 space-y-2 text-sm md:text-base leading-relaxed">
-              <p className="text-white/90">
-                <span className="font-semibold text-white">Problem: </span>
-                {card.problem}
-              </p>
-              <p className="text-white/95">
-                <span className="font-semibold text-white">Response: </span>
-                {card.response}
-              </p>
-            </div>
-          </motion.div>
+        <p className="text-[#4a5678] text-sm leading-relaxed">
+          {card.story}
+        </p>
 
+        <div className="mt-auto">
           <button
             type="button"
             onClick={() => navigate(card.route)}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-white transition-transform group"
+            className="text-[#e1513b] font-semibold inline-flex items-center gap-1 hover:underline"
           >
             Read the response
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       </div>
