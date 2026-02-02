@@ -59,10 +59,10 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     number: 1,
     category: 'Vision',
     title: 'Vision',
-    story: 'Problem: Direction blurred when pressure and urgency increased. Response: Vision anchored decisions to a shared purpose.',
-    problem: 'Direction blurred when pressure and urgency increased.',
-    response: 'Vision anchored decisions to a shared purpose.',
-    situation: 'Critical launches piled up and priorities collided, leaving teams unsure what mattered most.',
+    story: 'Problem: When pressure hit, priorities blurred and teams pulled in different directions. Response: Vision re-anchored daily decisions to purpose, keeping direction stable under stress.',
+    problem: 'When pressure hit, priorities blurred and teams pulled in different directions.',
+    response: 'Vision re-anchored daily decisions to purpose, keeping direction stable under stress.',
+    situation: 'Critical launches piled up and priorities collided; teams lost the thread of purpose.',
     changes: [
       'Reframed goals into one north star statement',
       'Aligned weekly decisions to the stated purpose',
@@ -80,9 +80,9 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     number: 2,
     category: 'House of Values',
     title: 'House of Values',
-    story: 'Problem: Incentives and behaviours pulled teams apart. Response: House of Values created one rulebook for decisions.',
-    problem: 'Incentives and behaviours pulled teams apart.',
-    response: 'House of Values created one rulebook for decisions.',
+    story: 'Problem: Incentives split teams and slowed decisions. Response: Shared values restored a common rulebook, allowing speed and trust to hold.',
+    problem: 'Incentives split teams and slowed decisions.',
+    response: 'Shared values restored a common rulebook, allowing speed and trust to hold.',
     situation: 'Sales pushed speed, delivery pushed quality, and teams argued over what “good” meant.',
     changes: [
       'Agreed three behavioural guardrails for all decisions',
@@ -101,9 +101,9 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     number: 3,
     category: 'Structure',
     title: 'Structure',
-    story: 'Problem: Ownership was unclear and decisions stalled. Response: Structure clarified who decides and who delivers.',
+    story: 'Problem: Ownership was unclear and decisions stalled. Response: Structure clarified who decides and who delivers, unblocking progress.',
     problem: 'Ownership was unclear and decisions stalled.',
-    response: 'Structure clarified who decides and who delivers.',
+    response: 'Structure clarified who decides and who delivers, unblocking progress.',
     situation: 'Escalations bounced between managers because no one owned customer onboarding.',
     changes: [
       'Named a single accountable owner for onboarding',
@@ -751,7 +751,7 @@ function SectionCarousel({
                 lineHeight: 1.05,
               }}
             >
-              Seven Responses
+              Seven Responses in Action
             </motion.h2>
             <motion.p
               className="text-[#4a5678] max-w-2xl mx-auto mt-3 text-lg md:text-xl"
@@ -764,7 +764,7 @@ function SectionCarousel({
                 lineHeight: 1.2,
               }}
             >
-              Each exists because something in traditional work stopped working. Problem → response.
+              Real moments where work broke down — and how each response realigned it with clarity, alignment, and execution.
             </motion.p>
             </div>
             <div className="flex items-center gap-3 self-end">
