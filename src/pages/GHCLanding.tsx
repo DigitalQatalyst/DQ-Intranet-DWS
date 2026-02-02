@@ -508,7 +508,7 @@ export function GHCLanding() {
                 whiteSpace: 'normal',
               }}
             >
-              DQ built a new operating system for modern work designed for complexity, change, and impact.
+              DQ built an operating system of seven responses so you can see what broke in work and how to realign it.
             </span>
           </motion.div>
           <motion.div
@@ -778,7 +778,7 @@ function SectionCarousel({
                 lineHeight: 1.2,
               }}
             >
-              Each response exists because traditional work broke down, and DQ realigned it with clarity and action.
+              Traditional work broke in predictable ways; each response fixes a specific failure and shows how DQ realigned work with clarity and action.
             </motion.p>
             </div>
             <div className="flex items-center gap-3 self-end">
@@ -868,7 +868,7 @@ function SectionCarousel({
             onClick={onExploreMarketplace}
             className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
           >
-            View all Seven Responses in the Knowledge Center
+            Explore all Seven Responses together
             <ArrowRight className="h-5 w-5" />
           </button>
         </motion.div>
