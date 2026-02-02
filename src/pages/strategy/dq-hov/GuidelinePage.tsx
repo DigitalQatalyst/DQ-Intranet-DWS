@@ -1,23 +1,46 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { HomeIcon, ChevronRightIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ChevronRightIcon, BookOpen, PlayCircle, Eye, Clock } from 'lucide-react'
 import { Header } from '../../../components/Header'
 import { Footer } from '../../../components/Footer'
-import { useAuth } from '../../../components/Header/context/AuthContext'
 import { supabaseClient } from '../../../lib/supabaseClient'
 import { HeroSection } from '../shared/HeroSection'
-import { SideNav } from '../shared/SideNav'
 import { GuidelineSection } from '../shared/GuidelineSection'
 import MarkdownRenderer from '../../../components/guides/MarkdownRenderer'
 
 function GuidelinePage() {
-  const { user } = useAuth()
-  const navigate = useNavigate()
   const currentSlug = 'dq-hov'
   
   const [guide, setGuide] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState('overview')
+
+  const formatGhcTitle = (title: string) => {
+    const t = (title || '').trim()
+    const m1 = /^GHC\s*(?:Competency\s*)?(\d+)\s*:\s*(.+)$/i.exec(t)
+    if (m1) return `GHC ${m1[1]} - ${m1[2].trim()}`
+    const m2 = /^GHC\s*(\d+)\s*[-:]\s*(.+)$/i.exec(t)
+    if (m2) return `GHC ${m2[1]} - ${m2[2].trim()}`
+    return t
+  }
+
+  const displayTitle = formatGhcTitle(guide?.title || '') || guide?.title || ''
+
+  // Get just the first paragraph, excluding unwanted content
+  const getFirstParagraph = (text: string) => {
+    if (!text) return ''
+    const paragraphs = text.split('\n\n').filter(p => p.trim().length > 0)
+    
+    // Filter out paragraphs that start with "So we chose to design it."
+    const filteredParagraphs = paragraphs.filter(p => 
+      !p.trim().startsWith('So we chose to design it.')
+    )
+    
+    return filteredParagraphs[0] || ''
+  }
+
+  const hovIntroFirstParagraph = "Whether you are joining DigitalQatalyst for the first time or continuing to grow within it, one thing becomes clear quickly: how we work together matters as much as what we deliver.\n\nAt DQ, culture is not something that emerges by chance. We've made peace with a difficult truth, culture will happen with or without intention. And if it is left undefined, it will quietly shape decisions, behaviours, and outcomes in ways we didn't choose."
 
   useEffect(() => {
     let cancelled = false
@@ -66,44 +89,6 @@ function GuidelinePage() {
     return () => { cancelled = true }
   }, [currentSlug])
 
-  // Parse markdown body into sections
-  const parseSections = (body: string) => {
-    const sections: { id: string; title: string; content: string }[] = []
-    if (!body) return sections
-    
-    const lines = body.split('\n')
-    let currentSection: { id: string; title: string; content: string } | null = null
-    
-    for (const line of lines) {
-      // Check for level 1 or level 2 headings
-      if (line.startsWith('# ') || line.startsWith('## ')) {
-        if (currentSection) {
-          sections.push(currentSection)
-        }
-        const title = line.replace(/^#+\s+/, '').trim()
-        const id = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-        currentSection = { id, title, content: '' }
-      } else if (currentSection) {
-        currentSection.content += line + '\n'
-      } else {
-        // If we have content before any heading, create a default section
-        if (!currentSection) {
-          currentSection = { id: 'overview', title: 'Overview', content: '' }
-        }
-        currentSection.content += line + '\n'
-      }
-    }
-    
-    if (currentSection) {
-      sections.push(currentSection)
-    }
-    
-    return sections
-  }
-
-  const sections = guide?.body ? parseSections(guide.body) : []
-  const navSections = sections.filter(s => s.title !== 'Learn More').map(s => ({ id: s.id, label: s.title }))
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -131,7 +116,6 @@ function GuidelinePage() {
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
               <li className="inline-flex items-center">
                 <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
-                  <HomeIcon size={16} className="mr-1" />
                   <span>Home</span>
                 </Link>
               </li>
@@ -146,7 +130,7 @@ function GuidelinePage() {
               <li aria-current="page">
                 <div className="flex items-center">
                   <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2">{guide.title}</span>
+                  <span className="ml-1 text-gray-500 md:ml-2">{displayTitle}</span>
                 </div>
               </li>
             </ol>
@@ -156,63 +140,252 @@ function GuidelinePage() {
       
       {/* Hero Section */}
       <HeroSection 
-        title={guide.title}
-        subtitle="DQ Leadership • Digital Qatalyst"
-        imageUrl={guide.hero_image_url || undefined}
+        title={displayTitle}
+        subtitle="DQ Leadership - Digital Qatalyst"
+        imageUrl="/images/guidelines-content.PNG"
         badge="Strategy Framework"
       />
 
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-12 max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12">
-              {sections.length === 0 ? (
-                guide?.body ? (
-                  <GuidelineSection id="overview" title="Overview">
-                    <MarkdownRenderer body={guide.body} />
-                  </GuidelineSection>
-                ) : (
-                  <div className="text-gray-600">No content available.</div>
-                )
-              ) : (
-                sections.map((section, index) => {
-                  // Skip "Learn More" section - we'll add it manually
-                  if (section.title === 'Learn More') return null
-                  
-                  return (
-                    <GuidelineSection key={section.id} id={section.id} title={section.title}>
-                      <MarkdownRenderer body={section.content.trim()} />
-                    </GuidelineSection>
-                  )
-                })
-              )}
-              
-              {/* GHC Link Button */}
-              <div className="mt-12 text-right">
-                <Link
-                  to="/marketplace/guides/dq-ghc"
-                  className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-lg transition-colors"
-                  style={{ 
-                    backgroundColor: '#030E31'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#020A28'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#030E31'
-                  }}
-                >
-                  <span>View Full GHC Framework</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
-              </div>
-            </div>
+        <div className="px-4 py-12">
+          {/* Tab Content - Full Width */}
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="max-w-6xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                {/* Main Content - Left Side (3 columns) */}
+                <div className="lg:col-span-3">
+                  {/* Tabs */}
+                  <div className="border-b border-gray-200">
+                    <nav className="flex -mb-px justify-center">
+                      <button
+                        onClick={() => setActiveTab('overview')}
+                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                          activeTab === 'overview'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Eye size={16} />
+                          Overview
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('storybook')}
+                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                          activeTab === 'storybook'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <BookOpen size={16} />
+                          Explore Story Book
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('course')}
+                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                          activeTab === 'course'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <PlayCircle size={16} />
+                          Course
+                        </div>
+                      </button>
+                    </nav>
+                  </div>
 
-            {/* Sidebar Navigation */}
-            <div className="lg:col-span-1">
-              <SideNav sections={navSections} />
+                  {/* Tab Content - Centered */}
+                  <div className="p-8 md:p-12">
+                    {activeTab === 'overview' && (
+                      <div>
+                        {/* Combined Overview Card */}
+                        <div className="bg-white rounded-lg p-6">
+                          {/* Description */}
+                          {hovIntroFirstParagraph && (
+                            <div className="prose prose-sm max-w-none">
+                              <MarkdownRenderer body={hovIntroFirstParagraph} />
+                            </div>
+                          )}
+
+                          {/* Course Highlights */}
+                          <div className="pt-4">
+                            <h6 className="text-sm font-semibold text-gray-900 mb-3">Course Highlights</h6>
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                                  <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                                <span className="text-sm text-gray-700">Value-driven culture</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                                  <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                                <span className="text-sm text-gray-700">Shared principles</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                                  <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                                <span className="text-sm text-gray-700">Cultural alignment</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* GHC Link Button - Only show on Overview tab */}
+                        <div className="mt-12 text-right">
+                          <Link
+                            to="/marketplace/guides/dq-ghc"
+                            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-lg transition-colors"
+                            style={{ 
+                              backgroundColor: '#030E31'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#020A28'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = '#030E31'
+                            }}
+                          >
+                            <span>View Full GHC Framework</span>
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === 'storybook' && (
+                      <GuidelineSection id="storybook" title="Explore Story Book">
+                        <div className="text-center py-12">
+                          <BookOpen size={64} className="mx-auto text-blue-500 mb-4" />
+                          <h3 className="text-xl font-semibold text-gray-900 mb-4">House of Values Story Book</h3>
+                          <p className="text-gray-600 mb-8">
+                            Explore the interactive story book that brings the DQ House of Values framework to life through engaging narratives and visual storytelling.
+                          </p>
+                          <button
+                            onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
+                            className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
+                            style={{ backgroundColor: '#030E31' }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
+                          >
+                            <BookOpen size={16} />
+                            Open Story Book
+                          </button>
+                        </div>
+                      </GuidelineSection>
+                    )}
+
+                    {activeTab === 'course' && (
+                      <GuidelineSection id="course" title="Course - Video Learning">
+                        <div className="space-y-8">
+                          <div className="text-center">
+                            <PlayCircle size={64} className="mx-auto text-blue-500 mb-4" />
+                            <h3 className="text-xl font-semibold text-gray-900 mb-4">House of Values Video Course</h3>
+                            <p className="text-gray-600 mb-8">
+                              Deepen your understanding of the DQ House of Values framework through our comprehensive video learning modules.
+                            </p>
+                          </div>
+                          
+                          {/* Course Button Section */}
+                          <div className="bg-white rounded-lg border border-gray-200 p-6">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <h4 className="text-lg font-semibold text-gray-900 mb-1">DQ House of Values Course</h4>
+                                <p className="text-sm text-gray-600">Complete learning module</p>
+                              </div>
+                              <a
+                                href="https://dq-intranet-pykepfa4x-digitalqatalysts-projects.vercel.app/lms/ghc-course/lesson/f930b2a4-b107-4e7b-af01-c820773e00bb"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                              >
+                                <PlayCircle size={16} />
+                                <span>Start</span>
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </GuidelineSection>
+                    )}
+                  </div>
+                </div>
+
+                {/* Minimal Course Summary - Right Side (1 column) */}
+                <div className="bg-gray-50 p-4">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">Course Summary</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Clock size={16} className="text-cyan-600" />
+                      <span className="text-xs font-semibold text-gray-900">Duration:</span>
+                      <span className="text-xs text-gray-600">Self-paced</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <PlayCircle size={16} className="text-cyan-600" />
+                      <span className="text-xs font-semibold text-gray-900">Format:</span>
+                      <span className="text-xs text-gray-600">Online</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <BookOpen size={16} className="text-cyan-600" />
+                      <span className="text-xs font-semibold text-gray-900">Level:</span>
+                      <span className="text-xs text-gray-600">Beginner</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-3 mt-4">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">What You'll Learn</h4>
+                    <ul className="space-y-1 text-xs text-gray-600">
+                      <li className="flex items-start">
+                        <span className="text-cyan-600 mr-1">•</span>
+                        Understanding DQ House of Values framework
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-cyan-600 mr-1">•</span>
+                        Cultural development principles
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-cyan-600 mr-1">•</span>
+                        Value-driven leadership
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-3 mt-4">
+                    <Link
+                      to={`/marketplace/guides/${currentSlug}/details`}
+                      className="w-full text-white text-sm font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-center inline-block text-center"
+                      style={{ backgroundColor: '#030E31' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
+                    >
+                      <span>View Details</span>
+                      <svg 
+                        className="w-3 h-3 ml-1" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
