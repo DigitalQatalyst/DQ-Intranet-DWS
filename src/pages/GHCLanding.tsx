@@ -58,11 +58,10 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     id: 'purpose',
     number: 1,
     category: 'Vision',
-    title: 'Work drifted when pressure spiked',
-    story:
-      'Problem: direction blurred under pressure. Response: Vision reset purpose and daily decisions. Outcome: teams stayed aligned even when the heat rose.',
-    problem: 'Direction blurred under pressure.',
-    response: 'Vision reset purpose so daily decisions stayed aligned.',
+    title: 'Vision',
+    story: 'Problem: Direction blurred when pressure and urgency increased. Response: Vision anchored decisions to a shared purpose.',
+    problem: 'Direction blurred when pressure and urgency increased.',
+    response: 'Vision anchored decisions to a shared purpose.',
     route: '/marketplace/guides/dq-vision',
     icon: Target,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1d2f64] to-[#e1513b]',
@@ -73,11 +72,10 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     id: 'culture',
     number: 2,
     category: 'House of Values',
-    title: 'Teams slowed by split incentives',
-    story:
-      'Problem: incentives pulled squads apart and decisions stalled. Response: House of Values gave one rulebook. Outcome: faster calls and trust under pressure.',
-    problem: 'Incentives pulled squads apart and slowed decisions.',
-    response: 'House of Values set one rulebook so calls were faster and trusted.',
+    title: 'House of Values',
+    story: 'Problem: Incentives and behaviours pulled teams apart. Response: House of Values created one rulebook for decisions.',
+    problem: 'Incentives and behaviours pulled teams apart.',
+    response: 'House of Values created one rulebook for decisions.',
     route: '/marketplace/guides/dq-hov',
     icon: Heart,
     gradient: 'bg-gradient-to-br from-[#1b2553] via-[#243a75] to-[#e1513b]',
@@ -88,11 +86,10 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     id: 'identity',
     number: 3,
     category: 'Structure',
-    title: 'Roles overlapped and decisions stalled',
-    story:
-      'Problem: ownership was fuzzy and work bounced around. Response: Structure clarified who decides and delivers. Outcome: cleaner handoffs and faster movement.',
-    problem: 'Ownership was fuzzy and work bounced around.',
-    response: 'Structure clarified who decides and delivers so work flowed.',
+    title: 'Structure',
+    story: 'Problem: Ownership was unclear and decisions stalled. Response: Structure clarified who decides and who delivers.',
+    problem: 'Ownership was unclear and decisions stalled.',
+    response: 'Structure clarified who decides and who delivers.',
     route: '/marketplace/guides/dq-persona',
     icon: User,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#30478a] to-[#f0f6ff]',
@@ -103,11 +100,10 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     id: 'execution',
     number: 4,
     category: 'Ways of Working',
-    title: 'Plans froze while priorities changed',
-    story:
-      'Problem: static plans broke when priorities shifted. Response: Ways of Working reframed direction into adaptive missions. Outcome: execution kept pace with strategy.',
-    problem: 'Static plans broke when priorities shifted.',
-    response: 'Adaptive missions kept execution in sync with strategy.',
+    title: 'Ways of Working',
+    story: 'Problem: Teams worked at different speeds and rhythms. Response: Ways of Working aligned execution patterns.',
+    problem: 'Teams worked at different speeds and rhythms.',
+    response: 'Ways of Working aligned execution patterns.',
     route: '/marketplace/guides/dq-agile-tms',
     icon: Zap,
     gradient: 'bg-gradient-to-br from-[#1f2c63] via-[#2d3f80] to-[#e1513b]',
@@ -118,11 +114,10 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     id: 'governance',
     number: 5,
     category: 'Technology',
-    title: 'Tools conflicted and signals were noisy',
-    story:
-      'Problem: fragmented tooling hid risks and progress. Response: Technology response set light standards and shared signals. Outcome: clear visibility and faster, safer shipping.',
-    problem: 'Fragmented tooling hid risks and progress.',
-    response: 'Light standards and shared signals restored visibility and safety.',
+    title: 'Technology',
+    story: 'Problem: Tools slowed work instead of supporting it. Response: Technology enabled execution inside daily flow.',
+    problem: 'Tools slowed work instead of supporting it.',
+    response: 'Technology enabled execution inside daily flow.',
     route: '/marketplace/guides/dq-agile-sos',
     icon: Shield,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1b2553] to-[#e1513b]',
@@ -133,11 +128,10 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     id: 'flow',
     number: 6,
     category: 'Capability',
-    title: 'Handoffs killed momentum',
-    story:
-      'Problem: value died in handoffs and delays. Response: Capability response connected intent to outcomes end-to-end. Outcome: feedback outran blockers.',
-    problem: 'Value died in handoffs and delays.',
-    response: 'End-to-end flows made feedback outrun blockers.',
+    title: 'Capability',
+    story: 'Problem: Skills and knowledge stayed trapped in individuals. Response: Capability made competence repeatable and scalable.',
+    problem: 'Skills and knowledge stayed trapped in individuals.',
+    response: 'Capability made competence repeatable and scalable.',
     route: '/marketplace/guides/dq-agile-flows',
     icon: GitBranch,
     gradient: 'bg-gradient-to-br from-[#1b2553] via-[#30478a] to-[#e1513b]',
@@ -148,11 +142,10 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     id: 'transform',
     number: 7,
     category: 'Leadership',
-    title: 'Change stalled after the pilot',
-    story:
-      'Problem: pilots worked but scaling died. Response: Leadership response made change repeatable step-by-step. Outcome: evolution became normal work.',
-    problem: 'Pilots worked but scaling died.',
-    response: '6xD made change repeatable so evolution became normal work.',
+    title: 'Leadership',
+    story: 'Problem: Decisions bottlenecked at the top. Response: Leadership distributed ownership and trust.',
+    problem: 'Decisions bottlenecked at the top.',
+    response: 'Leadership distributed ownership and trust.',
     route: '/marketplace/guides/dq-agile-6xd',
     icon: Sparkles,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b]',
@@ -696,7 +689,7 @@ function SectionCarousel({
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.35 }}
             >
-              Seven Responses in Action
+              THE FRAMEWORK
             </motion.span>
             <motion.h2
               className="ghc-font-display text-4xl md:text-5xl font-semibold text-[#131e42] mt-4 max-w-3xl mx-auto"
@@ -709,7 +702,7 @@ function SectionCarousel({
                 lineHeight: 1.05,
               }}
             >
-              Seven Responses in Action
+              Seven Responses
             </motion.h2>
             <motion.p
               className="text-[#4a5678] max-w-2xl mx-auto mt-3 text-lg md:text-xl"
@@ -722,7 +715,7 @@ function SectionCarousel({
                 lineHeight: 1.2,
               }}
             >
-              Real moments where work broke down—and how each response realigned it with clarity, alignment, and execution.
+              Each exists because something in traditional work stopped working. Problem → response.
             </motion.p>
             </div>
             <div className="flex items-center gap-3 self-end">
