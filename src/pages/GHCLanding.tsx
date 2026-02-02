@@ -160,7 +160,7 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     icon: Shield,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1b2553] to-[#e1513b]',
     accent: '#f0f6ff',
-    image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://image2url.com/r2/default/images/1770021849077-fe5f09ea-4467-4e4c-b1da-a46420d40712.png',
   },
   {
     id: 'flow',
