@@ -62,6 +62,13 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     story: 'Problem: Direction blurred when pressure and urgency increased. Response: Vision anchored decisions to a shared purpose.',
     problem: 'Direction blurred when pressure and urgency increased.',
     response: 'Vision anchored decisions to a shared purpose.',
+    situation: 'Critical launches piled up and priorities collided, leaving teams unsure what mattered most.',
+    changes: [
+      'Reframed goals into one north star statement',
+      'Aligned weekly decisions to the stated purpose',
+      'Stopped workstreams that did not serve the purpose',
+    ],
+    impact: 'Decisions converged and teams moved in one direction under pressure.',
     route: '/marketplace/guides/dq-vision',
     icon: Target,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1d2f64] to-[#e1513b]',
@@ -76,6 +83,13 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     story: 'Problem: Incentives and behaviours pulled teams apart. Response: House of Values created one rulebook for decisions.',
     problem: 'Incentives and behaviours pulled teams apart.',
     response: 'House of Values created one rulebook for decisions.',
+    situation: 'Sales pushed speed, delivery pushed quality, and teams argued over what “good” meant.',
+    changes: [
+      'Agreed three behavioural guardrails for all decisions',
+      'Embedded values into approval checklists',
+      'Held weekly value-based retros on tough calls',
+    ],
+    impact: 'Debates shortened and teams trusted decisions made against the shared rulebook.',
     route: '/marketplace/guides/dq-hov',
     icon: Heart,
     gradient: 'bg-gradient-to-br from-[#1b2553] via-[#243a75] to-[#e1513b]',
@@ -90,6 +104,13 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     story: 'Problem: Ownership was unclear and decisions stalled. Response: Structure clarified who decides and who delivers.',
     problem: 'Ownership was unclear and decisions stalled.',
     response: 'Structure clarified who decides and who delivers.',
+    situation: 'Escalations bounced between managers because no one owned customer onboarding.',
+    changes: [
+      'Named a single accountable owner for onboarding',
+      'Mapped DRI for every decision point',
+      'Published a simple “who decides / who delivers” chart',
+    ],
+    impact: 'Escalations stopped and onboarding cycle time dropped because owners were clear.',
     route: '/marketplace/guides/dq-persona',
     icon: User,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#30478a] to-[#f0f6ff]',
@@ -104,6 +125,13 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     story: 'Problem: Teams worked at different speeds and rhythms. Response: Ways of Working aligned execution patterns.',
     problem: 'Teams worked at different speeds and rhythms.',
     response: 'Ways of Working aligned execution patterns.',
+    situation: 'Strategy changed monthly but teams were stuck on quarterly plans with mismatched cadences.',
+    changes: [
+      'Shifted to six-week missions with weekly checkpoints',
+      'Synced rituals and demos across teams',
+      'Retired stale backlog items each mission',
+    ],
+    impact: 'Execution cadence matched strategy shifts and handoffs became predictable.',
     route: '/marketplace/guides/dq-agile-tms',
     icon: Zap,
     gradient: 'bg-gradient-to-br from-[#1f2c63] via-[#2d3f80] to-[#e1513b]',
@@ -118,6 +146,13 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     story: 'Problem: Tools slowed work instead of supporting it. Response: Technology enabled execution inside daily flow.',
     problem: 'Tools slowed work instead of supporting it.',
     response: 'Technology enabled execution inside daily flow.',
+    situation: 'Teams duplicated data across tools and couldn’t see blockers until too late.',
+    changes: [
+      'Standardised one delivery board per team with shared fields',
+      'Integrated alerts into daily channels instead of email',
+      'Trimmed tools down to a single source for status and risk',
+    ],
+    impact: 'Risks surfaced earlier and delivery sped up because tools matched daily flow.',
     route: '/marketplace/guides/dq-agile-sos',
     icon: Shield,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1b2553] to-[#e1513b]',
@@ -132,6 +167,13 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     story: 'Problem: Skills and knowledge stayed trapped in individuals. Response: Capability made competence repeatable and scalable.',
     problem: 'Skills and knowledge stayed trapped in individuals.',
     response: 'Capability made competence repeatable and scalable.',
+    situation: 'Only two specialists could ship a release; work stalled when they were unavailable.',
+    changes: [
+      'Documented the critical steps as simple runbooks',
+      'Paired specialists with peers for two cycles',
+      'Created a lightweight skills map to spread coverage',
+    ],
+    impact: 'More people could ship safely and cycle times shortened.',
     route: '/marketplace/guides/dq-agile-flows',
     icon: GitBranch,
     gradient: 'bg-gradient-to-br from-[#1b2553] via-[#30478a] to-[#e1513b]',
@@ -146,6 +188,13 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     story: 'Problem: Decisions bottlenecked at the top. Response: Leadership distributed ownership and trust.',
     problem: 'Decisions bottlenecked at the top.',
     response: 'Leadership distributed ownership and trust.',
+    situation: 'Every decision waited for exec sign-off, stalling rollouts.',
+    changes: [
+      'Defined decisions to delegate versus escalate',
+      'Set clear guardrails and success measures',
+      'Instituted weekly trust-but-verify reviews',
+    ],
+    impact: 'Teams shipped faster while leaders focused on strategic calls.',
     route: '/marketplace/guides/dq-agile-6xd',
     icon: Sparkles,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b]',
@@ -820,6 +869,7 @@ interface CompetencyCardProps {
 function CompetencyCard({ card, index }: CompetencyCardProps) {
   const navigate = useNavigate();
   const Icon = card.icon;
+  const [open, setOpen] = useState(false);
 
   return (
     <motion.article
@@ -850,19 +900,51 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
           <span>DQ Workspace • Real scenario</span>
         </div>
 
-        <p className="text-[#4a5678] text-sm leading-relaxed">
-          {card.story}
-        </p>
+        <div className="space-y-1">
+          <p className="text-[#4a5678] text-sm leading-relaxed">
+            <span className="font-semibold text-[#131e42]">Problem: </span>
+            {card.problem}
+          </p>
+          <p className="text-[#4a5678] text-sm leading-relaxed">
+            <span className="font-semibold text-[#131e42]">Response: </span>
+            {card.response}
+          </p>
+        </div>
 
         <div className="mt-auto">
           <button
             type="button"
-            onClick={() => navigate(card.route)}
+            onClick={() => setOpen((prev) => !prev)}
             className="text-[#e1513b] font-semibold inline-flex items-center gap-1 hover:underline"
           >
             Read the response
             <ArrowRight className="h-4 w-4" />
           </button>
+          <motion.div
+            initial={false}
+            animate={{ height: open ? 'auto' : 0, opacity: open ? 1 : 0 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className="pt-3 mt-3 border-t border-[#e5e9f5] space-y-2 text-sm text-[#4a5678] leading-relaxed">
+              <p>
+                <span className="font-semibold text-[#131e42]">Situation: </span>
+                {card.situation}
+              </p>
+              <div>
+                <span className="font-semibold text-[#131e42]">What changed:</span>
+                <ul className="list-disc list-inside space-y-1 mt-1">
+                  {card.changes.map((c) => (
+                    <li key={c}>{c}</li>
+                  ))}
+                </ul>
+              </div>
+              <p>
+                <span className="font-semibold text-[#131e42]">Impact: </span>
+                {card.impact}
+              </p>
+            </div>
+          </motion.div>
         </div>
       </div>
     </motion.article>
