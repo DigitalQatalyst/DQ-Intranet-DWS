@@ -578,7 +578,7 @@ export function GHCLanding() {
         onNext={scrollToNext}
         onScroll={handleCarouselScroll}
         onDotClick={goToSlide}
-        onExploreMarketplace={() => navigate('/marketplace')}
+        onExploreMarketplace={() => navigate('/marketplace/guides')}
       />
 
       {/* -----------------------------------------
@@ -856,7 +856,7 @@ function SectionCarousel({
             onClick={onExploreMarketplace}
             className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
           >
-            Explore all 7 elements in the Marketplace
+            View all Seven Responses in the Knowledge Center
             <ArrowRight className="h-5 w-5" />
           </button>
         </motion.div>
