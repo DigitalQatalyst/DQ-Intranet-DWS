@@ -10,6 +10,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams, Link } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
+import { HeroSection } from '../strategy/shared/HeroSection'
 import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Download, AlertTriangle, ExternalLink, Calendar, User, Building2, Heart, MessageCircle, BookmarkIcon, FileText, ChevronDown } from 'lucide-react'
 import { supabaseClient } from '../../lib/supabaseClient'
 import { getGuideImageUrl } from '../../utils/guideImageMap'
@@ -351,49 +352,43 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch(`/api/guides/${encodeURIComponent(itemId || '')}`)
-        const ct = res.headers.get('content-type') || ''
-        if (res.ok && ct.includes('application/json')) {
-          const data = await res.json()
-          if (!cancelled) setGuide(data)
-        } else {
-          const key = String(itemId || '')
-          const { data: row, error: err1 } = await supabaseClient.from('guides').select('*').eq('slug', key).maybeSingle()
-          if (err1) throw err1
-          let finalRow = row
-          if (!finalRow) {
-            const { data: row2, error: err2 } = await supabaseClient.from('guides').select('*').eq('id', key).maybeSingle()
-            if (err2) throw err2
-            finalRow = row2 as any
-          }
-          if (!finalRow) throw new Error('Not found')
-          const mapped: GuideRecord = {
-            id: finalRow.id,
-            slug: finalRow.slug,
-            title: finalRow.title,
-            summary: finalRow.summary ?? undefined,
-            heroImageUrl: finalRow.hero_image_url ?? finalRow.heroImageUrl ?? null,
-            domain: finalRow.domain ?? null,
-            guideType: finalRow.guide_type ?? finalRow.guideType ?? null,
-            functionArea: finalRow.function_area ?? null,
-            subDomain: finalRow.sub_domain ?? finalRow.subDomain ?? null,
-            unit: finalRow.unit ?? null,
-            location: finalRow.location ?? null,
-            status: finalRow.status ?? null,
-            complexityLevel: finalRow.complexity_level ?? null,
-            skillLevel: finalRow.skill_level ?? finalRow.skillLevel ?? null,
-            estimatedTimeMin: finalRow.estimated_time_min ?? finalRow.estimatedTimeMin ?? null,
-            lastUpdatedAt: finalRow.last_updated_at ?? finalRow.lastUpdatedAt ?? null,
-            authorName: finalRow.author_name ?? finalRow.authorName ?? null,
-            authorOrg: finalRow.author_org ?? finalRow.authorOrg ?? null,
-            isEditorsPick: finalRow.is_editors_pick ?? finalRow.isEditorsPick ?? null,
-            downloadCount: finalRow.download_count ?? finalRow.downloadCount ?? null,
-            documentUrl: finalRow.document_url ?? finalRow.documentUrl ?? null,
-            body: finalRow.body ?? null,
-            steps: [], attachments: [], templates: [],
-          }
-          if (!cancelled) setGuide(mapped)
+        // Skip API call and go directly to Supabase since we're using Vite, not Next.js
+        const key = String(itemId || '')
+        const { data: row, error: err1 } = await supabaseClient.from('guides').select('*').eq('slug', key).maybeSingle()
+        if (err1) throw err1
+        let finalRow = row
+        if (!finalRow) {
+          const { data: row2, error: err2 } = await supabaseClient.from('guides').select('*').eq('id', key).maybeSingle()
+          if (err2) throw err2
+          finalRow = row2 as any
         }
+        if (!finalRow) throw new Error('Not found')
+        const mapped: GuideRecord = {
+          id: finalRow.id,
+          slug: finalRow.slug,
+          title: finalRow.title,
+          summary: finalRow.summary ?? undefined,
+          heroImageUrl: finalRow.hero_image_url ?? finalRow.heroImageUrl ?? null,
+          domain: finalRow.domain ?? null,
+          guideType: finalRow.guide_type ?? finalRow.guideType ?? null,
+          functionArea: finalRow.function_area ?? null,
+          subDomain: finalRow.sub_domain ?? finalRow.subDomain ?? null,
+          unit: finalRow.unit ?? null,
+          location: finalRow.location ?? null,
+          status: finalRow.status ?? null,
+          complexityLevel: finalRow.complexity_level ?? null,
+          skillLevel: finalRow.skill_level ?? finalRow.skillLevel ?? null,
+          estimatedTimeMin: finalRow.estimated_time_min ?? finalRow.estimatedTimeMin ?? null,
+          lastUpdatedAt: finalRow.last_updated_at ?? finalRow.lastUpdatedAt ?? null,
+          authorName: finalRow.author_name ?? finalRow.authorName ?? null,
+          authorOrg: finalRow.author_org ?? finalRow.authorOrg ?? null,
+          isEditorsPick: finalRow.is_editors_pick ?? finalRow.isEditorsPick ?? null,
+          downloadCount: finalRow.download_count ?? finalRow.downloadCount ?? null,
+          documentUrl: finalRow.document_url ?? finalRow.documentUrl ?? null,
+          body: finalRow.body ?? null,
+          steps: [], attachments: [], templates: [],
+        }
+        if (!cancelled) setGuide(mapped)
       } catch (e: any) {
         if (!cancelled) setError('Guide not found')
       } finally {
@@ -1199,6 +1194,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     if (isDQVision) {
       return <SuspenseWrapper><DQVisionPage /></SuspenseWrapper>
     }
+
 
     if (isDQHoV) {
       return <SuspenseWrapper><DQHoVPage /></SuspenseWrapper>
