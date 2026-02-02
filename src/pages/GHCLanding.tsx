@@ -73,7 +73,7 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     icon: Target,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1d2f64] to-[#e1513b]',
     accent: '#f0f6ff',
-    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://image2url.com/r2/default/images/1770035368667-bfe10133-4bed-44c7-aefa-c6fed9c807f5.webp',
   },
   {
     id: 'culture',
