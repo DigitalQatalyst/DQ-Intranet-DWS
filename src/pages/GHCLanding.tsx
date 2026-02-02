@@ -768,7 +768,7 @@ function SectionCarousel({
                 lineHeight: 1.2,
               }}
             >
-              Each response exists because something in traditional work stopped working. These are real moments where work broke down — and how DQ realigned it through clear responses.
+              Each response exists because traditional work broke down, and DQ realigned it with clarity and action.
             </motion.p>
             </div>
             <div className="flex items-center gap-3 self-end">
