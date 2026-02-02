@@ -182,7 +182,7 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     icon: GitBranch,
     gradient: 'bg-gradient-to-br from-[#1b2553] via-[#30478a] to-[#e1513b]',
     accent: '#f0f6ff',
-    image: 'https://images.unsplash.com/photo-1529429617124-aee0bd5d8e2a?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://image2url.com/r2/default/images/1770025109470-b2166816-791e-4ee2-be27-3d57e1e1de96.png',
   },
   {
     id: 'transform',
