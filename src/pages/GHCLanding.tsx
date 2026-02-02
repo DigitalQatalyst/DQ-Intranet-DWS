@@ -178,7 +178,7 @@ const ACTION_CARDS = [
     title: 'Learn by doing',
     icon: GraduationCap,
     badge: 'Courses',
-    description: 'Built on real work. Execute inside live projects.',
+    description: 'Learn GHC through real work, applying competencies inside live projects and guided practice.',
     tags: ['Self-paced', 'Real projects', 'Mentorship'],
     cta: 'Explore Courses',
     path: '/lms',
@@ -191,8 +191,8 @@ const ACTION_CARDS = [
     title: 'See the stories',
     icon: BookOpen,
     badge: 'Storybooks',
-    description: 'Real journeys and decisions. GHC through the people who use it.',
-    tags: ['Case studies', 'Behind the scenes', 'Lessons learned'],
+    description: 'The complete GHC story — why it exists, how it works, and how the seven competencies connect.',
+    tags: ['Full framework', 'Element deep-dives', 'Decision logic'],
     cta: 'Read Storybooks',
     path: '/marketplace/guides/dq-ghc',
     bg: 'bg-[#fde6de]',
@@ -204,7 +204,7 @@ const ACTION_CARDS = [
     title: 'Join the work',
     icon: Users,
     badge: 'Programs',
-    description: 'Practise competencies on live challenges.',
+    description: 'Practise GHC competencies through structured programmes built around real organisational challenges.',
     tags: ['Cohort-based', 'Live challenges', 'Community'],
     cta: 'Join a Program',
     path: '/marketplace',
@@ -217,10 +217,10 @@ const ACTION_CARDS = [
     title: 'See it in action',
     icon: Briefcase,
     badge: 'Workspace',
-    description: 'Tools, rituals, and daily work inside DQ.',
+    description: 'Practical examples of how GHC shows up in tools, rituals, templates, and ways of working.',
     tags: ['Templates', 'Rituals', 'Best practices'],
     cta: 'Explore Workspace',
-    path: '/',
+    path: '/marketplace/guides',
     bg: 'bg-white',
     accent: 'text-[#131e42]',
     badgeColor: 'text-[#131e42]',
@@ -912,7 +912,7 @@ function SectionTakeAction({ navigate }: { navigate: (path: string) => void }) {
             Bring it to life
           </h2>
           <p className="text-[#4a5678] max-w-2xl mx-auto text-lg">
-            Understanding is the start. Real learning happens by doing.
+            Understanding is the start. GHC becomes real through practice, application, and lived experience.
           </p>
         </motion.div>
 
