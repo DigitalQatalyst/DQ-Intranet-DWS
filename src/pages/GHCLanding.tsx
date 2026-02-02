@@ -58,12 +58,12 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
   {
     id: 'purpose',
     number: 1,
-    category: 'Purpose/Vision',
-    title: 'Vision',
+    category: 'Vision',
+    title: 'Work drifted when pressure spiked',
     story:
-      'Work drifts when pressure hits. Vision keeps your direction stable so daily decisions line up with purpose.',
-    problem: 'Teams drift when pressure hits.',
-    response: 'Vision keeps direction stable so your daily decisions stay aligned.',
+      'Problem: direction blurred under pressure. Response: Vision reset purpose and daily decisions. Outcome: teams stayed aligned even when the heat rose.',
+    problem: 'Direction blurred under pressure.',
+    response: 'Vision reset purpose so daily decisions stayed aligned.',
     route: '/marketplace/guides/dq-vision',
     icon: Target,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1d2f64] to-[#e1513b]',
@@ -72,12 +72,12 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
   {
     id: 'culture',
     number: 2,
-    category: 'Culture / House of Values',
-    title: 'House of Values',
+    category: 'House of Values',
+    title: 'Teams slowed by split incentives',
     story:
-      'Misaligned incentives slow decisions. Values give your team a shared rulebook so speed and trust hold under pressure.',
-    problem: 'Decisions slow when incentives split.',
-    response: 'Values give a shared rulebook so teams move fast with trust.',
+      'Problem: incentives pulled squads apart and decisions stalled. Response: House of Values gave one rulebook. Outcome: faster calls and trust under pressure.',
+    problem: 'Incentives pulled squads apart and slowed decisions.',
+    response: 'House of Values set one rulebook so calls were faster and trusted.',
     route: '/marketplace/guides/dq-hov',
     icon: Heart,
     gradient: 'bg-gradient-to-br from-[#1b2553] via-[#243a75] to-[#e1513b]',
@@ -86,12 +86,12 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
   {
     id: 'identity',
     number: 3,
-    category: 'Identity/Persona',
-    title: 'Persona',
+    category: 'Structure',
+    title: 'Roles overlapped and decisions stalled',
     story:
-      'Roles change weekly. Persona clarifies the value you promise every squad so your impact stays consistent.',
-    problem: 'Roles shift; titles lose meaning.',
-    response: 'Persona makes your contribution clear in any team.',
+      'Problem: ownership was fuzzy and work bounced around. Response: Structure clarified who decides and delivers. Outcome: cleaner handoffs and faster movement.',
+    problem: 'Ownership was fuzzy and work bounced around.',
+    response: 'Structure clarified who decides and delivers so work flowed.',
     route: '/marketplace/guides/dq-persona',
     icon: User,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#30478a] to-[#f0f6ff]',
@@ -100,12 +100,12 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
   {
     id: 'execution',
     number: 4,
-    category: 'Execution / Agile TMS',
-    title: 'Agile TMS',
+    category: 'Ways of Working',
+    title: 'Plans froze while priorities changed',
     story:
-      'Strategy shifts faster than backlogs. Agile TMS turns direction into adaptive missions so teams can adjust without losing control.',
-    problem: 'Strategy changes faster than plans.',
-    response: 'Agile TMS turns direction into adaptive missions and cadence.',
+      'Problem: static plans broke when priorities shifted. Response: Ways of Working (Agile TMS) reframed direction into adaptive missions. Outcome: execution kept pace with strategy.',
+    problem: 'Static plans broke when priorities shifted.',
+    response: 'Adaptive missions kept execution in sync with strategy.',
     route: '/marketplace/guides/dq-agile-tms',
     icon: Zap,
     gradient: 'bg-gradient-to-br from-[#1f2c63] via-[#2d3f80] to-[#e1513b]',
@@ -114,12 +114,12 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
   {
     id: 'governance',
     number: 5,
-    category: 'Governance / Agile SoS',
-    title: 'Agile SoS',
+    category: 'Technology',
+    title: 'Tools conflicted and signals were noisy',
     story:
-      'Traditional governance slows high-speed teams. Agile SoS installs light guardrails, quality signals, and risk rhythms so confidence rises with speed instead of fighting it.',
-    problem: 'Heavy governance stalls speed.',
-    response: 'Agile SoS uses light guardrails and signals so you ship fast with quality.',
+      'Problem: fragmented tooling hid risks and progress. Response: Technology response set light standards and shared signals. Outcome: clear visibility and faster, safer shipping.',
+    problem: 'Fragmented tooling hid risks and progress.',
+    response: 'Light standards and shared signals restored visibility and safety.',
     route: '/marketplace/guides/dq-agile-sos',
     icon: Shield,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1b2553] to-[#e1513b]',
@@ -128,12 +128,12 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
   {
     id: 'flow',
     number: 6,
-    category: 'Flow / Agile Flows',
-    title: 'Agile Flows',
+    category: 'Capability',
+    title: 'Handoffs killed momentum',
     story:
-      'Value evaporates in handoffs. Agile Flows connects intent to outcomes end-to-end so feedback outruns blockers.',
-    problem: 'Work breaks in handoffs.',
-    response: 'Agile Flows connects intent to outcomes so feedback moves faster than blockers.',
+      'Problem: value died in handoffs and delays. Response: Capability response (Agile Flows) connected intent to outcomes end-to-end. Outcome: feedback outran blockers.',
+    problem: 'Value died in handoffs and delays.',
+    response: 'End-to-end flows made feedback outrun blockers.',
     route: '/marketplace/guides/dq-agile-flows',
     icon: GitBranch,
     gradient: 'bg-gradient-to-br from-[#1b2553] via-[#30478a] to-[#e1513b]',
@@ -142,12 +142,12 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
   {
     id: 'transform',
     number: 7,
-    category: 'Transform / Agile 6xD',
-    title: 'Agile 6xD',
+    category: 'Leadership',
+    title: 'Change stalled after the pilot',
     story:
-      'Transformations stall after pilots. Agile 6xD makes change repeatable—diagnose, design, deliver, deploy, drive, defend—so evolution becomes normal work.',
-    problem: 'Pilots succeed but change stalls.',
-    response: '6xD makes transformation repeatable—diagnose, design, deliver, deploy, drive, defend.',
+      'Problem: pilots worked but scaling died. Response: Leadership response (Agile 6xD) made change repeatable step-by-step. Outcome: evolution became normal work.',
+    problem: 'Pilots worked but scaling died.',
+    response: '6xD made change repeatable so evolution became normal work.',
     route: '/marketplace/guides/dq-agile-6xd',
     icon: Sparkles,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b]',
@@ -678,7 +678,7 @@ function SectionCarousel({
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.35 }}
             >
-              THE FRAMEWORK
+              Seven Responses in Action
             </motion.span>
             <motion.h2
               className="ghc-font-display text-4xl md:text-5xl font-semibold text-[#131e42] mt-4 max-w-3xl mx-auto"
@@ -691,7 +691,7 @@ function SectionCarousel({
                 lineHeight: 1.05,
               }}
             >
-              Seven responses
+              Seven Responses in Action
             </motion.h2>
             <motion.p
               className="text-[#4a5678] max-w-2xl mx-auto mt-3 text-lg md:text-xl"
@@ -704,7 +704,7 @@ function SectionCarousel({
                 lineHeight: 1.2,
               }}
             >
-              Each exists because something in traditional work stopped working. Problem → response.
+              Real moments where work broke down—and how each response realigned it with clarity, alignment, and execution.
             </motion.p>
           </div>
           <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-3">
@@ -873,7 +873,7 @@ function CompetencyCard({ card, index }: CompetencyCardProps) {
             onClick={() => navigate(card.route)}
             className="inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-white transition-transform group"
           >
-            Explore in Marketplace
+            Read the response
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </button>
         </div>
