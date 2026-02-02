@@ -94,7 +94,7 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     icon: Heart,
     gradient: 'bg-gradient-to-br from-[#1b2553] via-[#243a75] to-[#e1513b]',
     accent: '#f0f6ff',
-    image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://image2url.com/r2/default/images/1770021175279-eacca42a-60ed-4c4d-9d14-e724a3e76cd6.png',
   },
   {
     id: 'identity',
