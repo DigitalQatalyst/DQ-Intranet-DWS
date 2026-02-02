@@ -204,7 +204,7 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     icon: Sparkles,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b]',
     accent: '#f0f6ff',
-    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://image2url.com/r2/default/images/1770026507869-cfe44464-3090-4295-b90e-76feed9666df.png',
   },
 ];
 
