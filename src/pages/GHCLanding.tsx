@@ -412,8 +412,7 @@ export function GHCLanding() {
   }, [navigate]);
 
   const handleReadStorybook = useCallback(() => {
-    const el = document.getElementById('ghc-what');
-    el?.scrollIntoView({ behavior: 'smooth' });
+    window.open('https://preview.shorthand.com/Pg0KQCF1Rp904ao7', '_blank', 'noopener,noreferrer');
   }, []);
 
   const scrollToCarousel = useCallback(() => {
