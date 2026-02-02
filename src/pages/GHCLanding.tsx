@@ -956,12 +956,14 @@ function SectionTakeAction({ navigate }: { navigate: (path: string) => void }) {
                 </div>
               </div>
 
-              <span
+              <button
+                type="button"
+                onClick={() => navigate(item.path)}
                 className={`inline-flex items-center gap-1 text-sm font-semibold mt-6 ${item.accent} group-hover:underline`}
               >
                 {item.cta}
                 <ArrowRight className="h-4 w-4" />
-              </span>
+              </button>
             </motion.div>
           ))}
         </motion.div>
