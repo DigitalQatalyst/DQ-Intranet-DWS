@@ -163,8 +163,30 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=1200&q=80',
   },
   {
-    id: 'transform',
+    id: 'flow',
     number: 6,
+    category: 'Capability',
+    title: 'Agile Flows',
+    story:
+      'Problem: Value broke down in handoffs and feedback arrived too late. Response: Agile Flows connected intent to outcomes end-to-end so feedback moved faster than blockers.',
+    problem: 'Value broke down in handoffs and feedback arrived too late.',
+    response: 'Agile Flows connected intent to outcomes end-to-end so feedback moved faster than blockers.',
+    situation: 'Value died in handoffs and issues surfaced only after release.',
+    changes: [
+      'Mapped intent-to-outcome steps with owners',
+      'Shortened feedback loops with shared demos',
+      'Removed extra handoffs that delayed fixes',
+    ],
+    impact: 'Feedback arrived sooner and work flowed without stalls.',
+    route: '/marketplace/guides/dq-agile-flows',
+    icon: GitBranch,
+    gradient: 'bg-gradient-to-br from-[#1b2553] via-[#30478a] to-[#e1513b]',
+    accent: '#f0f6ff',
+    image: 'https://images.unsplash.com/photo-1529429617124-aee0bd5d8e2a?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    id: 'transform',
+    number: 7,
     category: 'Leadership',
     title: 'Agile 6xD',
     story:
@@ -205,7 +227,6 @@ const FEATURE_CARDS = [
 ];
 
 const RESPONSE_TAGS = [
-  'All responses',
   'Vision',
   'House of Values',
   'Structure',
@@ -747,7 +768,7 @@ function SectionCarousel({
                 lineHeight: 1.2,
               }}
             >
-              Real moments where work broke down — and how each response realigned it with clarity, alignment, and execution.
+              Each response exists because something in traditional work stopped working. These are real moments where work broke down — and how DQ realigned it through clear responses.
             </motion.p>
             </div>
             <div className="flex items-center gap-3 self-end">
