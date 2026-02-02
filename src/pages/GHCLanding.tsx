@@ -100,10 +100,11 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     id: 'identity',
     number: 3,
     category: 'Structure',
-    title: 'Structure',
-    story: 'Problem: Ownership was unclear and decisions stalled. Response: Structure clarified who decides and who delivers, unblocking progress.',
-    problem: 'Ownership was unclear and decisions stalled.',
-    response: 'Structure clarified who decides and who delivers, unblocking progress.',
+    title: 'Persona',
+    story:
+      'Problem: Roles shifted constantly and individual impact became unclear. Response: Persona clarified the value each person contributes, regardless of role or squad.',
+    problem: 'Roles shifted constantly and individual impact became unclear.',
+    response: 'Persona clarified the value each person contributes, regardless of role or squad.',
     situation: 'Escalations bounced between managers because no one owned customer onboarding.',
     changes: [
       'Named a single accountable owner for onboarding',
@@ -121,10 +122,11 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     id: 'execution',
     number: 4,
     category: 'Ways of Working',
-    title: 'Ways of Working',
-    story: 'Problem: Teams worked at different speeds and rhythms. Response: Ways of Working aligned execution patterns.',
-    problem: 'Teams worked at different speeds and rhythms.',
-    response: 'Ways of Working aligned execution patterns.',
+    title: 'Agile TMS',
+    story:
+      'Problem: Strategy changed faster than plans could adapt. Response: Agile TMS translated direction into adaptive missions and execution rhythm.',
+    problem: 'Strategy changed faster than plans could adapt.',
+    response: 'Agile TMS translated direction into adaptive missions and execution rhythm.',
     situation: 'Strategy changed monthly but teams were stuck on quarterly plans with mismatched cadences.',
     changes: [
       'Shifted to six-week missions with weekly checkpoints',
@@ -142,10 +144,11 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     id: 'governance',
     number: 5,
     category: 'Technology',
-    title: 'Technology',
-    story: 'Problem: Tools slowed work instead of supporting it. Response: Technology enabled execution inside daily flow.',
-    problem: 'Tools slowed work instead of supporting it.',
-    response: 'Technology enabled execution inside daily flow.',
+    title: 'Agile SoS',
+    story:
+      'Problem: Traditional governance slowed teams when speed mattered most. Response: Agile SoS introduced light guardrails that enabled pace without losing control.',
+    problem: 'Traditional governance slowed teams when speed mattered most.',
+    response: 'Agile SoS introduced light guardrails that enabled pace without losing control.',
     situation: 'Teams duplicated data across tools and couldn’t see blockers until too late.',
     changes: [
       'Standardised one delivery board per team with shared fields',
@@ -184,10 +187,11 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
     id: 'transform',
     number: 7,
     category: 'Leadership',
-    title: 'Leadership',
-    story: 'Problem: Decisions bottlenecked at the top. Response: Leadership distributed ownership and trust.',
-    problem: 'Decisions bottlenecked at the top.',
-    response: 'Leadership distributed ownership and trust.',
+    title: 'Agile 6xD',
+    story:
+      'Problem: Transformation succeeded in pilots but stalled at scale. Response: Agile 6xD made change repeatable across diagnose, design, deliver, deploy, drive, and defend.',
+    problem: 'Transformation succeeded in pilots but stalled at scale.',
+    response: 'Agile 6xD made change repeatable across diagnose, design, deliver, deploy, drive, and defend.',
     situation: 'Every decision waited for exec sign-off, stalling rollouts.',
     changes: [
       'Defined decisions to delegate versus escalate',
