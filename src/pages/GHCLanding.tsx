@@ -46,6 +46,9 @@ interface CompetencyCard {
   story: string;
   problem: string;
   response: string;
+  situation?: string;
+  changes?: string[];
+  impact?: string;
   route: string;
   icon: LucideIcon;
   gradient: string; // Tailwind gradient classes
@@ -437,7 +440,7 @@ export function GHCLanding() {
 
   const handleCarouselScroll = useCallback(() => {
     if (!carouselRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+    const { scrollLeft, scrollWidth } = carouselRef.current;
     const cardWidth = scrollWidth / COMPETENCY_CARDS.length;
     const index = Math.round(scrollLeft / cardWidth);
     setCarouselIndex(Math.min(index, COMPETENCY_CARDS.length - 1));
@@ -834,7 +837,7 @@ function SectionCarousel({
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.45, delay: index * 0.08 + 0.08 }}
               >
-                <CompetencyCard card={card} index={index} />
+                <CompetencyCard card={card} />
               </motion.div>
             ))}
           </div>
@@ -878,12 +881,10 @@ function SectionCarousel({
 
 interface CompetencyCardProps {
   card: CompetencyCard;
-  index: number;
 }
 
-function CompetencyCard({ card, index }: CompetencyCardProps) {
+function CompetencyCard({ card }: CompetencyCardProps) {
   const navigate = useNavigate();
-  const Icon = card.icon;
 
   return (
     <motion.article
