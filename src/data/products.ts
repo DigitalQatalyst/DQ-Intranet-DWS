@@ -38,9 +38,9 @@ export interface ProductDetail {
 export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
   'tmaas-transformation-management-as-a-service': {
     slug: 'tmaas-transformation-management-as-a-service',
-    name: 'TMaaS - Transformation Management as a Service',
-    tagline: 'Start transformation with a single, low-risk step and scale as results prove value.',
-    description: 'A self-service platform that lets organizations design, launch, and scale digital transformation through modular, on-demand initiatives.',
+    name: 'TMaaS: The Smarter Way to Execute Digital Transformation',
+    tagline: 'AI-powered, self-service marketplace that turns transformation into an on-demand, architecture-led capability.',
+    description: 'TMaaS makes transformation faster, lower cost, and adaptive - helping organizations succeed in a world where change never stops.',
     productType: 'TMaaS',
     productStage: 'MVP',
     whatItIs: 'A self-service platform that allows organizations to execute digital transformation as an on-demand capability.',
@@ -61,65 +61,150 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
     imageUrl: '/images/tmaas.jpg',
     documentSections: [
       {
-        id: 'story-of-tmaas',
-        title: 'The story of TMaaS',
+        id: 'introduction-why-transformations-fail',
+        title: 'Introduction: Why Most Digital Transformations Fail Before They Begin',
         body: [
-          'Imagine an organization that knows it must transform but cannot afford to get it wrong.',
-          'Leadership agrees on the need for digital transformation, but not on the scope. Some teams want to modernize platforms. Others want better data. Budgets are limited. Priorities keep shifting. Every option on the table feels expensive, slow, and irreversible.',
-          'This is where most transformation efforts stall. TMaaS was built for this exact moment.',
-          'Instead of forcing organizations into a single, all-or-nothing program, TMaaS allows transformation to begin with a single, focused step and then evolve as results become visible.'
+          'HIGHLIGHT:The Challenge: Digital transformation is accelerating faster than most organizations can adapt. Customer expectations evolve in months, technology cycles shift in weeks, and business priorities change overnight.',
+          '',
+          'PROBLEM:The Problem: Most transformation programs are still delivered through slow, rigid, and expensive models - built for a world that no longer exists. Organizations invest millions in initiatives that:',
+          'LIST_START',
+          'Take years to deliver measurable value',
+          'Lock teams into fixed scopes and inflexible timelines',
+          'Stall when priorities inevitably change',
+          'Struggle under complexity and governance overhead',
+          'LIST_END',
+          '',
+          'CONSEQUENCE:The Consequence: A growing gap between what needs to change and how quickly it can happen - leading to wasted investment, frustrated teams, and missed opportunities.',
+          '',
+          'KEY_INSIGHT:Key Insight: This is not just a technology challenge. It\'s a transformation management problem. Organizations need a smarter, faster, and adaptive way to transform. One that is modular, AI-powered, low-risk, and designed for continuous evolution. That solution is TMaaS.'
         ]
       },
       {
-        id: 'what-is-this-product',
-        title: 'What is this product?',
+        id: 'tmaas-transformation-reimagined',
+        title: 'TMaaS: Transformation Reimagined as a Service',
         body: [
-          'TMaaS is a self-service platform that allows organizations to execute digital transformation as an on-demand capability.',
-          'Organizations use TMaaS to select, design, and deploy transformation initiatives when they need them, rather than committing upfront to large, multi-year programs. Each initiative is delivered through ready-to-use packages that can be adopted individually or combined as priorities change.',
-          'Transformation becomes actionable, selectable, and repeatable - not a long-term gamble.'
+          'HIGHLIGHT:Why TMaaS? TMaaS is a self-service, AI-powered marketplace where organizations can design, deploy, and manage digital transformation initiatives on demand. TMaaS isn\'t consulting repackaged - it is transformation productized.',
+          '',
+          'FEATURES:Features:',
+          'LIST_START',
+          'Modular and Flexible: Deploy only what your organization needs',
+          'Architecture-led: Ensures transformation is structured and scalable',
+          'AI-powered: Provides guidance, recommendations, and insights throughout the journey',
+          'LIST_END',
+          '',
+          'TMaaS makes transformation accessible, low-risk, and scalable.'
         ]
       },
       {
-        id: 'why-does-this-exist',
-        title: 'Why does this product exist?',
+        id: 'strategy-to-execution-marketplace',
+        title: 'From Strategy to Execution - All in One Marketplace',
         body: [
-          'Organizations no longer operate in fixed cycles. Strategy shifts. Markets evolve. Technology moves fast.',
-          'Yet transformation is still delivered through rigid plans that assume stability. By the time results appear, the original assumptions are already outdated, leading to cost overruns, slow progress, and disappointing outcomes. TMaaS exists to align transformation with how organizations actually operate today. It enables transformation to move incrementally, continuously, and adaptively, while remaining structured and architecture-led.'
+          'CAPABILITIES:Marketplace Capabilities:',
+          'LIST_START',
+          'Explore and select transformation services',
+          'Customize and deploy initiatives without heavy contracts',
+          'Monitor progress and track impact in real time',
+          'LIST_END',
+          '',
+          'DELIVERS:What the Marketplace Delivers:',
+          'LIST_START',
+          'Architecture-led transformation services',
+          'Data-driven, best-practice-based initiatives',
+          'Strategy, Digital, Transformation, and Management Office services',
+          'Ready-to-launch services that accelerate time to value',
+          'LIST_END',
+          '',
+          'TMaaS transforms a complex, multi-step process into a streamlined, user-friendly experience.'
         ]
       },
       {
-        id: 'what-problem-does-it-solve',
-        title: 'What problem does it solve?',
+        id: 'structured-service-architecture',
+        title: 'Structured for Clarity: TMaaS Service Architecture',
         body: [
-          'Without TMaaS, organizations face a painful choice.',
-          'They either commit to a large, high-risk transformation program and hope it delivers, or delay transformation altogether because the risk feels too high and the path forward unclear.',
-          'TMaaS removes this choice entirely. By breaking transformation into modular initiatives, organizations can start small, focus on immediate priorities, and adjust as they learn. Progress becomes visible early. Risk is reduced. Transformation stops being an all-or-nothing decision.'
+          'ARCHITECTURE:TMaaS organizes services hierarchically to provide precision and choice:',
+          'LIST_START',
+          'Canvas Domains (12): High-level areas covering the full scope of digital transformation',
+          'Master Initiatives (56): Strategic initiatives translating ambition into actionable plans',
+          'Initiative Packages (267): Ready-to-launch solutions made up of 950+ use cases',
+          'LIST_END',
+          '',
+          'USAGE:How Organizations Can Use It:',
+          'LIST_START',
+          'Buy complete packages',
+          'Customize individual use cases',
+          'Combine initiatives as priorities evolve',
+          'LIST_END',
+          '',
+          'This structure removes ambiguity, replaces guesswork with control, and allows transformation at any scale.'
         ]
       },
       {
-        id: 'what-value-does-it-create',
-        title: 'What value does it create?',
+        id: 'ai-guidance-and-execution',
+        title: 'AI That Guides, Advises, and Executes',
         body: [
-          'TMaaS changes how transformation is experienced and funded.',
-          'Organizations begin with a low commercial commitment, scaling only when value is proven. Focused initiatives deliver outcomes in weeks rather than years. As priorities change, execution adapts - increasing success rates and reducing waste.',
-          'Transformation becomes a controlled, progressive investment, not a single high-stakes bet.'
+          'AI_PERSONAS:Three AI Advisory Personas:',
+          'LIST_START',
+          'Functional Advisory Coach: Expert guidance tailored to your organization\'s transformation needs',
+          'Ready Guiding Concierge: Contextual recommendations for precise decision-making',
+          'Transacting Personal Assistant: Streamlines service selection, purchasing, and deployment',
+          'LIST_END',
+          '',
+          'KEY_INSIGHT:Intelligent Service Curation: AI continuously analyzes requirements documents, business priorities, and organizational context. It recommends optimized transformation packages and continuously refines them as needs evolve.'
         ]
       },
       {
-        id: 'what-exactly-does-it-offer',
-        title: 'What exactly does this product offer?',
+        id: 'flexible-engagement-models',
+        title: 'Flexible Engagement Models',
         body: [
-          'TMaaS provides a structured marketplace of transformation services, designed to be used when and where they are needed.',
-          'Organizations gain access to strategy, transformation, digital, and management office services through clearly defined initiative packages. These packages are organized across domains, initiatives, and use cases, making selection and customization straightforward.',
-          'AI-supported guidance helps organizations choose the right initiatives and refine them over time. A single platform supports design, deployment, and tracking - keeping transformation execution visible, measurable, and manageable.',
-          'Rather than promising transformation in theory, TMaaS delivers practical building blocks that organizations can deploy immediately.'
+          'MODELS:Choose the engagement model that fits your needs:',
+          'LIST_START',
+          'Freemium: Low-risk entry with guided assessments and learning resources',
+          'Per-Project: Scoped initiatives with defined outcomes and timelines',
+          'Framework Agreement (Pay-as-you-go): Multi-year flexibility with on-demand access',
+          'LIST_END',
+          '',
+          'Organizations can start small, scale as priorities grow, and only pay for what they need.'
         ]
       },
       {
-        id: 'tmaas-in-one-sentence',
-        title: 'TMaaS in one clear sentence',
+        id: 'designed-for-impact',
+        title: 'Designed for Impact: Faster Results, Lower Risk',
         body: [
-          'TMaaS enables organizations to start digital transformation with confidence, execute it incrementally, and scale it only when results are real.'
+          'RESULTS:TMaaS delivers measurable outcomes:',
+          'LIST_START',
+          'Low-cost entry points: Services starting from ~$30K',
+          'Time to value: See results in as little as 2 months',
+          'Higher success rates: Through focused execution and governance',
+          'Adaptability: Shift initiatives as priorities evolve',
+          'LIST_END',
+          '',
+          'KEY_INSIGHT:TMaaS makes transformation a continuous, repeatable capability, not a one-off program.'
+        ]
+      },
+      {
+        id: 'why-tmaas-is-different',
+        title: 'Why TMaaS Is Different',
+        body: [
+          'DIFFERENTIATORS:TMaaS stands apart from traditional approaches:',
+          'LIST_START',
+          'Productizes transformation into modular, scalable services',
+          'Combines architecture, AI, and execution discipline',
+          'Replaces rigid programs with adaptive delivery',
+          'Enables organizations to transform at their own pace',
+          'LIST_END',
+          '',
+          'KEY_INSIGHT:TMaaS is not just a platform - it is a new operating model for digital transformation.'
+        ]
+      },
+      {
+        id: 'start-transformation-today',
+        title: 'Start Your Transformation Today',
+        body: [
+          'QUESTION:TMaaS changes the question from: "Can we afford to transform?" to "Why wouldn\'t we?"',
+          '',
+          'Whether initiating transformation, accelerating stalled programs, or adapting to evolving priorities, TMaaS gives organizations the structure, intelligence, and flexibility to succeed in Digital Economy 4.0.',
+          '',
+          'CTA:Start small. Scale confidently. Transform intelligently.'
         ]
       }
     ]
