@@ -220,7 +220,7 @@ export default function SixXDLanding() {
           "Digital Accelerators",
         ],
         responseCards: SIXXD_CARDS,
-        bottomCTA: "Explore all six perspectives together →",
+        bottomCTA: "Explore all six perspectives together",
         actionCards: SIXXD_ACTIONS,
         finalHeadline: "Transformation lives in real work — not slides.",
         finalSubtitle:

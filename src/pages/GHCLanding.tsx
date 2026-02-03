@@ -463,7 +463,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   const responsesIntro =
     overrides?.responsesIntro ??
     'Each exists because something in traditional work stopped working. Problem → response.';
-  const bottomCTA = overrides?.bottomCTA ?? 'Explore all Seven Responses together →';
+  const bottomCTA = overrides?.bottomCTA ?? 'Explore all Seven Responses together';
   const finalHeadline = overrides?.finalHeadline ?? 'Work aligned inside the Golden Honeycomb';
   const finalSubtitle =
     overrides?.finalSubtitle ??
