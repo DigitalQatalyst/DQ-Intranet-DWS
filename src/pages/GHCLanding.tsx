@@ -244,7 +244,7 @@ const ACTION_CARDS = [
     title: 'Learn by doing',
     icon: GraduationCap,
     badge: 'Courses',
-    description: 'Learn Golden Honeycomb competencies by applying them directly inside real situations, decisions, and work scenarios.',
+    description: 'Learn Golden Honeycomb competencies by applying them directly in real situations, decisions, and work.',
     tags: ['Self-paced', 'Real projects', 'Mentorship'],
     cta: 'Explore Courses',
     path: '/lms',
@@ -283,7 +283,7 @@ const ACTION_CARDS = [
     title: 'See it in action',
     icon: Briefcase,
     badge: 'Workspace',
-    description: 'Explore practical examples of how Golden Honeycomb competencies appear in tools, rituals, templates, and working patterns.',
+    description: 'See Golden Honeycomb in the Digital Workspace — tools, rituals, templates, and ways of working.',
     tags: ['Templates', 'Rituals', 'Best practices'],
     cta: 'Explore Workspace',
     path: '/marketplace/guides',
@@ -530,7 +530,7 @@ export function GHCLanding({ badgeLabel }: GHCLandingProps) {
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold border border-[#f0f6ff]/50 text-[#f0f6ff] bg-white/10 hover:bg-white/15 transition-colors shadow-sm"
             >
               <BookOpen className="h-5 w-5 text-white" />
-              Read the Storybook
+              Read the Storybook →
               <ArrowRight className="h-5 w-5 text-white" />
             </button>
           </motion.div>
@@ -653,7 +653,7 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
                 marginRight: 'auto',
               }}
             >
-              Not a framework to memorise — an operating system for modern work that guides how you think, decide, adapt, and create impact.
+              Not a framework to memorise — an operating system for modern work.
             </motion.p>
           </div>
 
@@ -869,13 +869,13 @@ function SectionCarousel({
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ delay: 0.25 }}
-        >
-          <button
-            type="button"
-            onClick={onExploreMarketplace}
-            className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
           >
-            Explore all Seven Responses together
+            <button
+              type="button"
+              onClick={onExploreMarketplace}
+              className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
+            >
+            Explore all Seven Responses together →
             <ArrowRight className="h-5 w-5" />
           </button>
         </motion.div>
