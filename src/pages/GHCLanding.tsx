@@ -603,33 +603,16 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
               <ArrowRight className="h-5 w-5 text-white" />
             </button>
           </motion.div>
-          <motion.div
-            className="flex items-center justify-center gap-8 text-sm text-white/80 mt-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.45 }}
-          >
-            {heroFootnote ? (
+          {heroFootnote ? (
+            <motion.div
+              className="flex items-center justify-center gap-8 text-sm text-white/80 mt-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.45 }}
+            >
               <span className="text-white/85 text-sm md:text-base">{heroFootnote}</span>
-            ) : (
-              <>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-white font-semibold text-lg">7</span>
-                  <span>Competencies</span>
-                </div>
-                <span className="h-5 w-px bg-white/40" aria-hidden />
-                <div className="flex items-baseline gap-2">
-                  <span className="text-white font-semibold text-lg">1</span>
-                  <span>System</span>
-                </div>
-                <span className="h-5 w-px bg-white/40" aria-hidden />
-                <div className="flex items-baseline gap-2">
-                  <span className="text-white font-semibold text-lg">∞</span>
-                  <span>Impact</span>
-                </div>
-              </>
-            )}
-          </motion.div>
+            </motion.div>
+          ) : null}
         </div>
 
         <motion.button
