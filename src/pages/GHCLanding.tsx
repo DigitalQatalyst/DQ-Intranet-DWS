@@ -408,8 +408,10 @@ function FloatingOrbs() {
 
 type LandingOverrides = {
   badgeLabel?: string;
+  heroHeadline?: string;
   heroCTA?: string;
   heroSupporting?: string;
+  heroFootnote?: string;
   foundationTitle?: string;
   foundationSubtitle?: string;
   foundationCards?: typeof FEATURE_CARDS_DEFAULT;
@@ -446,10 +448,12 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   ];
   const featureCards = overrides?.foundationCards ?? FEATURE_CARDS_DEFAULT;
   const actionCards = overrides?.actionCards ?? ACTION_CARDS_DEFAULT;
+  const heroHeadline = overrides?.heroHeadline;
   const heroCTA = overrides?.heroCTA ?? 'Read the Storybook';
   const heroSupporting =
     overrides?.heroSupporting ??
     'DQ built an operating system of seven responses so you can see what broke in work — and how to realign it.';
+  const heroFootnote = overrides?.heroFootnote;
   const foundationSubtitle =
     overrides?.foundationSubtitle ??
     'Not a framework to memorise — an operating system for modern work that guides how you think, decide, adapt, and create impact.';
@@ -543,19 +547,34 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <span
-              className="ghc-font-display font-bold text-white"
-              style={{
-                fontSize: 'clamp(40px, 5vw, 72px)',
-                lineHeight: 1.05,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              The world of work is{' '}
-              <span className="text-[#e1513b] underline decoration-[#e1513b] decoration-4 underline-offset-8">
-                broken.
+            {heroHeadline ? (
+              <span
+                className="ghc-font-display font-bold text-white"
+                style={{
+                  fontSize: 'clamp(40px, 5vw, 72px)',
+                  lineHeight: 1.05,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <span className="text-[#e1513b] underline decoration-[#e1513b] decoration-4 underline-offset-8">
+                  {heroHeadline}
+                </span>
               </span>
-            </span>
+            ) : (
+              <span
+                className="ghc-font-display font-bold text-white"
+                style={{
+                  fontSize: 'clamp(40px, 5vw, 72px)',
+                  lineHeight: 1.05,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                The world of work is{' '}
+                <span className="text-[#e1513b] underline decoration-[#e1513b] decoration-4 underline-offset-8">
+                  broken.
+                </span>
+              </span>
+            )}
             <span
               className="text-white/85"
               style={{
@@ -590,20 +609,26 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.45 }}
           >
-            <div className="flex items-baseline gap-2">
-              <span className="text-white font-semibold text-lg">7</span>
-              <span>Competencies</span>
-            </div>
-            <span className="h-5 w-px bg-white/40" aria-hidden />
-            <div className="flex items-baseline gap-2">
-              <span className="text-white font-semibold text-lg">1</span>
-              <span>System</span>
-            </div>
-            <span className="h-5 w-px bg-white/40" aria-hidden />
-            <div className="flex items-baseline gap-2">
-              <span className="text-white font-semibold text-lg">∞</span>
-              <span>Impact</span>
-            </div>
+            {heroFootnote ? (
+              <span className="text-white/85 text-sm md:text-base">{heroFootnote}</span>
+            ) : (
+              <>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-white font-semibold text-lg">7</span>
+                  <span>Competencies</span>
+                </div>
+                <span className="h-5 w-px bg-white/40" aria-hidden />
+                <div className="flex items-baseline gap-2">
+                  <span className="text-white font-semibold text-lg">1</span>
+                  <span>System</span>
+                </div>
+                <span className="h-5 w-px bg-white/40" aria-hidden />
+                <div className="flex items-baseline gap-2">
+                  <span className="text-white font-semibold text-lg">∞</span>
+                  <span>Impact</span>
+                </div>
+              </>
+            )}
           </motion.div>
         </div>
 
