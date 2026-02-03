@@ -1,6 +1,6 @@
 import GHCLanding from "./GHCLanding";
 import type { LucideIcon } from "lucide-react";
-import { Target, Brain, Layers, GitBranch, Users, Zap } from "lucide-react";
+import { Target, Brain, Layers, GitBranch, Users, Zap, BookOpen, Briefcase } from "lucide-react";
 
 const SIXXD_CARDS = [
   {
