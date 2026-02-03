@@ -18,6 +18,17 @@ function GuidelinePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const formatGhcTitle = (title: string) => {
+    const t = (title || '').trim()
+    const m1 = /^GHC\s*(?:Competency\s*)?(\d+)\s*:\s*(.+)$/i.exec(t)
+    if (m1) return `GHC ${m1[1]} - ${m1[2].trim()}`
+    const m2 = /^GHC\s*(\d+)\s*[-:]\s*(.+)$/i.exec(t)
+    if (m2) return `GHC ${m2[1]} - ${m2[2].trim()}`
+    return t
+  }
+
+  const displayTitle = formatGhcTitle(guide?.title || '') || guide?.title || ''
+
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -145,14 +156,14 @@ function GuidelinePage() {
                     to="/marketplace/guides?tab=strategy"
                     className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
                   >
-                    Strategy
+                    GHC
                   </Link>
                 </div>
               </li>
               <li aria-current="page">
                 <div className="flex items-center">
                   <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2">{guide.title}</span>
+                  <span className="ml-1 text-gray-500 md:ml-2">{displayTitle}</span>
                 </div>
               </li>
             </ol>
@@ -162,9 +173,9 @@ function GuidelinePage() {
       
       {/* Hero Section */}
       <HeroSection 
-        title={guide.title}
-        subtitle="DQ Leadership • Digital Qatalyst"
-        imageUrl={guide.hero_image_url || undefined}
+        title={displayTitle}
+        subtitle="DQ Leadership - Digital Qatalyst"
+        imageUrl="/images/guidelines-content.PNG"
         badge="Strategy Framework"
       />
 
