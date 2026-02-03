@@ -678,7 +678,8 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
   const foundationSubtitle = content?.foundationSubtitle ?? 'Not a framework to memorise — an operating system for modern work.';
   const foundationCards = content?.foundationCards ?? FEATURE_CARDS_DEFAULT;
   const foundationCTA = content?.foundationCTA ?? 'Read the full GHC storybook';
-  const foundationCTATo = content?.foundationCTATo ?? '/marketplace/guides/dq-ghc';
+  const foundationCTATo =
+    content?.foundationCTATo ?? 'https://preview.shorthand.com/Pg0KQCF1Rp904ao7';
 
   return (
     <section id="ghc-what" ref={ref} className="py-20 md:py-28 bg-[#f0f6ff]">
