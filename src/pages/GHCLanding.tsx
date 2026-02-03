@@ -215,17 +215,17 @@ const FEATURE_CARDS = [
   {
     title: 'Operating DNA',
     icon: IconOne,
-    description: 'How GHC guides you to think, decide, and act with clarity when work is complex and unpredictable.',
+    description: 'How organisations think, decide, and act under pressure and change.',
   },
   {
     title: 'Built for Change',
     icon: IconInfinity,
-    description: 'Designed for environments where work never stands still, and roles, priorities, and learning shift in real time.',
+    description: 'Designed to adapt continuously as strategy, context, and scale evolve.',
   },
   {
-    title: 'Seven elements',
+    title: 'Seven Elements',
     icon: IconSeven,
-    description: 'Connected competency areas working together as one operating system for modern work.',
+    description: 'Connected responses that realign work when traditional models break.',
   },
 ];
 
@@ -510,7 +510,7 @@ export function GHCLanding() {
                 whiteSpace: 'normal',
               }}
             >
-              DQ built an operating system of seven responses so you can see what broke in work and how to realign it.
+              DQ built an operating system of seven responses so you can see what broke in work — and how to realign it.
             </span>
           </motion.div>
           <motion.div
@@ -780,7 +780,7 @@ function SectionCarousel({
                 lineHeight: 1.2,
               }}
             >
-              Traditional work broke in predictable ways; each response fixes a specific failure and shows how DQ realigned work with clarity and action.
+              Traditional work breaks in predictable ways. Each response exists to fix a specific failure — and shows how DQ realigned work with clarity and action.
             </motion.p>
             </div>
             <div className="flex items-center gap-3 self-end">
