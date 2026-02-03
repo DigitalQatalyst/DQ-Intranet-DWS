@@ -1,3 +1,5 @@
-import GHCLanding from './GHCLanding';
+import GHCLanding from "./GHCLanding";
 
-export default GHCLanding;
+export default function SixXDLanding() {
+  return <GHCLanding />;
+}
