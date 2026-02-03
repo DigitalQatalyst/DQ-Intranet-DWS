@@ -12,15 +12,15 @@ import { Header } from '../Header';
 import { Footer } from '../Footer';
 import { getFallbackItems } from '../../utils/fallbackData';
 import KnowledgeHubGrid from './KnowledgeHubGrid';
-import { LMS_COURSES } from '@/data/lmsCourseDetails';
-import { parseFacets, applyFilters } from '@/lms/filters';
+import { LMS_COURSES } from '../../data/lmsCourseDetails';
+import { parseFacets, applyFilters } from '../../lms/filters';
 import {
   LOCATION_ALLOW,
   LEVELS,
   CATEGORY_OPTS,
   DELIVERY_OPTS,
   DURATION_OPTS
-} from '@/lms/config';
+} from '../../lms/config';
 import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters';
 import GuidesGrid from '../guides/GuidesGrid';
 import TestimonialsGrid from '../guides/TestimonialsGrid';
@@ -28,8 +28,8 @@ import GlossaryGrid from '../guides/GlossaryGrid';
 import { SixXDPerspectiveCards } from '../guides/SixXDPerspectiveCards';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { track } from '../../utils/analytics';
-import FAQsPageContent from '@/pages/guides/FAQsPageContent.tsx';
-import { glossaryTerms, GlossaryTerm, CATEGORIES } from '@/pages/guides/glossaryData.ts';
+import FAQsPageContent from '../../pages/guides/FAQsPageContent';
+import { glossaryTerms, GlossaryTerm, CATEGORIES } from '../../pages/guides/glossaryData';
 import { STATIC_PRODUCTS } from '../../utils/staticProducts';
 const LEARNING_TYPE_FILTER: FilterConfig = {
   id: 'learningType',
@@ -299,23 +299,23 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'blueprints') {
         // Keep 'unit' and 'location' for Products; delete incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category'];
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments'];
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'glossary') {
         // For Glossary tab, delete all incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category', 'faq_category', 'location'];
+        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments', 'blueprint_framework', 'blueprint_sector', 'testimonial_category', 'faq_category', 'location'];
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'faqs') {
         // For FAQs, keep units/location; clear incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'testimonials') {
         // Keep 'unit' and 'location' for Testimonials; delete incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector'];
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments', 'blueprint_framework', 'blueprint_sector'];
         keysToDelete.forEach(key => next.delete(key));
       } else {
         // For other tabs, delete all incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
+        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
         keysToDelete.forEach(key => next.delete(key));
       }
     } else {
@@ -750,6 +750,8 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
           const strategyTypes = parseFilterValues(queryParams, 'strategy_type');
           const strategyFrameworks = parseFilterValues(queryParams, 'strategy_framework');
           const guidelinesCategories = parseFilterValues(queryParams, 'guidelines_category');
+          const categorization = parseFilterValues(queryParams, 'categorization');
+          const attachmentsFilter = parseFilterValues(queryParams, 'attachments');
           const blueprintFrameworks = parseFilterValues(queryParams, 'blueprint_framework');
           const blueprintSectors = parseFilterValues(queryParams, 'blueprint_sector');
           // Product-led filters (not used for non-products tabs)
@@ -835,7 +837,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
           const needsClientSideFrameworkFilter = (isStrategyTab && strategyFrameworks.length > 0) || 
                                                  (isBlueprintTab && (blueprintFrameworks.length > 0 || blueprintSectors.length > 0 || productTypes.length > 0 || productStages.length > 0 || productSectors.length > 0)) ||
                                                  (isGuidelinesTab && guidelinesCategories.length > 0);
-          const needsClientSideFiltering = needsClientSideUnitFilter || needsClientSideFrameworkFilter;
+          const needsClientSideFiltering = needsClientSideUnitFilter || needsClientSideFrameworkFilter || categorization.length > 0 || attachmentsFilter.length > 0;
           
           const from = (currentPage - 1) * pageSize;
           const to   = from + pageSize - 1;
@@ -913,11 +915,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
           // CRITICAL: This must happen before any other filtering to prevent cross-tab contamination
           // Note: Server-side filtering is also applied, but client-side filtering ensures consistency
           if (isStrategyTab) {
-            out = out.filter(it => {
-              const domain = (it.domain || '').toLowerCase();
-              const guideType = (it.guideType || '').toLowerCase();
-              return domain.includes('strategy') || guideType.includes('strategy');
-            });
+            // Show all strategy guides; server-side query already biases toward Strategy
           } else if (isBlueprintTab) {
             // Products tab: Replace all database results with static products
             // Convert static products to guide format immediately
@@ -944,28 +942,6 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               productType: product.productType,
               productStage: product.productStage,
             }));
-          } else if (isTestimonialsTab) {
-            out = out.filter(it => {
-              const domain = (it.domain || '').toLowerCase();
-              const guideType = (it.guideType || '').toLowerCase();
-              return domain.includes('testimonial') || guideType.includes('testimonial');
-            });
-            const selectedTestimonials = testimonialCategories.map(slugify);
-            if (selectedTestimonials.length) {
-              out = out.filter(it => {
-                // Testimonial categories are stored in guide_type field
-                const guideType = (it.guideType || '').toLowerCase();
-                if (!guideType) return false;
-                // Check if guide_type matches any selected category (normalize both for comparison)
-                const normalizedGuideType = slugify(guideType);
-                return selectedTestimonials.some(sel => {
-                  // Compare slugified values
-                  return normalizedGuideType === sel || 
-                         guideType.includes(sel) ||
-                         sel.includes(normalizedGuideType);
-                });
-              });
-            }
           } else if (isGuidelinesTab) {
             // Guidelines tab: explicitly exclude Strategy, Blueprint, and Testimonial guides
             // Must be strict - guides should NOT have Strategy/Blueprint/Testimonial in domain OR guide_type
@@ -1031,6 +1007,27 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               return matches;
             });
           }
+          if (isGuidelinesTab && categorization.length) {
+            const catKeywords = {
+              'policy-set-1a-opg': ['policy set 1a', 'opg'],
+              'policy-set-1b-ppp': ['policy set 1b', 'ppp'],
+              'policy-set-2a-vision': ['policy set 02', '2a', 'vision'],
+              'policy-set-2b-culture': ['policy set 02', '2b', 'culture'],
+              'policy-set-2c-persona': ['policy set 02', '2c', 'persona'],
+              'policy-set-2d-task': ['policy set 02', '2d', 'task'],
+              'policy-set-2e-govern': ['policy set 02', '2e', 'govern'],
+              'policy-set-2f-flow': ['policy set 02', '2f', 'flow'],
+              'policy-set-2g-product': ['policy set 02', '2g', 'product'],
+            } as Record<string, string[]>;
+            out = out.filter(it => {
+              const haystack = `${it.title || ''} ${it.summary || ''} ${it.subDomain || ''} ${it.slug || ''}`.toLowerCase();
+              return categorization.some(cat => {
+                const kw = catKeywords[cat] || [cat.replace(/-/g, ' ')];
+                return kw.some(k => haystack.includes(k.toLowerCase()));
+              });
+            });
+          }
+          // Attachments filter skipped (attachments not fetched in select)
           // Strategy-specific filters: Strategy Type and Framework/Program
           // These filters check sub_domain field (which stores these categories)
           if (isStrategyTab && strategyTypes.length) {
@@ -1365,7 +1362,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
         // Apply filters for non-financial services
         let filtered = finalItems;
         if (isServicesCenter) {
-          // Filter by active tab (category)
+          // Filter by active tab (category) to control which service cards show
           const tabCategoryMap: Record<string, string> = {
             'technology': 'Technology',
             'business': 'Employee Services',
@@ -1373,7 +1370,6 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
             'prompt_library': 'Prompt Library',
             'ai_tools': 'AI Tools'
           };
-          
           const activeTabCategory = tabCategoryMap[activeServiceTab];
           if (activeTabCategory) {
             filtered = filtered.filter(item => {
@@ -1381,7 +1377,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               return itemCategory === activeTabCategory;
             });
           }
-          
+
           // Filter by serviceType
           const serviceTypeFilter = filters.serviceType;
           if (serviceTypeFilter) {
@@ -1654,7 +1650,6 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
         // Apply filters to fallback items for Services Center
         let filteredFallback = fallbackItems;
         if (isServicesCenter) {
-          // Filter by active tab (category)
           const tabCategoryMap: Record<string, string> = {
             'technology': 'Technology',
             'business': 'Employee Services',
@@ -1662,7 +1657,6 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
             'prompt_library': 'Prompt Library',
             'ai_tools': 'AI Tools'
           };
-          
           const activeTabCategory = tabCategoryMap[activeServiceTab];
           if (activeTabCategory) {
             filteredFallback = filteredFallback.filter(item => {

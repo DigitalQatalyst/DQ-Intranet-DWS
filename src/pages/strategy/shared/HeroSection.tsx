@@ -13,7 +13,7 @@ export function HeroSection({ title, subtitle, imageUrl, badge }: HeroSectionPro
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: imageUrl ? `url(${imageUrl})` : 'url(https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920)',
+          backgroundImage: imageUrl ? `url(${imageUrl})` : 'url(/images/guidelines-content.PNG)',
         }}
       >
         <div className="absolute inset-0 bg-[#030E31] bg-opacity-80"></div>
