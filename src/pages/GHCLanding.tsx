@@ -959,9 +959,9 @@ function SectionCarousel({
               onClick={onExploreMarketplace}
               className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
             >
-            {bottomCTA}
-            <ArrowRight className="h-5 w-5" />
-          </button>
+              {bottomCTA}
+              <ArrowRight className="h-5 w-5" />
+            </button>
         </motion.div>
       </div>
     </section>
