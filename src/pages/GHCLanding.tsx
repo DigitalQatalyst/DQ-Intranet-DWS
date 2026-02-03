@@ -405,7 +405,12 @@ function FloatingOrbs() {
    Main component
    ----------------------------------------- */
 
-export function GHCLanding() {
+type GHCLandingProps = {
+  /** Optional override for the hero pill label (e.g., reuse on 6xD). */
+  badgeLabel?: string;
+};
+
+export function GHCLanding({ badgeLabel }: GHCLandingProps) {
   const navigate = useNavigate();
   const carouselRef = useRef<HTMLDivElement>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
@@ -479,7 +484,7 @@ export function GHCLanding() {
             transition={{ duration: 0.5 }}
           >
             <Sparkles className="h-4 w-4 text-[#e1513b]" />
-            <span>The Golden Honeycomb of Competencies (GHC)</span>
+            <span>{badgeLabel ?? 'The Golden Honeycomb of Competencies (GHC)'}</span>
           </motion.div>
           <motion.div
             className="mx-auto flex flex-col items-center justify-center text-center gap-4"
