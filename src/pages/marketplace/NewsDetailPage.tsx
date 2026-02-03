@@ -841,16 +841,7 @@ const NewsDetailPage: React.FC = () => {
 
               {/* Author Info */}
               <div className="text-white/90 text-sm">
-                {(() => {
-                  const authorParts: string[] = [];
-                  if (article.newsSource || article.department) {
-                    authorParts.push(article.newsSource || article.department || '');
-                  }
-                  if (displayAuthor) {
-                    authorParts.push(displayAuthor);
-                  }
-                  return authorParts.length > 0 ? authorParts.join(' • ') : 'DQ Leadership • Digital Qatalyst';
-                })()}
+                HRA
               </div>
             </div>
           </div>
@@ -1056,11 +1047,9 @@ const NewsDetailPage: React.FC = () => {
                 )}
 
                 {/* Questions section */}
-                {displayAuthor && (
-                  <div className="text-xs text-gray-600 pt-4">
-                    <strong className="font-semibold">Questions about this announcement?</strong> Contact {displayAuthor}.
-                  </div>
-                )}
+                <div className="text-xs text-gray-600 pt-4">
+                  <strong className="font-semibold">Questions about this announcement?</strong> Contact HRA.
+                </div>
               </div>
 
               {/* Right Sidebar - Related News and Announcements */}

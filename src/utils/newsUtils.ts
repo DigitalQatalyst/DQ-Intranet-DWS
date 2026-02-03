@@ -76,6 +76,20 @@ export const toTitleCase = (text: string): string => {
  * Generate an appropriate title for news items that don't have one
  */
 export const generateTitle = (item: NewsItem): string => {
+  // Explicit overrides for specific items where we want a custom display title
+  const titleOverrides: Record<string, string> = {
+    'dq-scrum-master-structure-update': 'Updated Scrum Master Structure',
+    'company-wide-lunch-break-schedule': 'Company-wide Lunch Break Schedule',
+    'grading-review-program-grp': 'Grading Review Program (GRP)',
+    'dq-storybook-latest-links': 'DQ Storybook (Latest Version and Links)',
+    'dq-storybook-live': 'The DQ Storybook Goes Live!',
+    'riyadh-horizon-hub': 'Riyadh Horizon Hub Opens',
+  };
+
+  if (item.id && titleOverrides[item.id]) {
+    return titleOverrides[item.id];
+  }
+
   // If title exists and is not empty, return it
   if (item.title?.trim()) {
     return toTitleCase(item.title.trim());

@@ -48,8 +48,12 @@ export function BlogCard({ item, href }: BlogCardProps) {
           <div className="text-xs text-gray-500">
             {authorName} · {formatDateVeryShort(item.date)}
           </div>
-          <h3 className="mt-2 text-lg font-semibold text-gray-900 line-clamp-2">{displayTitle}</h3>
-          <p className="mt-2 text-sm text-gray-700 line-clamp-3">{item.excerpt}</p>
+          <h3 className="mt-2 text-lg font-semibold text-gray-900 line-clamp-2 min-h-[3.25rem]">
+            {displayTitle}
+          </h3>
+          <p className="mt-2 text-sm text-gray-700 line-clamp-3 min-h-[3.5rem]">
+            {item.excerpt}
+          </p>
 
           <div className="mt-3 text-xs text-gray-500">
             {isPodcast ? `${views} listens` : `${views} views`}
