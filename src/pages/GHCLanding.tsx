@@ -54,9 +54,10 @@ interface CompetencyCard {
   gradient: string; // Tailwind gradient classes
   accent: string; // Hex or hsl string for highlights
   image: string;
+  ctaLabel?: string;
 }
 
-const COMPETENCY_CARDS: CompetencyCard[] = [
+const COMPETENCY_CARDS_DEFAULT: CompetencyCard[] = [
   {
     id: 'purpose',
     number: 1,
@@ -211,7 +212,7 @@ const COMPETENCY_CARDS: CompetencyCard[] = [
   },
 ];
 
-const FEATURE_CARDS = [
+const FEATURE_CARDS_DEFAULT = [
   {
     title: 'Operating DNA',
     icon: IconOne,
@@ -239,7 +240,7 @@ const RESPONSE_TAGS = [
   'Leadership',
 ];
 
-const ACTION_CARDS = [
+const ACTION_CARDS_DEFAULT = [
   {
     title: 'Learn by doing',
     icon: GraduationCap,
@@ -405,15 +406,70 @@ function FloatingOrbs() {
    Main component
    ----------------------------------------- */
 
-type GHCLandingProps = {
-  /** Optional override for the hero pill label (e.g., reuse on 6xD). */
+type LandingOverrides = {
   badgeLabel?: string;
+  heroHeadline?: string;
+  heroCTA?: string;
+  heroSupporting?: string;
+  heroFootnote?: string;
+  foundationTitle?: string;
+  foundationSubtitle?: string;
+  foundationCards?: typeof FEATURE_CARDS_DEFAULT;
+  foundationCTA?: string;
+  responsesTitle?: string;
+  responsesIntro?: string;
+  responseCards?: CompetencyCard[];
+  responseTags?: string[];
+  bottomCTA?: string;
+  actionCards?: typeof ACTION_CARDS_DEFAULT;
+  finalHeadline?: string;
+  finalSubtitle?: string;
 };
 
-export function GHCLanding({ badgeLabel }: GHCLandingProps) {
+type GHCLandingProps = {
+  badgeLabel?: string;
+  overrides?: LandingOverrides;
+};
+
+export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   const navigate = useNavigate();
   const carouselRef = useRef<HTMLDivElement>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
+
+  const responseCards = overrides?.responseCards ?? COMPETENCY_CARDS_DEFAULT;
+  const responseTags = overrides?.responseTags ?? [
+    'Vision',
+    'House of Values',
+    'Structure',
+    'Ways of Working',
+    'Technology',
+    'Capability',
+    'Leadership',
+  ];
+  const featureCards = overrides?.foundationCards ?? FEATURE_CARDS_DEFAULT;
+  const actionCards = overrides?.actionCards ?? ACTION_CARDS_DEFAULT;
+  const heroHeadline =
+    overrides?.heroHeadline ??
+    'The world of work is broken.';
+  const heroCTA = overrides?.heroCTA ?? 'Read the Storybook';
+  const heroSupporting =
+    overrides?.heroSupporting ??
+    'DQ built an operating system of seven responses so you can see what broke in work — and how to realign it.';
+  const heroFootnote = overrides?.heroFootnote;
+  const foundationSubtitle =
+    overrides?.foundationSubtitle ??
+    'Not a framework to memorise — an operating system for modern work that guides how you think, decide, adapt, and create impact.';
+  const foundationTitle = overrides?.foundationTitle ?? 'What is the Golden Honeycomb?';
+  const foundationCTA = overrides?.foundationCTA ?? 'Read the full GHC Storybook';
+  const responsesTitle = overrides?.responsesTitle ?? 'Seven responses';
+  const responsesIntro =
+    overrides?.responsesIntro ??
+    'Each exists because something in traditional work stopped working. Problem → response.';
+  const bottomCTA = overrides?.bottomCTA ?? 'Explore all Seven Responses together →';
+  const finalHeadline = overrides?.finalHeadline ?? 'Work aligned inside the Golden Honeycomb';
+  const finalSubtitle =
+    overrides?.finalSubtitle ??
+    'The Golden Honeycomb comes to life inside the DQ Digital Workspace, guiding tools, decisions, and daily work.';
 
   const handleEnterHoneycomb = useCallback(() => {
     navigate('/marketplace/guides/dq-ghc');
@@ -501,9 +557,8 @@ export function GHCLanding({ badgeLabel }: GHCLandingProps) {
                 whiteSpace: 'nowrap',
               }}
             >
-              The world of work is{' '}
               <span className="text-[#e1513b] underline decoration-[#e1513b] decoration-4 underline-offset-8">
-                broken.
+                {heroHeadline}
               </span>
             </span>
             <span
@@ -515,7 +570,7 @@ export function GHCLanding({ badgeLabel }: GHCLandingProps) {
                 whiteSpace: 'normal',
               }}
             >
-              DQ built an operating system of seven responses so you can see what broke in work — and how to realign it.
+              {heroSupporting}
             </span>
           </motion.div>
           <motion.div
@@ -530,7 +585,7 @@ export function GHCLanding({ badgeLabel }: GHCLandingProps) {
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold border border-[#f0f6ff]/50 text-[#f0f6ff] bg-white/10 hover:bg-white/15 transition-colors shadow-sm"
             >
               <BookOpen className="h-5 w-5 text-white" />
-              Read the Storybook →
+              {heroCTA} →
               <ArrowRight className="h-5 w-5 text-white" />
             </button>
           </motion.div>
@@ -540,20 +595,26 @@ export function GHCLanding({ badgeLabel }: GHCLandingProps) {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.45 }}
           >
-            <div className="flex items-baseline gap-2">
-              <span className="text-white font-semibold text-lg">7</span>
-              <span>Competencies</span>
-            </div>
-            <span className="h-5 w-px bg-white/40" aria-hidden />
-            <div className="flex items-baseline gap-2">
-              <span className="text-white font-semibold text-lg">1</span>
-              <span>System</span>
-            </div>
-            <span className="h-5 w-px bg-white/40" aria-hidden />
-            <div className="flex items-baseline gap-2">
-              <span className="text-white font-semibold text-lg">∞</span>
-              <span>Impact</span>
-            </div>
+            {heroFootnote ? (
+              <span className="text-white/85 text-sm md:text-base">{heroFootnote}</span>
+            ) : (
+              <>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-white font-semibold text-lg">7</span>
+                  <span>Competencies</span>
+                </div>
+                <span className="h-5 w-px bg-white/40" aria-hidden />
+                <div className="flex items-baseline gap-2">
+                  <span className="text-white font-semibold text-lg">1</span>
+                  <span>System</span>
+                </div>
+                <span className="h-5 w-px bg-white/40" aria-hidden />
+                <div className="flex items-baseline gap-2">
+                  <span className="text-white font-semibold text-lg">∞</span>
+                  <span>Impact</span>
+                </div>
+              </>
+            )}
           </motion.div>
         </div>
 
@@ -573,7 +634,7 @@ export function GHCLanding({ badgeLabel }: GHCLandingProps) {
       {/* -----------------------------------------
           2. WHAT IS GHC SECTION
           ----------------------------------------- */}
-      <SectionWhatIsGHC onReadStorybook={handleEnterHoneycomb} />
+      <SectionWhatIsGHC onReadStorybook={handleEnterHoneycomb} content={overrides} />
 
       {/* -----------------------------------------
           3. SEVEN RESPONSES CAROUSEL
@@ -586,6 +647,7 @@ export function GHCLanding({ badgeLabel }: GHCLandingProps) {
         onScroll={handleCarouselScroll}
         onDotClick={goToSlide}
         onExploreMarketplace={() => navigate('/marketplace/guides')}
+        content={overrides}
       />
 
       {/* -----------------------------------------
@@ -611,9 +673,13 @@ interface SectionWhatIsGHCProps {
   onReadStorybook: () => void;
 }
 
-function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
+function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps & { content?: LandingOverrides }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const foundationTitle = content?.foundationTitle ?? 'What is the Golden Honeycomb?';
+  const foundationSubtitle = content?.foundationSubtitle ?? 'Not a framework to memorise — an operating system for modern work.';
+  const foundationCards = content?.foundationCards ?? FEATURE_CARDS_DEFAULT;
+  const foundationCTA = content?.foundationCTA ?? 'Read the full GHC storybook';
 
   return (
     <section id="ghc-what" ref={ref} className="py-20 md:py-28 bg-[#f0f6ff]">
@@ -641,7 +707,7 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
                 lineHeight: 1.05,
               }}
             >
-              What is the Golden Honeycomb?
+              {foundationTitle}
             </motion.h2>
             <motion.p
               variants={itemVariants}
@@ -653,7 +719,7 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
                 marginRight: 'auto',
               }}
             >
-              Not a framework to memorise — an operating system for modern work.
+              {foundationSubtitle}
             </motion.p>
           </div>
 
@@ -666,7 +732,7 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
           variants={containerVariants}
           custom={1}
         >
-          {FEATURE_CARDS.map((card) => (
+          {foundationCards.map((card) => (
             <motion.div
               key={card.title}
               variants={itemVariants}
@@ -698,7 +764,7 @@ function SectionWhatIsGHC({ onReadStorybook }: SectionWhatIsGHCProps) {
             className="inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold border border-[#d9e3ff] text-[#131e42] bg-white hover:bg-[#e8eefc] transition-colors shadow-sm"
           >
             <BookOpen className="h-5 w-5" />
-            Read the full GHC storybook
+            {foundationCTA}
             <ArrowRight className="h-5 w-5" />
           </button>
         </motion.div>
@@ -719,6 +785,7 @@ interface SectionCarouselProps {
   onScroll: () => void;
   onDotClick: (index: number) => void;
   onExploreMarketplace: () => void;
+  content?: LandingOverrides;
 }
 
 function SectionCarousel({
@@ -729,10 +796,21 @@ function SectionCarousel({
   onScroll,
   onDotClick,
   onExploreMarketplace,
+  content,
 }: SectionCarouselProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
   const [activeTag, setActiveTag] = useState(0);
+
+  const responsesTitle = content?.responsesTitle ?? 'Seven Responses in Action';
+  const responsesIntro =
+    content?.responsesIntro ??
+    'Each exists because something in traditional work stopped working. Problem → response.';
+  const responseTags =
+    content?.responseTags ??
+    ['Vision', 'House of Values', 'Structure', 'Ways of Working', 'Technology', 'Capability', 'Leadership'];
+  const responseCards = content?.responseCards ?? COMPETENCY_CARDS_DEFAULT;
+  const bottomCTA = content?.bottomCTA ?? 'Explore all Seven Responses together →';
 
   useEffect(() => {
     setActiveTag(carouselIndex);
@@ -772,7 +850,7 @@ function SectionCarousel({
                 lineHeight: 1.05,
               }}
             >
-              Seven Responses in Action
+              {responsesTitle}
             </motion.h2>
             <motion.p
               className="text-[#4a5678] max-w-2xl mx-auto mt-3 text-lg md:text-xl"
@@ -785,7 +863,7 @@ function SectionCarousel({
                 lineHeight: 1.2,
               }}
             >
-              Traditional work breaks in predictable ways. Each response exists to fix a specific failure — and shows how DQ realigned work with clarity and action.
+              {responsesIntro}
             </motion.p>
             </div>
             <div className="flex items-center gap-3 self-end">
@@ -809,8 +887,8 @@ function SectionCarousel({
           </div>
         </motion.div>
 
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-          {RESPONSE_TAGS.map((tag, i) => (
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 scrollbar-hide" role="tablist" aria-label="Response filters">
+          {responseTags.map((tag, i) => (
             <button
               key={tag}
               type="button"
@@ -834,7 +912,7 @@ function SectionCarousel({
             className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-6 pt-2 px-1 md:px-2 scrollbar-hide"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {COMPETENCY_CARDS.map((card, index) => (
+            {responseCards.map((card, index) => (
               <motion.div
                 key={card.id}
                 className="flex-shrink-0 min-w-[320px] max-w-[380px] md:min-w-[360px] md:max-w-[420px] lg:min-w-[420px] lg:max-w-[460px] snap-start"
@@ -848,7 +926,7 @@ function SectionCarousel({
           </div>
 
           <div className="flex justify-center gap-2 mt-10">
-            {COMPETENCY_CARDS.map((_, i) => (
+            {responseCards.map((_, i) => (
               <button
                 key={i}
                 type="button"
@@ -875,7 +953,7 @@ function SectionCarousel({
               onClick={onExploreMarketplace}
               className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
             >
-            Explore all Seven Responses together →
+            {bottomCTA}
             <ArrowRight className="h-5 w-5" />
           </button>
         </motion.div>
@@ -950,9 +1028,10 @@ function CompetencyCard({ card }: CompetencyCardProps) {
    Section: Take Action
    ----------------------------------------- */
 
-function SectionTakeAction({ navigate }: { navigate: (path: string) => void }) {
+function SectionTakeAction({ navigate, content }: { navigate: (path: string) => void; content?: LandingOverrides }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.15 });
+  const actionCards = content?.actionCards ?? ACTION_CARDS_DEFAULT;
 
   return (
     <section
@@ -987,7 +1066,7 @@ function SectionTakeAction({ navigate }: { navigate: (path: string) => void }) {
           variants={containerVariants}
           custom={0}
         >
-          {ACTION_CARDS.map((item, i) => (
+          {actionCards.map((item, i) => (
             <motion.div
               key={item.title}
               variants={itemVariants}
