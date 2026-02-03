@@ -185,9 +185,29 @@ export default function SixXDLanding() {
         heroCTA: "Read the Agile 6xD Storybook",
         foundationTitle: "What is Agile 6xD?",
         foundationSubtitle:
-          "Not a framework to memorise. Not a one-time transformation method. A living operating system for change.",
-        foundationCards: SIXXD_FEATURES,
-        foundationCTA: "Read the full Agile 6xD story",
+          "Not a framework to memorise. Not a one-time transformation initiative.\nAgile 6xD is how DQ turns change into a repeatable execution system.",
+        foundationCards: [
+          {
+            title: "Designed for Real Execution",
+            description:
+              "Built for organisations operating under constant change — where priorities shift, complexity rises, and execution cannot pause.",
+            icon: Target,
+          },
+          {
+            title: "Built to Scale Change",
+            description:
+              "Transformation is structured as a system — so progress continues beyond pilots, teams, and initial momentum.",
+            icon: Layers,
+          },
+          {
+            title: "Six Execution Perspectives",
+            description:
+              "Each perspective answers a critical execution question — guiding how transformation is designed, delivered, and sustained.",
+            icon: GitBranch,
+          },
+        ],
+        foundationCTA: "Read the Agile 6xD Story",
+        foundationCTATo: "/marketplace/guides/dq-6xd",
         responsesTitle: "Six Perspectives in Action",
         responsesIntro:
           "Each perspective exists because something in traditional transformation breaks. Agile 6xD responds with clarity and execution.",

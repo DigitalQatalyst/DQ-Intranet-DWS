@@ -695,6 +695,7 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
   const foundationSubtitle = content?.foundationSubtitle ?? 'Not a framework to memorise — an operating system for modern work.';
   const foundationCards = content?.foundationCards ?? FEATURE_CARDS_DEFAULT;
   const foundationCTA = content?.foundationCTA ?? 'Read the full GHC storybook';
+  const foundationCTATo = content?.foundationCTATo ?? '/marketplace/guides/dq-ghc';
 
   return (
     <section id="ghc-what" ref={ref} className="py-20 md:py-28 bg-[#f0f6ff]">
@@ -775,7 +776,13 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
         >
           <button
             type="button"
-            onClick={onReadStorybook}
+            onClick={() => {
+              if (foundationCTATo) {
+                window.open(foundationCTATo, '_blank', 'noopener,noreferrer');
+              } else {
+                onReadStorybook();
+              }
+            }}
             className="inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold border border-[#d9e3ff] text-[#131e42] bg-white hover:bg-[#e8eefc] transition-colors shadow-sm"
           >
             <BookOpen className="h-5 w-5" />
