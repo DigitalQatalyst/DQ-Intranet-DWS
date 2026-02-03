@@ -408,10 +408,8 @@ function FloatingOrbs() {
 
 type LandingOverrides = {
   badgeLabel?: string;
-  heroHeadline?: string;
   heroCTA?: string;
   heroSupporting?: string;
-  heroFootnote?: string;
   foundationTitle?: string;
   foundationSubtitle?: string;
   foundationCards?: typeof FEATURE_CARDS_DEFAULT;
@@ -448,14 +446,10 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   ];
   const featureCards = overrides?.foundationCards ?? FEATURE_CARDS_DEFAULT;
   const actionCards = overrides?.actionCards ?? ACTION_CARDS_DEFAULT;
-  const heroHeadline =
-    overrides?.heroHeadline ??
-    'The world of work is broken.';
   const heroCTA = overrides?.heroCTA ?? 'Read the Storybook';
   const heroSupporting =
     overrides?.heroSupporting ??
     'DQ built an operating system of seven responses so you can see what broke in work — and how to realign it.';
-  const heroFootnote = overrides?.heroFootnote;
   const foundationSubtitle =
     overrides?.foundationSubtitle ??
     'Not a framework to memorise — an operating system for modern work that guides how you think, decide, adapt, and create impact.';
@@ -557,8 +551,9 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
                 whiteSpace: 'nowrap',
               }}
             >
+              The world of work is{' '}
               <span className="text-[#e1513b] underline decoration-[#e1513b] decoration-4 underline-offset-8">
-                {heroHeadline}
+                broken.
               </span>
             </span>
             <span
@@ -595,26 +590,20 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.45 }}
           >
-            {heroFootnote ? (
-              <span className="text-white/85 text-sm md:text-base">{heroFootnote}</span>
-            ) : (
-              <>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-white font-semibold text-lg">7</span>
-                  <span>Competencies</span>
-                </div>
-                <span className="h-5 w-px bg-white/40" aria-hidden />
-                <div className="flex items-baseline gap-2">
-                  <span className="text-white font-semibold text-lg">1</span>
-                  <span>System</span>
-                </div>
-                <span className="h-5 w-px bg-white/40" aria-hidden />
-                <div className="flex items-baseline gap-2">
-                  <span className="text-white font-semibold text-lg">∞</span>
-                  <span>Impact</span>
-                </div>
-              </>
-            )}
+            <div className="flex items-baseline gap-2">
+              <span className="text-white font-semibold text-lg">7</span>
+              <span>Competencies</span>
+            </div>
+            <span className="h-5 w-px bg-white/40" aria-hidden />
+            <div className="flex items-baseline gap-2">
+              <span className="text-white font-semibold text-lg">1</span>
+              <span>System</span>
+            </div>
+            <span className="h-5 w-px bg-white/40" aria-hidden />
+            <div className="flex items-baseline gap-2">
+              <span className="text-white font-semibold text-lg">∞</span>
+              <span>Impact</span>
+            </div>
           </motion.div>
         </div>
 
@@ -653,12 +642,12 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
       {/* -----------------------------------------
           4. TAKE ACTION SECTION
           ----------------------------------------- */}
-      <SectionTakeAction navigate={navigate} />
+      <SectionTakeAction navigate={navigate} content={overrides} />
 
       {/* -----------------------------------------
           5. FINAL CTA SECTION
           ----------------------------------------- */}
-      <SectionFinalCTA navigate={navigate} />
+      <SectionFinalCTA navigate={navigate} content={overrides} />
 
       <Footer isLoggedIn={false} />
     </div>
@@ -671,9 +660,10 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
 
 interface SectionWhatIsGHCProps {
   onReadStorybook: () => void;
+  content?: LandingOverrides;
 }
 
-function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps & { content?: LandingOverrides }) {
+function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const foundationTitle = content?.foundationTitle ?? 'What is the Golden Honeycomb?';
@@ -1119,9 +1109,13 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
    Section: Final CTA
    ----------------------------------------- */
 
-function SectionFinalCTA({ navigate }: { navigate: (path: string) => void }) {
+function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => void; content?: LandingOverrides }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const finalHeadline = content?.finalHeadline ?? 'Work aligned inside the Golden Honeycomb';
+  const finalSubtitle =
+    content?.finalSubtitle ??
+    'The Golden Honeycomb comes to life inside the DQ Digital Workspace, guiding tools, decisions, and daily work.';
 
   return (
     <section
@@ -1168,7 +1162,7 @@ function SectionFinalCTA({ navigate }: { navigate: (path: string) => void }) {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.15 }}
             >
-              Work aligned inside the Golden Honeycomb
+              {finalHeadline}
             </motion.h2>
             <motion.p
               className="mt-6 text-base sm:text-lg md:text-xl text-white/85 max-w-2xl leading-relaxed"
@@ -1176,7 +1170,7 @@ function SectionFinalCTA({ navigate }: { navigate: (path: string) => void }) {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.25 }}
             >
-              The Golden Honeycomb comes to life inside the DQ Digital Workspace, guiding tools, decisions, and daily work.
+              {finalSubtitle}
             </motion.p>
 
             <motion.div

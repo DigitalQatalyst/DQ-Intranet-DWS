@@ -179,11 +179,9 @@ export default function SixXDLanding() {
     <GHCLanding
       badgeLabel="The Agile 6xD"
       overrides={{
-        heroHeadline: "Transformation fails when it’s treated as a project.",
         heroSupporting:
           "Agile 6xD is how DQ turns transformation into a repeatable system — designed, delivered, and sustained through real work.",
         heroCTA: "Read the Agile 6xD Storybook",
-        heroFootnote: "6 perspectives • 1 system • real execution",
         foundationTitle: "What is Agile 6xD?",
         foundationSubtitle:
           "Not a framework to memorise. Not a one-time transformation method. A living operating system for change.",
