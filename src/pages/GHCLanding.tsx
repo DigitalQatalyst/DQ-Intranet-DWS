@@ -599,7 +599,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
               className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold border border-[#f0f6ff]/50 text-[#f0f6ff] bg-white/10 hover:bg-white/15 transition-colors shadow-sm"
             >
               <BookOpen className="h-5 w-5 text-white" />
-              {heroCTA} →
+              {heroCTA}
               <ArrowRight className="h-5 w-5 text-white" />
             </button>
           </motion.div>
