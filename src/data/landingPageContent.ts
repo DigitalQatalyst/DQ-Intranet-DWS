@@ -277,8 +277,9 @@ export const impactStats: ImpactStat[] = [
 // HERO CONTENT
 // ============================================
 export const heroContent: HeroContent = {
-  title: "Your Digital Workspace",
-  subtitle: "Start your journey here, a workspace where tools, learning, and collaboration empower every Qatalyst to do great work.",
+  title: "Welcome to your Digital Workspace",
+  subtitle:
+    "A smarter way to work, learn, and collaborate at DQ. Designed to help every Qatalyst work faster",
   suggestionPills: [
     "Open an IT service request",
     "Where's the HR leave policy?",

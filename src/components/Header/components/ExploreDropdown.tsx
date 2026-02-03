@@ -29,7 +29,7 @@ const marketplaces: Marketplace[] = [
     description: 'Explore LMS courses, onboarding tracks, and learning resources across GHC, 6xD, DWS, and DXP.',
     icon: GraduationCapIcon,
     href: '/lms',
-    isComingSoon: true,
+    isComingSoon: false,
   },
   {
     id: 'services-center',
@@ -37,6 +37,7 @@ const marketplaces: Marketplace[] = [
     description: 'Business services, technology services, and digital worker tools.',
     icon: BuildingIcon,
     href: '/marketplace/services-center',
+    isComingSoon: true,
   },
   {
     id: 'work-center',

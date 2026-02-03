@@ -122,11 +122,11 @@ export const FeaturedNationalProgram: React.FC = () => {
     <div className="w-full py-8 px-4">
       <FadeInUpOnScroll className="text-center mb-10">
         <h2 className="text-3xl font-bold text-gray-900 mb-3 clamp-1">
-          Featured Updates & Opportunities
+          What’s Happening at DQ 
         </h2>
         <div>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Discover what's new and what's coming, updates, releases, and opportunities designed to keep you moving forward.
+            Stay up to date with the latest updates, podcasts, and highlights everything you shouldn’t miss. 
           </p>
         </div>
       </FadeInUpOnScroll>
@@ -220,6 +220,5 @@ export const FeaturedNationalProgram: React.FC = () => {
     </div>
   );
 };
-
 
 
