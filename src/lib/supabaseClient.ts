@@ -2,12 +2,19 @@ import { createClient } from '@supabase/supabase-js'
 
 // Vite injects these at build time. They must be defined.
 const url = import.meta.env.VITE_SUPABASE_URL as string
-const anon = import.meta.env.VITE_SUPABASE_ANON_KEY as string
+
+// Prefer VITE_SUPABASE_ANON_KEY, but fall back to VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY
+const anon =
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
+  (import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY as string | undefined) ||
+  ''
 
 if (!url || !anon) {
   // Helps you catch misconfigured envs early during dev
   // eslint-disable-next-line no-console
-  console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Check your .env and restart the dev server.')
+  console.error(
+    'Missing Supabase env vars. Expected VITE_SUPABASE_URL and either VITE_SUPABASE_ANON_KEY or VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY. Check your .env and restart the dev server.'
+  )
   throw new Error('Supabase env vars not set')
 }
 

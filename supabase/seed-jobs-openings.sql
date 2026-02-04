@@ -1,6 +1,7 @@
 -- ============================================================================
--- Seed Data for Jobs Table
--- Matches JOBS array from src/data/media/jobs.ts
+-- Seed Data: Job Openings (Job Openings / Opportunities tab)
+-- Populates public.jobs with items from src/data/media/jobs.ts.
+-- Structure matches JobItem type and public.jobs schema.
 -- ============================================================================
 
 INSERT INTO public.jobs (
@@ -8,6 +9,7 @@ INSERT INTO public.jobs (
   summary, description, responsibilities, requirements, benefits,
   posted_on, apply_url, image
 ) VALUES
+-- Example job: HR Lead O2P
 (
   'hr-lead-o2p',
   'HR Lead O2P',
@@ -58,3 +60,5 @@ ON CONFLICT (id) DO UPDATE SET
   image = EXCLUDED.image,
   updated_at = NOW();
 
+-- TODO: Add additional INSERT statements here for any future job openings
+-- that should appear under the Job Openings / Opportunities tab.

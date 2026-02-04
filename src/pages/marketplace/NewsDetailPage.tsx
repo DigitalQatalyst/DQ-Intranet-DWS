@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { HomeIcon, ChevronRightIcon, Share2, BookmarkIcon, Heart, MessageCircle, FileText } from 'lucide-react';
+import { HomeIcon, ChevronRightIcon, Share2, BookmarkIcon, Heart, FileText } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
 import { fetchAllNews, fetchNewsById } from '@/services/mediaCenterService';
 import { formatDate, formatDateShort, generateTitle, getNewsTypeDisplay, getNewsImageSrc, toTitleCase } from '@/utils/newsUtils';
@@ -509,13 +509,8 @@ const NewsDetailPage: React.FC = () => {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [likes, setLikes] = useState(0);
-  const [comments, setComments] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
-  const [hasCommented, setHasCommented] = useState(false);
   const [views, setViews] = useState(0);
-  const [showCommentSection, setShowCommentSection] = useState(false);
-  const [commentText, setCommentText] = useState('');
-  const [commentList, setCommentList] = useState<Array<{ id: string; text: string; date: string }>>([]);
 
   const getImageSrc = (item: NewsItem): string => {
     // Use shared utility function to ensure consistency with cards
@@ -531,39 +526,23 @@ const NewsDetailPage: React.FC = () => {
                                      (article?.title?.toLowerCase().includes('christmas') && article?.title?.toLowerCase().includes('new year'));
   const isDXBEOYArticle = article?.id === 'dxb-eoy-event-postponement';
 
-  // Load likes, comments, views, and interaction state from localStorage
+  // Load likes and views, and interaction state from localStorage
   useEffect(() => {
     if (!id) return;
     
     try {
       const storedLikes = localStorage.getItem(`news-likes-${id}`);
-      const storedComments = localStorage.getItem(`news-comments-${id}`);
       const storedViews = localStorage.getItem(`news-views-${id}`);
       const storedHasLiked = localStorage.getItem(`news-hasLiked-${id}`);
-      const storedHasCommented = localStorage.getItem(`news-hasCommented-${id}`);
-      const storedCommentsList = localStorage.getItem(`news-commentsList-${id}`);
       
       if (storedLikes) {
         setLikes(parseInt(storedLikes, 10) || 0);
-      }
-      if (storedComments) {
-        setComments(parseInt(storedComments, 10) || 0);
       }
       if (storedViews) {
         setViews(parseInt(storedViews, 10) || 0);
       }
       if (storedHasLiked === 'true') {
         setHasLiked(true);
-      }
-      if (storedHasCommented === 'true') {
-        setHasCommented(true);
-      }
-      if (storedCommentsList) {
-        try {
-          setCommentList(JSON.parse(storedCommentsList));
-        } catch {
-          setCommentList([]);
-        }
       }
     } catch (error) {
       // Error loading from localStorage - use defaults
@@ -641,15 +620,6 @@ const NewsDetailPage: React.FC = () => {
     }
   }, [id, likes]);
 
-  useEffect(() => {
-    if (!id) return;
-    try {
-      localStorage.setItem(`news-comments-${id}`, comments.toString());
-    } catch (error) {
-      console.error('Error saving comments:', error);
-    }
-  }, [id, comments]);
-
   // Handle like action
   const handleLike = () => {
     if (!id) return;
@@ -661,36 +631,6 @@ const NewsDetailPage: React.FC = () => {
       } catch (error) {
         console.error('Error saving like state:', error);
       }
-    }
-  };
-
-  // Handle comment button click - toggle comment section
-  const handleComment = () => {
-    setShowCommentSection(prev => !prev);
-  };
-
-  // Handle submitting a comment
-  const handleSubmitComment = () => {
-    if (!id || !commentText.trim()) return;
-    
-    const newComment = {
-      id: Date.now().toString(),
-      text: commentText.trim(),
-      date: new Date().toISOString()
-    };
-    
-    const updatedComments = [...commentList, newComment];
-    setCommentList(updatedComments);
-    setComments(prev => prev + 1);
-    setCommentText('');
-    setHasCommented(true);
-    
-    try {
-      localStorage.setItem(`news-commentsList-${id}`, JSON.stringify(updatedComments));
-      localStorage.setItem(`news-comments-${id}`, (comments + 1).toString());
-      localStorage.setItem(`news-hasCommented-${id}`, 'true');
-    } catch (error) {
-      console.error('Error saving comment:', error);
     }
   };
 
@@ -934,19 +874,6 @@ const NewsDetailPage: React.FC = () => {
                         <Heart size={16} fill={hasLiked ? 'currentColor' : 'none'} />
                         <span>{likes}</span>
                       </button>
-                      <button 
-                        type="button"
-                        onClick={handleComment}
-                        className={`flex items-center gap-1.5 text-sm transition-colors ${
-                          hasCommented || showCommentSection
-                            ? 'text-blue-600 hover:text-blue-700' 
-                            : 'text-gray-600 hover:text-blue-600'
-                        }`}
-                        aria-label={hasCommented ? 'Commented' : 'Comment on this article'}
-                      >
-                        <MessageCircle size={16} fill={hasCommented || showCommentSection ? 'currentColor' : 'none'} />
-                        <span>{comments}</span>
-                      </button>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
@@ -981,70 +908,6 @@ const NewsDetailPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Comment Section */}
-                {showCommentSection && (
-                  <div className="bg-white rounded-lg shadow p-6 space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Comments ({comments})</h3>
-                    
-                    {/* Comment Input */}
-                    <div className="space-y-3">
-                      <textarea
-                        value={commentText}
-                        onChange={(e) => setCommentText(e.target.value)}
-                        placeholder="Write a comment..."
-                        className="w-full min-h-[100px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#030f35] focus:border-transparent resize-none"
-                        rows={4}
-                      />
-                      <div className="flex justify-end">
-                        <button
-                          type="button"
-                          onClick={handleSubmitComment}
-                          disabled={!commentText.trim()}
-                          className="px-4 py-2 bg-[#030f35] text-white rounded-lg hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Post Comment
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Comments List */}
-                    {commentList.length > 0 && (
-                      <div className="space-y-4 mt-6 pt-6 border-t border-gray-200">
-                        {commentList.map((comment) => (
-                          <div key={comment.id} className="flex gap-3">
-                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#030f35] flex items-center justify-center text-white text-sm font-semibold">
-                              {displayAuthor ? displayAuthor.charAt(0).toUpperCase() : 'U'}
-                            </div>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="text-sm font-semibold text-gray-900">
-                                  {displayAuthor || 'Anonymous User'}
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                  {new Date(comment.date).toLocaleDateString('en-US', { 
-                                    month: 'short', 
-                                    day: 'numeric',
-                                    year: 'numeric',
-                                    hour: 'numeric',
-                                    minute: '2-digit'
-                                  })}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-700">{comment.text}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {commentList.length === 0 && (
-                      <div className="text-center py-8 text-gray-500 text-sm">
-                        No comments yet. Be the first to comment!
-                      </div>
-                    )}
-                  </div>
-                )}
 
                 {/* Questions section */}
                 <div className="text-xs text-gray-600 pt-4">

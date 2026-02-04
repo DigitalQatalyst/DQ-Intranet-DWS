@@ -23,6 +23,10 @@ export type NewsItem = {
   audioUrl?: string; // Audio file URL for podcasts
 };
 
+/*
+ * Legacy hardcoded news data (now replaced by Supabase-backed public.news).
+ * Keeping this block commented out for reference and potential future seeding.
+ *
 export const NEWS: NewsItem[] = [
   {
     id: 'dxb-eoy-event-postponement',
@@ -2740,3 +2744,4 @@ How to design focus blocks, reduce digital noise, and protect execution time in 
 Help listeners create conditions where deep work is possible, even inside chatty, fast-moving teams.`
   }
 ];
+*/
