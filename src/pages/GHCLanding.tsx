@@ -1044,7 +1044,7 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
   const actionCards = content?.actionCards ?? ACTION_CARDS_DEFAULT;
   const handleNavigate = (path: string) => {
     if (path.startsWith('http')) {
-      window.location.href = path;
+      window.open(path, '_blank', 'noopener,noreferrer');
     } else {
       navigate(path);
     }
