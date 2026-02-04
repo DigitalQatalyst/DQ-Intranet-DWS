@@ -78,7 +78,7 @@ const countdownTarget = (() => {
 const WorkspaceLanding = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
-  const isComingSoon = comingSoonDefault;
+  const isComingSoon = false;
   const countdown = useCountdown(countdownTarget);
 
   const handleBackHome = useCallback(() => {
