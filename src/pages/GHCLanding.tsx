@@ -468,10 +468,10 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
     overrides?.responsesIntro ??
     'Each exists because something in traditional work stopped working. Problem → response.';
   const bottomCTA = overrides?.bottomCTA ?? 'Explore all Seven Responses together';
-  const finalHeadline = overrides?.finalHeadline ?? 'Work aligned inside the Golden Honeycomb';
+  const finalHeadline = overrides?.finalHeadline ?? 'Where the Golden Honeycomb becomes real';
   const finalSubtitle =
     overrides?.finalSubtitle ??
-    'The Golden Honeycomb comes to life inside the DQ Digital Workspace, guiding tools, decisions, and daily work.';
+    'The Golden Honeycomb comes to life through real decisions, tools, and daily work inside the DQ Digital Workspace.';
 
   const handleEnterHoneycomb = useCallback(() => {
     navigate('/marketplace/guides/dq-ghc');
@@ -1181,7 +1181,7 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.15 }}
           >
-            DQ Digital Workspace
+            DQ DIGITAL WORKSPACE
           </motion.p>
             <motion.h2
               className="ghc-font-display font-bold text-4xl sm:text-5xl md:text-5xl lg:text-6xl leading-[1.1] text-white tracking-tight"
@@ -1208,18 +1208,10 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
             >
             <button
               type="button"
-              onClick={() => navigate('/lms')}
+              onClick={() => navigate('/workspace')}
               className="inline-flex items-center gap-2.5 h-[52px] px-7 rounded-lg bg-white text-[#131e42] font-semibold text-base shadow-xl shadow-black/12 transition transform hover:-translate-y-0.5 hover:bg-white/95"
             >
-              Start working in DWS
-              <ArrowRight className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/marketplace/guides/dq-ghc')}
-              className="group inline-flex items-center gap-2 h-[52px] px-7 rounded-lg border-2 border-white/60 text-white font-semibold text-base transition transform hover:-translate-y-0.5 hover:bg-white/10 hover:border-white/80"
-            >
-              Explore the Digital Workspace
+              Go to the DQ Digital Workspace
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </button>
         </motion.div>
