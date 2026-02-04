@@ -42,17 +42,30 @@ function mapNewsToFeatured(item: NewsItem): FeaturedProgram {
   const isBlog = item.type === 'Thought Leadership' && !isPodcast(item);
   const isPodcastItem = isPodcast(item);
   const partnership = item.byline || item.author || 'DQ Communications';
+  const localFallback = "url(/images/honeycomb.png)";
+  const bgImage = item.image?.startsWith("/") ? `url(${item.image})` : localFallback;
   return {
     id: `news-${item.id}`,
     partnership,
     title: isPodcastItem ? `Podcast | ${item.title}` : isBlog ? `Blog | ${item.title}` : `Update | ${item.title}`,
     description: item.excerpt,
     learnMoreHref: `/marketplace/news/${item.id}`,
-    backgroundImage: item.image
-      ? `url(${item.image})`
-      : 'url(https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1920&q=80)',
+    backgroundImage: bgImage,
   };
 }
+
+const fallbackPrograms: FeaturedProgram[] = [
+  {
+    id: 'fallback-1',
+    partnership: 'Digital Qatalyst',
+    title: 'Welcome to the Digital Workspace',
+    description:
+      'Explore onboarding, services, media, and knowledge resources designed to help every associate start fast and deliver with confidence.',
+    learnMoreHref: '/marketplace/guides?tab=guidelines',
+    backgroundImage:
+      'linear-gradient(90deg, rgba(251, 83, 53, 0.6) 0%, rgba(26, 46, 110, 0.6) 50%, rgba(3, 15, 53, 0.6) 100%), url(/images/honeycomb.png)',
+  },
+];
 
 export const FeaturedNationalProgram: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -102,12 +115,11 @@ export const FeaturedNationalProgram: React.FC = () => {
 
         const combined = [...latestNews, ...latestEvents, ...latestPodcasts];
 
-        if (combined.length > 0) {
-          setPrograms(combined);
-          setActiveIndex(0);
-        }
+        setPrograms(combined.length > 0 ? combined : fallbackPrograms);
+        setActiveIndex(0);
       } catch (error) {
         console.error('Failed to load featured updates from media center', error);
+        setPrograms(fallbackPrograms);
       }
     }
 
@@ -220,5 +232,3 @@ export const FeaturedNationalProgram: React.FC = () => {
     </div>
   );
 };
-
-

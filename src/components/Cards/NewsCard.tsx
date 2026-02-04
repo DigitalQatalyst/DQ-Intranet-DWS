@@ -15,12 +15,14 @@ export interface NewsCardProps {
   item: NewsItem;
   onReadMore: () => void;
   onQuickView?: () => void;
+  pill?: CardContent['pill'];
   'data-id'?: string;
 }
 export const NewsCard: React.FC<NewsCardProps> = ({
   item,
   onReadMore,
   onQuickView,
+  pill,
   'data-id': dataId
 }) => {
   const handleReadMore = (e: React.MouseEvent) => {
@@ -45,6 +47,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({
     metadata: {
       date: item.date
     },
+    pill,
     primaryCTA: {
       text: 'Details',
       onClick: handleReadMore
