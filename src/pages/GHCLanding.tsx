@@ -1208,7 +1208,7 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
             >
             <button
               type="button"
-              onClick={() => navigate('/workspace')}
+              onClick={() => navigate('/')}
               className="inline-flex items-center gap-2.5 h-[52px] px-7 rounded-lg bg-white text-[#131e42] font-semibold text-base shadow-xl shadow-black/12 transition transform hover:-translate-y-0.5 hover:bg-white/95"
             >
               Go to the DQ Digital Workspace
