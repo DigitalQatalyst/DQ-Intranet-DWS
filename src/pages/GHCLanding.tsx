@@ -43,6 +43,8 @@ interface CompetencyCard {
   number: number;
   category: string;
   title: string;
+  lensLine1?: string;
+  lensLine2?: string;
   story: string;
   problem: string;
   response: string;
@@ -55,6 +57,21 @@ interface CompetencyCard {
   accent: string; // Hex or hsl string for highlights
   image: string;
   ctaLabel?: string;
+}
+
+interface ActionCard {
+  title: string;
+  icon: LucideIcon;
+  badge: string;
+  description: string;
+  tags: string[];
+  cta: string;
+  path: string;
+  bg: string;
+  accent: string;
+  badgeColor: string;
+  iconColor: string;
+  variant?: 'primary' | 'secondary';
 }
 
 const COMPETENCY_CARDS_DEFAULT: CompetencyCard[] = [
@@ -240,7 +257,7 @@ const RESPONSE_TAGS = [
   'Leadership',
 ];
 
-const ACTION_CARDS_DEFAULT = [
+const ACTION_CARDS_DEFAULT: ActionCard[] = [
   {
     title: 'Storybooks',
     icon: BookOpen,
@@ -413,21 +430,37 @@ function FloatingOrbs() {
 type LandingOverrides = {
   badgeLabel?: string;
   heroHeadline?: string;
+  heroHeadlineHighlightWord?: string;
   heroCTA?: string;
   heroSupporting?: string;
   heroFootnote?: string;
+  heroCTALink?: string;
   foundationTitle?: string;
   foundationSubtitle?: string;
+  foundationTitleFontSize?: string;
+  foundationSubtitleFontSize?: string;
   foundationCards?: typeof FEATURE_CARDS_DEFAULT;
   foundationCTA?: string;
   responsesTitle?: string;
   responsesIntro?: string;
+  responsesTitleFontSize?: string;
+  responsesIntroFontSize?: string;
   responseCards?: CompetencyCard[];
   responseTags?: string[];
   bottomCTA?: string;
-  actionCards?: typeof ACTION_CARDS_DEFAULT;
+  actionCards?: ActionCard[];
   finalHeadline?: string;
   finalSubtitle?: string;
+  finalCTALabel?: string;
+  finalCTATo?: string;
+  finalCTASecondaryLabel?: string;
+  finalCTASecondaryTo?: string;
+  finalHeadlineFontSize?: string;
+  finalSubtitleFontSize?: string;
+  takeActionTitle?: string;
+  takeActionSubtitle?: string;
+  takeActionTitleFontSize?: string;
+  takeActionSubtitleFontSize?: string;
 };
 
 type GHCLandingProps = {
@@ -453,15 +486,19 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   const featureCards = overrides?.foundationCards ?? FEATURE_CARDS_DEFAULT;
   const actionCards = overrides?.actionCards ?? ACTION_CARDS_DEFAULT;
   const heroHeadline = overrides?.heroHeadline;
+  const heroHeadlineHighlightWord = overrides?.heroHeadlineHighlightWord;
   const heroCTA = overrides?.heroCTA ?? 'Read the Storybook';
   const heroSupporting =
     overrides?.heroSupporting ??
     'DQ built an operating system of seven responses so you can see what broke in work — and how to realign it.';
   const heroFootnote = overrides?.heroFootnote;
+  const heroCTALink = overrides?.heroCTALink ?? 'https://preview.shorthand.com/Pg0KQCF1Rp904ao7';
   const foundationSubtitle =
     overrides?.foundationSubtitle ??
     'Not a framework to memorise — an operating system for modern work that guides how you think, decide, adapt, and create impact.';
   const foundationTitle = overrides?.foundationTitle ?? 'What is the Golden Honeycomb?';
+  const foundationTitleFontSize = overrides?.foundationTitleFontSize;
+  const foundationSubtitleFontSize = overrides?.foundationSubtitleFontSize;
   const foundationCTA = overrides?.foundationCTA ?? 'Read the full GHC Storybook';
   const responsesTitle = overrides?.responsesTitle ?? 'Seven responses';
   const responsesIntro =
@@ -478,8 +515,13 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   }, [navigate]);
 
   const handleReadStorybook = useCallback(() => {
-    window.open('https://preview.shorthand.com/Pg0KQCF1Rp904ao7', '_blank', 'noopener,noreferrer');
-  }, []);
+    const isExternal = /^https?:\/\//i.test(heroCTALink);
+    if (isExternal) {
+      window.open(heroCTALink, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    navigate(heroCTALink);
+  }, [heroCTALink, navigate]);
 
   const scrollToCarousel = useCallback(() => {
     document.getElementById('ghc-carousel')?.scrollIntoView({ behavior: 'smooth' });
@@ -516,6 +558,59 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
     setCarouselIndex(index);
   }, []);
 
+  const renderHeroHeadline = () => {
+    const baseStyle = {
+      fontSize: 'clamp(40px, 5vw, 72px)',
+      lineHeight: 1.05,
+      whiteSpace: 'nowrap' as const,
+    };
+    const highlightClass = 'text-[#e1513b] underline decoration-[#e1513b] decoration-4 underline-offset-8';
+
+    if (heroHeadline) {
+      if (heroHeadlineHighlightWord) {
+        const lowerHeadline = heroHeadline.toLowerCase();
+        const lowerHighlight = heroHeadlineHighlightWord.toLowerCase();
+        const startIndex = lowerHeadline.indexOf(lowerHighlight);
+
+        if (startIndex !== -1) {
+          const before = heroHeadline.slice(0, startIndex);
+          const highlight = heroHeadline.slice(startIndex, startIndex + heroHeadlineHighlightWord.length);
+          const after = heroHeadline.slice(startIndex + heroHeadlineHighlightWord.length);
+
+          return (
+            <span className="ghc-font-display font-bold text-white" style={baseStyle}>
+              {before}
+              <span className={highlightClass}>{highlight}</span>
+              {after}
+            </span>
+          );
+        }
+      }
+
+      return (
+        <span className="ghc-font-display font-bold text-white" style={baseStyle}>
+          <span className={highlightClass}>{heroHeadline}</span>
+        </span>
+      );
+    }
+
+    return (
+      <span
+        className="ghc-font-display font-bold text-white"
+        style={{
+          fontSize: 'clamp(40px, 5vw, 72px)',
+          lineHeight: 1.05,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        The world of work is{' '}
+        <span className={highlightClass}>
+          broken.
+        </span>
+      </span>
+    );
+  };
+
   return (
     <div className="ghc-page flex min-h-screen flex-col bg-[hsl(var(--ghc-background))]">
       <Header />
@@ -551,34 +646,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            {heroHeadline ? (
-              <span
-                className="ghc-font-display font-bold text-white"
-                style={{
-                  fontSize: 'clamp(40px, 5vw, 72px)',
-                  lineHeight: 1.05,
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <span className="text-[#e1513b] underline decoration-[#e1513b] decoration-4 underline-offset-8">
-                  {heroHeadline}
-                </span>
-              </span>
-            ) : (
-              <span
-                className="ghc-font-display font-bold text-white"
-                style={{
-                  fontSize: 'clamp(40px, 5vw, 72px)',
-                  lineHeight: 1.05,
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                The world of work is{' '}
-                <span className="text-[#e1513b] underline decoration-[#e1513b] decoration-4 underline-offset-8">
-                  broken.
-                </span>
-              </span>
-            )}
+            {renderHeroHeadline()}
             <span
               className="text-white/85"
               style={{
@@ -680,6 +748,8 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const foundationTitle = content?.foundationTitle ?? 'What is the Golden Honeycomb?';
   const foundationSubtitle = content?.foundationSubtitle ?? 'Not a framework to memorise — an operating system for modern work.';
+  const foundationTitleFontSize = content?.foundationTitleFontSize;
+  const foundationSubtitleFontSize = content?.foundationSubtitleFontSize;
   const foundationCards = content?.foundationCards ?? FEATURE_CARDS_DEFAULT;
   const foundationCTA = content?.foundationCTA ?? 'Read the full GHC storybook';
   const foundationCTATo =
@@ -697,17 +767,16 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
         >
           <motion.p
             variants={itemVariants}
-            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/20 border border-[#e1513b]/50 shadow-sm px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-[#e1513b] backdrop-blur mb-4"
+            className="inline-flex items-center gap-2 rounded-full bg-[#f0f6ff]/20 border border-[#e1513b]/50 shadow-sm px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-[#e1513b] backdrop-blur mb-4 mx-auto justify-center"
           >
             THE FOUNDATION
           </motion.p>
           <div className="mx-auto w-fit text-center space-y-3">
             <motion.h2
               variants={itemVariants}
-              className="ghc-font-display text-4xl md:text-6xl font-bold text-[#131e42]"
+              className="ghc-font-display text-4xl md:text-6xl font-bold text-[#131e42] text-center"
               style={{
-                whiteSpace: 'nowrap',
-                fontSize: 'clamp(32px, 5vw, 56px)',
+                fontSize: foundationTitleFontSize ?? 'clamp(32px, 5vw, 56px)',
                 lineHeight: 1.05,
               }}
             >
@@ -715,12 +784,10 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
             </motion.h2>
             <motion.p
               variants={itemVariants}
-              className="text-[#4a5678] text-base md:text-lg leading-relaxed"
+              className="text-[#4a5678] text-base md:text-lg leading-relaxed max-w-6xl mx-auto text-center"
               style={{
-                whiteSpace: 'nowrap',
-                fontSize: 'clamp(15px, 2.6vw, 20px)',
-                marginLeft: 'auto',
-                marginRight: 'auto',
+                fontSize: foundationSubtitleFontSize ?? 'clamp(15px, 2.6vw, 20px)',
+                whiteSpace: 'pre-line',
               }}
             >
               {foundationSubtitle}
@@ -816,6 +883,8 @@ function SectionCarousel({
   const responsesIntro =
     content?.responsesIntro ??
     'Each exists because something in traditional work stopped working. Problem → response.';
+  const responsesTitleFontSize = content?.responsesTitleFontSize;
+  const responsesIntroFontSize = content?.responsesIntroFontSize;
   const responseTags =
     content?.responseTags ??
     ['Vision', 'House of Values', 'Structure', 'Ways of Working', 'Technology', 'Capability', 'Leadership'];
@@ -840,7 +909,7 @@ function SectionCarousel({
       <div className="container mx-auto px-4 md:px-6 lg:px-10">
         <motion.div className="mb-8 relative" initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
+            <div className="w-full md:w-auto max-w-3xl">
             <motion.span
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur"
               initial={{ opacity: 0, y: 12 }}
@@ -850,26 +919,26 @@ function SectionCarousel({
               THE FRAMEWORK
             </motion.span>
             <motion.h2
-              className="ghc-font-display text-4xl md:text-5xl font-semibold text-[#131e42] mt-4 max-w-3xl mx-auto"
+              className="ghc-font-display text-4xl md:text-5xl font-semibold text-[#131e42] mt-4 max-w-3xl"
               initial={{ opacity: 0, y: 16 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.45, delay: 0.1 }}
               style={{
-                whiteSpace: 'nowrap',
-                fontSize: 'clamp(32px, 4.2vw, 56px)',
+                whiteSpace: 'normal',
+                fontSize: responsesTitleFontSize ?? 'clamp(32px, 4.2vw, 56px)',
                 lineHeight: 1.05,
               }}
             >
               {responsesTitle}
             </motion.h2>
             <motion.p
-              className="text-[#4a5678] max-w-2xl mx-auto mt-3 text-lg md:text-xl"
+              className="text-[#4a5678] max-w-3xl mt-3 text-lg md:text-xl"
               initial={{ opacity: 0, y: 14 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.45, delay: 0.2 }}
               style={{
-                whiteSpace: 'nowrap',
-                fontSize: 'clamp(15px, 2.2vw, 20px)',
+                whiteSpace: 'normal',
+                fontSize: responsesIntroFontSize ?? 'clamp(15px, 2.2vw, 20px)',
                 lineHeight: 1.2,
               }}
             >
@@ -978,24 +1047,23 @@ interface CompetencyCardProps {
 
 function CompetencyCard({ card }: CompetencyCardProps) {
   const navigate = useNavigate();
+  const hasLens = Boolean(card.lensLine1 || card.lensLine2);
 
   return (
     <motion.article
-      className="relative overflow-hidden rounded-3xl bg-white border border-[#e5e9f5] shadow-sm hover:shadow-lg transition-all flex flex-col min-h-[480px]"
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
+      className="relative overflow-hidden rounded-3xl bg-white border border-[#e5e9f5] shadow-sm flex flex-col min-h-[560px] h-full"
     >
       <div className="h-52 w-full overflow-hidden">
         <img
           src={card.image}
           alt={card.title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="w-full h-full object-cover"
         />
       </div>
 
       <div className="flex flex-col flex-1 p-6 gap-4">
-        <div className="flex items-start justify-between">
-          <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42] max-w-[80%]">
+        <div className="flex items-start justify-between min-h-[64px]">
+          <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42] max-w-[80%] leading-tight">
             {card.title}
           </h3>
           <span className="bg-[#f0f6ff] text-[#1f2d5c] text-xs px-3 py-1 rounded-full font-semibold tracking-wide">
@@ -1008,24 +1076,26 @@ function CompetencyCard({ card }: CompetencyCardProps) {
           <span>DQ Workspace • Real scenario</span>
         </div>
 
-        <div className="space-y-1">
-          <p className="text-[#4a5678] text-sm leading-relaxed">
-            <span className="font-semibold text-[#131e42]">Problem: </span>
-            {card.problem}
-          </p>
-          <p className="text-[#4a5678] text-sm leading-relaxed">
-            <span className="font-semibold text-[#131e42]">Response: </span>
-            {card.response}
-          </p>
+        <div className="space-y-2 min-h-[120px]">
+          {card.problem || card.lensLine1 ? (
+            <p className="text-[#131e42] text-base md:text-lg font-semibold leading-snug">
+              {hasLens ? card.lensLine1 : card.problem}
+            </p>
+          ) : null}
+          {card.response || card.lensLine2 ? (
+            <p className="text-[#4a5678] text-sm md:text-base leading-relaxed">
+              {hasLens ? card.lensLine2 : card.response}
+            </p>
+          ) : null}
         </div>
 
-        <div className="mt-auto">
+        <div className="mt-auto pt-2">
           <button
             type="button"
             onClick={() => navigate(card.route)}
             className="text-[#e1513b] font-semibold inline-flex items-center gap-1 hover:underline"
           >
-            Explore in Knowledge Center
+            {card.ctaLabel ?? 'Explore in Knowledge Center'}
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
@@ -1042,6 +1112,14 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.15 });
   const actionCards = content?.actionCards ?? ACTION_CARDS_DEFAULT;
+  const takeActionTitle = content?.takeActionTitle ?? 'Bring it to life';
+  const takeActionSubtitle =
+    content?.takeActionSubtitle ?? 'Understanding is the start. GHC becomes real through application, practice, and lived experience.';
+  const takeActionTitleFontSize = content?.takeActionTitleFontSize;
+  const takeActionSubtitleFontSize = content?.takeActionSubtitleFontSize;
+  const primaryCard = actionCards.find((card) => card.variant === 'primary') ?? actionCards[0];
+  const secondaryCards = actionCards.filter((card) => card !== primaryCard);
+  const hasPrimary = Boolean(primaryCard);
   const handleNavigate = (path: string) => {
     if (path.startsWith('http')) {
       window.open(path, '_blank', 'noopener,noreferrer');
@@ -1068,65 +1146,180 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
           <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur mx-auto mb-2">
             TAKE ACTION
           </p>
-          <h2 className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3">
-            Bring it to life
+          <h2
+            className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3"
+            style={{ fontSize: takeActionTitleFontSize ?? 'clamp(28px, 3vw, 38px)' }}
+          >
+            {takeActionTitle}
           </h2>
-          <p className="text-[#4a5678] max-w-2xl mx-auto text-lg">
-            Understanding is the start. GHC becomes real through application, practice, and lived experience.
+          <p
+            className="text-[#4a5678] max-w-2xl mx-auto text-lg"
+            style={{ fontSize: takeActionSubtitleFontSize ?? 'clamp(15px, 2.2vw, 20px)' }}
+          >
+            {takeActionSubtitle}
           </p>
         </motion.div>
 
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto"
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-          variants={containerVariants}
-          custom={0}
-        >
-          {actionCards.map((item, i) => (
-            <motion.div
-              key={item.title}
-              variants={itemVariants}
-              whileHover={{ y: -8 }}
-            className={`group relative p-7 md:p-9 rounded-3xl ${item.bg} shadow-[0_10px_24px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_32px_rgba(0,0,0,0.08)] transition-all`}
-          >
-            <div className="flex items-start gap-4 md:gap-5">
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white shadow-[0_6px_16px_rgba(0,0,0,0.08)] flex items-center justify-center">
-                <item.icon className="h-6 w-6" style={{ color: item.iconColor }} />
-              </div>
-              <div className="flex-1 space-y-1">
-                <p className={`text-xs font-semibold tracking-[0.18em] uppercase ${item.badgeColor}`}>
-                  {item.badge}
-                </p>
-                <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42]">
-                  {item.title}
-                </h3>
-                <p className="text-sm md:text-base text-[#4a5678]">{item.description}</p>
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {item.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center gap-1 rounded-full bg-white/75 text-[#131e42] px-3 py-1 text-xs font-medium shadow-sm cursor-default"
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.iconColor }} />
-                      {tag}
-                    </span>
-                  ))}
+        {hasPrimary ? (
+          <div className="grid gap-6 max-w-6xl mx-auto">
+            {primaryCard ? (
+              <motion.div
+                variants={itemVariants}
+                initial="hidden"
+                animate={isInView ? 'visible' : 'hidden'}
+                className={`group relative p-8 md:p-10 rounded-3xl border shadow-[0_18px_36px_rgba(0,0,0,0.12)] bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b] text-white`}
+              >
+                <div className="flex flex-col md:flex-row md:items-start md:gap-6">
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+                    <primaryCard.icon className="h-7 w-7" style={{ color: '#f0f6ff' }} />
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-semibold tracking-[0.18em] uppercase text-[#fbd7cd]">
+                        {primaryCard.badge}
+                      </span>
+                      <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/15 border border-white/10 text-white">
+                        Start
+                      </span>
+                    </div>
+                    <h3 className="ghc-font-display text-2xl md:text-3xl font-semibold">
+                      {primaryCard.title}
+                    </h3>
+                    <p className="text-base md:text-lg text-white/90 leading-relaxed">
+                      {primaryCard.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {primaryCard.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center gap-1 rounded-full bg-white/15 text-white px-3 py-1 text-xs font-medium border border-white/20"
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+                <div className="mt-6">
+                  <button
+                    type="button"
+                    onClick={() => handleNavigate(primaryCard.path)}
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-[#131e42] font-semibold shadow-[0_10px_24px_rgba(0,0,0,0.18)] hover:bg-[#f0f6ff] transition-colors"
+                  >
+                    {primaryCard.cta}
+                    <ArrowRight className="h-5 w-5" />
+                  </button>
+                </div>
+              </motion.div>
+            ) : null}
 
-              <button
-                type="button"
-                onClick={() => handleNavigate(item.path)}
-                className={`inline-flex items-center gap-1 text-sm font-semibold mt-6 ${item.accent} group-hover:underline`}
+            {secondaryCards.length ? (
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                initial="hidden"
+                animate={isInView ? 'visible' : 'hidden'}
+                variants={containerVariants}
+                custom={0}
               >
-                {item.cta}
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </motion.div>
-          ))}
-        </motion.div>
+                {secondaryCards.map((item, i) => (
+                  <motion.div
+                    key={item.title}
+                    variants={itemVariants}
+                    whileHover={{ y: -6 }}
+                    className={`group relative p-7 md:p-8 rounded-3xl ${item.bg} border border-[#e3e8f5] shadow-[0_10px_24px_rgba(0,0,0,0.06)] hover:shadow-[0_14px_30px_rgba(0,0,0,0.09)] transition-all`}
+                  >
+                    <div className="flex items-start gap-4 md:gap-5">
+                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white shadow-[0_6px_16px_rgba(0,0,0,0.08)] flex items-center justify-center">
+                        <item.icon className="h-6 w-6" style={{ color: item.iconColor }} />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <p className={`text-xs font-semibold tracking-[0.18em] uppercase ${item.badgeColor}`}>
+                          {item.badge}
+                        </p>
+                        <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42]">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm md:text-base text-[#4a5678] leading-relaxed">{item.description}</p>
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          {item.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="inline-flex items-center gap-1 rounded-full bg-white/75 text-[#131e42] px-3 py-1 text-xs font-medium shadow-sm cursor-default"
+                            >
+                              <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.iconColor }} />
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleNavigate(item.path)}
+                      className={`inline-flex items-center gap-1 text-sm font-semibold mt-6 ${item.accent} group-hover:underline`}
+                    >
+                      {item.cta}
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </motion.div>
+                ))}
+              </motion.div>
+            ) : null}
+          </div>
+        ) : (
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto"
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
+            variants={containerVariants}
+            custom={0}
+          >
+            {actionCards.map((item, i) => (
+              <motion.div
+                key={item.title}
+                variants={itemVariants}
+                whileHover={{ y: -8 }}
+                className={`group relative p-7 md:p-9 rounded-3xl ${item.bg} shadow-[0_10px_24px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_32px_rgba(0,0,0,0.08)] transition-all`}
+              >
+                <div className="flex items-start gap-4 md:gap-5">
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white shadow-[0_6px_16px_rgba(0,0,0,0.08)] flex items-center justify-center">
+                    <item.icon className="h-6 w-6" style={{ color: item.iconColor }} />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <p className={`text-xs font-semibold tracking-[0.18em] uppercase ${item.badgeColor}`}>
+                      {item.badge}
+                    </p>
+                    <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42]">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm md:text-base text-[#4a5678]">{item.description}</p>
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {item.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center gap-1 rounded-full bg-white/75 text-[#131e42] px-3 py-1 text-xs font-medium shadow-sm cursor-default"
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.iconColor }} />
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleNavigate(item.path)}
+                  className={`inline-flex items-center gap-1 text-sm font-semibold mt-6 ${item.accent} group-hover:underline`}
+                >
+                  {item.cta}
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
       </div>
     </section>
   );
@@ -1143,6 +1336,12 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
   const finalSubtitle =
     content?.finalSubtitle ??
     'The Golden Honeycomb comes to life inside the DQ Digital Workspace, guiding tools, decisions, and daily work.';
+  const finalCTALabel = content?.finalCTALabel ?? 'Go to the DQ Digital Workspace';
+  const finalCTATo = content?.finalCTATo ?? '/';
+  const finalCTASecondaryLabel = content?.finalCTASecondaryLabel;
+  const finalCTASecondaryTo = content?.finalCTASecondaryTo;
+  const finalHeadlineFontSize = content?.finalHeadlineFontSize;
+  const finalSubtitleFontSize = content?.finalSubtitleFontSize;
 
   return (
     <section
@@ -1188,6 +1387,7 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.15 }}
+              style={{ fontSize: finalHeadlineFontSize }}
             >
               {finalHeadline}
             </motion.h2>
@@ -1196,6 +1396,7 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.25 }}
+              style={{ fontSize: finalSubtitleFontSize }}
             >
               {finalSubtitle}
             </motion.p>
@@ -1206,14 +1407,38 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.35 }}
             >
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="inline-flex items-center gap-2.5 h-[52px] px-7 rounded-lg bg-white text-[#131e42] font-semibold text-base shadow-xl shadow-black/12 transition transform hover:-translate-y-0.5 hover:bg-white/95"
-            >
-              Go to the DQ Digital Workspace
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </button>
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (finalCTATo.startsWith('http')) {
+                    window.open(finalCTATo, '_blank', 'noopener,noreferrer');
+                  } else {
+                    navigate(finalCTATo);
+                  }
+                }}
+                className="inline-flex items-center gap-2.5 h-[52px] px-7 rounded-lg bg-white text-[#131e42] font-semibold text-base shadow-xl shadow-black/12 transition transform hover:-translate-y-0.5 hover:bg-white/95"
+              >
+                {finalCTALabel}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </button>
+              {finalCTASecondaryLabel && finalCTASecondaryTo ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (finalCTASecondaryTo.startsWith('http')) {
+                      window.open(finalCTASecondaryTo, '_blank', 'noopener,noreferrer');
+                    } else {
+                      navigate(finalCTASecondaryTo);
+                    }
+                  }}
+                  className="inline-flex items-center gap-2.5 h-[52px] px-7 rounded-lg border border-white/60 text-white font-semibold text-base shadow-lg shadow-black/10 transition transform hover:-translate-y-0.5 hover:bg-white/10"
+                >
+                  {finalCTASecondaryLabel}
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </button>
+              ) : null}
+            </div>
         </motion.div>
           </motion.div>
         </div>
