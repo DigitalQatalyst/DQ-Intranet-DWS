@@ -1,0 +1,33 @@
+# Deployment configuration
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dws-frontend 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      imagePullSecrets:
+      - name: registrycred  # Make sure the secret is created as mentioned before
+      containers:
+      - name: frontend
+        image: u4c2j2w9.c1.gra9.container-registry.ovh.net/dws/frontend-prod:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        envFrom:
+          - configMapRef:
+              name: dws-config
+          - secretRef:
+              name: dws-secret                                                                     
+
+---
+
+      
+      
