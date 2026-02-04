@@ -1042,6 +1042,13 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.15 });
   const actionCards = content?.actionCards ?? ACTION_CARDS_DEFAULT;
+  const handleNavigate = (path: string) => {
+    if (path.startsWith('http')) {
+      window.location.href = path;
+    } else {
+      navigate(path);
+    }
+  };
 
   return (
     <section
@@ -1111,7 +1118,7 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
 
               <button
                 type="button"
-                onClick={() => navigate(item.path)}
+                onClick={() => handleNavigate(item.path)}
                 className={`inline-flex items-center gap-1 text-sm font-semibold mt-6 ${item.accent} group-hover:underline`}
               >
                 {item.cta}
