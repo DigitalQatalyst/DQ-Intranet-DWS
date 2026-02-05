@@ -24,7 +24,7 @@ export default function PerspectiveNav({
   return (
     <aside
       className={[
-        'rounded-3xl border border-[#e5e9f5] bg-[#f9fbff] p-5 md:p-6',
+        'p-5 md:p-6',
         className ?? '',
       ].join(' ')}
     >
@@ -62,22 +62,27 @@ export default function PerspectiveNav({
                 type="button"
                 onClick={() => onSelect(i)}
                 className={[
-                  'w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-left border transition-colors',
-                  isActive
-                    ? 'border-[hsl(var(--accent)/0.45)] bg-[hsl(var(--accent)/0.10)]'
-                    : 'border-transparent hover:bg-white hover:border-[#e5e9f5]',
+                  'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors',
+                  isActive ? 'text-[#131e42]' : 'text-[#4a5678] hover:text-[#131e42]',
                 ].join(' ')}
                 aria-current={isActive ? 'step' : undefined}
               >
                 <span
                   className={[
                     'text-xs font-semibold tracking-[0.18em]',
-                    isActive ? 'text-[#131e42]' : 'text-[#6b7390]',
+                    isActive ? 'text-[hsl(var(--accent))]' : 'text-[#6b7390]',
                   ].join(' ')}
                 >
                   {number}
                 </span>
-                <span className={[isActive ? 'text-[#131e42] font-semibold' : 'text-[#4a5678]', 'text-sm'].join(' ')}>
+                <span
+                  className={[
+                    'text-sm',
+                    isActive
+                      ? 'font-semibold underline decoration-[hsl(var(--accent))] decoration-2 underline-offset-4'
+                      : '',
+                  ].join(' ')}
+                >
                   {p.title}
                 </span>
               </button>
@@ -88,4 +93,3 @@ export default function PerspectiveNav({
     </aside>
   );
 }
-
