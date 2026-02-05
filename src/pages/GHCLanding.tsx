@@ -23,6 +23,7 @@ import {
 
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import SixPerspectivesCarousel from '@/components/perspectives/SixPerspectivesCarousel';
 
 const IconGlyph = ({ glyph, className }: { glyph: string; className?: string }) => (
   <span className={`inline-flex items-center justify-center leading-none font-semibold ${className ?? ''}`}>
@@ -924,126 +925,14 @@ function SectionCarousel({
   };
 
   if (responsesSequential) {
-    const total = responseCards.length;
-    const current = Math.min(Math.max(carouselIndex, 0), Math.max(total - 1, 0));
-    const activeCard = responseCards[current];
-
     return (
-      <section
+      <SixPerspectivesCarousel
         id="ghc-carousel"
-        ref={ref}
-        className="relative py-24 bg-white"
-      >
-        <div className="container mx-auto px-4 md:px-6 lg:px-10">
-          <div className="mx-auto w-full max-w-6xl">
-            {/* Minimal header (system-level) */}
-            <div className="max-w-3xl">
-              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur">
-                THE FRAMEWORK
-              </span>
-              <h2
-                className="ghc-font-display text-4xl md:text-5xl font-semibold text-[#131e42] mt-4"
-                style={{
-                  whiteSpace: 'normal',
-                  fontSize: responsesTitleFontSize ?? 'clamp(32px, 4.2vw, 56px)',
-                  lineHeight: 1.05,
-                }}
-              >
-                {responsesTitle}
-              </h2>
-              <p
-                className="text-[#4a5678] mt-3 text-lg md:text-xl"
-                style={{
-                  whiteSpace: 'normal',
-                  fontSize: responsesIntroFontSize ?? 'clamp(15px, 2.2vw, 20px)',
-                  lineHeight: 1.2,
-                }}
-              >
-                {responsesIntro}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-[35%_65%] gap-10 lg:gap-12 items-start mt-10">
-              {/* Learning rail */}
-              <aside className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold tracking-[0.18em] uppercase text-[#6b7390]">
-                    Perspective {current + 1} of {total}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={onPrev}
-                      className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
-                      aria-label="Previous perspective"
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={onNext}
-                      className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
-                      aria-label="Next perspective"
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
-                  </div>
-                </div>
-
-                <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42] leading-tight">
-                  {activeCard?.executionQuestion ?? activeCard?.lensLine1 ?? activeCard?.problem}
-                </h3>
-
-                {/* Perspective list (navigation, not content) */}
-                <ol className="space-y-2" aria-label="Perspective sequence">
-                  {responseCards.map((card, i) => {
-                    const isActive = i === current;
-                    const number = String(i + 1).padStart(2, '0');
-                    return (
-                      <li
-                        key={card.id}
-                        className={`pl-4 border-l-2 ${isActive ? 'border-[#e1513b]' : 'border-transparent'}`}
-                        aria-current={isActive ? 'step' : undefined}
-                      >
-                        <div className="flex items-baseline gap-3">
-                          <span
-                            className={`text-xs font-semibold tracking-[0.18em] ${
-                              isActive ? 'text-[#131e42]' : 'text-[#6b7390]'
-                            }`}
-                          >
-                            {number}
-                          </span>
-                          <span className={`${isActive ? 'text-[#131e42] font-semibold' : 'text-[#6b7390]'} text-sm`}>
-                            {card.title}
-                          </span>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ol>
-              </aside>
-
-              {/* Active perspective card */}
-              <div>
-                {activeCard ? <CompetencyCard card={activeCard} variant="stage" /> : null}
-              </div>
-            </div>
-
-            {bottomCTA ? (
-              <div className="text-center mt-10">
-                <button
-                  type="button"
-                  onClick={onExploreMarketplace}
-                  className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
-                >
-                  {bottomCTA}
-                  <ArrowRight className="h-5 w-5" />
-                </button>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </section>
+        title={responsesTitle}
+        subtitle={responsesIntro}
+        titleFontSize={responsesTitleFontSize}
+        subtitleFontSize={responsesIntroFontSize}
+      />
     );
   }
 
