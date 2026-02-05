@@ -1029,16 +1029,18 @@ function SectionCarousel({
               </div>
             </div>
 
-            <div className="text-center mt-10">
-              <button
-                type="button"
-                onClick={onExploreMarketplace}
-                className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
-              >
-                {bottomCTA}
-                <ArrowRight className="h-5 w-5" />
-              </button>
-            </div>
+            {bottomCTA ? (
+              <div className="text-center mt-10">
+                <button
+                  type="button"
+                  onClick={onExploreMarketplace}
+                  className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
+                >
+                  {bottomCTA}
+                  <ArrowRight className="h-5 w-5" />
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
@@ -1166,11 +1168,12 @@ function SectionCarousel({
           </div>
         </div>
 
-        <motion.div
-          className="text-center mt-8"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.25 }}
+        {bottomCTA ? (
+          <motion.div
+            className="text-center mt-8"
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ delay: 0.25 }}
           >
             <button
               type="button"
@@ -1180,7 +1183,8 @@ function SectionCarousel({
               {bottomCTA}
               <ArrowRight className="h-5 w-5" />
             </button>
-        </motion.div>
+          </motion.div>
+        ) : null}
       </div>
     </section>
   );

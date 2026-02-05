@@ -225,7 +225,7 @@ export default function SixXDLanding() {
           "Digital Accelerators",
         ],
         responseCards: SIXXD_CARDS,
-        bottomCTA: "Explore all Six Perspectives together →",
+        bottomCTA: "",
         actionCards: SIXXD_ACTIONS,
         finalHeadline: "Agile 6xD runs inside DQ first — then becomes products you can deploy.",
         finalSubtitle:
