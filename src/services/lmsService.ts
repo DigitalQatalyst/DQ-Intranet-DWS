@@ -15,27 +15,40 @@ import type {
 } from '../types/lmsSupabase';
 import type { LmsDetail, LmsCard } from '../data/lmsCourseDetails';
 import { levelLabelFromCode, levelShortLabelFromCode } from '../lms/levels';
-import { LOCATION_ALLOW, LevelCode } from '../lms/config';
-
-// Helper to convert minutes to duration enum
-function minutesToDuration(minutes: number): 'Bite-size' | 'Short' | 'Medium' | 'Long' {
-  if (minutes <= 15) return 'Bite-size';
-  if (minutes <= 60) return 'Short';
-  if (minutes <= 180) return 'Medium';
-  return 'Long';
-}
-
-// Helper to convert duration enum to minutes (for display)
-function durationToMinutes(duration: string): string {
-  return `${duration}`;
-}
+import { LOCATION_ALLOW, LevelCode } from '@/lms/config';
+import { formatDurationFromMinutes } from '../utils/durationFormatter';
 
 // Helper to normalize level code
 function normalizeLevelCode(code: string | null): LevelCode {
   if (!code) return 'L1';
-  const normalized = code.toUpperCase() as LevelCode;
-  const validCodes: LevelCode[] = ['L0', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'];
-  return validCodes.includes(normalized) ? normalized : 'L1';
+
+  const trimmed = code.trim();
+  if (!trimmed) return 'L1';
+
+  // 1. Try exact match with valid codes
+  const LEVEL_CODE_SET = new Set<string>(['L0', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8']);
+  const upper = trimmed.toUpperCase() as LevelCode;
+  if (LEVEL_CODE_SET.has(upper)) return upper;
+
+  // 2. Try prefix match (e.g., "L0. Starting" or "L0 – Starting")
+  const prefixMatch = trimmed.match(/^(L\d)/i);
+  if (prefixMatch) {
+    const normalized = prefixMatch[1].toUpperCase() as LevelCode;
+    if (LEVEL_CODE_SET.has(normalized)) return normalized;
+  }
+
+  // 3. Try matching descriptive labels (case-insensitive)
+  const lower = trimmed.toLowerCase();
+  if (lower.includes('starting') || lower.includes('learning')) return 'L0';
+  if (lower.includes('follow') || lower.includes('awareness')) return 'L1';
+  if (lower.includes('assist')) return 'L2';
+  if (lower.includes('apply')) return 'L3';
+  if (lower.includes('enable')) return 'L4';
+  if (lower.includes('ensure')) return 'L5';
+  if (lower.includes('influence')) return 'L6';
+  if (lower.includes('inspire')) return 'L7';
+
+  return 'L1';
 }
 
 // Helper to convert status
@@ -73,7 +86,7 @@ function transformCourseToLmsDetail(
         id: module.id,
         title: module.title,
         description: module.description || undefined,
-        duration: module.duration ? durationToMinutes(`${module.duration}`) : undefined,
+        duration: module.duration ? formatDurationFromMinutes(module.duration) : undefined,
         order: module.item_order,
         isLocked: module.is_locked,
       };
@@ -84,7 +97,7 @@ function transformCourseToLmsDetail(
           id: lesson.id,
           title: lesson.title,
           description: lesson.description || undefined,
-          duration: lesson.duration ? durationToMinutes(`${lesson.duration}`) : undefined,
+          duration: lesson.duration ? formatDurationFromMinutes(lesson.duration) : undefined,
           type: lesson.video_url ? 'video' : (lesson.content ? 'guide' : 'reading') as 'video' | 'guide' | 'quiz' | 'workshop' | 'assignment' | 'reading',
           order: lesson.item_order,
           isLocked: lesson.is_locked,
@@ -106,7 +119,7 @@ function transformCourseToLmsDetail(
         id: lesson.id,
         title: lesson.title,
         description: lesson.description || undefined,
-        duration: lesson.duration ? durationToMinutes(`${lesson.duration}`) : undefined,
+        duration: lesson.duration ? formatDurationFromMinutes(lesson.duration) : undefined,
         type: lesson.video_url ? 'video' : (lesson.content ? 'guide' : 'reading') as 'video' | 'guide' | 'quiz' | 'workshop' | 'assignment' | 'reading',
         order: lesson.item_order,
         isLocked: lesson.is_locked,
@@ -116,23 +129,7 @@ function transformCourseToLmsDetail(
     });
   }
 
-  // Add Final Assessment if present
-  if (course.quiz) {
-    curriculum.push({
-      id: course.quiz.id,
-      title: 'Final Assessment',
-      description: course.quiz.description || 'Complete the final assessment to finish the course.',
-      order: 9999,
-      lessons: [{
-        id: course.quiz.id, // Using quiz ID, handled specially in rendering
-        title: course.quiz.title,
-        description: course.quiz.description || undefined,
-        type: 'final-assessment',
-        order: 1,
-        isLocked: false // Could be based on progress
-      }]
-    });
-  }
+
 
   // Parse FAQ from JSONB
   const faq = Array.isArray(course.faq) ? course.faq.map((item: any) => ({
@@ -146,8 +143,8 @@ function transformCourseToLmsDetail(
     title: course.title,
     provider: course.provider,
     courseCategory: course.category,
-    deliveryMode: course.delivery_mode || 'Online',
-    duration: minutesToDuration(course.duration),
+    deliveryMode: (course.delivery_mode === 'online' ? 'Online' : (course.delivery_mode === 'hybrid' ? 'Hybrid' : 'Online')) as 'Video' | 'Guide' | 'Workshop' | 'Hybrid' | 'Online',
+    duration: formatDurationFromMinutes(course.duration),
     durationMinutes: course.duration, // Store actual minutes
     levelCode: normalizeLevelCode(course.level_code),
     department: parseTextToArray(course.department),
@@ -179,7 +176,7 @@ function transformCourseToLmsCard(course: LmsCourseRow): LmsCard {
     provider: course.provider,
     courseCategory: course.category,
     deliveryMode: course.delivery_mode || 'Online',
-    duration: minutesToDuration(course.duration),
+    duration: formatDurationFromMinutes(course.duration),
     durationMinutes: course.duration, // Store actual minutes
     levelCode,
     levelLabel: levelLabelFromCode(levelCode),
@@ -447,7 +444,8 @@ export async function fetchAllLearningPaths(): Promise<LmsCard[]> {
     provider: path.provider,
     courseCategory: path.category,
     deliveryMode: 'Online' as const,
-    duration: minutesToDuration(path.duration),
+    duration: formatDurationFromMinutes(path.duration),
+    durationMinutes: path.duration,
     levelCode: normalizeLevelCode(path.level_code),
     levelLabel: levelLabelFromCode(normalizeLevelCode(path.level_code)),
     levelShortLabel: levelShortLabelFromCode(normalizeLevelCode(path.level_code)),
@@ -509,6 +507,7 @@ export async function fetchLearningPathBySlug(slug: string): Promise<LmsDetail |
     id: course.id,
     title: course.title,
     description: course.description || undefined,
+    duration: formatDurationFromMinutes(course.duration),
     order: index,
     courseSlug: course.slug,
   }));
@@ -526,7 +525,8 @@ export async function fetchLearningPathBySlug(slug: string): Promise<LmsDetail |
     provider: path.provider,
     courseCategory: path.category,
     deliveryMode: 'Online',
-    duration: minutesToDuration(path.duration),
+    duration: formatDurationFromMinutes(path.duration),
+    durationMinutes: path.duration,
     levelCode: normalizeLevelCode(path.level_code),
     department: parseTextToArray(path.department),
     locations: ['Riyadh'],

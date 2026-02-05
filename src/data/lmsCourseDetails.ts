@@ -1,9 +1,10 @@
-import { LOCATION_ALLOW, LEVELS, LevelCode } from '@/lms/config';
+import { LOCATION_ALLOW, LevelCode } from '@/lms/config';
 import {
   levelLabelFromCode,
   levelShortLabelFromCode
 } from '@/lms/levels';
 import { lmsSupabaseClient } from '@/lib/lmsSupabaseClient';
+import { formatDurationFromMinutes } from '@/utils/durationFormatter';
 
 const allowedLocations = new Set<string>(LOCATION_ALLOW as readonly string[]);
 
@@ -12,11 +13,37 @@ const cleanLocations = (values?: string[]) => {
   return list.length ? list : ['Riyadh'];
 };
 
-const LEVEL_CODE_SET = new Set<LevelCode>(LEVELS.map(level => level.code));
 
 const L = (code: string): LevelCode => {
-  const normalized = code.toUpperCase() as LevelCode;
-  return LEVEL_CODE_SET.has(normalized) ? normalized : 'L1';
+  if (!code) return 'L1';
+
+  const trimmed = code.trim();
+  if (!trimmed) return 'L1';
+
+  // 1. Try exact match with valid codes
+  const validCodes: LevelCode[] = ['L0', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'];
+  const upper = trimmed.toUpperCase() as LevelCode;
+  if (validCodes.includes(upper)) return upper;
+
+  // 2. Try prefix match (e.g., "L0. Starting" or "L0 – Starting")
+  const prefixMatch = trimmed.match(/^(L\d)/i);
+  if (prefixMatch) {
+    const normalized = prefixMatch[1].toUpperCase() as LevelCode;
+    if (validCodes.includes(normalized)) return normalized;
+  }
+
+  // 3. Try matching descriptive labels (case-insensitive)
+  const lower = trimmed.toLowerCase();
+  if (lower.includes('starting') || lower.includes('learning')) return 'L0';
+  if (lower.includes('follow') || lower.includes('awareness')) return 'L1';
+  if (lower.includes('assist')) return 'L2';
+  if (lower.includes('apply')) return 'L3';
+  if (lower.includes('enable')) return 'L4';
+  if (lower.includes('ensure')) return 'L5';
+  if (lower.includes('influence')) return 'L6';
+  if (lower.includes('inspire')) return 'L7';
+
+  return 'L1';
 };
 
 export type LmsDetail = {
@@ -26,7 +53,7 @@ export type LmsDetail = {
   provider: string;
   courseCategory: string;
   deliveryMode: 'Video' | 'Guide' | 'Workshop' | 'Hybrid' | 'Online';
-  duration: 'Bite-size' | 'Short' | 'Medium' | 'Long';
+  duration: string;
   durationMinutes?: number; // Actual duration in minutes from database
   levelCode: LevelCode;
   department: string[];
@@ -34,6 +61,7 @@ export type LmsDetail = {
   audience: Array<'Associate' | 'Lead'>;
   status: 'live' | 'coming-soon';
   summary: string;
+  excerpt?: string;
   highlights: string[];
   outcomes: string[];
   courseType?: 'Course (Single Lesson)' | 'Course (Multi-Lessons)' | 'Course (Bundles)';
@@ -117,6 +145,7 @@ type DBCourse = {
   title: string;
   provider: string;
   description: string | null;
+  excerpt: string | null;
   category: string;
   delivery_mode: 'online' | 'in-person' | 'hybrid' | null;
   duration: number; // minutes
@@ -296,12 +325,7 @@ async function fetchQuizzes(courseIds: string[]): Promise<DBQuiz[]> {
 }
 
 // Helper to convert minutes to duration enum
-function minutesToDuration(minutes: number): 'Bite-size' | 'Short' | 'Medium' | 'Long' {
-  if (minutes <= 15) return 'Bite-size';
-  if (minutes <= 60) return 'Short';
-  if (minutes <= 180) return 'Medium';
-  return 'Long';
-}
+
 
 // Helper to parse department/audience from TEXT to array
 function parseTextToArray(text: string | null): string[] {
@@ -342,7 +366,7 @@ function transformCourseToLmsDetail(
       id: module.id,
       title: module.title,
       description: module.description || undefined,
-      duration: module.duration ? `${module.duration}` : undefined,
+      duration: module.duration ? formatDurationFromMinutes(module.duration) : undefined,
       order: module.item_order,
       isLocked: module.is_locked,
     };
@@ -354,7 +378,7 @@ function transformCourseToLmsDetail(
           id: lesson.id,
           title: lesson.title,
           description: lesson.description || undefined,
-          duration: lesson.duration ? `${lesson.duration}` : undefined,
+          duration: lesson.duration ? formatDurationFromMinutes(lesson.duration) : undefined,
           type: (lesson.video_url ? 'video' : (lesson.content ? 'guide' : 'reading')) as 'video' | 'guide' | 'quiz' | 'workshop' | 'assignment' | 'reading',
           order: lesson.item_order,
           isLocked: lesson.is_locked,
@@ -380,7 +404,7 @@ function transformCourseToLmsDetail(
             id: lesson.id,
             title: lesson.title,
             description: lesson.description || undefined,
-            duration: lesson.duration ? `${lesson.duration}` : undefined,
+            duration: lesson.duration ? formatDurationFromMinutes(lesson.duration) : undefined,
             type: (lesson.video_url ? 'video' : (lesson.content ? 'guide' : 'reading')) as 'video' | 'guide' | 'quiz' | 'workshop' | 'assignment' | 'reading',
             order: lesson.item_order,
             isLocked: lesson.is_locked,
@@ -392,24 +416,7 @@ function transformCourseToLmsDetail(
     }
   }
 
-  // Add Final Assessment if present
-  const courseQuiz = quizzes.find(q => q.course_id === course.id && !q.lesson_id);
-  if (courseQuiz) {
-    curriculum.push({
-      id: courseQuiz.id,
-      title: 'Final Assessment',
-      description: courseQuiz.description || 'Complete the final assessment to finish the course.',
-      order: Number.MAX_SAFE_INTEGER, // Ensure it is always last
-      lessons: [{
-        id: courseQuiz.id,
-        title: courseQuiz.title,
-        description: courseQuiz.description || undefined,
-        type: 'final-assessment',
-        order: 1,
-        isLocked: true
-      }]
-    });
-  }
+
 
   // Parse FAQ from JSONB
   const faq = Array.isArray(course.faq) ? course.faq.map((item: any) => ({
@@ -425,7 +432,7 @@ function transformCourseToLmsDetail(
     provider: course.provider,
     courseCategory: course.category,
     deliveryMode: (course.delivery_mode === 'online' ? 'Online' : (course.delivery_mode === 'hybrid' ? 'Hybrid' : 'Online')),
-    duration: minutesToDuration(course.duration),
+    duration: formatDurationFromMinutes(course.duration),
     durationMinutes: course.duration, // Store actual minutes from database
     levelCode: L(course.level_code || 'L1'),
     department: parseTextToArray(course.department),
@@ -433,6 +440,7 @@ function transformCourseToLmsDetail(
     audience: parseTextToArray(course.audience) as Array<'Associate' | 'Lead'>,
     status: normalizeStatus(course.status),
     summary: course.description || course.title,
+    excerpt: course.excerpt || undefined,
     highlights: course.highlights || [],
     outcomes: course.outcomes || [],
     courseType: course.course_type || undefined,
@@ -553,6 +561,7 @@ export type LmsCard = {
   courseCategory: string;
   deliveryMode: string;
   duration: string;
+  durationMinutes?: number;
   levelCode: LevelCode;
   levelLabel: string;
   levelShortLabel: string;
@@ -560,6 +569,7 @@ export type LmsCard = {
   audience: string[];
   status: string;
   summary: string;
+  excerpt?: string;
   department: string[];
   courseType?: 'Course (Single Lesson)' | 'Course (Multi-Lessons)' | 'Course (Bundles)';
   track?: string;
@@ -589,6 +599,7 @@ export async function getLmsCourses(): Promise<LmsCard[]> {
     audience: detail.audience,
     status: detail.status,
     summary: detail.summary,
+    excerpt: detail.excerpt,
     department: detail.department,
     courseType: detail.courseType || 'Course (Single Lesson)',
     track: detail.track,

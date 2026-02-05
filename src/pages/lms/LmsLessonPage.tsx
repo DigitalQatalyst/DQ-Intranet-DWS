@@ -225,12 +225,15 @@ export const LmsLessonPage: React.FC = () => {
   }, [allLessons, lessonId]);
 
   // Check if current lesson is locked
+  // Lock logic: If is_locked is false in DB, lesson is always accessible.
+  // If is_locked is true (or undefined for backward compatibility), use sequential order.
   const isLocked = useMemo(() => {
     if (!currentLesson) return false;
-    if (currentLesson.isLocked) {
-      return !arePreviousLessonsCompleted(allLessons, currentLesson.id);
+    if (currentLesson.isLocked === false) {
+      return false; // Explicitly unlocked in DB
     }
-    return false;
+    // For true or undefined, apply sequential locking
+    return !arePreviousLessonsCompleted(allLessons, currentLesson.id);
   }, [currentLesson, allLessons]);
 
   // Get current lesson index
@@ -625,11 +628,14 @@ export const LmsLessonPage: React.FC = () => {
 
                           const isCurrent = lesson.id === lessonId;
                           const isCompleted = isLessonCompleted(lesson.id);
-                          // STRICT LOCKING: Locked if previous lessons are NOT completed.
-                          // We ignore the lesson.isLocked flag from DB if it conflicts with sequential order.
-                          const lessonIsLocked = !arePreviousLessonsCompleted(allLessons, lesson.id);
+                          // Lock logic: If is_locked is false in DB, lesson is always accessible.
+                          // If is_locked is true (or undefined for backward compatibility), use sequential order.
+                          const lessonIsLocked = lesson.isLocked === false
+                            ? false
+                            : !arePreviousLessonsCompleted(allLessons, lesson.id);
                           const canAccess = !lessonIsLocked;
                           const LessonIcon = getLessonTypeIcon(lesson.type);
+
 
                           return (
                             <button

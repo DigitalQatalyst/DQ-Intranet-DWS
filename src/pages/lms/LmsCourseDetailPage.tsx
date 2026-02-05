@@ -19,7 +19,8 @@ import {
   HelpCircle,
   Users,
   FileCheck,
-  Lock
+  Lock,
+  Library
 } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -30,14 +31,14 @@ import {
   DEFAULT_COURSE_ICON,
   resolveChipIcon
 } from '../../utils/lmsIcons';
-import { LEVELS, LOCATION_ALLOW } from '@/lms/config';
+import { SFIA_LEVELS, LOCATION_ALLOW } from '@/lms/config';
 import { formatDurationFromMinutes } from '../../utils/durationFormatter';
 import { findLearningPathsForCourse, fetchCoursesInLearningPath } from '../../services/lmsService';
 import { useQuery } from '@tanstack/react-query';
 
 const formatChips = (course: LmsDetail) => {
   try {
-    const levelLabel = LEVELS.find(level => level.code === course.levelCode)?.label;
+    const levelLabel = SFIA_LEVELS.find(level => level.code === course.levelCode)?.label;
     const chips: Array<{ key: string; label: string; iconValue?: string }> = [];
 
     const audience = course.audience || [];
@@ -112,6 +113,7 @@ export const LmsCourseDetailPage: React.FC = () => {
   // State for expanded sections in curriculum
   const [expandedCourses, setExpandedCourses] = useState<Set<string>>(new Set());
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set());
+  const [hasInitializedCurriculum, setHasInitializedCurriculum] = useState(false);
   const [renderError, setRenderError] = useState<Error | null>(null);
 
   // Fetch course data from Supabase - MUST be called before any conditional returns
@@ -143,6 +145,7 @@ export const LmsCourseDetailPage: React.FC = () => {
       setIsNavigating(true);
       setExpandedCourses(new Set());
       setExpandedTopics(new Set());
+      setHasInitializedCurriculum(false);
       setActiveTab('details'); // Reset to details tab on navigation
       setRenderError(null);
       prevSlugRef.current = slug;
@@ -205,6 +208,14 @@ export const LmsCourseDetailPage: React.FC = () => {
       console.log('[LMS Detail Page] No course data found');
     }
   }, [course]);
+
+  // Auto-expand first module when data loads
+  React.useEffect(() => {
+    if (!hasInitializedCurriculum && course?.curriculum && course.curriculum.length > 0) {
+      setExpandedCourses(new Set([course.curriculum[0].id]));
+      setHasInitializedCurriculum(true);
+    }
+  }, [course, hasInitializedCurriculum]);
 
   // Log any errors
   React.useEffect(() => {
@@ -375,7 +386,7 @@ export const LmsCourseDetailPage: React.FC = () => {
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               style={{ backgroundColor: '#030F35' }}
             >
-              Back to Learning Center
+              Back to DQ Learning Center
             </button>
           </div>
         </div>
@@ -402,7 +413,7 @@ export const LmsCourseDetailPage: React.FC = () => {
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               style={{ backgroundColor: '#030F35' }}
             >
-              Back to Learning Center
+              Back to DQ Learning Center
             </button>
           </div>
         </div>
@@ -584,8 +595,8 @@ export const LmsCourseDetailPage: React.FC = () => {
                     </h3>
                     <ul className="space-y-4">
                       {outcomes.map((outcome) => (
-                        <li key={outcome} className="flex items-start gap-4 group">
-                          <div className="mt-1 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 group-hover:scale-125 transition-transform" />
+                        <li key={outcome} className="flex items-start gap-3 group">
+                          <div className="mt-2 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 group-hover:scale-125 transition-transform" />
                           <p className="text-gray-700 leading-relaxed">{outcome}</p>
                         </li>
                       ))}
@@ -607,7 +618,9 @@ export const LmsCourseDetailPage: React.FC = () => {
                         <div>
                           <p className="text-xs text-gray-500 uppercase font-medium">Duration</p>
                           <p className="text-sm font-semibold text-gray-900">
-                            {courseStats.totalLessons} lessons
+                            {course.durationMinutes !== undefined && course.durationMinutes > 0
+                              ? formatDurationFromMinutes(course.durationMinutes)
+                              : course.duration || 'N/A'}
                           </p>
                         </div>
                       </div>
@@ -617,7 +630,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                         </div>
                         <div>
                           <p className="text-xs text-gray-500 uppercase font-medium">Level</p>
-                          <p className="text-sm font-semibold text-gray-900">{course.levelCode}</p>
+                          <p className="text-sm font-semibold text-gray-900">{SFIA_LEVELS.find(level => level.code === course.levelCode)?.label || course.levelCode}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -634,8 +647,14 @@ export const LmsCourseDetailPage: React.FC = () => {
                           <BookOpen size={24} className="text-green-600" />
                         </div>
                         <div>
-                          <p className="text-xs text-gray-500 uppercase font-medium">Lessons</p>
-                          <p className="text-sm font-semibold text-gray-900">{courseStats.totalLessons} lessons</p>
+                          <p className="text-xs text-gray-500 uppercase font-medium">
+                            {isTrack ? 'Courses' : 'Lessons'}
+                          </p>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {isTrack
+                              ? `${curriculum.length} courses`
+                              : `${courseStats.totalLessons} lessons`}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -716,7 +735,9 @@ export const LmsCourseDetailPage: React.FC = () => {
                   {curriculum && curriculum.length > 0 && (
                     <div className="flex items-center justify-start mb-2">
                       <span className="text-sm text-gray-600">
-                        This course has {courseStats.totalModules} {courseStats.totalModules === 1 ? 'module' : 'modules'} and {courseStats.totalLessons} {courseStats.totalLessons === 1 ? 'lesson' : 'lessons'}
+                        {isTrack
+                          ? `This track has ${curriculum.length} ${curriculum.length === 1 ? 'course' : 'courses'}`
+                          : `This course has ${courseStats.totalModules} ${courseStats.totalModules === 1 ? 'module' : 'modules'} and ${courseStats.totalLessons} ${courseStats.totalLessons === 1 ? 'lesson' : 'lessons'}`}
                       </span>
                     </div>
                   )}
@@ -739,7 +760,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                           }
                           moduleLessons.sort((a, b) => a.order - b.order);
 
-                          const isExpanded = expandedCourses.has(item.id) || (expandedCourses.size === 0 && curriculumIndex === 0);
+                          const isExpanded = expandedCourses.has(item.id);
 
                           const toggleExpand = () => {
                             setExpandedCourses(prev => {
@@ -750,11 +771,54 @@ export const LmsCourseDetailPage: React.FC = () => {
                             });
                           };
 
+                          if (isTrack) {
+                            return (
+                              <Link
+                                key={item.id}
+                                to={`/lms/${item.courseSlug}`}
+                                className="bg-white border border-gray-200 rounded-lg overflow-hidden block hover:border-blue-500 hover:shadow-md transition-all group"
+                              >
+                                <div className="p-4 flex items-center justify-between">
+                                  <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                      <Library size={20} />
+                                    </div>
+                                    <div>
+                                      <h3 className="font-bold text-gray-900 text-lg group-hover:text-blue-600 transition-colors">
+                                        {item.title}
+                                      </h3>
+                                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                                        <span className="font-medium text-indigo-600">
+                                          Course {curriculumIndex + 1}
+                                        </span>
+                                        {item.duration && (
+                                          <>
+                                            <span className="text-gray-300">·</span>
+                                            <div className="flex items-center gap-1">
+                                              <Clock size={12} className="text-gray-400" />
+                                              <span>{item.duration}</span>
+                                            </div>
+                                          </>
+                                        )}
+                                      </div>
+                                      {item.description && (
+                                        <p className="mt-1 text-sm text-gray-500 line-clamp-1">
+                                          {item.description}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <ChevronRightIcon size={20} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
+                                </div>
+                              </Link>
+                            );
+                          }
+
                           // Check if this is Final Assessment module
                           const isFinalAssessmentModule = moduleLessons.some(l => l.type === 'final-assessment');
 
                           return (
-                            <div key={item.id} className={`bg-white border rounded-lg overflow-hidden transition-all ${isFinalAssessmentModule ? 'border-gray-200 mt-8' : 'border-gray-200'}`}>
+                            <div key={item.id} className={`bg-white border border-gray-200 rounded-lg overflow-hidden transition-all ${isFinalAssessmentModule ? 'mt-8' : ''}`}>
                               {/* Module Header */}
                               <div
                                 className={`p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors ${isExpanded ? 'bg-gray-50' : ''}`}
@@ -768,12 +832,23 @@ export const LmsCourseDetailPage: React.FC = () => {
                                     <h3 className="font-bold text-gray-900 text-lg">
                                       {item.title}
                                     </h3>
-                                    <p className="text-sm text-gray-500">
-                                      {isFinalAssessmentModule
-                                        ? `Module ${curriculumIndex + 1}. 1 lesson`
-                                        : `Module ${curriculumIndex + 1}. ${moduleLessons.length} lessons`
-                                      }
-                                    </p>
+                                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                                      <span>
+                                        {isFinalAssessmentModule
+                                          ? `Module ${curriculumIndex + 1}. 1 lesson`
+                                          : `Module ${curriculumIndex + 1}. ${moduleLessons.length} lessons`
+                                        }
+                                      </span>
+                                      {item.duration && (
+                                        <>
+                                          <span className="text-gray-300">·</span>
+                                          <div className="flex items-center gap-1">
+                                            <Clock size={12} className="text-gray-400" />
+                                            <span>{item.duration}</span>
+                                          </div>
+                                        </>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                                 <button className="text-gray-400">
@@ -786,8 +861,11 @@ export const LmsCourseDetailPage: React.FC = () => {
                                 <div className="p-4 space-y-3 bg-white border-t border-gray-100">
                                   {moduleLessons.map((lesson, lIndex) => {
                                     const LessonIcon = getLessonTypeIcon(lesson.type);
-                                    // Dynamic Lock Check
-                                    const isLocked = !arePreviousLessonsCompleted(allFlattenedLessons, lesson.id);
+                                    // Lock logic: If is_locked is false in DB, lesson is always accessible.
+                                    // If is_locked is true (or undefined for backward compatibility), use sequential order.
+                                    const isLocked = lesson.isLocked === false
+                                      ? false
+                                      : !arePreviousLessonsCompleted(allFlattenedLessons, lesson.id);
                                     // const isCompleted = isLessonCompleted(lesson.id);
 
                                     return (
@@ -1061,15 +1139,17 @@ export const LmsCourseDetailPage: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-600">
-                    <span>Lessons</span>
+                    <span>{isTrack ? 'Courses' : 'Lessons'}</span>
                     <span className="font-medium text-gray-900">
-                      {courseStats.totalLessons} {courseStats.totalLessons === 1 ? 'lesson' : 'lessons'}
+                      {isTrack
+                        ? `${curriculum.length} ${curriculum.length === 1 ? 'course' : 'courses'}`
+                        : `${courseStats.totalLessons} ${courseStats.totalLessons === 1 ? 'lesson' : 'lessons'}`}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>Level</span>
                     <span className="font-medium text-gray-900 text-right">
-                      {LEVELS.find(level => level.code === course.levelCode)?.label || course.levelCode}
+                      {SFIA_LEVELS.find(level => level.code === course.levelCode)?.label || course.levelCode}
                     </span>
                   </div>
                   {courseStats.totalModules > 0 && (
@@ -1082,16 +1162,16 @@ export const LmsCourseDetailPage: React.FC = () => {
                   )}
                   <button
                     onClick={() => {
-                      if (firstLesson) {
+                      if (firstLesson && course.status !== 'coming-soon') {
                         navigate(`/lms/${course.slug}/lesson/${firstLesson.id}`);
                       }
                     }}
-                    disabled={!firstLesson}
-                    className={`w-full px-4 py-3 text-white font-semibold rounded-md transition-colors shadow-md ${firstLesson ? 'hover:opacity-90' : 'opacity-50 cursor-not-allowed'
+                    disabled={!firstLesson || course.status === 'coming-soon'}
+                    className={`w-full px-4 py-3 text-white font-semibold rounded-md transition-colors shadow-md ${firstLesson && course.status !== 'coming-soon' ? 'hover:opacity-90' : 'opacity-50 cursor-not-allowed'
                       }`}
-                    style={{ backgroundColor: '#030F35' }}
+                    style={{ backgroundColor: course.status === 'coming-soon' ? '#9CA3AF' : '#030F35' }}
                   >
-                    Start Course
+                    {course.status === 'coming-soon' ? 'Coming Soon' : (isTrack ? 'Enroll to Curriculum' : 'Start Course')}
                   </button>
                   <button
                     className="w-full px-4 py-2.5 font-medium bg-white border rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center"
