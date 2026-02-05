@@ -67,10 +67,9 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
         return 'HoV'
       }
       
-      // Check for GHC framework
-      // GHC includes: dq-ghc, dq-vision, dq-persona, dq-agile-*
-      if (slug === 'dq-ghc' || 
-          slug === 'dq-vision' || 
+      // Check for GHC framework (but not overview)
+      // GHC includes: dq-vision, dq-persona, dq-agile-* (excluding overview)
+      if (slug === 'dq-vision' || 
           slug === 'dq-persona' || 
           slug.includes('agile-') ||
           (subDomain.includes('ghc') && !subDomain.includes('competencies'))) {
@@ -106,7 +105,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
       // Canonical GHC element titles with numbering
       const ghcTitleBySlug: Record<string, string> = {
         'dq-ghc': 'GHC Overview',
-        'dq-vision': 'GHC 1 - Vision',
+        'dq-vision': 'GHC 1 - Vision (Purpose)',
         'dq-hov': 'GHC 2 - House of Values (HoV)',
         'dq-persona': 'GHC 3 - Personas',
         'dq-agile-tms': 'GHC 4 - Agile TMS',
@@ -143,8 +142,8 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
       const lowerTitle = rawTitle.toLowerCase()
       if (lowerTitle.includes('golden honeycomb')) return 'GHC Overview'
       
-      // Regex rename for legacy "GHC Competency N: X"
-      const ghcCompetencyMatch = rawTitle.match(/^GHC\s+Competency\s+(\d+):\s*(.+)$/i)
+      // Regex rename for legacy "GHC Competency N: X (Y)"
+      const ghcCompetencyMatch = rawTitle.match(/^GHC\s+Competency\s+(\d+):\s*(.+)/i)
       if (ghcCompetencyMatch) {
         const [, num, rest] = ghcCompetencyMatch
         return `GHC ${num} - ${rest.trim()}`
@@ -233,6 +232,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
 
   const imageUrl = imageOverrideUrl || defaultImageUrl
   const isTestimonial = ((guide.domain || '').toLowerCase().includes('testimonial')) || ((guide.guideType || '').toLowerCase().includes('testimonial'))
+  const isGhcOverview = (guide.slug || '').toLowerCase() === 'dq-ghc'
   
   // Use product description if available, otherwise use summary
   const displayDescription = productMetadata?.description || guide.summary || ''
@@ -247,7 +247,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
   }
   
   return (
-    <div className="bg-white rounded-lg shadow p-3 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col" onClick={onClick}>
+    <div className="bg-white rounded-lg shadow border border-gray-200 p-3 hover:shadow-md transition-shadow cursor-pointer h-[400px] flex flex-col" onClick={onClick}>
       {imageUrl && (
         <div className={`rounded-lg overflow-hidden mb-3 ${isBlueprint ? 'bg-slate-100' : ''}`}>
           <img 
@@ -273,7 +273,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
                 {domainLabel}
               </span>
             )}
-            {guide.guideType && !isTestimonial && !isDuplicateTag && (
+            {guide.guideType && !isTestimonial && !isDuplicateTag && !((guide.slug || '').toLowerCase() === 'dq-ghc') && (
               <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full border" style={{ backgroundColor: 'var(--dws-chip-bg)', color: 'var(--dws-chip-text)', borderColor: 'var(--dws-card-border)' }}>
                 {formatLabel(guide.guideType)}
               </span>
@@ -296,7 +296,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
         {lastUpdated && <span>{lastUpdated}</span>}
       </div>
             {/* Show author info only when provided and not a product */}
-      {(!isBlueprint && (guide.authorName || guide.authorOrg)) && (
+      {(!isBlueprint && !isGhcOverview && (guide.authorName || guide.authorOrg)) && (
         <div className="text-xs text-gray-600 mb-3">
           <span
             className="truncate"

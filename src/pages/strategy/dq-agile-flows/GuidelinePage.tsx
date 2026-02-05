@@ -192,12 +192,15 @@ function GuidelinePage() {
                             <MarkdownRenderer body={agileFlowsIntroBody} />
                           </div>
 
-                          {/* Course Highlights */}
+                          {/* Key Points */}
                           <div className="pt-4">
-                            <h6 className="text-sm font-semibold text-gray-900 mb-3">Course Highlights</h6>
+                            <h6 className="text-sm font-semibold text-gray-900 mb-3">Key Points</h6>
                             <div className="space-y-3">
                               <div className="flex items-center gap-3">
-                                <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                                <div
+                                  className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
+                                  style={{ backgroundColor: 'var(--guidelines-primary-solid, #030E31)' }}
+                                >
                                   <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                   </svg>
@@ -205,7 +208,10 @@ function GuidelinePage() {
                                 <span className="text-sm text-gray-700">Value stream mapping</span>
                               </div>
                               <div className="flex items-center gap-3">
-                                <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                                <div
+                                  className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
+                                  style={{ backgroundColor: 'var(--guidelines-primary-solid, #030E31)' }}
+                                >
                                   <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                   </svg>
@@ -213,7 +219,10 @@ function GuidelinePage() {
                                 <span className="text-sm text-gray-700">Flow optimization</span>
                               </div>
                               <div className="flex items-center gap-3">
-                                <div className="w-4 h-4 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                                <div
+                                  className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
+                                  style={{ backgroundColor: 'var(--guidelines-primary-solid, #030E31)' }}
+                                >
                                   <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                   </svg>
@@ -227,7 +236,7 @@ function GuidelinePage() {
                         {/* GHC Link Button - Only show on Overview tab */}
                         <div className="mt-12 text-right">
                           <Link
-                            to="/marketplace/guides/dq-ghc"
+                            to={`/marketplace/guides/${currentSlug}/details`}
                             className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-lg transition-colors"
                             style={{ 
                               backgroundColor: '#030E31'
@@ -239,7 +248,7 @@ function GuidelinePage() {
                               e.currentTarget.style.backgroundColor = '#030E31'
                             }}
                           >
-                            <span>View Full GHC Framework</span>
+                            <span>View Details</span>
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
@@ -305,66 +314,7 @@ function GuidelinePage() {
                   </div>
                 </div>
 
-                {/* Minimal Course Summary - Right Side (1 column) */}
-                <div className="bg-gray-50 p-4">
-                  <h3 className="text-lg font-bold text-gray-900 mb-3">Course Summary</h3>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Clock size={16} className="text-cyan-600" />
-                      <span className="text-xs font-semibold text-gray-900">Duration:</span>
-                      <span className="text-xs text-gray-600">Self-paced</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <PlayCircle size={16} className="text-cyan-600" />
-                      <span className="text-xs font-semibold text-gray-900">Format:</span>
-                      <span className="text-xs text-gray-600">Online</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <BookOpen size={16} className="text-cyan-600" />
-                      <span className="text-xs font-semibold text-gray-900">Level:</span>
-                      <span className="text-xs text-gray-600">Beginner</span>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-3 mt-4">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-2">What You'll Learn</h4>
-                    <ul className="space-y-1 text-xs text-gray-600">
-                      <li className="flex items-start">
-                        <span className="text-cyan-600 mr-1">•</span>
-                        Understanding Agile Flows framework
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-cyan-600 mr-1">•</span>
-                        Value stream mapping
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-cyan-600 mr-1">•</span>
-                        Flow optimization
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-3 mt-4">
-                    <Link
-                      to={`/marketplace/guides/${currentSlug}/details`}
-                      className="w-full text-white text-sm font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-center inline-block text-center"
-                      style={{ backgroundColor: '#030E31' }}
-                      onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
-                      onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
-                    >
-                      <span>View Details</span>
-                      <svg 
-                        className="w-3 h-3 ml-1" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </Link>
-                  </div>
-                </div>
+                {/* Course summary sidebar removed per request */}
               </div>
             </div>
           </div>
@@ -377,3 +327,10 @@ function GuidelinePage() {
 }
 
 export default GuidelinePage
+
+
+
+
+
+
+

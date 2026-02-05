@@ -184,19 +184,20 @@ const STRATEGY_UNITS: Facet[] = [
 ]
 
 const STRATEGY_FRAMEWORKS: Facet[] = [
-  { id: 'ghc1', name: 'GHC 1 - Vision' },
-  { id: 'ghc2', name: 'GHC 2 - House of Values (HoV)' },
-  { id: 'ghc3', name: 'GHC 3 - Personas' },
-  { id: 'ghc4', name: 'GHC 4 - Agile TMS' },
-  { id: 'ghc5', name: 'GHC 5 - Agile SoS' },
-  { id: 'ghc6', name: 'GHC 6 - Agile Flows' },
-  { id: 'ghc7', name: 'GHC 7 - Agile 6xD (Products)' },
+  { id: 'ghc1', name: 'Vision' },
+  { id: 'ghc2', name: 'House of Values (HoV)' },
+  { id: 'ghc3', name: 'Personas' },
+  { id: 'ghc4', name: 'Agile TMS' },
+  { id: 'ghc5', name: 'Agile SoS' },
+  { id: 'ghc6', name: 'Agile Flows' },
+  { id: 'ghc7', name: 'Agile 6xD (Products)' },
 ]
 
 // All possible filter categories - default to ALL collapsed
 const ALL_CATEGORIES = [
   'guide_type', 'sub_domain', 'unit', 'location', 'testimonial_category',
   'product_type', 'product_stage', 'guidelines_category',
+  'categorization', 'attachments',
   'strategy_framework',
   'glossary_knowledge_system', 'glossary_ghc_dimension', 'glossary_6xd_perspective', 'glossary_letter',
   'faq_category'
@@ -320,6 +321,7 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
     return new Set(fromUrl.length > 0 ? fromUrl : ALL_CATEGORIES)
   }, [query])
   const [collapsedSet, setCollapsedSet] = useState<Set<string>>(initialCollapsed)
+  const [policySet2Collapsed, setPolicySet2Collapsed] = useState(true)
   
   // Keep local collapsed state in sync if URL changes from outside
   useEffect(() => {
@@ -531,8 +533,74 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
         </>
       ) : isGuidelinesSelected ? (
         <>
-          <Section idPrefix={instanceId} title="Category" category="guidelines_category" collapsed={collapsedSet.has('guidelines_category')} onToggle={toggleCollapsed}>
-            <CheckboxList idPrefix={instanceId} name="guidelines_category" options={GUIDELINES_CATEGORIES} query={query} onChange={onChange} />
+          <Section
+            idPrefix={instanceId}
+            title="Categorization"
+            category="categorization"
+            collapsed={collapsedSet.has('categorization')}
+            onToggle={toggleCollapsed}
+          >
+            <CheckboxList
+              idPrefix={instanceId}
+              name="categorization"
+              options={[
+                { id: 'policy-set-1a-opg', name: 'Policy Set 1a – OPG' },
+                { id: 'policy-set-1b-ppp', name: 'Policy Set 1b – PPP' },
+              ]}
+              query={query}
+              onChange={onChange}
+            />
+            <div className="mt-3 border-t border-gray-100 pt-3">
+              <button
+                type="button"
+                className="w-full flex items-center justify-between text-left text-sm font-semibold text-gray-900"
+                onClick={() => setPolicySet2Collapsed(prev => !prev)}
+                aria-expanded={!policySet2Collapsed}
+              >
+                <span>Policy Set 02</span>
+                {policySet2Collapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+              </button>
+              {!policySet2Collapsed && (
+                <div className="mt-2">
+                  <CheckboxList
+                    idPrefix={`${instanceId}-policy-set-02`}
+                    name="categorization"
+                    options={[
+                      { id: 'policy-set-2a-vision', name: '2A - Vision' },
+                      { id: 'policy-set-2b-culture', name: '2B - Culture' },
+                      { id: 'policy-set-2c-persona', name: '2C - Persona' },
+                      { id: 'policy-set-2d-task', name: '2D - Task' },
+                      { id: 'policy-set-2e-govern', name: '2E - Govern' },
+                      { id: 'policy-set-2f-flow', name: '2F - Flow' },
+                      { id: 'policy-set-2g-product', name: '2G - Product' },
+                    ]}
+                    query={query}
+                    onChange={onChange}
+                  />
+                </div>
+              )}
+            </div>
+          </Section>
+          <Section
+            idPrefix={instanceId}
+            title="Attachments"
+            category="attachments"
+            collapsed={collapsedSet.has('attachments')}
+            onToggle={toggleCollapsed}
+          >
+            <CheckboxList
+              idPrefix={instanceId}
+              name="attachments"
+              options={[
+                { id: 'guidelines', name: 'Guidelines' },
+                { id: 'processes', name: 'Processes' },
+                { id: 'demos', name: 'Demos' },
+                { id: 'procedures', name: 'Procedures' },
+                { id: 'checklists', name: 'Checklists' },
+              ]}
+              query={query}
+              onChange={onChange}
+            />
           </Section>
         </>
       ) : isResourcesSelected ? (
@@ -562,18 +630,10 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
           <CheckboxList idPrefix={instanceId} name="faq_category" options={FAQ_CATEGORIES} query={query} onChange={onChange} />
         </Section>
       )}
-      {!isGlossarySelected && !isBlueprintSelected && !isFAQsSelected && !isTestimonialsSelected && !isStrategySelected && (
-        <>
-          {isGuidelinesSelected ? (
-            <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
-              <CheckboxList idPrefix={instanceId} name="unit" options={GUIDELINES_UNITS} query={query} onChange={onChange} />
-            </Section>
-          ) : (
-            <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
-              <CheckboxList idPrefix={instanceId} name="unit" options={facets.unit || []} query={query} onChange={onChange} />
-            </Section>
-          )}
-        </>
+      {!isGlossarySelected && !isBlueprintSelected && !isFAQsSelected && !isTestimonialsSelected && !isStrategySelected && !isGuidelinesSelected && (
+        <Section idPrefix={instanceId} title="Units" category="unit" collapsed={collapsedSet.has('unit')} onToggle={toggleCollapsed}>
+          <CheckboxList idPrefix={instanceId} name="unit" options={facets.unit || []} query={query} onChange={onChange} />
+        </Section>
       )}
       {isTestimonialsSelected && (
       <Section idPrefix={instanceId} title="Story Type" category="testimonial_category" collapsed={collapsedSet.has('testimonial_category')} onToggle={toggleCollapsed}>
