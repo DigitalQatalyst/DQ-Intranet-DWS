@@ -173,10 +173,22 @@ export function GuidelineSection({ id, title, children }: GuidelineSectionProps)
         return
       }
       
-      // Regular content
+      // Regular content - handle inline markdown
+      const processInlineMarkdown = (text: string) => {
+        // Handle bold text **text**
+        const parts = text.split(/(\*\*[^*]+\*\*)/g)
+        return parts.map((part, idx) => {
+          if (part.startsWith('**') && part.endsWith('**')) {
+            const boldText = part.slice(2, -2)
+            return <strong key={idx} className="text-gray-900 font-semibold">{boldText}</strong>
+          }
+          return part
+        })
+      }
+
       enhancedChildren.push(
         <p key={index} className="mb-4 text-gray-700 text-base leading-relaxed">
-          {content}
+          {processInlineMarkdown(content)}
         </p>
       )
     } else if (!inList) {

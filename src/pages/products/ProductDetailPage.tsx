@@ -251,7 +251,7 @@ function ProductDetailPage() {
                     className="inline-flex items-center justify-center px-6 py-3 rounded-lg transition-colors font-medium"
                     style={{ backgroundColor: '#030F35', color: '#FFFFFF' }}
                   >
-                    Explore TMaaS
+                    Explore Platform
                     <ExternalLink className="ml-2 h-4 w-4" />
                   </a>
                   <Link

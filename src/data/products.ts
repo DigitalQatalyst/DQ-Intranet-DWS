@@ -298,21 +298,21 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
   'dtma-digital-transformation-management-academy': {
     slug: 'dtma-digital-transformation-management-academy',
     name: 'DTMA - Digital Transformation Management Academy',
-    tagline: 'Upskill teams with tailored training to become digital leaders.',
-    description: 'An academy that upskills teams with tailored training, certifications, and innovative tools.',
+    tagline: 'Structured learning for digital transformation leadership',
+    description: 'A comprehensive academy designed to build digital transformation capabilities across organizations through structured learning paths and practical application.',
     productType: 'DTMA',
     productStage: 'Live',
-    whatItIs: 'A training academy offering role-based paths, labs, and certifications for transformation practitioners.',
-    whyItMatters: 'It builds internal capacity so transformation sticks beyond initial delivery.',
+    whatItIs: 'A curated learning platform that helps professionals and leaders understand digital transformation in organizational context.',
+    whyItMatters: 'It closes the sense-making and translation gap between digital exposure and real organizational impact.',
     includes: [
-      'Specialized training for every level',
-      'AI-enabled learning tools',
-      'Certification and coaching tracks'
+      'Context-first learning approach',
+      'Structured sense-making frameworks',
+      'Application-oriented courses'
     ],
     usedIn: [
-      'Internal capability building',
-      'Client enablement and onboarding',
-      'Partner and delivery readiness'
+      'Professional development programs',
+      'Leadership transformation initiatives',
+      'Organizational change management'
     ],
     imageUrl: '/images/DTMA.jpg',
     overview: 'DTMA is designed to upskill teams with tailored training to become digital leaders with expertise, certifications, and innovative tools.',
@@ -335,7 +335,296 @@ export const PRODUCT_DETAILS: Record<string, ProductDetail> = {
         'Offer curated curricula for client sponsors and delivery teams.',
         'Provide ongoing coaching hours tied to transformation milestones.'
       ]
-    }
+    },
+    documentSections: [
+      {
+        id: 'introduction-real-challenge',
+        title: 'Introduction: The Real Challenge of Digital Transformation',
+        body: [
+          'Digital technologies and artificial intelligence are now embedded in almost every organization. Companies are investing heavily in platforms, data, automation, and AI. At the same time, professionals are constantly exposed to new tools, trends, and training programs.',
+          '',
+          'Yet despite all this activity, many digital transformation efforts underdeliver.',
+          '',
+          'PROBLEM:Common symptoms:',
+          'LIST_START',
+          'Teams struggle to align on priorities',
+          'Leaders struggle to explain what "being digital" truly means',
+          'Professionals feel busy, but not necessarily clearer',
+          'LIST_END',
+          '',
+          'This problem is not caused by a lack of technology. It is caused by a lack of shared understanding.',
+          '',
+          'Most organizations and professionals do not primarily suffer from a skills gap. They suffer from a **sense making gap**.',
+          '',
+          'People are exposed to technology, but they often lack clarity about:',
+          'LIST_START',
+          'Where digital change is heading',
+          'What a digital organization looks like',
+          'What changes for workers',
+          'How everyday decisions connect to the bigger picture',
+          'LIST_END',
+          '',
+          'KEY_INSIGHT:DTMA exists to close this gap.'
+        ]
+      },
+      {
+        id: 'core-idea-behind-dtma',
+        title: 'The Core Idea Behind DTMA',
+        body: [
+          'DTMA starts from a simple belief:',
+          '',
+          'HIGHLIGHT:Before people can transform organizations, they must first understand the environment they are operating in.',
+          '',
+          'This means DTMA prioritizes:',
+          'LIST_START',
+          'Understanding before skills',
+          'Context before tools',
+          'Meaning before methods',
+          'LIST_END',
+          '',
+          'Only once people can make sense of digital and AI in context does it become valuable to discuss tools, techniques, and execution.'
+        ]
+      },
+      {
+        id: 'what-is-dtma',
+        title: 'What Is DTMA?',
+        body: [
+          'HIGHLIGHT:The Digital Transformation Management Academy (DTMA) is a curated learning platform that helps professionals and leaders:',
+          '',
+          'LIST_START',
+          'Understand what digital and AI mean in an organizational context',
+          'Build a shared mental model of the digital economy',
+          'Develop a shared language across teams',
+          'Translate understanding into practical decisions and actions',
+          'LIST_END',
+          '',
+          'DTMA is not a library of random courses.',
+          '',
+          'It is a guided learning environment designed to move people through a clear progression:',
+          '',
+          'HIGHLIGHT:Exposure → Understanding → Application',
+          '',
+          'So that learning leads to real organizational impact.'
+        ]
+      },
+      {
+        id: 'problem-dtma-solves',
+        title: 'The Problem DTMA Solves',
+        body: [
+          'Today, digital and AI content is abundant. Frameworks are plentiful. Tools evolve rapidly.',
+          '',
+          'However:',
+          'LIST_START',
+          'Understanding is fragmented',
+          'Learning is often theoretical',
+          'Application is inconsistent',
+          'LIST_END',
+          '',
+          'CONSEQUENCE:As a result:',
+          'LIST_START',
+          'Professionals struggle to identify what truly matters',
+          'Leaders struggle to align teams around a common direction',
+          'Knowledge remains abstract instead of operational',
+          'Digital initiatives become tool driven rather than purpose driven',
+          'LIST_END',
+          '',
+          'This is not mainly a training problem. It is a **sense making and translation problem**.',
+          '',
+          'KEY_INSIGHT:DTMA addresses this by providing structured, context first learning that connects understanding directly to real work.'
+        ]
+      },
+      {
+        id: 'what-makes-dtma-different',
+        title: 'What Makes DTMA Different',
+        body: [
+          'DTMA is built on three foundational principles:',
+          '',
+          'HIGHLIGHT:Context Before Tools',
+          'Learners first understand the environment they are operating in the digital economy, changing organizational models, and evolving work patterns before engaging with specific technologies.',
+          '',
+          'HIGHLIGHT:Structured Sense Making',
+          'Learning is organized as coherent paths that progressively build understanding, rather than isolated standalone topics.',
+          '',
+          'HIGHLIGHT:Application Oriented Learning',
+          'Every concept is connected to real organizational situations, practical decisions, and everyday work.',
+          '',
+          'KEY_INSIGHT:DTMA helps people think clearly, so they can act effectively.'
+        ]
+      },
+      {
+        id: 'what-does-6xd-mean',
+        title: 'What Does 6XD Mean?',
+        body: [
+          '6XD stands for Six Dimensions of Digital Transformation.',
+          '',
+          'It expresses a simple idea:',
+          '',
+          'HIGHLIGHT:Digital transformation is not one change. It is a set of connected changes happening across multiple dimensions of an organization at the same time.',
+          '',
+          'Most discussions about digital transformation focus mainly on technology. DTMA takes a broader view.',
+          '',
+          'DTMA recognizes that successful digital transformation requires coordinated change across:',
+          'LIST_START',
+          'The economic environment organizations operate in',
+          'How organizations are structured',
+          'How value is created and delivered',
+          'How change is managed',
+          'How people work',
+          'How technology enables all of the above',
+          'LIST_END',
+          '',
+          'KEY_INSIGHT:The "6" refers to six dimensions. The "X" represents transformation. The "D" represents digital.',
+          '',
+          'Rather than treating 6XD as something to memorize, DTMA uses it as a thinking structure that helps learners see the full picture.'
+        ]
+      },
+      {
+        id: 'how-dtma-structures-understanding',
+        title: 'How DTMA Structures Understanding: The 6XD Perspective',
+        body: [
+          'DTMA structures learning around six connected perspectives. These perspectives act as orientation lenses that help learners understand how organizations actually change in a digital economy.',
+          '',
+          'Together, they help answer:',
+          'LIST_START',
+          'What is happening around organizations?',
+          'What must organizations become?',
+          'How do they move there?',
+          'What changes for workers?',
+          'What role does technology play?',
+          'LIST_END',
+          '',
+          'HIGHLIGHT:XD 1: Digital Economy 4.0',
+          'Focuses on understanding the broader economic environment shaped by data, platforms, ecosystems, and AI.',
+          'Learners explore how value is created today, why traditional business models are under pressure, and how competition is changing.',
+          'KEY_INSIGHT:Answers: What world are organizations operating in?',
+          '',
+          'HIGHLIGHT:XD 2: Digital Cognitive Organizations (DCO)',
+          'Focuses on how organizations must be re-imagined to operate effectively in a digital economy.',
+          'Learners explore organizational models, decision making structures, and operating principles.',
+          'KEY_INSIGHT:Answers: What does a digital organization look like?',
+          '',
+          'HIGHLIGHT:XD 3: Digital Business Platforms (DBP)',
+          'Focuses on how organizations deliver value through digital platforms.',
+          'Learners explore platform based operating models and how platforms integrate processes, data, and services.',
+          'KEY_INSIGHT:Answers: How is value delivered digitally?',
+          '',
+          'HIGHLIGHT:XD 4: Digital Transformation 2.0 (DT2.0)',
+          'Focuses on how organizations move from today\'s state toward future digital states.',
+          'Learners explore transformation journeys, change dynamics, and prioritization.',
+          'KEY_INSIGHT:Answers: How do we move from here to there?',
+          '',
+          'HIGHLIGHT:XD 5: Digital Workers & Digital Workspaces',
+          'Focuses on how roles, skills, collaboration, and ways of working evolve.',
+          'Learners explore new expectations of workers, human-AI collaboration, and digital collaboration environments.',
+          'KEY_INSIGHT:Answers: What changes for people?',
+          '',
+          'HIGHLIGHT:XD 6: Digital Accelerators (Tools)',
+          'Focuses on how technologies support all other dimensions.',
+          'Learners explore AI, data, cloud, and automation as enablers of organizational change not as ends in themselves.',
+          'KEY_INSIGHT:Answers: How does technology enable transformation?'
+        ]
+      },
+      {
+        id: 'how-courses-fit',
+        title: 'How Courses Fit Into This Structure',
+        body: [
+          'Every DTMA course clearly anchors itself within one or more of these perspectives.',
+          '',
+          'This ensures learners always understand:',
+          'LIST_START',
+          'Where they are in the bigger picture',
+          'Why a course matters',
+          'How it connects to other learning',
+          'LIST_END',
+          '',
+          'KEY_INSIGHT:Learning becomes cumulative, not fragmented.'
+        ]
+      },
+      {
+        id: 'dtma-learning-experience',
+        title: 'DTMA\'s Learning Experience',
+        body: [
+          'DTMA combines structure with flexibility.',
+          '',
+          'Learners follow guided learning paths, engage with modular courses, and work through practical, applied content.',
+          '',
+          'HIGHLIGHT:The goal is not awareness. The goal is capability building.'
+        ]
+      },
+      {
+        id: 'who-dtma-is-for',
+        title: 'Who DTMA Is For',
+        body: [
+          'DTMA supports:',
+          '',
+          'LIST_START',
+          'Digital Workers',
+          'Digital Leaders and Executives',
+          'Transformation Practitioners and Architects',
+          'LIST_END',
+          '',
+          'All share one need: to make sense of digital change and act with clarity.'
+        ]
+      },
+      {
+        id: 'benefits',
+        title: 'Benefits',
+        body: [
+          'HIGHLIGHT:For individuals: DTMA builds understanding, confidence, and career resilience.',
+          '',
+          'HIGHLIGHT:For organizations: DTMA creates shared language, stronger alignment, and better execution.'
+        ]
+      },
+      {
+        id: 'dtma-role-in-transformation',
+        title: 'DTMA\'s Role in Digital Transformation',
+        body: [
+          'DTMA does not replace transformation programs. DTMA strengthens them.',
+          '',
+          'By improving how people understand digital change, DTMA improves:',
+          'LIST_START',
+          'How strategies are interpreted',
+          'How initiatives are designed',
+          'How technologies are adopted',
+          'How people collaborate',
+          'LIST_END',
+          '',
+          'KEY_INSIGHT:Better understanding leads to better transformation.'
+        ]
+      },
+      {
+        id: 'why-dtma-exists',
+        title: 'Why DTMA Exists',
+        body: [
+          'DTMA exists to answer two fundamental questions:',
+          '',
+          'HIGHLIGHT:What does it mean to be a digital organization?',
+          '',
+          'HIGHLIGHT:What does it mean to be a digital worker?',
+          '',
+          'Everything inside DTMA is built around helping people find clear, practical answers to these questions.'
+        ]
+      },
+      {
+        id: 'start-learning-journey',
+        title: 'Start Your Learning Journey Today',
+        body: [
+          'DTMA changes the question from:',
+          '',
+          '"What course should I take next?" to "How do I truly understand digital and AI, and apply it at work?"',
+          '',
+          'Whether you are navigating change in your role, leading teams through uncertainty, or supporting organizational transformation, DTMA gives you the clarity, structure, and context needed to act with confidence in the digital economy.',
+          '',
+          'You don\'t need more fragmented content. You need a way to make sense of what matters and translate it into real decisions and outcomes.',
+          '',
+          'Start with understanding.',
+          'Build shared ways of thinking.',
+          'Apply learning where it counts.',
+          '',
+          'KEY_INSIGHT:Learn with clarity. Apply with confidence. Transform with purpose.'
+        ]
+      }
+    ]
   },
   'dtmb': {
     slug: 'dtmb',
