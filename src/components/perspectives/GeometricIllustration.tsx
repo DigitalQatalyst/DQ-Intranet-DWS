@@ -31,14 +31,14 @@ function IllustrationEconomy() {
           fill="currentColor"
           fillOpacity="0.14"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="2.5"
         />
       ))}
       <path
         d="M24 44 H216"
         stroke="currentColor"
         strokeOpacity="0.16"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeDasharray="6 8"
       />
@@ -52,7 +52,7 @@ function IllustrationCognitive() {
       <path
         d="M60 60 L120 34 L180 60 L152 112 L88 112 Z"
         stroke="currentColor"
-        strokeWidth="2.5"
+        strokeWidth="3"
         strokeLinejoin="round"
         fill="currentColor"
         fillOpacity="0.08"
@@ -72,21 +72,21 @@ function IllustrationCognitive() {
           fill="currentColor"
           fillOpacity="0.12"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="2.5"
         />
       ))}
       <path
         d="M40 124 C72 92, 96 92, 120 124"
         stroke="currentColor"
         strokeOpacity="0.22"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
       />
       <path
         d="M120 124 C144 92, 168 92, 200 124"
         stroke="currentColor"
         strokeOpacity="0.22"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
       />
     </g>
@@ -113,21 +113,21 @@ function IllustrationPlatforms() {
           fillOpacity="0.06"
           stroke="currentColor"
           strokeOpacity="0.9"
-          strokeWidth="2"
+          strokeWidth="2.5"
         />
       ))}
       <path
         d="M40 118 H222"
         stroke="currentColor"
         strokeOpacity="0.16"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
       />
       <path
         d="M62 118 V134 M200 118 V134"
         stroke="currentColor"
         strokeOpacity="0.16"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
       />
     </g>
@@ -150,7 +150,7 @@ function IllustrationTransformation() {
         fill="currentColor"
         fillOpacity="0.14"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="2.5"
       />
       <circle
         cx="194"
@@ -159,19 +159,19 @@ function IllustrationTransformation() {
         fill="currentColor"
         fillOpacity="0.14"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="2.5"
       />
       <path
         d="M194 108 C194 124, 182 136, 166 136 H130"
         stroke="currentColor"
         strokeOpacity="0.24"
-        strokeWidth="2.5"
+        strokeWidth="3"
         strokeLinecap="round"
       />
       <path
         d="M130 136 L142 126 M130 136 L142 146"
         stroke="currentColor"
-        strokeWidth="2.5"
+        strokeWidth="3"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -191,10 +191,10 @@ function IllustrationWorkspace() {
         fill="currentColor"
         fillOpacity="0.06"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="2.5"
       />
-      <path d="M60 64 H188" stroke="currentColor" strokeOpacity="0.18" strokeWidth="2" strokeLinecap="round" />
-      <path d="M60 88 H152" stroke="currentColor" strokeOpacity="0.18" strokeWidth="2" strokeLinecap="round" />
+      <path d="M60 64 H188" stroke="currentColor" strokeOpacity="0.18" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M60 88 H152" stroke="currentColor" strokeOpacity="0.18" strokeWidth="2.5" strokeLinecap="round" />
       <circle
         cx="176"
         cy="94"
@@ -202,9 +202,9 @@ function IllustrationWorkspace() {
         fill="currentColor"
         fillOpacity="0.12"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="2.5"
       />
-      <path d="M168 110 C172 104, 180 104, 184 110" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M168 110 C172 104, 180 104, 184 110" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
     </g>
   );
 }
@@ -217,21 +217,21 @@ function IllustrationAccelerators() {
         fill="currentColor"
         fillOpacity="0.10"
         stroke="currentColor"
-        strokeWidth="2.5"
+        strokeWidth="3"
         strokeLinejoin="round"
       />
       <path
         d="M52 124 H88"
         stroke="currentColor"
         strokeOpacity="0.18"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
       />
       <path
         d="M172 124 H208"
         stroke="currentColor"
         strokeOpacity="0.18"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
       />
     </g>
@@ -252,4 +252,3 @@ export default function GeometricIllustration({ type, className }: GeometricIllu
     </svg>
   );
 }
-
