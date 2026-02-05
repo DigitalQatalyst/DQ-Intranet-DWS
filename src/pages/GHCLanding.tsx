@@ -45,6 +45,8 @@ interface CompetencyCard {
   title: string;
   lensLine1?: string;
   lensLine2?: string;
+  executionQuestion?: string;
+  executionLens?: string;
   story: string;
   problem: string;
   response: string;
@@ -445,6 +447,7 @@ type LandingOverrides = {
   responsesIntro?: string;
   responsesTitleFontSize?: string;
   responsesIntroFontSize?: string;
+  responsesSequential?: boolean;
   responseCards?: CompetencyCard[];
   responseTags?: string[];
   bottomCTA?: string;
@@ -504,6 +507,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   const responsesIntro =
     overrides?.responsesIntro ??
     'Each exists because something in traditional work stopped working. Problem → response.';
+  const responsesSequential = overrides?.responsesSequential ?? false;
   const bottomCTA = overrides?.bottomCTA ?? 'Explore all Seven Responses together';
   const finalHeadline = overrides?.finalHeadline ?? 'Where the Golden Honeycomb becomes real';
   const finalSubtitle =
@@ -528,35 +532,52 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   }, []);
 
   const scrollToNext = useCallback(() => {
+    const nextIndex = Math.min(carouselIndex + 1, responseCards.length - 1);
+
+    if (responsesSequential) {
+      setCarouselIndex(nextIndex);
+      return;
+    }
+
     if (!carouselRef.current) return;
-    const cardWidth = carouselRef.current.scrollWidth / COMPETENCY_CARDS.length;
-    const nextIndex = Math.min(carouselIndex + 1, COMPETENCY_CARDS.length - 1);
+    const cardWidth = carouselRef.current.scrollWidth / responseCards.length;
     carouselRef.current.scrollTo({ left: nextIndex * cardWidth, behavior: 'smooth' });
     setCarouselIndex(nextIndex);
-  }, [carouselIndex]);
+  }, [carouselIndex, responseCards.length, responsesSequential]);
 
   const scrollToPrev = useCallback(() => {
-    if (!carouselRef.current) return;
-    const cardWidth = carouselRef.current.scrollWidth / COMPETENCY_CARDS.length;
     const nextIndex = Math.max(carouselIndex - 1, 0);
+
+    if (responsesSequential) {
+      setCarouselIndex(nextIndex);
+      return;
+    }
+
+    if (!carouselRef.current) return;
+    const cardWidth = carouselRef.current.scrollWidth / responseCards.length;
     carouselRef.current.scrollTo({ left: nextIndex * cardWidth, behavior: 'smooth' });
     setCarouselIndex(nextIndex);
-  }, [carouselIndex]);
+  }, [carouselIndex, responseCards.length, responsesSequential]);
 
   const handleCarouselScroll = useCallback(() => {
+    if (responsesSequential) return;
     if (!carouselRef.current) return;
     const { scrollLeft, scrollWidth } = carouselRef.current;
-    const cardWidth = scrollWidth / COMPETENCY_CARDS.length;
+    const cardWidth = scrollWidth / responseCards.length;
     const index = Math.round(scrollLeft / cardWidth);
-    setCarouselIndex(Math.min(index, COMPETENCY_CARDS.length - 1));
-  }, []);
+    setCarouselIndex(Math.min(index, responseCards.length - 1));
+  }, [responseCards.length, responsesSequential]);
 
   const goToSlide = useCallback((index: number) => {
+    if (responsesSequential) {
+      setCarouselIndex(Math.min(Math.max(index, 0), responseCards.length - 1));
+      return;
+    }
     if (!carouselRef.current) return;
-    const cardWidth = carouselRef.current.scrollWidth / COMPETENCY_CARDS.length;
+    const cardWidth = carouselRef.current.scrollWidth / responseCards.length;
     carouselRef.current.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
     setCarouselIndex(index);
-  }, []);
+  }, [responseCards.length, responsesSequential]);
 
   const renderHeroHeadline = () => {
     const baseStyle = {
@@ -754,6 +775,7 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
   const foundationCTA = content?.foundationCTA ?? 'Read the full GHC storybook';
   const foundationCTATo =
     content?.foundationCTATo ?? 'https://preview.shorthand.com/Pg0KQCF1Rp904ao7';
+  const isTwoCardLayout = foundationCards.length === 2;
 
   return (
     <section id="ghc-what" ref={ref} className="py-20 md:py-28 bg-[#f0f6ff]">
@@ -797,7 +819,7 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
         </motion.div>
 
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-14 max-w-6xl mx-auto"
+          className={`grid grid-cols-1 ${isTwoCardLayout ? 'md:grid-cols-2 lg:grid-cols-2 max-w-5xl' : 'md:grid-cols-3 max-w-6xl'} gap-8 mt-14 mx-auto`}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
           variants={containerVariants}
@@ -885,6 +907,7 @@ function SectionCarousel({
     'Each exists because something in traditional work stopped working. Problem → response.';
   const responsesTitleFontSize = content?.responsesTitleFontSize;
   const responsesIntroFontSize = content?.responsesIntroFontSize;
+  const responsesSequential = content?.responsesSequential ?? false;
   const responseTags =
     content?.responseTags ??
     ['Vision', 'House of Values', 'Structure', 'Ways of Working', 'Technology', 'Capability', 'Leadership'];
@@ -899,6 +922,128 @@ function SectionCarousel({
     setActiveTag(index);
     onDotClick(index);
   };
+
+  if (responsesSequential) {
+    const total = responseCards.length;
+    const current = Math.min(Math.max(carouselIndex, 0), Math.max(total - 1, 0));
+    const activeCard = responseCards[current];
+
+    return (
+      <section
+        id="ghc-carousel"
+        ref={ref}
+        className="relative py-24 bg-white"
+      >
+        <div className="container mx-auto px-4 md:px-6 lg:px-10">
+          <div className="mx-auto w-full max-w-6xl">
+            {/* Minimal header (system-level) */}
+            <div className="max-w-3xl">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur">
+                THE FRAMEWORK
+              </span>
+              <h2
+                className="ghc-font-display text-4xl md:text-5xl font-semibold text-[#131e42] mt-4"
+                style={{
+                  whiteSpace: 'normal',
+                  fontSize: responsesTitleFontSize ?? 'clamp(32px, 4.2vw, 56px)',
+                  lineHeight: 1.05,
+                }}
+              >
+                {responsesTitle}
+              </h2>
+              <p
+                className="text-[#4a5678] mt-3 text-lg md:text-xl"
+                style={{
+                  whiteSpace: 'normal',
+                  fontSize: responsesIntroFontSize ?? 'clamp(15px, 2.2vw, 20px)',
+                  lineHeight: 1.2,
+                }}
+              >
+                {responsesIntro}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-[35%_65%] gap-10 lg:gap-12 items-start mt-10">
+              {/* Learning rail */}
+              <aside className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold tracking-[0.18em] uppercase text-[#6b7390]">
+                    Perspective {current + 1} of {total}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={onPrev}
+                      className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
+                      aria-label="Previous perspective"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onNext}
+                      className="w-11 h-11 rounded-full bg-white/95 backdrop-blur border border-[#dce5ff] shadow-lg flex items-center justify-center text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors"
+                      aria-label="Next perspective"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+
+                <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42] leading-tight">
+                  {activeCard?.executionQuestion ?? activeCard?.lensLine1 ?? activeCard?.problem}
+                </h3>
+
+                {/* Perspective list (navigation, not content) */}
+                <ol className="space-y-2" aria-label="Perspective sequence">
+                  {responseCards.map((card, i) => {
+                    const isActive = i === current;
+                    const number = String(i + 1).padStart(2, '0');
+                    return (
+                      <li
+                        key={card.id}
+                        className={`pl-4 border-l-2 ${isActive ? 'border-[#e1513b]' : 'border-transparent'}`}
+                        aria-current={isActive ? 'step' : undefined}
+                      >
+                        <div className="flex items-baseline gap-3">
+                          <span
+                            className={`text-xs font-semibold tracking-[0.18em] ${
+                              isActive ? 'text-[#131e42]' : 'text-[#6b7390]'
+                            }`}
+                          >
+                            {number}
+                          </span>
+                          <span className={`${isActive ? 'text-[#131e42] font-semibold' : 'text-[#6b7390]'} text-sm`}>
+                            {card.title}
+                          </span>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </aside>
+
+              {/* Active perspective card */}
+              <div>
+                {activeCard ? <CompetencyCard card={activeCard} variant="stage" /> : null}
+              </div>
+            </div>
+
+            <div className="text-center mt-10">
+              <button
+                type="button"
+                onClick={onExploreMarketplace}
+                className="px-7 py-3.5 rounded-full font-semibold border border-[#dce5ff] bg-white text-[#131e42] hover:bg-[#f0f6ff] hover:text-[#e1513b] transition-colors inline-flex items-center gap-2 shadow-sm"
+              >
+                {bottomCTA}
+                <ArrowRight className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -1043,17 +1188,21 @@ function SectionCarousel({
 
 interface CompetencyCardProps {
   card: CompetencyCard;
+  variant?: 'default' | 'stage';
 }
 
-function CompetencyCard({ card }: CompetencyCardProps) {
+function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
   const navigate = useNavigate();
   const hasLens = Boolean(card.lensLine1 || card.lensLine2);
+  const isStage = variant === 'stage';
 
   return (
-    <motion.article
-      className="relative overflow-hidden rounded-3xl bg-white border border-[#e5e9f5] shadow-sm flex flex-col min-h-[560px] h-full"
+    <article
+      className={`relative overflow-hidden rounded-3xl bg-white border border-[#e5e9f5] shadow-sm flex flex-col ${
+        isStage ? 'min-h-[620px]' : 'min-h-[560px]'
+      } h-full`}
     >
-      <div className="h-52 w-full overflow-hidden">
+      <div className={`${isStage ? 'h-64 md:h-72' : 'h-52'} w-full overflow-hidden`}>
         <img
           src={card.image}
           alt={card.title}
@@ -1061,7 +1210,7 @@ function CompetencyCard({ card }: CompetencyCardProps) {
         />
       </div>
 
-      <div className="flex flex-col flex-1 p-6 gap-4">
+      <div className={`flex flex-col flex-1 ${isStage ? 'p-7 md:p-8' : 'p-6'} gap-4`}>
         <div className="flex items-start justify-between min-h-[64px]">
           <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42] max-w-[80%] leading-tight">
             {card.title}
@@ -1073,20 +1222,25 @@ function CompetencyCard({ card }: CompetencyCardProps) {
 
         <div className="flex items-center gap-2 text-sm text-[#6b7390]">
           <Hexagon className="h-4 w-4" />
-          <span>DQ Workspace • Real scenario</span>
+          <span>DQ Workspace · Real scenario</span>
         </div>
 
-        <div className="space-y-2 min-h-[120px]">
-          {card.problem || card.lensLine1 ? (
-            <p className="text-[#131e42] text-base md:text-lg font-semibold leading-snug">
-              {hasLens ? card.lensLine1 : card.problem}
-            </p>
-          ) : null}
-          {card.response || card.lensLine2 ? (
-            <p className="text-[#4a5678] text-sm md:text-base leading-relaxed">
-              {hasLens ? card.lensLine2 : card.response}
-            </p>
-          ) : null}
+        <div className="flex flex-col gap-2 min-h-[160px]">
+          <p className="text-[#131e42] text-base md:text-lg font-semibold leading-snug min-h-[52px]">
+            {card.executionQuestion
+              ? card.executionQuestion
+              : hasLens && card.lensLine1
+                ? card.lensLine1
+                : card.problem}
+          </p>
+
+          <p className="text-[#4a5678] text-sm md:text-base leading-relaxed min-h-[88px]">
+            {card.executionLens
+              ? card.executionLens
+              : hasLens && card.lensLine2
+                ? card.lensLine2
+                : card.response}
+          </p>
         </div>
 
         <div className="mt-auto pt-2">
@@ -1100,7 +1254,7 @@ function CompetencyCard({ card }: CompetencyCardProps) {
           </button>
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 }
 

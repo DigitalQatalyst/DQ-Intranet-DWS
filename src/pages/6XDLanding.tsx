@@ -8,9 +8,9 @@ const SIXXD_CARDS = [
     number: 1,
     category: "Digital Economy",
     title: "Digital Economy",
-    lensLine1: "Why change is unavoidable",
-    lensLine2:
-      "Anchors transformation in real market forces, customer behaviour, and value shifts — so change is driven by reality, not internal assumptions.",
+    executionQuestion: "Why does change become unavoidable?",
+    executionLens:
+      "Grounds transformation in real market forces, customer behaviour, and value shifts — so execution is driven by reality, not assumptions.",
     story: "",
     problem: "",
     response: "",
@@ -26,9 +26,9 @@ const SIXXD_CARDS = [
     number: 2,
     category: "Digital Cognitive Organisation",
     title: "Digital Cognitive Organisation",
-    lensLine1: "What organisations must become",
-    lensLine2:
-      "Defines the adaptive enterprise — able to sense, decide, and respond continuously across people, systems, and decisions.",
+    executionQuestion: "What must organisations become to execute continuously?",
+    executionLens:
+      "Defines the adaptive enterprise — able to sense, decide, and respond across people, systems, and decisions.",
     story: "",
     problem: "",
     response: "",
@@ -44,9 +44,9 @@ const SIXXD_CARDS = [
     number: 3,
     category: "Digital Business Platforms",
     title: "Digital Business Platforms",
-    lensLine1: "What must be built",
-    lensLine2:
-      "Creates modular, integrated foundations that make transformation executable, scalable, and resilient over time.",
+    executionQuestion: "What must be built so delivery doesn’t slow down?",
+    executionLens:
+      "Creates modular, integrated foundations that make execution scalable, resilient, and repeatable.",
     story: "",
     problem: "",
     response: "",
@@ -62,9 +62,9 @@ const SIXXD_CARDS = [
     number: 4,
     category: "Digital Transformation 2.0",
     title: "Digital Transformation 2.0",
-    lensLine1: "How change is designed",
-    lensLine2:
-      "Turns transformation into a discipline — combining orchestration, governance, and delivery so change doesn’t stall after pilots.",
+    executionQuestion: "How should change be designed and governed?",
+    executionLens:
+      "Turns transformation into a discipline — aligning governance, orchestration, and delivery beyond pilots.",
     story: "",
     problem: "",
     response: "",
@@ -80,9 +80,9 @@ const SIXXD_CARDS = [
     number: 5,
     category: "Digital Worker & Workspace",
     title: "Digital Worker & Workspace",
-    lensLine1: "Who delivers the change",
-    lensLine2:
-      "Redesigns roles, skills, and environments so people can execute transformation as part of daily work.",
+    executionQuestion: "Who delivers change — and how do they work daily?",
+    executionLens:
+      "Redesigns roles, skills, and environments so execution becomes normal work, not extra effort.",
     story: "",
     problem: "",
     response: "",
@@ -98,9 +98,9 @@ const SIXXD_CARDS = [
     number: 6,
     category: "Digital Accelerators",
     title: "Digital Accelerators",
-    lensLine1: "When value is realised",
-    lensLine2:
-      "Compresses time-to-value and converts execution momentum into measurable outcomes at scale.",
+    executionQuestion: "When does value actually show up?",
+    executionLens:
+      "Compresses time-to-value and converts execution momentum into measurable outcomes.",
     story: "",
     problem: "",
     response: "",
@@ -181,45 +181,41 @@ export default function SixXDLanding() {
     <GHCLanding
       badgeLabel="The Agile 6xD"
       overrides={{
-        heroHeadline: "Transformation fails when it stays theoretical.",
+        heroHeadline: "Digital transformation fails when it stays theoretical.",
         heroHeadlineHighlightWord: "theoretical",
         heroSupporting:
-          "Agile 6xD is how DQ turns transformation into execution — designed, delivered, and sustained through real work.",
+          "Agile 6xD is how DQ turns digital transformation into execution, designed, delivered, and sustained through real work.",
         heroCTA: "Read the Agile 6xD Storybook →",
         heroCTALink: "/marketplace/guides/dq-6xd",
         heroFootnote: "6 perspectives • execution at scale • continuous change",
         foundationTitle: "What is Agile 6xD?",
         foundationSubtitle:
-          "Agile 6xD turns transformation from intent into execution, repeatable, scalable, and grounded in real work.",
+          "Agile 6xD is DQ’s execution system for digital transformation. It helps teams make sense of digital and AI first — then turn that clarity into real execution through work.",
         foundationTitleFontSize: "30px",
         foundationSubtitleFontSize: "16px",
         foundationCards: [
           {
-            title: "Execution System",
+            title: "Making Sense",
             description:
-              "A practical system for designing and delivering transformation through real work — not isolated initiatives.",
+              "A structured way to understand what digital and AI really mean for organisations — cutting through noise, trends, and assumptions.",
             icon: Target,
           },
           {
-            title: "Built to Scale",
+            title: "Practical Execution",
             description:
-              "Designed to repeat success across teams, programmes, and markets without slowing delivery.",
+              "A hands-on execution system that turns understanding into action — delivering transformation through real work, not slides or side initiatives.",
             icon: Layers,
-          },
-          {
-            title: "Six Perspectives",
-            description:
-              "Six execution lenses that keep transformation moving when complexity, pressure, and change increase.",
-            icon: GitBranch,
           },
         ],
         foundationCTA: "Read the full Agile 6xD storybook →",
         foundationCTATo: "/marketplace/guides/dq-6xd",
+        foundationFootnote: "Together, these form the foundation for how Agile 6xD executes transformation in practice.",
         responsesTitle: "Six Perspectives. One Execution System.",
         responsesIntro:
-          "Each perspective removes a different execution blocker when transformation meets real work.",
+          "Each perspective removes a specific execution blocker so transformation works in real conditions.",
         responsesTitleFontSize: "30px",
         responsesIntroFontSize: "16px",
+        responsesSequential: true,
         responseTags: [
           "Digital Economy",
           "Digital Cognitive Organisation",
