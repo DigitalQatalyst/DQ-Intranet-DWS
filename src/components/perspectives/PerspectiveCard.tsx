@@ -12,39 +12,44 @@ export default function PerspectiveCard({ perspective, onExplore }: PerspectiveC
   return (
     <article className="rounded-3xl bg-white border border-[#e5e9f5] shadow-[0_18px_48px_rgba(3,15,53,0.10),0_2px_8px_rgba(3,15,53,0.06)] overflow-hidden h-full flex flex-col">
       {/* Visual zone (fixed height, stable anchor) */}
-      <div className="h-[152px] md:h-[168px] px-6 pt-4 flex items-center">
-        <div className="w-full max-w-[520px] h-[124px] md:h-[136px]">
-          <GeometricIllustration type={perspective.illustration} className="w-full h-full opacity-[0.94]" />
+      <div className="h-[120px] md:h-[132px] px-6 pt-3 flex items-center justify-center">
+        <div className="w-full max-w-[440px] h-[96px] md:h-[104px]">
+          <GeometricIllustration type={perspective.illustration} className="w-full h-full opacity-[0.78]" />
         </div>
       </div>
 
       {/* Copy */}
-      <div className="px-6 pb-6 pt-4 flex flex-col gap-2 flex-1">
-        <div className="flex items-start justify-between gap-4 min-h-[52px]">
-          <h3 className="ghc-font-display text-2xl md:text-3xl font-semibold text-[#131e42] leading-tight">
+      <div className="px-6 pb-6 pt-3 flex flex-col flex-1">
+        {/* Title + tag (same row) */}
+        <div className="flex items-start justify-between gap-4">
+          <h3 className="ghc-font-display text-2xl md:text-3xl font-bold text-[#131e42] leading-tight max-w-[70%]">
             {perspective.title}
           </h3>
-          <span className="shrink-0 rounded-full border border-[hsl(var(--accent)/0.35)] bg-[hsl(var(--accent)/0.10)] px-3 py-1 text-[11px] font-semibold tracking-wide text-[hsl(var(--accent))]">
+          <span className="shrink-0 rounded-full border border-[hsl(var(--accent)/0.22)] bg-[hsl(var(--accent)/0.07)] px-2.5 py-1 text-[10px] font-semibold tracking-wide text-[hsl(var(--accent)/0.95)]">
             {perspective.tag}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-[#6b7390] -mt-0.5">
-          <Hexagon className="h-4 w-4 text-[hsl(var(--accent))]" />
+        {/* Meta line */}
+        <div className="mt-2 flex items-center gap-1.5 text-xs text-[#6b7390]">
+          <Hexagon className="h-3.5 w-3.5 text-[hsl(var(--accent))]" />
           <span>{perspective.subtitle}</span>
         </div>
 
-        <p className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42] leading-snug min-h-[60px] mt-1">
+        {/* Question headline (main anchor) */}
+        <p className="mt-4 ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42] leading-[1.25] min-h-[60px]">
           {perspective.question}
         </p>
-        <p className="text-[#4a5678] text-sm md:text-base leading-relaxed line-clamp-2 min-h-[44px] -mt-0.5">
+
+        {/* Description (calm, constrained width) */}
+        <p className="mt-2 text-[#4a5678] text-sm md:text-base leading-snug line-clamp-2 min-h-[44px] md:max-w-[70%]">
           {perspective.description}
         </p>
 
         <button
           type="button"
           onClick={onExplore}
-          className="mt-auto pt-1.5 text-[hsl(var(--accent))] font-semibold inline-flex items-center gap-1 hover:underline self-start"
+          className="mt-auto pt-4 text-[hsl(var(--accent))] font-semibold inline-flex items-center gap-1 hover:underline self-start"
         >
           Explore in Knowledge Center →
         </button>
