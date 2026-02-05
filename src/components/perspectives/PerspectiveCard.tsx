@@ -12,14 +12,9 @@ export default function PerspectiveCard({ perspective, onExplore }: PerspectiveC
   return (
     <article className="rounded-3xl bg-white border border-[#e5e9f5] shadow-[0_18px_48px_rgba(3,15,53,0.10),0_2px_8px_rgba(3,15,53,0.06)] overflow-hidden h-full flex flex-col">
       {/* Visual zone (fixed height, stable anchor) */}
-      <div className="relative h-[152px] md:h-[168px] bg-[#f9fbff] border-b border-[#e5e9f5]">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-y-0 left-0 w-[2px] bg-[hsl(var(--accent)/0.25)]" />
-        </div>
-        <div className="h-full px-6 flex items-center">
-          <div className="w-full max-w-[520px] h-[124px] md:h-[136px]">
-            <GeometricIllustration type={perspective.illustration} className="w-full h-full opacity-[0.94]" />
-          </div>
+      <div className="h-[152px] md:h-[168px] px-6 pt-4 flex items-center">
+        <div className="w-full max-w-[520px] h-[124px] md:h-[136px]">
+          <GeometricIllustration type={perspective.illustration} className="w-full h-full opacity-[0.94]" />
         </div>
       </div>
 

@@ -34,14 +34,6 @@ function IllustrationEconomy() {
           strokeWidth="2.5"
         />
       ))}
-      <path
-        d="M24 44 H216"
-        stroke="currentColor"
-        strokeOpacity="0.16"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeDasharray="6 8"
-      />
     </g>
   );
 }
