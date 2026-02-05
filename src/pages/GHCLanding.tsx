@@ -1199,10 +1199,10 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
   return (
     <article
       className={`relative overflow-hidden rounded-3xl bg-white border border-[#e5e9f5] shadow-sm flex flex-col ${
-        isStage ? 'min-h-[620px]' : 'min-h-[560px]'
-      } h-full`}
+        isStage ? 'md:max-h-[60vh]' : 'min-h-[560px] h-full'
+      }`}
     >
-      <div className={`${isStage ? 'h-64 md:h-72' : 'h-52'} w-full overflow-hidden`}>
+      <div className={`${isStage ? 'h-40 md:h-44' : 'h-52'} w-full overflow-hidden`}>
         <img
           src={card.image}
           alt={card.title}
@@ -1210,8 +1210,8 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
         />
       </div>
 
-      <div className={`flex flex-col flex-1 ${isStage ? 'p-7 md:p-8' : 'p-6'} gap-4`}>
-        <div className="flex items-start justify-between min-h-[64px]">
+      <div className={`flex flex-col flex-1 ${isStage ? 'p-4 md:p-5 gap-2' : 'p-6 gap-4'}`}>
+        <div className={`flex items-start justify-between ${isStage ? 'min-h-[52px]' : 'min-h-[64px]'}`}>
           <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42] max-w-[80%] leading-tight">
             {card.title}
           </h3>
@@ -1220,13 +1220,13 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-[#6b7390]">
+        <div className={`flex items-center gap-2 ${isStage ? 'text-xs' : 'text-sm'} text-[#6b7390]`}>
           <Hexagon className="h-4 w-4" />
           <span>DQ Workspace · Real scenario</span>
         </div>
 
-        <div className="flex flex-col gap-2 min-h-[160px]">
-          <p className="text-[#131e42] text-base md:text-lg font-semibold leading-snug min-h-[52px]">
+        <div className={`flex flex-col gap-2 ${isStage ? '' : 'min-h-[160px]'}`}>
+          <p className={`text-[#131e42] text-base md:text-lg font-semibold leading-snug ${isStage ? 'min-h-[40px]' : 'min-h-[52px]'}`}>
             {card.executionQuestion
               ? card.executionQuestion
               : hasLens && card.lensLine1
@@ -1234,7 +1234,11 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
                 : card.problem}
           </p>
 
-          <p className="text-[#4a5678] text-sm md:text-base leading-relaxed min-h-[88px]">
+          <p
+            className={`text-[#4a5678] text-sm md:text-base leading-relaxed ${
+              isStage ? 'line-clamp-2 min-h-[40px]' : 'min-h-[88px]'
+            }`}
+          >
             {card.executionLens
               ? card.executionLens
               : hasLens && card.lensLine2
@@ -1243,7 +1247,7 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
           </p>
         </div>
 
-        <div className="mt-auto pt-2">
+        <div className={isStage ? 'pt-0.5' : 'mt-auto pt-2'}>
           <button
             type="button"
             onClick={() => navigate(card.route)}
