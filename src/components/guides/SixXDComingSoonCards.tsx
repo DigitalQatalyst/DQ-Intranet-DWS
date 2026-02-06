@@ -5,38 +5,45 @@ interface SixXDCard {
   title: string;
   subtitle: string;
   description: string;
+  imageUrl: string;
 }
 
 const SIXD_CARDS: SixXDCard[] = [
   {
     title: "Digital Economy (DE)",
     subtitle: "Why should organisations change?",
-    description: "Helps leaders understand shifts in market logic, customer behaviour, and value creation — identifying the forces that drive transformation."
+    description: "Understand shifts in market logic, customer behaviour, and value creation that drive transformation.",
+    imageUrl: "/images/services/digital-economy.jpg"
   },
   {
     title: "Digital Cognitive Organisation (DCO)",
     subtitle: "Where are organisations headed?",
-    description: "Defines the future enterprise — intelligent, adaptive, and orchestrated — capable of learning, responding, and coordinating seamlessly across people, systems, and decisions."
+    description: "The future enterprise: intelligent, adaptive, and orchestrated for seamless coordination.",
+    imageUrl: "/images/services/digital-cognitive-organisation.jpg"
   },
   {
     title: "Digital Business Platforms (DBP)",
     subtitle: "What must be built to enable transformation?",
-    description: "Focuses on the modular, integrated, and data-driven architectures that unify operations and make transformation scalable and resilient."
+    description: "Modular, integrated architectures that unify operations and enable scalable transformation.",
+    imageUrl: "/images/services/digital-business-platforms.png"
   },
   {
     title: "Digital Transformation 2.0 (DT2.0)",
     subtitle: "How should transformation be designed and deployed?",
-    description: "Positions transformation as a discipline of design and orchestration, introducing the methods, flows, and governance needed to make change repeatable and outcome-driven."
+    description: "Methods, flows, and governance frameworks that make change repeatable and outcome-driven.",
+    imageUrl: "/images/services/digital-transformation-2.jpg"
   },
   {
     title: "Digital Worker & Workspace (DW:WS)",
     subtitle: "Who delivers the change, and how do they work?",
-    description: "Centers on people and their environments — redefining roles, skills, and digitally enabled workplaces so teams can deliver and sustain transformation effectively."
+    description: "Redefining roles, skills, and digitally enabled workplaces for effective transformation delivery.",
+    imageUrl: "/images/services/digital-worker-workspace.jpg"
   },
   {
     title: "Digital Accelerators (Tools)",
     subtitle: "When will value be realised?",
-    description: "Drives execution speed and alignment through tools, systems, and strategies that compress time-to-value and scale measurable impact."
+    description: "Tools, systems, and strategies that compress time-to-value and scale measurable impact.",
+    imageUrl: "/images/services/digital-accelerators..jpg"
   }
 ];
 
@@ -46,37 +53,37 @@ export const SixXDComingSoonCards: React.FC = () => {
       {SIXD_CARDS.map((card, index) => (
         <div
           key={index}
-          className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-md opacity-75 grayscale-[30%]"
-          style={{ filter: 'grayscale(30%)' }}
+          className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-gray-300 flex flex-col"
         >
-          {/* Image Placeholder */}
-          <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-            <div className="absolute inset-0 bg-gray-300 opacity-50"></div>
-            <div className="relative z-10 text-center">
-              <Clock size={48} className="mx-auto text-gray-400 mb-2" />
-              <span className="text-sm font-medium text-gray-500">Coming Soon</span>
-            </div>
+          {/* Image */}
+          <div className="relative h-48 bg-gray-100 overflow-hidden">
+            <img
+              src={card.imageUrl}
+              alt={card.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
           </div>
 
           {/* Card Content */}
-          <div className="p-6">
-            {/* Title */}
-            <h3 className="text-lg font-bold text-gray-700 mb-2 line-clamp-2">
+          <div className="p-6 flex flex-col flex-1">
+            {/* Title - Fixed height for alignment */}
+            <h3 className="text-lg font-bold text-gray-900 mb-2 h-14 flex items-start">
               {card.title}
             </h3>
 
-            {/* Subtitle */}
-            <p className="text-sm font-medium text-gray-500 mb-3 italic">
+            {/* Subtitle - Fixed height for alignment */}
+            <p className="text-sm font-medium text-gray-500 mb-3 italic h-10 flex items-start">
               {card.subtitle}
             </p>
 
-            {/* Description */}
-            <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+            {/* Description - Fixed height for alignment */}
+            <p className="text-sm text-gray-600 mb-4 h-16 flex items-start">
               {card.description}
             </p>
 
             {/* Footer with Coming Soon Button */}
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border-gray-200 mt-auto">
               <button
                 disabled
                 className="w-full px-4 py-2 bg-gray-300 text-gray-500 rounded-lg text-sm font-medium cursor-not-allowed flex items-center justify-center gap-2"
