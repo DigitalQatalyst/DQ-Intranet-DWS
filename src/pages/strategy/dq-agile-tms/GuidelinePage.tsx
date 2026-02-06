@@ -197,7 +197,7 @@ function GuidelinePage() {
                         </div>
 
                         {/* View Details Button */}
-                        <div className="text-right pt-4">
+                        <div className="pt-4">
                           <Link
                             to={`/marketplace/guides/${currentSlug}/details`}
                             className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-lg transition-colors"
@@ -220,12 +220,12 @@ function GuidelinePage() {
                         <h2 className="text-xl font-semibold text-gray-900">Explore Story Book</h2>
                         
                         {/* Storybook Description */}
-                        <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
+                        <div className="text-gray-700 leading-relaxed">
                           <p>{content.storybookIntro}</p>
                         </div>
 
-                          {/* What You Will Learn Section - Moved to Storybook Tab */}
-                          <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
+                        {/* What You Will Learn Section - Moved to Storybook Tab */}
+                        <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
                             <div className="flex items-center gap-3 mb-6">
                               <div className="flex-shrink-0">
                                 <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
@@ -250,9 +250,9 @@ function GuidelinePage() {
                             </div>
                           </div>
 
-                          {/* Open Storybook Button */}
-                          <div className="pt-4">
-                            <button
+                        {/* Open Storybook Button */}
+                        <div className="pt-4">
+                          <button
                               onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
                               className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
                               style={{ backgroundColor: '#030E31' }}
@@ -262,7 +262,6 @@ function GuidelinePage() {
                               <BookOpen size={16} />
                               Open Story Book
                             </button>
-                          </div>
                         </div>
                       </div>
                     )}

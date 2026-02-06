@@ -197,7 +197,7 @@ function GuidelinePage() {
                         </div>
 
                         {/* View Details Button */}
-                        <div className="text-right pt-4">
+                        <div className="pt-4">
                           <Link
                             to={`/marketplace/guides/${currentSlug}/details`}
                             className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-lg transition-colors"
@@ -216,9 +216,9 @@ function GuidelinePage() {
 
                     {activeTab === 'storybook' && (
                       <GuidelineSection id="storybook" title="Explore Story Book">
-                        <div className="max-w-5xl mx-auto space-y-10">
+                        <div className="space-y-10">
                           {/* Storybook Description */}
-                          <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
+                          <div className="text-gray-700 leading-relaxed">
                             <p>{content.storybookIntro}</p>
                           </div>
 

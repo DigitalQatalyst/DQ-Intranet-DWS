@@ -197,7 +197,7 @@ function GuidelinePage() {
                         </div>
 
                         {/* View Details Button */}
-                        <div className="text-right pt-4">
+                        <div className="pt-4">
                           <Link
                             to={`/marketplace/guides/${currentSlug}/details`}
                             className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-lg transition-colors"
@@ -224,45 +224,44 @@ function GuidelinePage() {
                           <p>{content.storybookIntro}</p>
                         </div>
 
-                          {/* What You Will Learn Section - Moved to Storybook Tab */}
-                          <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
-                            <div className="flex items-center gap-3 mb-6">
-                              <div className="flex-shrink-0">
-                                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                  </svg>
-                                </div>
+                        {/* What You Will Learn Section - Moved to Storybook Tab */}
+                        <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="flex-shrink-0">
+                              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
                               </div>
-                              <h3 className="text-2xl font-bold text-gray-900">What You'll Learn</h3>
                             </div>
-                            <div className="space-y-5">
-                              {content.whatYouWillLearn.map((item, index) => (
-                                <div key={index} className="flex items-start gap-3">
-                                  <div className="flex-shrink-0 mt-1.5">
-                                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                                  </div>
-                                  <p className="text-gray-700 text-base leading-relaxed">
-                                    {item}
-                                  </p>
+                            <h3 className="text-2xl font-bold text-gray-900">What You'll Learn</h3>
+                          </div>
+                          <div className="space-y-5">
+                            {content.whatYouWillLearn.map((item, index) => (
+                              <div key={index} className="flex items-start gap-3">
+                                <div className="flex-shrink-0 mt-1.5">
+                                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                                 </div>
-                              ))}
-                            </div>
+                                <p className="text-gray-700 text-base leading-relaxed">
+                                  {item}
+                                </p>
+                              </div>
+                            ))}
                           </div>
+                        </div>
 
-                          {/* Open Storybook Button */}
-                          <div className="pt-4">
-                            <button
-                              onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
-                              className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
-                              style={{ backgroundColor: '#030E31' }}
-                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
-                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
-                            >
-                              <BookOpen size={16} />
-                              Open Story Book
-                            </button>
-                          </div>
+                        {/* Open Storybook Button */}
+                        <div className="pt-4">
+                          <button
+                            onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
+                            className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
+                            style={{ backgroundColor: '#030E31' }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
+                          >
+                            <BookOpen size={16} />
+                            Open Story Book
+                          </button>
                         </div>
                       </div>
                     )}

@@ -30,13 +30,13 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
   return (
     <div className="space-y-6">
       {/* Service cards row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Client Feedback Service Card */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col min-h-[340px]">
           {/* Hero Image */}
           <img 
             src={serviceCardImage} 
-            alt="Client Feedback" 
+            alt="Client Success Stories" 
             className="w-full h-32 object-cover"
             loading="lazy"
           />
@@ -44,11 +44,11 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
           {/* Content */}
           <div className="p-4 flex flex-col flex-grow">
             {/* Title */}
-            <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">Client Feedback</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">Client Success Stories</h3>
             
             {/* Description */}
             <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-2 flex-grow">
-              Highlights from DFSA, ADIB, and Khalifa Fund showcasing how Digital Qatalyst engagements accelerate transformation outcomes.
+              Real impact in action. See how we help partners succeed in their digital journeys.
             </p>
             
             {/* Tag */}
@@ -83,7 +83,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
           {/* Hero Image */}
           <img 
             src={serviceCardImage} 
-            alt="Associate Feedback" 
+            alt="Associate Voices" 
             className="w-full h-32 object-cover"
             loading="lazy"
           />
@@ -91,11 +91,11 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
           {/* Content */}
           <div className="p-4 flex flex-col flex-grow">
             {/* Title */}
-            <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">Associate Feedback</h3>
+            <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">Associate Voices</h3>
             
             {/* Description */}
             <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-2 flex-grow">
-              Stories from DQ associates showcasing how Digital Qatalyst's values and culture have supported their professional and personal growth.
+              Stories of growth, culture, and collaboration from our team.
             </p>
             
             {/* Tag */}
