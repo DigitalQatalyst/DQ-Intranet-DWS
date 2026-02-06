@@ -138,10 +138,10 @@ function GuidelinePage() {
                 <div className="lg:col-span-3">
                   {/* Tabs */}
                   <div className="border-b border-gray-200">
-                    <nav className="flex -mb-px justify-center">
+                    <nav className="flex -mb-px">
                       <button
                         onClick={() => setActiveTab('overview')}
-                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
                           activeTab === 'overview'
                             ? 'border-blue-500 text-blue-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -154,7 +154,7 @@ function GuidelinePage() {
                       </button>
                       <button
                         onClick={() => setActiveTab('storybook')}
-                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
                           activeTab === 'storybook'
                             ? 'border-blue-500 text-blue-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -167,7 +167,7 @@ function GuidelinePage() {
                       </button>
                       <button
                         onClick={() => setActiveTab('course')}
-                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
                           activeTab === 'course'
                             ? 'border-blue-500 text-blue-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -184,57 +184,91 @@ function GuidelinePage() {
                   {/* Tab Content - Centered */}
                   <div className="p-8 md:p-12">
                     {activeTab === 'overview' && (
-                      <div>
-                        {/* Combined Overview Card */}
-                        <div className="bg-white rounded-lg p-6">
-                          {/* Description */}
-                          <div className="prose prose-sm max-w-none">
-                            <MarkdownRenderer body={agileTmsIntroBody} />
-                          </div>
+                      <div className="max-w-5xl mx-auto space-y-10">
+                        {/* Main Description */}
+                        <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
+                          <MarkdownRenderer body={agileTmsIntroBody} />
+                        </div>
 
-                          {/* Key Points */}
-                          <div className="pt-4">
-                            <h6 className="text-sm font-semibold text-gray-900 mb-3">Key Points</h6>
-                            <div className="space-y-3">
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
-                                  style={{ backgroundColor: 'var(--guidelines-primary-solid, #030E31)' }}
-                                >
-                                  <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                  </svg>
-                                </div>
-                                <span className="text-sm text-gray-700">Flow-based task management</span>
+                        {/* Course Highlights Section */}
+                        <div className="space-y-5">
+                          <h3 className="text-xl font-semibold text-gray-900">Course Highlights</h3>
+                          <div className="space-y-4">
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 mt-0.5">
+                                <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
                               </div>
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
-                                  style={{ backgroundColor: 'var(--guidelines-primary-solid, #030E31)' }}
-                                >
-                                  <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                  </svg>
-                                </div>
-                                <span className="text-sm text-gray-700">Bottleneck elimination</span>
+                              <p className="text-gray-700 text-base leading-relaxed">
+                                Flow-based task management: Learn how to optimize work flow and task movement.
+                              </p>
+                            </div>
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 mt-0.5">
+                                <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
                               </div>
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
-                                  style={{ backgroundColor: 'var(--guidelines-primary-solid, #030E31)' }}
-                                >
-                                  <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                  </svg>
-                                </div>
-                                <span className="text-sm text-gray-700">End-to-end visibility</span>
+                              <p className="text-gray-700 text-base leading-relaxed">
+                                Bottleneck elimination: Identify and remove obstacles that slow down delivery.
+                              </p>
+                            </div>
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 mt-0.5">
+                                <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
                               </div>
+                              <p className="text-gray-700 text-base leading-relaxed">
+                                End-to-end visibility: Gain complete transparency across the entire task lifecycle.
+                              </p>
                             </div>
                           </div>
                         </div>
 
-                        {/* GHC Link Button - Only show on Overview tab */}
-                        <div className="mt-12 text-right">
+                        {/* What You Will Learn Section */}
+                        <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="flex-shrink-0">
+                              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                            </div>
+                            <h3 className="text-2xl font-bold text-gray-900">What You'll Learn</h3>
+                          </div>
+                          <div className="space-y-5">
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 mt-1.5">
+                                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                              </div>
+                              <p className="text-gray-700 text-base leading-relaxed">
+                                <span className="font-semibold">Task Management System:</span> Master the Agile TMS framework for efficient task tracking.
+                              </p>
+                            </div>
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 mt-1.5">
+                                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                              </div>
+                              <p className="text-gray-700 text-base leading-relaxed">
+                                <span className="font-semibold">Flow Optimization:</span> Learn techniques to improve work flow and reduce cycle time.
+                              </p>
+                            </div>
+                            <div className="flex items-start gap-3">
+                              <div className="flex-shrink-0 mt-1.5">
+                                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                              </div>
+                              <p className="text-gray-700 text-base leading-relaxed">
+                                <span className="font-semibold">Practical Application:</span> Apply TMS principles to manage tasks effectively in your projects.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* View Details Button */}
+                        <div className="text-right pt-4">
                           <Link
                             to={`/marketplace/guides/${currentSlug}/details`}
                             className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-lg transition-colors"
