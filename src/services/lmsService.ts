@@ -616,3 +616,283 @@ export async function fetchCoursesInLearningPath(pathId: string): Promise<Array<
     position: item.position,
   }));
 }
+
+// ============================================
+// Course Review Functions
+// ============================================
+
+import type {
+  LmsCourseReview,
+  LmsCourseReviewWithCourse,
+  CreateReviewInput,
+  ReviewStats,
+  EngagingPart,
+} from '../types/lmsCourseReview';
+
+/**
+ * Fetch all published reviews (for /lms reviews tab)
+ */
+export async function fetchAllCourseReviews(): Promise<LmsCourseReviewWithCourse[]> {
+  const { data, error } = await lmsSupabaseClient
+    .from('lms_course_reviews')
+    .select('*')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching course reviews:', error);
+    throw error;
+  }
+
+  // Fetch course details for each review
+  const courseIds = [...new Set(data.map(r => r.course_id))];
+  const { data: courses } = await lmsSupabaseClient
+    .from('lms_courses')
+    .select('id, title, category, provider')
+    .in('id', courseIds);
+
+  const courseMap = new Map(courses?.map(c => [c.id, c]) || []);
+
+  return data.map(review => ({
+    ...review,
+    course_title: courseMap.get(review.course_id)?.title,
+    course_category: courseMap.get(review.course_id)?.category,
+    course_provider: courseMap.get(review.course_id)?.provider,
+  }));
+}
+
+/**
+ * Fetch reviews for a specific course (for course detail reviews tab)
+ */
+export async function fetchCourseReviews(courseId: string): Promise<LmsCourseReview[]> {
+  const { data, error } = await lmsSupabaseClient
+    .from('lms_course_reviews')
+    .select('*')
+    .eq('course_id', courseId)
+    .eq('is_published', true)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching course reviews:', error);
+    throw error;
+  }
+
+  return data || [];
+}
+
+/**
+ * Fetch reviews for a specific course by slug
+ */
+export async function fetchCourseReviewsBySlug(courseSlug: string): Promise<LmsCourseReview[]> {
+  const { data, error } = await lmsSupabaseClient
+    .from('lms_course_reviews')
+    .select('*')
+    .eq('course_slug', courseSlug)
+    .eq('is_published', true)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching course reviews:', error);
+    throw error;
+  }
+
+  return data || [];
+}
+
+/**
+ * Check if a user has already reviewed a course
+ */
+export async function hasUserReviewedCourse(courseId: string, userId: string): Promise<boolean> {
+  const { data, error } = await lmsSupabaseClient
+    .from('lms_course_reviews')
+    .select('id')
+    .eq('course_id', courseId)
+    .eq('user_id', userId)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error checking user review:', error);
+  }
+
+  return !!data;
+}
+
+/**
+ * Get user's review for a course (if exists)
+ */
+export async function getUserCourseReview(courseId: string, userId: string): Promise<LmsCourseReview | null> {
+  const { data, error } = await lmsSupabaseClient
+    .from('lms_course_reviews')
+    .select('*')
+    .eq('course_id', courseId)
+    .eq('user_id', userId)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      return null; // No review found
+    }
+    console.error('Error fetching user review:', error);
+    throw error;
+  }
+
+  return data;
+}
+
+/**
+ * Create a new course review
+ */
+export async function createCourseReview(
+  input: CreateReviewInput,
+  user: { id: string; email: string; name?: string }
+): Promise<LmsCourseReview> {
+  const { data, error } = await lmsSupabaseClient
+    .from('lms_course_reviews')
+    .insert({
+      course_id: input.course_id,
+      course_slug: input.course_slug,
+      user_id: null, // Set to null since we use Azure AD auth, not Supabase auth
+      user_email: user.email,
+      user_name: user.name || null,
+      star_rating: input.star_rating,
+      key_learning: input.key_learning,
+      engaging_part: input.engaging_part,
+      general_feedback: input.general_feedback,
+      is_published: true,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating course review:', error);
+    throw error;
+  }
+
+  // Update course rating and review count
+  await updateCourseReviewStats(input.course_id);
+
+  return data;
+}
+
+/**
+ * Update an existing course review
+ */
+export async function updateCourseReview(
+  reviewId: string,
+  input: Partial<CreateReviewInput>
+): Promise<LmsCourseReview> {
+  const { data, error } = await lmsSupabaseClient
+    .from('lms_course_reviews')
+    .update({
+      star_rating: input.star_rating,
+      key_learning: input.key_learning,
+      engaging_part: input.engaging_part,
+      general_feedback: input.general_feedback,
+    })
+    .eq('id', reviewId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating course review:', error);
+    throw error;
+  }
+
+  // Update course rating stats
+  if (data?.course_id) {
+    await updateCourseReviewStats(data.course_id);
+  }
+
+  return data;
+}
+
+/**
+ * Delete a course review
+ */
+export async function deleteCourseReview(reviewId: string): Promise<void> {
+  // Get the course_id before deleting
+  const { data: review } = await lmsSupabaseClient
+    .from('lms_course_reviews')
+    .select('course_id')
+    .eq('id', reviewId)
+    .single();
+
+  const { error } = await lmsSupabaseClient
+    .from('lms_course_reviews')
+    .delete()
+    .eq('id', reviewId);
+
+  if (error) {
+    console.error('Error deleting course review:', error);
+    throw error;
+  }
+
+  // Update course rating stats
+  if (review?.course_id) {
+    await updateCourseReviewStats(review.course_id);
+  }
+}
+
+/**
+ * Calculate review statistics for a course
+ */
+export async function getCourseReviewStats(courseId: string): Promise<ReviewStats> {
+  const { data, error } = await lmsSupabaseClient
+    .from('lms_course_reviews')
+    .select('star_rating, engaging_part')
+    .eq('course_id', courseId)
+    .eq('is_published', true);
+
+  if (error) {
+    console.error('Error fetching review stats:', error);
+    throw error;
+  }
+
+  const reviews = data || [];
+  const totalReviews = reviews.length;
+
+  if (totalReviews === 0) {
+    return {
+      averageRating: 0,
+      totalReviews: 0,
+      ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      engagingPartDistribution: { Video: 0, Quiz: 0, Reading: 0, 'Interactive Lab': 0 },
+    };
+  }
+
+  const averageRating = reviews.reduce((sum, r) => sum + r.star_rating, 0) / totalReviews;
+
+  const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as Record<1 | 2 | 3 | 4 | 5, number>;
+  const engagingPartDistribution = { Video: 0, Quiz: 0, Reading: 0, 'Interactive Lab': 0 } as Record<EngagingPart, number>;
+
+  reviews.forEach(r => {
+    ratingDistribution[r.star_rating as 1 | 2 | 3 | 4 | 5]++;
+    engagingPartDistribution[r.engaging_part as EngagingPart]++;
+  });
+
+  return {
+    averageRating: Math.round(averageRating * 10) / 10,
+    totalReviews,
+    ratingDistribution,
+    engagingPartDistribution,
+  };
+}
+
+/**
+ * Update the course's rating and review_count after review changes
+ */
+async function updateCourseReviewStats(courseId: string): Promise<void> {
+  const stats = await getCourseReviewStats(courseId);
+
+  const { error } = await lmsSupabaseClient
+    .from('lms_courses')
+    .update({
+      rating: stats.averageRating,
+      review_count: stats.totalReviews,
+    })
+    .eq('id', courseId);
+
+  if (error) {
+    console.error('Error updating course review stats:', error);
+  }
+}

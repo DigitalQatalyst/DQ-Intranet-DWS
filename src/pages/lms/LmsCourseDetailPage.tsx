@@ -20,11 +20,13 @@ import {
   Users,
   FileCheck,
   Lock,
-  Library
+  Library,
+  Loader2
 } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { useLmsCourse, useLmsCourseDetails } from '../../hooks/useLmsCourses';
+import { useCourseReviews, useCourseReviewStats } from '../../hooks/useCourseReviews';
 import type { LmsDetail } from '../../data/lmsCourseDetails';
 import {
   CARD_ICON_BY_ID,
@@ -119,6 +121,10 @@ export const LmsCourseDetailPage: React.FC = () => {
   // Fetch course data from Supabase - MUST be called before any conditional returns
   const { data: course, isLoading: courseLoading, isFetching: courseFetching, error: courseError } = useLmsCourse(slug || '');
   const { data: allCourses = [] } = useLmsCourseDetails();
+
+  // Fetch course reviews from database
+  const { data: courseReviews = [], isLoading: reviewsLoading } = useCourseReviews(course?.id || '');
+  const { data: reviewStats } = useCourseReviewStats(course?.id || '');
 
   // Find learning paths that contain this course
   const { data: learningPaths = [] } = useQuery({
@@ -934,13 +940,124 @@ export const LmsCourseDetailPage: React.FC = () => {
               {/* Reviews Tab */}
               {activeTab === 'reviews' && (
                 <section className="space-y-6">
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-                    <MessageSquare size={48} className="mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Reviews Yet</h3>
-                    <p className="text-gray-600">
-                      Be the first to share your experience with this course. Reviews will appear here once available.
-                    </p>
-                  </div>
+                  {/* Review Stats Summary */}
+                  {reviewStats && reviewStats.totalReviews > 0 && (
+                    <div className="bg-white border border-gray-200 rounded-xl p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-4">
+                          <div className="text-center">
+                            <div className="text-4xl font-bold text-gray-900">{reviewStats.averageRating.toFixed(1)}</div>
+                            <div className="flex items-center justify-center mt-1">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  size={16}
+                                  className={i < Math.floor(reviewStats.averageRating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
+                                />
+                              ))}
+                            </div>
+                            <div className="text-sm text-gray-500 mt-1">{reviewStats.totalReviews} {reviewStats.totalReviews === 1 ? 'review' : 'reviews'}</div>
+                          </div>
+                          <div className="flex-1 max-w-xs">
+                            {[5, 4, 3, 2, 1].map((rating) => {
+                              const count = reviewStats.ratingDistribution[rating as 1 | 2 | 3 | 4 | 5];
+                              const percentage = reviewStats.totalReviews > 0 ? (count / reviewStats.totalReviews) * 100 : 0;
+                              return (
+                                <div key={rating} className="flex items-center gap-2 text-sm">
+                                  <span className="w-3 text-gray-600">{rating}</span>
+                                  <Star size={12} className="text-yellow-400 fill-yellow-400" />
+                                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full bg-yellow-400 rounded-full transition-all"
+                                      style={{ width: `${percentage}%` }}
+                                    />
+                                  </div>
+                                  <span className="w-6 text-gray-500 text-right">{count}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        <Link
+                          to={`/lms/${slug}/reviews`}
+                          className="text-sm font-medium hover:underline"
+                          style={{ color: '#030F35' }}
+                        >
+                          View All Reviews →
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Reviews List */}
+                  {reviewsLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                    </div>
+                  ) : courseReviews.length > 0 ? (
+                    <div className="space-y-4">
+                      {courseReviews.slice(0, 5).map((review) => (
+                        <div key={review.id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-sm transition-shadow">
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{review.user_name || review.user_email.split('@')[0]}</h4>
+                              <div className="flex items-center gap-2 mt-1">
+                                <div className="flex items-center">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      size={14}
+                                      className={i < review.star_rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-sm text-gray-500">
+                                  {new Date(review.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                            {review.engaging_part && (
+                              <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full">
+                                Most Engaging: {review.engaging_part}
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="text-gray-700 mb-4">{review.general_feedback}</p>
+
+                          {review.key_learning && (
+                            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 border border-blue-100/50">
+                              <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">
+                                Key Takeaway
+                              </p>
+                              <p className="text-sm text-gray-700 italic">"{review.key_learning}"</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+
+                      {courseReviews.length > 5 && (
+                        <div className="text-center pt-4">
+                          <Link
+                            to={`/lms/${slug}/reviews`}
+                            className="inline-flex items-center gap-2 px-6 py-2 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+                            style={{ color: '#030F35' }}
+                          >
+                            View All {courseReviews.length} Reviews
+                            <ChevronRightIcon size={16} />
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+                      <MessageSquare size={48} className="mx-auto text-gray-400 mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Reviews Yet</h3>
+                      <p className="text-gray-600">
+                        Be the first to share your experience with this course. Complete the course to leave a review.
+                      </p>
+                    </div>
+                  )}
                 </section>
               )}
 

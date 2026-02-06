@@ -8,6 +8,7 @@ import { SearchBar } from "../components/SearchBar";
 import { FilterSidebar, FilterConfig } from "../components/marketplace/FilterSidebar";
 import { MarketplaceCard } from "../components/marketplace/MarketplaceCard";
 import { useLmsCourses, useLmsCourseDetails, useLmsLearningPaths } from "../hooks/useLmsCourses";
+import { useAllCourseReviews } from "../hooks/useCourseReviews";
 import { ICON_BY_ID } from "../utils/lmsIcons";
 import {
   parseFacets,
@@ -55,9 +56,12 @@ export const LmsCourses: React.FC = () => {
   const { data: LMS_COURSE_DETAILS = [], isLoading: detailsLoading } = useLmsCourseDetails();
   const { data: LEARNING_PATHS = [], isLoading: learningPathsLoading } = useLmsLearningPaths();
 
+  // Fetch reviews from database
+  const { data: dbReviews = [], isLoading: reviewsLoading } = useAllCourseReviews();
+
   const facets = parseFacets(searchParams);
 
-  // Get all reviews from courses
+  // Get all reviews from courses (testimonials + database reviews)
   const allReviews = useMemo(() => {
     const reviews: Array<{
       id: string;
@@ -72,8 +76,12 @@ export const LmsCourses: React.FC = () => {
       provider?: string;
       audience?: Array<'Associate' | 'Lead'>;
       department?: string[];
+      keyLearning?: string;
+      engagingPart?: string;
+      createdAt?: string;
     }> = [];
 
+    // Add testimonials from static course data
     LMS_COURSE_DETAILS.forEach((course) => {
       if (course.testimonials) {
         course.testimonials.forEach((testimonial, index) => {
@@ -92,8 +100,40 @@ export const LmsCourses: React.FC = () => {
       }
     });
 
+    // Add reviews from database
+    dbReviews.forEach((review) => {
+      // Find course details for additional metadata
+      const courseDetail = LMS_COURSE_DETAILS.find(c => c.id === review.course_id || c.slug === review.course_slug);
+
+      reviews.push({
+        id: review.id,
+        author: review.user_name || review.user_email.split('@')[0],
+        role: '', // Database reviews don't have role
+        text: review.general_feedback,
+        rating: review.star_rating,
+        courseId: review.course_id,
+        courseSlug: review.course_slug,
+        courseTitle: review.course_title || courseDetail?.title || 'Course',
+        courseType: courseDetail?.courseType,
+        provider: courseDetail?.provider || review.course_provider,
+        audience: courseDetail?.audience,
+        department: courseDetail?.department,
+        keyLearning: review.key_learning,
+        engagingPart: review.engaging_part,
+        createdAt: review.created_at,
+      });
+    });
+
+    // Sort by createdAt (newest first), then by id for consistency
+    reviews.sort((a, b) => {
+      if (a.createdAt && b.createdAt) {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+      return 0;
+    });
+
     return reviews;
-  }, [LMS_COURSE_DETAILS]);
+  }, [LMS_COURSE_DETAILS, dbReviews]);
 
   // Filter reviews based on search and filters
   const filteredReviews = useMemo(() => {
@@ -961,10 +1001,21 @@ export const LmsCourses: React.FC = () => {
                             <p className="text-gray-700 leading-relaxed mb-4">
                               {body}
                             </p>
+
+                            {/* Key Learning Section - for database reviews */}
+                            {review.keyLearning && (
+                              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3 mb-4 border border-blue-100/50">
+                                <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-1">
+                                  Key Takeaway
+                                </p>
+                                <p className="text-sm text-gray-700 italic">"{review.keyLearning}"</p>
+                              </div>
+                            )}
+
                             <div className="flex items-center gap-4">
                               <div>
                                 <p className="font-medium text-gray-900">{review.author}</p>
-                                <p className="text-sm text-gray-600">{review.role}</p>
+                                {review.role && <p className="text-sm text-gray-600">{review.role}</p>}
                               </div>
                               <div className="flex items-center gap-1">
                                 {[...Array(5)].map((_, i) => (
@@ -975,6 +1026,11 @@ export const LmsCourses: React.FC = () => {
                                   />
                                 ))}
                               </div>
+                              {review.engagingPart && (
+                                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                  Most Engaging: {review.engagingPart}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>

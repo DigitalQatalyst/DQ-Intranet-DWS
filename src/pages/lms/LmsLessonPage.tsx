@@ -16,6 +16,7 @@ import {
   ChevronUp,
   ChevronDown,
   CheckCircle,
+  MessageSquare,
 } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
@@ -24,6 +25,9 @@ import { fetchQuizByLessonId, fetchQuizByCourseId } from '../../services/lmsServ
 import type { LmsQuizRow } from '../../types/lmsSupabase';
 import type { LmsDetail } from '../../data/lmsCourseDetails';
 import MarkdownRenderer from '../../components/guides/MarkdownRenderer';
+import { CourseReviewForm } from '../../components/lms/CourseReviewForm';
+import { useCreateCourseReview, useHasUserReviewed } from '../../hooks/useCourseReviews';
+import type { CreateReviewInput } from '../../types/lmsCourseReview';
 
 type TabType = 'resources';
 
@@ -145,6 +149,13 @@ export const LmsLessonPage: React.FC = () => {
   const [isAnswerChecked, setIsAnswerChecked] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
 
+  // Review Form State
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+
+  // Review mutation
+  const createReviewMutation = useCreateCourseReview();
+
   const { data: course, isLoading: courseLoading } = useLmsCourse(courseSlug || '');
 
   // Auto-expand the module containing the current lesson
@@ -244,6 +255,9 @@ export const LmsLessonPage: React.FC = () => {
   // Get previous and next lessons
   const previousLesson = currentLessonIndex > 0 ? allLessons[currentLessonIndex - 1] : null;
   const nextLesson = currentLessonIndex < allLessons.length - 1 ? allLessons[currentLessonIndex + 1] : null;
+
+  // Check if current lesson is a final assessment
+  const isFinalAssessmentLesson = currentLesson?.type === 'final-assessment';
 
   // Mark course as started when lesson is accessed
   useEffect(() => {
@@ -849,6 +863,76 @@ export const LmsLessonPage: React.FC = () => {
                         </div>
                       )}
                     </div>
+                  ) : !nextLesson && isVideoCompleted && (!quiz || quizPassed) && !courseQuiz && !isFinalAssessmentLesson ? (
+                    // Course Completed - Show Review Form in Main Content Area
+                    <div className="bg-white rounded-lg border border-gray-200 p-8 min-h-[400px] flex flex-col justify-center">
+                      {!showReviewForm && !reviewSubmitted ? (
+                        <div className="text-center max-w-lg mx-auto">
+                          <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <CheckCircle className="w-10 h-10 text-green-600" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                            🎉 Congratulations!
+                          </h2>
+                          <p className="text-lg text-gray-700 mb-2">You've completed the course!</p>
+                          <p className="text-gray-600 mb-8">
+                            Help us improve by sharing your learning experience. Your feedback is valuable!
+                          </p>
+                          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <button
+                              onClick={() => setShowReviewForm(true)}
+                              className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#030F35] to-[#0A2463] text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+                            >
+                              <MessageSquare size={20} />
+                              Leave a Review
+                            </button>
+                            <Link
+                              to={`/lms/${courseSlug}`}
+                              className="px-6 py-3 text-gray-600 font-medium hover:text-gray-900 transition-colors"
+                            >
+                              Back to Course
+                            </Link>
+                          </div>
+                        </div>
+                      ) : showReviewForm ? (
+                        <div className="max-w-2xl mx-auto w-full">
+                          <CourseReviewForm
+                            courseId={course?.id || ''}
+                            courseSlug={courseSlug || ''}
+                            courseTitle={course?.title || ''}
+                            isSubmitting={createReviewMutation.isPending}
+                            onSubmit={async (input) => {
+                              await createReviewMutation.mutateAsync(input);
+                              setReviewSubmitted(true);
+                              setShowReviewForm(false);
+                            }}
+                            onSkip={() => {
+                              setShowReviewForm(false);
+                              navigate(`/lms/${courseSlug}`);
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        // Review submitted - Thank you message
+                        <div className="text-center max-w-lg mx-auto">
+                          <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <CheckCircle className="w-10 h-10 text-blue-600" />
+                          </div>
+                          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                            Thank You for Your Feedback!
+                          </h2>
+                          <p className="text-gray-600 mb-8">
+                            Your review helps us improve courses for future learners.
+                          </p>
+                          <Link
+                            to={`/lms/${courseSlug}`}
+                            className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-[#030F35] to-[#0A2463] text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+                          >
+                            Back to Course
+                          </Link>
+                        </div>
+                      )}
+                    </div>
                   ) : hasVideo ? (
                     <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
                       <video
@@ -861,6 +945,7 @@ export const LmsLessonPage: React.FC = () => {
                         onPlay={handleVideoPlay}
                         onPause={handleVideoPause}
                       />
+
 
                       {/* Completion Checkmark Overlay */}
                       {isVideoCompleted && (
