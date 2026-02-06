@@ -89,6 +89,96 @@ button {
   overflow: hidden !important;
 }
 
+@keyframes dqGradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.dq-gradient-animated {
+  background-size: 200% 200%;
+  animation: dqGradientShift 16s ease-in-out infinite;
+}
+
+@keyframes dqDigitalDrift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(18px, -12px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes dqLineFlow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -220;
+  }
+}
+
+@keyframes dqDotPulse {
+  0% {
+    opacity: 0.3;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+}
+
+.dq-digital-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.6;
+  animation: dqDigitalDrift 20s ease-in-out infinite;
+}
+
+.dq-digital-bg svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dq-digital-line {
+  stroke: rgba(240, 246, 255, 0.4);
+  stroke-width: 1;
+  fill: none;
+  stroke-dasharray: 6 10;
+  animation: dqLineFlow 9s linear infinite;
+}
+
+.dq-digital-line.alt {
+  stroke: rgba(225, 81, 59, 0.55);
+  animation-duration: 12s;
+}
+
+.dq-digital-dot {
+  fill: rgba(240, 246, 255, 0.8);
+  transform-origin: center;
+  animation: dqDotPulse 4.5s ease-in-out infinite;
+}
+
+.dq-digital-dot.alt {
+  fill: rgba(225, 81, 59, 0.85);
+  animation-delay: 1.2s;
+}
+
 .description-clip {
   display: -webkit-box;
   -webkit-line-clamp: 4;

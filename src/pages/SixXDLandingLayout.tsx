@@ -9,6 +9,7 @@ import {
   Hexagon,
   GraduationCap,
   BookOpen,
+  Lock,
   ArrowRight,
   Users,
   Briefcase,
@@ -48,6 +49,7 @@ interface CompetencyCard {
   lensLine1?: string;
   lensLine2?: string;
   executionQuestion?: string;
+  executionBlocker?: string;
   executionLens?: string;
   story: string;
   problem: string;
@@ -445,6 +447,8 @@ type LandingOverrides = {
   foundationSubtitleFontSize?: string;
   foundationCards?: typeof FEATURE_CARDS_DEFAULT;
   foundationCTA?: string;
+  foundationCTATo?: string;
+  foundationFootnote?: string;
   responsesTitle?: string;
   responsesIntro?: string;
   responsesTitleFontSize?: string;
@@ -584,7 +588,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
 
   const renderHeroHeadline = () => {
     const baseStyle = {
-      fontSize: 'clamp(40px, 5vw, 72px)',
+      fontSize: 'clamp(40px, 5vw, 70px)',
       lineHeight: 1.05,
       whiteSpace: 'nowrap' as const,
     };
@@ -622,7 +626,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
       <span
         className="ghc-font-display font-bold text-white"
         style={{
-          fontSize: 'clamp(40px, 5vw, 72px)',
+          fontSize: 'clamp(40px, 5vw, 70px)',
           lineHeight: 1.05,
           whiteSpace: 'nowrap',
         }}
@@ -672,12 +676,11 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
           >
             {renderHeroHeadline()}
             <span
-              className="text-white/85"
+              className="text-white/85 md:whitespace-nowrap"
               style={{
                 fontSize: 'clamp(16px, 2.6vw, 20px)',
                 lineHeight: 1.1,
                 maxWidth: '100%',
-                whiteSpace: 'normal',
               }}
             >
               {heroSupporting}
@@ -778,6 +781,7 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
   const foundationCTA = content?.foundationCTA ?? 'Read the full GHC storybook';
   const foundationCTATo =
     content?.foundationCTATo ?? 'https://preview.shorthand.com/Pg0KQCF1Rp904ao7';
+  const foundationFootnote = content?.foundationFootnote;
   const isTwoCardLayout = foundationCards.length === 2;
 
   return (
@@ -809,10 +813,9 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
             </motion.h2>
             <motion.p
               variants={itemVariants}
-              className="text-[#4a5678] text-base md:text-lg leading-relaxed max-w-6xl mx-auto text-center"
+              className="text-[#4a5678] text-base md:text-lg leading-relaxed max-w-6xl mx-auto text-center md:whitespace-nowrap"
               style={{
                 fontSize: foundationSubtitleFontSize ?? '18px',
-                whiteSpace: 'pre-line',
               }}
             >
               {foundationSubtitle}
@@ -848,28 +851,18 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
           ))}
         </motion.div>
 
-        <motion.div
-          variants={itemVariants}
-          className="mt-10 flex justify-center max-w-6xl mx-auto px-2"
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-        >
-          <button
-            type="button"
-            onClick={() => {
-              if (foundationCTATo) {
-                window.open(foundationCTATo, '_blank', 'noopener,noreferrer');
-              } else {
-                onReadStorybook();
-              }
-            }}
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold border border-[#d9e3ff] text-[#131e42] bg-white hover:bg-[#e8eefc] transition-colors shadow-sm"
+        {foundationFootnote ? (
+          <motion.p
+            variants={itemVariants}
+            className="mt-8 text-sm md:text-base text-[#4a5678] text-center max-w-4xl mx-auto px-4"
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
           >
-            <BookOpen className="h-5 w-5" />
-            {foundationCTA}
-            <ArrowRight className="h-5 w-5" />
-          </button>
-        </motion.div>
+            {foundationFootnote}
+          </motion.p>
+        ) : null}
+
+        {/* CTA removed per request */}
       </div>
     </section>
   );
@@ -928,12 +921,15 @@ function SectionCarousel({
 
   if (responsesSequential) {
     return (
-      <SixPerspectivesCarousel
+      <SevenResponsesRailCarousel
         id="ghc-carousel"
         title={responsesTitle}
         subtitle={responsesIntro}
         titleFontSize={responsesTitleFontSize}
         subtitleFontSize={responsesIntroFontSize}
+        tags={responseTags}
+        cards={responseCards}
+        itemLabel="Perspective"
       />
     );
   }
@@ -947,6 +943,7 @@ function SectionCarousel({
       subtitleFontSize={responsesIntroFontSize}
       tags={responseTags}
       cards={responseCards}
+      itemLabel="Response"
     />
   );
 }
@@ -1038,6 +1035,10 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
 
 function ResponseRailCard({ card }: { card: CompetencyCard }) {
   const navigate = useNavigate();
+  const question = card.executionQuestion ?? card.problem;
+  const description = card.executionLens ?? card.response;
+  const blocker = card.executionBlocker;
+  const isLocked = Boolean(card.ctaLabel && /knowledge center/i.test(card.ctaLabel));
 
   return (
     <article className="rounded-3xl bg-white border border-[#e5e9f5] shadow-[0_18px_48px_rgba(3,15,53,0.10),0_2px_8px_rgba(3,15,53,0.06)] overflow-hidden h-full flex flex-col">
@@ -1050,34 +1051,43 @@ function ResponseRailCard({ card }: { card: CompetencyCard }) {
       />
 
       <div className="px-6 pb-6 pt-5 flex flex-col flex-1">
-        <div className="flex items-start justify-between gap-4">
-          <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42]" style={{ fontSize: '20px' }}>
-            {card.title}
-          </h3>
-          <span className="bg-[#fef1eb] text-[#e1513b] text-xs px-3 py-1 rounded-full font-semibold">
-            {card.category}
-          </span>
-        </div>
+        <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42]" style={{ fontSize: '20px' }}>
+          {card.title}
+        </h3>
 
         <div className="mt-2 flex items-center gap-1.5 text-[11px] text-[#6b7390]">
           <Hexagon className="h-3.5 w-3.5 text-[hsl(var(--accent))]" />
           <span>DQ Workspace · Real scenario</span>
         </div>
 
-        <p className="mt-4 text-[#131e42] leading-[1.28] font-normal" style={{ fontSize: '16px' }}>
-          <span className="font-semibold">Problem:</span> {card.problem}
+        <p className="mt-4 text-[#131e42] leading-[1.28] font-semibold" style={{ fontSize: '16px' }}>
+          {question}
         </p>
 
+        {blocker ? (
+          <p className="mt-2 text-[#6b7390] text-sm leading-snug">
+            {blocker}
+          </p>
+        ) : null}
+
         <p className="mt-3 text-[#4a5678] leading-snug font-normal" style={{ fontSize: '16px' }}>
-          <span className="font-semibold">Response:</span> {card.response}
+          {description}
         </p>
 
         <button
           type="button"
-          onClick={() => navigate(card.route)}
-          className="mt-auto pt-5 text-[hsl(var(--accent))] font-semibold inline-flex items-center gap-1 hover:underline self-start"
+          onClick={isLocked ? undefined : () => navigate(card.route)}
+          aria-disabled={isLocked}
+          className={[
+            'mt-auto pt-5 font-semibold inline-flex items-center gap-2 self-start',
+            isLocked
+              ? 'text-[#9aa4c6] cursor-not-allowed'
+              : 'text-[hsl(var(--accent))] hover:underline',
+          ].join(' ')}
         >
+          {isLocked ? <Lock className="h-4 w-4" /> : null}
           {card.ctaLabel ?? 'Explore in Knowledge Center →'}
+          {isLocked ? <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span> : null}
         </button>
       </div>
     </article>
@@ -1092,6 +1102,7 @@ function SevenResponsesRailCarousel({
   subtitleFontSize,
   tags,
   cards,
+  itemLabel = 'Response',
 }: {
   id: string;
   title: string;
@@ -1100,6 +1111,7 @@ function SevenResponsesRailCarousel({
   subtitleFontSize?: string;
   tags: string[];
   cards: CompetencyCard[];
+  itemLabel?: string;
 }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -1175,7 +1187,7 @@ function SevenResponsesRailCarousel({
             <aside className="p-5 md:p-6">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-xs font-semibold tracking-[0.18em] uppercase text-[#6b7390]">
-                  Response {selectedIndex + 1} of {cards.length}
+                  {itemLabel} {selectedIndex + 1} of {cards.length}
                 </span>
                 <div className="flex items-center gap-2">
                   <button
@@ -1278,6 +1290,7 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
   const takeActionTitleFontSize = content?.takeActionTitleFontSize;
   const takeActionSubtitleFontSize = content?.takeActionSubtitleFontSize;
   const takeActionLayout = content?.takeActionLayout ?? 'grid';
+  const isActionLocked = (card: ActionCard) => /knowledge center/i.test(card.title);
   const handleNavigate = (path: string) => {
     if (path.startsWith('http')) {
       window.open(path, '_blank', 'noopener,noreferrer');
@@ -1361,10 +1374,17 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
 
                 <button
                   type="button"
-                  onClick={() => handleNavigate(card.path)}
-                  className={`mt-5 inline-flex items-center gap-2 text-sm font-semibold ${card.accent} hover:opacity-80`}
+                  onClick={isActionLocked(card) ? undefined : () => handleNavigate(card.path)}
+                  aria-disabled={isActionLocked(card)}
+                  className={`mt-5 inline-flex items-center gap-2 text-sm font-semibold ${
+                    isActionLocked(card) ? 'text-[#9aa4c6] cursor-not-allowed' : `${card.accent} hover:opacity-80`
+                  }`}
                 >
+                  {isActionLocked(card) ? <Lock className="h-4 w-4" /> : null}
                   {card.cta}
+                  {isActionLocked(card) ? (
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span>
+                  ) : null}
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </motion.div>
@@ -1378,6 +1398,7 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
   const primaryCard = actionCards.find((card) => card.variant === 'primary') ?? actionCards[0];
   const secondaryCards = actionCards.filter((card) => card !== primaryCard);
   const hasPrimary = Boolean(primaryCard);
+  const isPrimaryLight = Boolean(primaryCard?.bg?.includes('#e6ebff'));
 
   return (
     <section
@@ -1418,34 +1439,50 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
                 variants={itemVariants}
                 initial="hidden"
                 animate={isInView ? 'visible' : 'hidden'}
-                className={`group relative p-8 md:p-10 rounded-3xl border shadow-[0_18px_36px_rgba(0,0,0,0.12)] bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b] text-white`}
+                className={`group relative p-8 md:p-10 rounded-3xl border shadow-[0_18px_36px_rgba(0,0,0,0.12)] ${
+                  primaryCard?.bg ?? 'bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b]'
+                } ${isPrimaryLight ? 'text-[#131e42]' : 'text-white'}`}
               >
                 <div className="flex flex-col md:flex-row md:items-start md:gap-6">
-                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
-                    <primaryCard.icon className="h-7 w-7" style={{ color: '#f0f6ff' }} />
+                  <div
+                    className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center shadow-[0_6px_16px_rgba(0,0,0,0.12)] ${
+                      isPrimaryLight ? 'bg-white border border-[#d9e3ff]' : 'bg-white/15 border border-white/20'
+                    }`}
+                  >
+                    <primaryCard.icon className="h-7 w-7" style={{ color: isPrimaryLight ? '#e1513b' : '#f0f6ff' }} />
                   </div>
                   <div className="flex-1 space-y-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-semibold tracking-[0.18em] uppercase text-[#fbd7cd]">
+                      <span
+                        className={`text-xs font-semibold tracking-[0.18em] uppercase ${
+                          isPrimaryLight ? 'text-[#131e42]' : 'text-[#fbd7cd]'
+                        }`}
+                      >
                         {primaryCard.badge}
                       </span>
-                      <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/15 border border-white/10 text-white">
+                      <span
+                        className={`inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-full ${
+                          isPrimaryLight ? 'bg-white border border-[#d9e3ff] text-[#131e42]' : 'bg-white/15 border border-white/10 text-white'
+                        }`}
+                      >
                         Start
                       </span>
                     </div>
                     <h3 className="ghc-font-display text-2xl md:text-3xl font-semibold">
                       {primaryCard.title}
                     </h3>
-                    <p className="text-base md:text-lg text-white/90 leading-relaxed">
+                    <p className={`text-base md:text-lg leading-relaxed ${isPrimaryLight ? 'text-[#4a5678]' : 'text-white/90'}`}>
                       {primaryCard.description}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {primaryCard.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="inline-flex items-center gap-1 rounded-full bg-white/15 text-white px-3 py-1 text-xs font-medium border border-white/20"
+                          className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${
+                            isPrimaryLight ? 'bg-white text-[#131e42] border border-[#d9e3ff]' : 'bg-white/15 text-white border border-white/20'
+                          }`}
                         >
-                          <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
+                          <span className={`h-1.5 w-1.5 rounded-full ${isPrimaryLight ? 'bg-[#e1513b]' : 'bg-white/80'}`} />
                           {tag}
                         </span>
                       ))}
@@ -1455,10 +1492,19 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
                 <div className="mt-6">
                   <button
                     type="button"
-                    onClick={() => handleNavigate(primaryCard.path)}
-                    className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-[#131e42] font-semibold shadow-[0_10px_24px_rgba(0,0,0,0.18)] hover:bg-[#f0f6ff] transition-colors"
+                    onClick={isActionLocked(primaryCard) ? undefined : () => handleNavigate(primaryCard.path)}
+                    aria-disabled={isActionLocked(primaryCard)}
+                    className={`inline-flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-colors ${
+                      isPrimaryLight
+                        ? 'bg-transparent border border-[#d9e3ff] text-[#131e42] hover:bg-white/60'
+                        : 'bg-white text-[#131e42] shadow-[0_10px_24px_rgba(0,0,0,0.18)] hover:bg-[#f0f6ff]'
+                    }`}
                   >
+                    {isActionLocked(primaryCard) ? <Lock className="h-5 w-5" /> : null}
                     {primaryCard.cta}
+                    {isActionLocked(primaryCard) ? (
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span>
+                    ) : null}
                     <ArrowRight className="h-5 w-5" />
                   </button>
                 </div>
@@ -1507,10 +1553,17 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
                     </div>
                     <button
                       type="button"
-                      onClick={() => handleNavigate(item.path)}
-                      className={`inline-flex items-center gap-1 text-sm font-semibold mt-6 ${item.accent} group-hover:underline`}
+                      onClick={isActionLocked(item) ? undefined : () => handleNavigate(item.path)}
+                      aria-disabled={isActionLocked(item)}
+                      className={`inline-flex items-center gap-1 text-sm font-semibold mt-6 ${
+                        isActionLocked(item) ? 'text-[#9aa4c6] cursor-not-allowed' : `${item.accent} group-hover:underline`
+                      }`}
                     >
+                      {isActionLocked(item) ? <Lock className="h-4 w-4" /> : null}
                       {item.cta}
+                      {isActionLocked(item) ? (
+                        <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span>
+                      ) : null}
                       <ArrowRight className="h-4 w-4" />
                     </button>
                   </motion.div>
@@ -1561,10 +1614,17 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
 
                 <button
                   type="button"
-                  onClick={() => handleNavigate(item.path)}
-                  className={`inline-flex items-center gap-1 text-sm font-semibold mt-6 ${item.accent} group-hover:underline`}
+                  onClick={isActionLocked(item) ? undefined : () => handleNavigate(item.path)}
+                  aria-disabled={isActionLocked(item)}
+                  className={`inline-flex items-center gap-1 text-sm font-semibold mt-6 ${
+                    isActionLocked(item) ? 'text-[#9aa4c6] cursor-not-allowed' : `${item.accent} group-hover:underline`
+                  }`}
                 >
+                  {isActionLocked(item) ? <Lock className="h-4 w-4" /> : null}
                   {item.cta}
+                  {isActionLocked(item) ? (
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span>
+                  ) : null}
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </motion.div>
@@ -1597,42 +1657,56 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
   return (
     <section
       ref={ref}
-      className="relative overflow-hidden"
+      className="relative overflow-hidden dq-gradient-animated"
       style={{
-        background:
-          'radial-gradient(circle at 20% 20%, rgba(240,246,255,0.35), transparent 45%), radial-gradient(circle at 80% 30%, rgba(225,81,59,0.25), transparent 45%), linear-gradient(115deg, #131e42 0%, #1f2d5c 60%, #e1513b 100%)',
+        background: 'linear-gradient(120deg, #131e42 0%, #1b2553 45%, #e1513b 100%)',
       }}
     >
+      <div className="dq-digital-bg" aria-hidden="true">
+        <svg viewBox="0 0 1440 640" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="dq-digital-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(240,246,255,0.6)" />
+              <stop offset="100%" stopColor="rgba(225,81,59,0.6)" />
+            </linearGradient>
+          </defs>
+          <path className="dq-digital-line" d="M-40 140 L240 90 L520 160 L820 110 L1160 170 L1480 120" />
+          <path className="dq-digital-line alt" d="M-60 260 L180 220 L520 300 L860 240 L1180 320 L1500 260" />
+          <path className="dq-digital-line" d="M-40 400 L260 360 L520 420 L820 370 L1120 430 L1460 380" />
+          <path className="dq-digital-line alt" d="M-80 520 L220 500 L520 560 L840 520 L1160 580 L1500 540" />
+          <path className="dq-digital-line" d="M120 60 L280 180 L460 80 L640 200 L820 120 L1040 220 L1240 140" />
+          <path className="dq-digital-line alt" d="M240 120 L420 260 L620 150 L840 300 L1040 190 L1260 320" />
+
+          <circle className="dq-digital-dot" cx="240" cy="90" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="520" cy="160" r="4" />
+          <circle className="dq-digital-dot" cx="820" cy="110" r="3" />
+          <circle className="dq-digital-dot alt" cx="1160" cy="170" r="4.5" />
+          <circle className="dq-digital-dot" cx="180" cy="220" r="3" />
+          <circle className="dq-digital-dot alt" cx="520" cy="300" r="4" />
+          <circle className="dq-digital-dot" cx="860" cy="240" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="1180" cy="320" r="4" />
+          <circle className="dq-digital-dot" cx="260" cy="360" r="3" />
+          <circle className="dq-digital-dot alt" cx="520" cy="420" r="4" />
+          <circle className="dq-digital-dot" cx="820" cy="370" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="1120" cy="430" r="4" />
+          <circle className="dq-digital-dot" cx="220" cy="500" r="3" />
+          <circle className="dq-digital-dot alt" cx="520" cy="560" r="4" />
+          <circle className="dq-digital-dot" cx="840" cy="520" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="1160" cy="580" r="4" />
+          <circle className="dq-digital-dot" cx="420" cy="260" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="640" cy="200" r="4" />
+          <circle className="dq-digital-dot" cx="1040" cy="220" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="1260" cy="320" r="4" />
+        </svg>
+      </div>
       <div className="container mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
         <div className="relative min-h-[420px] lg:min-h-[520px] flex items-center">
-          {/* Animated background orbs */}
-          <motion.div
-            className="absolute w-[420px] h-[420px] rounded-full blur-3xl"
-            style={{ left: '-10%', top: '10%', backgroundColor: 'rgba(240,246,255,0.28)' }}
-            animate={{ x: [0, 30, -10, 0], y: [0, -20, 10, 0], scale: [1, 1.06, 1] }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute w-[360px] h-[360px] rounded-full blur-3xl"
-            style={{ right: '5%', bottom: '-5%', backgroundColor: 'rgba(225,81,59,0.28)' }}
-            animate={{ x: [0, -25, 15, 0], y: [0, 18, -12, 0], scale: [1, 1.05, 1] }}
-            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-          />
-
           <motion.div
             className="relative z-10 max-w-3xl py-16 md:py-20 px-2 sm:px-4 md:px-0 text-left"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
           >
-          <motion.p
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-white/15 border border-[#e1513b]/50 text-[#e1513b] backdrop-blur mb-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.15 }}
-          >
-            DQ DIGITAL WORKSPACE
-          </motion.p>
             <motion.h2
               className="ghc-font-display font-bold text-4xl sm:text-5xl md:text-5xl lg:text-6xl leading-[1.1] text-white tracking-tight"
               initial={{ opacity: 0, y: 20 }}

@@ -65,7 +65,7 @@ export const perspectives: Perspective[] = [
     title: "Digital Worker & Workspace",
     tag: "Digital Worker & Workspace",
     subtitle: "DQ Workspace · Real scenario",
-    question: "Who delivers change — and how do they work daily?",
+    question: "Who delivers change and how do they work daily?",
     description:
       "Redesigns roles, skills, and environments so execution becomes normal work, not extra effort.",
     imageSrc: "https://image2url.com/r2/default/images/1770021849077-fe5f09ea-4467-4e4c-b1da-a46420d40712.png",

@@ -37,6 +37,7 @@ import OnboardingLanding from "./pages/OnboardingLanding";
 import { OnboardingJourney } from "./pages/OnboardingJourney";
 import GHCLanding from "./pages/GHCLanding";
 import SixXDLanding from "./pages/6XDLanding";
+import SixXDProductsLanding from "./pages/6XDProductsLanding";
 import DigitalAcceleratorsLanding from "./pages/DigitalAcceleratorsLanding";
 
 export function AppRouter() {
@@ -69,6 +70,7 @@ export function AppRouter() {
             <Route path="/onboarding/journey" element={<OnboardingJourney />} />
             <Route path="/ghc" element={<GHCLanding />} />
             <Route path="/6xd" element={<SixXDLanding />} />
+            <Route path="/6xd-products" element={<SixXDProductsLanding />} />
             <Route path="/knowledge-center/products/digital-accelerators" element={<DigitalAcceleratorsLanding />} />
                 <Route
                   path="/onboarding/:itemId"
