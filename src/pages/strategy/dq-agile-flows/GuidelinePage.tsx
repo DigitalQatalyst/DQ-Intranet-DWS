@@ -1,30 +1,24 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronRightIcon, BookOpen, PlayCircle, Eye, Clock } from 'lucide-react'
+import { ChevronRightIcon, BookOpen, PlayCircle, Eye } from 'lucide-react'
 import { Header } from '../../../components/Header'
 import { Footer } from '../../../components/Footer'
 import { supabaseClient } from '../../../lib/supabaseClient'
 import { HeroSection } from '../shared/HeroSection'
 import { GuidelineSection } from '../shared/GuidelineSection'
-import MarkdownRenderer from '../../../components/guides/MarkdownRenderer'
+import { GUIDE_CONTENT } from '../../../constants/guideContent'
 
 function GuidelinePage() {
   const currentSlug = 'dq-agile-flows'
-  const displayTitle = 'GHC 6 - Agile Flows (Value Streams)'
   
   const [guide, setGuide] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'storybook' | 'course'>('overview')
 
-  // Get just the first paragraph
-  const getFirstParagraph = (text: string) => {
-    if (!text) return ''
-    const paragraphs = text.split('\n\n').filter(p => p.trim().length > 0)
-    return paragraphs[0] || ''
-  }
-
-  const agileFlowsIntroBody = "Value streams are the pathways through which value flows from concept to customer. At DQ, our Agile Flows framework isn't just about process mapping—it's about understanding, optimizing, and accelerating the flow of value across the entire organization.\n\nThe Agile Flows competency articulates how we visualize, measure, and improve value delivery. It answers the fundamental question: \"How do we ensure value flows efficiently from idea to impact?\""
+  // Get content from constants
+  const content = GUIDE_CONTENT[currentSlug]
+  const displayTitle = content?.title || guide?.title || ''
 
   useEffect(() => {
     let cancelled = false
@@ -48,14 +42,6 @@ function GuidelinePage() {
               return
             }
             setGuide(data)
-            console.log('✅ [DQ-AGILE-FLOWS] Guide loaded:', {
-              id: data.id,
-              slug: data.slug,
-              title: data.title,
-              bodyLength: data.body?.length || 0,
-              expectedSlug: currentSlug,
-              match: data.slug?.toLowerCase() === currentSlug.toLowerCase()
-            })
           } else {
             setError('Guide not found')
           }
@@ -123,18 +109,16 @@ function GuidelinePage() {
       {/* Hero Section */}
       <HeroSection 
         title={displayTitle}
-        subtitle="DQ Leadership - Digital Qatalyst"
+        subtitle={content.subtitle}
         imageUrl="/images/guidelines-content.PNG"
         badge="Strategy Framework"
       />
 
       <main className="flex-1">
         <div className="px-4 py-12">
-          {/* Tab Content - Full Width */}
           <div className="bg-white rounded-lg shadow-sm">
             <div className="max-w-6xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                {/* Main Content - Left Side (3 columns) */}
                 <div className="lg:col-span-3">
                   {/* Tabs */}
                   <div className="border-b border-gray-200">
@@ -181,89 +165,31 @@ function GuidelinePage() {
                     </nav>
                   </div>
 
-                  {/* Tab Content - Centered */}
-                  <div className="p-8 md:p-12">
+                  {/* Tab Content */}
+                  <div className="p-6 md:p-8">
                     {activeTab === 'overview' && (
                       <div className="max-w-5xl mx-auto space-y-10">
                         {/* Main Description */}
                         <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
-                          <MarkdownRenderer body={agileFlowsIntroBody} />
+                          <p>{content.shortOverview}</p>
                         </div>
 
                         {/* Course Highlights Section */}
                         <div className="space-y-5">
                           <h3 className="text-xl font-semibold text-gray-900">Course Highlights</h3>
                           <div className="space-y-4">
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 mt-0.5">
-                                <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
+                            {content.highlights.map((highlight, index) => (
+                              <div key={index} className="flex items-start gap-3">
+                                <div className="flex-shrink-0 mt-0.5">
+                                  <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                                <p className="text-gray-700 text-base leading-relaxed">
+                                  {highlight}
+                                </p>
                               </div>
-                              <p className="text-gray-700 text-base leading-relaxed">
-                                Value stream mapping: Learn how to visualize and optimize your delivery pipeline.
-                              </p>
-                            </div>
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 mt-0.5">
-                                <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                              </div>
-                              <p className="text-gray-700 text-base leading-relaxed">
-                                Flow optimization: Understand how to improve throughput and reduce cycle time.
-                              </p>
-                            </div>
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 mt-0.5">
-                                <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                              </div>
-                              <p className="text-gray-700 text-base leading-relaxed">
-                                End-to-end delivery: Master the complete flow from concept to customer value.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* What You Will Learn Section */}
-                        <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
-                          <div className="flex items-center gap-3 mb-6">
-                            <div className="flex-shrink-0">
-                              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                              </div>
-                            </div>
-                            <h3 className="text-2xl font-bold text-gray-900">What You'll Learn</h3>
-                          </div>
-                          <div className="space-y-5">
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 mt-1.5">
-                                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                              </div>
-                              <p className="text-gray-700 text-base leading-relaxed">
-                                <span className="font-semibold">Flow Principles:</span> Understand the core concepts of flow-based delivery.
-                              </p>
-                            </div>
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 mt-1.5">
-                                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                              </div>
-                              <p className="text-gray-700 text-base leading-relaxed">
-                                <span className="font-semibold">Value Streams:</span> Learn how to map and optimize your value delivery streams.
-                              </p>
-                            </div>
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 mt-1.5">
-                                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                              </div>
-                              <p className="text-gray-700 text-base leading-relaxed">
-                                <span className="font-semibold">Continuous Improvement:</span> Apply flow metrics to continuously improve delivery.
-                              </p>
-                            </div>
+                            ))}
                           </div>
                         </div>
 
@@ -284,63 +210,83 @@ function GuidelinePage() {
                         </div>
                       </div>
                     )}
-                            <span>View Details</span>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </Link>
-                        </div>
-                      </div>
-                    )}
 
                     {activeTab === 'storybook' && (
                       <GuidelineSection id="storybook" title="Explore Story Book">
-                        <div className="text-center py-12">
-                          <BookOpen size={64} className="mx-auto text-blue-500 mb-4" />
-                          <h3 className="text-xl font-semibold text-gray-900 mb-4">Agile Flows Story Book</h3>
-                          <p className="text-gray-600 mb-8">
-                            Explore the interactive story book that brings the DQ Agile Flows framework to life through engaging narratives and visual storytelling.
-                          </p>
-                          <button
-                            onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
-                            className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
-                            style={{ backgroundColor: '#030E31' }}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
-                          >
-                            <BookOpen size={16} />
-                            Open Story Book
-                          </button>
+                        <div className="max-w-5xl mx-auto space-y-10">
+                          {/* Storybook Description */}
+                          <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
+                            <p>{content.storybookIntro}</p>
+                          </div>
+
+                          {/* What You Will Learn Section - Moved to Storybook Tab */}
+                          <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
+                            <div className="flex items-center gap-3 mb-6">
+                              <div className="flex-shrink-0">
+                                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                              </div>
+                              <h3 className="text-2xl font-bold text-gray-900">What You'll Learn</h3>
+                            </div>
+                            <div className="space-y-5">
+                              {content.whatYouWillLearn.map((item, index) => (
+                                <div key={index} className="flex items-start gap-3">
+                                  <div className="flex-shrink-0 mt-1.5">
+                                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                                  </div>
+                                  <p className="text-gray-700 text-base leading-relaxed">
+                                    {item}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Open Storybook Button */}
+                          <div className="text-center py-8">
+                            <button
+                              onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
+                              className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
+                              style={{ backgroundColor: '#030E31' }}
+                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
+                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
+                            >
+                              <BookOpen size={16} />
+                              Open Story Book
+                            </button>
+                          </div>
                         </div>
                       </GuidelineSection>
                     )}
 
                     {activeTab === 'course' && (
-                      <GuidelineSection id="course" title="Course - Video Learning">
+                      <GuidelineSection id="course" title="Course - Learning Center">
                         <div className="space-y-8">
                           <div className="text-center">
                             <PlayCircle size={64} className="mx-auto text-blue-500 mb-4" />
-                            <h3 className="text-xl font-semibold text-gray-900 mb-4">Agile Flows Video Course</h3>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-4">{content.title} Course</h3>
                             <p className="text-gray-600 mb-8">
-                              Deepen your understanding of the DQ Agile Flows framework through our comprehensive video learning modules.
+                              Continue into the learning center to explore the course modules.
                             </p>
                           </div>
                           
-                          {/* Course Button Section */}
                           <div className="bg-white rounded-lg border border-gray-200 p-6">
                             <div className="flex items-center justify-between">
                               <div className="flex-1">
-                                <h4 className="text-lg font-semibold text-gray-900 mb-1">DQ Agile Flows Course</h4>
-                                <p className="text-sm text-gray-600">Complete learning module</p>
+                                <h4 className="text-lg font-semibold text-gray-900 mb-1">{content.title} Course</h4>
+                                <p className="text-sm text-gray-600">Learning center track</p>
                               </div>
                               <a
-                                href="https://dq-intranet-pykepfa4x-digitalqatalysts-projects.vercel.app/lms/ghc-course/lesson/f237a74a-48fe-4388-ae47-aa8c3dbd3a0a"
+                                href="https://dq-intranet-pykepfa4x-digitalqatalysts-projects.vercel.app/lms/ghc-course"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                               >
                                 <PlayCircle size={16} />
-                                <span>Start</span>
+                                <span>Start Course</span>
                               </a>
                             </div>
                           </div>
@@ -349,8 +295,6 @@ function GuidelinePage() {
                     )}
                   </div>
                 </div>
-
-                {/* Course summary sidebar removed per request */}
               </div>
             </div>
           </div>
@@ -363,10 +307,3 @@ function GuidelinePage() {
 }
 
 export default GuidelinePage
-
-
-
-
-
-
-

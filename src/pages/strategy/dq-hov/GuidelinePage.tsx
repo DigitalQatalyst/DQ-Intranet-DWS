@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronRightIcon, BookOpen, PlayCircle, Eye, Clock } from 'lucide-react'
+import { ChevronRightIcon, BookOpen, PlayCircle, Eye } from 'lucide-react'
 import { Header } from '../../../components/Header'
 import { Footer } from '../../../components/Footer'
 import { supabaseClient } from '../../../lib/supabaseClient'
 import { HeroSection } from '../shared/HeroSection'
 import { GuidelineSection } from '../shared/GuidelineSection'
-import MarkdownRenderer from '../../../components/guides/MarkdownRenderer'
+import { GUIDE_CONTENT } from '../../../constants/guideContent'
 
 function GuidelinePage() {
   const currentSlug = 'dq-hov'
@@ -14,33 +14,11 @@ function GuidelinePage() {
   const [guide, setGuide] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'storybook' | 'course'>('overview')
 
-  const hovIntroFirstParagraph = "Whether you are joining DigitalQatalyst for the first time or continuing to grow within it, one thing becomes clear quickly: how we work together matters as much as what we deliver.\n\nAt DQ, culture is not something that emerges by chance. We've made peace with a difficult truth, culture will happen with or without intention. And if it is left undefined, it will quietly shape decisions, behaviours, and outcomes in ways we didn't choose."
-
-  const formatGhcTitle = (title: string) => {
-    const t = (title || '').trim()
-    const m1 = /^GHC\s*(?:Competency\s*)?(\d+)\s*:\s*(.+)$/i.exec(t)
-    if (m1) return `GHC ${m1[1]} - ${m1[2].trim()}`
-    const m2 = /^GHC\s*(\d+)\s*[-:]\s*(.+)$/i.exec(t)
-    if (m2) return `GHC ${m2[1]} - ${m2[2].trim()}`
-    return t
-  }
-
-  const displayTitle = formatGhcTitle(guide?.title || '') || guide?.title || ''
-
-  // Get just the first paragraph, excluding unwanted content
-  const getFirstParagraph = (text: string) => {
-    if (!text) return ''
-    const paragraphs = text.split('\n\n').filter(p => p.trim().length > 0)
-    
-    // Filter out paragraphs that start with "So we chose to design it."
-    const filteredParagraphs = paragraphs.filter(p => 
-      !p.trim().startsWith('So we chose to design it.')
-    )
-    
-    return filteredParagraphs[0] || ''
-  }
+  // Get content from constants
+  const content = GUIDE_CONTENT[currentSlug]
+  const displayTitle = content?.title || guide?.title || ''
 
   useEffect(() => {
     let cancelled = false
@@ -57,7 +35,6 @@ function GuidelinePage() {
         
         if (!cancelled) {
           if (data) {
-            // Validate that the fetched guide matches the expected slug
             if (data.slug?.toLowerCase() !== currentSlug.toLowerCase()) {
               console.error(`Slug mismatch! Expected: ${currentSlug}, Got: ${data.slug}`)
               setError(`Data integrity error: Guide slug mismatch. Expected '${currentSlug}' but got '${data.slug}'`)
@@ -65,15 +42,6 @@ function GuidelinePage() {
               return
             }
             setGuide(data)
-            console.log('✅ [DQ-HOV] Guide loaded:', {
-              id: data.id,
-              slug: data.slug,
-              title: data.title,
-              bodyLength: data.body?.length || 0,
-              bodyPreview: data.body ? data.body.substring(0, 100).replace(/\n/g, ' ') : 'EMPTY',
-              expectedSlug: currentSlug,
-              match: data.slug?.toLowerCase() === currentSlug.toLowerCase()
-            })
           } else {
             setError('Guide not found')
           }
@@ -141,18 +109,16 @@ function GuidelinePage() {
       {/* Hero Section */}
       <HeroSection 
         title={displayTitle}
-        subtitle="DQ Leadership - Digital Qatalyst"
+        subtitle={content.subtitle}
         imageUrl="/images/guidelines-content.PNG"
         badge="Strategy Framework"
       />
 
       <main className="flex-1">
         <div className="px-4 py-12">
-          {/* Tab Content - Full Width */}
           <div className="bg-white rounded-lg shadow-sm">
             <div className="max-w-6xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                {/* Main Content - Left Side (3 columns) */}
                 <div className="lg:col-span-3">
                   {/* Tabs */}
                   <div className="border-b border-gray-200">
@@ -199,91 +165,31 @@ function GuidelinePage() {
                     </nav>
                   </div>
 
-                  {/* Tab Content - Centered */}
-                  <div className="p-8 md:p-12">
+                  {/* Tab Content */}
+                  <div className="p-6 md:p-8">
                     {activeTab === 'overview' && (
                       <div className="max-w-5xl mx-auto space-y-10">
                         {/* Main Description */}
-                        {hovIntroFirstParagraph && (
-                          <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
-                            <MarkdownRenderer body={hovIntroFirstParagraph} />
-                          </div>
-                        )}
+                        <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
+                          <p>{content.shortOverview}</p>
+                        </div>
 
                         {/* Course Highlights Section */}
                         <div className="space-y-5">
                           <h3 className="text-xl font-semibold text-gray-900">Course Highlights</h3>
                           <div className="space-y-4">
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 mt-0.5">
-                                <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
+                            {content.highlights.map((highlight, index) => (
+                              <div key={index} className="flex items-start gap-3">
+                                <div className="flex-shrink-0 mt-0.5">
+                                  <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                                <p className="text-gray-700 text-base leading-relaxed">
+                                  {highlight}
+                                </p>
                               </div>
-                              <p className="text-gray-700 text-base leading-relaxed">
-                                Value-driven culture: Explore the 12 core values that shape DQ's identity and behavior.
-                              </p>
-                            </div>
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 mt-0.5">
-                                <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                              </div>
-                              <p className="text-gray-700 text-base leading-relaxed">
-                                Shared principles: Learn how values translate into everyday decisions and actions.
-                              </p>
-                            </div>
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 mt-0.5">
-                                <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                              </div>
-                              <p className="text-gray-700 text-base leading-relaxed">
-                                Cultural alignment: Understand how values create cohesion across teams and projects.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* What You Will Learn Section */}
-                        <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
-                          <div className="flex items-center gap-3 mb-6">
-                            <div className="flex-shrink-0">
-                              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                              </div>
-                            </div>
-                            <h3 className="text-2xl font-bold text-gray-900">What You'll Learn</h3>
-                          </div>
-                          <div className="space-y-5">
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 mt-1.5">
-                                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                              </div>
-                              <p className="text-gray-700 text-base leading-relaxed">
-                                <span className="font-semibold">The 12 Core Values:</span> Discover the values that define DQ's culture and guide behavior.
-                              </p>
-                            </div>
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 mt-1.5">
-                                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                              </div>
-                              <p className="text-gray-700 text-base leading-relaxed">
-                                <span className="font-semibold">Values in Practice:</span> Learn how to apply these values in your daily work and interactions.
-                              </p>
-                            </div>
-                            <div className="flex items-start gap-3">
-                              <div className="flex-shrink-0 mt-1.5">
-                                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                              </div>
-                              <p className="text-gray-700 text-base leading-relaxed">
-                                <span className="font-semibold">Building Culture:</span> Understand how shared values create a strong, cohesive team culture.
-                              </p>
-                            </div>
+                            ))}
                           </div>
                         </div>
 
@@ -307,52 +213,80 @@ function GuidelinePage() {
 
                     {activeTab === 'storybook' && (
                       <GuidelineSection id="storybook" title="Explore Story Book">
-                        <div className="text-center py-12">
-                          <BookOpen size={64} className="mx-auto text-blue-500 mb-4" />
-                          <h3 className="text-xl font-semibold text-gray-900 mb-4">House of Values Story Book</h3>
-                          <p className="text-gray-600 mb-8">
-                            Explore the interactive story book that brings the DQ House of Values framework to life through engaging narratives and visual storytelling.
-                          </p>
-                          <button
-                            onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
-                            className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
-                            style={{ backgroundColor: '#030E31' }}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
-                          >
-                            <BookOpen size={16} />
-                            Open Story Book
-                          </button>
+                        <div className="max-w-5xl mx-auto space-y-10">
+                          {/* Storybook Description */}
+                          <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
+                            <p>{content.storybookIntro}</p>
+                          </div>
+
+                          {/* What You Will Learn Section - Moved to Storybook Tab */}
+                          <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
+                            <div className="flex items-center gap-3 mb-6">
+                              <div className="flex-shrink-0">
+                                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                              </div>
+                              <h3 className="text-2xl font-bold text-gray-900">What You'll Learn</h3>
+                            </div>
+                            <div className="space-y-5">
+                              {content.whatYouWillLearn.map((item, index) => (
+                                <div key={index} className="flex items-start gap-3">
+                                  <div className="flex-shrink-0 mt-1.5">
+                                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                                  </div>
+                                  <p className="text-gray-700 text-base leading-relaxed">
+                                    {item}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Open Storybook Button */}
+                          <div className="text-center py-8">
+                            <button
+                              onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
+                              className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
+                              style={{ backgroundColor: '#030E31' }}
+                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
+                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
+                            >
+                              <BookOpen size={16} />
+                              Open Story Book
+                            </button>
+                          </div>
                         </div>
                       </GuidelineSection>
                     )}
 
                     {activeTab === 'course' && (
-                      <GuidelineSection id="course" title="Course - Video Learning">
+                      <GuidelineSection id="course" title="Course - Learning Center">
                         <div className="space-y-8">
                           <div className="text-center">
                             <PlayCircle size={64} className="mx-auto text-blue-500 mb-4" />
-                            <h3 className="text-xl font-semibold text-gray-900 mb-4">House of Values Video Course</h3>
+                            <h3 className="text-xl font-semibold text-gray-900 mb-4">{content.title} Course</h3>
                             <p className="text-gray-600 mb-8">
-                              Deepen your understanding of the DQ House of Values framework through our comprehensive video learning modules.
+                              Continue into the learning center to explore the course modules.
                             </p>
                           </div>
                           
-                          {/* Course Button Section */}
                           <div className="bg-white rounded-lg border border-gray-200 p-6">
                             <div className="flex items-center justify-between">
                               <div className="flex-1">
-                                <h4 className="text-lg font-semibold text-gray-900 mb-1">DQ House of Values Course</h4>
-                                <p className="text-sm text-gray-600">Complete learning module</p>
+                                <h4 className="text-lg font-semibold text-gray-900 mb-1">{content.title} Course</h4>
+                                <p className="text-sm text-gray-600">Learning center track</p>
                               </div>
                               <a
-                                href="https://dq-intranet-pykepfa4x-digitalqatalysts-projects.vercel.app/lms/ghc-course/lesson/f930b2a4-b107-4e7b-af01-c820773e00bb"
+                                href="https://dq-intranet-pykepfa4x-digitalqatalysts-projects.vercel.app/lms/ghc-course"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                               >
                                 <PlayCircle size={16} />
-                                <span>Start</span>
+                                <span>Start Course</span>
                               </a>
                             </div>
                           </div>
@@ -361,8 +295,6 @@ function GuidelinePage() {
                     )}
                   </div>
                 </div>
-
-                {/* Course summary sidebar removed per request */}
               </div>
             </div>
           </div>
@@ -375,6 +307,3 @@ function GuidelinePage() {
 }
 
 export default GuidelinePage
-
-
-

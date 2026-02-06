@@ -1,4 +1,25 @@
-import { useState, useEffect } from 'react'
+/**
+ * Script to update all 8 guide detail pages with new content structure
+ * This updates the content to use the GUIDE_CONTENT constants
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+// Define the pages to update (excluding ghc which is already done)
+const pagesToUpdate = [
+  { slug: 'dq-vision', folder: 'dq-vision' },
+  { slug: 'dq-hov', folder: 'dq-hov' },
+  { slug: 'dq-persona', folder: 'dq-persona' },
+  { slug: 'dq-agile-tms', folder: 'dq-agile-tms' },
+  { slug: 'dq-agile-sos', folder: 'dq-agile-sos' },
+  { slug: 'dq-agile-flows', folder: 'dq-agile-flows' },
+  { slug: 'dq-agile-6xd', folder: 'dq-agile-6xd' }
+];
+
+// Template for the updated page
+const generatePageContent = (slug, folder) => {
+  return `import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRightIcon, BookOpen, PlayCircle, Eye } from 'lucide-react'
 import { Header } from '../../../components/Header'
@@ -9,7 +30,7 @@ import { GuidelineSection } from '../shared/GuidelineSection'
 import { GUIDE_CONTENT } from '../../../constants/guideContent'
 
 function GuidelinePage() {
-  const currentSlug = 'dq-agile-6xd'
+  const currentSlug = '${slug}'
   
   const [guide, setGuide] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -36,8 +57,8 @@ function GuidelinePage() {
         if (!cancelled) {
           if (data) {
             if (data.slug?.toLowerCase() !== currentSlug.toLowerCase()) {
-              console.error(`Slug mismatch! Expected: ${currentSlug}, Got: ${data.slug}`)
-              setError(`Data integrity error: Guide slug mismatch. Expected '${currentSlug}' but got '${data.slug}'`)
+              console.error(\`Slug mismatch! Expected: \${currentSlug}, Got: \${data.slug}\`)
+              setError(\`Data integrity error: Guide slug mismatch. Expected '\${currentSlug}' but got '\${data.slug}'\`)
               setLoading(false)
               return
             }
@@ -125,11 +146,11 @@ function GuidelinePage() {
                     <nav className="flex -mb-px">
                       <button
                         onClick={() => setActiveTab('overview')}
-                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
+                        className={\`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none \${
                           activeTab === 'overview'
                             ? 'border-blue-500 text-blue-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
+                        }\`}
                       >
                         <div className="flex items-center gap-2">
                           <Eye size={16} />
@@ -138,11 +159,11 @@ function GuidelinePage() {
                       </button>
                       <button
                         onClick={() => setActiveTab('storybook')}
-                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
+                        className={\`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none \${
                           activeTab === 'storybook'
                             ? 'border-blue-500 text-blue-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
+                        }\`}
                       >
                         <div className="flex items-center gap-2">
                           <BookOpen size={16} />
@@ -151,11 +172,11 @@ function GuidelinePage() {
                       </button>
                       <button
                         onClick={() => setActiveTab('course')}
-                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
+                        className={\`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none \${
                           activeTab === 'course'
                             ? 'border-blue-500 text-blue-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
+                        }\`}
                       >
                         <div className="flex items-center gap-2">
                           <PlayCircle size={16} />
@@ -196,7 +217,7 @@ function GuidelinePage() {
                         {/* View Details Button */}
                         <div className="text-right pt-4">
                           <Link
-                            to={`/marketplace/guides/${currentSlug}/details`}
+                            to={\`/marketplace/guides/\${currentSlug}/details\`}
                             className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-lg transition-colors"
                             style={{ backgroundColor: '#030E31' }}
                             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
@@ -307,3 +328,25 @@ function GuidelinePage() {
 }
 
 export default GuidelinePage
+`;
+};
+
+// Update each page
+pagesToUpdate.forEach(({ slug, folder }) => {
+  const filePath = path.join(__dirname, '..', 'src', 'pages', 'strategy', folder, 'GuidelinePage.tsx');
+  const content = generatePageContent(slug, folder);
+  
+  try {
+    fs.writeFileSync(filePath, content, 'utf8');
+    console.log(`✅ Updated: ${folder}/GuidelinePage.tsx`);
+  } catch (error) {
+    console.error(`❌ Failed to update ${folder}/GuidelinePage.tsx:`, error.message);
+  }
+});
+
+console.log('\n✨ All guide pages have been updated with new content structure!');
+console.log('\nChanges made:');
+console.log('1. Tab 1 (Overview): Now shows shortOverview + highlights');
+console.log('2. Tab 2 (Explore Storybook): Now shows storybookIntro + "What You Will Learn" section');
+console.log('3. Content is pulled from GUIDE_CONTENT constants');
+console.log('4. Subtitle added to HeroSection');
