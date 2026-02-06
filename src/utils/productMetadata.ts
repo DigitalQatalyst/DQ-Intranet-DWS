@@ -31,17 +31,17 @@ export const PRODUCT_METADATA: Record<string, ProductMetadata> = {
     description: 'A centralized platform that unifies transformation data, processes, and analytics under one governed system.',
     imageUrl: '/images/DTMP.jpg'
   },
-  'DTO4T - Digital Twin of Organization for Transformation': {
-    productType: 'DTO4T',
-    productStage: 'Pilot',
-    description: 'An AI-driven digital twin that accelerates transformation through simulated journeys and blueprinting.',
-    imageUrl: '/images/DTO4T.jpg'
+  'Plant 4.0': {
+    productType: 'Plant 4.0',
+    productStage: 'Live',
+    description: 'Revolutionizing industrial operations with real-time data, smart automation, and unmatched efficiency!',
+    imageUrl: '/images/plant4.0.png'
   },
-  'DTO4T': {
-    productType: 'DTO4T',
-    productStage: 'Pilot',
-    description: 'An AI-driven digital twin that accelerates transformation through simulated journeys and blueprinting.',
-    imageUrl: '/images/DTO4T.jpg'
+  'Plant4.0': {
+    productType: 'Plant 4.0',
+    productStage: 'Live',
+    description: 'Revolutionizing industrial operations with real-time data, smart automation, and unmatched efficiency!',
+    imageUrl: '/images/plant4.0.png'
   },
   'DTMA - Digital Transformation Management Academy': {
     productType: 'DTMA',
@@ -113,8 +113,8 @@ export function getProductMetadata(title: string | null | undefined): ProductMet
   if (lowerTitle.includes('dtmp') || lowerTitle.includes('transformation management platform')) {
     return PRODUCT_METADATA['DTMP']
   }
-  if (lowerTitle.includes('dto4t') || lowerTitle.includes('digital twin of organization')) {
-    return PRODUCT_METADATA['DTO4T']
+  if (lowerTitle.includes('plant 4.0') || lowerTitle.includes('plant4.0') || lowerTitle.includes('plant40')) {
+    return PRODUCT_METADATA['Plant 4.0']
   }
   if (lowerTitle.includes('dtma') || lowerTitle.includes('transformation management academy')) {
     return PRODUCT_METADATA['DTMA']

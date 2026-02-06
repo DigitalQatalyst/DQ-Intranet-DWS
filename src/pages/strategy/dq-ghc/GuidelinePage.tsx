@@ -90,8 +90,8 @@ function GuidelinePage() {
     let currentSection: { id: string; title: string; content: string } | null = null
     
     for (const line of lines) {
-      // Check for level 1 or level 2 headings
-      if (line.startsWith('# ') || line.startsWith('## ')) {
+      // Check for level 2 headings only (##, but not ###)
+      if (line.startsWith('## ') && !line.startsWith('### ')) {
         if (currentSection) {
           sections.push(currentSection)
         }

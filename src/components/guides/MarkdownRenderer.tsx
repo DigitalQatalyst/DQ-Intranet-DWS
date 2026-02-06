@@ -137,19 +137,18 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
       ] as any}
       components={{
         h2: ({ node, ...props }) => (
-          <h2 className="text-xl font-bold text-gray-900 mt-6 mb-4 pl-4 relative border-0 border-l-0 [&_*]:border-0" {...(props as any)}>
-            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+          <h2 className="text-xl font-bold text-gray-900 mt-6 mb-4 pl-5 relative border-0 border-l-0 [&_*]:border-0" {...(props as any)}>
+            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/60 to-transparent rounded-full"></span>
             {props.children}
           </h2>
         ),
         h3: ({ node, ...props }) => (
-          <h3 className="text-lg font-bold text-gray-900 mt-6 mb-4" {...(props as any)}>
+          <h3 className="text-lg font-bold text-gray-900 mt-6 mb-3" {...(props as any)}>
             {props.children}
           </h3>
         ),
         h4: ({ node, ...props }) => (
-          <h4 className="text-base font-bold text-gray-900 mt-4 mb-3 pl-4 relative border-0 border-l-0 [&_*]:border-0" {...(props as any)}>
-            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+          <h4 className="text-base font-bold text-gray-900 mt-5 mb-3" {...(props as any)}>
             {props.children}
           </h4>
         ),
@@ -157,15 +156,52 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
           // Constrain and lazy-load images for performance
           <img loading="lazy" decoding="async" style={{ maxWidth: '100%', height: 'auto' }} {...(props as any)} />
         ),
+        blockquote: ({ node, ...props }) => (
+          <blockquote 
+            className="relative my-8 py-6 px-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-600 rounded-r-lg shadow-sm"
+            {...(props as any)}
+          >
+            <div className="absolute top-4 left-4 text-6xl text-blue-200 font-serif leading-none">"</div>
+            <div className="relative z-10 italic text-xl text-gray-800 font-medium leading-relaxed">
+              {props.children}
+            </div>
+          </blockquote>
+        ),
+        em: ({ node, ...props }) => (
+          <em className="italic text-gray-800 font-medium" {...(props as any)} />
+        ),
+        strong: ({ node, ...props }) => (
+          <strong className="font-bold text-gray-900" {...(props as any)} />
+        ),
         ul: ({ node, ...props }) => (
-          <ul className="list-disc pl-6 space-y-1" {...(props as any)} />
+          <ul className="list-disc pl-6 space-y-1 my-4" {...(props as any)} />
         ),
         ol: ({ node, ...props }) => (
-          <ol className="list-decimal pl-6 space-y-1" {...(props as any)} />
+          <ol className="list-decimal pl-6 space-y-1 my-4" {...(props as any)} />
         ),
         li: ({ node, ...props }) => (
-          <li className="ml-1" {...(props as any)} />
+          <li className="ml-1 leading-relaxed" {...(props as any)} />
         ),
+        p: ({ node, ...props }) => {
+          // Check if this paragraph contains the special quote
+          const content = props.children
+          const isQuote = typeof content === 'string' && 
+            (content.includes('We become what we practice') || 
+             content.includes('especially when no one is watching'))
+          
+          if (isQuote) {
+            return (
+              <div className="relative my-8 py-6 px-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-600 rounded-r-lg shadow-sm">
+                <div className="absolute top-4 left-4 text-6xl text-blue-200 font-serif leading-none">"</div>
+                <p className="relative z-10 italic text-xl text-gray-800 font-medium leading-relaxed mb-0" {...(props as any)}>
+                  {props.children}
+                </p>
+              </div>
+            )
+          }
+          
+          return <p className="mb-4 leading-relaxed text-gray-700" {...(props as any)} />
+        },
         table: ({ node, ...props }) => (
           <div className="overflow-x-auto my-8">
             <table className="min-w-full border-collapse border border-gray-300" {...(props as any)} />

@@ -687,8 +687,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                   'dtma': ['dtma'],
                   'dtmp': ['dtmp'],
                   'plant-4-0': ['plant 4.0', 'plant-4.0', 'plant40'],
-                  'dtmcc': ['dtmcc'],
-                  'dto4t': ['dto4t', 'dto4t ']
+                  'dtmcc': ['dtmcc']
                 };
                 const searchTerms = typeMap[selectedType] || [normalizedSelected];
                 return searchTerms.some(term => itemProductType.includes(term));

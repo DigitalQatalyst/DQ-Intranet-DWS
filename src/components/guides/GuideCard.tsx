@@ -191,7 +191,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
         'Digital Transformation Management Academy (DTMA)',
         'Digital Business Platforms (DBP Assists)',
         'Digital Transformation Management Platform (DTMP)',
-        'DTO4T – Digital Transformation Operating Framework',
+        'Plant 4.0',
         'TMaaS – Transformation Management as a Service'
       ]
       

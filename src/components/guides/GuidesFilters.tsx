@@ -126,8 +126,7 @@ const PRODUCT_TYPES: Facet[] = [
   { id: 'dtma', name: 'DTMA' },
   { id: 'dtmp', name: 'DTMP' },
   { id: 'plant-4-0', name: 'Plant 4.0' },
-  { id: 'dtmcc', name: 'DTMCC' },
-  { id: 'dto4t', name: 'DTO4T' }
+  { id: 'dtmcc', name: 'DTMCC' }
 ]
 
 const PRODUCT_STAGES: Facet[] = [

@@ -47,8 +47,10 @@ function GuideDetailsPage() {
     for (const line of lines) {
       const trimmed = line.trim()
       
-      // Check if line is a heading (starts with #)
-      if (trimmed.startsWith('#')) {
+      // Check if line is a H2 heading (starts with ##, but not ###)
+      const isH2 = trimmed.match(/^##\s+[^#]/)
+      
+      if (isH2) {
         // Save previous section if exists
         if (currentSection) {
           currentSection.content = currentContent.join('\n')
@@ -56,7 +58,7 @@ function GuideDetailsPage() {
         }
         
         // Start new section
-        const title = trimmed.replace(/^#+\s*/, '')
+        const title = trimmed.replace(/^##\s*/, '')
         currentSection = {
           id: title.toLowerCase().replace(/\s+/g, '-'),
           title: title,
@@ -64,7 +66,7 @@ function GuideDetailsPage() {
         }
         currentContent = []
       } else {
-        // Add content to current section
+        // Add content to current section (including H3, H4, etc.)
         if (currentSection) {
           currentContent.push(line)
         }
@@ -192,9 +194,11 @@ function GuideDetailsPage() {
       >
         <div className="pl-20 pr-8 py-16">
           <div className="text-left">
-            <h1 className="text-4xl font-bold mb-4">{guide.title}</h1>
+            <h1 className="text-4xl font-bold mb-6">{guide.title}</h1>
             {guide.summary && (
-              <p className="text-xl mb-8 max-w-3xl opacity-90">{guide.summary}</p>
+              <p className="text-lg italic font-light text-white/95 leading-relaxed max-w-3xl mb-8 pl-8">
+                "{guide.summary}"
+              </p>
             )}
             
             {/* Guide Meta Info */}
@@ -227,22 +231,26 @@ function GuideDetailsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Main Content - Left Side */}
             <div className="lg:col-span-3">
-              <div className="bg-white rounded-lg shadow-sm p-8">
+              <div className="bg-white rounded-lg shadow-sm p-10">
                 {/* Guide Content Sections */}
-                <div className="space-y-12">
-                  {sections.map((section) => (
-                    <section key={section.id} id={section.id} className="scroll-mt-8">
-                      {/* Section Header with Dark Blue Line */}
-                      <div className="mb-6">
-                        <div className="flex items-center mb-3">
-                          {/* Vertical Dark Blue Line */}
-                          <div className="w-1 h-6 mr-4" style={{ backgroundColor: '#030E31' }} />
-                          <h2 className="text-2xl font-bold text-gray-900">{section.title}</h2>
+                <div className="space-y-10">
+                  {sections.map((section, index) => (
+                    <section 
+                      key={section.id} 
+                      id={section.id} 
+                      className={`scroll-mt-8 ${index !== 0 ? 'pt-6 border-t border-gray-100' : ''}`}
+                    >
+                      {/* Section Header with Dark Blue Gradient Line */}
+                      <div className="mb-5">
+                        <div className="flex items-start mb-3">
+                          {/* Vertical Dark Blue Gradient Line */}
+                          <div className="w-1 h-8 mr-4 bg-gradient-to-b from-[#030E31] via-[#1A2E6E] to-transparent rounded-full" />
+                          <h2 className="text-2xl font-bold text-gray-900 leading-tight">{section.title}</h2>
                         </div>
                       </div>
                       
                       {/* Section Content */}
-                      <div className="prose prose-lg max-w-none">
+                      <div className="prose prose-lg max-w-none pl-5">
                         <MarkdownRenderer body={section.content.trim()} />
                       </div>
                     </section>
@@ -253,17 +261,17 @@ function GuideDetailsPage() {
 
             {/* Table of Contents - Right Sidebar */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Table of Contents</h3>
-                <nav className="space-y-2">
+              <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8 border border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-900 mb-5 pb-3 border-b border-gray-200">Table of Contents</h3>
+                <nav className="space-y-1">
                   {sections.map((section) => (
                     <button
                       key={section.id}
                       onClick={() => scrollToSection(section.id)}
-                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
+                      className={`w-full text-left px-4 py-3 text-sm rounded-lg transition-all duration-200 ${
                         activeSection === section.id
-                          ? 'bg-blue-50 text-blue-700 font-medium'
-                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                          ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 font-semibold border-l-4 border-blue-600 shadow-sm'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-l-4 border-transparent'
                       }`}
                     >
                       {section.title}

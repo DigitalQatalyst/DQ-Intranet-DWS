@@ -39,21 +39,21 @@ export const STATIC_PRODUCTS: StaticProduct[] = [
     productStage: 'MVP'
   },
   {
-    id: 'static-product-dto4t',
-    title: 'DTO4T - Digital Twin of Organization for Transformation',
-    summary: 'An AI-driven digital twin that accelerates transformation through simulated journeys and blueprinting.',
+    id: 'static-product-plant40',
+    title: 'Plant 4.0',
+    summary: 'Revolutionizing industrial operations with real-time data, smart automation, and unmatched efficiency!',
     domain: 'Product',
     guideType: 'Marketplace',
-    heroImageUrl: '/images/DTO4T.jpg',
+    heroImageUrl: '/images/plant4.0.png',
     lastUpdatedAt: new Date().toISOString(),
     authorName: null,
     authorOrg: null,
     isEditorsPick: true,
     downloadCount: 0,
     status: 'Approved',
-    slug: 'dto4t-digital-twin-of-organization-for-transformation',
-    productType: 'DTO4T',
-    productStage: 'Pilot'
+    slug: 'plant-4-0',
+    productType: 'Plant 4.0',
+    productStage: 'Live'
   },
   {
     id: 'static-product-tmaas',

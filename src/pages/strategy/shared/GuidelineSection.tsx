@@ -42,6 +42,9 @@ function parseContentWithMarkers(content: string) {
 
 export function GuidelineSection({ id, title, children }: GuidelineSectionProps) {
   const isProTipSection = title.toLowerCase().startsWith('pro tip')
+  
+  // Trim title at colon - keep only the part before the colon
+  const displayTitle = title.includes(':') ? title.split(':')[0].trim() : title
 
   if (isProTipSection) {
     return (
@@ -51,7 +54,7 @@ export function GuidelineSection({ id, title, children }: GuidelineSectionProps)
           style={{ backgroundColor: 'var(--guidelines-primary-surface)', borderColor: 'var(--guidelines-primary)' }}
         >
           <p className="text-lg font-semibold text-gray-800 mb-2">
-            {title}
+            {displayTitle}
           </p>
           <div className="text-gray-700 leading-relaxed">
             {children}
@@ -202,7 +205,7 @@ export function GuidelineSection({ id, title, children }: GuidelineSectionProps)
       <div className="relative flex items-center mb-6">
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent"></div>
         <h2 className="text-2xl font-bold text-gray-900 pl-6 leading-tight">
-          {title}
+          {displayTitle}
         </h2>
       </div>
       

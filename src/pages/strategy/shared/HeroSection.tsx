@@ -3,11 +3,12 @@ import React from 'react'
 interface HeroSectionProps {
   title: string
   subtitle?: string
+  summary?: string
   imageUrl?: string
   badge?: string
 }
 
-export function HeroSection({ title, subtitle, imageUrl, badge }: HeroSectionProps) {
+export function HeroSection({ title, subtitle, summary, imageUrl, badge }: HeroSectionProps) {
   return (
     <div className="relative w-full h-[500px] overflow-hidden">
       <div 
@@ -31,9 +32,15 @@ export function HeroSection({ title, subtitle, imageUrl, badge }: HeroSectionPro
             {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </div>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight font-inter">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight font-inter">
             {title}
           </h1>
+
+          {summary && (
+            <p className="text-lg italic font-light text-white/95 leading-relaxed max-w-3xl mb-8 pl-8">
+              "{summary}"
+            </p>
+          )}
 
           {subtitle && (
             <div className="flex items-center gap-3 text-sm text-white/90 font-inter">
