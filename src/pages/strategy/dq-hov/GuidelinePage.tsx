@@ -74,7 +74,7 @@ function GuidelinePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-white">
       <Header toggleSidebar={() => {}} sidebarOpen={false} />
       
       {/* Breadcrumb */}
@@ -114,61 +114,64 @@ function GuidelinePage() {
         badge="Strategy Framework"
       />
 
-      <main className="flex-1">
-        <div className="px-4 py-12">
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="max-w-6xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                <div className="lg:col-span-3">
-                  {/* Tabs */}
-                  <div className="border-b border-gray-200">
-                    <nav className="flex -mb-px">
-                      <button
-                        onClick={() => setActiveTab('overview')}
-                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
-                          activeTab === 'overview'
-                            ? 'border-blue-500 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Eye size={16} />
-                          Overview
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => setActiveTab('storybook')}
-                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
-                          activeTab === 'storybook'
-                            ? 'border-blue-500 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <BookOpen size={16} />
-                          Explore Story Book
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => setActiveTab('course')}
-                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
-                          activeTab === 'course'
-                            ? 'border-blue-500 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <PlayCircle size={16} />
-                          Course
-                        </div>
-                      </button>
-                    </nav>
+      <main className="flex-1 bg-white">
+        <div className="bg-white shadow-sm">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <div className="border-b border-gray-200">
+              <nav className="flex -mb-px">
+                <button
+                  onClick={() => setActiveTab('overview')}
+                  className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
+                    activeTab === 'overview'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Eye size={16} />
+                    Overview
                   </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('storybook')}
+                  className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
+                    activeTab === 'storybook'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen size={16} />
+                    Explore Story Book
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('course')}
+                  className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
+                    activeTab === 'course'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <PlayCircle size={16} />
+                    Course
+                  </div>
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
 
-                  {/* Tab Content */}
-                  <div className="p-6 md:p-8">
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="grid grid-cols-1 gap-8">
+              <div className="lg:col-span-3">
                     {activeTab === 'overview' && (
-                      <div className="max-w-5xl mx-auto space-y-10">
+                      <div className="space-y-10">
+                        {/* Overview Title */}
+                        <h2 className="text-xl font-semibold text-gray-900">Overview</h2>
+                        
                         {/* Main Description */}
                         <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
                           <p>{content.shortOverview}</p>
@@ -176,7 +179,7 @@ function GuidelinePage() {
 
                         {/* Course Highlights Section */}
                         <div className="space-y-5">
-                          <h3 className="text-xl font-semibold text-gray-900">Course Highlights</h3>
+                          <h3 className="text-xl font-semibold text-gray-900">House of Values Highlights</h3>
                           <div className="space-y-4">
                             {content.highlights.map((highlight, index) => (
                               <div key={index} className="flex items-start gap-3">
@@ -212,58 +215,62 @@ function GuidelinePage() {
                     )}
 
                     {activeTab === 'storybook' && (
-                      <GuidelineSection id="storybook" title="Explore Story Book">
-                        <div className="max-w-5xl mx-auto space-y-10">
-                          {/* Storybook Description */}
-                          <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
-                            <p>{content.storybookIntro}</p>
-                          </div>
+                      <div className="space-y-10">
+                        {/* Explore Story Book Title */}
+                        <h2 className="text-xl font-semibold text-gray-900">Explore Story Book</h2>
+                        
+                        {/* Storybook Description */}
+                        <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
+                          <p>{content.storybookIntro}</p>
+                        </div>
 
-                          {/* What You Will Learn Section - Moved to Storybook Tab */}
-                          <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
-                            <div className="flex items-center gap-3 mb-6">
-                              <div className="flex-shrink-0">
-                                <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                  </svg>
-                                </div>
+                        {/* What You Will Learn Section - Moved to Storybook Tab */}
+                        <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
+                          <div className="flex items-center gap-3 mb-6">
+                            <div className="flex-shrink-0">
+                              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
                               </div>
-                              <h3 className="text-2xl font-bold text-gray-900">What You'll Learn</h3>
                             </div>
-                            <div className="space-y-5">
-                              {content.whatYouWillLearn.map((item, index) => (
-                                <div key={index} className="flex items-start gap-3">
-                                  <div className="flex-shrink-0 mt-1.5">
-                                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                                  </div>
-                                  <p className="text-gray-700 text-base leading-relaxed">
-                                    {item}
-                                  </p>
-                                </div>
-                              ))}
-                            </div>
+                            <h3 className="text-2xl font-bold text-gray-900">What You'll Learn</h3>
                           </div>
-
-                          {/* Open Storybook Button */}
-                          <div className="text-center py-8">
-                            <button
-                              onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
-                              className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
-                              style={{ backgroundColor: '#030E31' }}
-                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
-                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
-                            >
-                              <BookOpen size={16} />
-                              Open Story Book
-                            </button>
+                          <div className="space-y-5">
+                            {content.whatYouWillLearn.map((item, index) => (
+                              <div key={index} className="flex items-start gap-3">
+                                <div className="flex-shrink-0 mt-1.5">
+                                  <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                                </div>
+                                <p className="text-gray-700 text-base leading-relaxed">
+                                  {item}
+                                </p>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      </GuidelineSection>
+
+                        {/* Open Storybook Button */}
+                        <div className="pt-4">
+                          <button
+                            onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
+                            className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
+                            style={{ backgroundColor: '#030E31' }}
+                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
+                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
+                          >
+                            <BookOpen size={16} />
+                            Open Story Book
+                          </button>
+                        </div>
+                      </div>
                     )}
 
                     {activeTab === 'course' && (
-                      <GuidelineSection id="course" title="Course - Learning Center">
+                      <div className="space-y-6">
+                        {/* Course Title */}
+                        <h2 className="text-xl font-semibold text-gray-900">Course</h2>
+                        
                         <div className="space-y-8">
                           <div className="text-center">
                             <PlayCircle size={64} className="mx-auto text-blue-500 mb-4" />
@@ -291,10 +298,8 @@ function GuidelinePage() {
                             </div>
                           </div>
                         </div>
-                      </GuidelineSection>
+                      </div>
                     )}
-                  </div>
-                </div>
               </div>
             </div>
           </div>

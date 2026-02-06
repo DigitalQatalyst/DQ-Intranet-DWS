@@ -1882,7 +1882,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                       newParams.set('tab', tab.id);
                       setSearchParams(newParams, { replace: false });
                     }}
-                    className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors ${
+                    className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
                       isActive
                         ? 'border-blue-700'
                         : 'text-gray-700 border-transparent hover:text-gray-900 hover:border-gray-300'
@@ -1909,7 +1909,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                     key={tab}
                     onClick={() => handleGuidesTabChange(tab)}
                     className={`
-                      py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                      py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none
                       ${
                         activeTab === tab
                           ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
