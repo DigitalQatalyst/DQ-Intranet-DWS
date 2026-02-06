@@ -14,7 +14,17 @@ export default function PerspectiveCard({ perspective, onExplore }: PerspectiveC
       {/* Visual zone (fixed height, stable anchor) */}
       <div className="h-[120px] md:h-[132px] px-6 pt-3 flex items-center justify-center">
         <div className="w-full max-w-[440px] h-[96px] md:h-[104px]">
-          <GeometricIllustration type={perspective.illustration} className="w-full h-full opacity-[0.78]" />
+          {perspective.imageSrc ? (
+            <img
+              src={perspective.imageSrc}
+              alt={perspective.title}
+              className="w-full h-full object-contain opacity-[0.92]"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <GeometricIllustration type={perspective.illustration} className="w-full h-full opacity-[0.78]" />
+          )}
         </div>
       </div>
 
