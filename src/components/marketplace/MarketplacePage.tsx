@@ -26,6 +26,7 @@ import GuidesGrid from '../guides/GuidesGrid';
 import TestimonialsGrid from '../guides/TestimonialsGrid';
 import GlossaryGrid from '../guides/GlossaryGrid';
 import { SixXDPerspectiveCards } from '../guides/SixXDPerspectiveCards';
+import { SixXDComingSoonCards } from '../guides/SixXDComingSoonCards';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { track } from '../../utils/analytics';
 import FAQsPageContent from '../../pages/guides/FAQsPageContent';
@@ -221,11 +222,11 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [facets, setFacets] = useState<GuidesFacets>({});
   const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
   const searchStartRef = useRef<number | null>(null);
-type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 'glossary' | 'faqs';
+type WorkGuideTab = 'guidelines' | 'strategy' | '6xd' | 'blueprints' | 'testimonials' | 'glossary' | 'faqs';
 type DesignSystemTab = 'cids' | 'vds' | 'cds';
   const getTabFromParams = useCallback((params: URLSearchParams): WorkGuideTab => {
     const tab = params.get('tab');
-    return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' || tab === 'glossary' || tab === 'faqs' ? tab : 'guidelines';
+    return tab === 'strategy' || tab === '6xd' || tab === 'blueprints' || tab === 'testimonials' || tab === 'glossary' || tab === 'faqs' ? tab : 'guidelines';
   }, []);
   const getDesignSystemTabFromParams = useCallback((params: URLSearchParams): DesignSystemTab => {
     const tab = params.get('tab');
@@ -239,6 +240,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
   const TAB_LABELS: Record<WorkGuideTab, string> = {
     strategy: 'GHC',
     guidelines: 'Guidelines',
+    '6xd': '6xD',
     blueprints: 'Products',
     testimonials: 'Testimonials',
     glossary: 'Glossary',
@@ -253,6 +255,10 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
     guidelines: {
       description: 'Find practical guidelines and best practices to optimize workflow and collaboration across all DQ units.',
       author: 'Authored by DQ Associates, Leads, and Subject Matter Experts'
+    },
+    '6xd': {
+      description: 'Discover the six dimensions of digital transformation that guide how organizations evolve, adapt, and thrive in the digital economy.',
+      author: 'Authored by DQ Strategy and Transformation Teams'
     },
     blueprints: {
       description: 'Explore DQ\'s solutions, created to help organizations succeed and grow through digital transformation.',
@@ -1898,7 +1904,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
             <div className="mb-6 border-b border-gray-200">
               <nav className="flex space-x-8" aria-label="Guides navigation">
                 {/* Main tabs rendered as buttons */}
-                {(['strategy', 'guidelines', 'blueprints', 'testimonials', 'glossary', 'faqs'] as WorkGuideTab[]).map(tab => (
+                {(['strategy', 'guidelines', '6xd', 'blueprints', 'testimonials', 'glossary', 'faqs'] as WorkGuideTab[]).map(tab => (
                   <button
                     key={tab}
                     onClick={() => handleGuidesTabChange(tab)}
@@ -2171,6 +2177,8 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               <>
                 {activeTab === 'faqs' ? (
                   <FAQsPageContent categoryFilter={(queryParams.get('faq_category') || '').split(',').filter(Boolean)[0] || null} />
+                ) : activeTab === '6xd' ? (
+                  <SixXDComingSoonCards />
                 ) : activeTab === 'glossary' ? (
                   <>
                     {/* Global Search Bar for Glossary */}
