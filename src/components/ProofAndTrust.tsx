@@ -75,14 +75,7 @@ const associateFeedbacks: AssociateFeedback[] = [
 ];
 
 const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
-  const disclaimer = '(not approved for external publication)'
-  const initials =
-    testimonial.name
-      .split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part.charAt(0).toUpperCase())
-      .join("") || "?";
+  const disclaimer = '(not approved for external publication)';
 
   return (
     <div className="h-full rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md flex flex-col">
@@ -163,7 +156,7 @@ const AssociateFeedbackCard = ({ feedback }: { feedback: AssociateFeedback }) =>
   );
 };
 
-const TestimonialsShowcase = () => {
+export const TestimonialsShowcase = () => {
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -436,7 +429,7 @@ const TestimonialModal = ({
   );
 };
 
-const VideoTestimonialCarousel = () => {
+export const VideoTestimonialCarousel = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedTestimonial, setSelectedTestimonial] =
     useState<Testimonial | null>(null);

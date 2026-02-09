@@ -20,6 +20,8 @@ import {
 export interface Testimonial {
   id: string;
   name: string;
+  context?: string;
+  role?: string;
   position: string;
   company: string;
   companyLogo: string;
@@ -31,11 +33,12 @@ export interface Testimonial {
   videoUrl: string;
   metric: string;
   metricLabel: string;
-  metricColor: 'green' | 'blue' | 'orange';
+  metricColor: 'green' | 'blue' | 'orange' | 'red';
   modalTitle?: string;
   mediaType?: 'video' | 'image';
   imageUrl?: string;
   impactDescription?: string;
+  note?: string;
 }
 
 export interface PartnerCategory {
