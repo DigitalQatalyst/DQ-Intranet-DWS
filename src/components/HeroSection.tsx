@@ -15,10 +15,9 @@ interface HeroSectionProps {
 const HeroSection: React.FC<HeroSectionProps> = ({ "data-id": dataId }) => {
   const { user } = useAuth();
   const isAuthenticated = Boolean(user);
-  const onboardingPath = "/onboarding/start";
-  const ctaHref = isAuthenticated
-    ? onboardingPath
-    : `/signin?redirect=${encodeURIComponent(onboardingPath)}`;
+  // Onboarding landing page is public, so link directly to it
+  const onboardingPath = "/onboarding/welcome";
+  const ctaHref = onboardingPath;
   const [prompt, setPrompt] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);

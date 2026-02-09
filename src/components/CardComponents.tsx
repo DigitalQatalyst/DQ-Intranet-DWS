@@ -6,7 +6,7 @@ import { Download, ExternalLink, FileText, BookOpen, Calculator } from 'lucide-r
 export const NewsCard = ({
   content,
   onQuickView,
-  onReadMore = () => {}, // Add default empty function to make it optional in the wrapper
+  onReadMore = () => undefined, // Add default no-op function to make it optional in the wrapper
   ...props
 }) => {
   const newsItem = {
@@ -30,7 +30,7 @@ export const EventCard = ({
   content,
   isUpcoming,
   onQuickView,
-  onRegister = () => {}, // Add default empty function
+  onRegister = () => undefined, // Add default no-op function
   ...props
 }) => {
   const eventItem = {
@@ -57,7 +57,7 @@ export const EventCard = ({
 export const ResourceCard = ({
   content,
   onQuickView,
-  onAccessResource = () => {}, // Add default for required callback
+  onAccessResource = () => undefined, // Add default for required callback
   onDownload,
   ...props
 }) => {
