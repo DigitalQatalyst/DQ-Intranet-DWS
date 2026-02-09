@@ -1530,7 +1530,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               </div>
             </div>
           </div>;
-      case '
       case 'provider':
         return <div className="space-y-6">
             <p className="text-gray-600 text-lg mb-6">
@@ -1896,4 +1895,3 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     </div>;
 };
 export default MarketplaceDetailsPage;
-

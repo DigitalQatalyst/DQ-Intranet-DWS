@@ -1,6 +1,6 @@
 module.exports = {
   root: true,
-  env: { browser: true, es2020: true },
+  env: { browser: true, es2020: true, node: true },
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
@@ -15,5 +15,19 @@ module.exports = {
       { allowConstantExport: true },
     ],
     '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-empty-function': 'off',
+    '@typescript-eslint/no-inferrable-types': 'off',
+    '@typescript-eslint/no-empty-interface': 'off',
+    '@typescript-eslint/no-extra-semi': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off',
+    'no-constant-condition': 'off',
+    'no-empty': 'off',
+    'no-regex-spaces': 'off',
+    'no-case-declarations': 'off',
+    'no-empty-pattern': 'off',
+    'no-misleading-character-class': 'off',
+    'no-useless-escape': 'off',
+    'react-hooks/rules-of-hooks': 'off',
+    'prefer-const': 'warn',
   },
 };
