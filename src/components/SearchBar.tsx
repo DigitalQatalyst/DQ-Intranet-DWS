@@ -6,7 +6,6 @@
  */
 
 import { Search, X } from 'lucide-react';
-
 /**
  * Props for the SearchBar component
  */

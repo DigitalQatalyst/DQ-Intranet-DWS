@@ -8,6 +8,7 @@ import { DollarSign, Briefcase, Calendar, BookOpen, Users } from 'lucide-react';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 import NewsPage from './NewsPage';
 import NewsDetailPage from './NewsDetailPage';
+import PodcastSeriesPage from './PodcastSeriesPage';
 import { DQWorkDirectoryPage } from '../DQWorkDirectoryPage';
 import JobDetailPage from './JobDetailPage';
 import JobApplicationPage from './JobApplicationPage';
@@ -132,7 +133,6 @@ export const MarketplaceRouter: React.FC = () => {
       };
     });
   };
-
   return <Routes>
     {/* Courses Marketplace */}
     <Route path="/courses" element={<MarketplacePage marketplaceType="courses" title={coursesConfig.title} description={coursesConfig.description} promoCards={coursePromoCards} />} />
@@ -168,7 +168,9 @@ export const MarketplaceRouter: React.FC = () => {
     <Route path="/pulse/detailsPage" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><PulseDetailPage /></React.Suspense>} />
     <Route path="/pulse/:id" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><PulseDetailPage /></React.Suspense>} />
     {/* News & Opportunities Marketplace */}
-    <Route path="/news" element={<NewsPage />} />
+    <Route path="/news" element={<Navigate to="/marketplace/guides" replace />} />
+    <Route path="/news/action-solver-podcast" element={<PodcastSeriesPage />} />
+    <Route path="/news/the-execution-mindset" element={<PodcastSeriesPage />} />
     <Route path="/news/:id" element={<NewsDetailPage />} />
     <Route path="/opportunities" element={<NewsPage />} />
     <Route path="/opportunities/:id" element={<JobDetailPage />} />

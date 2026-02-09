@@ -142,9 +142,52 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
             <img loading="lazy" decoding="async" style={{ maxWidth: '100%', height: 'auto' }} {...(props as any)} />
           ),
           h1: ({ node, ...props }) => <h1 className="text-3xl font-bold mt-6 mb-4 text-gray-900" {...props} />,
-          h2: ({ node, ...props }) => <h2 className="text-2xl font-bold mt-5 mb-3 text-gray-900" {...props} />,
-          h3: ({ node, ...props }) => <h3 className="text-xl font-semibold mt-4 mb-2 text-gray-900" {...props} />,
-          h4: ({ node, ...props }) => <h4 className="text-lg font-semibold mt-3 mb-2 text-gray-900" {...props} />,
+          h2: ({ node, ...props }) => {
+            // Check if heading content starts with a number (e.g., "1.", "2.", etc.)
+            const childrenText = typeof props.children === 'string'
+              ? props.children
+              : React.Children.toArray(props.children).join('');
+            const isNumberedHeading = /^(\*\*)?\d+\.\s/.test(childrenText.trim());
+
+            return (
+              <h2 className={`text-2xl font-bold mt-5 mb-3 text-gray-900 ${isNumberedHeading ? 'pl-0' : 'pl-4 relative border-0'}`} {...(props as any)}>
+                {!isNumberedHeading && (
+                  <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+                )}
+                {props.children}
+              </h2>
+            );
+          },
+          h3: ({ node, ...props }) => {
+            const childrenText = typeof props.children === 'string'
+              ? props.children
+              : React.Children.toArray(props.children).join('');
+            const isNumberedHeading = /^(\*\*)?\d+\.\s/.test(childrenText.trim());
+
+            return (
+              <h3 className={`text-xl font-semibold mt-4 mb-2 text-gray-900 ${isNumberedHeading ? 'pl-0' : 'pl-4 relative border-0'}`} {...(props as any)}>
+                {!isNumberedHeading && (
+                  <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+                )}
+                {props.children}
+              </h3>
+            );
+          },
+          h4: ({ node, ...props }) => {
+            const childrenText = typeof props.children === 'string'
+              ? props.children
+              : React.Children.toArray(props.children).join('');
+            const isNumberedHeading = /^(\*\*)?\d+\.\s/.test(childrenText.trim());
+
+            return (
+              <h4 className={`text-lg font-semibold mt-3 mb-2 text-gray-900 ${isNumberedHeading ? 'pl-0' : 'pl-4 relative border-0'}`} {...(props as any)}>
+                {!isNumberedHeading && (
+                  <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/80 to-transparent"></span>
+                )}
+                {props.children}
+              </h4>
+            );
+          },
           h5: ({ node, ...props }) => <h5 className="text-base font-semibold mt-3 mb-2 text-gray-900" {...props} />,
           h6: ({ node, ...props }) => <h6 className="text-sm font-semibold mt-2 mb-2 text-gray-900" {...props} />,
           p: ({ node, ...props }) => <p className="mb-4 text-gray-700 leading-relaxed" {...props} />,
@@ -225,7 +268,7 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
                   }
                   return true
                 }
-                return true
+                return false
               })
 
               // Don't render if no meaningful content

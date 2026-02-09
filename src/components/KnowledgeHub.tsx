@@ -391,9 +391,9 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
         const announcements = allNews
           .filter(item => 
             item.type === 'Announcement' || 
-            item.newsType === 'Corporate Announcements' ||
-            item.newsType === 'Product / Project Updates' ||
-            item.newsType === 'Events & Campaigns'
+            item.newsType === 'Company News' ||
+            item.newsType === 'Policy Update' ||
+            item.newsType === 'Upcoming Events'
           )
           .slice(0, 6);
         

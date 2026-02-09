@@ -3,14 +3,16 @@ import type { Database } from '@/communities/integrations/supabase/types';
 
 // Support both REACT_APP_ and VITE_ prefixes (prioritize REACT_APP_)
 const url = (import.meta.env.REACT_APP_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL) as string | undefined;
-const anon = (import.meta.env.REACT_APP_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY) as string | undefined;
+const anon = (import.meta.env.REACT_APP_SUPABASE_ANON_KEY ||
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY) as string | undefined;
 const redirectUrl = import.meta.env.VITE_SUPABASE_REDIRECT_URL as string | undefined;
 const siteUrl = import.meta.env.VITE_SUPABASE_SITE_URL as string | undefined;
 
 if (!url || !anon) {
   // Helps you catch misconfigured envs early during dev
   // eslint-disable-next-line no-console
-  console.error('Missing REACT_APP_SUPABASE_URL or REACT_APP_SUPABASE_ANON_KEY. Check your .env and restart the dev server.');
+  console.error('Missing Supabase env vars. Check your .env and restart the dev server.');
   console.error('Available env vars:', {
     VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
     REACT_APP_SUPABASE_URL: import.meta.env.REACT_APP_SUPABASE_URL,
@@ -53,5 +55,5 @@ if (typeof window !== 'undefined') {
 export const supabaseSiteUrl = siteUrl || (typeof window !== 'undefined' ? window.location.origin : '');
 
 // Backwards compatibility: also export as 'supabase'
-export const supabase = supabaseClient;
-export default supabaseClient;
+export const supabase = supabaseClient
+export default supabaseClient

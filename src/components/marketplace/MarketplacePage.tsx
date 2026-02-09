@@ -2259,47 +2259,46 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
         <h1 className="text-3xl font-bold text-gray-800 mb-2">{config.title}</h1>
         <p className="text-gray-600 mb-6">{config.description}</p>
 
-        {
-          isServicesCenter && (
-            <div className="mb-6">
-              <div className="mb-4 p-4 rounded-lg shadow-sm" style={{ backgroundColor: '#FFFFFF' }}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Current focus</p>
-                    <p className="text-lg font-semibold text-gray-900 mb-1">
-                      {activeServiceTab === 'technology' && 'Technology'}
-                      {activeServiceTab === 'business' && 'Employee Services'}
-                      {activeServiceTab === 'digital_worker' && 'Digital Worker'}
-                      {activeServiceTab === 'prompt_library' && 'Prompt Library'}
-                      {activeServiceTab === 'ai_tools' && 'AI Tools'}
-                    </p>
-                  </div>
-                  <button className="px-3 py-1.5 rounded-full text-xs font-medium text-blue-700" style={{ backgroundColor: '#DBEAFE' }}>
-                    Tab overview
-                  </button>
+        {/* Service Center Tab Description Section */}
+        {isServicesCenter && (
+          <div className="mb-6">
+            <div className="mb-4 p-4 rounded-lg shadow-sm" style={{ backgroundColor: '#FFFFFF' }}>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Current focus</p>
+                  <p className="text-lg font-semibold text-gray-900 mb-1">
+                    {activeServiceTab === 'technology' && 'Technology'}
+                    {activeServiceTab === 'business' && 'Employee Services'}
+                    {activeServiceTab === 'digital_worker' && 'Digital Worker'}
+                    {activeServiceTab === 'prompt_library' && 'Prompt Library'}
+                    {activeServiceTab === 'ai_tools' && 'AI Tools'}
+                  </p>
                 </div>
-                <p className="text-gray-600 text-sm mb-1">
-                  {activeServiceTab === 'technology' && 'Access technology-related services including IT support, software requests, system access, and technical assistance.'}
-                  {activeServiceTab === 'business' && 'Explore employee services including HR support, finance services, administrative requests, and operational assistance.'}
-                  {activeServiceTab === 'digital_worker' && 'Discover digital worker services including automation solutions, AI agents requests, AI tools and usage guidelines'}
-                  {activeServiceTab === 'prompt_library' && "A curated collection of your team's best and previously used prompts to speed up workflows and boost productivity."}
-                  {activeServiceTab === 'ai_tools' && 'A centralized hub showcasing all AI tools and solutions used across the company.'}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {activeServiceTab === 'technology' && 'Managed by DQ IT Support and Technical teams.'}
-                  {activeServiceTab === 'business' && 'Provided by DQ HR, Finance, and Administrative teams.'}
-                  {activeServiceTab === 'digital_worker' && 'Handled by DQ Automation Teams.'}
-                  {activeServiceTab === 'prompt_library' && 'Curated and maintained by DQ Digital Innovation Teams.'}
-                  {activeServiceTab === 'ai_tools' && 'Provided by DQ AI & Innovation Teams.'}
-                </p>
+                <button className="px-3 py-1.5 rounded-full text-xs font-medium text-blue-700" style={{ backgroundColor: '#DBEAFE' }}>
+                  Tab overview
+                </button>
               </div>
+              <p className="text-gray-600 text-sm mb-1">
+                {activeServiceTab === 'technology' && 'Access technology-related services including IT support, software requests, system access, and technical assistance.'}
+                {activeServiceTab === 'business' && 'Explore employee services including HR support, finance services, administrative requests, and operational assistance.'}
+                {activeServiceTab === 'digital_worker' && 'Discover digital worker services including automation solutions, AI agents requests, AI tools and usage guidelines'}
+                {activeServiceTab === 'prompt_library' && "A curated collection of your team's best and previously used prompts to speed up workflows and boost productivity."}
+                {activeServiceTab === 'ai_tools' && 'A centralized hub showcasing all AI tools and solutions used across the company.'}
+              </p>
+              <p className="text-xs text-gray-500">
+                {activeServiceTab === 'technology' && 'Managed by DQ IT Support and Technical teams.'}
+                {activeServiceTab === 'business' && 'Provided by DQ HR, Finance, and Administrative teams.'}
+                {activeServiceTab === 'digital_worker' && 'Handled by DQ Automation Teams.'}
+                {activeServiceTab === 'prompt_library' && 'Curated and maintained by DQ Digital Innovation Teams.'}
+                {activeServiceTab === 'ai_tools' && 'Provided by DQ AI & Innovation Teams.'}
+              </p>
             </div>
-          )
-        }
+          </div>
+        )}
+
         {/* Current Focus Section and Navigation Tabs - Only for Events */}
         {isEvents && (
           <>
-            {/* Current Focus Section */}
             <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200 min-h-[140px]">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
@@ -2315,14 +2314,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
               </div>
             </div>
 
-            {/* Navigation Tabs */}
             <div className="mb-6">
               <nav className="flex" aria-label="Tabs">
                 <button
-                  onClick={() => {
-                    // Discussion tab - routes to Communities Marketplace
-                    navigate('/communities');
-                  }}
+                  onClick={() => navigate('/communities')}
                   className={`py-4 px-4 text-sm transition-colors border-b ${location.pathname === '/communities' || location.pathname.startsWith('/community/')
                     ? 'border-blue-600 text-gray-900 font-medium'
                     : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
@@ -2331,10 +2326,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   Discussion
                 </button>
                 <button
-                  onClick={() => {
-                    // Pulse tab - routes to Pulse Marketplace
-                    navigate('/marketplace/pulse');
-                  }}
+                  onClick={() => navigate('/marketplace/pulse')}
                   className={`py-4 px-4 text-sm transition-colors border-b ${location.pathname === '/marketplace/pulse' || location.pathname.startsWith('/marketplace/pulse/')
                     ? 'border-blue-600 text-gray-900 font-medium'
                     : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
@@ -2343,10 +2335,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   Pulse
                 </button>
                 <button
-                  onClick={() => {
-                    // Events tab - stays on current page (Events Marketplace)
-                    navigate('/marketplace/events');
-                  }}
+                  onClick={() => navigate('/marketplace/events')}
                   className={`py-4 px-4 text-sm transition-colors border-b ${location.pathname === '/marketplace/events' || location.pathname.startsWith('/marketplace/events/')
                     ? 'border-blue-600 text-gray-900 font-medium'
                     : 'border-transparent text-gray-500 hover:text-gray-700 font-normal'
@@ -2358,274 +2347,171 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
             </div>
           </>
         )}
-        {/* Search + Sort */}
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex-1 w-full">
-            <SearchBar
-              searchQuery={isGuides ? (queryParams.get('q') || '') : searchQuery}
-              setSearchQuery={(q: string) => {
-                if (isGuides) {
-                  const next = new URLSearchParams(queryParams.toString());
-                  next.delete('page');
-                  if (q) next.set('q', q); else next.delete('q');
-                  const qs = next.toString();
-                  window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
-                  setQueryParams(new URLSearchParams(next.toString()));
-                } else {
-                  setSearchQuery(q);
-                }
-              }}
-              placeholder={
-                isEvents
-                  ? "Search events by title, description, category, or location..."
-                  : isGuides
-                    ? "Search guides..."
-                    : "Search..."
-              }
-            />
 
+        {/* Service Center Tabs */}
+        {isServicesCenter && (
+          <div className="mb-6 border-b border-gray-200">
+            <nav className="flex space-x-8" aria-label="Service tabs">
+              {[
+                { id: 'technology', label: 'Technology' },
+                { id: 'business', label: 'Employee Services' },
+                { id: 'digital_worker', label: 'Digital Worker' },
+                { id: 'prompt_library', label: 'Prompt Library' },
+                { id: 'ai_tools', label: 'AI Tools' }
+              ].map((tab) => {
+                const isActive = activeServiceTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveServiceTab(tab.id);
+                      const newParams = new URLSearchParams(searchParams);
+                      newParams.set('tab', tab.id);
+                      setSearchParams(newParams, { replace: true });
+                    }}
+                    className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors ${isActive
+                      ? 'border-blue-700'
+                      : 'text-gray-700 border-transparent hover:text-gray-900 hover:border-gray-300'
+                      }`}
+                    style={isActive ? { color: '#030F35', borderColor: '#030F35' } : {}}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
+        )}
 
-
-          {/* Service Center Tabs */}
-          {isServicesCenter && (
-            <div className="mb-6 border-b border-gray-200">
-              <nav className="flex space-x-8" aria-label="Service tabs">
-                {[
-                  { id: 'technology', label: 'Technology' },
-                  { id: 'business', label: 'Employee Services' },
-                  { id: 'digital_worker', label: 'Digital Worker' },
-                  { id: 'prompt_library', label: 'Prompt Library' },
-                  { id: 'ai_tools', label: 'AI Tools' }
-                ].map((tab) => {
-                  const isActive = activeServiceTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => {
-                        setActiveServiceTab(tab.id);
-                        // Update URL with tab parameter
-                        const newParams = new URLSearchParams(searchParams);
-                        newParams.set('tab', tab.id);
-                        setSearchParams(newParams, { replace: false });
-                      }}
-                      className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors ${isActive
-                        ? 'border-blue-700'
-                        : 'text-gray-700 border-transparent hover:text-gray-900 hover:border-gray-300'
-                        }`}
-                      style={isActive ? { color: '#030F35', borderColor: '#030F35' } : {}}
-                      aria-current={isActive ? 'page' : undefined}
-                    >
-                      {tab.label}
-                    </button>
-                  );
-                })}
-              </nav>
-            </div>
-          )}
-
-          {/* Guides Tabs Section */}
-          {isGuides && (
-            <>
-              {/* Tab Description - Above Navigation */}
-              {activeTab && TAB_DESCRIPTIONS[activeTab] && (
-                <div className="mb-4 bg-white rounded-lg p-6 border border-gray-200 relative">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <span className="text-xs uppercase text-gray-500 font-medium tracking-wide">CURRENT FOCUS</span>
-                      <h2 className="text-2xl font-bold text-gray-800 mt-1">{TAB_LABELS[activeTab]}</h2>
-                    </div>
-                    <button className="px-4 py-2 bg-blue-50 text-gray-800 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors border-0">
-                      Tab overview
-                    </button>
+        {/* Guides Tabs Section */}
+        {isGuides && (
+          <>
+            {activeTab && TAB_DESCRIPTIONS[activeTab] && (
+              <div className="mb-4 bg-white rounded-lg p-6 border border-gray-200 relative">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                    <span className="text-xs uppercase text-gray-500 font-medium tracking-wide">CURRENT FOCUS</span>
+                    <h2 className="text-2xl font-bold text-gray-800 mt-1">{TAB_LABELS[activeTab]}</h2>
                   </div>
-                  <p className="text-gray-700 mb-2">{TAB_DESCRIPTIONS[activeTab].description}</p>
-                  {TAB_DESCRIPTIONS[activeTab].author && (
-                    <p className="text-sm text-gray-500">{TAB_DESCRIPTIONS[activeTab].author}</p>
-                  )}
+                  <button className="px-4 py-2 bg-blue-50 text-gray-800 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors border-0">
+                    Tab overview
+                  </button>
                 </div>
-              )}
+                <p className="text-gray-700 mb-2">{TAB_DESCRIPTIONS[activeTab].description}</p>
+                {TAB_DESCRIPTIONS[activeTab].author && (
+                  <p className="text-sm text-gray-500">{TAB_DESCRIPTIONS[activeTab].author}</p>
+                )}
+              </div>
+            )}
 
-              <div className="mb-6 border-b border-gray-200">
-                <nav className="flex space-x-8" aria-label="Guides navigation">
-                  {/* Main tabs rendered as buttons */}
-                  {(['strategy', 'guidelines', 'blueprints', 'testimonials', 'glossary', 'faqs'] as WorkGuideTab[]).map(tab => (
-                    <button
-                      key={tab}
-                      onClick={() => handleGuidesTabChange(tab)}
-                      className={`
+            <div className="mb-6 border-b border-gray-200">
+              <nav className="flex space-x-8" aria-label="Guides navigation">
+                {(['strategy', 'guidelines', 'blueprints', 'testimonials', 'glossary', 'faqs'] as WorkGuideTab[]).map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => handleGuidesTabChange(tab)}
+                    className={`
                       py-4 px-1 border-b-2 font-medium text-sm transition-colors
                       ${activeTab === tab
-                          ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }
+                        ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }
                     `}
-                      aria-current={activeTab === tab ? 'page' : undefined}
-                    >
-                      {TAB_LABELS[tab]}
-                    </button>
-                  ))}
-                </nav>
-              </div>
-            </>
-          )}
-
-          {/* Search + Sort - Hide for Glossary tab (has its own search) */}
-          {!(isGuides && activeTab === 'glossary') && (
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex-1">
-                <SearchBar
-                  searchQuery={isGuides ? (queryParams.get('q') || '') : searchQuery}
-                  placeholder={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
-                  ariaLabel={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
-                  setSearchQuery={(q: string) => {
-                    if (isGuides) {
-                      const next = new URLSearchParams(queryParams.toString());
-                      next.delete('page');
-                      if (q) next.set('q', q); else next.delete('q');
-                      const qs = next.toString();
-                      window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
-                      setQueryParams(new URLSearchParams(next.toString()));
-                    } else {
-                      setSearchQuery(q);
-                    }
-                  }}
-                />
-              </div>
+                    aria-current={activeTab === tab ? 'page' : undefined}
+                  >
+                    {TAB_LABELS[tab]}
+                  </button>
+                ))}
+              </nav>
             </div>
-          )}
+          </>
+        )}
 
-          <div className="flex flex-col xl:flex-row gap-6">
-            {/* Mobile filter toggle */}
-            <div className="xl:hidden sticky top-16 z-20 bg-gray-50 py-2 shadow-sm">
-              <div className="flex justify-between items-center">
-                <button
-                  onClick={toggleFilters}
-                  className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 text-gray-700 w-full justify-center"
-                  aria-expanded={showFilters}
-                  aria-controls="filter-sidebar"
-                >
-                  <FilterIcon size={18} />
-                  {showFilters ? 'Hide Filters' : 'Show Filters'}
-                </button>
-                {(isCourses ? Object.values(urlBasedFilters).some(f => Array.isArray(f) && f.length > 0) :
-                  isKnowledgeHub || isEvents ? activeFilters.length > 0 :
-                    isGuides ? false :
-                      Object.values(filters).some(f => (Array.isArray(f) ? f.length > 0 : f !== ''))) && (
-                    <button onClick={resetFilters} className="ml-2 text-blue-600 text-sm font-medium whitespace-nowrap px-3 py-2">
-                      Reset
-                    </button>
-                  )}
-              </div>
+        {/* Search + Sort */}
+        {!(isGuides && activeTab === 'glossary') && (
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex-1">
+              <SearchBar
+                searchQuery={isGuides ? (queryParams.get('q') || '') : searchQuery}
+                setSearchQuery={(q: string) => {
+                  if (isGuides) {
+                    const next = new URLSearchParams(queryParams.toString());
+                    next.delete('page');
+                    if (q) next.set('q', q); else next.delete('q');
+                    const qs = next.toString();
+                    window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+                    setQueryParams(new URLSearchParams(next.toString()));
+                  } else {
+                    setSearchQuery(q);
+                  }
+                }}
+                placeholder={
+                  isEvents
+                    ? "Search events by title, description, category, or location..."
+                    : isGuides
+                      ? "Search guides..."
+                      : "Search..."
+                }
+              />
             </div>
+          </div>
+        )}
 
-            {/* Filter sidebar - mobile/tablet */}
-            <div
-              className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${showFilters ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-              onClick={toggleFilters}
-              aria-hidden={!showFilters}
-            >
-              <div
-                id="filter-sidebar"
-                className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${showFilters ? 'translate-x-0' : '-translate-x-full'}`}
-                onClick={e => e.stopPropagation()}
-                role="dialog"
-                aria-modal="true"
-                aria-label="Filters"
+        <div className="flex flex-col xl:flex-row gap-6">
+          {/* Mobile filter toggle */}
+          <div className="xl:hidden sticky top-16 z-20 bg-gray-50 py-2 shadow-sm">
+            <div className="flex justify-between items-center">
+              <button
+                onClick={toggleFilters}
+                className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 text-gray-700 w-full justify-center"
+                aria-expanded={showFilters}
+                aria-controls="filter-sidebar"
               >
-                <div className="h-full overflow-y-auto">
-                  <div className="sticky top-0 bg-white z-10 p-4 border-b border-gray-200 flex justify-between items-center">
-                    <h2 className="text-lg font-semibold">Filters</h2>
-                    <button onClick={toggleFilters} className="p-1 rounded-full hover:bg-gray-100" aria-label="Close filters">
-                      <XIcon size={20} />
-                    </button>
-                  </div>
-                  <div className="p-4">
-                    {isGuides ? (
-                      <GuidesFilters activeTab={activeTab} facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
-                    ) : isKnowledgeHub || isEvents ? (
-                      <div className="space-y-0">
-                        {filterConfig.map(category => {
-                          const isExpanded = expandedFilter === category.id;
-                          return (
-                            <div key={category.id} className="border-b border-gray-100">
-                              <button
-                                onClick={() => setExpandedFilter(isExpanded ? null : category.id)}
-                                type="button"
-                                aria-expanded={isExpanded}
-                              >
-                                <span>{category.title}</span>
-                                <ChevronDown
-                                  size={16}
-                                  className={`text-gray-500 flex-shrink-0 transition-transform duration-300 ease-in-out ${isExpanded ? 'rotate-180' : ''
-                                    }`}
-                                />
-                              </button>
-                              <div
-                                className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                                  }`}
-                              >
-                                <div className="pb-3 space-y-2">
-                                  {category.options.map(option => (
-                                    <div key={option.id} className="flex items-center">
-                                      <input
-                                        type="checkbox"
-                                        id={`mobile-${category.id}-${option.id}`}
-                                        checked={activeFilters.includes(option.name)}
-                                        onChange={() => handleKnowledgeHubFilterChange(option.name)}
-                                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                      />
-                                      <label
-                                        htmlFor={`mobile-${category.id}-${option.id}`}
-                                        className="ml-2 text-sm text-gray-700 cursor-pointer"
-                                      >
-                                        {option.name}
-                                      </label>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                    ) : (
-                      <FilterSidebar
-                        filters={isCourses ? urlBasedFilters : (Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>)}
-                        filterConfig={filterConfig}
-                        onFilterChange={handleFilterChange}
-                        onResetFilters={resetFilters}
-                        isResponsive={true}
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
+                <FilterIcon size={18} />
+                {showFilters ? 'Hide Filters' : 'Show Filters'}
+              </button>
+              {(isCourses ? Object.values(urlBasedFilters).some(f => Array.isArray(f) && f.length > 0) :
+                isKnowledgeHub || isEvents ? activeFilters.length > 0 :
+                  isGuides ? false :
+                    Object.values(filters).some(f => (Array.isArray(f) ? f.length > 0 : f !== ''))) && (
+                  <button onClick={resetFilters} className="ml-2 text-blue-600 text-sm font-medium whitespace-nowrap px-3 py-2">
+                    Reset
+                  </button>
+                )}
             </div>
+          </div>
 
-            {/* Filter sidebar - desktop */}
-            <div className="hidden xl:block xl:w-1/4">
-              {isGuides ? (
-                <GuidesFilters activeTab={activeTab} facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
-              ) : (
-                <div className="bg-white rounded-lg shadow p-4 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto filter-sidebar-scroll">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold">Filters</h2>
-                    {(isCourses ? Object.values(urlBasedFilters).some(f => Array.isArray(f) && f.length > 0) :
-                      isKnowledgeHub || isEvents ? activeFilters.length > 0 :
-                        Object.values(filters).some(f => (Array.isArray(f) ? f.length > 0 : f !== ''))) && (
-                        <button onClick={resetFilters} className="text-blue-600 text-sm font-medium">Reset All</button>
-                      )}
-                  </div>
-                  {isKnowledgeHub || isEvents ? (
+          {/* Filter sidebar - mobile/tablet */}
+          <div
+            className={`fixed inset-0 bg-gray-800 bg-opacity-75 z-30 transition-opacity duration-300 xl:hidden ${showFilters ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+            onClick={toggleFilters}
+            aria-hidden={!showFilters}
+          >
+            <div
+              id="filter-sidebar"
+              className={`fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${showFilters ? 'translate-x-0' : '-translate-x-full'}`}
+              onClick={e => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Filters"
+            >
+              <div className="h-full overflow-y-auto">
+                <div className="sticky top-0 bg-white z-10 p-4 border-b border-gray-200 flex justify-between items-center">
+                  <h2 className="text-lg font-semibold">Filters</h2>
+                  <button onClick={toggleFilters} className="p-1 rounded-full hover:bg-gray-100" aria-label="Close filters">
+                    <XIcon size={20} />
+                  </button>
+                </div>
+                <div className="p-4">
+                  {isGuides ? (
+                    <GuidesFilters activeTab={activeTab} facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
+                  ) : isKnowledgeHub || isEvents ? (
                     <div className="space-y-0">
                       {filterConfig.map(category => {
                         const isExpanded = expandedFilter === category.id;
                         return (
                           <div key={category.id} className="border-b border-gray-100">
                             <button
-                              className="flex w-full justify-between items-center text-left font-medium text-gray-900 py-3 hover:text-gray-700 transition-colors"
                               onClick={() => setExpandedFilter(isExpanded ? null : category.id)}
                               type="button"
                               aria-expanded={isExpanded}
@@ -2646,13 +2532,13 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                                   <div key={option.id} className="flex items-center">
                                     <input
                                       type="checkbox"
-                                      id={`desktop-${category.id}-${option.id}`}
+                                      id={`mobile-${category.id}-${option.id}`}
                                       checked={activeFilters.includes(option.name)}
                                       onChange={() => handleKnowledgeHubFilterChange(option.name)}
                                       className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                     />
                                     <label
-                                      htmlFor={`desktop-${category.id}-${option.id}`}
+                                      htmlFor={`mobile-${category.id}-${option.id}`}
                                       className="ml-2 text-sm text-gray-700 cursor-pointer"
                                     >
                                       {option.name}
@@ -2665,87 +2551,175 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                         );
                       })}
                     </div>
+
                   ) : (
                     <FilterSidebar
                       filters={isCourses ? urlBasedFilters : (Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>)}
                       filterConfig={filterConfig}
                       onFilterChange={handleFilterChange}
                       onResetFilters={resetFilters}
-                      isResponsive={false}
+                      isResponsive={true}
                     />
                   )}
                 </div>
-              )}
+              </div>
             </div>
+          </div>
 
-            {/* Main content */}
-            <div className="xl:w-3/4">
-              {loading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                  {[...Array(6)].map((_, idx) => <CourseCardSkeleton key={idx} />)}
+          {/* Filter sidebar - desktop */}
+          <div className="hidden xl:block xl:w-1/4">
+            {isGuides ? (
+              <GuidesFilters activeTab={activeTab} facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
+            ) : (
+              <div className="bg-white rounded-lg shadow p-4 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto filter-sidebar-scroll">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold">Filters</h2>
+                  {(isCourses ? Object.values(urlBasedFilters).some(f => Array.isArray(f) && f.length > 0) :
+                    isKnowledgeHub || isEvents ? activeFilters.length > 0 :
+                      Object.values(filters).some(f => (Array.isArray(f) ? f.length > 0 : f !== ''))) && (
+                      <button onClick={resetFilters} className="text-blue-600 text-sm font-medium">Reset All</button>
+                    )}
                 </div>
-              ) : error && !isGuides && !isKnowledgeHub && !isEvents ? (
-                <ErrorDisplay message={error} onRetry={retryFetch} />
-              ) : isKnowledgeHub ? (
-                <KnowledgeHubGrid
-                  bookmarkedItems={bookmarkedItems}
-                  onToggleBookmark={toggleBookmark}
-                  onAddToComparison={handleAddToComparison}
-                  searchQuery={searchQuery}
-                  activeFilters={activeFilters}
-                  onFilterChange={handleKnowledgeHubFilterChange}
-                  onClearFilters={clearKnowledgeHubFilters}
-                />
-              ) : isGuides ? (
-                <>
-                  {activeTab === 'faqs' ? (
-                    <FAQsPageContent />
-                  ) : activeTab === 'glossary' ? (
-                    <>
-                      {/* Global Search Bar for Glossary */}
-                      <div className="mb-6">
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={queryParams.get('q') || ''}
-                            onChange={(e) => {
-                              const next = new URLSearchParams(queryParams.toString());
-                              next.delete('page');
-                              if (e.target.value) {
-                                next.set('q', e.target.value);
-                              } else {
-                                next.delete('q');
-                              }
-                              const qs = next.toString();
-                              if (typeof window !== 'undefined') {
-                                window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
-                              }
-                              setQueryParams(new URLSearchParams(next.toString()));
-                            }}
-                            placeholder="Search DQ terms (e.g. DWS, CWS, Agile TMS)"
-                            className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--guidelines-primary)] focus:border-[var(--guidelines-primary)] outline-none"
-                          />
-                          <svg
-                            className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                {isKnowledgeHub || isEvents ? (
+                  <div className="space-y-0">
+                    {filterConfig.map(category => {
+                      const isExpanded = expandedFilter === category.id;
+                      return (
+                        <div key={category.id} className="border-b border-gray-100">
+                          <button
+                            className="flex w-full justify-between items-center text-left font-medium text-gray-900 py-3 hover:text-gray-700 transition-colors"
+                            onClick={() => setExpandedFilter(isExpanded ? null : category.id)}
+                            type="button"
+                            aria-expanded={isExpanded}
                           >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                          </svg>
+                            <span>{category.title}</span>
+                            <ChevronDown
+                              size={16}
+                              className={`text-gray-500 flex-shrink-0 transition-transform duration-300 ease-in-out ${isExpanded ? 'rotate-180' : ''
+                                }`}
+                            />
+                          </button>
+                          <div
+                            className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                              }`}
+                          >
+                            <div className="pb-3 space-y-2">
+                              {category.options.map(option => (
+                                <div key={option.id} className="flex items-center">
+                                  <input
+                                    type="checkbox"
+                                    id={`desktop-${category.id}-${option.id}`}
+                                    checked={activeFilters.includes(option.name)}
+                                    onChange={() => handleKnowledgeHubFilterChange(option.name)}
+                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                  />
+                                  <label
+                                    htmlFor={`desktop-${category.id}-${option.id}`}
+                                    className="ml-2 text-sm text-gray-700 cursor-pointer"
+                                  >
+                                    {option.name}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <FilterSidebar
+                    filters={isCourses ? urlBasedFilters : (Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>)}
+                    filterConfig={filterConfig}
+                    onFilterChange={handleFilterChange}
+                    onResetFilters={resetFilters}
+                    isResponsive={false}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Main content */}
+          <div className="xl:w-3/4">
+            {loading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                {[...Array(6)].map((_, idx) => <CourseCardSkeleton key={idx} />)}
+              </div>
+            ) : error && !isGuides && !isKnowledgeHub && !isEvents ? (
+              <ErrorDisplay message={error} onRetry={retryFetch} />
+            ) : isKnowledgeHub ? (
+              <KnowledgeHubGrid
+                bookmarkedItems={bookmarkedItems}
+                onToggleBookmark={toggleBookmark}
+                onAddToComparison={handleAddToComparison}
+                searchQuery={searchQuery}
+                activeFilters={activeFilters}
+                onFilterChange={handleKnowledgeHubFilterChange}
+                onClearFilters={clearKnowledgeHubFilters}
+              />
+            ) : isGuides ? (
+              <>
+                {activeTab === 'faqs' ? (
+                  <FAQsPageContent />
+                ) : activeTab === 'glossary' ? (
+                  <>
+                    {/* Global Search Bar for Glossary */}
+                    <div className="mb-6">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={queryParams.get('q') || ''}
+                          onChange={(e) => {
+                            const next = new URLSearchParams(queryParams.toString());
+                            next.delete('page');
+                            if (e.target.value) {
+                              next.set('q', e.target.value);
+                            } else {
+                              next.delete('q');
+                            }
+                            const qs = next.toString();
+                            if (typeof window !== 'undefined') {
+                              window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+                            }
+                            setQueryParams(new URLSearchParams(next.toString()));
+                          }}
+                          placeholder="Search DQ terms (e.g. DWS, CWS, Agile TMS)"
+                          className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--guidelines-primary)] focus:border-[var(--guidelines-primary)] outline-none"
+                        />
+                        <svg
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                       </div>
-                      <GlossaryGrid
-                        items={filteredGlossaryTerms}
-                        onClickTerm={(term) => {
-                          navigate(`/marketplace/guides/glossary/${term.id}`);
-                        }}
-                        hideEmptyState={false}
-                      />
-                    </>
-                  ) : activeTab === 'testimonials' ? (
-                    <TestimonialsGrid
+                    </div>
+                    <GlossaryGrid
+                      items={filteredGlossaryTerms}
+                      onClickTerm={(term) => {
+                        navigate(`/marketplace/guides/glossary/${term.id}`);
+                      }}
+                      hideEmptyState={false}
+                    />
+                  </>
+                ) : activeTab === 'testimonials' ? (
+                  <TestimonialsGrid
+                    items={filteredItems}
+                    onClickGuide={(g) => {
+                      const qs = queryParams.toString();
+                      navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
+                        state: { fromQuery: qs, activeTab }
+                      });
+                    }}
+                  />
+                ) : (
+                  <>
+                    <GuidesGrid
                       items={filteredItems}
+                      hideEmptyState={false}
                       onClickGuide={(g) => {
                         const qs = queryParams.toString();
                         navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
@@ -2753,82 +2727,69 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                         });
                       }}
                     />
-                  ) : (
-                    <>
-                      <GuidesGrid
-                        items={filteredItems}
-                        hideEmptyState={false}
-                        onClickGuide={(g) => {
-                          const qs = queryParams.toString();
-                          navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
-                            state: { fromQuery: qs, activeTab }
-                          });
-                        }}
-                      />
-                      {totalPages > 1 && (
-                        <div className="mt-6 flex items-center justify-center gap-4">
-                          <button
-                            type="button"
-                            onClick={() => goToPage(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            Previous
-                          </button>
-                          <span className="text-sm text-gray-600">
-                            Page {currentPage} of {totalPages}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => goToPage(currentPage + 1)}
-                            disabled={currentPage >= totalPages}
-                            className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            Next
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </>
-              ) : (
-                <MarketplaceGrid
-                  items={isCourses ? searchFilteredItems.map(course => {
-                    const allowedSet = new Set<string>(LOCATION_ALLOW as readonly string[]);
-                    const safeLocations = (course.locations || []).filter(loc => allowedSet.has(loc));
-                    return {
-                      ...course,
-                      locations: safeLocations.length ? safeLocations : ['Global'],
-                      provider: { name: course.provider, logoUrl: '/DWS-Logo.png' },
-                      description: course.summary
-                    };
-                  }) : filteredItems}
-                  marketplaceType={marketplaceType}
-                  bookmarkedItems={bookmarkedItems}
-                  onToggleBookmark={toggleBookmark}
-                  onAddToComparison={handleAddToComparison}
-                  promoCards={promoCards}
-                  activeServiceTab={activeServiceTab}
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Comparison modal */}
-          {
-            showComparison && (
-              <MarketplaceComparison
-                items={compareItems}
-                onClose={() => setShowComparison(false)}
-                onRemoveItem={handleRemoveFromComparison}
+                    {totalPages > 1 && (
+                      <div className="mt-6 flex items-center justify-center gap-4">
+                        <button
+                          type="button"
+                          onClick={() => goToPage(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Previous
+                        </button>
+                        <span className="text-sm text-gray-600">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => goToPage(currentPage + 1)}
+                          disabled={currentPage >= totalPages}
+                          className="px-4 py-2 rounded border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </>
+            ) : (
+              <MarketplaceGrid
+                items={isCourses ? searchFilteredItems.map(course => {
+                  const allowedSet = new Set<string>(LOCATION_ALLOW as readonly string[]);
+                  const safeLocations = (course.locations || []).filter(loc => allowedSet.has(loc));
+                  return {
+                    ...course,
+                    locations: safeLocations.length ? safeLocations : ['Global'],
+                    provider: { name: course.provider, logoUrl: '/DWS-Logo.png' },
+                    description: course.summary
+                  };
+                }) : filteredItems}
                 marketplaceType={marketplaceType}
+                bookmarkedItems={bookmarkedItems}
+                onToggleBookmark={toggleBookmark}
+                onAddToComparison={handleAddToComparison}
+                promoCards={promoCards}
+                activeServiceTab={activeServiceTab}
               />
-            )
-          }
+            )}
+          </div>
         </div>
+
+        {/* Comparison modal */}
+        {
+          showComparison && (
+            <MarketplaceComparison
+              items={compareItems}
+              onClose={() => setShowComparison(false)}
+              onRemoveItem={handleRemoveFromComparison}
+              marketplaceType={marketplaceType}
+            />
+          )
+        }
       </div>
       <Footer isLoggedIn={false} />
-    </div>
+    </div >
   );
 };
 

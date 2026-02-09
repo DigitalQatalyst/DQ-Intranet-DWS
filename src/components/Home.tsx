@@ -1,5 +1,6 @@
 import React, { useEffect, useState, cloneElement } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toTitleCase } from "../utils/textUtils";
 import {
   BookOpen,
   Briefcase,
@@ -158,6 +159,7 @@ const ServiceCard = ({
   const titleClass = `${
     isComingSoon ? "text-white/80" : sectionStyle.headingClass
   } text-base font-semibold text-white mb-1 truncate`;
+  const displayTitle = toTitleCase(service.title);
 
   return (
     <div
@@ -179,7 +181,7 @@ const ServiceCard = ({
         >
           {iconElement}
         </div>
-        <h2 className={titleClass}>{service.title}</h2>
+        <h2 className={titleClass} title={displayTitle}>{displayTitle}</h2>
       </div>
 
       <p className={descriptionClasses}>{service.description}</p>
