@@ -12,19 +12,23 @@ export interface GuideContent {
 
 export const GUIDE_CONTENT: Record<string, GuideContent> = {
   'ghc': {
-    title: 'The GHC (The Golden Honeycomb)',
+    title: 'The GHC (Golden Honeycomb)',
     subtitle: 'The Master Map',
-    shortOverview: 'Our big picture. Think of this as our master map. It connects our big dreams to our daily tasks so that everyone moves in the same direction. It holds everything together.',
+    shortOverview: 'The Golden Honeycomb of Competencies (GHC) defines how work is organised at Digital Qatalyst. It brings together our direction, culture, and ways of working into one clear system that guides how decisions are made and work gets done.\n\nGHC exists to create clarity at every level. By connecting organisational goals to everyday work, it helps associates understand how their contributions matter and how to move work forward with confidence.\n\nGHC allows DQ to grow, adapt, and solve difficult problems without losing alignment. It enables consistent collaboration, clear execution, and reliable delivery across the organisation, through seven connected competencies: Vision, House of Values, Persona, Agile TMS, Agile SoS, Agile Flows, and Agile 6xD.',
     highlights: [
-      'Everything Connects: See how culture, strategy, and tasks link together.',
-      'Built to Grow: A system that works whether we are small or big.',
-      'One Language: The terms and ideas we all use to understand each other.'
+      'Clear direction in everyday work: GHC helps you understand what matters most and why, so decisions and effort stay aligned instead of pulling in different directions.',
+      'Confidence when priorities change: When work shifts or new challenges appear, GHC provides structure that helps you adapt without losing focus or momentum.',
+      'Better collaboration across teams: Using a shared way of working makes it easier to communicate, coordinate, and move work forward with others without constant clarification.',
+      'Stronger connection between effort and impact: GHC links daily tasks to broader goals, helping you see how your work contributes to real outcomes, not just activity.',
+      'Consistent growth and learning: The GHC mindset and tools support continuous improvement, helping you develop skills, take on new responsibilities, and grow as work evolves.'
     ],
     storybookIntro: 'Explore the Framework: This guide illustrates the \'DNA\' of our company. Download this to see how our 7 key parts fit together to build a strong, successful organization.',
     whatYouWillLearn: [
-      'The 7 Parts: Learn the seven pieces that make up our ecosystem.',
-      'Your Place: See exactly where you fit into the bigger picture.',
-      'How We Win: Understand the logic behind our success.'
+      'The seven competencies: What each one represents and how they connect as one system.',
+      'How the system fits together: How direction, culture, roles, and execution work in sync.',
+      'Your place in the system: How your role connects to the broader way of working.',
+      'How decisions stay aligned: How priorities, choices, and outcomes move together as work changes.',
+      'How work turns into outcomes: How ideas progress from intent to delivery, even in complex situations.'
     ]
   },
   'dq-vision': {

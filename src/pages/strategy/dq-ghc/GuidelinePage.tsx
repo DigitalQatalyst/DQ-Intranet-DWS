@@ -19,7 +19,7 @@ function GuidelinePage() {
   const [guide, setGuide] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'overview' | 'storybook' | 'course'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'storybook' | 'course' | 'materials'>('overview')
 
   // Get content from constants using contentKey
   const content = GUIDE_CONTENT[contentKey]
@@ -168,7 +168,7 @@ function GuidelinePage() {
       {/* Hero Section */}
       <HeroSection 
         title={displayTitle}
-        subtitle="DQ Leadership - Digital Qatalyst"
+        subtitle="The Blueprint That Connects Our Vision to Your Daily Work"
         imageUrl="/images/guidelines-content.PNG"
         badge="Strategy Framework"
       />
@@ -201,7 +201,7 @@ function GuidelinePage() {
                 >
                   <div className="flex items-center gap-2">
                     <BookOpen size={16} />
-                    Explore Story Book
+                    Understand
                   </div>
                 </button>
                 <button
@@ -214,7 +214,20 @@ function GuidelinePage() {
                 >
                   <div className="flex items-center gap-2">
                     <PlayCircle size={16} />
-                    Course
+                    Learn & Practice
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('materials')}
+                  className={`py-4 px-4 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
+                    activeTab === 'materials'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen size={16} />
+                    Other Materials
                   </div>
                 </button>
               </nav>
@@ -222,29 +235,36 @@ function GuidelinePage() {
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="container mx-auto px-4 py-4 max-w-7xl">
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="grid grid-cols-1 gap-8">
               <div className="lg:col-span-3">
                 {activeTab === 'overview' && (
-                  <div className="space-y-10">
-                    {/* Overview Title */}
-                    <h2 className="text-xl font-semibold text-gray-900">Overview</h2>
-                    
+                  <div className="space-y-6">
                     {/* Main Description */}
                     <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
                       <p>{content.shortOverview}</p>
                     </div>
 
                     {/* Course Highlights Section */}
-                    <div className="space-y-5">
-                      <h3 className="text-xl font-semibold text-gray-900">GHC Overview Highlights</h3>
-                      <div className="space-y-4">
+                    <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900">5 Reasons to Work With THE GHC</h3>
+                      </div>
+                      <div className="space-y-5">
                         {content.highlights.map((highlight, index) => (
                           <div key={index} className="flex items-start gap-3">
-                            <div className="flex-shrink-0 mt-0.5">
-                              <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            <div className="flex-shrink-0 mt-1">
+                              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
                               </svg>
                             </div>
                             <p className="text-gray-700 text-base leading-relaxed">
@@ -274,13 +294,10 @@ function GuidelinePage() {
                 )}
 
                 {activeTab === 'storybook' && (
-                  <div className="space-y-10">
-                    {/* Explore Story Book Title */}
-                    <h2 className="text-xl font-semibold text-gray-900">Explore Story Book</h2>
-                    
+                  <div className="space-y-6">
                     {/* Storybook Description */}
                     <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
-                      <p>{content.storybookIntro}</p>
+                      <p>The Golden Honeycomb of competencies isn't just a framework; it is what drives us in Digital Qatalyst. It shows exactly how we design our work, make decisions, and stay aligned as one team. Get to know the seven core elements that make up our DNA. Instead of seeing them as separate rules, you will see how they link together; how our Culture drives our Execution, and how our Vision shapes your daily Tasks. When you understand the Golden Honeycomb of competencies, You will see clearly where your role fits into the team, making it easier to prioritize work, collaborate with teammates, and move forward with total confidence; even when the path gets complex.</p>
                     </div>
 
                     {/* What You Will Learn Section - Moved to Storybook Tab */}
@@ -293,13 +310,16 @@ function GuidelinePage() {
                             </svg>
                           </div>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-900">What You'll Learn</h3>
+                        <h3 className="text-2xl font-bold text-gray-900">What You'll Understand</h3>
                       </div>
                       <div className="space-y-5">
                         {content.whatYouWillLearn.map((item, index) => (
                           <div key={index} className="flex items-start gap-3">
-                            <div className="flex-shrink-0 mt-1.5">
-                              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                            <div className="flex-shrink-0 mt-1">
+                              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
+                              </svg>
                             </div>
                             <p className="text-gray-700 text-base leading-relaxed">
                               {item}
@@ -319,7 +339,7 @@ function GuidelinePage() {
                         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
                       >
                         <BookOpen size={16} />
-                        Open Story Book
+                        Read more in the storybook
                       </button>
                     </div>
                   </div>
@@ -351,6 +371,19 @@ function GuidelinePage() {
                           </a>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'materials' && (
+                  <div className="space-y-6">
+                    {/* Materials Title */}
+                    <h2 className="text-xl font-semibold text-gray-900">Other Materials</h2>
+                    <p className="text-gray-600">
+                      Additional resources and materials related to the Golden Honeycomb of Competencies will be available here.
+                    </p>
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                      <p className="text-gray-500">Coming soon...</p>
                     </div>
                   </div>
                 )}
