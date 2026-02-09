@@ -1,13 +1,25 @@
 import React, { useEffect, useState } from 'react'
 
 interface SideNavProps {
-  sections: Array<{ id: string; label: string }>
   activeSection?: string
   onSectionClick?: (sectionId: string) => void
 }
 
-export function SideNav({ sections, activeSection, onSectionClick }: SideNavProps) {
-  const [currentSection, setCurrentSection] = useState(activeSection || sections[0]?.id || 'overview')
+const sections = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'purpose-scope', label: 'Purpose and Scope' },
+  { id: 'roles-responsibilities', label: 'Roles and Responsibilities' },
+  { id: 'guiding-principles', label: 'Guiding Principles and Controls' },
+  { id: 'processes', label: 'Processes' },
+  { id: 'tools-resources', label: 'Tools and Resources' },
+  { id: 'kpis', label: 'Key Performance Indicators (KPIs)' },
+  { id: 'review-schedule', label: 'Review and Update Schedule' },
+  { id: 'compliance', label: 'Compliance and Governance' },
+  { id: 'consequences', label: 'Consequences for non-compliance' },
+]
+
+export function SideNav({ activeSection, onSectionClick }: SideNavProps) {
+  const [currentSection, setCurrentSection] = useState(activeSection || 'overview')
 
   useEffect(() => {
     const observerOptions = {
@@ -39,7 +51,7 @@ export function SideNav({ sections, activeSection, onSectionClick }: SideNavProp
     return () => {
       observer.disconnect()
     }
-  }, [sections])
+  }, [])
 
   useEffect(() => {
     if (activeSection) {
@@ -83,4 +95,5 @@ export function SideNav({ sections, activeSection, onSectionClick }: SideNavProp
     </nav>
   )
 }
+
 
