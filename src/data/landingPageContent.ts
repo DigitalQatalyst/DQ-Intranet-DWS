@@ -29,7 +29,7 @@ export interface Testimonial {
   videoUrl: string;
   metric: string;
   metricLabel: string;
-  metricColor: 'green' | 'blue' | 'orange';
+  metricColor: 'green' | 'blue' | 'orange' | 'red';
 }
 
 export interface PartnerCategory {
@@ -282,4 +282,3 @@ export const getLeadApplyCards = (navigate: (path: string) => void): LeadApplyCa
     onClick: () => navigate('/scrum-master-space'),
   },
 ];
-

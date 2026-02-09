@@ -18,21 +18,21 @@ const supportOptions: SupportCard[] = [
   {
     icon: <User size={28} color="white" />,
     title: 'Contact Your People Partner',
-    description: 'Onboarding support, people topics, and clear next steps.',
+    description: 'Onboarding and people support.',
     href: '/support/people-partner',
     buttonText: 'Get in Touch',
   },
   {
     icon: <MessageCircle size={28} color="white" />,
     title: 'DWS Communication Center',
-    description: 'Ask questions, raise requests, and get fast clarification.',
+    description: 'Questions, requests, clarification.',
     href: '/support/communication-center',
     buttonText: 'Get in Touch',
   },
   {
     icon: <BookOpen size={28} color="white" />,
     title: 'FAQs & Glossary',
-    description: 'Self-serve answers for DQ terms, tools, and processes.',
+    description: 'Self-serve answers for DQ tools and terms.',
     href: '/support/faqs',
     buttonText: 'Get in Touch',
   },
@@ -192,7 +192,7 @@ export function OnboardingLanding() {
       <main className="flex-grow">
         {/* SECTION 1 — HERO: Start Your Onboarding Journey */}
         <section 
-          className="relative w-full overflow-hidden flex flex-col isolate h-auto md:h-[600px] lg:h-[700px] pt-24 pb-20 md:pt-24 md:pb-20"
+          className="relative w-full overflow-hidden isolate min-h-screen flex items-center justify-center pt-24 pb-20"
         >
           {/* Animated DWS Gradient Base */}
           <div 
@@ -427,33 +427,34 @@ export function OnboardingLanding() {
             }}
           />
 
-          <div className="w-full flex items-center relative z-10">
+          <div className="w-full flex items-center justify-center relative z-10">
             <div className="container mx-auto px-4 md:px-6 lg:px-8 xl:px-12">
-            <div className="max-w-4xl">
+            <div className="w-full max-w-3xl mx-auto flex flex-col items-center text-center">
               <FadeInUpOnScroll>
                 <h1 
-                  className="text-[44px] sm:text-[56px] lg:text-[76px] text-white mb-6 text-left font-sans"
+                  className="text-white mb-4 text-center font-sans whitespace-nowrap"
                   style={{
                     fontWeight: 700,
                     lineHeight: 1.1,
-                    color: '#FFFFFF'
+                    color: '#FFFFFF',
+                    fontSize: '72px'
                   }}
                 >
-                    Welcome to DQ Onboarding
+                    The DQ Onboarding System
                 </h1>
-                <p className="text-lg md:text-xl text-white/95 mb-8 font-normal leading-relaxed text-left max-w-3xl" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
-                    Learn how DQ actually works. You will see how intent becomes execution, how decisions are made, and how real work moves. You are not onboarding into a role. You are onboarding into an execution system.
+                <p className="text-white/95 mb-6 font-normal leading-relaxed text-center max-w-3xl whitespace-nowrap" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', fontSize: '18px' }}>
+                    Execution starts on day one at DQ. This onboarding exists to bring you into the execution system, not a handbook.
                 </p>
               </FadeInUpOnScroll>
 
               {/* Primary CTA button */}
               <StaggeredFadeIn
                 staggerDelay={0.1}
-                className="mb-12"
+                className="mb-12 w-full"
               >
                 <button
                   onClick={handleStartOnboarding}
-                  className="px-8 py-3.5 bg-white text-[#030F35] font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-300 flex items-center justify-center gap-2 text-base group"
+                  className="px-8 py-3.5 bg-white text-[#030F35] font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-white/95 transition-all duration-300 inline-flex items-center justify-center gap-2 text-base group mx-auto"
                 >
                     <span>View the 3-Month Onboarding Guide</span>
                   <ArrowRight size={18} color="#FB5535" className="transition-transform group-hover:translate-x-1" />
@@ -489,16 +490,15 @@ export function OnboardingLanding() {
             <FadeInUpOnScroll className="md:col-span-5 lg:col-span-6">
                   <div className="max-w-xl">
                     <p className="text-xs font-bold tracking-[0.15em] uppercase text-[#E95139] mb-4">
-                      Getting Started
+                      GETTING STARTED
                     </p>
                     <h2 className="text-[36px] font-bold text-[#030F35] mb-6 leading-tight">
                       DQ Organization
                 </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-8 space-y-3">
-                      <p>DQ is a purpose-driven digital organisation, designed to turn potential into execution.</p>
-                      <p>Work flows shape decisions, not hierarchy, titles, or assumptions.</p>
-                      <p>Understanding the organisation shows how decisions are made, how teams collaborate, and why work is structured the way it is.</p>
-                      <p>That clarity helps you execute sooner.</p>
+                      <p>DQ is built for execution, not hierarchy.</p>
+                      <p>Decisions, roles, and interactions are intentionally designed so work moves.</p>
+                      <p>Understanding the organisation shows how work actually happens here—and how you can execute faster.</p>
               </div>
                     <button
                       onClick={handleExploreOrganization}
@@ -547,24 +547,15 @@ export function OnboardingLanding() {
                 <FadeInUpOnScroll className="md:col-span-5 lg:col-span-6 order-1 md:order-2">
                   <div className="max-w-xl">
                     <p className="text-xs font-bold tracking-[0.15em] uppercase text-[#E95139] mb-4">
-                      DQ DNA
+                      FOUNDATION
                     </p>
                     <h2 className="text-[36px] font-bold text-[#030F35] mb-6 leading-tight">
                       DQ GHC (The Golden Honeycomb of Competencies)
                     </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-8 space-y-3">
-                      <p>
-                        As DQ scales, consistency matters.
-                      </p>
-                      <p>
-                        The Golden Honeycomb of Competencies (GHC) keeps culture, leadership, governance, and value aligned as teams, markets, and products grow.
-                      </p>
-                      <p>
-                        It connects how we think, decide, lead, and deliver.
-                      </p>
-                      <p>
-                        That keeps clarity and discipline when complexity rises.
-                      </p>
+                      <p>As complexity grows, alignment keeps execution steady.</p>
+                      <p>The Golden Honeycomb of Competencies keeps culture, leadership, governance, and value consistent as teams, products, and markets scale.</p>
+                      <p>It connects how we think, decide, and deliver so decisions stay clear.</p>
                     </div>
                     <button
                       onClick={handleExploreGHC}
@@ -588,16 +579,15 @@ export function OnboardingLanding() {
               <FadeInUpOnScroll className="md:col-span-5 lg:col-span-6">
                 <div className="max-w-xl">
                     <p className="text-xs font-bold tracking-[0.15em] uppercase text-[#E95139] mb-4">
-                      Operational System
+                      OPERATIONAL SYSTEM
                     </p>
                     <h2 className="text-[36px] font-bold text-[#030F35] mb-6 leading-tight">
-                      DQ 6x Digitals (6xD)
+                      DQ 6xD Digitals (6xD)
                 </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-8 space-y-3">
-                      <p>Transformation at DQ is not theory.</p>
-                      <p>Agile 6xD is how we design, build, and scale work, turning ideas into outcomes through real execution.</p>
-                      <p>It gives teams a shared system to make sense of change, move work forward, and deliver under pressure.</p>
-                      <p>This is the execution backbone across teams, products, and initiatives.</p>
+                      <p>Agile 6xD is the operating backbone of execution at DQ.</p>
+                      <p>It is the shared system teams use daily to turn strategy into delivery across products and initiatives.</p>
+                      <p>Not training. Not theory. How work actually moves here.</p>
                               </div>
                     <button
                       onClick={handleExplore6XD}
@@ -637,16 +627,15 @@ export function OnboardingLanding() {
             <FadeInUpOnScroll className="md:col-span-5 lg:col-span-6">
                   <div className="max-w-xl">
                     <p className="text-xs font-bold tracking-[0.15em] uppercase text-[#E95139] mb-4">
-                      Your Role
+                      YOUR ROLE
                 </p>
                     <h2 className="text-[36px] font-bold text-[#030F35] mb-6 leading-tight">
                       Your Role at DQ
                 </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-8 space-y-3">
-                      <p>Your role at DQ is more than a job description.</p>
-                      <p>It is the responsibilities, decisions, and outcomes you own in the system.</p>
-                      <p>Knowing where you fit helps you take ownership faster, make better decisions, and create visible impact.</p>
-                      <p>This is where responsibility meets execution.</p>
+                      <p>Roles at DQ are about ownership and outcomes.</p>
+                      <p>When you understand the system, you move faster, make better decisions, and create visible impact.</p>
+                      <p>Execution becomes real through responsibility.</p>
                     </div>
                     <button
                       type="button"
@@ -933,7 +922,7 @@ export function OnboardingLanding() {
                   Need Help Along the Way?
                 </h2>
                 <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
-                  You are not expected to figure everything out alone. For onboarding help, process clarity, or day-to-day support, the channels are ready. Use them early. Use them often. That is how work moves faster at DQ.
+                  You are supported while you learn the system. These channels exist to unblock execution and keep momentum. Ask early so work keeps moving.
                 </p>
               </div>
             </FadeInUpOnScroll>
