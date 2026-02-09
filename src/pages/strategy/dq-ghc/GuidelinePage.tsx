@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { HomeIcon, ChevronRightIcon, PlayCircle, Eye, BookOpen } from 'lucide-react'
+import { HomeIcon, ChevronRightIcon, PlayCircle, Eye, BookOpen, CheckCircle } from 'lucide-react'
 import { Header } from '../../../components/Header'
 import { Footer } from '../../../components/Footer'
 import { useAuth } from '../../../components/Header/context/AuthContext'
@@ -242,24 +242,19 @@ function GuidelinePage() {
                 {activeTab === 'overview' && (
                   <div className="space-y-6">
                     {/* Main Description */}
-                    <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
-                      <p>{content.shortOverview}</p>
+                    <div className="prose prose-base max-w-none text-gray-700 leading-relaxed space-y-4">
+                      {content.shortOverview.split('\n\n').map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
                     </div>
 
                     {/* Course Highlights Section */}
-                    <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-900">5 Reasons to Work With THE GHC</h3>
-                      </div>
-                      <div className="space-y-5">
-                        {content.highlights.map((highlight, index) => (
+                    <div className="space-y-5">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-6">Five Reasons To Work With The GHC</h3>
+                      {content.highlights.map((highlight, index) => {
+                        const [title, ...descParts] = highlight.split(':')
+                        const description = descParts.join(':').trim()
+                        return (
                           <div key={index} className="flex items-start gap-3">
                             <div className="flex-shrink-0 mt-1">
                               <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -268,11 +263,11 @@ function GuidelinePage() {
                               </svg>
                             </div>
                             <p className="text-gray-700 text-base leading-relaxed">
-                              {highlight}
+                              <span className="font-semibold">{title}:</span> {description}
                             </p>
                           </div>
-                        ))}
-                      </div>
+                        )
+                      })}
                     </div>
 
                     {/* View Details Button */}
@@ -296,24 +291,19 @@ function GuidelinePage() {
                 {activeTab === 'storybook' && (
                   <div className="space-y-6">
                     {/* Storybook Description */}
-                    <div className="prose prose-base max-w-none text-gray-700 leading-relaxed">
-                      <p>The Golden Honeycomb of competencies isn't just a framework; it is what drives us in Digital Qatalyst. It shows exactly how we design our work, make decisions, and stay aligned as one team. Get to know the seven core elements that make up our DNA. Instead of seeing them as separate rules, you will see how they link together; how our Culture drives our Execution, and how our Vision shapes your daily Tasks. When you understand the Golden Honeycomb of competencies, You will see clearly where your role fits into the team, making it easier to prioritize work, collaborate with teammates, and move forward with total confidence; even when the path gets complex.</p>
+                    <div className="prose prose-base max-w-none text-gray-700 leading-relaxed space-y-4">
+                      {content.storybookIntro.split('\n\n').map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
                     </div>
 
-                    {/* What You Will Learn Section - Moved to Storybook Tab */}
-                    <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-900">What You'll Understand</h3>
-                      </div>
-                      <div className="space-y-5">
-                        {content.whatYouWillLearn.map((item, index) => (
+                    {/* What You Will Understand Section */}
+                    <div className="space-y-5">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-6">What You'll Understand</h3>
+                      {content.whatYouWillLearn.map((item, index) => {
+                        const [title, ...descParts] = item.split(':')
+                        const description = descParts.join(':').trim()
+                        return (
                           <div key={index} className="flex items-start gap-3">
                             <div className="flex-shrink-0 mt-1">
                               <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -322,11 +312,11 @@ function GuidelinePage() {
                               </svg>
                             </div>
                             <p className="text-gray-700 text-base leading-relaxed">
-                              {item}
+                              <span className="font-semibold">{title}:</span> {description}
                             </p>
                           </div>
-                        ))}
-                      </div>
+                        )
+                      })}
                     </div>
 
                     {/* Open Storybook Button */}
@@ -347,43 +337,55 @@ function GuidelinePage() {
 
                 {activeTab === 'course' && (
                   <div className="space-y-6">
-                    {/* Course Title */}
-                    <h2 className="text-xl font-semibold text-gray-900">Course</h2>
-                                        <h3 className="text-lg font-semibold text-gray-900">GHC Course & Videos</h3>
-                    <p className="text-sm text-gray-600">
-                      Watch all GHC element videos from one place. Each link opens the respective course module.
-                    </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {videoLinks.map(video => (
-                        <div key={video.id} className="border border-gray-200 rounded-lg p-4 flex items-start justify-between">
-                          <div>
-                            <h4 className="text-sm font-semibold text-gray-900">{video.label}</h4>
-                            <p className="text-xs text-gray-600 mt-1">Course lesson</p>
-                          </div>
-                          <a
-                            href={video.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-                          >
-                            <PlayCircle size={14} />
-                            <span>Open</span>
-                          </a>
-                        </div>
+                    {/* Course Description */}
+                    <div className="prose prose-base max-w-none text-gray-700 leading-relaxed space-y-4">
+                      {content.courseIntro?.split('\n\n').map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
                       ))}
+                    </div>
+
+                    {/* What You'll Practice & Understand Section */}
+                    <div className="space-y-5">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-6">What You'll Learn & Practice</h3>
+                      {content.whatYouWillPractice?.map((item, index) => {
+                        const [title, ...descParts] = item.split(':')
+                        const description = descParts.join(':').trim()
+                        return (
+                          <div key={index} className="flex items-start gap-3">
+                            <div className="flex-shrink-0 mt-1">
+                              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
+                              </svg>
+                            </div>
+                            <p className="text-gray-700 text-base leading-relaxed">
+                              <span className="font-semibold">{title}:</span> {description}
+                            </p>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* View Course Button */}
+                    <div className="pt-4">
+                      <button
+                        onClick={() => window.open('https://dq-intranet-pykepfa4x-digitalqatalysts-projects.vercel.app/lms/ghc-course/lesson/7191832f-d3ac-4577-9eb2-80c9a57e7e28', '_blank')}
+                        className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
+                        style={{ backgroundColor: '#030E31' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
+                      >
+                        <PlayCircle size={16} />
+                        View Course
+                      </button>
                     </div>
                   </div>
                 )}
 
                 {activeTab === 'materials' && (
                   <div className="space-y-6">
-                    {/* Materials Title */}
-                    <h2 className="text-xl font-semibold text-gray-900">Other Materials</h2>
-                    <p className="text-gray-600">
-                      Additional resources and materials related to the Golden Honeycomb of Competencies will be available here.
-                    </p>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                      <p className="text-gray-500">Coming soon...</p>
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
+                      <p className="text-gray-500 text-lg">Coming soon...</p>
                     </div>
                   </div>
                 )}
