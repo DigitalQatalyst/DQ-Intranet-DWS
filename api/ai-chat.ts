@@ -233,9 +233,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       const reader = (upstream.body as any).getReader();
-      while (true) {
+      let isDone = false;
+      while (!isDone) {
         const { done, value } = await reader.read();
-        if (done) break;
+        isDone = done;
         if (value) res.write(Buffer.from(value));
       }
       res.end();
