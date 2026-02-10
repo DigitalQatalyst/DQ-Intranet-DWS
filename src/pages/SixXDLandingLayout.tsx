@@ -908,6 +908,7 @@ function SectionCarousel({
   const responsesTitleFontSize = content?.responsesTitleFontSize ?? '36px';
   const responsesIntroFontSize = content?.responsesIntroFontSize ?? '18px';
   const responsesSequential = content?.responsesSequential ?? false;
+  const responsesLayout = content?.responsesLayout ?? 'carousel';
   const responseTags =
     content?.responseTags ??
     ['Vision', 'House of Values', 'Persona', 'Agile TMS', 'Agile SoS', 'Agile Flows', 'Agile 6xD'];
