@@ -174,7 +174,7 @@ const SIXXD_ACTIONS = [
     title: "Learn by doing",
     icon: GraduationCap,
     badge: "Start here",
-    description: "Guided missions mirror how we execute inside DQ so you build delivery habits in real scenarios.",
+    description: "Guided missions mirror how we execute inside DQ so you build delivery habits fast.",
     tags: ["Practice", "Missions", "Feedback"],
     cta: "Start in Learning Center",
     path: "/lms?category=6xd",
@@ -188,7 +188,7 @@ const SIXXD_ACTIONS = [
     title: "Capability overview",
     icon: Layers,
     badge: "Understand",
-    description: "Read the Agile 6xD storybook to see the execution system behind every product.",
+    description: "See the execution system behind every product in the Agile 6xD storybook.",
     tags: ["Storybook", "Execution", "Context"],
     cta: "Read the Agile 6xD storybook",
     path: "/marketplace/guides/dq-6xd",
@@ -202,7 +202,7 @@ const SIXXD_ACTIONS = [
     title: "Product platforms",
     icon: BookOpen,
     badge: "Access",
-    description: "Already aligned? Go straight to the live platforms used in delivery.",
+    description: "Ready now? Go straight to the live platforms used in delivery.",
     tags: ["DTMP", "DWS", "Plant 4.0"],
     cta: "Go to product platform ↗",
     path: "/marketplace/directory/products",
@@ -222,42 +222,36 @@ export default function SixXDProductsLanding() {
         heroHeadline: "Transformation fails when execution is fragmented.",
         heroHeadlineHighlightWord: "execution",
         heroHeadlineFontSize: "70px",
-        heroSupporting: (
-          <>
-            Agile 6xD Products exist because theory-led transformation breaks in the real world.
-            <br className="hidden md:block" />
-            We turn execution into a repeatable capability proven inside DQ.
-          </>
-        ),
+        heroSupporting:
+          "Agile 6xD Products exist because theory breaks in delivery. We turn execution into a repeatable, internal-proven capability.",
         heroCTA: "Read the Agile 6xD Storybook",
         heroCTALink: "/marketplace/guides/dq-6xd",
         heroFootnote: "Internal-first. Proven under real delivery pressure.",
         foundationTitle: "What are Agile 6xD Products",
         foundationSubtitle:
-          "Not slideware, templates, or toolkits. Agile 6xD Products are execution systems built from live delivery inside DQ. Only what survives real conditions becomes a product.",
+          "Execution systems, not slideware. Built from live delivery inside DQ. Only what survives real conditions becomes a product.",
         foundationTitleFontSize: "30px",
         foundationSubtitleFontSize: "16px",
         foundationCards: [
           {
-            title: "Internal-first execution",
-            description:
-              "Used by DQ teams under real deadlines before anyone else touches them.",
+            title: "Internal-first",
+            description: "Runs on DQ teams under real deadlines before anyone else touches it.",
             icon: Target,
           },
           {
             title: "Built for real delivery",
             description:
-              "Systems with governance, workflows, data, and plays packaged so teams can run with confidence.",
+              "Systems with governance, workflows, data, and plays packaged to run immediately.",
             icon: Layers,
           },
         ],
         foundationCTA: "Read the full Agile 6xD storybook",
         foundationCTATo: "/marketplace/guides/dq-6xd",
         foundationFootnote:
-          "If it can’t survive our delivery environments, it doesn’t ship. Real execution is the gate.",
+          "If it doesn’t survive our delivery environments, it doesn’t ship.",
         responsesTitle: "Execution systems used at DQ",
         responsesIntro:
-          "Each product encodes DQ’s response to a recurring execution failure—fragmented initiatives, slow time-to-value, strategy stuck in slides, or pilots that stall.",
+          "Each product encodes DQ’s response to recurring execution failures: fragmented initiatives, slow time-to-value, strategy stuck in slides, pilots that stall.",
         responsesTitleFontSize: "30px",
         responsesIntroFontSize: "16px",
         responsesSequential: true,
@@ -286,7 +280,7 @@ export default function SixXDProductsLanding() {
         takeActionSubtitleFontSize: "16px",
         takeActionTitle: "Choose your path",
         takeActionSubtitle:
-          "Start where you need: learn by doing, adopt the systems directly, or study the insights first — flexibility without losing execution discipline.",
+          "Start where you need: learn by doing, adopt the systems directly, or study the insights first. Flexibility without losing execution discipline.",
         takeActionLayout: "feature",
       }}
     />
