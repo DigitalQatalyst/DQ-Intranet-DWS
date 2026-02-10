@@ -1,6 +1,7 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
+import { ProductShowcase } from '@/components/ProductShowcase';
 import useEmblaCarousel from 'embla-carousel-react';
 import {
   ChevronDown,
@@ -939,7 +940,11 @@ function SectionCarousel({
     );
   }
 
-  if (responsesLayout === 'classes-grid' || responsesLayout === 'chips-grid') {
+  if (responsesLayout === 'chips-grid') {
+    return <ProductShowcase />;
+  }
+
+  if (responsesLayout === 'classes-grid') {
     return (
       <ClassGrid
         id="ghc-carousel"
@@ -949,7 +954,7 @@ function SectionCarousel({
         subtitleFontSize={responsesIntroFontSize}
         tags={responseTags}
         cards={responseCards}
-        variant={responsesLayout === 'chips-grid' ? 'chips' : 'list'}
+        variant="list"
       />
     );
   }
