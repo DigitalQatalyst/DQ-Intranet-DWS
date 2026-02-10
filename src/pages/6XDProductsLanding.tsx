@@ -222,8 +222,13 @@ export default function SixXDProductsLanding() {
         heroHeadline: "Transformation fails when execution is fragmented.",
         heroHeadlineHighlightWord: "execution",
         heroHeadlineFontSize: "70px",
-        heroSupporting:
-          "Agile 6xD Products exist because theory-led transformation breaks in the real world. We turn execution into a repeatable capability proven inside DQ.",
+        heroSupporting: (
+          <>
+            Agile 6xD Products exist because theory-led transformation breaks in the real world.
+            <br className="hidden md:block" />
+            We turn execution into a repeatable capability proven inside DQ.
+          </>
+        ),
         heroCTA: "Read the Agile 6xD Storybook",
         heroCTALink: "/marketplace/guides/dq-6xd",
         heroFootnote: "Internal-first. Proven under real delivery pressure.",
