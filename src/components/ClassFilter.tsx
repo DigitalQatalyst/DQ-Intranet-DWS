@@ -20,13 +20,13 @@ export function ClassFilter({ classes, activeId, onSelect }: ClassFilterProps) {
               aria-selected={isActive}
               onClick={() => onSelect(cls.id)}
               className={[
-                "px-4 py-2 rounded-full text-sm font-semibold border transition-colors shadow-sm whitespace-nowrap",
+                "px-6 py-3 rounded-full text-base font-semibold border transition-colors whitespace-nowrap",
                 isActive
-                  ? "bg-indigo-600 text-white border-indigo-600 shadow-indigo-200"
-                  : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50",
+                  ? "bg-[#0c1a3a] text-white border-[#0c1a3a] shadow-md"
+                  : "bg-white text-gray-800 border-[#e5e9f5] hover:border-[#0c1a3a] hover:text-[#0c1a3a]",
               ].join(" ")}
             >
-              {cls.label} — {cls.name} ({cls.shortName})
+              {cls.name} ({cls.shortName})
             </button>
           );
         })}
