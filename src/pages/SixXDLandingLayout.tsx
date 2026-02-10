@@ -1325,6 +1325,16 @@ function ClassGrid({
     return match ? match[1] : category;
   };
 
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const scrollByCards = (direction: 'prev' | 'next') => {
+    const node = scrollerRef.current;
+    if (!node) return;
+    const card = node.querySelector<HTMLElement>('article');
+    const cardWidth = card ? card.getBoundingClientRect().width + 24 /* gap */ : 360;
+    const delta = direction === 'next' ? cardWidth * 2 : -cardWidth * 2;
+    node.scrollBy({ left: delta, behavior: 'smooth' });
+  };
+
   return (
     <section id={id} className="relative py-24 bg-white">
       <div className="container mx-auto px-4 md:px-6 lg:px-10">
@@ -1347,39 +1357,67 @@ function ClassGrid({
             </p>
           </div>
 
-          <div className="mt-10 space-y-8">
-            <div className="flex flex-wrap gap-3" aria-label="Product classes">
-              {tags.map((tag, i) => {
-                const isActive = tag === activeClass;
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => setActiveClass(tag)}
-                    className={[
-                      'px-4 py-2 rounded-full text-sm font-semibold border transition-colors shadow-sm',
-                      isActive
-                        ? 'bg-[#0c1a3a] text-white border-[#0c1a3a]'
-                        : 'bg-white text-[#131e42] border-[#dce5ff] hover:border-[#0c1a3a] hover:text-[#0c1a3a]'
-                    ].join(' ')}
-                    aria-current={isActive ? 'step' : undefined}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
+          <div className="mt-10 space-y-6">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex flex-wrap gap-3" aria-label="Product classes">
+                {tags.map((tag) => {
+                  const isActive = tag === activeClass;
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setActiveClass(tag)}
+                      className={[
+                        'px-4 py-2 rounded-full text-sm font-semibold border transition-colors shadow-sm',
+                        isActive
+                          ? 'bg-[#0c1a3a] text-white border-[#0c1a3a]'
+                          : 'bg-white text-[#131e42] border-[#dce5ff] hover:border-[#0c1a3a] hover:text-[#0c1a3a]'
+                      ].join(' ')}
+                      aria-current={isActive ? 'step' : undefined}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => scrollByCards('prev')}
+                  className="w-10 h-10 rounded-full border border-[#dce5ff] text-[#0c1a3a] bg-white hover:bg-[#f5f7ff] shadow-sm"
+                  aria-label="Scroll products left"
+                >
+                  <ChevronLeft className="h-5 w-5 mx-auto" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollByCards('next')}
+                  className="w-10 h-10 rounded-full border border-[#0c1a3a] text-white bg-[#0c1a3a] hover:brightness-105 shadow-sm"
+                  aria-label="Scroll products right"
+                >
+                  <ChevronRight className="h-5 w-5 mx-auto" />
+                </button>
+              </div>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            <div
+              ref={scrollerRef}
+              className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory"
+            >
+              {tags.map((tag, i) => {
+                if (i !== 0) return null; // chips already rendered above
+                return null;
+              })}
+
               {filteredCards.map((card) => (
                 <article
                   key={card.id}
-                  className="rounded-3xl border border-[#e5e9f5] bg-white shadow-md overflow-hidden flex flex-col"
+                  className="snap-start flex-none w-[320px] md:w-[360px] lg:w-[400px] rounded-3xl border border-[#e5e9f5] bg-white shadow-md overflow-hidden flex flex-col"
                 >
                   <div
-                    className="h-48 w-full"
+                    className="h-48 w-full relative"
                     style={{
-                      background: 'linear-gradient(135deg, #a6b1ff 0%, #8ee7ff 100%)',
+                      background: card.gradient,
                     }}
                   >
                     <div className="p-4 text-white text-sm font-semibold uppercase tracking-[0.18em]">
