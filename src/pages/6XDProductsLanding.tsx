@@ -174,7 +174,7 @@ const SIXXD_ACTIONS = [
     title: "Learn by doing",
     icon: GraduationCap,
     badge: "Start here",
-    description: "Guided missions mirror how we execute inside DQ so you build delivery habits fast.",
+    description: "For new joiners and hands-on learners: guided missions that mirror how we execute inside DQ.",
     tags: ["Practice", "Missions", "Feedback"],
     cta: "Start in Learning Center",
     path: "/lms?category=6xd",
@@ -188,7 +188,7 @@ const SIXXD_ACTIONS = [
     title: "Capability overview",
     icon: Layers,
     badge: "Understand",
-    description: "See the execution system behind every product in the Agile 6xD storybook.",
+    description: "For context-first thinkers: see the execution system behind every product in the Agile 6xD storybook.",
     tags: ["Storybook", "Execution", "Context"],
     cta: "Read the Agile 6xD storybook",
     path: "/marketplace/guides/dq-6xd",
@@ -202,7 +202,7 @@ const SIXXD_ACTIONS = [
     title: "Product platforms",
     icon: BookOpen,
     badge: "Access",
-    description: "Ready now? Go straight to the live platforms used in delivery.",
+    description: "For teams ready to deploy: go straight to the live platforms used in delivery.",
     tags: ["DTMP", "DWS", "Plant 4.0"],
     cta: "Go to product platform ↗",
     path: "/marketplace/directory/products",
@@ -223,35 +223,35 @@ export default function SixXDProductsLanding() {
         heroHeadlineHighlightWord: "execution",
         heroHeadlineFontSize: "70px",
         heroSupporting:
-          "Agile 6xD Products exist because theory breaks in delivery. We turn execution into a repeatable, internal-proven capability.",
+          "Agile 6xD Products exist because execution must be designed, proven, and scaled — not assumed.",
         heroCTA: "Read the Agile 6xD Storybook",
         heroCTALink: "/marketplace/guides/dq-6xd",
         heroFootnote: "Internal-first. Proven under real delivery pressure.",
         foundationTitle: "What are Agile 6xD Products",
         foundationSubtitle:
-          "Execution systems, not slideware. Built from live delivery inside DQ. Only what survives real conditions becomes a product.",
+          "Execution systems, not frameworks on slides. Built from how DQ executes internally, proven before release to reduce failure.",
         foundationTitleFontSize: "30px",
         foundationSubtitleFontSize: "16px",
         foundationCards: [
           {
             title: "Internal-first",
-            description: "Runs on DQ teams under real deadlines before anyone else touches it.",
+            description: "Runs on DQ teams under real deadlines first. If it fails here, it never ships.",
             icon: Target,
           },
           {
             title: "Built for real delivery",
             description:
-              "Systems with governance, workflows, data, and plays packaged to run immediately.",
+              "Packaged governance, workflows, and data so teams get clarity, speed, and repeatability on day one.",
             icon: Layers,
           },
         ],
         foundationCTA: "Read the full Agile 6xD storybook",
         foundationCTATo: "/marketplace/guides/dq-6xd",
         foundationFootnote:
-          "If it doesn’t survive our delivery environments, it doesn’t ship.",
+          "These products exist to remove the gap between strategy and delivery. If it doesn’t survive our delivery environments, it doesn’t ship.",
         responsesTitle: "Execution systems used at DQ",
         responsesIntro:
-          "Each product encodes DQ’s response to recurring execution failures: fragmented initiatives, slow time-to-value, strategy stuck in slides, pilots that stall.",
+          "The same execution challenges repeat across teams and industries. Each Agile 6xD product solves one recurring execution problem—fragmented initiatives, slow time-to-value, strategy stuck in slides, pilots that stall.",
         responsesTitleFontSize: "30px",
         responsesIntroFontSize: "16px",
         responsesSequential: true,
@@ -270,7 +270,7 @@ export default function SixXDProductsLanding() {
         actionCards: SIXXD_ACTIONS,
         finalHeadline: "Execution or it doesn’t ship.",
         finalSubtitle:
-          "Agile 6xD Products make transformation practical, repeatable, and scalable for real organisations—not ideal conditions. If it fails in execution, it never becomes a product.",
+          "We execute inside DQ first, release only after delivery proof, and scale what works. That’s how transformation stays practical, repeatable, and trusted.",
         finalCTALabel: "Read the Agile 6xD Storybook",
         finalCTATo: "/marketplace/guides/dq-6xd",
         finalCTASecondaryLabel: "Go to product platform ↗",
@@ -280,7 +280,7 @@ export default function SixXDProductsLanding() {
         takeActionSubtitleFontSize: "16px",
         takeActionTitle: "Choose your path",
         takeActionSubtitle:
-          "Start where you need: learn by doing, adopt the systems directly, or study the insights first. Flexibility without losing execution discipline.",
+          "Different people enter execution at different points. Choose how you want to engage.",
         takeActionLayout: "feature",
       }}
     />
