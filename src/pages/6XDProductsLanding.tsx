@@ -134,14 +134,13 @@ export default function SixXDProductsLanding() {
     <GHCLanding
       badgeLabel="DQ Products"
       overrides={{
-        heroHeadline: "Execution fails when organisations fragment the work.",
+        heroHeadline: "Transformation fails when execution is fragmented.",
         heroHeadlineHighlightWord: "execution",
         heroHeadlineFontSize: "70px",
-        heroSupporting:
-          "DQ products exist to keep execution continuous and real—not guessed or split apart.",
+        heroSupporting: "DQ products exist to keep execution continuous, proven, and real.",
         heroCTA: "Read the Agile 6xD Storybook",
         heroCTALink: "/marketplace/guides/dq-6xd",
-        heroFootnote: "Internal-first. Proven through real work.",
+        heroFootnote: "Internal-first. Proven through real delivery.",
         foundationTitle: "What are DQ Products",
         foundationSubtitle:
           "Execution systems built from how DQ delivers. Used in live work before release. Only what survives real pressure ships. Designed to operate together as one system.",
