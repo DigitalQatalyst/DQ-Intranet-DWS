@@ -223,7 +223,7 @@ export default function SixXDProductsLanding() {
         heroHeadlineHighlightWord: "execution",
         heroHeadlineFontSize: "70px",
         heroSupporting:
-          "Most organisations stall because execution is guessed. Agile 6xD Products exist because we build, prove, and scale execution—not theory.",
+          "Execution fails when it’s fragmented or guessed. Agile 6xD Products exist because DQ treats execution as a system to build, prove, and scale.",
         heroCTA: "Read the Agile 6xD Storybook",
         heroCTALink: "/marketplace/guides/dq-6xd",
         heroFootnote: "Internal-first. Proven under real delivery pressure.",
@@ -248,10 +248,10 @@ export default function SixXDProductsLanding() {
         foundationCTA: "Read the full Agile 6xD storybook",
         foundationCTATo: "/marketplace/guides/dq-6xd",
         foundationFootnote:
-          "These products close the gap between strategy (GHC) and delivery (6xD). If it doesn’t survive our delivery environments, it doesn’t ship.",
+          "GHC shapes how we think; 6xD shapes how we execute. Products are the outcome. If it doesn’t survive our delivery environments, it doesn’t ship.",
         responsesTitle: "Execution systems used at DQ",
         responsesIntro:
-          "GHC shapes how we think; 6xD shapes how we execute. Products are what execution becomes. Each one solves a recurring failure—fragmented initiatives, slow time-to-value, strategy stuck in slides, pilots that stall.",
+          "GHC → 6xD → Products. Shared competencies drive decisions, 6xD drives delivery, products are the proven systems. Each one removes a recurring failure—fragmented initiatives, slow time-to-value, strategy stuck in slides, pilots that stall.",
         responsesTitleFontSize: "30px",
         responsesIntroFontSize: "16px",
         responsesSequential: true,
