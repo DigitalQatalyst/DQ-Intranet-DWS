@@ -55,6 +55,7 @@ export function AppRouter() {
             <Route path="/growth-sectors-coming-soon" element={<GrowthSectorsComingSoon />} />
             <Route path="/products" element={<SixXDProductsLanding />} />
             <Route path="/dq-products" element={<SixXDProductsLanding />} />
+            <Route path="/knowledge-center/products" element={<SixXDProductsLanding />} />
             <Route path="/*" element={<App />} />
             <Route path="/courses/:itemId" element={<LmsCourseDetailPage />} />
             <Route path="/lms" element={<LmsCourses />} />
