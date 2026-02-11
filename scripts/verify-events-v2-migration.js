@@ -1,16 +1,9 @@
-import pg from 'pg';
-const { Client } = pg;
-
-const connectionString = "postgresql://postgres.jmhtrffmxjxhoxpesubv:Dws.clouddb123@aws-1-eu-north-1.pooler.supabase.com:6543/postgres";
+import { connectDb } from './db.js';
 
 async function verifyMigration() {
-  const client = new Client({
-    connectionString: connectionString,
-  });
+  const client = await connectDb();
 
   try {
-    await client.connect();
-    console.log('Connected to Supabase database\n');
 
     // Step 1: Verify events_v2 table exists
     console.log('=== VERIFYING events_v2 TABLE ===');
@@ -33,10 +26,10 @@ async function verifyMigration() {
     console.log('\n=== VERIFYING DATA ===');
     const countV2 = await client.query('SELECT COUNT(*) as count FROM events_v2;');
     const countOriginal = await client.query('SELECT COUNT(*) as count FROM events;');
-    
+
     console.log(`events table: ${countOriginal.rows[0].count} rows`);
     console.log(`events_v2 table: ${countV2.rows[0].count} rows`);
-    
+
     if (countOriginal.rows[0].count === countV2.rows[0].count) {
       console.log('✅ Row counts match!');
     } else {
@@ -99,7 +92,7 @@ async function verifyMigration() {
       ORDER BY start_time ASC
       LIMIT 5;
     `);
-    
+
     console.log(`✅ Query successful - Found ${testQuery.rows.length} published future events`);
     if (testQuery.rows.length > 0) {
       console.log('Sample events:');

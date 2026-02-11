@@ -20,10 +20,11 @@ if (-not (Test-Path $envFile)) {
 $envContent = Get-Content $envFile -Raw
 
 # New Supabase configuration values
+# ⚠️  REPLACE THESE WITH YOUR ACTUAL CREDENTIALS — never commit real secrets
 $newConfig = @{
-    "VITE_SUPABASE_URL" = "https://jmhtrffmxjxhoxpesubv.supabase.co"
-    "VITE_SUPABASE_ANON_KEY" = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptaHRyZmZteGp4aG94cGVzdWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NzY3MjQsImV4cCI6MjA3ODA1MjcyNH0.LBQJNajOc8bWMt1Q_fj0Z_-fisUngLRrw2VSN-xrtR8"
-    "SUPABASE_SERVICE_ROLE_KEY" = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptaHRyZmZteGp4aG94cGVzdWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjQ3NjcyNCwiZXhwIjoyMDc4MDUyNzI0fQ.-J_U8VUD76zJImZ9WBMhjGLdCQhGQ2zo5ZL2L9ef8jI"
+    "VITE_SUPABASE_URL" = "<YOUR_SUPABASE_URL>"
+    "VITE_SUPABASE_ANON_KEY" = "<YOUR_SUPABASE_ANON_KEY>"
+    "SUPABASE_SERVICE_ROLE_KEY" = "<YOUR_SUPABASE_SERVICE_ROLE_KEY>"
     "VITE_SUPABASE_REDIRECT_URL" = "http://localhost:3000/auth/callback"
     "VITE_SUPABASE_SITE_URL" = "https://dws.digitalqatalyst.com"
     "NODE_ENV" = "development"

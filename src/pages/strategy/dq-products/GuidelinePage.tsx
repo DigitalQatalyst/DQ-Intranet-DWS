@@ -321,4 +321,3 @@ function GuidelinePage() {
 }
 
 export default GuidelinePage
-

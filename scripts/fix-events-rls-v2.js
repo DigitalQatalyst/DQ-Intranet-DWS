@@ -1,16 +1,9 @@
-import pg from 'pg';
-const { Client } = pg;
-
-const connectionString = "postgresql://postgres.jmhtrffmxjxhoxpesubv:Dws.clouddb123@aws-1-eu-north-1.pooler.supabase.com:6543/postgres";
+import { connectDb } from './db.js';
 
 async function fixEventsRLSV2() {
-  const client = new Client({
-    connectionString: connectionString,
-  });
+  const client = await connectDb();
 
   try {
-    await client.connect();
-    console.log('Connected to Supabase database\n');
 
     // Step 1: Drop duplicate policies
     console.log('=== CLEANING UP DUPLICATE POLICIES ===');
@@ -30,7 +23,7 @@ async function fixEventsRLSV2() {
 
     // Step 2: Create explicit policies for anon and authenticated roles
     console.log('\n=== CREATING EXPLICIT POLICIES FOR SUPABASE ROLES ===');
-    
+
     // Policy for anonymous users (anon role) - can view published events
     try {
       await client.query(`
@@ -99,7 +92,7 @@ async function fixEventsRLSV2() {
         AND cmd = 'SELECT'
       ORDER BY policyname;
     `);
-    
+
     console.table(selectPolicies.rows);
 
     // Step 4: Check table permissions for anon role
@@ -115,7 +108,7 @@ async function fixEventsRLSV2() {
         AND grantee IN ('anon', 'authenticated', 'public')
       ORDER BY grantee, privilege_type;
     `);
-    
+
     if (tablePerms.rows.length > 0) {
       console.table(tablePerms.rows);
     } else {
@@ -159,7 +152,7 @@ async function fixEventsRLSV2() {
       ORDER BY start_time ASC
       LIMIT 5;
     `);
-    
+
     console.log(`Found ${testQuery.rows.length} published future events:`);
     testQuery.rows.forEach((row, idx) => {
       console.log(`  ${idx + 1}. ${row.title} (${row.status}) - ${row.start_time}`);

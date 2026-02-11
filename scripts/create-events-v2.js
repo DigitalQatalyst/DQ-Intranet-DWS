@@ -1,16 +1,9 @@
-import pg from 'pg';
-const { Client } = pg;
-
-const connectionString = "postgresql://postgres.jmhtrffmxjxhoxpesubv:Dws.clouddb123@aws-1-eu-north-1.pooler.supabase.com:6543/postgres";
+import { connectDb } from './db.js';
 
 async function createEventsV2() {
-  const client = new Client({
-    connectionString: connectionString,
-  });
+  const client = await connectDb();
 
   try {
-    await client.connect();
-    console.log('Connected to Supabase database\n');
 
     // Step 1: Get the structure of the events table
     console.log('=== GETTING EVENTS TABLE STRUCTURE ===');
@@ -54,7 +47,7 @@ async function createEventsV2() {
 
     // Step 3: Create events_v2 table with same structure
     console.log('\n=== CREATING events_v2 TABLE ===');
-    
+
     // Get the full CREATE TABLE statement by querying pg_get_tabledef or creating manually
     // Since we know the structure, let's create it based on the schema
     const createTableSQL = `
@@ -125,7 +118,7 @@ async function createEventsV2() {
 
     // Step 6: Create RLS policies for events_v2 (same as events)
     console.log('\n=== CREATING RLS POLICIES FOR events_v2 ===');
-    
+
     // Enable RLS
     await client.query('ALTER TABLE events_v2 ENABLE ROW LEVEL SECURITY;');
     console.log('✅ Enabled RLS on events_v2');
@@ -178,10 +171,10 @@ async function createEventsV2() {
     console.log('\n=== VERIFYING DATA ===');
     const countEvents = await client.query('SELECT COUNT(*) as count FROM events;');
     const countEventsV2 = await client.query('SELECT COUNT(*) as count FROM events_v2;');
-    
+
     console.log(`events table: ${countEvents.rows[0].count} rows`);
     console.log(`events_v2 table: ${countEventsV2.rows[0].count} rows`);
-    
+
     if (countEvents.rows[0].count === countEventsV2.rows[0].count) {
       console.log('✅ Row counts match!');
     } else {
