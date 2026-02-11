@@ -78,8 +78,8 @@ const marketplaces: Marketplace[] = [
   },
   {
     id: 'design-system',
-    name: 'DQ Design System',
-    description: 'Discover the foundations behind DQ’s digital experiences—bringing design, content, and storytelling together to ensure clarity, consistency, and impact.',
+    name: 'Design System Marketplace',
+    description: 'Explore design system components, patterns, and resources (CI.DS, V.DS, CDS).',
     icon: Layers,
     href: '/marketplace/design-system',
   },

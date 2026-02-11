@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
-import { useSearchParams, useNavigate, Link, useLocation } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from './FilterSidebar.js';
 import { MarketplaceGrid } from './MarketplaceGrid.js';
 import { SearchBar } from '../SearchBar.js';
-import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
+import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon, InfoIcon } from 'lucide-react';
 import { ErrorDisplay, CourseCardSkeleton } from '../SkeletonLoader.js';
 import { fetchMarketplaceItems, fetchMarketplaceFilters } from '../../services/marketplace.js';
 import { getMarketplaceConfig, getTabSpecificFilters } from '../../utils/marketplaceConfig.js';
@@ -12,31 +12,26 @@ import { Header } from '../Header';
 import { Footer } from '../Footer';
 import { getFallbackItems } from '../../utils/fallbackData';
 import KnowledgeHubGrid from './KnowledgeHubGrid';
-import { LMS_COURSES } from '@/data/lmsCourseDetails';
-import { parseFacets, applyFilters } from '@/lms/filters';
+import { LMS_COURSES } from '../../data/lmsCourseDetails';
+import { parseFacets, applyFilters } from '../../lms/filters';
 import {
   LOCATION_ALLOW,
   LEVELS,
   CATEGORY_OPTS,
   DELIVERY_OPTS,
   DURATION_OPTS
-} from '@/lms/config';
+} from '../../lms/config';
 import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters';
 import GuidesGrid from '../guides/GuidesGrid';
 import TestimonialsGrid from '../guides/TestimonialsGrid';
 import GlossaryGrid from '../guides/GlossaryGrid';
 import { SixXDPerspectiveCards } from '../guides/SixXDPerspectiveCards';
+import { SixXDComingSoonCards } from '../guides/SixXDComingSoonCards';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { track } from '../../utils/analytics';
-import FAQsPageContent from '@/pages/guides/FAQsPageContent.tsx';
-import { glossaryTerms, GlossaryTerm, CATEGORIES } from '@/pages/guides/glossaryData.ts';
+import FAQsPageContent from '../../pages/guides/FAQsPageContent';
+import { glossaryTerms, GlossaryTerm, CATEGORIES } from '../../pages/guides/glossaryData';
 import { STATIC_PRODUCTS } from '../../utils/staticProducts';
-import { CIDS_SERVICE_CARDS } from '@/data/cidsServiceCards';
-import { CIDSServiceCardComponent } from './CIDSServiceCard';
-import { VDS_SERVICE_CARDS } from '@/data/vdsServiceCards';
-import { VDSServiceCardComponent } from './VDSServiceCard';
-import { CDS_SERVICE_CARDS } from '@/data/cdsServiceCards';
-import { CDSServiceCardComponent } from './CDSServiceCard';
 const LEARNING_TYPE_FILTER: FilterConfig = {
   id: 'learningType',
   title: 'Learning Type',
@@ -131,7 +126,7 @@ interface ComparisonItem {
 }
 
 export interface MarketplacePageProps {
-  marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding' | 'guides';
+  marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding' | 'guides' | 'design-system';
   title: string;
   description: string;
   promoCards?: any[];
@@ -184,18 +179,8 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const isDesignSystem = marketplaceType === 'design-system';
   
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getMarketplaceConfig(marketplaceType);
-  
-  // Detect selected card from URL pathname (e.g., /marketplace/design-system/cds-campaigns-design-system?tab=cds)
-  const getSelectedCardId = useCallback(() => {
-    if (!isDesignSystem) return null;
-    const pathMatch = location.pathname.match(/\/marketplace\/design-system\/([^/?]+)/);
-    return pathMatch ? pathMatch[1] : null;
-  }, [isDesignSystem, location.pathname]);
-  
-  const selectedCardId = getSelectedCardId();
   
   // Service Center tabs - sync with URL params
   const getServiceTabFromParams = useCallback((params: URLSearchParams): string => {
@@ -225,56 +210,6 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     }
   }, [isServicesCenter, searchParams, activeServiceTab, setSearchParams]);
 
-  // Design System tabs - sync with URL params
-  type DesignSystemTab = 'cids' | 'vds' | 'cds';
-  const DESIGN_SYSTEM_TAB_LABELS: Record<DesignSystemTab, string> = {
-    cids: 'CI.DS',
-    vds: 'V.DS',
-    cds: 'CDS'
-  };
-  const DESIGN_SYSTEM_FOCUS_TITLES: Record<DesignSystemTab, string> = {
-    cids: 'Content Item Design System (CI.DS)',
-    vds: 'Video Design System (V.DS)',
-    cds: 'Campaign Design System (CDS)'
-  };
-  const DESIGN_SYSTEM_TAB_DESCRIPTIONS: Record<DesignSystemTab, string> = {
-    cids: 'Guides how DQ plans, creates, and delivers high-quality content combining structure, governance, and review standards to ensure clarity, consistency, and measurable impact across platforms and channels.',
-    vds: 'Guides how DQ plans, creates, and delivers high-impact video content—combining storytelling, visual design, and production standards to ensure clarity, consistency, and emotional impact across platforms.',
-    cds: 'Guides how DQ plans, designs, and delivers marketing campaigns combining strategy, storytelling, and execution standards to ensure clarity, consistency, and measurable impact across channels and platforms.'
-  };
-  const DESIGN_SYSTEM_TYPE_LABELS: Record<DesignSystemTab, { title: string; options: string[] }> = {
-    cids: { title: 'CI.DS', options: ['Framework', 'Lifecycle', 'Template'] },
-    vds: { title: 'V.DS', options: ['Framework', 'Lifecycle', 'Template'] },
-    cds: { title: 'CDS', options: ['Framework', 'Lifecycle', 'Template'] }
-  };
-  const DESIGN_SYSTEM_TYPE_OPTION_IDS = ['framework', 'lifecycle', 'template'] as const;
-  const getDesignSystemTabFromParams = useCallback((params: URLSearchParams): DesignSystemTab => {
-    const tab = params.get('tab');
-    const validTabs: DesignSystemTab[] = ['cids', 'vds', 'cds'];
-    return tab && validTabs.includes(tab as DesignSystemTab) ? (tab as DesignSystemTab) : 'cids';
-  }, []);
-  const [activeDesignSystemTab, setActiveDesignSystemTab] = useState<DesignSystemTab>(() => 
-    isDesignSystem 
-      ? getDesignSystemTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams())
-      : 'cids'
-  );
-
-  // Sync activeDesignSystemTab with URL params
-  useEffect(() => {
-    if (isDesignSystem) {
-      const currentTab = searchParams.get('tab');
-      const validTabs: DesignSystemTab[] = ['cids', 'vds', 'cds'];
-      if (currentTab && validTabs.includes(currentTab as DesignSystemTab) && currentTab !== activeDesignSystemTab) {
-        setActiveDesignSystemTab(currentTab as DesignSystemTab);
-      } else if (!currentTab || !validTabs.includes(currentTab as DesignSystemTab)) {
-        // Set default tab in URL if not present
-        const newParams = new URLSearchParams(searchParams);
-        newParams.set('tab', activeDesignSystemTab);
-        setSearchParams(newParams, { replace: true });
-      }
-    }
-  }, [isDesignSystem, searchParams, activeDesignSystemTab, setSearchParams, getDesignSystemTabFromParams]);
-
   // Items & filters state
   const [_items, setItems] = useState<any[]>([]);
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
@@ -287,16 +222,25 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [facets, setFacets] = useState<GuidesFacets>({});
   const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
   const searchStartRef = useRef<number | null>(null);
-type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 'glossary' | 'faqs';
+type WorkGuideTab = 'guidelines' | 'strategy' | '6xd' | 'blueprints' | 'testimonials' | 'glossary' | 'faqs';
+type DesignSystemTab = 'cids' | 'vds' | 'cds';
   const getTabFromParams = useCallback((params: URLSearchParams): WorkGuideTab => {
     const tab = params.get('tab');
-    return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' || tab === 'glossary' || tab === 'faqs' ? tab : 'guidelines';
+    return tab === 'strategy' || tab === '6xd' || tab === 'blueprints' || tab === 'testimonials' || tab === 'glossary' || tab === 'faqs' ? tab : 'guidelines';
+  }, []);
+  const getDesignSystemTabFromParams = useCallback((params: URLSearchParams): DesignSystemTab => {
+    const tab = params.get('tab');
+    return tab === 'vds' || tab === 'cds' ? tab : 'cids';
   }, []);
   const [activeTab, setActiveTab] = useState<WorkGuideTab>(() => getTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()));
+  const [activeDesignSystemTab, setActiveDesignSystemTab] = useState<DesignSystemTab>(() => 
+    isDesignSystem ? getDesignSystemTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()) : 'cids'
+  );
 
   const TAB_LABELS: Record<WorkGuideTab, string> = {
-    strategy: 'Strategy',
+    strategy: 'GHC',
     guidelines: 'Guidelines',
+    '6xd': '6xD',
     blueprints: 'Products',
     testimonials: 'Testimonials',
     glossary: 'Glossary',
@@ -305,27 +249,31 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
 
   const TAB_DESCRIPTIONS: Record<WorkGuideTab, { description: string; author?: string }> = {
     strategy: {
-      description: 'Strategic frameworks, transformation journeys, and organizational initiatives that guide decision-making and long-term planning across Digital Qatalyst.',
+      description: 'Explore the Golden Honeycomb of Competencies (GHC), the system behind how DQ works and delivers value.',
       author: 'Authored by DQ Leadership and Strategy Teams'
     },
     guidelines: {
-      description: 'Practical guidelines, best practices, and operational procedures that support everyday delivery, collaboration, and excellence across all teams and units.',
+      description: 'Find practical guidelines and best practices to optimize workflow and collaboration across all DQ units.',
       author: 'Authored by DQ Associates, Leads, and Subject Matter Experts'
     },
+    '6xd': {
+      description: 'Discover the six dimensions of digital transformation that guide how organizations evolve, adapt, and thrive in the digital economy.',
+      author: 'Authored by DQ Strategy and Transformation Teams'
+    },
     blueprints: {
-      description: 'Productized digital platforms, frameworks, and solutions designed to enable execution, adoption, and measurable outcomes across DQ initiatives.',
+      description: 'Explore DQ\'s solutions, created to help organizations succeed and grow through digital transformation.',
       author: 'Product Owner / Practice'
     },
     testimonials: {
-      description: 'Success stories, case studies, and reflections that capture lessons learned, celebrate achievements, and share insights from real-world experiences and transformations.',
+      description: 'Discover how DQ has enabled impactful transformations through our clients\' success feedback and testimonials.',
       author: 'Authored by DQ Teams, Clients, and Partners'
     },
     glossary: {
-      description: 'Comprehensive dictionary of DQ terminology, acronyms, and key concepts to help you understand our language and processes.',
+      description: 'Find clear explanations of key DQ terms, acronyms, and concepts to help you better understand how we operate.',
       author: 'Maintained by DQ Knowledge Management Team'
     },
     faqs: {
-      description: 'Frequently asked questions about DQ processes, tools, workflows, and best practices with detailed answers and guidance.',
+      description: 'Find answers to frequently asked questions about how we work, the tools we use, and the best practices followed across DQ.',
       author: 'Maintained by DQ Knowledge Management Team'
     }
   };
@@ -334,6 +282,11 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     if (!isGuides) return;
     setActiveTab(getTabFromParams(queryParams));
   }, [isGuides, queryParams, getTabFromParams]);
+
+  useEffect(() => {
+    if (!isDesignSystem) return;
+    setActiveDesignSystemTab(getDesignSystemTabFromParams(searchParams));
+  }, [isDesignSystem, searchParams, getDesignSystemTabFromParams]);
 
   const handleGuidesTabChange = useCallback((tab: WorkGuideTab) => {
     setActiveTab(tab);
@@ -352,19 +305,23 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'blueprints') {
         // Keep 'unit' and 'location' for Products; delete incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category'];
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments'];
         keysToDelete.forEach(key => next.delete(key));
-      } else if (tab === 'glossary' || tab === 'faqs') {
-        // For Glossary and FAQs tabs, delete all incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
+      } else if (tab === 'glossary') {
+        // For Glossary tab, delete all incompatible filters
+        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments', 'blueprint_framework', 'blueprint_sector', 'testimonial_category', 'faq_category', 'location'];
+        keysToDelete.forEach(key => next.delete(key));
+      } else if (tab === 'faqs') {
+        // For FAQs, keep units/location; clear incompatible filters
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'testimonials') {
         // Keep 'unit' and 'location' for Testimonials; delete incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector'];
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments', 'blueprint_framework', 'blueprint_sector'];
         keysToDelete.forEach(key => next.delete(key));
       } else {
         // For other tabs, delete all incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
+        const keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
         keysToDelete.forEach(key => next.delete(key));
       }
     } else {
@@ -413,8 +370,11 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     } else if (activeTab === 'testimonials') {
       // For Testimonials, delete all incompatible filters
       keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector'];
-    } else if (activeTab === 'glossary' || activeTab === 'faqs') {
-      // For Glossary and FAQs, delete all incompatible filters
+    } else if (activeTab === 'glossary') {
+      // For Glossary, delete all incompatible filters
+      keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category', 'faq_category', 'location'];
+    } else if (activeTab === 'faqs') {
+      // For FAQs, keep location only; clear incompatible filters including units
       keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
     } else {
       // For Guidelines, delete Strategy and Blueprint-specific filters
@@ -424,6 +384,10 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     // Note: activeTab cannot be 'guidelines' here due to early return above
     if (next.has('guidelines_category')) {
       next.delete('guidelines_category');
+      changed = true;
+    }
+    if (activeTab !== 'faqs' && next.has('faq_category')) {
+      next.delete('faq_category');
       changed = true;
     }
     if (activeTab !== 'blueprints') {
@@ -471,93 +435,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
   
   // Knowledge-hub specific state
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-
-  const filteredCidsServiceCards = useMemo(
-    () =>
-      CIDS_SERVICE_CARDS.filter((card) => {
-        const sectionText = (card.section || '').toLowerCase();
-        const isStageZero = card.id === 'cids-stage-00' || sectionText.includes('stage 00');
-        return !isStageZero;
-      }),
-    []
-  );
-
-  const filteredCdsServiceCards = useMemo(() => CDS_SERVICE_CARDS, []);
-
-  const selectedDesignSystemTypes = useMemo(() => {
-    const raw = filters?.type;
-    if (Array.isArray(raw)) return raw;
-    if (typeof raw === 'string') {
-      return raw
-        .split(',')
-        .map((v) => v.trim())
-        .filter(Boolean);
-    }
-    return [];
-  }, [filters]);
-
-  const filteredVdsServiceCards = useMemo(
-    () =>
-      VDS_SERVICE_CARDS.filter((card) => {
-        const sectionText = (card.section || '').toLowerCase();
-        const isStageZero = card.id === 'vds-stage-00' || sectionText.includes('stage 00');
-        return !isStageZero;
-      }),
-    []
-  );
-
-  const visibleCidsServiceCards = useMemo(() => {
-    if (activeDesignSystemTab !== 'cids') return [];
-    const selected = selectedDesignSystemTypes.map((t) => t.toLowerCase());
-    if (!selected.length) return filteredCidsServiceCards;
-    return filteredCidsServiceCards.filter((card) => {
-      const cardType = (card.type || '').toLowerCase();
-      if (!cardType) return false;
-      return selected.includes(cardType);
-    });
-  }, [activeDesignSystemTab, filteredCidsServiceCards, selectedDesignSystemTypes]);
-
-  const visibleVdsServiceCards = useMemo(() => {
-    if (activeDesignSystemTab !== 'vds') return [];
-    const selected = selectedDesignSystemTypes.map((t) => t.toLowerCase());
-    if (!selected.length) return filteredVdsServiceCards;
-    return filteredVdsServiceCards.filter((card) => {
-      const cardType = (card.type || '').toLowerCase();
-      if (!cardType) return false;
-      return selected.includes(cardType);
-    });
-  }, [activeDesignSystemTab, filteredVdsServiceCards, selectedDesignSystemTypes]);
-
-  const visibleCdsServiceCards = useMemo(() => {
-    if (activeDesignSystemTab !== 'cds') return [];
-    const selected = selectedDesignSystemTypes.map((t) => t.toLowerCase());
-    if (!selected.length) return filteredCdsServiceCards;
-    return filteredCdsServiceCards.filter((card) => {
-      const cardType = (card.type || '').toLowerCase();
-      if (!cardType) return false;
-      return selected.includes(cardType);
-    });
-  }, [activeDesignSystemTab, filteredCdsServiceCards, selectedDesignSystemTypes]);
-
-  const effectiveFilterConfig = useMemo(() => {
-    if (!isDesignSystem) return filterConfig;
-    const labelConfig = DESIGN_SYSTEM_TYPE_LABELS[activeDesignSystemTab];
-    return filterConfig.map((category) => {
-      if (category.id !== 'type') return category;
-      const updatedTitle = labelConfig?.title || category.title;
-      return {
-        ...category,
-        title: updatedTitle,
-        options: category.options.map((option, idx) => {
-          const suffix = labelConfig?.options?.[idx];
-          const prefix = labelConfig?.title;
-          const name = prefix && suffix ? `${prefix} ${suffix}` : option.name;
-          const optionId = DESIGN_SYSTEM_TYPE_OPTION_IDS[idx] || option.id;
-          return { ...option, id: optionId, name };
-        })
-      };
-    });
-  }, [activeDesignSystemTab, filterConfig, isDesignSystem]);
   
   // Courses: URL toggle function
   const toggleFilter = useCallback((key: string, value: string) => {
@@ -701,21 +578,21 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         return;
       }
       
-      // DESIGN SYSTEM: use static filter config from marketplace config
-      if (isDesignSystem) {
-        setFilterConfig(config.filterCategories || []);
-        const initial: Record<string, string | string[]> = {};
-        (config.filterCategories || []).forEach(c => { initial[c.id] = ''; });
-        setFilters(initial);
-        return;
-      }
-      
       // Use tab-specific filters for Services Center
       if (isServicesCenter) {
         const tabFilters = getTabSpecificFilters(activeServiceTab);
         setFilterConfig(tabFilters);
         const initial: Record<string, string | string[]> = {};
         tabFilters.forEach(c => { initial[c.id] = ''; });
+        setFilters(initial);
+        return;
+      }
+      
+      // For Design System, use config.filterCategories directly
+      if (isDesignSystem) {
+        setFilterConfig(config.filterCategories);
+        const initial: Record<string, string | string[]> = {};
+        config.filterCategories.forEach(c => { initial[c.id] = ''; });
         setFilters(initial);
         return;
       }
@@ -736,7 +613,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       }
     };
     loadFilterOptions();
-  }, [marketplaceType, config, isCourses, isGuides, isKnowledgeHub, isDesignSystem, isServicesCenter, activeServiceTab, filterConfig.length, Object.keys(filters).length]);
+  }, [marketplaceType, config, isCourses, isGuides, isKnowledgeHub, isServicesCenter, isDesignSystem, activeServiceTab, filterConfig.length, Object.keys(filters).length]);
   
   // Fetch items based on marketplace type
   useEffect(() => {
@@ -759,16 +636,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         setFilteredItems(fallbackItems);
         setTotalCount(fallbackItems.length);
         setLoading(false);
-        return;
-      }
-
-      // DESIGN SYSTEM: use static service cards (no API)
-      if (isDesignSystem) {
-        setLoading(false);
-        setError(null);
-        setItems([]);
-        setFilteredItems([]);
-        setTotalCount(0);
         return;
       }
 
@@ -816,8 +683,22 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             }));
 
             // Apply product filters
-            if (productTypes.length > 0) {
-              out = out.filter(it => it.productType && productTypes.includes(it.productType.toLowerCase()));
+          if (productTypes.length > 0) {
+            out = out.filter(it => {
+              const itemProductType = (it.productType || '').toLowerCase();
+              return productTypes.some(selectedType => {
+                const normalizedSelected = slugify(selectedType);
+                const typeMap: Record<string, string[]> = {
+                  'tmaas': ['tmaas'],
+                  'dtma': ['dtma'],
+                  'dtmp': ['dtmp'],
+                  'plant-4-0': ['plant 4.0', 'plant-4.0', 'plant40'],
+                  'dtmcc': ['dtmcc']
+                };
+                const searchTerms = typeMap[selectedType] || [normalizedSelected];
+                return searchTerms.some(term => itemProductType.includes(term));
+              });
+            });
             }
             if (productStages.length > 0) {
               out = out.filter(it => it.productStage && productStages.includes(it.productStage.toLowerCase()));
@@ -874,6 +755,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           const strategyTypes = parseFilterValues(queryParams, 'strategy_type');
           const strategyFrameworks = parseFilterValues(queryParams, 'strategy_framework');
           const guidelinesCategories = parseFilterValues(queryParams, 'guidelines_category');
+          const categorization = parseFilterValues(queryParams, 'categorization');
+          const attachmentsFilter = parseFilterValues(queryParams, 'attachments');
           const blueprintFrameworks = parseFilterValues(queryParams, 'blueprint_framework');
           const blueprintSectors = parseFilterValues(queryParams, 'blueprint_sector');
           // Product-led filters (not used for non-products tabs)
@@ -959,7 +842,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           const needsClientSideFrameworkFilter = (isStrategyTab && strategyFrameworks.length > 0) || 
                                                  (isBlueprintTab && (blueprintFrameworks.length > 0 || blueprintSectors.length > 0 || productTypes.length > 0 || productStages.length > 0 || productSectors.length > 0)) ||
                                                  (isGuidelinesTab && guidelinesCategories.length > 0);
-          const needsClientSideFiltering = needsClientSideUnitFilter || needsClientSideFrameworkFilter;
+          const needsClientSideFiltering = needsClientSideUnitFilter || needsClientSideFrameworkFilter || categorization.length > 0 || attachmentsFilter.length > 0;
           
           const from = (currentPage - 1) * pageSize;
           const to   = from + pageSize - 1;
@@ -1037,11 +920,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           // CRITICAL: This must happen before any other filtering to prevent cross-tab contamination
           // Note: Server-side filtering is also applied, but client-side filtering ensures consistency
           if (isStrategyTab) {
-            out = out.filter(it => {
-              const domain = (it.domain || '').toLowerCase();
-              const guideType = (it.guideType || '').toLowerCase();
-              return domain.includes('strategy') || guideType.includes('strategy');
-            });
+            // Show all strategy guides; server-side query already biases toward Strategy
           } else if (isBlueprintTab) {
             // Products tab: Replace all database results with static products
             // Convert static products to guide format immediately
@@ -1068,28 +947,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               productType: product.productType,
               productStage: product.productStage,
             }));
-          } else if (isTestimonialsTab) {
-            out = out.filter(it => {
-              const domain = (it.domain || '').toLowerCase();
-              const guideType = (it.guideType || '').toLowerCase();
-              return domain.includes('testimonial') || guideType.includes('testimonial');
-            });
-            const selectedTestimonials = testimonialCategories.map(slugify);
-            if (selectedTestimonials.length) {
-              out = out.filter(it => {
-                // Testimonial categories are stored in guide_type field
-                const guideType = (it.guideType || '').toLowerCase();
-                if (!guideType) return false;
-                // Check if guide_type matches any selected category (normalize both for comparison)
-                const normalizedGuideType = slugify(guideType);
-                return selectedTestimonials.some(sel => {
-                  // Compare slugified values
-                  return normalizedGuideType === sel || 
-                         guideType.includes(sel) ||
-                         sel.includes(normalizedGuideType);
-                });
-              });
-            }
           } else if (isGuidelinesTab) {
             // Guidelines tab: explicitly exclude Strategy, Blueprint, and Testimonial guides
             // Must be strict - guides should NOT have Strategy/Blueprint/Testimonial in domain OR guide_type
@@ -1155,6 +1012,27 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               return matches;
             });
           }
+          if (isGuidelinesTab && categorization.length) {
+            const catKeywords = {
+              'policy-set-1a-opg': ['policy set 1a', 'opg'],
+              'policy-set-1b-ppp': ['policy set 1b', 'ppp'],
+              'policy-set-2a-vision': ['policy set 02', '2a', 'vision'],
+              'policy-set-2b-culture': ['policy set 02', '2b', 'culture'],
+              'policy-set-2c-persona': ['policy set 02', '2c', 'persona'],
+              'policy-set-2d-task': ['policy set 02', '2d', 'task'],
+              'policy-set-2e-govern': ['policy set 02', '2e', 'govern'],
+              'policy-set-2f-flow': ['policy set 02', '2f', 'flow'],
+              'policy-set-2g-product': ['policy set 02', '2g', 'product'],
+            } as Record<string, string[]>;
+            out = out.filter(it => {
+              const haystack = `${it.title || ''} ${it.summary || ''} ${it.subDomain || ''} ${it.slug || ''}`.toLowerCase();
+              return categorization.some(cat => {
+                const kw = catKeywords[cat] || [cat.replace(/-/g, ' ')];
+                return kw.some(k => haystack.includes(k.toLowerCase()));
+              });
+            });
+          }
+          // Attachments filter skipped (attachments not fetched in select)
           // Strategy-specific filters: Strategy Type and Framework/Program
           // These filters check sub_domain field (which stores these categories)
           if (isStrategyTab && strategyTypes.length) {
@@ -1205,17 +1083,29 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               const subDomain = (it.subDomain || '').toLowerCase();
               const domain = (it.domain || '').toLowerCase();
               const guideType = (it.guideType || '').toLowerCase();
-              const allText = `${subDomain} ${domain} ${guideType}`.toLowerCase();
-              return strategyFrameworks.some(selectedFramework => {
-                const normalizedSelected = slugify(selectedFramework);
-                // Check various fields for framework matches
-                return allText.includes(selectedFramework.toLowerCase()) ||
-                       allText.includes(normalizedSelected) ||
-                       (selectedFramework === '6xd' && (allText.includes('6xd') || allText.includes('digital-framework'))) ||
-                       (selectedFramework === 'ghc' && allText.includes('ghc')) ||
-                       (selectedFramework === 'clients' && allText.includes('client')) ||
-                       (selectedFramework === 'ghc-leader' && allText.includes('ghc-leader')) ||
-                       (selectedFramework === 'testimonials-insights' && (allText.includes('testimonial') || allText.includes('insight')));
+              const title = (it.title || '').toLowerCase();
+              const slug = (it.slug || '').toLowerCase();
+              const allText = `${subDomain} ${domain} ${guideType} ${title} ${slug}`.toLowerCase();
+
+              const frameworkKeywords: Record<string, string[]> = {
+                'ghc1': ['vision'],
+                'ghc2': ['dq-hov', 'house of values'],
+                'ghc3': ['persona'],
+                'ghc4': ['agile tms', 'tms'],
+                'ghc5': ['agile sos', 'sos'],
+                'ghc6': ['agile flows', 'flows'],
+                'ghc7': ['agile 6xd', '6xd'],
+              };
+
+              return strategyFrameworks.some(selected => {
+                // Special case: GHC 2 should only show the main HoV card
+                if (selected === 'ghc2') {
+                  if (slug === 'dq-hov') return true;
+                  const isHoVTitle = title.includes('house of values') && !title.includes('competencies');
+                  return isHoVTitle;
+                }
+                const keywords = frameworkKeywords[selected] || [selected];
+                return keywords.some(kw => allText.includes(kw));
               });
             });
           }
@@ -1377,6 +1267,67 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             ? subDomainFacetsRaw.filter(opt => allowedForFacets.has(opt.id))
             : subDomainFacetsRaw;
 
+          // Strategy (GHC) tab: enforce deterministic ordering of GHC overview and competencies
+          if (isGuides && activeTab === 'strategy') {
+            const ghcOrder = [
+              'dq-ghc',
+              'dq-vision',
+              'dq-hov',
+              'dq-persona',
+              'dq-agile-tms',
+              'dq-agile-sos',
+              'dq-agile-flows',
+              'dq-agile-6xd'
+            ];
+            const hovOrder = [
+              'dq-competencies-emotional-intelligence',
+              'dq-competencies-growth-mindset',
+              'dq-competencies-purpose',
+              'dq-competencies-perceptive',
+              'dq-competencies-proactive',
+              'dq-competencies-perseverance',
+              'dq-competencies-precision',
+              'dq-competencies-customer',
+              'dq-competencies-learning',
+              'dq-competencies-collaboration',
+              'dq-competencies-responsibility',
+              'dq-competencies-trust'
+            ];
+            const titleOrder = [
+              'dq golden honeycomb of competencies',
+              'dq vision',
+              'house of values',
+              'dq persona',
+              'agile tms',
+              'agile sos',
+              'agile flows',
+              'agile 6xd',
+              'emotional intelligence',
+              'growth mindset',
+              'purpose',
+              'perceptive',
+              'proactive',
+              'perseverance',
+              'precision',
+              'customer',
+              'learning',
+              'collaboration',
+              'responsibility',
+              'trust'
+            ];
+            const orderIndex = (item: any) => {
+              const slug = (item.slug || '').toLowerCase();
+              const title = (item.title || '').toLowerCase();
+              const slugIdx = ghcOrder.indexOf(slug);
+              if (slugIdx >= 0) return slugIdx;
+              const hovIdx = hovOrder.indexOf(slug);
+              if (hovIdx >= 0) return ghcOrder.length + hovIdx;
+              const titleIdx = titleOrder.findIndex(t => title.includes(t));
+              return titleIdx >= 0 ? titleIdx : Number.MAX_SAFE_INTEGER;
+            };
+            out = [...out].sort((a, b) => orderIndex(a) - orderIndex(b));
+          }
+
           setItems(out);
           setFilteredItems(out);
           setTotalCount(total);
@@ -1416,7 +1367,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         // Apply filters for non-financial services
         let filtered = finalItems;
         if (isServicesCenter) {
-          // Filter by active tab (category)
+          // Filter by active tab (category) to control which service cards show
           const tabCategoryMap: Record<string, string> = {
             'technology': 'Technology',
             'business': 'Employee Services',
@@ -1424,7 +1375,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             'prompt_library': 'Prompt Library',
             'ai_tools': 'AI Tools'
           };
-          
           const activeTabCategory = tabCategoryMap[activeServiceTab];
           if (activeTabCategory) {
             filtered = filtered.filter(item => {
@@ -1432,7 +1382,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               return itemCategory === activeTabCategory;
             });
           }
-          
+
           // Filter by serviceType
           const serviceTypeFilter = filters.serviceType;
           if (serviceTypeFilter) {
@@ -1705,7 +1655,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         // Apply filters to fallback items for Services Center
         let filteredFallback = fallbackItems;
         if (isServicesCenter) {
-          // Filter by active tab (category)
           const tabCategoryMap: Record<string, string> = {
             'technology': 'Technology',
             'business': 'Employee Services',
@@ -1713,7 +1662,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             'prompt_library': 'Prompt Library',
             'ai_tools': 'AI Tools'
           };
-          
           const activeTabCategory = tabCategoryMap[activeServiceTab];
           if (activeTabCategory) {
             filteredFallback = filteredFallback.filter(item => {
@@ -1732,26 +1680,10 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
 
     run();
     // Keep deps lean; no need to include functions like isGuides
-  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isKnowledgeHub, currentPage, pageSize, isServicesCenter, activeServiceTab, isDesignSystem, activeDesignSystemTab, activeTab]);
+  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isKnowledgeHub, currentPage, pageSize, isServicesCenter, activeServiceTab, activeTab]);
 
   // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
-    // For Design System: Type filter should sync with active tab, but don't change tab
-    if (isDesignSystem && filterType === 'type') {
-      // If user selects a type that doesn't match current tab, switch to that tab
-      const typeToTabMap: Record<string, DesignSystemTab> = {
-        'cids': 'cids',
-        'vds': 'vds',
-        'cds': 'cds'
-      };
-      const targetTab = typeToTabMap[value];
-      if (targetTab && targetTab !== activeDesignSystemTab) {
-        setActiveDesignSystemTab(targetTab);
-        const newParams = new URLSearchParams(searchParams);
-        newParams.set('tab', targetTab);
-        setSearchParams(newParams, { replace: false });
-      }
-    }
     if (isCourses) {
       toggleFilter(filterType, value);
       return;
@@ -1770,7 +1702,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         return { ...prev, [filterType]: value === prev[filterType] ? '' : value };
       }
     });
-  }, [isCourses, isGuides, isDesignSystem, marketplaceType, toggleFilter, activeDesignSystemTab, searchParams, setSearchParams]);
+  }, [isCourses, isGuides, marketplaceType, toggleFilter]);
   
   // Reset all filters
   const resetFilters = useCallback(() => {
@@ -1837,7 +1769,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
   }, [queryParams, totalPages]);
 
   return (
-    <div className={`min-h-screen flex flex-col bg-gray-50 ${isGuides || isDesignSystem ? 'guidelines-theme' : ''}`}>
+    <div className={`min-h-screen flex flex-col bg-gray-50 ${isGuides ? 'guidelines-theme' : ''}`}>
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} sidebarOpen={sidebarOpen} />
       <div className="container mx-auto px-4 py-8 flex-grow max-w-7xl">
         {/* Breadcrumbs */}
@@ -1949,7 +1881,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                       newParams.set('tab', tab.id);
                       setSearchParams(newParams, { replace: false });
                     }}
-                    className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors ${
+                    className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
                       isActive
                         ? 'border-blue-700'
                         : 'text-gray-700 border-transparent hover:text-gray-900 hover:border-gray-300'
@@ -1965,90 +1897,18 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           </div>
         )}
 
-        {/* Design System CURRENT FOCUS Section */}
-        {isDesignSystem && (
-          <>
-            {/* Tab Description - Above Navigation */}
-            <div className="mb-4 bg-white rounded-lg p-6 border border-gray-200 relative">
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex-1">
-                  <span className="text-xs uppercase text-gray-500 font-medium tracking-wide">CURRENT FOCUS</span>
-                  <h2 className="text-2xl font-bold text-gray-800 mt-1">{DESIGN_SYSTEM_FOCUS_TITLES[activeDesignSystemTab]}</h2>
-                </div>
-                <button className="px-4 py-2 bg-blue-50 text-gray-800 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors border-0">
-                  Tab overview
-                </button>
-              </div>
-              <p className="text-gray-700">{DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab]}</p>
-            </div>
-          </>
-        )}
-
-        {/* Design System Tabs */}
-        {isDesignSystem && (
-          <div className="mb-6 border-b border-gray-200">
-            <nav className="flex space-x-8" aria-label="Design System tabs">
-              {(['cids', 'vds', 'cds'] as DesignSystemTab[]).map((tab) => {
-                const isActive = activeDesignSystemTab === tab;
-                return (
-                  <button
-                    key={tab}
-                    onClick={() => {
-                      setActiveDesignSystemTab(tab);
-                      // Update URL with tab parameter
-                      const newParams = new URLSearchParams(searchParams);
-                      newParams.set('tab', tab);
-                      // Clear type filter when switching tabs (type filter should match active tab)
-                      newParams.delete('type');
-                      setSearchParams(newParams, { replace: false });
-                    }}
-                    className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors ${
-                      isActive
-                        ? 'border-blue-700'
-                        : 'text-gray-700 border-transparent hover:text-gray-900 hover:border-gray-300'
-                    }`}
-                    style={isActive ? { color: '#030F35', borderColor: '#030F35' } : {}}
-                    aria-current={isActive ? 'page' : undefined}
-                  >
-                    {DESIGN_SYSTEM_TAB_LABELS[tab]}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-        )}
-
         {/* Guides Tabs Section */}
         {isGuides && (
           <>
-            {/* Tab Description - Above Navigation */}
-            {activeTab && TAB_DESCRIPTIONS[activeTab] && (
-              <div className="mb-4 bg-white rounded-lg p-6 border border-gray-200 relative">
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1">
-                    <span className="text-xs uppercase text-gray-500 font-medium tracking-wide">CURRENT FOCUS</span>
-                    <h2 className="text-2xl font-bold text-gray-800 mt-1">{TAB_LABELS[activeTab]}</h2>
-                  </div>
-                  <button className="px-4 py-2 bg-blue-50 text-gray-800 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors border-0">
-                    Tab overview
-                  </button>
-                </div>
-                <p className="text-gray-700 mb-2">{TAB_DESCRIPTIONS[activeTab].description}</p>
-                {TAB_DESCRIPTIONS[activeTab].author && (
-                  <p className="text-sm text-gray-500">{TAB_DESCRIPTIONS[activeTab].author}</p>
-                )}
-              </div>
-            )}
-            
             <div className="mb-6 border-b border-gray-200">
               <nav className="flex space-x-8" aria-label="Guides navigation">
                 {/* Main tabs rendered as buttons */}
-                {(['strategy', 'guidelines', 'blueprints', 'testimonials', 'glossary', 'faqs'] as WorkGuideTab[]).map(tab => (
+                {(['strategy', 'guidelines', '6xd', 'blueprints', 'testimonials', 'glossary', 'faqs'] as WorkGuideTab[]).map(tab => (
                   <button
                     key={tab}
                     onClick={() => handleGuidesTabChange(tab)}
                     className={`
-                      py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                      py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none
                       ${
                         activeTab === tab
                           ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
@@ -2061,12 +1921,90 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                   </button>
                 ))}
               </nav>
+              {/* Tab Description - Integrated with tabs */}
+              {activeTab && TAB_DESCRIPTIONS[activeTab] && (
+                <div className="pt-2 pb-2 mt-3 border border-gray-200 rounded-lg bg-white p-3 shadow-sm">
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {TAB_DESCRIPTIONS[activeTab].description}
+                  </p>
+                </div>
+              )}
             </div>
           </>
         )}
 
+        {/* Design System Tabs Section */}
+        {isDesignSystem && (() => {
+          const DESIGN_SYSTEM_TAB_LABELS: Record<DesignSystemTab, string> = {
+            cids: 'CI.DS',
+            vds: 'V.DS',
+            cds: 'CDS'
+          };
+
+          const DESIGN_SYSTEM_TAB_DESCRIPTIONS: Record<DesignSystemTab, { description: string; author?: string }> = {
+            cids: {
+              description: 'Component Integration Design System - Reusable UI components, patterns, and integration guidelines for building consistent digital experiences.',
+              author: 'Maintained by DQ Design & Engineering Teams'
+            },
+            vds: {
+              description: 'Visual Design System - Design tokens, typography, color palettes, and visual guidelines for creating cohesive brand experiences.',
+              author: 'Maintained by DQ Design Team'
+            },
+            cds: {
+              description: 'Content Design System - Content patterns, writing guidelines, and messaging frameworks for clear and effective communication.',
+              author: 'Maintained by DQ Content & Communications Teams'
+            }
+          };
+
+          const handleDesignSystemTabChange = (tab: DesignSystemTab) => {
+            setActiveDesignSystemTab(tab);
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set('tab', tab);
+            setSearchParams(newParams, { replace: false });
+          };
+
+          return (
+            <>
+              <div className="mb-6 border-b border-gray-200">
+                <nav className="flex space-x-8" aria-label="Design System navigation">
+                  {(['cids', 'vds', 'cds'] as DesignSystemTab[]).map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => handleDesignSystemTabChange(tab)}
+                      className={`
+                        py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                        ${
+                          activeDesignSystemTab === tab
+                            ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }
+                      `}
+                      aria-current={activeDesignSystemTab === tab ? 'page' : undefined}
+                    >
+                      {DESIGN_SYSTEM_TAB_LABELS[tab]}
+                    </button>
+                  ))}
+                </nav>
+                {/* Tab Description - Integrated with tabs */}
+                {activeDesignSystemTab && DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab] && (
+                  <div className="pt-4 pb-4">
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].description}
+                    </p>
+                    {DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].author && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        {DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].author}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </>
+          );
+        })()}
+
         {/* Search + Sort - Hide for Glossary tab (has its own search) */}
-        {!(isGuides && activeTab === 'glossary') && (
+        {!(isGuides && activeTab === 'glossary') && !isDesignSystem && (
           <div className="mb-6 flex items-center gap-3">
             <div className="flex-1">
               <SearchBar
@@ -2087,6 +2025,13 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 }}
               />
             </div>
+          </div>
+        )}
+        {isGuides && activeTab === 'blueprints' && (
+          <div className="mb-4">
+            <span className="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full border border-blue-200 bg-blue-50 text-blue-700">
+              Product
+            </span>
           </div>
         )}
 
@@ -2141,7 +2086,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                   ) : (
                     <FilterSidebar
                       filters={isCourses ? urlBasedFilters : (Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>)}
-                      filterConfig={effectiveFilterConfig}
+                      filterConfig={filterConfig}
                       onFilterChange={handleFilterChange}
                       onResetFilters={resetFilters}
                       isResponsive={true}
@@ -2181,7 +2126,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 ) : (
                   <FilterSidebar
                     filters={isCourses ? urlBasedFilters : (Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>)}
-                    filterConfig={effectiveFilterConfig}
+                    filterConfig={filterConfig}
                     onFilterChange={handleFilterChange}
                     onResetFilters={resetFilters}
                     isResponsive={false}
@@ -2197,7 +2142,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                 {[...Array(6)].map((_, idx) => <CourseCardSkeleton key={idx} />)}
               </div>
-            ) : error && !isGuides && !isKnowledgeHub && !isDesignSystem ? (
+            ) : error && !isGuides && !isKnowledgeHub ? (
               <ErrorDisplay message={error} onRetry={retryFetch} />
             ) : isKnowledgeHub ? (
               <KnowledgeHubGrid
@@ -2211,70 +2156,28 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               />
             ) : isDesignSystem ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                {activeDesignSystemTab === 'cids' ? (
-                  // CI.DS Service Cards
-                  visibleCidsServiceCards.length > 0 ? (
-                    visibleCidsServiceCards.map((card) => (
-                      <CIDSServiceCardComponent
-                        key={card.id}
-                        card={card}
-                        isSelected={selectedCardId === card.id && activeDesignSystemTab === 'cids'}
-                        onClick={() => {
-                          // Navigate to detail page (to be implemented)
-                          navigate(`/marketplace/design-system/${card.id}?tab=cids`);
-                        }}
-                      />
-                    ))
-                  ) : (
-                    <div className="col-span-full bg-white rounded-lg shadow p-8 text-center">
-                      <h3 className="text-xl font-medium text-gray-900 mb-2">No CI.DS services found</h3>
-                      <p className="text-gray-500">Service cards will appear here once they are added.</p>
-                    </div>
-                  )
-                ) : activeDesignSystemTab === 'vds' ? (
-                  // V.DS Service Cards
-                  visibleVdsServiceCards.length > 0 ? (
-                    visibleVdsServiceCards.map((card) => (
-                      <VDSServiceCardComponent
-                        key={card.id}
-                        card={card}
-                        onClick={() => {
-                          // Navigate to detail page (to be implemented)
-                          navigate(`/marketplace/design-system/${card.id}?tab=vds`);
-                        }}
-                      />
-                    ))
-                  ) : (
-                    <div className="col-span-full bg-white rounded-lg shadow p-8 text-center">
-                      <h3 className="text-xl font-medium text-gray-900 mb-2">No V.DS services found</h3>
-                      <p className="text-gray-500">Service cards will appear here once they are added.</p>
-                    </div>
-                  )
-                ) : (
-                  // CDS Service Cards
-                  visibleCdsServiceCards.length > 0 ? (
-                    visibleCdsServiceCards.map((card) => (
-                      <CDSServiceCardComponent
-                        key={card.id}
-                        card={card}
-                        isSelected={selectedCardId === card.id && activeDesignSystemTab === 'cds'}
-                        onClick={() => {
-                          navigate(`/marketplace/design-system/${card.id}?tab=cds`);
-                        }}
-                      />
-                    ))
-                  ) : (
-                    <div className="col-span-full bg-white rounded-lg shadow p-8 text-center">
-                      <h3 className="text-xl font-medium text-gray-900 mb-2">No CDS services found</h3>
-                      <p className="text-gray-500">Service cards will appear here once they are added.</p>
-                    </div>
-                  )
-                )}
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">DQ Stories CI.DS</h3>
+                  <p className="text-gray-600 text-sm mb-4">Component Integration Design System - Explore reusable components and integration patterns.</p>
+                  <p className="text-xs text-gray-500">xDS Design System Marketplace</p>
+                </div>
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">DQ Stories V.DS</h3>
+                  <p className="text-gray-600 text-sm mb-4">Visual Design System - Discover design tokens, typography, and visual guidelines.</p>
+                  <p className="text-xs text-gray-500">xDS Design System Marketplace</p>
+                </div>
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">DQ Stories CDS</h3>
+                  <p className="text-gray-600 text-sm mb-4">Content Design System - Access content patterns and writing guidelines.</p>
+                  <p className="text-xs text-gray-500">xDS Design System Marketplace</p>
+                </div>
               </div>
             ) : isGuides ? (
               <>
                 {activeTab === 'faqs' ? (
-                  <FAQsPageContent />
+                  <FAQsPageContent categoryFilter={(queryParams.get('faq_category') || '').split(',').filter(Boolean)[0] || null} />
+                ) : activeTab === '6xd' ? (
+                  <SixXDComingSoonCards />
                 ) : activeTab === 'glossary' ? (
                   <>
                     {/* Global Search Bar for Glossary */}

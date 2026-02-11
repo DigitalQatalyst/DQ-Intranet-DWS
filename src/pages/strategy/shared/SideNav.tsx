@@ -66,20 +66,27 @@ export function SideNav({ sections, activeSection, onSectionClick }: SideNavProp
     <nav className="sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto">
       <div className="pr-6">
         <ul className="space-y-2">
-          {sections.map((section) => (
-            <li key={section.id}>
-              <button
-                onClick={() => handleClick(section.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-                  currentSection === section.id
-                    ? 'bg-blue-50 text-blue-700 font-medium shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {section.label}
-              </button>
-            </li>
-          ))}
+          {sections.map((section) => {
+            // Trim label at colon - keep only the part before the colon
+            const displayLabel = section.label.includes(':') 
+              ? section.label.split(':')[0].trim() 
+              : section.label
+            
+            return (
+              <li key={section.id}>
+                <button
+                  onClick={() => handleClick(section.id)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+                    currentSection === section.id
+                      ? 'bg-blue-50 text-blue-700 font-medium shadow-sm'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {displayLabel}
+                </button>
+              </li>
+            )
+          })}
         </ul>
       </div>
     </nav>

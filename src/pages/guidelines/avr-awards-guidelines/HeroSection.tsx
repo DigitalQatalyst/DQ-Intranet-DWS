@@ -12,7 +12,7 @@ export function HeroSection({ title = 'DQ AVR Awards Guidelines', date = 'Decemb
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: 'url(/images/guidelines.PNG)',
+          backgroundImage: 'url(/images/guidelines-content.PNG)',
         }}
       >
         <div className="absolute inset-0 bg-[#030E31] bg-opacity-80"></div>

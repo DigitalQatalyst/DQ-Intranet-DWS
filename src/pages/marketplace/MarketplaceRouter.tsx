@@ -14,11 +14,13 @@ import JobDetailPage from './JobDetailPage';
 import JobApplicationPage from './JobApplicationPage';
 const GrowthAreasPage = React.lazy(() => import('../GrowthAreasPage'));
 const GuideDetailPage = React.lazy(() => import('../guides/GuideDetailPage'));
+const GuideDetailsPage = React.lazy(() => import('../guides/GuideDetailsPage'));
 const GlossaryPage = React.lazy(() => import('../guides/GlossaryPage'));
 const GlossaryTermDetailPage = React.lazy(() => import('../guides/GlossaryTermDetailPage'));
 const SixXDPerspectiveDetailPage = React.lazy(() => import('../guides/SixXDPerspectiveDetailPage'));
 const FAQsPage = React.lazy(() => import('../guides/FAQsPage'));
 const TestimonialsDetailPage = React.lazy(() => import('../guides/TestimonialsDetailPage'));
+const AssociateTestimonialsDetailPage = React.lazy(() => import('../guides/AssociateTestimonialsDetailPage'));
 const ProductDetailPage = React.lazy(() => import('../products/ProductDetailPage'));
 const CIDSServiceDetailPage = React.lazy(() => import('./CIDSServiceDetailPage'));
 const VDSServiceDetailPage = React.lazy(() => import('./VDSServiceDetailPage'));
@@ -150,7 +152,9 @@ export const MarketplaceRouter: React.FC = () => {
       <Route path="/guides/6xd-perspective/:perspectiveId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><SixXDPerspectiveDetailPage /></React.Suspense>} />
       <Route path="/guides/faqs" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><FAQsPage /></React.Suspense>} />
       <Route path="/guides/testimonials" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><TestimonialsDetailPage /></React.Suspense>} />
+      <Route path="/guides/associate-testimonials" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><AssociateTestimonialsDetailPage /></React.Suspense>} />
       <Route path="/guides/:itemId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><GuideDetailPage /></React.Suspense>} />
+      <Route path="/guides/:itemId/details" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><GuideDetailsPage /></React.Suspense>} />
       
       {/* Design System */}
       <Route path="/design-system" element={<MarketplacePage marketplaceType="design-system" title={designSystemConfig.title} description={designSystemConfig.description} />} />
@@ -162,6 +166,10 @@ export const MarketplaceRouter: React.FC = () => {
       {/* Backward compatibility: Knowledge Hub routes (aliased to Guides) */}
       <Route path="/knowledge-hub" element={<MarketplacePage marketplaceType="knowledge-hub" title={knowledgeHubConfig.title} description={knowledgeHubConfig.description} promoCards={knowledgeHubPromoCards} />} />
       <Route path="/knowledge-hub/:itemId" element={<MarketplaceDetailsPage marketplaceType="knowledge-hub" bookmarkedItems={bookmarkedItems['knowledge-hub']} onToggleBookmark={itemId => handleToggleBookmark('knowledge-hub', itemId)} />} />
+      
+      {/* Design System Marketplace */}
+      <Route path="/design-system" element={<MarketplacePage marketplaceType="design-system" title={designSystemConfig.title} description={designSystemConfig.description} promoCards={[]} />} />
+      <Route path="/design-system/:itemId" element={<MarketplaceDetailsPage marketplaceType="design-system" bookmarkedItems={bookmarkedItems['design-system'] || []} onToggleBookmark={itemId => handleToggleBookmark('design-system', itemId)} />} />
       {/* News & Opportunities Marketplace - Redirected to /guides */}
       <Route path="/news" element={<Navigate to="/marketplace/guides" replace />} />
       <Route path="/news/action-solver-podcast" element={<PodcastSeriesPage />} />

@@ -896,123 +896,75 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     id: 'guides',
     route: '/marketplace/guides',
     title: 'DQ Knowledge Center',
-    description: 'Access practical guidelines, templates, and processes to support everyday delivery and collaboration.'
+    description: 'The Knowledge Center is your starting point for understanding how DQ works and how to work effectively within it.'
   },
   'design-system': {
     id: 'design-system',
-    title: 'DQ Design System',
-    description: 'Discover the foundations behind DQ’s digital experiences—bringing design, content, and storytelling together to ensure clarity, consistency, and impact.',
+    title: 'Design System Marketplace',
+    description: 'Explore design system components, patterns, and resources for consistent digital experiences.',
     route: '/marketplace/design-system',
-    primaryCTA: 'Explore',
+    primaryCTA: 'Access Now',
     secondaryCTA: 'View Details',
-    itemName: 'Component',
-    itemNamePlural: 'Components',
+    itemName: 'Design System',
+    itemNamePlural: 'Design Systems',
     attributes: [{
       key: 'type',
       label: 'Type',
       icon: React.createElement(Layers, { size: 18, className: "mr-2" })
+    }, {
+      key: 'category',
+      label: 'Category',
+      icon: React.createElement(Bookmark, { size: 18, className: "mr-2" })
+    }, {
+      key: 'version',
+      label: 'Version',
+      icon: React.createElement(FileText, { size: 18, className: "mr-2" })
     }],
-    detailSections: ['description', 'related'],
-    tabs: [
-      {
-        id: 'cids',
-        label: 'CI.DS',
-        icon: Layers,
-        iconBgColor: 'bg-blue-50',
-        iconColor: 'text-blue-600'
-      },
-      {
-        id: 'vds',
-        label: 'V.DS',
-        icon: Layers,
-        iconBgColor: 'bg-purple-50',
-        iconColor: 'text-purple-600'
-      },
-      {
-        id: 'cds',
-        label: 'CDS',
-        icon: Layers,
-        iconBgColor: 'bg-amber-50',
-        iconColor: 'text-amber-600'
-      }
-    ],
-    summarySticky: false,
+    detailSections: ['description', 'components', 'resources', 'related'],
+    tabs: [{
+      id: 'about',
+      label: 'About This Design System',
+      icon: Info,
+      iconBgColor: 'bg-blue-50',
+      iconColor: 'text-blue-600'
+    }, {
+      id: 'components',
+      label: 'Components',
+      icon: Layers,
+      iconBgColor: 'bg-green-50',
+      iconColor: 'text-green-600'
+    }, {
+      id: 'resources',
+      label: 'Resources',
+      icon: BookOpen,
+      iconBgColor: 'bg-purple-50',
+      iconColor: 'text-purple-600'
+    }],
+    summarySticky: true,
     filterCategories: [{
       id: 'type',
       title: 'Type',
-      options: [{
-        id: 'framework',
-        name: 'Framework'
-      }, {
-        id: 'lifecycle',
-        name: 'Lifecycle'
-      }, {
-        id: 'template',
-        name: 'Template'
-      }]
+      options: [
+        { id: 'cids', name: 'CI.DS (Component Integration)' },
+        { id: 'vds', name: 'V.DS (Visual Design)' },
+        { id: 'cds', name: 'CDS (Content Design)' }
+      ]
     }, {
       id: 'location',
       title: 'Location',
-      options: [{
-        id: 'dxb',
-        name: 'DXB'
-      }, {
-        id: 'nbo',
-        name: 'NBO'
-      }, {
-        id: 'ksa',
-        name: 'KSA'
-      }]
+      options: [
+        { id: 'DXB', name: 'DXB' },
+        { id: 'KSA', name: 'KSA' },
+        { id: 'NBO', name: 'NBO' }
+      ]
     }],
-    // Data mapping functions
-    mapListResponse: data => {
-      return data.map((item: any) => ({
-        ...item,
-        tags: item.tags || [item.type].filter(Boolean)
-      }));
-    },
-    mapDetailResponse: data => {
-      return {
-        ...data,
-        highlights: data.highlights || data.details || []
-      };
-    },
-    mapFilterResponse: data => {
-      return [{
-        id: 'type',
-        title: 'Type',
-        options: data.types || []
-      }, {
-        id: 'location',
-        title: 'Location',
-        options: data.locations || []
-      }];
-    },
-    // Mock data for fallback and schema reference
+    mapListResponse: data => data,
+    mapDetailResponse: data => data,
+    mapFilterResponse: data => [],
     mockData: {
       items: [],
-      filterOptions: {
-        types: [{
-          id: 'framework',
-          name: 'Framework'
-        }, {
-          id: 'lifecycle',
-          name: 'Lifecycle'
-        }, {
-          id: 'template',
-          name: 'Template'
-        }],
-        locations: [{
-          id: 'dubai',
-          name: 'Dubai'
-        }, {
-          id: 'nairobi',
-          name: 'Nairobi'
-        }, {
-          id: 'riyadh',
-          name: 'Riyadh'
-        }]
-      }
+      filterOptions: {},
+      providers: []
     }
   }
 };

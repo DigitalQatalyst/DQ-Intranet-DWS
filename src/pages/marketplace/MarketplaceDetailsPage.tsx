@@ -27,8 +27,12 @@ interface MarketplaceDetailsPageProps {
 const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   marketplaceType,
   bookmarkedItems = [],
-  onToggleBookmark: _onToggleBookmark = () => {},
-  onAddToComparison: _onAddToComparison = () => {}
+  onToggleBookmark: _onToggleBookmark = (item) => {
+    console.log('Toggle bookmark:', item)
+  },
+  onAddToComparison: _onAddToComparison = (item) => {
+    console.log('Add to comparison:', item)
+  }
 }) => {
   const {
     itemId

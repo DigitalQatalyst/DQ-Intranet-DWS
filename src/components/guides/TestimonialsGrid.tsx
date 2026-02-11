@@ -1,5 +1,6 @@
 import React from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import { parseCsv } from "../../utils/guides"
 
 interface Props {
   items: any[]
@@ -8,14 +9,17 @@ interface Props {
 
 const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const disclaimer = '(not approved for external publication)'
   // Get a hero image for testimonials - use an office/team collaboration image
-  const serviceCardImage = "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2970&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+  const serviceCardImage = "/images/testimonials.jpg"
   
   const formatDate = (dateString?: string) => {
     if (!dateString) return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
+
+  // Service cards always show regardless of filter selection
 
   // Filter items to exclude "Client Feedback" entries
   const filteredItems = (items || []).filter((item) => {
@@ -24,56 +28,106 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
   })
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      {/* Service Card */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col min-h-[340px]">
-        {/* Hero Image */}
-        <img 
-          src={serviceCardImage} 
-          alt="Client Feedback" 
-          className="w-full h-32 object-cover"
-          loading="lazy"
-        />
-        
-        {/* Content */}
-        <div className="p-4 flex flex-col flex-grow">
-          {/* Title */}
-          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">Client Feedback</h3>
+    <div className="space-y-6">
+      {/* Service cards row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        {/* Client Feedback Service Card */}
+        <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col min-h-[340px]">
+          {/* Hero Image */}
+          <img 
+            src={serviceCardImage} 
+            alt="Client Success Stories" 
+            className="w-full h-32 object-cover"
+            loading="lazy"
+          />
           
-          {/* Description */}
-          <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-2 flex-grow">
-            Highlights from DFSA, ADIB, and Khalifa Fund showcasing how Digital Qatalyst engagements accelerate transformation outcomes.
-          </p>
-          
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-3">
-            <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-white border border-gray-200 text-[#0B1E67]">
-              Testimonials
-            </span>
-            <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-white border border-gray-200 text-[#0B1E67]">
-              Client Success
-            </span>
+          {/* Content */}
+          <div className="p-4 flex flex-col flex-grow">
+            {/* Title */}
+            <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">Client Success Stories</h3>
+            
+            {/* Description */}
+            <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-2 flex-grow">
+              Real impact in action. See how we help partners succeed in their digital journeys.
+            </p>
+            
+            {/* Tag */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-white border border-gray-200 text-[#0B1E67]">
+                Client Success
+              </span>
+            </div>
+            
+            {/* Metadata */}
+            <div className="text-xs text-gray-600 mb-3">
+              <div>{formatDate()}</div>
+            </div>
+            
+            {/* Separator */}
+            <div className="border-t border-gray-200 mb-3"></div>
+            
+            {/* View Details Button */}
+            <button
+              type="button"
+              onClick={() => navigate('/marketplace/guides/testimonials')}
+              className="w-full inline-flex items-center justify-center rounded-full bg-[var(--guidelines-primary-solid)] text-white text-sm font-semibold px-4 py-2 transition-all hover:bg-[var(--guidelines-primary-solid-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
+              aria-label="View details"
+            >
+              View Details
+            </button>
           </div>
+        </div>
+
+        {/* Associate Testimonials Service Card */}
+        <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col min-h-[340px]">
+          {/* Hero Image */}
+          <img 
+            src={serviceCardImage} 
+            alt="Associate Voices" 
+            className="w-full h-32 object-cover"
+            loading="lazy"
+          />
           
-          {/* Metadata */}
-          <div className="text-xs text-gray-600 mb-3">
-            <div>{formatDate()}</div>
+          {/* Content */}
+          <div className="p-4 flex flex-col flex-grow">
+            {/* Title */}
+            <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">Associate Voices</h3>
+            
+            {/* Description */}
+            <p className="text-sm text-gray-600 mb-3 leading-relaxed line-clamp-2 flex-grow">
+              Stories of growth, culture, and collaboration from our team.
+            </p>
+            
+            {/* Tag */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-white border border-gray-200 text-[#0B1E67]">
+                Associate Stories
+              </span>
+            </div>
+            
+            {/* Metadata */}
+            <div className="text-xs text-gray-600 mb-3">
+              <div>{formatDate()}</div>
+            </div>
+            
+            {/* Separator */}
+            <div className="border-t border-gray-200 mb-3"></div>
+            
+            {/* View Details Button */}
+            <button
+              type="button"
+              onClick={() => navigate('/marketplace/guides/associate-testimonials')}
+              className="w-full inline-flex items-center justify-center rounded-full bg-[var(--guidelines-primary-solid)] text-white text-sm font-semibold px-4 py-2 transition-all hover:bg-[var(--guidelines-primary-solid-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
+              aria-label="View details"
+            >
+              View Details
+            </button>
           </div>
-          
-          {/* Separator */}
-          <div className="border-t border-gray-200 mb-3"></div>
-          
-          {/* View Details Button */}
-          <button
-            type="button"
-            onClick={() => navigate('/marketplace/guides/testimonials')}
-            className="w-full inline-flex items-center justify-center rounded-full bg-[var(--guidelines-primary-solid)] text-white text-sm font-semibold px-4 py-2 transition-all hover:bg-[var(--guidelines-primary-solid-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
-            aria-label="View details"
-          >
-            View Details
-          </button>
         </div>
       </div>
+
+      {/* Associate testimonial cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
         {filteredItems.map((item) => {
           const name = item.author_name || item.title || "Unnamed Testimonial"
           const organization = item.author_org || item.domain || ""
@@ -82,7 +136,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
           return (
             <div
               key={item.id || item.slug}
-              className="h-full rounded-2xl border border-gray-200 bg-white text-left p-5 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+              className="h-full min-h-[340px] rounded-2xl border border-gray-200 bg-white text-left p-5 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
               onClick={() => onClickGuide && onClickGuide(item)}
             >
               <div className="flex items-start gap-4 mb-3">
@@ -107,6 +161,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
             </div>
           )
         })}
+      </div>
     </div>
   )
 }

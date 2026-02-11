@@ -59,8 +59,8 @@ function GuidelinePage() {
     let currentSection: { id: string; title: string; content: string } | null = null
     
     for (const line of lines) {
-      // Check for level 1 or level 2 headings
-      if (line.startsWith('# ') || line.startsWith('## ')) {
+      // Check for level 2 headings only (##, but not ###)
+      if (line.startsWith('## ') && !line.startsWith('### ')) {
         if (currentSection) {
           sections.push(currentSection)
         }
@@ -72,7 +72,7 @@ function GuidelinePage() {
       } else {
         // If we have content before any heading, create a default section
         if (!currentSection) {
-          currentSection = { id: 'overview', title: 'Overview', content: '' }
+          currentSection = { id: 'introduction', title: 'Introduction', content: '' }
         }
         currentSection.content += line + '\n'
       }
@@ -199,7 +199,7 @@ function GuidelinePage() {
                   </svg>
                 </Link>
                 <Link
-                  to="/marketplace/guides/dq-ghc"
+                  to={`/marketplace/guides/${currentSlug}/details`}
                   className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-lg transition-colors"
                   style={{ 
                     backgroundColor: '#030E31'
@@ -211,7 +211,7 @@ function GuidelinePage() {
                     e.currentTarget.style.backgroundColor = '#030E31'
                   }}
                 >
-                  <span>View Full GHC Framework</span>
+                  <span>View Details</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -233,3 +233,6 @@ function GuidelinePage() {
 }
 
 export default GuidelinePage
+
+
+
