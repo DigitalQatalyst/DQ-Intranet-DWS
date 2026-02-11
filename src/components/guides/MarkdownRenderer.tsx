@@ -136,6 +136,16 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
         rehypeStripListIcons as any
       ] as any}
       components={{
+        p: ({ node, ...props }) => (
+          <p className="mb-4 text-gray-700 leading-relaxed" {...(props as any)}>
+            {props.children}
+          </p>
+        ),
+        h1: ({ node, ...props }) => (
+          <h1 className="text-3xl font-bold text-gray-900 mt-8 mb-6" {...(props as any)}>
+            {props.children}
+          </h1>
+        ),
         h2: ({ node, ...props }) => (
           <h2 className="text-xl font-bold text-gray-900 mt-6 mb-4 pl-5 relative border-0 border-l-0 [&_*]:border-0" {...(props as any)}>
             <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/60 to-transparent rounded-full"></span>
@@ -179,7 +189,7 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
         ol: ({ node, ...props }) => (
           <ol className="list-decimal pl-6 space-y-1 my-4" {...(props as any)} />
         ),
-        li: ({ node, ...props }) => (
+        li: ({ node, ...props}) => (
           <li className="ml-1 leading-relaxed" {...(props as any)} />
         ),
         p: ({ node, ...props }) => {
@@ -293,4 +303,3 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
 }
 
 export default MarkdownRenderer
-

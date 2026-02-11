@@ -9,26 +9,26 @@ const associateTestimonialsData = [
   {
     id: "jerry-ashie",
     name: "Jerry Ashie",
-    organization: "Accounts Manager & Scrum master",
-    quote: "Digital Qatalyst's values and mission have encouraged me to continuously learn, adapt, and take ownership of my work. They have pushed me to embrace challenges with curiosity rather than hesitation and to see feedback as a tool for growth. The focus on collaboration and innovation has helped me strengthen my problem-solving and communication skills. I've become more resilient in navigating change and more confident in stepping outside my comfort zone. Overall, these values have supported my growth both professionally and personally by fostering a strong growth mindset."
+    organization: "Accounts Manager & Scrum Master",
+    quote: "At DQ, our values have pushed me to meet every challenge with curiosity instead of hesitation. I've learned to see feedback as my best tool for growth, which has made me a much more resilient and confident communicator. This environment has truly empowered me to step outside my comfort zone and take real ownership of my journey."
   },
   {
     id: "vishnu-chandran",
     name: "Vishnu Chandran",
     organization: "CoE Analyst",
-    quote: "DigitalQatalyst's values has helped me focus on creating real impact, not just completing tasks. It has encouraged me to take ownership and think clearly about outcomes. Values like accountability, collaboration, and continuous learning have supported my growth. This has helped me become more confident and responsible in my role and as an individual."
+    quote: "Our culture has shifted my focus from just 'finishing tasks' to creating a real, lasting impact. By embracing accountability and continuous learning, I've grown not just as an analyst, but as an individual. I now feel more confident and responsible, always thinking clearly about the best outcomes for our team."
   },
   {
     id: "sharon-adhiambo",
     name: "Sharon Adhiambo",
     organization: "HR Analyst",
-    quote: "A value that has significantly influenced my growth is Collaboration. It has taught me the importance of leaning on others' strengths and openly sharing progress, challenges, and insights. By engaging more with my team, I've gained new perspectives that improved the quality of my work. For example, I began seeking timely feedback and involving the right people earlier in my tasks. This has made my work more efficient, aligned, and impactful."
+    quote: "Collaboration is at the heart of my growth here. I've discovered the power of leaning on my teammates' strengths and sharing our progress and challenges openly. By involving the right people early and seeking feedback, my work has become more efficient, aligned, and—most importantly—more impactful."
   },
   {
     id: "fadil-alli",
     name: "Fadil Alli",
     organization: "CoE Analyst",
-    quote: "One key value in DQ that has influenced my growth is ownership. It's still something I'm working on every day, but I've already noticed the positive impact it has on how I approach my tasks. For example, as a Scrum Master, I've been focusing on taking more responsibility for the challenges in the Product Factory. While it's a work in progress, I've seen improved collaboration and clearer accountability within the team when there's a strong sense of ownership, which has led to more streamlined processes."
+    quote: "Ownership is a value I practice every single day. Whether I am acting as a Scrum Master or tackling a new project, taking full responsibility has made our team processes smoother and more transparent. This sense of accountability has naturally led to better collaboration and clearer results for everyone."
   }
 ]
 
@@ -102,9 +102,9 @@ const AssociateTestimonialsDetailPage: React.FC = () => {
         {/* Featured Associates Section */}
         <div className="mb-8">
           <div className="mb-6">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">How DQ values shape growth</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Real Stories: How Our Values Drive Growth</h2>
             <p className="text-gray-600">
-              Associates share how Digital Qatalyst's values—collaboration, ownership, accountability, and continuous learning—have influenced their professional development and impact.
+              Our values are the heartbeat of everything we do. Hear directly from our team about how embracing collaboration, ownership, and a love for learning has helped them grow professionally and make a meaningful impact every day.
             </p>
           </div>
 

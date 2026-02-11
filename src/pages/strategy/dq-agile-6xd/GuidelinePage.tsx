@@ -1,30 +1,26 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronRightIcon, BookOpen, PlayCircle, Eye, Clock } from 'lucide-react'
+import { HomeIcon, ChevronRightIcon, PlayCircle, Eye, BookOpen } from 'lucide-react'
 import { Header } from '../../../components/Header'
 import { Footer } from '../../../components/Footer'
+import { useAuth } from '../../../components/Header/context/AuthContext'
 import { supabaseClient } from '../../../lib/supabaseClient'
 import { HeroSection } from '../shared/HeroSection'
-import { GuidelineSection } from '../shared/GuidelineSection'
-import MarkdownRenderer from '../../../components/guides/MarkdownRenderer'
+import { GUIDE_CONTENT } from '../../../constants/guideContent'
 
 function GuidelinePage() {
+  const { user } = useAuth()
   const currentSlug = 'dq-agile-6xd'
-  const displayTitle = 'GHC 07 - Agile 6xD (Products)'
+  const contentKey = 'dq-agile-6xd'
   
   const [guide, setGuide] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'overview' | 'storybook' | 'course'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'storybook' | 'course' | 'materials'>('overview')
 
-  // Get just the first paragraph
-  const getFirstParagraph = (text: string) => {
-    if (!text) return ''
-    const paragraphs = text.split('\n\n').filter(p => p.trim().length > 0)
-    return paragraphs[0] || ''
-  }
-
-  const agile6xdIntroBody = "Products are the tangible outcomes of our agile work. At DQ, our 6xD framework isn't just about delivering features—it's about creating value through disciplined product development that balances speed, quality, and customer impact.\n\nThe Agile 6xD competency articulates how we discover, design, develop, and deliver products that matter. It answers the fundamental question: \"How do we create products that solve real problems while maintaining technical excellence?\""
+  // Get content from constants using contentKey
+  const content = GUIDE_CONTENT[contentKey]
+  const displayTitle = content?.title || guide?.title || ''
 
   useEffect(() => {
     let cancelled = false
@@ -37,7 +33,10 @@ function GuidelinePage() {
           .eq('slug', currentSlug)
           .maybeSingle()
         
-        if (fetchError) throw fetchError
+        if (fetchError) {
+          console.error('❌ [DQ-AGILE-6XD] Fetch error:', fetchError)
+          throw fetchError
+        }
         
         if (!cancelled) {
           if (data) {
@@ -48,14 +47,6 @@ function GuidelinePage() {
               return
             }
             setGuide(data)
-            console.log('✅ [DQ-AGILE-6XD] Guide loaded:', {
-              id: data.id,
-              slug: data.slug,
-              title: data.title,
-              bodyLength: data.body?.length || 0,
-              expectedSlug: currentSlug,
-              match: data.slug?.toLowerCase() === currentSlug.toLowerCase()
-            })
           } else {
             setError('Guide not found')
           }
@@ -88,7 +79,7 @@ function GuidelinePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-white">
       <Header toggleSidebar={() => {}} sidebarOpen={false} />
       
       {/* Breadcrumb */}
@@ -98,14 +89,18 @@ function GuidelinePage() {
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
               <li className="inline-flex items-center">
                 <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
+                  <HomeIcon size={16} className="mr-1" />
                   <span>Home</span>
                 </Link>
               </li>
               <li>
                 <div className="flex items-center">
                   <ChevronRightIcon size={16} className="text-gray-400" />
-                  <Link to="/marketplace/guides?tab=strategy" className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">
-                    Strategy
+                  <Link
+                    to="/marketplace/guides?tab=strategy"
+                    className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2"
+                  >
+                    GHC
                   </Link>
                 </div>
               </li>
@@ -123,198 +118,226 @@ function GuidelinePage() {
       {/* Hero Section */}
       <HeroSection 
         title={displayTitle}
-        subtitle="DQ Leadership - Digital Qatalyst"
+        subtitle={content.subtitle}
         imageUrl="/images/guidelines-content.PNG"
-        badge="Strategy Framework"
       />
 
-      <main className="flex-1">
-        <div className="px-4 py-12">
-          {/* Tab Content - Full Width */}
-          <div className="bg-white rounded-lg shadow-sm">
-            <div className="max-w-6xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                {/* Main Content - Left Side (3 columns) */}
-                <div className="lg:col-span-3">
-                  {/* Tabs */}
-                  <div className="border-b border-gray-200">
-                    <nav className="flex -mb-px justify-center">
-                      <button
-                        onClick={() => setActiveTab('overview')}
-                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
-                          activeTab === 'overview'
-                            ? 'border-blue-500 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Eye size={16} />
-                          Overview
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => setActiveTab('storybook')}
-                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
-                          activeTab === 'storybook'
-                            ? 'border-blue-500 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <BookOpen size={16} />
-                          Explore Story Book
-                        </div>
-                      </button>
-                      <button
-                        onClick={() => setActiveTab('course')}
-                        className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
-                          activeTab === 'course'
-                            ? 'border-blue-500 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <PlayCircle size={16} />
-                          Course
-                        </div>
-                      </button>
-                    </nav>
+      <main className="flex-1 bg-white">
+        <div className="bg-white shadow-sm">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <div className="border-b border-gray-200">
+              <nav className="flex -mb-px">
+                <button
+                  onClick={() => setActiveTab('overview')}
+                  className={`py-4 px-4 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
+                    activeTab === 'overview'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Eye size={16} />
+                    Overview
                   </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('storybook')}
+                  className={`py-4 px-4 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
+                    activeTab === 'storybook'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen size={16} />
+                    Understand
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('course')}
+                  className={`py-4 px-4 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
+                    activeTab === 'course'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <PlayCircle size={16} />
+                    Learn & Practice
+                  </div>
+                </button>
+                <button
+                  onClick={() => setActiveTab('materials')}
+                  className={`py-4 px-4 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
+                    activeTab === 'materials'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen size={16} />
+                    Other Materials
+                  </div>
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
 
-                  {/* Tab Content - Centered */}
-                  <div className="p-8 md:p-12">
-                    {activeTab === 'overview' && (
-                      <div>
-                        {/* Combined Overview Card */}
-                        <div className="bg-white rounded-lg p-6">
-                          {/* Description */}
-                          <div className="prose prose-sm max-w-none">
-                            <MarkdownRenderer body={agile6xdIntroBody} />
-                          </div>
+        <div className="container mx-auto px-4 py-4 max-w-7xl">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="grid grid-cols-1 gap-8">
+              <div className="lg:col-span-3">
+                {activeTab === 'overview' && (
+                  <div className="space-y-6">
+                    {/* Main Description */}
+                    <div className="prose prose-base max-w-none text-gray-700 leading-relaxed space-y-4">
+                      {content.shortOverview.split('\n\n').map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
+                    </div>
 
-                          {/* Key Points */}
-                          <div className="pt-4">
-                            <h6 className="text-sm font-semibold text-gray-900 mb-3">Key Points</h6>
-                            <div className="space-y-3">
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
-                                  style={{ backgroundColor: 'var(--guidelines-primary-solid, #030E31)' }}
-                                >
-                                  <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                  </svg>
-                                </div>
-                                <span className="text-sm text-gray-700">6xD product development</span>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
-                                  style={{ backgroundColor: 'var(--guidelines-primary-solid, #030E31)' }}
-                                >
-                                  <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                  </svg>
-                                </div>
-                                <span className="text-sm text-gray-700">Value-driven delivery</span>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
-                                  style={{ backgroundColor: 'var(--guidelines-primary-solid, #030E31)' }}
-                                >
-                                  <svg className="w-2 h-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                  </svg>
-                                </div>
-                                <span className="text-sm text-gray-700">Technical excellence</span>
-                              </div>
+                    {/* Course Highlights Section */}
+                    <div className="space-y-5">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-6">Agile 6xD Highlights</h3>
+                      {content.highlights.map((highlight, index) => {
+                        const [title, ...descParts] = highlight.split(':')
+                        const description = descParts.join(':').trim()
+                        return (
+                          <div key={index} className="flex items-start gap-3">
+                            <div className="flex-shrink-0 mt-1">
+                              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
+                              </svg>
                             </div>
-                          </div>
-                        </div>
-
-                        {/* GHC Link Button - Only show on Overview tab */}
-                        <div className="mt-12 text-right">
-                          <Link
-                            to={`/marketplace/guides/${currentSlug}/details`}
-                            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-lg transition-colors"
-                            style={{ 
-                              backgroundColor: '#030E31'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#020A28'
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = '#030E31'
-                            }}
-                          >
-                            <span>View Details</span>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </Link>
-                        </div>
-                      </div>
-                    )}
-
-                    {activeTab === 'storybook' && (
-                      <GuidelineSection id="storybook" title="Explore Story Book">
-                        <div className="text-center py-12">
-                          <BookOpen size={64} className="mx-auto text-blue-500 mb-4" />
-                          <h3 className="text-xl font-semibold text-gray-900 mb-4">Agile 6xD Story Book</h3>
-                          <p className="text-gray-600 mb-8">
-                            Explore the interactive story book that brings the DQ Agile 6xD framework to life through engaging narratives and visual storytelling.
-                          </p>
-                          <button
-                            onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
-                            className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
-                            style={{ backgroundColor: '#030E31' }}
-                            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
-                            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
-                          >
-                            <BookOpen size={16} />
-                            Open Story Book
-                          </button>
-                        </div>
-                      </GuidelineSection>
-                    )}
-
-                    {activeTab === 'course' && (
-                      <GuidelineSection id="course" title="Course - Video Learning">
-                        <div className="space-y-8">
-                          <div className="text-center">
-                            <PlayCircle size={64} className="mx-auto text-blue-500 mb-4" />
-                            <h3 className="text-xl font-semibold text-gray-900 mb-4">Agile 6xD Video Course</h3>
-                            <p className="text-gray-600 mb-8">
-                              Deepen your understanding of the DQ Agile 6xD framework through our comprehensive video learning modules.
+                            <p className="text-gray-700 text-base leading-relaxed">
+                              <span className="font-semibold">{title}:</span> {description}
                             </p>
                           </div>
-                          
-                          {/* Course Button Section */}
-                          <div className="bg-white rounded-lg border border-gray-200 p-6">
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <h4 className="text-lg font-semibold text-gray-900 mb-1">DQ Agile 6xD Course</h4>
-                                <p className="text-sm text-gray-600">Complete learning module</p>
-                              </div>
-                              <a
-                                href="https://dq-intranet-pykepfa4x-digitalqatalysts-projects.vercel.app/lms/ghc-course/lesson/19d3cddd-870c-4754-bc12-35fa92807d23"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                              >
-                                <PlayCircle size={16} />
-                                <span>Start</span>
-                              </a>
-                            </div>
-                          </div>
-                        </div>
-                      </GuidelineSection>
-                    )}
-                  </div>
-                </div>
+                        )
+                      })}
+                    </div>
 
-                {/* Course summary sidebar removed per request */}
+                    {/* View Details Button */}
+                    <div className="pt-4">
+                      <Link
+                        to={`/marketplace/guides/${currentSlug}/details`}
+                        className="inline-flex items-center gap-2 px-6 py-3 text-sm font-bold text-white rounded-lg transition-colors"
+                        style={{ backgroundColor: '#030E31' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
+                      >
+                        <span>View Details</span>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'storybook' && (
+                  <div className="space-y-6">
+                    {/* Storybook Description */}
+                    <div className="prose prose-base max-w-none text-gray-700 leading-relaxed space-y-4">
+                      {content.storybookIntro.split('\n\n').map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
+                    </div>
+
+                    {/* What You Will Learn Section */}
+                    <div className="space-y-5">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-6">What You'll Understand</h3>
+                      {content.whatYouWillLearn.map((item, index) => {
+                        const [title, ...descParts] = item.split(':')
+                        const description = descParts.join(':').trim()
+                        return (
+                          <div key={index} className="flex items-start gap-3">
+                            <div className="flex-shrink-0 mt-1">
+                              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
+                              </svg>
+                            </div>
+                            <p className="text-gray-700 text-base leading-relaxed">
+                              <span className="font-semibold">{title}:</span> {description}
+                            </p>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Open Storybook Button */}
+                    <div className="pt-4">
+                      <button
+                        onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
+                        className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
+                        style={{ backgroundColor: '#030E31' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
+                      >
+                        <BookOpen size={16} />
+                        Read more in the storybook
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'course' && (
+                  <div className="space-y-6">
+                    {/* Course Description */}
+                    <div className="prose prose-base max-w-none text-gray-700 leading-relaxed space-y-4">
+                      {content.courseIntro?.split('\n\n').map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
+                    </div>
+
+                    {/* What You'll Learn & Practice Section */}
+                    <div className="space-y-5">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-6">What You'll Learn & Practice</h3>
+                      {content.whatYouWillPractice?.map((item, index) => {
+                        const [title, ...descParts] = item.split(':')
+                        const description = descParts.join(':').trim()
+                        return (
+                          <div key={index} className="flex items-start gap-3">
+                            <div className="flex-shrink-0 mt-1">
+                              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
+                              </svg>
+                            </div>
+                            <p className="text-gray-700 text-base leading-relaxed">
+                              <span className="font-semibold">{title}:</span> {description}
+                            </p>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* View Course Button */}
+                    <div className="pt-4">
+                      <button
+                        onClick={() => window.open('https://dq-intranet-pykepfa4x-digitalqatalysts-projects.vercel.app/lms/ghc-course/lesson/19d3cddd-870c-4754-bc12-35fa92807d23', '_blank')}
+                        className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
+                        style={{ backgroundColor: '#030E31' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
+                      >
+                        <PlayCircle size={16} />
+                        View Course
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'materials' && (
+                  <div className="space-y-6">
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">
+                      <p className="text-gray-500 text-lg">Coming soon...</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -327,10 +350,3 @@ function GuidelinePage() {
 }
 
 export default GuidelinePage
-
-
-
-
-
-
-
