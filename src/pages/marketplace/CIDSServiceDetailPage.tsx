@@ -201,20 +201,12 @@ export default function CIDSServiceDetailPage() {
 
         <div className="relative z-10 h-full flex flex-col justify-center px-6 md:px-12 lg:px-24 text-white bg-[#030E31]/60">
           <div className="max-w-4xl">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-bold mb-4 text-white">
-              CI.DS
-            </span>
-
-            <div className="text-sm text-white/90 mb-6 font-inter">
-              {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-            </div>
-
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight font-inter text-white">
               {card.title}
             </h1>
 
             <div className="flex items-center gap-3 text-sm text-white/90 font-inter font-semibold">
-              <span>DQ Design · Digital Qatalyst</span>
+              <span>DQ Design</span>
             </div>
           </div>
         </div>

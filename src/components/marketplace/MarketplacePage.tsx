@@ -32,6 +32,8 @@ import { track } from '../../utils/analytics';
 import FAQsPageContent from '../../pages/guides/FAQsPageContent';
 import { glossaryTerms, GlossaryTerm, CATEGORIES } from '../../pages/guides/glossaryData';
 import { STATIC_PRODUCTS } from '../../utils/staticProducts';
+import { DESIGN_SYSTEM_ITEMS, getDesignSystemItemsByType } from '../../utils/designSystemData';
+import { DesignSystemCard } from './DesignSystemCard';
 const LEARNING_TYPE_FILTER: FilterConfig = {
   id: 'learningType',
   title: 'Learning Type',
@@ -1352,6 +1354,18 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
         return;
       }
 
+      // DESIGN SYSTEM: use static data from designSystemData.ts
+      if (isDesignSystem) {
+        setLoading(false);
+        setError(null);
+        // Filter items by active tab
+        const filteredDesignSystemItems = getDesignSystemItemsByType(activeDesignSystemTab);
+        setItems(filteredDesignSystemItems);
+        setFilteredItems(filteredDesignSystemItems);
+        setTotalCount(filteredDesignSystemItems.length);
+        return;
+      }
+
       // OTHER MARKETPLACES (financial, non-financial, onboarding)
       setLoading(true);
       setError(null);
@@ -1680,7 +1694,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
 
     run();
     // Keep deps lean; no need to include functions like isGuides
-  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isKnowledgeHub, currentPage, pageSize, isServicesCenter, activeServiceTab, activeTab]);
+  }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isKnowledgeHub, currentPage, pageSize, isServicesCenter, activeServiceTab, activeTab, isDesignSystem, activeDesignSystemTab]);
 
   // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
@@ -1943,16 +1957,13 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
 
           const DESIGN_SYSTEM_TAB_DESCRIPTIONS: Record<DesignSystemTab, { description: string; author?: string }> = {
             cids: {
-              description: 'Component Integration Design System - Reusable UI components, patterns, and integration guidelines for building consistent digital experiences.',
-              author: 'Maintained by DQ Design & Engineering Teams'
+              description: 'Explains how DQ creates and delivers high-quality content with structure, clear guidelines, and review standards, ensuring consistency and impact across platforms.'
             },
             vds: {
-              description: 'Visual Design System - Design tokens, typography, color palettes, and visual guidelines for creating cohesive brand experiences.',
-              author: 'Maintained by DQ Design Team'
+              description: 'Guides how DQ creates high-impact video content with storytelling, design, and production standards for consistency and impact.'
             },
             cds: {
-              description: 'Content Design System - Content patterns, writing guidelines, and messaging frameworks for clear and effective communication.',
-              author: 'Maintained by DQ Content & Communications Teams'
+              description: 'Outlines how DQ designs and delivers marketing campaigns by blending strategy, storytelling, and execution for impactful results.'
             }
           };
 
@@ -1987,15 +1998,10 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                 </nav>
                 {/* Tab Description - Integrated with tabs */}
                 {activeDesignSystemTab && DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab] && (
-                  <div className="pt-4 pb-4">
+                  <div className="pt-2 pb-2 mt-3 border border-gray-200 rounded-lg bg-white p-3 shadow-sm">
                     <p className="text-sm text-gray-600 leading-relaxed">
                       {DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].description}
                     </p>
-                    {DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].author && (
-                      <p className="text-xs text-gray-500 mt-2">
-                        {DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].author}
-                      </p>
-                    )}
                   </div>
                 )}
               </div>
@@ -2004,15 +2010,15 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
         })()}
 
         {/* Search + Sort - Hide for Glossary tab (has its own search) */}
-        {!(isGuides && activeTab === 'glossary') && !isDesignSystem && (
+        {!(isGuides && activeTab === 'glossary') && (
           <div className="mb-6 flex items-center gap-3">
             <div className="flex-1">
               <SearchBar
                 searchQuery={isGuides ? (queryParams.get('q') || '') : searchQuery}
-                placeholder={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
-                ariaLabel={isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined}
+                placeholder={isGuides || isKnowledgeHub || isDesignSystem ? "Search in DQ Knowledge Center" : undefined}
+                ariaLabel={isGuides || isKnowledgeHub || isDesignSystem ? "Search in DQ Knowledge Center" : undefined}
                 setSearchQuery={(q: string) => {
-                  if (isGuides) {
+                  if (isGuides || isDesignSystem) {
                     const next = new URLSearchParams(queryParams.toString());
                     next.delete('page');
                     if (q) next.set('q', q); else next.delete('q');
@@ -2083,6 +2089,14 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                 <div className="p-4">
                   {isGuides ? (
                     <GuidesFilters activeTab={activeTab} facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
+                  ) : isDesignSystem ? (
+                    <FilterSidebar
+                      filters={Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>}
+                      filterConfig={filterConfig}
+                      onFilterChange={handleFilterChange}
+                      onResetFilters={resetFilters}
+                      isResponsive={true}
+                    />
                   ) : (
                     <FilterSidebar
                       filters={isCourses ? urlBasedFilters : (Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>)}
@@ -2101,6 +2115,22 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
           <div className="hidden xl:block xl:w-1/4">
             {isGuides ? (
               <GuidesFilters activeTab={activeTab} facets={facets} query={queryParams} onChange={(next) => { next.delete('page'); const qs = next.toString(); window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`); setQueryParams(new URLSearchParams(next.toString())); track('Guides.FilterChanged', { params: Object.fromEntries(next.entries()) }); }} />
+            ) : isDesignSystem ? (
+              <div className="bg-white rounded-lg shadow p-4 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto filter-sidebar-scroll">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold">Filters</h2>
+                  {Object.values(filters).some(f => (Array.isArray(f) ? f.length > 0 : f !== '')) && (
+                    <button onClick={resetFilters} className="text-blue-600 text-sm font-medium">Clear all</button>
+                  )}
+                </div>
+                <FilterSidebar
+                  filters={Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v : (v ? [v] : [])])) as Record<string, string[]>}
+                  filterConfig={filterConfig}
+                  onFilterChange={handleFilterChange}
+                  onResetFilters={resetFilters}
+                  isResponsive={false}
+                />
+              </div>
             ) : (
               <div className="bg-white rounded-lg shadow p-4 sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto filter-sidebar-scroll">
                 <div className="flex justify-between items-center mb-4">
@@ -2155,22 +2185,18 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                 onClearFilters={clearKnowledgeHubFilters}
               />
             ) : isDesignSystem ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">DQ Stories CI.DS</h3>
-                  <p className="text-gray-600 text-sm mb-4">Component Integration Design System - Explore reusable components and integration patterns.</p>
-                  <p className="text-xs text-gray-500">xDS Design System Marketplace</p>
-                </div>
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">DQ Stories V.DS</h3>
-                  <p className="text-gray-600 text-sm mb-4">Visual Design System - Discover design tokens, typography, and visual guidelines.</p>
-                  <p className="text-xs text-gray-500">xDS Design System Marketplace</p>
-                </div>
-                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">DQ Stories CDS</h3>
-                  <p className="text-gray-600 text-sm mb-4">Content Design System - Access content patterns and writing guidelines.</p>
-                  <p className="text-xs text-gray-500">xDS Design System Marketplace</p>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                {filteredItems.map((item: any) => (
+                  <DesignSystemCard
+                    key={item.id}
+                    id={item.id}
+                    title={item.title}
+                    description={item.description}
+                    imageUrl={item.imageUrl}
+                    tags={item.tags}
+                    type={item.type}
+                  />
+                ))}
               </div>
             ) : isGuides ? (
               <>
