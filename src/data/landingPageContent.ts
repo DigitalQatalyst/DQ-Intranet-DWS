@@ -12,6 +12,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from 'lucide-react';
+import { assetPath } from '../utils/assetPath';
 
 // ============================================
 // TYPE DEFINITIONS
@@ -230,11 +231,11 @@ export const partnerCategories: PartnerCategory[] = [
 // FEATURED SECTORS
 // ============================================
 export const featuredSectors: FeaturedSector[] = [
-  { id: 'ce', name: 'CE', logo: '/logo/prodev.png' },
-  { id: 'soldev', name: 'Soldev', logo: '/logo/soldev.png' },
-  { id: 'finance', name: 'Finance', logo: '/logo/finance.png' },
-  { id: 'hra', name: 'HRA', logo: '/logo/hra.png' },
-  { id: 'inteldev', name: 'IntelDev', logo: '/logo/inteldev.png' },
+  { id: 'ce', name: 'CE', logo: assetPath('logo/prodev.png') },
+  { id: 'soldev', name: 'Soldev', logo: assetPath('logo/soldev.png') },
+  { id: 'finance', name: 'Finance', logo: assetPath('logo/finance.png') },
+  { id: 'hra', name: 'HRA', logo: assetPath('logo/hra.png') },
+  { id: 'inteldev', name: 'IntelDev', logo: assetPath('logo/inteldev.png') },
 ];
 
 // ============================================
