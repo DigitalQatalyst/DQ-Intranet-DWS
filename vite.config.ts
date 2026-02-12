@@ -18,7 +18,12 @@ const DEV_STRICT_PORT = parseBoolEnv(process.env.VITE_DEV_STRICT_PORT, true)
 const PREVIEW_HOST = process.env.VITE_PREVIEW_HOST ?? DEV_HOST
 const PREVIEW_PORT = Number(process.env.VITE_PREVIEW_PORT ?? 3000)
 const PREVIEW_STRICT_PORT = parseBoolEnv(process.env.VITE_PREVIEW_STRICT_PORT, true)
-const BASE_PATH = normalizeBasePath(process.env.VITE_BASE_PATH ?? '/dws/')
+// Use / for Vercel previews by default; /dws/ for nginx unless overridden
+const inferredBase =
+  process.env.VERCEL === '1'
+    ? '/'
+    : process.env.VITE_BASE_PATH ?? '/dws/'
+const BASE_PATH = normalizeBasePath(inferredBase)
 
 // https://vitejs.dev/config/
 export default defineConfig({
