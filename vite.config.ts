@@ -1,24 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import path from 'path'
+import path from 'node:path'
+
+const parseBoolEnv = (value: string | undefined, defaultValue: boolean) =>
+  value === undefined ? defaultValue : value === 'true'
 
 const DEV_HOST = process.env.VITE_DEV_HOST ?? 'localhost'
 const DEV_PORT = Number(process.env.VITE_DEV_PORT ?? 3004)
-const DEV_STRICT_PORT =
-  process.env.VITE_DEV_STRICT_PORT !== undefined
-    ? process.env.VITE_DEV_STRICT_PORT === 'true'
-    : true
+const DEV_STRICT_PORT = parseBoolEnv(process.env.VITE_DEV_STRICT_PORT, true)
 
 const PREVIEW_HOST = process.env.VITE_PREVIEW_HOST ?? DEV_HOST
 const PREVIEW_PORT = Number(process.env.VITE_PREVIEW_PORT ?? 3000)
-const PREVIEW_STRICT_PORT =
-  process.env.VITE_PREVIEW_STRICT_PORT !== undefined
-    ? process.env.VITE_PREVIEW_STRICT_PORT === 'true'
-    : true
+const PREVIEW_STRICT_PORT = parseBoolEnv(process.env.VITE_PREVIEW_STRICT_PORT, true)
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: '/dws/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
