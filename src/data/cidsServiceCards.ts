@@ -82,17 +82,17 @@ export const CIDS_SERVICE_CARDS: CIDSServiceCard[] = [
         },
         {
           id: '2.2',
-          title: 'DQ Stories | Content Artefact Class (CAC)',
+          title: 'DQ Stories - Content Artefact Class (CAC)',
           content: 'DQ content is generally organized into five Content Artefact Classes (CAC), each representing a strategic category aligned with the intent, audience, and business value of the content produced. These classes provide a high-level framework to ensure that content outputs are not just diverse in format but coherent in purpose.\n\nThe five CACs include:\n\n**Thought Leadership Artefacts** – Designed to shape industry perspectives and establish DQ\'s intellectual position. Examples include whitepapers, research briefs, anchor papers, and insight decks.\n\n**Product & Service Artefacts** – Focused on describing, promoting, or enabling adoption of DQ\'s offerings. This includes solution overviews, proposal decks, use-case templates, and service blueprints.\n\n**Brand Identity & Culture Artefacts** – These reinforce internal values and external image. Artefacts include culture books, onboarding kits, tone-of-voice guidelines, and brand design manuals.\n\n**Education & Enablement Artefacts** – Created to build digital capabilities for clients, partners, or internal teams. Includes LMS modules, learning guides, how-to scripts, and certification assessments.\n\n**Community & Ecosystem Artefacts** – Aimed at engaging the broader market and partner ecosystem. Includes event highlights, partnership announcements, social campaigns, and ecosystem visualizations.\n\nThese five CACs act as the backbone of the CI.DS structure and provide direction for the development, review, and strategic use of content across the organization.'
         },
         {
           id: '2.3',
-          title: 'Content Items | Content Artefact Type (CAT)',
+          title: 'Content Items - Content Artefact Type (CAT)',
           content: 'Each Content Artefact Class (CAC) comprises a diverse set of Content Artefact Types (CATs), each tailored to specific formats, audience needs, and strategic intents. These artefact types ensure content is delivered with structure, relevance, and consistency across the organization. Examples include:\n\n**Whitepapers / Anchor Papers** – In-depth strategic explorations grounded in research and frameworks\n\n**Articles / Blogs** – Shorter-form narrative thought pieces that are highly relatable and aligned to campaigns or trends.\n\n**Storyboards** – Visual story plans used in script development or motion content\n\n**Scripts** – Written dialogue or guidance for videos, LMS courses, or explainers\n\n**Templates** – Pre-designed formats for consistent content creation and reuse\n\n**Case Studies** – Real-world examples of impact showcasing transformation success\n\n**Visual Reports** – Graphically rich documents that synthesize insights and outcomes\n\n**Learning Modules** – Structured course units part of educational programs\n\n**Social Media Posts** – Bite-sized, high-impact content optimized for engagement\n\n**Proposal Decks** – Commercial documents presenting DQ\'s capabilities and solutions\n\nEach artefact type has its own production methodology, review process, and outcome expectations, all governed under the CI.DS system to ensure cross-functional alignment and content excellence.'
         },
         {
           id: '2.4',
-          title: 'Content Items | Content Types vs Channels',
+          title: 'Content Items - Content Types vs Channels',
           content: 'This section details the primary platforms and media through which DQ content is distributed. Mapping content artefact types to their most appropriate channels ensures clarity in formatting, boosts audience relevance, and strengthens campaign impact.',
           tableData: {
             columns: [
@@ -142,7 +142,7 @@ export const CIDS_SERVICE_CARDS: CIDSServiceCard[] = [
         },
         {
           id: '2.5',
-          title: 'Content Items | Content Development Lifecycle (CDL)',
+          title: 'Content Items - Content Development Lifecycle (CDL)',
           content: 'The Content Development Lifecycle (CDL) outlines the full journey of a content item—divided into two core stages: **Production** and **Dissemination**. This structured lifecycle embeds quality, alignment, and performance at each step of the process, ensuring every content asset is purposeful and impactful.\n\n**Production Stage**\nFocuses on transforming strategic ideas into high-quality, brand-aligned content:\n\n**Ideation & Validation** – Define the strategic intent of the content, align it with relevant DQ frameworks, and validate with key stakeholders.\n\n**Briefing & Planning** – Document objectives, contributors, and milestones in the CI Brief and CI Tracker.\n\n**Drafting & Editing** – Create content using approved templates, applying tone, structure, and referencing standards.\n\n**Design & Formatting** – Shape the content visually with compliant layouts, branded visuals, and multimedia.\n\n**Review & Approvals** – Conduct structured reviews with SMEs and leaders to finalize content for publishing.\n\n**Dissemination Stage**\nFocuses on delivering the content with maximum reach, visibility, and feedback:\n\n**Publication & SEO Tagging** – Distribute content to the right channels with proper metadata, SEO, and publishing standards.\n\n**Promotion & Feedback Loop** – Activate content through campaigns, track performance metrics, and gather insights for future refinement.\n\nThis lifecycle ensures traceability, role clarity, and continuous improvement across all CI.DS-driven content activities.'
         },
         {

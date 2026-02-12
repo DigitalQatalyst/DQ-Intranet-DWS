@@ -243,6 +243,9 @@ export default function CIDSServiceDetailPage() {
                   {card.content.subsections.map((subsection) => {
                     const sectionId = subsection.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
 
+                    // Check if this is a main section (whole number) or subsection
+                    const isMainSection = /^\d+$/.test(subsection.id);
+
                     // Decide whether to prefix with the numeric ID
                     const shouldPrefixWithId =
                       subsection.id !== '1.05' &&
@@ -264,12 +267,15 @@ export default function CIDSServiceDetailPage() {
                     return (
                       <section key={subsection.id} id={sectionId} className="mb-16 scroll-mt-24">
                         <div className="relative">
-                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
-                          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 pl-6 font-inter tracking-tight">
+                          {/* Only show gradient bar for main sections */}
+                          {isMainSection && (
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
+                          )}
+                          <h2 className={`${isMainSection ? 'text-3xl md:text-4xl pl-6' : 'text-2xl md:text-3xl pl-12'} font-bold text-gray-900 mb-8 font-inter tracking-tight`}>
                             {displayTitle}
                           </h2>
                         </div>
-                        <div className="pl-6 prose prose-lg max-w-none text-gray-700 leading-relaxed">
+                        <div className={`${isMainSection ? 'pl-6' : 'pl-12'} prose prose-lg max-w-none text-gray-700 leading-relaxed`}>
                           {subsection.tableData ? (
                             <>
                               <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
@@ -354,9 +360,9 @@ export default function CIDSServiceDetailPage() {
                             }
                           }
                         }
-                        // Add number prefix only for Stage titles: 2 for first Stage, 3 for second, etc.
+                        // Add number prefix only for Stage titles: 3 for first Stage, 4 for second, etc.
                         const displayTitle = subsection.title.startsWith('Stage') 
-                          ? `${stageCount + 1}. ${subsection.title}`
+                          ? `${stageCount + 2}. ${subsection.title}`
                           : subsection.title;
                         return (
                           <button

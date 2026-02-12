@@ -224,6 +224,8 @@ export default function CDSServiceDetailPage() {
               {/* Subsections */}
               {card.content.subsections?.map((subsection, index) => {
                 const sectionId = getSectionId(subsection.id);
+                // Check if this is a main section (whole number like "1", "2", "3") or subsection (like "1.1", "3.1")
+                const isMainSection = /^\d+$/.test(subsection.id);
                 return (
                   <section
                     key={subsection.id}
@@ -231,17 +233,20 @@ export default function CDSServiceDetailPage() {
                     className={`mb-12 scroll-mt-24 ${index === 0 && !card.content.overview ? 'mt-0' : ''}`}
                   >
                     <div className="relative">
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
-                      <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 pl-6 font-inter tracking-tight">
+                      {/* Only show gradient bar for main sections (whole numbers) */}
+                      {isMainSection && (
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
+                      )}
+                      <h2 className={`${isMainSection ? 'text-3xl md:text-4xl pl-6' : 'text-2xl md:text-3xl pl-12'} font-bold text-gray-900 mb-8 font-inter tracking-tight`}>
                         {subsection.title}
                       </h2>
                     </div>
-                    <div className="pl-6 prose prose-lg max-w-none text-gray-700 leading-relaxed">
+                    <div className={`${isMainSection ? 'pl-6' : 'pl-12'} prose prose-lg max-w-none text-gray-700 leading-relaxed`}>
                       <MarkdownRenderer body={subsection.content} />
                     </div>
 
                     {subsection.tableData && (
-                      <div className="mt-6 pl-6">
+                      <div className={`mt-6 ${isMainSection ? 'pl-6' : 'pl-12'}`}>
                         <SummaryTable
                           data={subsection.tableData.data}
                           columns={subsection.tableData.columns}
@@ -258,7 +263,7 @@ export default function CDSServiceDetailPage() {
                     )}
 
                     {subsection.contentAfterTable && (
-                      <div className="mt-6 pl-6 prose max-w-none">
+                      <div className={`mt-6 ${isMainSection ? 'pl-6' : 'pl-12'} prose max-w-none`}>
                         <MarkdownRenderer body={subsection.contentAfterTable} />
                       </div>
                     )}
