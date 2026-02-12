@@ -5,6 +5,12 @@ import path from 'node:path'
 const parseBoolEnv = (value: string | undefined, defaultValue: boolean) =>
   value === undefined ? defaultValue : value === 'true'
 
+const normalizeBasePath = (value: string | undefined) => {
+  if (!value || value === '/') return '/';
+  const trimmed = value.replace(/^\/+|\/+$/g, '');
+  return `/${trimmed}/`;
+};
+
 const DEV_HOST = process.env.VITE_DEV_HOST ?? 'localhost'
 const DEV_PORT = Number(process.env.VITE_DEV_PORT ?? 3004)
 const DEV_STRICT_PORT = parseBoolEnv(process.env.VITE_DEV_STRICT_PORT, true)
@@ -12,11 +18,13 @@ const DEV_STRICT_PORT = parseBoolEnv(process.env.VITE_DEV_STRICT_PORT, true)
 const PREVIEW_HOST = process.env.VITE_PREVIEW_HOST ?? DEV_HOST
 const PREVIEW_PORT = Number(process.env.VITE_PREVIEW_PORT ?? 3000)
 const PREVIEW_STRICT_PORT = parseBoolEnv(process.env.VITE_PREVIEW_STRICT_PORT, true)
+const BASE_PATH = normalizeBasePath(process.env.VITE_BASE_PATH ?? '/dws/')
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/dws/',
+  // Use /dws/ for production behind nginx; override with VITE_BASE_PATH=/ for Vercel previews
+  base: BASE_PATH,
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
