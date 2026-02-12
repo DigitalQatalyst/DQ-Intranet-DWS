@@ -190,8 +190,9 @@ function handleGet(res: VercelResponse) {
 }
 
 async function handlePost(req: VercelRequest, res: VercelResponse) {
-  if (!OPENAI_API_KEY) {
-    return res.status(500).json({ error: 'OPENAI_API_KEY is not configured in the server environment.' });
+  const validationError = validatePostInput(req);
+  if (validationError) {
+    return res.status(validationError.status).json({ error: validationError.message });
   }
 
   const { messages: rawMessages, context, temperature, model, stream } = req.body ?? {};
@@ -200,59 +201,15 @@ async function handlePost(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'messages array is required' });
   }
 
-  const retrievalContext = await buildRetrievalContext(messages[messages.length - 1].content);
-  const mergedContext = [context, retrievalContext].filter(Boolean).join('\n\n');
-
-  const systemPrompt = buildSystemPrompt(mergedContext || undefined);
-  const payload: any = {
-    model: typeof model === 'string' && model.trim() ? model.trim() : DEFAULT_MODEL,
-    temperature: typeof temperature === 'number' ? Math.min(Math.max(temperature, 0), 1) : 0.2,
-    max_tokens: 600,
-    stream: !!stream,
-    messages: [
-      {
-        role: 'system',
-        content: systemPrompt,
-      },
-      ...messages,
-    ].slice(-30),
-  };
+  const mergedContext = await buildMergedContext(messages, context);
+  const payload = buildChatPayload(messages, mergedContext, temperature, model, stream);
 
   try {
-    const upstream = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!upstream.ok) {
-      const detail = await upstream.text();
-      console.error('AI upstream error', upstream.status, detail);
-      return res.status(502).json({
-        error: 'Upstream AI provider returned an error',
-        detail: detail?.slice(0, 2000),
-      });
-    }
-
+    const upstream = await sendChatRequest(payload);
     if (stream) {
       return streamResponse(res, upstream);
     }
-
-    const data = await upstream.json();
-    const reply = data?.choices?.[0]?.message?.content?.trim?.();
-    if (!reply) {
-      return res.status(500).json({ error: 'AI provider did not return a message' });
-    }
-
-    res.setHeader('Cache-Control', 'no-store');
-    return res.status(200).json({
-      reply,
-      finishReason: data?.choices?.[0]?.finish_reason ?? null,
-      usage: data?.usage ?? null,
-    });
+    return handleChatResponse(res, upstream);
   } catch (error: any) {
     console.error('AI chat handler error', error);
     return res.status(500).json({
@@ -279,4 +236,74 @@ async function streamResponse(res: VercelResponse, upstream: Response) {
     if (value) res.write(Buffer.from(value));
   }
   res.end();
+}
+
+function validatePostInput(req: VercelRequest) {
+  if (!OPENAI_API_KEY) {
+    return { status: 500, message: 'OPENAI_API_KEY is not configured in the server environment.' };
+  }
+  if (!req.body) {
+    return { status: 400, message: 'Request body is required' };
+  }
+  return null;
+}
+
+async function buildMergedContext(messages: ChatMessage[], context?: string) {
+  const retrievalContext = await buildRetrievalContext(messages[messages.length - 1].content);
+  return [context, retrievalContext].filter(Boolean).join('\n\n');
+}
+
+function buildChatPayload(
+  messages: ChatMessage[],
+  mergedContext: string,
+  temperature?: number,
+  model?: string,
+  stream?: boolean
+) {
+  return {
+    model: typeof model === 'string' && model.trim() ? model.trim() : DEFAULT_MODEL,
+    temperature: typeof temperature === 'number' ? Math.min(Math.max(temperature, 0), 1) : 0.2,
+    max_tokens: 600,
+    stream: !!stream,
+    messages: [
+      {
+        role: 'system',
+        content: buildSystemPrompt(mergedContext || undefined),
+      },
+      ...messages,
+    ].slice(-30),
+  };
+}
+
+async function sendChatRequest(payload: any) {
+  const upstream = await fetch(`${OPENAI_BASE_URL}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!upstream.ok) {
+    const detail = await upstream.text();
+    console.error('AI upstream error', upstream.status, detail);
+    throw new Error('Upstream AI provider returned an error');
+  }
+  return upstream;
+}
+
+async function handleChatResponse(res: VercelResponse, upstream: Response) {
+  const data = await upstream.json();
+  const reply = data?.choices?.[0]?.message?.content?.trim?.();
+  if (!reply) {
+    return res.status(500).json({ error: 'AI provider did not return a message' });
+  }
+
+  res.setHeader('Cache-Control', 'no-store');
+  return res.status(200).json({
+    reply,
+    finishReason: data?.choices?.[0]?.finish_reason ?? null,
+    usage: data?.usage ?? null,
+  });
 }
