@@ -1499,92 +1499,107 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
     return (
       <section
         ref={ref}
-        className="py-20 md:py-24"
+        className="py-12 md:py-16"
         style={{
           background: 'linear-gradient(180deg, #f0f6ff 0%, #ffffff 55%, #f0f6ff 100%)',
         }}
       >
         <div className="container mx-auto px-4 md:px-6 lg:px-10">
           <motion.div
-            className="text-center mb-12"
+            className="text-center mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
           >
-            <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur mx-auto mb-2">
+            <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-[0.2em] bg-[#f0f6ff]/40 border border-[#e0e7ff] text-[#131e42] shadow-sm backdrop-blur mx-auto mb-1.5">
               TAKE ACTION
             </p>
             <h2
-              className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3"
+              className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-1.5"
               style={{ fontSize: takeActionTitleFontSize ?? '36px' }}
             >
               {takeActionTitle}
             </h2>
             <p
-              className="text-[#4a5678] max-w-2xl mx-auto text-lg"
-              style={{ fontSize: takeActionSubtitleFontSize ?? '18px', whiteSpace: 'nowrap' }}
+              className="text-[#4a5678] max-w-3xl mx-auto text-base md:text-lg"
+              style={{ fontSize: takeActionSubtitleFontSize ?? '18px' }}
             >
               {takeActionSubtitle}
             </p>
+            <p className="text-[#6b7280] text-sm mt-1.5">Start small, then go deeper.</p>
           </motion.div>
 
           <motion.div
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto"
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 max-w-6xl mx-auto"
             variants={containerVariants}
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
           >
-            {actionCards.map((card) => (
-              <motion.div
-                key={card.title}
-                variants={itemVariants}
-                className={`rounded-3xl p-6 md:p-8 shadow-sm border border-white/60 ${card.bg} flex flex-col`}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
-                    <card.icon className="h-6 w-6" style={{ color: card.iconColor }} />
-                  </div>
-                  <div className="flex-1">
-                    <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${card.badgeColor}`}>
-                      {card.badge}
-                    </p>
-                    <h3 className="mt-2 text-xl md:text-2xl font-semibold text-[#131e42]">
-                      {card.title}
-                    </h3>
-                    <p className="mt-3 text-sm md:text-base text-[#4a5678] leading-relaxed">
-                      {card.description}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {card.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 rounded-full bg-white/70 text-[#4a5678] text-xs font-medium"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={isActionLocked(card) ? undefined : () => handleNavigate(card.path)}
-                  aria-disabled={isActionLocked(card)}
-                  className={`mt-5 inline-flex items-center gap-2 text-sm font-semibold ${
-                    isActionLocked(card) ? 'text-[#9aa4c6] cursor-not-allowed' : `${card.accent} hover:opacity-80`
-                  }`}
+            {actionCards.map((card, idx) => {
+              const stripColors = ['from-[#dfe9ff] to-[#c7d7ff]', 'from-[#e9dcff] to-[#d7c4ff]', 'from-[#ffe8d6] to-[#ffd7b5]'];
+              const strip = stripColors[idx] ?? stripColors[0];
+              const isPrimary = card.variant === 'primary';
+              return (
+                <motion.div
+                  key={card.title}
+                  variants={itemVariants}
+                  whileHover={{ y: -6 }}
+                  className="rounded-xl p-5 shadow-sm border border-[#e6eaf5] bg-white flex flex-col min-h-[300px] transition-all hover:shadow-md hover:border-[#cfd7f0]"
                 >
-                  {isActionLocked(card) ? <Lock className="h-4 w-4" /> : null}
-                  {card.cta}
-                  {isActionLocked(card) ? (
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span>
+                  <div className={`h-2 w-full rounded-t-xl -mt-5 -mx-5 mb-4 bg-gradient-to-r ${strip}`} />
+
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#f5f7ff] border border-[#e6eaf5] flex items-center justify-center">
+                      <card.icon className="h-5 w-5" style={{ color: card.iconColor }} />
+                    </div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                        isPrimary ? 'bg-[#131e42] text-white' : 'bg-[#eef1fb] text-[#131e42]'
+                      }`}
+                    >
+                      {card.badge}
+                    </span>
+                  </div>
+
+                  <h3 className="mt-3 text-[22px] font-semibold text-[#131e42]">{card.title}</h3>
+                  <p className="mt-2 text-sm text-[#4a5678] leading-relaxed whitespace-pre-line">{card.description}</p>
+
+                  {card.tags?.length ? (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {card.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2.5 py-1 rounded-full bg-[#f5f7ff] text-[#4a5678] text-[11px] font-medium border border-[#e6eaf5]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   ) : null}
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </motion.div>
-            ))}
+
+                  <button
+                    type="button"
+                    onClick={isActionLocked(card) ? undefined : () => handleNavigate(card.path)}
+                    aria-disabled={isActionLocked(card)}
+                    className={`mt-auto w-full inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-lg border px-3 py-2 transition ${
+                      isActionLocked(card)
+                        ? 'opacity-50 cursor-not-allowed border-[#e6eaf5] text-[#9aa4c6]'
+                        : isPrimary
+                          ? 'bg-[#131e42] text-white border-[#131e42] hover:opacity-90'
+                          : 'border-[#d5dbea] text-[#131e42] bg-white hover:bg-[#f5f7ff]'
+                    }`}
+                  >
+                    {isActionLocked(card) ? <Lock className="h-4 w-4" /> : null}
+                    {card.cta}
+                    {isActionLocked(card) ? (
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span>
+                    ) : (
+                      <ArrowRight className="h-4 w-4" />
+                    )}
+                  </button>
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
       </section>

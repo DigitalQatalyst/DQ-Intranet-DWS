@@ -18,21 +18,21 @@ const supportOptions: SupportCard[] = [
   {
     icon: <User size={28} color="white" />,
     title: 'Contact Your People Partner',
-    description: 'Onboarding and people support.',
+    description: 'Onboarding support, role guidance, and people-related questions.',
     href: '/support/people-partner',
     buttonText: 'Get in Touch',
   },
   {
     icon: <MessageCircle size={28} color="white" />,
     title: 'DWS Communication Center',
-    description: 'Questions, requests, clarification.',
+    description: 'Updates, announcements, and what\'s changing across DQ.',
     href: '/support/communication-center',
     buttonText: 'Get in Touch',
   },
   {
     icon: <BookOpen size={28} color="white" />,
     title: 'FAQs & Glossary',
-    description: 'Self-serve answers for DQ tools and terms.',
+    description: 'Quick answers to common questions and DQ terms in one place.',
     href: '/support/faqs',
     buttonText: 'Get in Touch',
   },
@@ -443,7 +443,10 @@ export function OnboardingLanding() {
                     The DQ Onboarding System
                 </h1>
                 <p className="text-white/95 mb-6 font-normal leading-relaxed text-center max-w-3xl whitespace-nowrap" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif', fontSize: '18px' }}>
-                    Execution starts on day one at DQ. This onboarding exists to bring you into the execution system, not a handbook.
+                  New to DQ? Follow the path. Already here? Reset, realign, and execute faster.
+                </p>
+                <p className="text-white/80 text-sm md:text-base mb-8 text-center max-w-3xl" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
+                  {''}
                 </p>
               </FadeInUpOnScroll>
 
@@ -496,9 +499,9 @@ export function OnboardingLanding() {
                       DQ Organization
                 </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-8 space-y-3">
-                      <p>DQ is built for execution, not hierarchy.</p>
-                      <p>Decisions, roles, and interactions are intentionally designed so work moves.</p>
-                      <p>Understanding the organisation shows how work actually happens here—and how you can execute faster.</p>
+                      <p>DQ is built for execution, not hierarchy - so you can understand the system fast.</p>
+                      <p>See how roles, units, and decisions connect, and how work flows end to end.</p>
+                      <p>Use this as your map to navigate clearly, involve the right people, and move faster with confidence.</p>
               </div>
                     <button
                       onClick={handleExploreOrganization}
@@ -553,9 +556,9 @@ export function OnboardingLanding() {
                       DQ GHC (The Golden Honeycomb of Competencies)
                     </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-8 space-y-3">
-                      <p>As complexity grows, alignment keeps execution steady.</p>
-                      <p>The Golden Honeycomb of Competencies keeps culture, leadership, governance, and value consistent as teams, products, and markets scale.</p>
-                      <p>It connects how we think, decide, and deliver so decisions stay clear.</p>
+                      <p>Execution gets harder as complexity grows — GHC keeps us aligned so delivery stays steady.</p>
+                      <p>It's DQ's master framework: one system that keeps culture, leadership, governance, and value consistent as teams and products scale.</p>
+                      <p>Use it to connect how we think, decide, and deliver — so expectations stay clear and work moves faster.</p>
                     </div>
                     <button
                       onClick={handleExploreGHC}
@@ -585,9 +588,9 @@ export function OnboardingLanding() {
                       DQ 6xD Digitals (6xD)
                 </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-8 space-y-3">
-                      <p>Agile 6xD is the operating backbone of execution at DQ.</p>
-                      <p>It is the shared system teams use daily to turn strategy into delivery across products and initiatives.</p>
-                      <p>Not training. Not theory. How work actually moves here.</p>
+                      <p>Agile 6xD is DQ's execution engine - it's how work gets delivered consistently.</p>
+                      <p>It turns strategy into structured delivery, so teams move from intent to outcomes without confusion.</p>
+                      <p>Use it to understand how planning, governance, and delivery connect - and how to ship real progress.</p>
                               </div>
                     <button
                       onClick={handleExplore6XD}
@@ -633,9 +636,9 @@ export function OnboardingLanding() {
                       Your Role at DQ
                 </h2>
                     <div className="text-lg text-gray-700 leading-relaxed mb-8 space-y-3">
-                      <p>Roles at DQ are about ownership and outcomes.</p>
-                      <p>When you understand the system, you move faster, make better decisions, and create visible impact.</p>
-                      <p>Execution becomes real through responsibility.</p>
+                      <p>Once you know the system, the standard, and the engine - you can own your lane.</p>
+                      <p>Learn what "great" looks like in your role, and how your work contributes to real delivery.</p>
+                      <p>Use this to stay accountable, build stronger habits, and grow your impact over time.</p>
                     </div>
                     <button
                       type="button"
@@ -922,7 +925,7 @@ export function OnboardingLanding() {
                   Need Help Along the Way?
                 </h2>
                 <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
-                  You are supported while you learn the system. These channels exist to unblock execution and keep momentum. Ask early so work keeps moving.
+                  If you're stuck, don't slow down - use the right channel fast. Get people support, workspace updates, or quick answers in one place. Ask early, unblock quickly, and keep work moving.
                 </p>
               </div>
             </FadeInUpOnScroll>
