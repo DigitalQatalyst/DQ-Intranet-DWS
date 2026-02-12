@@ -240,18 +240,27 @@ export function getGuideImageUrl(g: GuideLike): string {
     return HOV_IMAGE
   }
 
-  // For the main GHC overview card, force the overview image even if a heroImageUrl exists
-  if (isMainGHC()) {
-    // Check if there's a valid database image first
-    const src = (g.heroImageUrl || '').trim()
-    if (src && src.startsWith('http')) {
-      return src
+  // For GHC/Strategy guides: ALWAYS prioritize local assets over Supabase images
+  // This ensures consistent branding and prevents database images from overriding local assets
+  if (isStrategy || isGHCGuide(g)) {
+    // Check for explicit strategy guide mappings first
+    for (const [match, imageUrl] of Object.entries(strategyGuideImages)) {
+      if (slug.includes(match) || title.includes(match)) {
+        return imageUrl
+      }
     }
-    return '/images/DQ%20GHC%20Overview%20.png'
+    
+    // For main GHC overview, use the overview image
+    if (isMainGHC()) {
+      return '/images/DQ%20GHC%20Overview%20.png'
+    }
+    
+    // Fallback to first strategy image or honeycomb
+    return strategyFallbacks[0] || GHC_IMAGE
   }
   
-  // PRIORITY 1: For ALL guides, prioritize heroImageUrl from database if it's a valid URL
-  // This ensures database images are always used when available
+  // PRIORITY 1: For non-Strategy guides, prioritize heroImageUrl from database if it's a valid URL
+  // This ensures database images are used for Guidelines, Products, etc.
   const src = (g.heroImageUrl || '').trim()
   if (src && src.startsWith('http')) {
     return src

@@ -1334,12 +1334,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
               <div className="mb-8">
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex-1">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{guide.title}</h1>
-                    {guide.lastUpdatedAt && (
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span>{new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                      </div>
-                    )}
+                    <h1 className={`font-bold text-gray-900 mb-4 ${guide.slug === 'dq-ghc' ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'}`}>{guide.title}</h1>
                   </div>
                   <a
                     href={primaryDocUrl || '#'}

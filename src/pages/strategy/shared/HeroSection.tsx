@@ -27,11 +27,7 @@ export function HeroSection({ title, subtitle, imageUrl, badge }: HeroSectionPro
             </span>
           )}
 
-          <div className="text-sm text-white/90 mb-6 font-inter">
-            {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-          </div>
-
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight font-inter">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-8 leading-tight font-inter">
             {title}
           </h1>
 

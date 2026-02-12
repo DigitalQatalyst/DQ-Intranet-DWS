@@ -249,7 +249,7 @@ function GuideDetailsPage() {
       >
         <div className="pl-20 pr-8 py-16">
           <div className="text-left">
-            <h1 className="text-4xl font-bold mb-4">{guide.title}</h1>
+            <h1 className={`font-bold mb-4 ${guide.slug === 'dq-ghc' ? 'text-3xl' : 'text-4xl'}`}>{guide.title}</h1>
             {guide.summary && (
               <p className="text-xl mb-8 max-w-3xl opacity-90">{guide.summary}</p>
             )}

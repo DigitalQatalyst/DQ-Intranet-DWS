@@ -37,7 +37,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
           <div className="rounded-lg overflow-hidden mb-2 bg-slate-50 flex-shrink-0" style={{ height: '160px', minHeight: '160px', maxHeight: '160px' }}>
             <img 
               src={serviceCardImage} 
-              alt="The DQ Effect" 
+              alt="The DQ Effect - Client feedback" 
               className="w-full h-full object-cover"
               loading="lazy"
             />
@@ -54,7 +54,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
               minHeight: '44px',
               maxHeight: '44px',
               lineHeight: '1.375rem'
-            }}>The DQ Effect</h3>
+            }}>The DQ Effect - Client feedback</h3>
             
             {/* Description */}
             <p className="text-sm text-gray-600 mb-2 flex-shrink-0" style={{
@@ -101,7 +101,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
           <div className="rounded-lg overflow-hidden mb-2 bg-slate-50 flex-shrink-0" style={{ height: '160px', minHeight: '160px', maxHeight: '160px' }}>
             <img 
               src={serviceCardImage} 
-              alt="Life at DQ" 
+              alt="Life at DQ - Associate feedback" 
               className="w-full h-full object-cover"
               loading="lazy"
             />
@@ -118,7 +118,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
               minHeight: '44px',
               maxHeight: '44px',
               lineHeight: '1.375rem'
-            }}>Life at DQ</h3>
+            }}>Life at DQ - Associate feedback</h3>
             
             {/* Description */}
             <p className="text-sm text-gray-600 mb-2 flex-shrink-0" style={{
