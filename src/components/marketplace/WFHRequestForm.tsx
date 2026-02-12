@@ -460,7 +460,6 @@ const WFHRequestForm: React.FC<WFHRequestFormProps> = ({ isOpen, onClose }) => {
                   </svg>
                   <span className="leading-relaxed">Remain active and responsive throughout the workday</span>
                 </div>
-              </div>
             </div>
           </div>
 
