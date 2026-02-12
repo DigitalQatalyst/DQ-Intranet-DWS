@@ -19,6 +19,13 @@ const DEFAULT_EMBED_MODEL = process.env.OPENAI_EMBED_MODEL || 'text-embedding-3-
 const OPENAI_BASE_URL = (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '');
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY || process.env.OPENAI_API_TOKEN;
 
+class EmbeddingError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'EmbeddingError';
+  }
+}
+
 let cachedEmbeddings: EmbedRecord[] | null = null;
 
 function buildSystemPrompt(context?: string) {
@@ -78,13 +85,13 @@ async function getKnowledgeEmbeddings(): Promise<EmbedRecord[]> {
 
   if (!resp.ok) {
     const detail = await resp.text();
-    throw new Error(`Embeddings failed: ${resp.status} ${detail}`);
+    throw new EmbeddingError(`Embeddings failed: ${resp.status} ${detail}`);
   }
 
   const data = await resp.json();
   const vectors = data?.data;
   if (!Array.isArray(vectors) || vectors.length !== entries.length) {
-    throw new Error('Embeddings response malformed');
+    throw new EmbeddingError('Embeddings response malformed');
   }
 
   cachedEmbeddings = entries.map((entry, idx) => ({
@@ -110,13 +117,13 @@ async function embedQuery(text: string): Promise<number[]> {
 
   if (!resp.ok) {
     const detail = await resp.text();
-    throw new Error(`Query embedding failed: ${resp.status} ${detail}`);
+    throw new EmbeddingError(`Query embedding failed: ${resp.status} ${detail}`);
   }
 
   const data = await resp.json();
   const vec = data?.data?.[0]?.embedding;
   if (!Array.isArray(vec)) {
-    throw new Error('Query embedding missing');
+    throw new EmbeddingError('Query embedding missing');
   }
   return vec as number[];
 }
