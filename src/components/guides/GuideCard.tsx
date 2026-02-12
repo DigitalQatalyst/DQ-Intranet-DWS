@@ -64,7 +64,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
       // Check for HoV framework first (more specific)
       // HoV includes: dq-hov and all dq-competencies-* guides
       if (slug === 'dq-hov' || slug.includes('competencies') || subDomain.includes('hov') || subDomain.includes('competencies')) {
-        return 'HoV'
+        return 'GHC'
       }
       
       // Check for GHC framework (but not overview)
@@ -348,9 +348,8 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
           className={`w-full inline-flex items-center justify-center rounded-full text-sm font-semibold px-4 py-2 transition-all focus:outline-none focus:ring-2 ${
             isDraft
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'text-white hover:bg-[#d4442e] focus:ring-[#f55436]'
+              : 'bg-[#030E31] text-white hover:bg-[#020A28] focus:ring-[#030E31]'
           }`}
-          style={isDraft ? {} : { backgroundColor: '#f55436' }}
           aria-label={isDraft ? 'Coming soon' : 'Read more'}
         >
           {isDraft ? 'Coming Soon' : 'Read More'}
