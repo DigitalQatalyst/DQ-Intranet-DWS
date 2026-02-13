@@ -46,6 +46,437 @@ interface Post {
   event_date?: string;
   event_location?: string;
 }
+const FALLBACK_IMAGE_URL = 'https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1400&q=80';
+
+function useCommunityBreadcrumbs(community: Community | null): BreadcrumbItem[] {
+  if (!community) return [];
+  return [
+    { label: 'Home', href: '/', icon: Home },
+    { label: 'Communities', href: '/communities' },
+    { label: community.name, current: true },
+  ];
+}
+
+function LoadingState() {
+  return (
+    <MainLayout hidePageLayout>
+      <PageLayout title="Loading">
+        <div className="flex justify-center items-center min-h-[60vh]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 rounded-full border-4 border-t-blue-600 border-gray-200 animate-spin"></div>
+            <p className="text-gray-600 font-medium">Loading community...</p>
+          </div>
+        </div>
+      </PageLayout>
+    </MainLayout>
+  );
+}
+
+function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <MainLayout hidePageLayout>
+      <PageLayout title={message || 'Community not found'}>
+        <PageSection>
+          <SectionContent>
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="bg-red-50 p-3 rounded-full mb-4">
+                <AlertCircle className="h-8 w-8 text-red-500" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                {message || 'Community not found'}
+              </h2>
+              <p className="text-gray-600 mb-6 max-w-md">
+                We couldn't find the community you're looking for. It may have
+                been removed or you may have followed an incorrect link.
+              </p>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={onRetry}>
+                  Try Again
+                </Button>
+                <Button asChild>
+                  <Link to="/communities">Browse Communities</Link>
+                </Button>
+              </div>
+            </div>
+          </SectionContent>
+        </PageSection>
+      </PageLayout>
+    </MainLayout>
+  );
+}
+
+function CommunityHeroSection({
+  community,
+  memberCount,
+  isOwner,
+  isAdmin,
+  user,
+  id,
+  isMember,
+  joinLoading,
+  handleJoinLeave,
+  setImageDialogOpen,
+}: {
+  community: Community;
+  memberCount: number;
+  isOwner: boolean;
+  isAdmin: boolean;
+  user: any;
+  id?: string;
+  isMember: boolean;
+  joinLoading: boolean;
+  handleJoinLeave: () => void;
+  setImageDialogOpen: (open: boolean) => void;
+}) {
+  return (
+    <PageSection className="p-0 overflow-hidden mb-6">
+      <div className="relative">
+        <div className="relative h-[280px] md:h-[320px] overflow-hidden">
+          {community.imageurl ? (
+            <img src={community.imageurl} alt={community.name} className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(224,100%,45%)] to-[hsl(266,93%,64%)]" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20"></div>
+          {(isOwner || isAdmin || (user && (user.role === 'admin' || user.role === 'moderator'))) && (
+            <div className="absolute top-4 right-4 flex gap-2 z-10">
+              <Button onClick={() => setImageDialogOpen(true)} variant="secondary" className="bg-white/90 text-gray-700 hover:bg-white" size="sm">
+                <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                Edit Cover Image
+              </Button>
+              <Button asChild variant="secondary" className="bg-white/90 text-gray-700 hover:bg-white" size="sm">
+                <Link to={`/community/${id}/settings`}>
+                  <Settings className="h-3.5 w-3.5 mr-1.5" />
+                  Settings
+                </Link>
+              </Button>
+            </div>
+          )}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-8">
+              <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between">
+                <div className="md:max-w-3xl">
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-md">
+                    {community.name}
+                  </h1>
+                  <p className="text-white/90 text-base md:text-lg mt-3 max-w-3xl leading-relaxed">
+                    {community.description || 'No description available'}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-3 mt-4">
+                    <div className="flex items-center bg-black/30 text-white px-3 py-1.5 rounded-full text-sm">
+                      <Users className="h-4 w-4 mr-2" />
+                      <span>{memberCount} members</span>
+                    </div>
+                    <div className="flex items-center bg-black/30 text-white px-3 py-1.5 rounded-full text-sm">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      <span>
+                        Created {format(new Date(community.created_at), 'MMM yyyy')}
+                      </span>
+                    </div>
+                    <Link
+                      to={`/community/${id}/events`}
+                      className="flex items-center bg-black/30 text-white px-3 py-1.5 rounded-full text-sm hover:bg-black/50 transition-colors"
+                    >
+                      <Calendar className="h-4 w-4 mr-2" />
+                      <span>Events</span>
+                    </Link>
+                  </div>
+                </div>
+                <div className="mt-6 md:mt-0 md:ml-8">
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
+                    {!user ? (
+                      <Button onClick={() => undefined} className="bg-white text-blue-600 hover:bg-gray-100" disabled>
+                        Login to Join
+                      </Button>
+                    ) : isMember ? (
+                      <Button onClick={handleJoinLeave} variant="outline" className="bg-white text-blue-600 border-blue-200 hover:bg-blue-50" disabled={joinLoading}>
+                        {joinLoading ? 'Processing...' : 'Leave Community'}
+                      </Button>
+                    ) : (
+                      <Button onClick={handleJoinLeave} className="bg-blue-600 text-white hover:bg-blue-700" disabled={joinLoading}>
+                        {joinLoading ? 'Processing...' : 'Join Community'}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </PageSection>
+  );
+}
+
+function CommunityTabs({ id, location }: { id?: string; location: ReturnType<typeof useLocation> }) {
+  return (
+    <PageSection className="p-0 border-b border-gray-200">
+      <div className="flex items-center gap-1 overflow-x-auto">
+        <Button
+          asChild
+          variant="ghost"
+          className={`rounded-none border-b-2 border-transparent hover:border-gray-300 ${
+            location.pathname === `/community/${id}` || location.pathname === `/community/${id}/`
+              ? 'border-blue-600 text-blue-600'
+              : ''
+          }`}
+        >
+          <Link to={`/community/${id}`}>Posts</Link>
+        </Button>
+        <Button
+          asChild
+          variant="ghost"
+          className={`rounded-none border-b-2 border-transparent hover:border-gray-300 ${
+            location.pathname === `/community/${id}/events`
+              ? 'border-blue-600 text-blue-600'
+              : ''
+          }`}
+        >
+          <Link to={`/community/${id}/events`}>
+            <Calendar className="h-4 w-4 mr-2" />
+            Events
+          </Link>
+        </Button>
+        <Button
+          asChild
+          variant="ghost"
+          className={`rounded-none border-b-2 border-transparent hover:border-gray-300 ${
+            location.pathname === `/community/${id}/members`
+              ? 'border-blue-600 text-blue-600'
+              : ''
+          }`}
+        >
+          <Link to={`/community/${id}/members`}>
+            <Users className="h-4 w-4 mr-2" />
+            Members
+          </Link>
+        </Button>
+      </div>
+    </PageSection>
+  );
+}
+
+function PostsSection({
+  user,
+  isMember,
+  postsLoading,
+  postsError,
+  posts,
+  handlePostCreated,
+  fetchPosts,
+  id,
+  navigate,
+}: {
+  user: any;
+  isMember: boolean;
+  postsLoading: boolean;
+  postsError: string | null;
+  posts: Post[];
+  handlePostCreated: () => void;
+  fetchPosts: () => void;
+  id?: string;
+  navigate: ReturnType<typeof useNavigate>;
+}) {
+  return (
+    <PageSection>
+      <SectionHeader title="Community Posts" description="Latest discussions and updates" />
+      {user && isMember && (
+        <SectionContent className="pb-0 border-b border-gray-200">
+          <InlineComposer communityId={id} onPostCreated={handlePostCreated} />
+        </SectionContent>
+      )}
+      <SectionContent className={user && isMember ? 'pt-4' : ''}>
+        {postsLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-gray-50 rounded-lg p-4">
+                <Skeleton className="h-6 w-1/3 mb-2" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+            ))}
+          </div>
+        ) : postsError ? (
+          <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-md">
+            <p>{postsError}</p>
+            <Button variant="outline" size="sm" onClick={fetchPosts} className="mt-2">
+              Retry
+            </Button>
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="bg-gray-50 rounded-lg p-8 text-center">
+            <div className="flex flex-col items-center justify-center">
+              <div className="bg-gray-100 p-3 rounded-full mb-4">
+                <AlertCircle className="h-6 w-6 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No posts yet</h3>
+              <p className="text-gray-500 mb-4">
+                Be the first to start a conversation in this community
+              </p>
+              {user && isMember && (
+                <Button onClick={() => navigate(`/create-post?communityId=${id}`)} className="bg-blue-600 text-white hover:bg-blue-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Post
+                </Button>
+              )}
+              {!user && <p className="text-gray-400 text-sm">Join this community to start posting</p>}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} onActionComplete={handlePostCreated} />
+            ))}
+          </div>
+        )}
+      </SectionContent>
+    </PageSection>
+  );
+}
+
+function SidebarColumn({
+  id,
+  community,
+  memberCount,
+  isOwner,
+  isAdmin,
+}: {
+  id?: string;
+  community: Community;
+  memberCount: number;
+  isOwner: boolean;
+  isAdmin: boolean;
+}) {
+  return (
+    <div className="space-y-6">
+      <PageSection>
+        <SectionHeader
+          title="Community Members"
+          actions={
+            <Button asChild variant="outline" size="sm">
+              <Link to={`/community/${id}/members`}>View All</Link>
+            </Button>
+          }
+        />
+        <SectionContent className="p-0">
+          <MemberList communityId={id || ''} limit={5} hideHeader={true} />
+        </SectionContent>
+      </PageSection>
+      <PageSection>
+        <SectionHeader title="About this Community" />
+        <SectionContent>
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Category</p>
+              <p className="text-sm text-gray-700 font-medium">{community.category}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Created</p>
+              <p className="text-sm text-gray-700 font-medium">
+                {format(new Date(community.created_at), 'MMMM d, yyyy')}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Members</p>
+              <p className="text-sm text-gray-700 font-medium">{memberCount} members</p>
+            </div>
+            {(isOwner || isAdmin) && (
+              <div className="pt-4 border-t border-gray-200">
+                <Button asChild variant="outline" className="w-full justify-center">
+                  <Link to={`/community/${id}/settings`}>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Manage Community
+                  </Link>
+                </Button>
+              </div>
+            )}
+          </div>
+        </SectionContent>
+      </PageSection>
+    </div>
+  );
+}
+
+function FloatingCreateButton({ visible, navigate, id }: { visible: boolean; navigate: ReturnType<typeof useNavigate>; id?: string }) {
+  if (!visible) return null;
+  return (
+    <Button
+      onClick={() => navigate(`/create-post?communityId=${id}`)}
+      className="fixed bottom-5 right-5 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all bg-blue-600 hover:bg-blue-700 text-white"
+      size="icon"
+    >
+      <Plus className="h-6 w-6" />
+    </Button>
+  );
+}
+
+function ImageUpdateDialog({
+  imageDialogOpen,
+  setImageDialogOpen,
+  newImageUrl,
+  setNewImageUrl,
+  updateImageLoading,
+  handleUpdateImage,
+}: {
+  imageDialogOpen: boolean;
+  setImageDialogOpen: (open: boolean) => void;
+  newImageUrl: string;
+  setNewImageUrl: (url: string) => void;
+  updateImageLoading: boolean;
+  handleUpdateImage: () => void;
+}) {
+  return (
+    <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Update Community Image</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="image-url">Image URL</Label>
+            <Input
+              id="image-url"
+              placeholder="https://example.com/image.jpg"
+              value={newImageUrl}
+              onChange={(e) => setNewImageUrl(e.target.value)}
+              className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <p className="text-xs text-muted-foreground">Enter a URL for the community background image</p>
+          </div>
+          {newImageUrl && (
+            <div className="relative h-32 w-full overflow-hidden rounded-md border border-gray-200">
+              <img
+                src={newImageUrl}
+                alt="Preview"
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = FALLBACK_IMAGE_URL;
+                }}
+              />
+            </div>
+          )}
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setImageDialogOpen(false);
+                setNewImageUrl('');
+              }}
+              disabled={updateImageLoading}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateImage} disabled={updateImageLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
+              {updateImageLoading ? 'Updating...' : 'Update Image'}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Community() {
   const {
     id
@@ -219,319 +650,51 @@ export default function Community() {
     }
     setUpdateImageLoading(false);
   };
-  // Generate breadcrumbs for the community page
-  const breadcrumbItems: BreadcrumbItem[] = community ? [{
-    label: 'Home',
-    href: '/',
-    icon: Home
-  }, {
-    label: 'Communities',
-    href: '/communities'
-  }, {
-          label: community.name,
-    current: true
-  }] : [];
-  if (loading) {
-    return <MainLayout hidePageLayout>
-        <PageLayout title="Loading">
-          <div className="flex justify-center items-center min-h-[60vh]">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-12 h-12 rounded-full border-4 border-t-blue-600 border-gray-200 animate-spin"></div>
-              <p className="text-gray-600 font-medium">Loading community...</p>
-            </div>
-          </div>
-        </PageLayout>
-      </MainLayout>;
-  }
-  if (error || !community) {
-    return <MainLayout hidePageLayout>
-        <PageLayout title={error || 'Community not found'}>
-          <PageSection>
-            <SectionContent>
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="bg-red-50 p-3 rounded-full mb-4">
-                  <AlertCircle className="h-8 w-8 text-red-500" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  {error || 'Community not found'}
-                </h2>
-                <p className="text-gray-600 mb-6 max-w-md">
-                  We couldn't find the community you're looking for. It may have
-                  been removed or you may have followed an incorrect link.
-                </p>
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={fetchCommunity}>
-                    Try Again
-                  </Button>
-                  <Button asChild>
-                    <Link to="/communities">Browse Communities</Link>
-                  </Button>
-                </div>
-              </div>
-            </SectionContent>
-          </PageSection>
-        </PageLayout>
-      </MainLayout>;
-  }
-  // Fallback image URL if community image is missing
-  const fallbackImageUrl = 'https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1400&q=80';
-  return <MainLayout hidePageLayout>
+  const breadcrumbItems = useCommunityBreadcrumbs(community);
+  if (loading) return <LoadingState />;
+  if (error || !community) return <ErrorState message={error || 'Community not found'} onRetry={fetchCommunity} />;
+  return (
+    <MainLayout hidePageLayout>
       <PageLayout title={community.name} breadcrumbs={breadcrumbItems}>
-        {/* Hero Section */}
-        <PageSection className="p-0 overflow-hidden mb-6">
-          <div className="relative">
-            {/* Dynamic Image with Fallback */}
-            <div className="relative h-[280px] md:h-[320px] overflow-hidden">
-              {community.imageurl ? <img src={community.imageurl} alt={community.name} className="absolute inset-0 w-full h-full object-cover" /> : <div className="absolute inset-0 bg-gradient-to-br from-[hsl(224,100%,45%)] to-[hsl(266,93%,64%)]" />}
-              {/* Gradient Overlay for better text visibility */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/20"></div>
-              {/* Admin/Moderator Control Buttons */}
-              {(isOwner || isAdmin || user && (user.role === 'admin' || user.role === 'moderator')) && <div className="absolute top-4 right-4 flex gap-2 z-10">
-                  <Button onClick={() => setImageDialogOpen(true)} variant="secondary" className="bg-white/90 text-gray-700 hover:bg-white" size="sm">
-                    <Pencil className="h-3.5 w-3.5 mr-1.5" />
-                    Edit Cover Image
-                  </Button>
-                  <Button asChild variant="secondary" className="bg-white/90 text-gray-700 hover:bg-white" size="sm">
-                    <Link to={`/community/${id}/settings`}>
-                      <Settings className="h-3.5 w-3.5 mr-1.5" />
-                      Settings
-                    </Link>
-                  </Button>
-                </div>}
-              {/* Content Container - Centered vertically */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-8">
-                  <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between">
-                    <div className="md:max-w-3xl">
-                      <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-md">
-                      {community.name}
-                    </h1>
-                      <p className="text-white/90 text-base md:text-lg mt-3 max-w-3xl leading-relaxed">
-                        {community.description || 'No description available'}
-                      </p>
-                      {/* Community metadata */}
-                      <div className="flex flex-wrap items-center gap-3 mt-4">
-                        <div className="flex items-center bg-black/30 text-white px-3 py-1.5 rounded-full text-sm">
-                          <Users className="h-4 w-4 mr-2" />
-                          <span>{memberCount} members</span>
-                        </div>
-                        <div className="flex items-center bg-black/30 text-white px-3 py-1.5 rounded-full text-sm">
-                          <Calendar className="h-4 w-4 mr-2" />
-                          <span>
-                            Created{' '}
-                            {format(new Date(community.created_at), 'MMM yyyy')}
-                          </span>
-                        </div>
-                        <Link
-                          to={`/community/${id}/events`}
-                          className="flex items-center bg-black/30 text-white px-3 py-1.5 rounded-full text-sm hover:bg-black/50 transition-colors"
-                        >
-                          <Calendar className="h-4 w-4 mr-2" />
-                          <span>Events</span>
-                        </Link>
-                      </div>
-                    </div>
-                    <div className="mt-6 md:mt-0 md:ml-8">
-                      <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
-                        {!user ? <Button onClick={() => undefined} className="bg-white text-blue-600 hover:bg-gray-100" disabled={true}>
-                            Login to Join
-                          </Button> : isMember ? <Button onClick={handleJoinLeave} variant="outline" className="bg-white text-blue-600 border-blue-200 hover:bg-blue-50" disabled={joinLoading}>
-                            {joinLoading ? 'Processing...' : 'Leave Community'}
-                          </Button> : <Button onClick={handleJoinLeave} className="bg-blue-600 text-white hover:bg-blue-700" disabled={joinLoading}>
-                            {joinLoading ? 'Processing...' : 'Join Community'}
-                          </Button>}
-                      </div>
-                  </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <CommunityHeroSection
+          community={community}
+          memberCount={memberCount}
+          isOwner={isOwner}
+          isAdmin={isAdmin}
+          user={user}
+          id={id}
+          isMember={isMember}
+          joinLoading={joinLoading}
+          handleJoinLeave={handleJoinLeave}
+          setImageDialogOpen={setImageDialogOpen}
+        />
+        <CommunityTabs id={id} location={location} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <PostsSection
+              user={user}
+              isMember={isMember}
+              postsLoading={postsLoading}
+              postsError={postsError}
+              posts={posts}
+              handlePostCreated={handlePostCreated}
+              fetchPosts={fetchPosts}
+              id={id}
+              navigate={navigate}
+            />
           </div>
-        </PageSection>
-        {/* Navigation Tabs */}
-        <PageSection className="p-0 border-b border-gray-200">
-          <div className="flex items-center gap-1 overflow-x-auto">
-            <Button
-              asChild
-              variant="ghost"
-              className={`rounded-none border-b-2 border-transparent hover:border-gray-300 ${
-                location.pathname === `/community/${id}` || location.pathname === `/community/${id}/`
-                  ? 'border-blue-600 text-blue-600'
-                  : ''
-              }`}
-            >
-              <Link to={`/community/${id}`}>Posts</Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              className={`rounded-none border-b-2 border-transparent hover:border-gray-300 ${
-                location.pathname === `/community/${id}/events`
-                  ? 'border-blue-600 text-blue-600'
-                  : ''
-              }`}
-            >
-              <Link to={`/community/${id}/events`}>
-                <Calendar className="h-4 w-4 mr-2" />
-                Events
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="ghost"
-              className={`rounded-none border-b-2 border-transparent hover:border-gray-300 ${
-                location.pathname === `/community/${id}/members`
-                  ? 'border-blue-600 text-blue-600'
-                  : ''
-              }`}
-            >
-              <Link to={`/community/${id}/members`}>
-                <Users className="h-4 w-4 mr-2" />
-                Members
-              </Link>
-            </Button>
-          </div>
-        </PageSection>
-          {/* Main Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Posts Feed */}
-            <div className="lg:col-span-2 space-y-6">
-              <PageSection>
-              <SectionHeader title="Community Posts" description="Latest discussions and updates" />
-                {/* Inline Composer - Only for members */}
-              {user && isMember && <SectionContent className="pb-0 border-b border-gray-200">
-                  <InlineComposer communityId={id} onPostCreated={handlePostCreated} />
-                </SectionContent>}
-                {/* Posts List */}
-              <SectionContent className={user && isMember ? 'pt-4' : ''}>
-                {postsLoading ? <div className="space-y-4">
-                    {[1, 2, 3].map(i => <div key={i} className="bg-gray-50 rounded-lg p-4">
-                          <Skeleton className="h-6 w-1/3 mb-2" />
-                          <Skeleton className="h-4 w-full mb-2" />
-                          <Skeleton className="h-4 w-2/3" />
-                      </div>)}
-                  </div> : postsError ? <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-md">
-                      <p>{postsError}</p>
-                    <Button variant="outline" size="sm" onClick={fetchPosts} className="mt-2">
-                        Retry
-                      </Button>
-                  </div> : posts.length === 0 ? <div className="bg-gray-50 rounded-lg p-8 text-center">
-                      <div className="flex flex-col items-center justify-center">
-                        <div className="bg-gray-100 p-3 rounded-full mb-4">
-                          <AlertCircle className="h-6 w-6 text-gray-400" />
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          No posts yet
-                        </h3>
-                        <p className="text-gray-500 mb-4">
-                          Be the first to start a conversation in this community
-                        </p>
-                      {user && isMember && <Button onClick={() => navigate(`/create-post?communityId=${id}`)} className="bg-blue-600 text-white hover:bg-blue-700">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Create Post
-                        </Button>}
-                      {!user && <p className="text-gray-400 text-sm">
-                            Join this community to start posting
-                        </p>}
-                    </div>
-                  </div> : <div className="space-y-4">
-                    {posts.map(post => <PostCard key={post.id} post={post} onActionComplete={handlePostCreated} />)}
-                  </div>}
-                </SectionContent>
-              </PageSection>
-            </div>
-            {/* Sidebar Column */}
-          <div className="space-y-6">
-            {/* Member List */}
-            <PageSection>
-              <SectionHeader title="Community Members" actions={<Button asChild variant="outline" size="sm">
-                    <Link to={`/community/${id}/members`}>View All</Link>
-                  </Button>} />
-              <SectionContent className="p-0">
-                <MemberList communityId={id || ''} limit={5} hideHeader={true} />
-              </SectionContent>
-            </PageSection>
-            {/* Community Info Card */}
-              <PageSection>
-                <SectionHeader title="About this Community" />
-                <SectionContent>
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                        Category
-                      </p>
-                      <p className="text-sm text-gray-700 font-medium">
-                        {community.category}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                        Created
-                      </p>
-                      <p className="text-sm text-gray-700 font-medium">
-                      {format(new Date(community.created_at), 'MMMM d, yyyy')}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                        Members
-                      </p>
-                      <p className="text-sm text-gray-700 font-medium">
-                        {memberCount} members
-                      </p>
-                    </div>
-                  {(isOwner || isAdmin) && <div className="pt-4 border-t border-gray-200">
-                      <Button asChild variant="outline" className="w-full justify-center">
-                        <Link to={`/community/${id}/settings`}>
-                          <Settings className="h-4 w-4 mr-2" />
-                          Manage Community
-                        </Link>
-                      </Button>
-                    </div>}
-                  </div>
-                </SectionContent>
-              </PageSection>
-          </div>
-          </div>
-        </PageLayout>
-        {/* Floating Create Post Button */}
-      {user && isMember && <Button onClick={() => navigate(`/create-post?communityId=${id}`)} className="fixed bottom-5 right-5 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all bg-blue-600 hover:bg-blue-700 text-white" size="icon">
-            <Plus className="h-6 w-6" />
-        </Button>}
-        {/* Image Update Dialog */}
-        <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Update Community Image</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="image-url">Image URL</Label>
-              <Input id="image-url" placeholder="https://example.com/image.jpg" value={newImageUrl} onChange={e => setNewImageUrl(e.target.value)} className="focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                <p className="text-xs text-muted-foreground">
-                  Enter a URL for the community background image
-                </p>
-              </div>
-              {/* Preview */}
-            {newImageUrl && <div className="relative h-32 w-full overflow-hidden rounded-md border border-gray-200">
-                <img src={newImageUrl} alt="Preview" className="h-full w-full object-cover" onError={e => {
-                      (e.target as HTMLImageElement).src = fallbackImageUrl;
-            }} />
-              </div>}
-              <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => {
-                    setImageDialogOpen(false);
-              setNewImageUrl('');
-            }} disabled={updateImageLoading}>
-                  <X className="h-4 w-4 mr-2" />
-                  Cancel
-                </Button>
-              <Button onClick={handleUpdateImage} disabled={updateImageLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
-                {updateImageLoading ? 'Updating...' : 'Update Image'}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-    </MainLayout>;
+          <SidebarColumn id={id} community={community} memberCount={memberCount} isOwner={isOwner} isAdmin={isAdmin} />
+        </div>
+      </PageLayout>
+      <FloatingCreateButton visible={!!(user && isMember)} navigate={navigate} id={id} />
+      <ImageUpdateDialog
+        imageDialogOpen={imageDialogOpen}
+        setImageDialogOpen={setImageDialogOpen}
+        newImageUrl={newImageUrl}
+        setNewImageUrl={setNewImageUrl}
+        updateImageLoading={updateImageLoading}
+        handleUpdateImage={handleUpdateImage}
+      />
+    </MainLayout>
+  );
 }
