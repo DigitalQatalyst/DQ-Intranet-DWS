@@ -35,7 +35,7 @@ export const DESIGN_SYSTEM_ITEMS: DesignSystemItem[] = [
   {
     id: 'cds-campaigns-design-system',
     title: 'Campaigns Design System (CDS)',
-    description: 'CDS defines DQ\'s system for designing and scaling high-impact campaigns.',
+    description: 'CDS defines DQ\'s system for designing and scaling high-impact campaigns with strategic precision.',
     type: 'cds',
     imageUrl: '/images/design service card image.PNG',
     tags: ['CDS'],
