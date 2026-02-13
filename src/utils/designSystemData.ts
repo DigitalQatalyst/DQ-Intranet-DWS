@@ -37,7 +37,7 @@ export const DESIGN_SYSTEM_ITEMS: DesignSystemItem[] = [
     title: 'Campaigns Design System (CDS)',
     description: 'CDS defines DQ\'s unified operating system for designing strategic, scalable, high-impact marketing campaigns.',
     type: 'cds',
-    imageUrl: '/images/design service card image.PNG',
+    imageUrl: '/images/cds.png',
     tags: ['CDS'],
     category: 'cds-framework',
     location: 'NBO'
