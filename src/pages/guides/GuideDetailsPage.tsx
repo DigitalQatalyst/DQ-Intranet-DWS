@@ -270,16 +270,29 @@ function GuideDetailsPage() {
             <div className="lg:col-span-3">
               <div className="bg-white rounded-lg shadow-sm p-8">
                 {/* Guide Content Sections */}
-                <div className="space-y-8">
-                  {sections.map((section, index) => (
-                    <section key={section.id} id={section.id} className="scroll-mt-24">
-                      {/* Section Content */}
-                      <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-                        <MarkdownRenderer body={section.content.trim()} />
-                      </div>
-                    </section>
-                  ))}
-                </div>
+                {sections.length > 0 ? (
+                  <div className="space-y-8">
+                    {sections.map((section, index) => (
+                      <section key={section.id} id={section.id} className="scroll-mt-24">
+                        {/* Section Content */}
+                        <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+                          <MarkdownRenderer body={section.content.trim()} />
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <BookOpen className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Content Available</h3>
+                    <p className="text-gray-600 mb-4">
+                      The detailed content for this guide hasn't been added to the database yet.
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      To add content, run the SQL migration script: <code className="bg-gray-100 px-2 py-1 rounded">update_ghc_overview_content.sql</code>
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
