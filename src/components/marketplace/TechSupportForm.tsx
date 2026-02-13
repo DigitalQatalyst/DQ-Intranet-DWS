@@ -29,9 +29,8 @@ const isValidEmail = (email: string): boolean => {
   return emailRegex.test(email.trim());
 };
 
-// Power Automate API endpoint
-const POWER_AUTOMATE_API_URL =
-  'https://default199ebd0d29864f3d86594388c5b2a7.24.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a97703c6c67e42eab0ea14418e9d4089/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Yk6kzrG5FUx7QdlWvY4KQVytDZw9OCcng3tlEaLp06w';
+// Power Automate API endpoint (must be provided via env; never commit a SAS token)
+const POWER_AUTOMATE_API_URL = import.meta.env.VITE_POWER_AUTOMATE_URL ?? '';
 
 interface ApiRequestPayload {
   email: string;
@@ -86,6 +85,10 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
   };
 
   const submitTechSupportRequest = async (payload: ApiRequestPayload): Promise<void> => {
+    if (!POWER_AUTOMATE_API_URL) {
+      throw new Error('Support API is not configured. Please contact an admin.');
+    }
+
     const response = await fetch(POWER_AUTOMATE_API_URL, {
       method: 'POST',
       headers: {
@@ -396,5 +399,4 @@ export function TechSupportForm({ isOpen, onClose }: TechSupportFormProps) {
     </>
   );
 }
-
 

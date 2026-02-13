@@ -897,6 +897,75 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     route: '/marketplace/guides',
     title: 'DQ Knowledge Center',
     description: 'Access practical guidelines, templates, and processes to support everyday delivery and collaboration.'
+  },
+  'design-system': {
+    id: 'design-system',
+    title: 'Design System Marketplace',
+    description: 'Explore design system components, patterns, and resources for consistent digital experiences.',
+    route: '/marketplace/design-system',
+    primaryCTA: 'Access Now',
+    secondaryCTA: 'View Details',
+    itemName: 'Design System',
+    itemNamePlural: 'Design Systems',
+    attributes: [{
+      key: 'type',
+      label: 'Type',
+      icon: React.createElement(Layers, { size: 18, className: "mr-2" })
+    }, {
+      key: 'category',
+      label: 'Category',
+      icon: React.createElement(Bookmark, { size: 18, className: "mr-2" })
+    }, {
+      key: 'version',
+      label: 'Version',
+      icon: React.createElement(FileText, { size: 18, className: "mr-2" })
+    }],
+    detailSections: ['description', 'components', 'resources', 'related'],
+    tabs: [{
+      id: 'about',
+      label: 'About This Design System',
+      icon: Info,
+      iconBgColor: 'bg-blue-50',
+      iconColor: 'text-blue-600'
+    }, {
+      id: 'components',
+      label: 'Components',
+      icon: Layers,
+      iconBgColor: 'bg-green-50',
+      iconColor: 'text-green-600'
+    }, {
+      id: 'resources',
+      label: 'Resources',
+      icon: BookOpen,
+      iconBgColor: 'bg-purple-50',
+      iconColor: 'text-purple-600'
+    }],
+    summarySticky: true,
+    filterCategories: [{
+      id: 'type',
+      title: 'Type',
+      options: [
+        { id: 'cids', name: 'CI.DS (Component Integration)' },
+        { id: 'vds', name: 'V.DS (Visual Design)' },
+        { id: 'cds', name: 'CDS (Content Design)' }
+      ]
+    }, {
+      id: 'location',
+      title: 'Location',
+      options: [
+        { id: 'DXB', name: 'DXB' },
+        { id: 'KSA', name: 'KSA' },
+        { id: 'NBO', name: 'NBO' }
+      ]
+    }],
+    mapListResponse: data => data,
+    mapDetailResponse: data => data,
+    mapFilterResponse: data => [],
+    mockData: {
+      items: [],
+      filterOptions: {},
+      providers: []
+    }
   }
 };
 // Helper to get config by marketplace type

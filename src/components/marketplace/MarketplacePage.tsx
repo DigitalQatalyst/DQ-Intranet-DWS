@@ -25,10 +25,12 @@ import GuidesFilters, { GuidesFacets } from '../guides/GuidesFilters';
 import GuidesGrid from '../guides/GuidesGrid';
 import TestimonialsGrid from '../guides/TestimonialsGrid';
 import GlossaryGrid from '../guides/GlossaryGrid';
+import { SixXDPerspectiveCards } from '../guides/SixXDPerspectiveCards';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { track } from '../../utils/analytics';
 import FAQsPageContent from '@/pages/guides/FAQsPageContent.tsx';
 import { glossaryTerms, GlossaryTerm, CATEGORIES } from '@/pages/guides/glossaryData.ts';
+import { STATIC_PRODUCTS } from '../../utils/staticProducts';
 const LEARNING_TYPE_FILTER: FilterConfig = {
   id: 'learningType',
   title: 'Learning Type',
@@ -123,7 +125,7 @@ interface ComparisonItem {
 }
 
 export interface MarketplacePageProps {
-  marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding' | 'guides';
+  marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding' | 'guides' | 'design-system';
   title: string;
   description: string;
   promoCards?: any[];
@@ -131,7 +133,7 @@ export interface MarketplacePageProps {
 
 const SUBDOMAIN_BY_DOMAIN: Record<string, string[]> = {
   strategy: ['journey', 'history', 'digital-framework', 'initiatives', 'clients'],
-  guidelines: ['resources', 'policies', 'design-systems'],
+  guidelines: ['resources', 'policies'],
   blueprints: ['devops', 'dbp', 'dxp', 'dws', 'products', 'projects'],
 };
 
@@ -173,6 +175,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const isCourses = marketplaceType === 'courses';
   const isKnowledgeHub = marketplaceType === 'knowledge-hub';
   const isServicesCenter = marketplaceType === 'non-financial';
+  const isDesignSystem = marketplaceType === 'design-system';
   
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -219,16 +222,24 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
   const searchStartRef = useRef<number | null>(null);
 type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 'glossary' | 'faqs';
+type DesignSystemTab = 'cids' | 'vds' | 'cds';
   const getTabFromParams = useCallback((params: URLSearchParams): WorkGuideTab => {
     const tab = params.get('tab');
     return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' || tab === 'glossary' || tab === 'faqs' ? tab : 'guidelines';
   }, []);
+  const getDesignSystemTabFromParams = useCallback((params: URLSearchParams): DesignSystemTab => {
+    const tab = params.get('tab');
+    return tab === 'vds' || tab === 'cds' ? tab : 'cids';
+  }, []);
   const [activeTab, setActiveTab] = useState<WorkGuideTab>(() => getTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()));
+  const [activeDesignSystemTab, setActiveDesignSystemTab] = useState<DesignSystemTab>(() => 
+    isDesignSystem ? getDesignSystemTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()) : 'cids'
+  );
 
   const TAB_LABELS: Record<WorkGuideTab, string> = {
     strategy: 'Strategy',
     guidelines: 'Guidelines',
-    blueprints: 'Blueprints',
+    blueprints: 'Products',
     testimonials: 'Testimonials',
     glossary: 'Glossary',
     faqs: 'FAQs'
@@ -244,8 +255,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       author: 'Authored by DQ Associates, Leads, and Subject Matter Experts'
     },
     blueprints: {
-      description: 'Standardized blueprints, templates, and proven methodologies that enable consistent execution, reduce rework, and accelerate delivery across projects and initiatives.',
-      author: 'Authored by DQ Delivery Teams and Practice Leads'
+      description: 'Productized digital platforms, frameworks, and solutions designed to enable execution, adoption, and measurable outcomes across DQ initiatives.',
+      author: 'Product Owner / Practice'
     },
     testimonials: {
       description: 'Success stories, case studies, and reflections that capture lessons learned, celebrate achievements, and share insights from real-world experiences and transformations.',
@@ -266,6 +277,11 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     setActiveTab(getTabFromParams(queryParams));
   }, [isGuides, queryParams, getTabFromParams]);
 
+  useEffect(() => {
+    if (!isDesignSystem) return;
+    setActiveDesignSystemTab(getDesignSystemTabFromParams(searchParams));
+  }, [isDesignSystem, searchParams, getDesignSystemTabFromParams]);
+
   const handleGuidesTabChange = useCallback((tab: WorkGuideTab) => {
     setActiveTab(tab);
     const next = new URLSearchParams(queryParams.toString());
@@ -282,8 +298,8 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category'];
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'blueprints') {
-        // Keep 'unit' and 'location' for Blueprints; delete incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_sector'];
+        // Keep 'unit' and 'location' for Products; delete incompatible filters
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category'];
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'glossary' || tab === 'faqs') {
         // For Glossary and FAQs tabs, delete all incompatible filters
@@ -309,6 +325,10 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
     }
     if (tab !== 'blueprints') {
       next.delete('blueprint_framework');
+      next.delete('blueprint_sector');
+      next.delete('product_type');
+      next.delete('product_stage');
+      next.delete('product_sector');
     }
     const qs = next.toString();
     if (typeof window !== 'undefined') {
@@ -335,7 +355,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       // Keep 'unit' and 'location' for Strategy; delete incompatible filters
       keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category'];
     } else if (activeTab === 'blueprints') {
-      // Keep 'unit' and 'location' for Blueprints; delete incompatible filters
+      // Keep 'unit' and 'location' for Products; delete incompatible filters
       keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category'];
     } else if (activeTab === 'testimonials') {
       // For Testimonials, delete all incompatible filters
@@ -354,14 +374,13 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       changed = true;
     }
     if (activeTab !== 'blueprints') {
-      if (next.has('blueprint_framework')) {
-        next.delete('blueprint_framework');
-        changed = true;
-      }
-      if (next.has('blueprint_sector')) {
-        next.delete('blueprint_sector');
-        changed = true;
-      }
+      const productFilterKeys = ['blueprint_framework', 'blueprint_sector', 'product_type', 'product_stage', 'product_sector'];
+      productFilterKeys.forEach(key => {
+        if (next.has(key)) {
+          next.delete(key);
+          changed = true;
+        }
+      });
     }
     keysToDelete.forEach(key => {
       if (next.has(key)) {
@@ -438,21 +457,16 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       return [];
     }
     
-    // PRIMARY FILTER: Knowledge System
+    // PRIMARY FILTER: Knowledge System (e.g., GHC, Agile 6xD)
     const knowledgeSystems = parseFilterValues(queryParams, 'glossary_knowledge_system');
     
-    // SECONDARY FILTERS: GHC
+    // SECONDARY FILTER: GHC Dimension (only when GHC is selected)
     const ghcDimensions = parseFilterValues(queryParams, 'glossary_ghc_dimension');
-    const ghcTermTypes = parseFilterValues(queryParams, 'glossary_ghc_term_type');
     
-    // SECONDARY FILTERS: 6xD
-    const sixXdDimensions = parseFilterValues(queryParams, 'glossary_6xd_dimension');
-    const sixXdTermTypes = parseFilterValues(queryParams, 'glossary_6xd_term_type');
-    
-    // SHARED FILTERS
-    const termOrigins = parseFilterValues(queryParams, 'glossary_term_origin');
-    const usedIn = parseFilterValues(queryParams, 'glossary_used_in');
-    const whoUsesIt = parseFilterValues(queryParams, 'glossary_who_uses_it');
+    // SECONDARY FILTER: 6xD Perspective (only when Agile 6xD is selected)
+    const sixXdPerspectives = parseFilterValues(queryParams, 'glossary_6xd_perspective');
+
+    // BROWSING FILTER: Alphabetical (A–Z)
     const letters = parseFilterValues(queryParams, 'glossary_letter');
     
     // Search query
@@ -464,42 +478,21 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         if (!term.knowledgeSystem || !knowledgeSystems.includes(term.knowledgeSystem)) return false;
       }
       
-      // SECONDARY: GHC filters (only if GHC is selected or no system filter)
+      // SECONDARY: GHC Dimension filter (only for GHC terms)
       if (term.knowledgeSystem === 'ghc') {
         if (ghcDimensions.length > 0) {
           if (!term.ghcDimension || !ghcDimensions.includes(term.ghcDimension)) return false;
         }
-        if (ghcTermTypes.length > 0) {
-          if (!term.ghcTermType || !ghcTermTypes.includes(term.ghcTermType)) return false;
-        }
       }
       
-      // SECONDARY: 6xD filters (only if 6xD is selected or no system filter)
+      // SECONDARY: 6xD Perspective filter (only for 6xD terms)
       if (term.knowledgeSystem === '6xd') {
-        if (sixXdDimensions.length > 0) {
-          if (!term.sixXdDimension || !sixXdDimensions.includes(term.sixXdDimension)) return false;
-        }
-        if (sixXdTermTypes.length > 0) {
-          if (!term.sixXdTermType || !sixXdTermTypes.includes(term.sixXdTermType)) return false;
+        if (sixXdPerspectives.length > 0) {
+          if (!term.sixXdPerspective || !sixXdPerspectives.includes(term.sixXdPerspective)) return false;
         }
       }
       
-      // SHARED: Term Origin filter
-      if (termOrigins.length > 0) {
-        if (!term.termOrigin || !termOrigins.includes(term.termOrigin)) return false;
-      }
-      
-      // SHARED: Used In filter
-      if (usedIn.length > 0) {
-        if (!term.usedIn || !term.usedIn.some(ui => usedIn.includes(ui))) return false;
-      }
-      
-      // SHARED: Who Uses It filter
-      if (whoUsesIt.length > 0) {
-        if (!term.whoUsesIt || !term.whoUsesIt.some(wui => whoUsesIt.includes(wui))) return false;
-      }
-      
-      // SHARED: Letter filter (A-Z)
+      // BROWSING: Letter filter (A–Z)
       if (letters.length > 0) {
         const termLetter = term.letter.toUpperCase();
         const matchesLetter = letters.some(l => l.toUpperCase() === termLetter);
@@ -578,6 +571,15 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         return;
       }
       
+      // For Design System, use config.filterCategories directly
+      if (isDesignSystem) {
+        setFilterConfig(config.filterCategories);
+        const initial: Record<string, string | string[]> = {};
+        config.filterCategories.forEach(c => { initial[c.id] = ''; });
+        setFilters(initial);
+        return;
+      }
+      
       try {
         let filterOptions = await fetchMarketplaceFilters(marketplaceType);
         filterOptions = prependLearningTypeFilter(marketplaceType, filterOptions);
@@ -586,7 +588,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         filterOptions.forEach(c => { initial[c.id] = ''; });
         setFilters(initial);
       } catch (err) {
-        console.error('Error fetching filter options:', err);
+        // Error handled by fallback to default filter config
         setFilterConfig(config.filterCategories);
         const initial: Record<string, string | string[]> = {};
         config.filterCategories.forEach(c => { initial[c.id] = ''; });
@@ -594,7 +596,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
       }
     };
     loadFilterOptions();
-  }, [marketplaceType, config, isCourses, isGuides, isKnowledgeHub, isServicesCenter, activeServiceTab, filterConfig.length, Object.keys(filters).length]);
+  }, [marketplaceType, config, isCourses, isGuides, isKnowledgeHub, isServicesCenter, isDesignSystem, activeServiceTab, filterConfig.length, Object.keys(filters).length]);
   
   // Fetch items based on marketplace type
   useEffect(() => {
@@ -620,7 +622,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         return;
       }
 
-      // GUIDES: Supabase query + facets (skip for glossary and faqs tabs)
+      // GUIDES: Supabase query + facets (skip for glossary, faqs, and products tabs)
       if (isGuides) {
         if (activeTab === 'glossary' || activeTab === 'faqs') {
           setLoading(false);
@@ -629,10 +631,82 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           setTotalCount(0);
           return;
         }
+        
+        // Products tab: Skip database query entirely, use static products
+        if (activeTab === 'blueprints') {
+          setLoading(true);
+          try {
+            const qStr = queryParams.get('q') || '';
+            const productTypes = parseFilterValues(queryParams, 'product_type');
+            const productStages = parseFilterValues(queryParams, 'product_stage');
+            const productSectors = parseFilterValues(queryParams, 'product_sector');
+
+            // Convert static products to guide format
+            let out = STATIC_PRODUCTS.map(product => ({
+              id: product.id,
+              slug: product.slug,
+              title: product.title,
+              summary: product.summary,
+              heroImageUrl: product.heroImageUrl,
+              lastUpdatedAt: product.lastUpdatedAt,
+              authorName: product.authorName,
+              authorOrg: product.authorOrg,
+              isEditorsPick: product.isEditorsPick,
+              downloadCount: product.downloadCount,
+              guideType: product.guideType,
+              domain: product.domain,
+              functionArea: null,
+              unit: null,
+              subDomain: null,
+              location: null,
+              status: product.status,
+              complexityLevel: null,
+              productType: product.productType,
+              productStage: product.productStage,
+            }));
+
+            // Apply product filters
+            if (productTypes.length > 0) {
+              out = out.filter(it => it.productType && productTypes.includes(it.productType.toLowerCase()));
+            }
+            if (productStages.length > 0) {
+              out = out.filter(it => it.productStage && productStages.includes(it.productStage.toLowerCase()));
+            }
+            // Note: Static products don't have sectors, so productSectors filter will show no results
+
+            // Apply search query if provided
+            if (qStr) {
+              const query = qStr.toLowerCase();
+              out = out.filter(it => {
+                const searchableText = [
+                  it.title,
+                  it.summary,
+                  it.productType,
+                  it.productStage,
+                ].filter(Boolean).join(' ').toLowerCase();
+                return searchableText.includes(query);
+              });
+            }
+
+            setItems(out);
+            setFilteredItems(out);
+            setTotalCount(out.length);
+            setLoading(false);
+            return;
+          } catch (error) {
+            console.error('Error loading products:', error);
+            setLoading(false);
+            setItems([]);
+            setFilteredItems([]);
+            setTotalCount(0);
+            return;
+          }
+        }
+
         setLoading(true);
         try {
           // Exclude removed guidelines from frontend
-          const excludedSlugs = ['atp-guidelines', 'agile-working-guidelines', 'client-session-guidelines', 'dbp-support-guidelines'];
+          const excludedSlugs = ['atp-guidelines', 'agile-working-guidelines', 'client-session-guidelines', 'dbp-support-guidelines', 'dq-products'];
           
           let q = supabaseClient.from('guides').select(GUIDE_LIST_SELECT, { count: 'exact' });
           excludedSlugs.forEach(slug => {
@@ -652,6 +726,10 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           const guidelinesCategories = parseFilterValues(queryParams, 'guidelines_category');
           const blueprintFrameworks = parseFilterValues(queryParams, 'blueprint_framework');
           const blueprintSectors = parseFilterValues(queryParams, 'blueprint_sector');
+          // Product-led filters (not used for non-products tabs)
+          const productTypes = parseFilterValues(queryParams, 'product_type');
+          const productStages = parseFilterValues(queryParams, 'product_stage');
+          const productSectors = parseFilterValues(queryParams, 'product_sector');
 
           // Get activeTab from state - ensure it's current
           const currentActiveTab = activeTab;
@@ -691,8 +769,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           if (qStr) q = q.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
           if (isStrategyTab) {
             q = q.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
-          } else if (isBlueprintTab) {
-            q = q.or('domain.ilike.%Blueprint%,guide_type.ilike.%Blueprint%');
           } else if (isTestimonialsTab) {
             q = q.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
           } else if (isGuidelinesTab) {
@@ -713,7 +789,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           if (effectiveGuideTypes.length && !isGuidelinesTab) q = q.in('guide_type', effectiveGuideTypes);
           // Note: Unit filtering is done client-side after fetching to handle normalization
           // (filter IDs are slugified like 'deals', but DB may have 'Deals' or 'DQ Delivery (Accounts)')
-          if (locations.length) q = q.in('location', locations);
+          // Location filtering removed - all guides should be available for all locations (DXB, KSA, NBO)
 
           const sort = queryParams.get('sort') || 'editorsPick';
           if (sort === 'updated')       q = q.order('last_updated_at', { ascending: false, nullsFirst: false });
@@ -731,7 +807,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           // Otherwise, use server-side pagination
           const needsClientSideUnitFilter = effectiveUnits.length > 0;
           const needsClientSideFrameworkFilter = (isStrategyTab && strategyFrameworks.length > 0) || 
-                                                 (isBlueprintTab && (blueprintFrameworks.length > 0 || blueprintSectors.length > 0)) ||
+                                                 (isBlueprintTab && (blueprintFrameworks.length > 0 || blueprintSectors.length > 0 || productTypes.length > 0 || productStages.length > 0 || productSectors.length > 0)) ||
                                                  (isGuidelinesTab && guidelinesCategories.length > 0);
           const needsClientSideFiltering = needsClientSideUnitFilter || needsClientSideFrameworkFilter;
           
@@ -755,7 +831,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           // This ensures filter options don't disappear when other filters are selected
           if (qStr)              facetQ = facetQ.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
           if (isStrategyTab)    facetQ = facetQ.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
-          else if (isBlueprintTab) facetQ = facetQ.or('domain.ilike.%Blueprint%,guide_type.ilike.%Blueprint%');
           else if (isTestimonialsTab) facetQ = facetQ.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
           // For Guidelines tab: facets should only include Guidelines guides (exclude Strategy/Blueprint/Testimonial)
           // But don't filter by selected guide_type, units, locations - show all available options for Guidelines
@@ -767,31 +842,13 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
             facetQ,
           ]);
           if (error) {
-            console.error('Guides query error:', error);
             throw error;
           }
-          if (facetError) console.warn('Facet query failed', facetError);
-          
-          // Debug logging
-          if (isGuides) {
-            console.log('[Guides Debug]', {
-              activeTab,
-              currentActiveTab,
-              isStrategyTab,
-              isBlueprintTab,
-              isGuidelinesTab,
-              rowsCount: rows?.length || 0,
-              totalCount: count,
-              qStr,
-              hasError: !!error,
-              sampleRows: rows?.slice(0, 3).map((r: any) => ({ 
-                title: r.title, 
-                domain: r.domain, 
-                guide_type: r.guide_type,
-                status: r.status
-              }))
-            });
+          if (facetError) {
+            // Facet query failed, continue without facets
           }
+          
+          // Debug logging removed for production
 
           const mapped = (rows || []).map((r: any) => {
             const unitValue = r.unit ?? r.function_area ?? null;
@@ -822,6 +879,9 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
 
           let out = mapped;
           
+          // Exclude removed guides (client-side filter as backup)
+          out = out.filter(it => !excludedSlugs.includes(it.slug));
+          
           // Apply tab filtering FIRST to get only guides for the current tab
           // This ensures unit filtering only applies to the correct tab's guides
           // CRITICAL: This must happen before any other filtering to prevent cross-tab contamination
@@ -833,11 +893,31 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               return domain.includes('strategy') || guideType.includes('strategy');
             });
           } else if (isBlueprintTab) {
-            out = out.filter(it => {
-              const domain = (it.domain || '').toLowerCase();
-              const guideType = (it.guideType || '').toLowerCase();
-              return domain.includes('blueprint') || guideType.includes('blueprint');
-            });
+            // Products tab: Replace all database results with static products
+            // Convert static products to guide format immediately
+            out = STATIC_PRODUCTS.map(product => ({
+              id: product.id,
+              slug: product.slug,
+              title: product.title,
+              summary: product.summary,
+              heroImageUrl: product.heroImageUrl,
+              lastUpdatedAt: product.lastUpdatedAt,
+              authorName: product.authorName,
+              authorOrg: product.authorOrg,
+              isEditorsPick: product.isEditorsPick,
+              downloadCount: product.downloadCount,
+              guideType: product.guideType,
+              domain: product.domain,
+              functionArea: null,
+              unit: null,
+              subDomain: null,
+              location: null,
+              status: product.status,
+              complexityLevel: null,
+              // Store product metadata for filtering
+              productType: product.productType,
+              productStage: product.productStage,
+            }));
           } else if (isTestimonialsTab) {
             out = out.filter(it => {
               const domain = (it.domain || '').toLowerCase();
@@ -930,12 +1010,43 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           if (isStrategyTab && strategyTypes.length) {
             out = out.filter(it => {
               const subDomain = (it.subDomain || '').toLowerCase();
+              const slug = (it.slug || '').toLowerCase();
+              const title = (it.title || '').toLowerCase();
+              const summary = (it.summary || '').toLowerCase();
+              const allText = `${subDomain} ${slug} ${title} ${summary}`.toLowerCase();
+              
               return strategyTypes.some(selectedType => {
                 const normalizedSelected = slugify(selectedType);
                 const normalizedSubDomain = slugify(subDomain);
-                return normalizedSubDomain === normalizedSelected || 
-                       subDomain.includes(selectedType.toLowerCase()) ||
-                       selectedType.toLowerCase().includes(subDomain);
+                
+                // Direct sub_domain match
+                if (normalizedSubDomain === normalizedSelected || 
+                    subDomain.includes(selectedType.toLowerCase()) ||
+                    selectedType.toLowerCase().includes(subDomain)) {
+                  return true;
+                }
+                
+                // For "journey" type: match vision/mission guides
+                if (selectedType.toLowerCase() === 'journey') {
+                  const journeyKeywords = ['vision', 'mission', 'dq-vision', 'dq-mission', 'vision-and-mission', 'vision-mission'];
+                  return journeyKeywords.some(keyword => 
+                    slug.includes(keyword) || 
+                    title.includes(keyword) ||
+                    allText.includes(keyword)
+                  );
+                }
+                
+                // For "history" type: match history/origin guides
+                if (selectedType.toLowerCase() === 'history') {
+                  const historyKeywords = ['history', 'origin', 'began', 'founding', 'started', 'beginning', 'evolution', 'story'];
+                  return historyKeywords.some(keyword => 
+                    slug.includes(keyword) || 
+                    title.includes(keyword) ||
+                    allText.includes(keyword)
+                  );
+                }
+                
+                return false;
               });
             });
           }
@@ -977,29 +1088,67 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
               });
             });
           }
-          // Blueprints-specific filter: Framework (DevOps, DBP, DXP, DWS, Products, Projects)
-          if (isBlueprintTab && blueprintFrameworks.length) {
-            out = out.filter(it => {
-              const subDomain = (it.subDomain || '').toLowerCase();
-              const domain = (it.domain || '').toLowerCase();
-              const guideType = (it.guideType || '').toLowerCase();
-              const title = (it.title || '').toLowerCase();
-              const allText = `${subDomain} ${domain} ${guideType} ${title}`.toLowerCase();
-              return blueprintFrameworks.some(selectedFramework => {
-                const normalizedSelected = slugify(selectedFramework);
-                // Check various fields for framework matches
-                return allText.includes(selectedFramework.toLowerCase()) ||
-                       allText.includes(normalizedSelected) ||
-                       (selectedFramework === 'devops' && allText.includes('devops')) ||
-                       (selectedFramework === 'dbp' && allText.includes('dbp')) ||
-                       (selectedFramework === 'dxp' && allText.includes('dxp')) ||
-                       (selectedFramework === 'dws' && allText.includes('dws')) ||
-                       (selectedFramework === 'products' && allText.includes('product')) ||
-                       (selectedFramework === 'projects' && allText.includes('project'));
+          // Products-specific filters (for static products only)
+          if (isBlueprintTab) {
+            // Product Type filter
+            if (productTypes.length) {
+              out = out.filter(it => {
+                const itemProductType = (it.productType || '').toLowerCase();
+                return productTypes.some(selectedType => {
+                  const normalizedSelected = slugify(selectedType);
+                  const typeMap: Record<string, string[]> = {
+                    'platform': ['platform'],
+                    'academy': ['academy'],
+                    'framework': ['framework'],
+                    'tooling': ['tooling'],
+                    'marketplace': ['marketplace'],
+                    'enablement-product': ['enablement product']
+                  };
+                  const searchTerms = typeMap[selectedType] || [normalizedSelected];
+                  return searchTerms.some(term => itemProductType.includes(term));
+                });
               });
-            });
+            }
+            
+            // Product Stage filter
+            if (productStages.length) {
+              out = out.filter(it => {
+                const itemProductStage = (it.productStage || '').toLowerCase();
+                return productStages.some(selectedStage => {
+                  const normalizedSelected = slugify(selectedStage);
+                  const stageMap: Record<string, string[]> = {
+                    'concept': ['concept'],
+                    'mvp': ['mvp'],
+                    'live': ['live'],
+                    'scaling': ['scaling'],
+                    'enterprise-ready': ['enterprise-ready', 'enterprise ready']
+                  };
+                  const searchTerms = stageMap[selectedStage] || [normalizedSelected];
+                  return searchTerms.some(term => itemProductStage.includes(term));
+                });
+              });
+            }
+            
+            // Product Sector filter - static products don't have sectors, so filter them out if sector filter is active
+            if (productSectors.length || blueprintSectors.length) {
+              out = [];
+            }
+            
+            // Apply search query if provided
+            if (qStr) {
+              const query = qStr.toLowerCase();
+              out = out.filter(it => {
+                const searchableText = [
+                  it.title,
+                  it.summary,
+                  it.productType,
+                  it.productStage
+                ].filter(Boolean).join(' ').toLowerCase();
+                return searchableText.includes(query);
+              });
+            }
           }
-          if (locations.length)  out = out.filter(it => it.location && locations.includes(it.location));
+          // Location filtering removed - all guides should be available for all locations (DXB, KSA, NBO)
           if (statuses.length)   out = out.filter(it => it.status && statuses.includes(it.status));
 
           if (sort === 'updated')       out.sort((a,b) => new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
@@ -1012,20 +1161,22 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                               (b.downloadCount||0)-(a.downloadCount||0) ||
                               new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
 
-          // Ensure default image if missing
-          const defaultImage = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=400&fit=crop&q=80';
-          out = out.map(it => ({
-            ...it,
-            heroImageUrl: it.heroImageUrl || defaultImage,
-          }));
+          // Ensure default image if missing (for non-product tabs)
+          if (!isBlueprintTab) {
+            const defaultImage = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=400&fit=crop&q=80';
+            out = out.map(it => ({
+              ...it,
+              heroImageUrl: it.heroImageUrl || defaultImage,
+            }));
+          }
 
           // If client-side filtering was used, paginate after filtering
           const totalFiltered = out.length;
-          if (needsClientSideFiltering) {
+          if (needsClientSideFiltering || isBlueprintTab) {
             out = out.slice(from, from + pageSize);
           }
 
-          const total = needsClientSideFiltering ? totalFiltered : (typeof count === 'number' ? count : out.length);
+          const total = (needsClientSideFiltering || isBlueprintTab) ? totalFiltered : (typeof count === 'number' ? count : out.length);
           const lastPage = Math.max(1, Math.ceil(total / pageSize));
           // If current page exceeds last page (e.g., after filtering), reset to page 1
           if (currentPage > lastPage) {
@@ -1092,7 +1243,7 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           if (start) { const latency = Date.now() - start; track('Guides.Search', { q: qStr, latency_ms: latency }); searchStartRef.current = null; }
           track('Guides.ViewList', { q: qStr, sort, page: String(currentPage) });
         } catch (e) {
-          console.error('Error fetching guides:', e);
+          setError('Failed to load guides. Please try again.');
           setItems([]); setFilteredItems([]); setFacets({}); setTotalCount(0);
         } finally {
           setLoading(false);
@@ -1397,7 +1548,6 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
         setFilteredItems(filtered);
         setTotalCount(filtered.length);
       } catch (err) {
-        console.error(`Error fetching ${marketplaceType} items:`, err);
         setError(`Failed to load ${marketplaceType}`);
         const fallbackItems = getFallbackItems(marketplaceType);
         setItems(fallbackItems);
@@ -1719,8 +1869,84 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
           </>
         )}
 
+        {/* Design System Tabs Section */}
+        {isDesignSystem && (() => {
+          const DESIGN_SYSTEM_TAB_LABELS: Record<DesignSystemTab, string> = {
+            cids: 'CI.DS',
+            vds: 'V.DS',
+            cds: 'CDS'
+          };
+
+          const DESIGN_SYSTEM_TAB_DESCRIPTIONS: Record<DesignSystemTab, { description: string; author?: string }> = {
+            cids: {
+              description: 'Component Integration Design System - Reusable UI components, patterns, and integration guidelines for building consistent digital experiences.',
+              author: 'Maintained by DQ Design & Engineering Teams'
+            },
+            vds: {
+              description: 'Visual Design System - Design tokens, typography, color palettes, and visual guidelines for creating cohesive brand experiences.',
+              author: 'Maintained by DQ Design Team'
+            },
+            cds: {
+              description: 'Content Design System - Content patterns, writing guidelines, and messaging frameworks for clear and effective communication.',
+              author: 'Maintained by DQ Content & Communications Teams'
+            }
+          };
+
+          const handleDesignSystemTabChange = (tab: DesignSystemTab) => {
+            setActiveDesignSystemTab(tab);
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set('tab', tab);
+            setSearchParams(newParams, { replace: false });
+          };
+
+          return (
+            <>
+              {/* Tab Description - Above Navigation */}
+              {activeDesignSystemTab && DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab] && (
+                <div className="mb-4 bg-white rounded-lg p-6 border border-gray-200 relative">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <span className="text-xs uppercase text-gray-500 font-medium tracking-wide">CURRENT FOCUS</span>
+                      <h2 className="text-2xl font-bold text-gray-800 mt-1">{DESIGN_SYSTEM_TAB_LABELS[activeDesignSystemTab]}</h2>
+                    </div>
+                    <button className="px-4 py-2 bg-blue-50 text-gray-800 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors border-0">
+                      Tab overview
+                    </button>
+                  </div>
+                  <p className="text-gray-700 mb-2">{DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].description}</p>
+                  {DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].author && (
+                    <p className="text-sm text-gray-500">{DESIGN_SYSTEM_TAB_DESCRIPTIONS[activeDesignSystemTab].author}</p>
+                  )}
+                </div>
+              )}
+              
+              <div className="mb-6 border-b border-gray-200">
+                <nav className="flex space-x-8" aria-label="Design System navigation">
+                  {(['cids', 'vds', 'cds'] as DesignSystemTab[]).map(tab => (
+                    <button
+                      key={tab}
+                      onClick={() => handleDesignSystemTabChange(tab)}
+                      className={`
+                        py-4 px-1 border-b-2 font-medium text-sm transition-colors
+                        ${
+                          activeDesignSystemTab === tab
+                            ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        }
+                      `}
+                      aria-current={activeDesignSystemTab === tab ? 'page' : undefined}
+                    >
+                      {DESIGN_SYSTEM_TAB_LABELS[tab]}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            </>
+          );
+        })()}
+
         {/* Search + Sort - Hide for Glossary tab (has its own search) */}
-        {!(isGuides && activeTab === 'glossary') && (
+        {!(isGuides && activeTab === 'glossary') && !isDesignSystem && (
           <div className="mb-6 flex items-center gap-3">
             <div className="flex-1">
               <SearchBar
@@ -1863,6 +2089,24 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                 onFilterChange={handleKnowledgeHubFilterChange}
                 onClearFilters={clearKnowledgeHubFilters}
               />
+            ) : isDesignSystem ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">DQ Stories CI.DS</h3>
+                  <p className="text-gray-600 text-sm mb-4">Component Integration Design System - Explore reusable components and integration patterns.</p>
+                  <p className="text-xs text-gray-500">xDS Design System Marketplace</p>
+                </div>
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">DQ Stories V.DS</h3>
+                  <p className="text-gray-600 text-sm mb-4">Visual Design System - Discover design tokens, typography, and visual guidelines.</p>
+                  <p className="text-xs text-gray-500">xDS Design System Marketplace</p>
+                </div>
+                <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">DQ Stories CDS</h3>
+                  <p className="text-gray-600 text-sm mb-4">Content Design System - Access content patterns and writing guidelines.</p>
+                  <p className="text-xs text-gray-500">xDS Design System Marketplace</p>
+                </div>
+              </div>
             ) : isGuides ? (
               <>
                 {activeTab === 'faqs' ? (
@@ -1902,13 +2146,53 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                         </svg>
                       </div>
                     </div>
-                    <GlossaryGrid
-                      items={filteredGlossaryTerms}
-                      onClickTerm={(term) => {
-                        navigate(`/marketplace/guides/glossary/${term.id}`);
-                      }}
-                      hideEmptyState={false}
-                    />
+                    {/* Show 6xD Perspective Cards when Agile 6xD is selected */}
+                    {(() => {
+                      const selectedKnowledgeSystems = parseFilterValues(queryParams, 'glossary_knowledge_system');
+                      const has6xD = selectedKnowledgeSystems.includes('6xd');
+                      const selectedPerspectives = parseFilterValues(queryParams, 'glossary_6xd_perspective');
+                      
+                      // Always show cards when 6xD is selected
+                      if (has6xD) {
+                        return (
+                          <>
+                            <SixXDPerspectiveCards
+                              onCardClick={(perspectiveId) => {
+                                // Navigate to perspective detail page
+                                navigate(`/marketplace/guides/6xd-perspective/${perspectiveId}`);
+                                track('Glossary.6xDPerspectiveSelected', { perspective: perspectiveId });
+                              }}
+                            />
+                            {/* Show filtered terms below cards */}
+                            {filteredGlossaryTerms.length > 0 && (
+                              <div className="mt-8">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                                  {selectedPerspectives.length > 0 ? 'Terms in this perspective' : 'All 6xD terms'}
+                                </h3>
+                                <GlossaryGrid
+                                  items={filteredGlossaryTerms}
+                                  onClickTerm={(term) => {
+                                    navigate(`/marketplace/guides/glossary/${term.id}`);
+                                  }}
+                                  hideEmptyState={false}
+                                />
+                              </div>
+                            )}
+                          </>
+                        );
+                      }
+                      
+                      // Show regular glossary grid when 6xD is not selected
+                      return (
+                        <GlossaryGrid
+                          items={filteredGlossaryTerms}
+                          onClickTerm={(term) => {
+                            navigate(`/marketplace/guides/glossary/${term.id}`);
+                          }}
+                          hideEmptyState={false}
+                        />
+                      );
+                    })()}
                   </>
                 ) : activeTab === 'testimonials' ? (
                   <TestimonialsGrid
@@ -1925,11 +2209,23 @@ type WorkGuideTab = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials' | 
                     <GuidesGrid
                       items={filteredItems}
                       hideEmptyState={false}
+                      emptyStateTitle={activeTab === 'blueprints' ? 'No products found' : 'No guides found'}
+                      emptyStateMessage={activeTab === 'blueprints' ? 'Try adjusting your filters or search' : 'Try adjusting your filters or search'}
                       onClickGuide={(g) => {
                         const qs = queryParams.toString();
-                        navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
-                          state: { fromQuery: qs, activeTab }
-                        });
+                        // Check if this is a product (has productType and productStage, or domain is 'Product')
+                        const isProduct = (g.domain === 'Product') || (g.productType && g.productStage);
+                        if (isProduct) {
+                          // Navigate to product details page
+                          navigate(`/marketplace/products/${encodeURIComponent(g.slug || g.id)}`, {
+                            state: { fromQuery: qs, activeTab }
+                          });
+                        } else {
+                          // Navigate to guide details page
+                          navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
+                            state: { fromQuery: qs, activeTab }
+                          });
+                        }
                       }}
                     />
                     <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">

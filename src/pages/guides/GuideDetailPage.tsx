@@ -10,7 +10,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams, Link } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
-import { ChevronRightIcon, HomeIcon, CheckCircle, Download, AlertTriangle, ExternalLink } from 'lucide-react'
+import { ChevronRightIcon, HomeIcon, CheckCircle, Share2, Download, AlertTriangle, ExternalLink, Calendar, User, Building2, Heart, MessageCircle, BookmarkIcon, FileText, ChevronDown } from 'lucide-react'
 import { supabaseClient } from '../../lib/supabaseClient'
 import { getGuideImageUrl } from '../../utils/guideImageMap'
 import { track } from '../../utils/analytics'
@@ -27,7 +27,6 @@ const QForumGuidelinePage = React.lazy(() => import('../guidelines/qforum-guidel
 const DQCompetenciesPage = React.lazy(() => import('../strategy/dq-competencies/GuidelinePage'))
 const DQVisionMissionPage = React.lazy(() => import('../strategy/dq-vision-mission/GuidelinePage'))
 const DQGHCPage = React.lazy(() => import('../strategy/dq-ghc/GuidelinePage'))
-const DQProductsPage = React.lazy(() => import('../strategy/dq-products/GuidelinePage'))
 const DQVisionPage = React.lazy(() => import('../strategy/dq-vision/GuidelinePage'))
 const DQHoVPage = React.lazy(() => import('../strategy/dq-hov/GuidelinePage'))
 const DQPersonaPage = React.lazy(() => import('../strategy/dq-persona/GuidelinePage'))
@@ -36,6 +35,29 @@ const DQAgileSoSPage = React.lazy(() => import('../strategy/dq-agile-sos/Guideli
 const DQAgileFlowsPage = React.lazy(() => import('../strategy/dq-agile-flows/GuidelinePage'))
 const DQAgile6xDPage = React.lazy(() => import('../strategy/dq-agile-6xd/GuidelinePage'))
 const BlueprintPage = React.lazy(() => import('../blueprints/detail/BlueprintPage'))
+const WFHGuidelinePage = React.lazy(() => import('../guidelines/wfh-guidelines/GuidelinePage'))
+const AssetMaintenanceGuidelinePage = React.lazy(() => import('../guidelines/asset-maintenance-guidelines/GuidelinePage'))
+const DressCodeGuidelinePage = React.lazy(() => import('../guidelines/dress-code-guidelines/GuidelinePage'))
+const DealsBDGuidelinePage = React.lazy(() => import('../guidelines/deals-bd-guidelines/GuidelinePage'))
+const ATPStopScansGuidelinePage = React.lazy(() => import('../guidelines/atp-stop-scans-guidelines/GuidelinePage'))
+const AVRAwardsGuidelinePage = React.lazy(() => import('../guidelines/avr-awards-guidelines/GuidelinePage'))
+const AzureDevOpsTaskGuidelinePage = React.lazy(() => import('../guidelines/azure-devops-task-guidelines/GuidelinePage'))
+const BiometricSystemGuidelinePage = React.lazy(() => import('../guidelines/biometric-system-guidelines/GuidelinePage'))
+const WRAttendancePunctualityPolicyPage = React.lazy(() => import('../guidelines/wr-attendance-punctuality-policy/GuidelinePage'))
+const AssociateOwnedAssetGuidelinePage = React.lazy(() => import('../guidelines/associate-owned-asset-guidelines/GuidelinePage'))
+// 12 Guiding Values pages
+const EmotionalIntelligencePage = React.lazy(() => import('../strategy/dq-competencies-emotional-intelligence/GuidelinePage'))
+const GrowthMindsetPage = React.lazy(() => import('../strategy/dq-competencies-growth-mindset/GuidelinePage'))
+const PurposePage = React.lazy(() => import('../strategy/dq-competencies-purpose/GuidelinePage'))
+const PerceptivePage = React.lazy(() => import('../strategy/dq-competencies-perceptive/GuidelinePage'))
+const ProactivePage = React.lazy(() => import('../strategy/dq-competencies-proactive/GuidelinePage'))
+const PerseverancePage = React.lazy(() => import('../strategy/dq-competencies-perseverance/GuidelinePage'))
+const PrecisionPage = React.lazy(() => import('../strategy/dq-competencies-precision/GuidelinePage'))
+const CustomerPage = React.lazy(() => import('../strategy/dq-competencies-customer/GuidelinePage'))
+const LearningPage = React.lazy(() => import('../strategy/dq-competencies-learning/GuidelinePage'))
+const CollaborationPage = React.lazy(() => import('../strategy/dq-competencies-collaboration/GuidelinePage'))
+const ResponsibilityPage = React.lazy(() => import('../strategy/dq-competencies-responsibility/GuidelinePage'))
+const TrustPage = React.lazy(() => import('../strategy/dq-competencies-trust/GuidelinePage'))
 
 const Markdown = React.lazy(() => import('../../components/guides/MarkdownRenderer'))
 
@@ -79,6 +101,10 @@ const GuideDetailPage: React.FC = () => {
   const [checklistState, setChecklistState] = useState<Record<string, boolean>>({})
   const [previewUnavailable, setPreviewUnavailable] = useState(false)
   const articleRef = useRef<HTMLDivElement | null>(null)
+  const [toc, setToc] = useState<Array<{ id: string; text: string; level: number }>>([])
+  const [isBookmarked, setIsBookmarked] = useState(false)
+  const [likes, setLikes] = useState(47) // Mock likes count
+  const [comments, setComments] = useState(12) // Mock comments count
   const [activeContentTab, setActiveContentTab] = useState<string>('overview')
   const isClientTestimonials = useMemo(() => (guide?.slug || '').toLowerCase() === 'client-testimonials', [guide?.slug])
   const isL24WorkingRooms = useMemo(() => (guide?.slug || '').toLowerCase() === 'dq-l24-working-rooms-guidelines' || (guide?.title || '').toLowerCase().includes('l24 working rooms'), [guide?.slug, guide?.title])
@@ -131,11 +157,6 @@ const GuideDetailPage: React.FC = () => {
     const title = (guide?.title || '').toLowerCase()
     return slug === 'dq-ghc' || slug === 'ghc' || slug === 'golden-honeycomb' || title.includes('ghc') || title.includes('golden honeycomb') || (title.includes('foundation') && title.includes('dna'))
   }, [guide?.slug, guide?.title])
-  const isDQProducts = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-products' || slug === 'dq-products' || title.toLowerCase().includes('dq products') || (title.toLowerCase().includes('products') && !title.toLowerCase().includes('6xd'))
-  }, [guide?.slug, guide?.title])
   const isDQVision = useMemo(() => {
     const slug = (guide?.slug || '').toLowerCase()
     return slug === 'dq-vision' || slug === 'dq-vision-purpose'
@@ -164,11 +185,100 @@ const GuideDetailPage: React.FC = () => {
     const slug = (guide?.slug || '').toLowerCase()
     return slug === 'dq-agile-6xd' || slug === 'agile-6xd'
   }, [guide?.slug])
+  const isWFHGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-wfh-guidelines' || slug === 'wfh-guidelines'
+  }, [guide?.slug])
+  const isAssetMaintenanceGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-asset-maintenance-repair-disposal-guidelines' || slug === 'asset-maintenance-guidelines'
+  }, [guide?.slug])
+  const isDressCodeGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-dress-code-guideline' || slug === 'dress-code-guideline'
+  }, [guide?.slug])
+  const isDealsBDGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-deals-bd-guidelines' || slug === 'deals-bd-guidelines'
+  }, [guide?.slug])
+  const isATPStopScansGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-atp-stop-scans-guidelines' || slug === 'atp-stop-scans-guidelines'
+  }, [guide?.slug])
+  const isAVRAwardsGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-avr-awards-guidelines' || slug === 'avr-awards-guidelines'
+  }, [guide?.slug])
+  const isAzureDevOpsTaskGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-azure-devops-task-guidelines' || slug === 'azure-devops-task-guidelines'
+  }, [guide?.slug])
+  const isBiometricSystemGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-biometric-system-guidelines' || slug === 'biometric-system-guidelines'
+  }, [guide?.slug])
+  const isWRAttendancePunctualityPolicy = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-wr-attendance-punctuality-policy' || slug === 'wr-attendance-punctuality-policy'
+  }, [guide?.slug])
+  const isAssociateOwnedAssetGuidelines = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-associate-owned-asset-guidelines' || slug === 'associate-owned-asset-guidelines'
+  }, [guide?.slug])
+  // 12 Guiding Values checks
+  const isEmotionalIntelligence = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-emotional-intelligence' || slug === 'emotional-intelligence'
+  }, [guide?.slug])
+  const isGrowthMindset = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-growth-mindset' || slug === 'growth-mindset'
+  }, [guide?.slug])
+  const isPurpose = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-purpose'
+  }, [guide?.slug])
+  const isPerceptive = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-perceptive'
+  }, [guide?.slug])
+  const isProactive = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-proactive'
+  }, [guide?.slug])
+  const isPerseverance = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-perseverance'
+  }, [guide?.slug])
+  const isPrecision = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-precision'
+  }, [guide?.slug])
+  const isCustomer = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-customer'
+  }, [guide?.slug])
+  const isLearning = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-learning'
+  }, [guide?.slug])
+  const isCollaboration = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-collaboration'
+  }, [guide?.slug])
+  const isResponsibility = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-responsibility'
+  }, [guide?.slug])
+  const isTrust = useMemo(() => {
+    const slug = (guide?.slug || '').toLowerCase()
+    return slug === 'dq-competencies-trust'
+  }, [guide?.slug])
   
   // Check if this guide should use a custom GuidelinePage
   const hasCustomGuidelinePage = useMemo(() => {
-    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isDQCompetencies || isDQVisionMission || isDQGHC || isDQProducts || isDQVision || isDQHoV || isDQPersona || isDQAgileTMS || isDQAgileSoS || isDQAgileFlows || isDQAgile6xD
-  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isDQCompetencies, isDQVisionMission, isDQGHC, isDQProducts, isDQVision, isDQHoV, isDQPersona, isDQAgileTMS, isDQAgileSoS, isDQAgileFlows, isDQAgile6xD])
+    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isWFHGuidelines || isAssetMaintenanceGuidelines || isDressCodeGuidelines || isDealsBDGuidelines || isATPStopScansGuidelines || isAVRAwardsGuidelines || isAzureDevOpsTaskGuidelines || isBiometricSystemGuidelines || isWRAttendancePunctualityPolicy || isAssociateOwnedAssetGuidelines || isDQCompetencies || isDQVisionMission || isDQGHC || isDQVision || isDQHoV || isDQPersona || isDQAgileTMS || isDQAgileSoS || isDQAgileFlows || isDQAgile6xD || isEmotionalIntelligence || isGrowthMindset || isPurpose || isPerceptive || isProactive || isPerseverance || isPrecision || isCustomer || isLearning || isCollaboration || isResponsibility || isTrust
+  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isWFHGuidelines, isAssetMaintenanceGuidelines, isDressCodeGuidelines, isDealsBDGuidelines, isATPStopScansGuidelines, isAVRAwardsGuidelines, isAzureDevOpsTaskGuidelines, isBiometricSystemGuidelines, isWRAttendancePunctualityPolicy, isAssociateOwnedAssetGuidelines, isDQCompetencies, isDQVisionMission, isDQGHC, isDQVision, isDQHoV, isDQPersona, isDQAgileTMS, isDQAgileSoS, isDQAgileFlows, isDQAgile6xD, isEmotionalIntelligence, isGrowthMindset, isPurpose, isPerceptive, isProactive, isPerseverance, isPrecision, isCustomer, isLearning, isCollaboration, isResponsibility, isTrust])
   const featuredClientTestimonials = [
     {
       id: 'khalifa',
@@ -225,9 +335,8 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
           if (!cancelled) setGuide(data)
         } else {
           const key = String(itemId || '')
-          const { data: slugRow, error: err1 } = await supabaseClient.from('guides').select('*').eq('slug', key).maybeSingle()
+          let { data: row, error: err1 } = await supabaseClient.from('guides').select('*').eq('slug', key).maybeSingle()
           if (err1) throw err1
-          let row = slugRow
           if (!row) {
             const { data: row2, error: err2 } = await supabaseClient.from('guides').select('*').eq('id', key).maybeSingle()
             if (err2) throw err2
@@ -285,9 +394,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
           const full = await res.json()
           if (!cancelled) setGuide({ ...guide, body: full.body || null })
         }
-      } catch (error) {
-        console.error('GuideDetailPage: failed to load full guide body', error)
-      }
+      } catch {}
     })()
     return () => { cancelled = true }
   }, [guide?.id, guide?.slug])
@@ -368,14 +475,19 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     return () => { cancelled = true }
   }, [guide?.id, guide?.domain, guide?.guideType, guide?.slug])
 
-  const imageUrl = useMemo(() => getGuideImageUrl({
-    heroImageUrl: guide?.heroImageUrl || undefined,
-    domain: guide?.domain || undefined,
-    guideType: guide?.guideType || undefined,
-    id: guide?.id,
-    slug: guide?.slug,
-    title: guide?.title,
-  }), [guide?.heroImageUrl, guide?.domain, guide?.guideType, guide?.id, guide?.slug, guide?.title])
+  const imageUrl = useMemo(() => {
+    const computed = getGuideImageUrl({
+      heroImageUrl: guide?.heroImageUrl || undefined,
+      domain: guide?.domain || undefined,
+      guideType: guide?.guideType || undefined,
+      subDomain: guide?.subDomain || (guide as any)?.sub_domain || undefined,
+      id: guide?.id,
+      slug: guide?.slug,
+      title: guide?.title,
+    })
+    const isGuidelinesDomain = (guide?.domain || '').toLowerCase().includes('guideline')
+    return isGuidelinesDomain ? '/images/guidelines-content.PNG' : computed
+  }, [guide?.heroImageUrl, guide?.domain, guide?.guideType, guide?.subDomain, (guide as any)?.sub_domain, guide?.id, guide?.slug, guide?.title])
   const normalizeTag = (value?: string | null) => {
     if (!value) return ''
     const cleaned = value.toLowerCase().replace(/[_-]+/g, ' ').trim()
@@ -511,20 +623,19 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   const stripLeadingEmoji = (s: string): string => {
     // Remove leading emojis/symbols commonly used as icons
     // Unicode ranges cover misc symbols & pictographs
-    // eslint-disable-next-line no-misleading-character-class
     return s.replace(/^[\u200d\ufe0f\uFE0F\u2060\s]*[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}]+\s*/u, '')
   }
   const ensureBulletedTitleCaseLine = (raw: string): string => {
     const line = stripLeadingEmoji(raw.trim())
     if (!line || line.startsWith('##')) return raw
     // - **Label**: text
-    const m1 = line.match(/^-\s*\*\*([^*]+)\*\*\s*:\s*(.*)$/)
+    const m1 = line.match(/^\-\s*\*\*([^*]+)\*\*\s*:\s*(.*)$/)
     if (m1) return `- **${toTitleCaseLabel(stripLeadingEmoji(m1[1]))}**: ${m1[2]}`
     // **Label**: text
     const m2 = line.match(/^\*\*([^*]+)\*\*\s*:\s*(.*)$/)
     if (m2) return `- **${toTitleCaseLabel(stripLeadingEmoji(m2[1]))}**: ${m2[2]}`
     // - Label: text
-    const m3 = line.match(/^-\s*([^:]+)\s*:\s*(.*)$/)
+    const m3 = line.match(/^\-\s*([^:]+)\s*:\s*(.*)$/)
     if (m3) return `- **${toTitleCaseLabel(stripLeadingEmoji(m3[1]))}**: ${m3[2]}`
     // Label: text (leading letter, avoid headers/lists)
     const m4 = line.match(/^[A-Za-z][^:]*:\s*.*$/)
@@ -648,7 +759,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
             sections[currentSection] = content
           }
         }
-        const sectionTitle = h2Match[1].trim().replace(/\*\*/g, '')
+        let sectionTitle = h2Match[1].trim().replace(/\*\*/g, '')
         const normalized = sectionTitle.toLowerCase()
         currentSection = sectionMappings[normalized] || sectionTitle
         currentContent = []
@@ -851,6 +962,19 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     track('Guides.Download', { slug: guide?.slug || guide?.id, category, id: item.id || item.url, title: item.title || undefined })
     window.open(item.url, '_blank', 'noopener,noreferrer')
   }
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: guide?.title || '',
+        text: guide?.summary || '',
+        url: window.location.href,
+      }).catch(() => {})
+    } else {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        // Could show a toast notification here
+      }).catch(() => {})
+    }
+  }
   // CODEx: banner open/download controls for main document
   const openMainDocument = () => {
     if (!hasDocument) return
@@ -870,8 +994,31 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   const isPractitionerType = useMemo(() => ['best practice', 'best-practice', 'process', 'sop', 'procedure'].includes(type), [type])
   const showFallbackModule = useMemo(() => isPractitionerType && !showTemplates && !showAttachments, [isPractitionerType, showTemplates, showAttachments])
   const lastUpdated = useMemo(() => guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null, [guide?.lastUpdatedAt])
+  const announcementDate = guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : null
+  const announcementDateShort = guide?.lastUpdatedAt ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null
+  
+  // Generate initials for author icon (G|CC style)
+  const getAuthorInitials = () => {
+    if (guide?.authorOrg) {
+      const parts = guide.authorOrg.split('|').map(p => p.trim())
+      if (parts.length >= 2) {
+        return `${parts[0].charAt(0)}|${parts[1].substring(0, 2).toUpperCase()}`
+      }
+      return guide.authorOrg.substring(0, 3).toUpperCase()
+    }
+    if (guide?.authorName) {
+      const names = guide.authorName.split(' ')
+      if (names.length >= 2) {
+        return `${names[0].charAt(0)}${names[1].charAt(0)}`.toUpperCase()
+      }
+      return guide.authorName.substring(0, 2).toUpperCase()
+    }
+    return 'DQ'
+  }
   const isApproved = useMemo(() => ((guide?.status) || 'Approved') === 'Approved', [guide?.status])
   const isPolicy = useMemo(() => type === 'policy', [type])
+  const showPolicyCtas = isPolicy
+  const showDocumentActions = hasDocument
   const isPreviewableDocument = useMemo(() => {
     if (!isPolicy || !hasDocument) return false
     const base = documentUrl.split('#')[0].split('?')[0].toLowerCase()
@@ -893,7 +1040,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
-        <Header toggleSidebar={() => undefined} sidebarOpen={false} />
+        <Header toggleSidebar={() => {}} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl"><div className="bg-white rounded shadow p-8 text-center text-gray-500">Loading…</div></main>
         <Footer isLoggedIn={!!user} />
       </div>
@@ -903,7 +1050,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   if (error || !guide) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
-        <Header toggleSidebar={() => undefined} sidebarOpen={false} />
+        <Header toggleSidebar={() => {}} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl">
           <nav className="flex mb-4" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
@@ -958,6 +1105,46 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
       return <SuspenseWrapper><QForumGuidelinePage /></SuspenseWrapper>
     }
 
+    if (isWFHGuidelines) {
+      return <SuspenseWrapper><WFHGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isAssetMaintenanceGuidelines) {
+      return <SuspenseWrapper><AssetMaintenanceGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isDressCodeGuidelines) {
+      return <SuspenseWrapper><DressCodeGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isDealsBDGuidelines) {
+      return <SuspenseWrapper><DealsBDGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isATPStopScansGuidelines) {
+      return <SuspenseWrapper><ATPStopScansGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isAVRAwardsGuidelines) {
+      return <SuspenseWrapper><AVRAwardsGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isAzureDevOpsTaskGuidelines) {
+      return <SuspenseWrapper><AzureDevOpsTaskGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isBiometricSystemGuidelines) {
+      return <SuspenseWrapper><BiometricSystemGuidelinePage /></SuspenseWrapper>
+    }
+
+    if (isWRAttendancePunctualityPolicy) {
+      return <SuspenseWrapper><WRAttendancePunctualityPolicyPage /></SuspenseWrapper>
+    }
+
+    if (isAssociateOwnedAssetGuidelines) {
+      return <SuspenseWrapper><AssociateOwnedAssetGuidelinePage /></SuspenseWrapper>
+    }
+
     // Check GHC BEFORE DQ Competencies (GHC is more specific and its title contains "Competencies")
     if (isDQGHC) {
       return <SuspenseWrapper><DQGHCPage /></SuspenseWrapper>
@@ -965,10 +1152,6 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
 
     if (isDQCompetencies) {
       return <SuspenseWrapper><DQCompetenciesPage /></SuspenseWrapper>
-    }
-
-    if (isDQProducts) {
-      return <SuspenseWrapper><DQProductsPage /></SuspenseWrapper>
     }
 
     if (isDQVisionMission) {
@@ -1003,6 +1186,55 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     if (isDQAgile6xD) {
       return <SuspenseWrapper><DQAgile6xDPage /></SuspenseWrapper>
     }
+
+    // 12 Guiding Values
+    if (isEmotionalIntelligence) {
+      return <SuspenseWrapper><EmotionalIntelligencePage /></SuspenseWrapper>
+    }
+
+    if (isGrowthMindset) {
+      return <SuspenseWrapper><GrowthMindsetPage /></SuspenseWrapper>
+    }
+
+    if (isPurpose) {
+      return <SuspenseWrapper><PurposePage /></SuspenseWrapper>
+    }
+
+    if (isPerceptive) {
+      return <SuspenseWrapper><PerceptivePage /></SuspenseWrapper>
+    }
+
+    if (isProactive) {
+      return <SuspenseWrapper><ProactivePage /></SuspenseWrapper>
+    }
+
+    if (isPerseverance) {
+      return <SuspenseWrapper><PerseverancePage /></SuspenseWrapper>
+    }
+
+    if (isPrecision) {
+      return <SuspenseWrapper><PrecisionPage /></SuspenseWrapper>
+    }
+
+    if (isCustomer) {
+      return <SuspenseWrapper><CustomerPage /></SuspenseWrapper>
+    }
+
+    if (isLearning) {
+      return <SuspenseWrapper><LearningPage /></SuspenseWrapper>
+    }
+
+    if (isCollaboration) {
+      return <SuspenseWrapper><CollaborationPage /></SuspenseWrapper>
+    }
+
+    if (isResponsibility) {
+      return <SuspenseWrapper><ResponsibilityPage /></SuspenseWrapper>
+    }
+
+    if (isTrust) {
+      return <SuspenseWrapper><TrustPage /></SuspenseWrapper>
+    }
   }
 
 
@@ -1019,11 +1251,10 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   }
 
   // OLD Blueprint rendering - now replaced by BlueprintPage component above
-  // eslint-disable-next-line no-constant-condition
   if (false && actualIsBlueprintDomain) {
     return (
-      <div className="min-h-screen flex flex-col guidelines-theme dq-products-bg" style={{ minHeight: '100vh' }}>
-        <Header toggleSidebar={() => undefined} sidebarOpen={false} />
+      <div className="min-h-screen flex flex-col guidelines-theme" style={{ minHeight: '100vh' }}>
+        <Header toggleSidebar={() => {}} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl" role="main" style={{ backgroundColor: 'transparent' }}>
           <nav className="flex mb-6" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
@@ -1117,7 +1348,10 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                   {parsedGuideSections.map((section, index) => (
                     <div key={index} className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
                       <div className="p-6 md:p-8">
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">{section.title}</h2>
+                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 pl-4 relative">
+                          <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] to-transparent"></span>
+                          {section.title}
+                        </h2>
                         <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed space-y-4">
                           <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
                             <Markdown body={section.content} />
@@ -1174,6 +1408,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                         heroImageUrl: r.heroImageUrl || undefined,
                         domain: r.domain || undefined,
                         guideType: r.guideType || undefined,
+                        subDomain: r.subDomain || (r as any)?.sub_domain || undefined,
                         id: r.id,
                         slug: r.slug,
                         title: r.title,
@@ -1208,8 +1443,8 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   // Skip blueprint domain as it has its own special layout
   if (!actualIsBlueprintDomain) {
     return (
-      <div className="min-h-screen flex flex-col guidelines-theme dq-products-bg" style={{ minHeight: '100vh' }}>
-        <Header toggleSidebar={() => undefined} sidebarOpen={false} />
+      <div className="min-h-screen flex flex-col guidelines-theme" style={{ minHeight: '100vh' }}>
+        <Header toggleSidebar={() => {}} sidebarOpen={false} />
         <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl" role="main" style={{ backgroundColor: 'transparent' }}>
           <nav className="flex mb-6" aria-label="Breadcrumb">
             <ol className="inline-flex items-center space-x-1 md:space-x-2">
@@ -1303,7 +1538,10 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                   {parsedGuideSections.map((section, index) => (
                     <div key={index} className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
                       <div className="p-6 md:p-8">
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">{section.title}</h2>
+                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 pl-4 relative">
+                          <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] to-transparent"></span>
+                          {section.title}
+                        </h2>
                         <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed space-y-4">
                           <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
                             <Markdown body={section.content} />
@@ -1360,6 +1598,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                         heroImageUrl: r.heroImageUrl || undefined,
                         domain: r.domain || undefined,
                         guideType: r.guideType || undefined,
+                        subDomain: r.subDomain || (r as any)?.sub_domain || undefined,
                         id: r.id,
                         slug: r.slug,
                         title: r.title,
@@ -1392,7 +1631,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
-      <Header toggleSidebar={() => undefined} sidebarOpen={false} />
+      <Header toggleSidebar={() => {}} sidebarOpen={false} />
       <main className="container mx-auto px-4 py-8 flex-grow guide-detail max-w-7xl" role="main">
         <nav className="flex mb-4" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
@@ -1412,72 +1651,53 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
           </div>
         )}
 
-        {/* Header - Course-style format */}
-        <div className="bg-white rounded-lg shadow mb-6">
-          <div className="p-6">
-            {/* Title with icon + top-right CTA */}
-            <div className="flex items-center justify-between gap-4 mb-4">
-              <h1 id="guide-title" className="text-2xl md:text-3xl font-bold text-gray-900">
-                {guide.title}
-              </h1>
-              {actualIsBlueprintDomain && (
-                <a
-                  href={primaryDocUrl || '#templates'}
-                  target={primaryDocUrl ? '_blank' : undefined}
-                  rel={primaryDocUrl ? 'noopener noreferrer' : undefined}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full self-start text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] transition-all"
-                  style={{ backgroundColor: '#030E31' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#020A28'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030E31'}
-                >
-                  <span>View Blueprint</span>
-                  <ExternalLink size={16} className="opacity-90" />
-                </a>
+        {/* Header card - Updated to match screenshot styling */}
+        <header className="bg-white rounded-lg shadow p-6 mb-6" aria-labelledby="guide-title">
+          <div className="space-y-4">
+            {/* Category tag and date row */}
+            <div className="flex items-center gap-4 flex-wrap">
+              {guide.guideType && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">
+                  {guide.guideType}
+                </span>
               )}
-              {actualIsGuidelinesDomain && (
-                <a
-                  href={primaryDocUrl || '#'}
-                  target={primaryDocUrl && primaryDocUrl !== '#' ? '_blank' : undefined}
-                  rel={primaryDocUrl && primaryDocUrl !== '#' ? 'noopener noreferrer' : undefined}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full self-start text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] transition-all"
-                  style={{ backgroundColor: '#030E31' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#020A28'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030E31'}
-                >
-                  <span>View Guideline</span>
-                  <ExternalLink size={16} className="opacity-90" />
-                </a>
-              )}
-              {actualIsStrategyDomain && (
-                <a
-                  href={primaryDocUrl || '#'}
-                  target={primaryDocUrl && primaryDocUrl !== '#' ? '_blank' : undefined}
-                  rel={primaryDocUrl && primaryDocUrl !== '#' ? 'noopener noreferrer' : undefined}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full self-start text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] transition-all"
-                  style={{ backgroundColor: '#030E31' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#020A28'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030E31'}
-                >
-                  <span>View Strategy</span>
-                  <ExternalLink size={16} className="opacity-90" />
-                </a>
-              )}
-              {actualIsTestimonialsDomain && (
-                <a
-                  href={primaryDocUrl || '#'}
-                  target={primaryDocUrl && primaryDocUrl !== '#' ? '_blank' : undefined}
-                  rel={primaryDocUrl && primaryDocUrl !== '#' ? 'noopener noreferrer' : undefined}
-                  className="inline-flex items-center gap-2 px-5 py-2 rounded-full self-start text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)] transition-all"
-                  style={{ backgroundColor: '#030E31' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#020A28'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#030E31'}
-                >
-                  <span>View Testimonial</span>
-                  <ExternalLink size={16} className="opacity-90" />
-                </a>
+              {announcementDateShort && (
+                <div className="flex items-center gap-2 text-gray-600 text-sm">
+                  <Calendar size={16} className="text-gray-400" />
+                  <span>{announcementDateShort}</span>
+                </div>
               )}
             </div>
-            
+
+            {/* Title */}
+            <h1 id="guide-title" className="text-3xl font-bold text-gray-900">{guide.title}</h1>
+
+            {/* Author info with circular icon */}
+            {(guide.authorName || guide.authorOrg) && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-semibold">
+                  {getAuthorInitials()}
+                </div>
+                <div>
+                  {guide.authorOrg && (
+                    <div className="font-medium text-gray-900">{guide.authorOrg}</div>
+                  )}
+                  {guide.authorName && (
+                    <div className="text-sm text-gray-600">{guide.authorName}</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Image if available */}
+            {imageUrl && (
+              <img src={imageUrl} alt={guide.title} className="w-full h-60 object-cover rounded mb-4" loading="lazy" decoding="async" width={1200} height={320} />
+            )}
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
             {/* Tags + View Blueprint (Blueprints) */}
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <div className="flex flex-wrap items-center gap-2">
@@ -1615,6 +1835,17 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
               />
             )}
 
+            {/* Announcement body content */}
+            {guide.body && !isPolicy && (
+              <section className="bg-white rounded-lg shadow p-6" aria-label="Content">
+                <div className="prose max-w-none">
+                  <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
+                    <Markdown body={guide.body || ''} />
+                  </React.Suspense>
+                </div>
+              </section>
+            )}
+
             {/* CODEx: Concise Summary card for policy pages only - hidden when tabs are present */}
             {isPolicy && (derivedSummary || guide.summary) && !hasTabsEffective && (
               <section className="bg-white rounded-lg shadow p-6" aria-label="Summary">
@@ -1635,6 +1866,101 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                 )}
               </section>
             )}
+
+            {/* COMPANY NEWS DETAILS Section */}
+            <section className="bg-gray-50 rounded-lg p-6 border border-gray-200" aria-label="Company News Details">
+              <div className="space-y-4">
+                {announcementDate && (
+                  <div className="flex items-center gap-3">
+                    <Calendar size={18} className="text-gray-500" />
+                    <div>
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">ANNOUNCEMENT DATE</div>
+                      <div className="text-gray-900">{announcementDate}</div>
+                    </div>
+                  </div>
+                )}
+                {(guide.authorName || guide.authorOrg) && (
+                  <div className="flex items-center gap-3">
+                    <User size={18} className="text-gray-500" />
+                    <div>
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">RELEVANT CONTACT</div>
+                      <div className="text-gray-900">{guide.authorOrg || guide.authorName || 'N/A'}</div>
+                    </div>
+                  </div>
+                )}
+                {(guide.functionArea || guide.domain) && (
+                  <div className="flex items-center gap-3">
+                    <Building2 size={18} className="text-gray-500" />
+                    <div>
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">DEPARTMENT</div>
+                      <div className="text-gray-900">{guide.functionArea || guide.domain || 'N/A'}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* NEXT STEPS Section */}
+            <section className="bg-white rounded-lg shadow p-6" aria-label="Next Steps">
+              <h2 className="text-xl font-semibold mb-4">NEXT STEPS</h2>
+              <div className="flex flex-wrap gap-3">
+                {hasDocument && (
+                  <button
+                    onClick={openMainDocument}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#030f35] text-white rounded-lg hover:opacity-90 transition-colors focus:outline-none focus:ring-2 focus:ring-[#030f35]"
+                  >
+                    <FileText size={16} /> Read Full Policy
+                  </button>
+                )}
+                <button
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-800 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+                >
+                  <FileText size={16} /> Complete Survey
+                </button>
+                <button
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-800 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+                >
+                  <Calendar size={16} /> Book Orientation
+                </button>
+              </div>
+            </section>
+
+            {/* Engagement Metrics and Actions */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+                    <Heart size={18} />
+                    <span>{likes}</span>
+                  </button>
+                  <button className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+                    <MessageCircle size={18} />
+                    <span>{comments}</span>
+                  </button>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setIsBookmarked(!isBookmarked)}
+                    className={`p-2 rounded hover:bg-gray-100 transition-colors ${isBookmarked ? 'text-blue-600' : 'text-gray-600'}`}
+                    aria-label="Bookmark"
+                  >
+                    <BookmarkIcon size={18} fill={isBookmarked ? 'currentColor' : 'none'} />
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="p-2 rounded hover:bg-gray-100 transition-colors text-gray-600"
+                    aria-label="Share"
+                  >
+                    <Share2 size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Questions section */}
+            <div className="text-sm text-gray-600 pt-4">
+              <strong>Questions about this announcement?</strong> Contact {guide.authorOrg || guide.authorName || 'Human Resources'}.
+            </div>
 
             {/* CODEx: For policy pages, long body behind a toggle; for others, show as usual */}
             {isClientTestimonials && (
@@ -1673,9 +1999,9 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
 
             {!isClientTestimonials && type !== 'template' && guide.body && !hasTabsEffective && (
               <article
-                id={isPolicy ? 'full-details' : undefined}
+                id="full-details"
                 ref={articleRef}
-                className={`bg-white rounded-lg shadow p-6 markdown-body ${isPolicy && !showFullDetails ? 'hidden' : ''}`}
+                className={`bg-white rounded-lg shadow p-6 markdown-body ${!showFullDetails ? 'hidden' : ''}`}
                 dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}
               >
                 <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
@@ -1796,10 +2122,11 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
             )}
           </div>
 
+          {/* Sidebar: Related Announcements - Updated to match screenshot */}
           <aside className="lg:col-span-1 space-y-6 lg:sticky lg:top-24" aria-label="Secondary">
             {related && related.length > 0 && (
               <section aria-labelledby="related-title" className="bg-white rounded-lg shadow p-6" id="related">
-                <h2 id="related-title" className="text-xl font-semibold mb-4">Related Guides</h2>
+                <h2 id="related-title" className="text-xl font-semibold mb-4">Related Announcements</h2>
                 <div className="space-y-3">
                   {related.map((r) => (
                     <Link
@@ -1814,6 +2141,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                             heroImageUrl: r.heroImageUrl || undefined,
                             domain: r.domain || undefined,
                             guideType: r.guideType || undefined,
+                            subDomain: r.subDomain || (r as any)?.sub_domain || undefined,
                             id: r.id,
                             slug: r.slug,
                             title: r.title,
@@ -1846,7 +2174,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   // Final safety fallback - should never reach here, but ensures something always renders
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
-      <Header toggleSidebar={() => undefined} sidebarOpen={false} />
+      <Header toggleSidebar={() => {}} sidebarOpen={false} />
       <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl">
         <div className="bg-white rounded shadow p-8 text-center">
           <h2 className="text-xl font-medium text-gray-900 mb-2">Unable to load guide</h2>
