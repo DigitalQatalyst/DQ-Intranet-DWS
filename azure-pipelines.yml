@@ -1,5 +1,11 @@
-pr: none
-trigger: none
+pr: 
+  branches:
+    include:
+      - release
+trigger: 
+  branches:
+    include:
+      - release
 
 pool:
   vmImage: ubuntu-latest
@@ -24,6 +30,7 @@ stages:
     steps:
     - checkout: self
 
+    # 1️ Build & Push Image
     - task: Docker@2
       displayName: Build & Push Frontend
       inputs:
@@ -33,6 +40,22 @@ stages:
         Dockerfile: Dockerfile
         tags: |
           $(imageTag)
+
+    # 2️ Install Trivy
+    - script: |
+        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin latest
+        trivy --version
+      displayName: Install Trivy
+
+
+    # 3️ Trivy Image Scan (FAILS BUILD on High/Critical)
+    - script: |
+        trivy image \
+          --exit-code 1 \
+          --severity HIGH,CRITICAL \
+          --no-progress \
+          $(registry)/$(imageName):$(imageTag)
+      displayName: Trivy Image Scan.  
 
 - stage: Deploy
   displayName: Deploy to OVH Kubernetes
