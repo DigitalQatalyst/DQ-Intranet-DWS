@@ -47,6 +47,10 @@ html {
   color: transparent;
 }
 
+.gradient-dws {
+  background: linear-gradient(135deg, #0E1446 0%, #6B3E5C 55%, #FB5535 100%);
+}
+
 .gradient-divider {
   height: 2px;
   background: linear-gradient(90deg, transparent 0%, hsl(228 100% 25% / 0.2) 50%, transparent 100%);

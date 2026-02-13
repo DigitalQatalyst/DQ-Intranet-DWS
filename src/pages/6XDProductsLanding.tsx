@@ -347,7 +347,7 @@ export default function SixXDProductsLanding() {
     <>
       <Header />
       <div className="bg-background text-foreground">
-      <section id="hero" className="relative min-h-[85vh] overflow-hidden gradient-hero">
+      <section id="hero" className="relative min-h-[85vh] overflow-hidden gradient-dws">
         <div className="absolute inset-0">
           {HERO_ORBS.map((orb, index) => (
             <motion.div
@@ -798,10 +798,7 @@ export default function SixXDProductsLanding() {
         </div>
       </section>
 
-      <section
-        id="closing"
-        className="relative overflow-hidden bg-gradient-to-br from-[#002180] via-[#1a3a8f] to-[#FB5535] py-28 md:py-36"
-      >
+      <section id="closing" className="relative overflow-hidden gradient-dws py-28 md:py-36">
         <div className="absolute inset-0">
           <div className="absolute right-[-200px] top-[-180px] h-[420px] w-[420px] rounded-full blur-[120px]" style={{ backgroundColor: 'rgba(251,85,53,0.25)' }} />
           <div className="absolute left-[-180px] bottom-[-180px] h-[480px] w-[480px] rounded-full blur-[140px]" style={{ backgroundColor: 'rgba(0,33,128,0.2)' }} />
