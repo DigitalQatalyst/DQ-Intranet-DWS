@@ -956,10 +956,24 @@ interface CompetencyCardProps {
   variant?: 'default' | 'stage';
 }
 
+const getProblemText = (card: CompetencyCard, hasLens: boolean) => {
+  if (card.executionQuestion) return card.executionQuestion;
+  if (hasLens && card.lensLine1) return card.lensLine1;
+  return card.problem;
+};
+
+const getResponseText = (card: CompetencyCard, hasLens: boolean) => {
+  if (card.executionLens) return card.executionLens;
+  if (hasLens && card.lensLine2) return card.lensLine2;
+  return card.response;
+};
+
 function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
   const navigate = useNavigate();
   const hasLens = Boolean(card.lensLine1 || card.lensLine2);
   const isStage = variant === 'stage';
+  const problemText = getProblemText(card, hasLens);
+  const responseText = getResponseText(card, hasLens);
 
   return (
     <article
@@ -999,11 +1013,7 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
             style={{ fontSize: '16px' }}
           >
             <span className="font-semibold">Problem:</span>{' '}
-            {card.executionQuestion
-              ? card.executionQuestion
-              : hasLens && card.lensLine1
-                ? card.lensLine1
-                : card.problem}
+            {problemText}
           </p>
 
           <p
@@ -1013,11 +1023,7 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
             style={{ fontSize: '16px' }}
           >
             <span className="font-semibold">Response:</span>{' '}
-            {card.executionLens
-              ? card.executionLens
-              : hasLens && card.lensLine2
-                ? card.lensLine2
-                : card.response}
+            {responseText}
           </p>
         </div>
 
@@ -1268,148 +1274,172 @@ function SevenResponsesRailCarousel({
    Section: Take Action
    ----------------------------------------- */
 
-function SectionTakeAction({ navigate, content }: { navigate: (path: string) => void; content?: LandingOverrides }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.15 });
-  const actionCards = content?.actionCards ?? ACTION_CARDS_DEFAULT;
-  const takeActionTitle = content?.takeActionTitle ?? 'Bring it to life';
-  const takeActionSubtitle =
-    content?.takeActionSubtitle ?? 'Understanding is the start. GHC becomes real through application, practice, and lived experience.';
-  const takeActionTitleFontSize = content?.takeActionTitleFontSize;
-  const takeActionSubtitleFontSize = content?.takeActionSubtitleFontSize;
-  const takeActionLayout = content?.takeActionLayout ?? 'grid';
-  const handleNavigate = (path: string) => {
-    if (path.startsWith('http')) {
-      window.open(path, '_blank', 'noopener,noreferrer');
-    } else {
-      navigate(path);
-    }
-  };
+const TakeActionHeader = ({
+  title,
+  subtitle,
+  titleFontSize,
+  subtitleFontSize,
+  isInView,
+}: {
+  title: string;
+  subtitle: string;
+  titleFontSize?: string;
+  subtitleFontSize?: string;
+  isInView: boolean;
+}) => (
+  <motion.div
+    className="text-center mb-12"
+    initial={{ opacity: 0, y: 20 }}
+    animate={isInView ? { opacity: 1, y: 0 } : {}}
+    transition={{ duration: 0.5 }}
+  >
+    <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur mx-auto mb-2">
+      TAKE ACTION
+    </p>
+    <h2
+      className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3"
+      style={{ fontSize: titleFontSize ?? '36px' }}
+    >
+      {title}
+    </h2>
+    <p
+      className="text-[#4a5678] max-w-2xl mx-auto text-lg"
+      style={{ fontSize: subtitleFontSize ?? '18px', whiteSpace: 'nowrap' }}
+    >
+      {subtitle}
+    </p>
+  </motion.div>
+);
 
-  if (takeActionLayout === 'grid') {
-    return (
-      <section
-        ref={ref}
-        className="py-20 md:py-24"
-        style={{
-          background: 'linear-gradient(180deg, #f0f6ff 0%, #ffffff 55%, #f0f6ff 100%)',
-        }}
+const TakeActionGridLayout = ({
+  refEl,
+  isInView,
+  cards,
+  title,
+  subtitle,
+  titleFontSize,
+  subtitleFontSize,
+  handleNavigate,
+}: {
+  refEl: React.RefObject<HTMLDivElement>;
+  isInView: boolean;
+  cards: ActionCard[];
+  title: string;
+  subtitle: string;
+  titleFontSize?: string;
+  subtitleFontSize?: string;
+  handleNavigate: (path: string) => void;
+}) => (
+  <section
+    ref={refEl}
+    className="py-20 md:py-24"
+    style={{
+      background: 'linear-gradient(180deg, #f0f6ff 0%, #ffffff 55%, #f0f6ff 100%)',
+    }}
+  >
+    <div className="container mx-auto px-4 md:px-6 lg:px-10">
+      <TakeActionHeader
+        title={title}
+        subtitle={subtitle}
+        titleFontSize={titleFontSize}
+        subtitleFontSize={subtitleFontSize}
+        isInView={isInView}
+      />
+
+      <motion.div
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate={isInView ? 'visible' : 'hidden'}
       >
-        <div className="container mx-auto px-4 md:px-6 lg:px-10">
+        {cards.map((card) => (
           <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
+            key={card.title}
+            variants={itemVariants}
+            className={`rounded-3xl p-6 md:p-8 shadow-sm border border-white/60 ${card.bg} flex flex-col`}
           >
-            <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur mx-auto mb-2">
-              TAKE ACTION
-            </p>
-            <h2
-              className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3"
-              style={{ fontSize: takeActionTitleFontSize ?? '36px' }}
-            >
-              {takeActionTitle}
-            </h2>
-            <p
-              className="text-[#4a5678] max-w-2xl mx-auto text-lg"
-              style={{ fontSize: takeActionSubtitleFontSize ?? '18px', whiteSpace: 'nowrap' }}
-            >
-              {takeActionSubtitle}
-            </p>
-          </motion.div>
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
+                <card.icon className="h-6 w-6" style={{ color: card.iconColor }} />
+              </div>
+              <div className="flex-1">
+                <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${card.badgeColor}`}>
+                  {card.badge}
+                </p>
+                <h3 className="mt-2 text-xl md:text-2xl font-semibold text-[#131e42]">
+                  {card.title}
+                </h3>
+                <p className="mt-3 text-sm md:text-base text-[#4a5678] leading-relaxed">
+                  {card.description}
+                </p>
+              </div>
+            </div>
 
-          <motion.div
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto"
-            variants={containerVariants}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-          >
-            {actionCards.map((card) => (
-              <motion.div
-                key={card.title}
-                variants={itemVariants}
-                className={`rounded-3xl p-6 md:p-8 shadow-sm border border-white/60 ${card.bg} flex flex-col`}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
-                    <card.icon className="h-6 w-6" style={{ color: card.iconColor }} />
-                  </div>
-                  <div className="flex-1">
-                    <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${card.badgeColor}`}>
-                      {card.badge}
-                    </p>
-                    <h3 className="mt-2 text-xl md:text-2xl font-semibold text-[#131e42]">
-                      {card.title}
-                    </h3>
-                    <p className="mt-3 text-sm md:text-base text-[#4a5678] leading-relaxed">
-                      {card.description}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {card.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 rounded-full bg-white/70 text-[#4a5678] text-xs font-medium"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleNavigate(card.path)}
-                  className={`mt-5 inline-flex items-center gap-2 text-sm font-semibold ${card.accent} hover:opacity-80`}
+            <div className="mt-4 flex flex-wrap gap-2">
+              {card.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 rounded-full bg-white/70 text-[#4a5678] text-xs font-medium"
                 >
-                  {card.cta}
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-    );
-  }
+                  {tag}
+                </span>
+              ))}
+            </div>
 
-  const primaryCard = actionCards.find((card) => card.variant === 'primary') ?? actionCards[0];
-  const secondaryCards = actionCards.filter((card) => card !== primaryCard);
+            <button
+              type="button"
+              onClick={() => handleNavigate(card.path)}
+              className={`mt-5 inline-flex items-center gap-2 text-sm font-semibold ${card.accent} hover:opacity-80`}
+            >
+              {card.cta}
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  </section>
+);
+
+const TakeActionPrimaryLayout = ({
+  refEl,
+  isInView,
+  cards,
+  title,
+  subtitle,
+  titleFontSize,
+  subtitleFontSize,
+  handleNavigate,
+}: {
+  refEl: React.RefObject<HTMLDivElement>;
+  isInView: boolean;
+  cards: ActionCard[];
+  title: string;
+  subtitle: string;
+  titleFontSize?: string;
+  subtitleFontSize?: string;
+  handleNavigate: (path: string) => void;
+}) => {
+  const primaryCard = cards.find((card) => card.variant === 'primary') ?? cards[0];
+  const secondaryCards = cards.filter((card) => card !== primaryCard);
   const hasPrimary = Boolean(primaryCard);
 
   return (
     <section
-      ref={ref}
+      ref={refEl}
       className="py-20 md:py-24"
       style={{
         background: 'linear-gradient(180deg, #f0f6ff 0%, #ffffff 55%, #f0f6ff 100%)',
       }}
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-10">
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-        >
-          <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur mx-auto mb-2">
-            TAKE ACTION
-          </p>
-          <h2
-            className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3"
-            style={{ fontSize: takeActionTitleFontSize ?? '36px' }}
-          >
-            {takeActionTitle}
-          </h2>
-          <p
-            className="text-[#4a5678] max-w-2xl mx-auto text-lg"
-            style={{ fontSize: takeActionSubtitleFontSize ?? '18px', whiteSpace: 'nowrap' }}
-          >
-            {takeActionSubtitle}
-          </p>
-        </motion.div>
+        <TakeActionHeader
+          title={title}
+          subtitle={subtitle}
+          titleFontSize={titleFontSize}
+          subtitleFontSize={subtitleFontSize}
+          isInView={isInView}
+        />
 
         {hasPrimary ? (
           <div className="grid gap-6 max-w-6xl mx-auto">
@@ -1418,7 +1448,7 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
                 variants={itemVariants}
                 initial="hidden"
                 animate={isInView ? 'visible' : 'hidden'}
-                className={`group relative p-8 md:p-10 rounded-3xl border shadow-[0_18px_36px_rgba(0,0,0,0.12)] bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b] text-white`}
+                className="group relative p-8 md:p-10 rounded-3xl border shadow-[0_18px_36px_rgba(0,0,0,0.12)] bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b] text-white"
               >
                 <div className="flex flex-col md:flex-row md:items-start md:gap-6">
                   <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
@@ -1473,7 +1503,7 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
                 variants={containerVariants}
                 custom={0}
               >
-                {secondaryCards.map((item, i) => (
+                {secondaryCards.map((item) => (
                   <motion.div
                     key={item.title}
                     variants={itemVariants}
@@ -1526,7 +1556,7 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
             variants={containerVariants}
             custom={0}
           >
-            {actionCards.map((item, i) => (
+            {cards.map((item) => (
               <motion.div
                 key={item.title}
                 variants={itemVariants}
@@ -1573,6 +1603,53 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
         )}
       </div>
     </section>
+  );
+};
+
+function SectionTakeAction({ navigate, content }: { navigate: (path: string) => void; content?: LandingOverrides }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.15 });
+  const actionCards = content?.actionCards ?? ACTION_CARDS_DEFAULT;
+  const takeActionTitle = content?.takeActionTitle ?? 'Bring it to life';
+  const takeActionSubtitle =
+    content?.takeActionSubtitle ?? 'Understanding is the start. GHC becomes real through application, practice, and lived experience.';
+  const takeActionTitleFontSize = content?.takeActionTitleFontSize;
+  const takeActionSubtitleFontSize = content?.takeActionSubtitleFontSize;
+  const takeActionLayout = content?.takeActionLayout ?? 'grid';
+  const handleNavigate = (path: string) => {
+    if (path.startsWith('http')) {
+      window.open(path, '_blank', 'noopener,noreferrer');
+    } else {
+      navigate(path);
+    }
+  };
+
+  if (takeActionLayout === 'grid') {
+    return (
+      <TakeActionGridLayout
+        refEl={ref}
+        isInView={isInView}
+        cards={actionCards}
+        title={takeActionTitle}
+        subtitle={takeActionSubtitle}
+        titleFontSize={takeActionTitleFontSize}
+        subtitleFontSize={takeActionSubtitleFontSize}
+        handleNavigate={handleNavigate}
+      />
+    );
+  }
+
+  return (
+    <TakeActionPrimaryLayout
+      refEl={ref}
+      isInView={isInView}
+      cards={actionCards}
+      title={takeActionTitle}
+      subtitle={takeActionSubtitle}
+      titleFontSize={takeActionTitleFontSize}
+      subtitleFontSize={takeActionSubtitleFontSize}
+      handleNavigate={handleNavigate}
+    />
   );
 }
 
