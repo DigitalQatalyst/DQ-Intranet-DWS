@@ -60,13 +60,12 @@ const AUTHORITY_SIGNUP = POLICY_SIGNUP
 // 2. Azure AD tenant (https://login.microsoftonline.com/{tenantId})
 // 3. CIAM subdomain (https://{sub}.ciamlogin.com/)
 // 4. Fallback to common
-let computedAuthority: string;
+const computedAuthority = `https://${SUB}.ciamlogin.com/`;
 // if (CUSTOM_DOMAIN && TENANT_ID) {
 //   computedAuthority = `https://${CUSTOM_DOMAIN}/${TENANT_ID}`;
 // } else if (TENANT_ID) {
 //   computedAuthority = `https://login.microsoftonline.com/${TENANT_ID}`;
 // } else if (SUB) {
-  computedAuthority = `https://${SUB}.ciamlogin.com/`;
 // } else {
 //   computedAuthority = env.VITE_AZURE_AUTHORITY || "https://login.microsoftonline.com/common";
 // }

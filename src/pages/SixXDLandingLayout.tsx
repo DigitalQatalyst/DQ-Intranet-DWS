@@ -1446,11 +1446,6 @@ function ClassGrid({
               ref={scrollerRef}
               className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory"
             >
-              {tags.map((tag, i) => {
-                if (i !== 0) return null; // chips already rendered above
-                return null;
-              })}
-
               {filteredCards.map((card) => (
                 <article
                   key={card.id}

@@ -25,6 +25,7 @@ export function DocumentsPage({ title, documents }: { title: string, documents: 
             case "spreadsheet":
                 return <FileSpreadsheetIcon size={16} className="text-green-500" />;
             case "presentation":
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 return <div size={16} className="text-orange-500" />;
             default:
@@ -171,6 +172,7 @@ export function DocumentsPage({ title, documents }: { title: string, documents: 
                         ? "border-blue-400 bg-blue-50"
                         : "border-gray-300 hover:border-blue-400"
                         }`}
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     onClick={() => fileInputRef.current.click()}
                 >

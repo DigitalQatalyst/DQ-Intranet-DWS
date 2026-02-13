@@ -314,6 +314,7 @@ export function DocumentDetail({ document, onClose, onReplace, onDelete }: { doc
                                         <div
                                             className={`border-2 border-dashed border-blue-300 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
                                             onClick={() =>
+                                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                                                 // @ts-ignore
                                                 !isProcessing && fileInputRef.current.click()
                                             }

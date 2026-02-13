@@ -178,6 +178,7 @@ export function DocumentUpload({ onClose, onUpload, categories }: { onClose: () 
                     {!file ? (
                         <div
                             className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer mb-6 ${isDragging ? 'border-blue-400 bg-blue-50' : 'border-gray-300 hover:border-blue-400'}`}
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                             // @ts-ignore
                             onClick={() => fileInputRef.current?.click()}
                             onDragOver={handleDragOver}

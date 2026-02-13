@@ -599,7 +599,7 @@ function DimensionModal({ dimension, isOpen, onClose, onNavigate }: DimensionMod
   );
 }
 
-function Discover_DNASection({}: Discover_DNASectionProps) {
+function Discover_DNASection(_props: Discover_DNASectionProps) {
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [nodesDb, setNodesDb] = useState<DqDnaNode[] | null>(null);
   const [calloutsDb, setCalloutsDb] = useState<DqDnaCallout[] | null>(null);

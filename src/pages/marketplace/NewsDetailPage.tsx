@@ -56,7 +56,7 @@ const buildBody = (article: NewsItem & { content?: string }) => {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       const isEmpty = !line;
-      const isListLine = /^[-*\d.]\s+/.test(line) || /^  [-*\d.]\s+/.test(line);
+      const isListLine = /^[-*\d.]\s+/.test(line) || /^ {2}[-*\d.]\s+/.test(line);
       
       if (isEmpty && currentBlock) {
         // Empty line ends current block
@@ -216,7 +216,7 @@ const formatContent = (content: string, index: number) => {
   }
 
   // Regular paragraphs - strip any markdown hashtags that might appear
-  let cleanedText = trimmed.replace(/^#+\s*/, '').trim();
+  const cleanedText = trimmed.replace(/^#+\s*/, '').trim();
   const boldText = parseBold(cleanedText);
   return (
     <p key={index} className="text-gray-700 text-base leading-relaxed mb-4">

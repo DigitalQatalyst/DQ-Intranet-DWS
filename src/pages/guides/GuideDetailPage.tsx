@@ -511,19 +511,20 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   const stripLeadingEmoji = (s: string): string => {
     // Remove leading emojis/symbols commonly used as icons
     // Unicode ranges cover misc symbols & pictographs
+    // eslint-disable-next-line no-misleading-character-class
     return s.replace(/^[\u200d\ufe0f\uFE0F\u2060\s]*[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}]+\s*/u, '')
   }
   const ensureBulletedTitleCaseLine = (raw: string): string => {
     const line = stripLeadingEmoji(raw.trim())
     if (!line || line.startsWith('##')) return raw
     // - **Label**: text
-    const m1 = line.match(/^\-\s*\*\*([^*]+)\*\*\s*:\s*(.*)$/)
+    const m1 = line.match(/^-\s*\*\*([^*]+)\*\*\s*:\s*(.*)$/)
     if (m1) return `- **${toTitleCaseLabel(stripLeadingEmoji(m1[1]))}**: ${m1[2]}`
     // **Label**: text
     const m2 = line.match(/^\*\*([^*]+)\*\*\s*:\s*(.*)$/)
     if (m2) return `- **${toTitleCaseLabel(stripLeadingEmoji(m2[1]))}**: ${m2[2]}`
     // - Label: text
-    const m3 = line.match(/^\-\s*([^:]+)\s*:\s*(.*)$/)
+    const m3 = line.match(/^-\s*([^:]+)\s*:\s*(.*)$/)
     if (m3) return `- **${toTitleCaseLabel(stripLeadingEmoji(m3[1]))}**: ${m3[2]}`
     // Label: text (leading letter, avoid headers/lists)
     const m4 = line.match(/^[A-Za-z][^:]*:\s*.*$/)
@@ -647,7 +648,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
             sections[currentSection] = content
           }
         }
-        let sectionTitle = h2Match[1].trim().replace(/\*\*/g, '')
+        const sectionTitle = h2Match[1].trim().replace(/\*\*/g, '')
         const normalized = sectionTitle.toLowerCase()
         currentSection = sectionMappings[normalized] || sectionTitle
         currentContent = []
@@ -1018,6 +1019,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   }
 
   // OLD Blueprint rendering - now replaced by BlueprintPage component above
+  // eslint-disable-next-line no-constant-condition
   if (false && actualIsBlueprintDomain) {
     return (
       <div className="min-h-screen flex flex-col guidelines-theme dq-products-bg" style={{ minHeight: '100vh' }}>

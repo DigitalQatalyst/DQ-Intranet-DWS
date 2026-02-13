@@ -1120,6 +1120,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                           }
 
                           // Legacy code kept for reference but replaced above
+                          // eslint-disable-next-line no-constant-condition
                           if (false && isCourse && item.topics) {
                             return (
                               <div key={item.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
