@@ -138,6 +138,12 @@ const PRODUCT_STAGES: Facet[] = [
   { id: 'enterprise-ready', name: 'Enterprise-ready' }
 ]
 
+const PRODUCT_CLASSES: Facet[] = [
+  { id: 'class-01', name: 'Class 01 DBP Services' },
+  { id: 'class-02', name: 'Class 02 DT 2.0' },
+  { id: 'class-03', name: 'Class 03 DCO' }
+]
+
 // Keep legacy framework filters for backward compatibility (mapped to product domains)
 const BLUEPRINT_FRAMEWORKS: Facet[] = [
   { id: 'devops', name: 'DevOps' },
@@ -524,11 +530,8 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
         )
       })() : isBlueprintSelected ? (
         <>
-          <Section idPrefix={instanceId} title="Products" category="product_type" collapsed={collapsedSet.has('product_type')} onToggle={toggleCollapsed}>
-            <CheckboxList idPrefix={instanceId} name="product_type" options={PRODUCT_TYPES} query={query} onChange={onChange} />
-          </Section>
-          <Section idPrefix={instanceId} title="Product Stage" category="product_stage" collapsed={collapsedSet.has('product_stage')} onToggle={toggleCollapsed}>
-            <CheckboxList idPrefix={instanceId} name="product_stage" options={PRODUCT_STAGES} query={query} onChange={onChange} />
+          <Section idPrefix={instanceId} title="Class" category="product_class" collapsed={collapsedSet.has('product_class')} onToggle={toggleCollapsed}>
+            <CheckboxList idPrefix={instanceId} name="product_class" options={PRODUCT_CLASSES} query={query} onChange={onChange} />
           </Section>
         </>
       ) : isGuidelinesSelected ? (

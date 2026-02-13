@@ -338,6 +338,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
       next.delete('blueprint_sector');
       next.delete('product_type');
       next.delete('product_stage');
+      next.delete('product_class');
       next.delete('product_sector');
     }
     const qs = next.toString();
@@ -391,7 +392,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
       changed = true;
     }
     if (activeTab !== 'blueprints') {
-      const productFilterKeys = ['blueprint_framework', 'blueprint_sector', 'product_type', 'product_stage', 'product_sector'];
+      const productFilterKeys = ['blueprint_framework', 'blueprint_sector', 'product_type', 'product_stage', 'product_class', 'product_sector'];
       productFilterKeys.forEach(key => {
         if (next.has(key)) {
           next.delete(key);
@@ -654,9 +655,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
           setLoading(true);
           try {
             const qStr = queryParams.get('q') || '';
-            const productTypes = parseFilterValues(queryParams, 'product_type');
-            const productStages = parseFilterValues(queryParams, 'product_stage');
-            const productSectors = parseFilterValues(queryParams, 'product_sector');
+            const productClasses = parseFilterValues(queryParams, 'product_class');
 
             // Convert static products to guide format
             let out = STATIC_PRODUCTS.map(product => ({
@@ -680,31 +679,23 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               complexityLevel: null,
               productType: product.productType,
               productStage: product.productStage,
+              productClass: product.productClass,
             }));
 
-            // Apply product filters
-          if (productTypes.length > 0) {
-            out = out.filter(it => {
-              const itemProductType = (it.productType || '').toLowerCase();
-              return productTypes.some(selectedType => {
-                const normalizedSelected = slugify(selectedType);
-                const typeMap: Record<string, string[]> = {
-                  'tmaas': ['tmaas'],
-                  'dtma': ['dtma'],
-                  'dtmp': ['dtmp'],
-                  'plant-4-0': ['plant 4.0', 'plant-4.0', 'plant40'],
-                  'dtmcc': ['dtmcc'],
-                  'dto4t': ['dto4t', 'dto4t ']
-                };
-                const searchTerms = typeMap[selectedType] || [normalizedSelected];
-                return searchTerms.some(term => itemProductType.includes(term));
+            // Apply product class filter
+            if (productClasses.length > 0) {
+              out = out.filter(it => {
+                const itemProductClass = (it.productClass || '').toLowerCase();
+                return productClasses.some(selectedClass => {
+                  return itemProductClass === selectedClass.toLowerCase();
+                });
               });
-            });
             }
-            if (productStages.length > 0) {
-              out = out.filter(it => it.productStage && productStages.includes(it.productStage.toLowerCase()));
+
+            // If Class 01 is selected, show no cards
+            if (productClasses.includes('class-01')) {
+              out = [];
             }
-            // Note: Static products don't have sectors, so productSectors filter will show no results
 
             // Apply search query if provided
             if (qStr) {
@@ -714,7 +705,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                   it.title,
                   it.summary,
                   it.productType,
-                  it.productStage,
+                  it.guideType,
                 ].filter(Boolean).join(' ').toLowerCase();
                 return searchableText.includes(query);
               });
@@ -1057,6 +1048,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               // Store product metadata for filtering
               productType: product.productType,
               productStage: product.productStage,
+              productClass: product.productClass,
             }));
           } else if (isGuidelinesTab) {
             // Guidelines tab: explicitly exclude Strategy, Blueprint, and Testimonial guides

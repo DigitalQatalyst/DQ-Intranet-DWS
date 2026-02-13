@@ -340,19 +340,19 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
           type="button"
           onClick={(e) => {
             e.stopPropagation()
-            if (!isDraft) {
+            if (!isDraft && !isBlueprint) {
               onClick()
             }
           }}
-          disabled={isDraft}
+          disabled={isDraft || isBlueprint}
           className={`w-full inline-flex items-center justify-center rounded-full text-sm font-semibold px-4 py-2 transition-all focus:outline-none focus:ring-2 ${
-            isDraft
+            isDraft || isBlueprint
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-[#030E31] text-white hover:bg-[#020A28] focus:ring-[#030E31]'
           }`}
-          aria-label={isDraft ? 'Coming soon' : 'Read more'}
+          aria-label={isDraft || isBlueprint ? 'Coming soon' : 'Read more'}
         >
-          {isDraft ? 'Coming Soon' : 'Read More'}
+          {isDraft || isBlueprint ? 'Coming Soon' : 'Read More'}
         </button>
       </div>
     </div>
