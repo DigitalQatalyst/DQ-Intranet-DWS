@@ -271,7 +271,7 @@ function GuidelinePage() {
                     {/* Open Storybook Button */}
                     <div className="pt-4">
                       <button
-                        onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/5d87ac25-6eb5-439e-a861-845787aa8e59/index.html', '_blank')}
+                        onClick={() => window.open('https://digital-qatalyst.shorthandstories.com/30d7e598-4e7c-4492-b070-8001649b4ee4/index.html', '_blank')}
                         className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
                         style={{ backgroundColor: '#f55436' }}
                         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#d4442e' }}

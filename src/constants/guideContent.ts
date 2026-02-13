@@ -43,170 +43,170 @@ export const GUIDE_CONTENT: Record<string, GuideContent> = {
   },
   'dq-vision': {
     title: 'The Vision (Purpose)',
-    subtitle: 'The North Star That Guides Our Journey',
-    shortOverview: 'Our Vision is more than a slogan; it is the strategic destination that aligns every single team at Digital Qatalyst. It defines why we exist and ensures that every project we touch contributes to a larger, meaningful purpose.\n\nIt acts as our collective compass, keeping us moving in the same direction even when daily tasks become complex. By anchoring yourself in the Vision, you ensure your hard work always translates into real value for the organisation.\n\nThis system connects the high-level ambition of leadership directly to the hands-on execution of the squads. It empowers you to say "no" to distractions and "yes" to work that truly moves the needle.',
+    subtitle: 'Understand the core mission that aligns our squads and brings real value to the systems we build.',
+    shortOverview: 'Our Vision is more than a catchphrase; it is the shared foundation that aligns every team at Digital Qatalyst. It defines exactly why we exist: to perfect life\'s transactions.\n\nEvery day, people interact with systems by paying a bill, filling out a form, or checking a record. When those systems are clunky or confusing, people feel the frustration. We exist to fix that by building systems that are clear, connected, and thoughtful.\n\nThe Vision connects our highest company goals directly to your daily tasks. It helps you see how your specific work makes these everyday moments smoother for real people. By keeping this in mind, you can confidently say "no" to distractions and "yes" to the work that truly makes a difference.',
     highlights: [
-      'Strategic Alignment: Ensure every task contributes directly to the organisation\'s long-term success.',
-      'Clear Purpose: Find deeper meaning in your daily work by understanding the "why" behind the "what."',
-      'Focused Decisions: Use the vision as a filter to prioritize high-value activities and decline distractions.',
-      'Unified Direction: Move in sync with other teams, knowing we are all aiming for the same destination.',
-      'Inspired Action: Stay motivated by seeing how your individual contribution fits into the global picture.'
+      'Strategic Alignment: Ensure every task you do helps build smarter, more connected organisations.',
+      'Clear Purpose: Find real meaning in your daily work by understanding how we remove everyday frustrations for people.',
+      'Focused Decisions: Use the Vision as a filter to prioritize work that adds the most value and decline unnecessary distractions.',
+      'Unified Teamwork: Work smoothly with other squads, knowing we are all building toward the exact same goal.',
+      'Inspired Action: Stay motivated by seeing how your individual role helps shape a better, easier digital future.'
     ],
-    storybookIntro: 'Understand the core components that make up our strategic identity, from our massive transformative purpose to our specific goals. This isn\'t just theory; it is the logic we use to set targets and measure our success.\n\nYou will explore how the Vision breaks down into actionable steps that squads can actually execute. This clarity prevents ambiguity and ensures that no one is ever working in a vacuum.\n\nBy grasping these elements, you gain the context needed to lead with confidence. You will see exactly how your team\'s specific objectives link back to the ultimate winning aspiration of DQ.',
+    storybookIntro: 'Understand the core parts of our strategy, from our main purpose to our specific goals. This is not just theory. It is the real logic we use to set targets and measure our success.\n\nYou will see how our vision breaks down into clear steps that our teams can actually execute. This clarity prevents confusion and ensures everyone is working together.\n\nUnderstanding these elements gives you the context to make confident decisions. You will see exactly how your team\'s specific tasks link directly to the overall success of Digital Qatalyst.',
     whatYouWillLearn: [
-      'The Big Picture: The difference between our Purpose, Ambition, and Strategic Goals.',
-      'The Strategy Link: How high-level goals are cascaded down into squad-level objectives.',
-      'Success Measures: The key results we track to know if we are winning.',
-      'The "Why" Logic: The reasoning behind our strategic choices and market positioning.',
-      'Your Role: Exactly where you fit into the strategic map of the organisation.'
+      'The Big Picture: The difference between our core purpose, our ambition, and our strategic goals.',
+      'The Strategy Link: How company-wide goals break down into daily, actionable tasks for your squad.',
+      'Success Measures: The exact results we track to know if we are succeeding.',
+      'The "Why" Logic: The reasoning behind the choices we make and how we choose to serve our clients.',
+      'Your Role: Exactly where your work fits into the bigger plan of the organisation.'
     ],
-    courseIntro: 'Start with the Vision Overview to ground yourself in the fundamental goals of our organisation. You will learn to articulate our purpose clearly and use it to inspire those around you.\n\nFrom there, dive into practical exercises that help you map your daily tasks to strategic objectives. You will learn to identify when work is off-track and how to realign it with our North Star.\n\nFinally, practice using the Vision as a decision-making tool in real-world scenarios. This builds your ability to lead conversations and make choices that support the organisation\'s future.',
+    courseIntro: 'Start with the Vision Overview to understand the fundamental goals of our organisation. You will learn to explain our purpose clearly and use it to inspire those around you.\n\nFrom there, dive into practical exercises that help you connect your daily tasks to our main objectives. You will learn to identify when work is off-track and how to realign it with our core purpose.\n\nFinally, practice using the Vision as a decision-making tool in real-world scenarios. This builds your ability to lead conversations and make choices that support the future of the organisation.',
     whatYouWillPractice: [
-      'Articulating Purpose: Practice explaining the DQ Vision clearly to your team and stakeholders.',
-      'Strategic Mapping: Learn to link your daily backlog items directly to high-level strategic goals.',
-      'Prioritization: Practice using the Vision to decide what to work on and what to deprioritize.',
-      'Alignment Checks: Learn how to run quick checks to ensure your squad is still on the right path.',
+      'Explaining Purpose: Practice sharing the DQ Vision clearly with your team and stakeholders.',
+      'Connecting Work: Learn to link your daily tasks directly to our main strategic goals.',
+      'Prioritization: Practice using the Vision to decide what to work on and what to pause.',
+      'Alignment Checks: Learn how to run quick checks to ensure your team is still on the right path.',
       'Inspiring Others: Practice using the Vision to motivate teammates during challenging sprints.'
     ]
   },
   'dq-hov': {
     title: 'The HoV (Culture)',
     subtitle: 'The Culture That Powers Our Execution',
-    shortOverview: 'The House of Values (HoV) defines the mindset and behaviors that make high performance possible at Digital Qatalyst. It is the cultural foundation that builds trust, enabling us to move fast without breaking things.\n\nIt replaces rigid rules with shared principles, giving us the freedom to act autonomously while staying united. When we all live these values, we create a safe environment where innovation can thrive.\n\nThis framework governs how we treat each other, how we handle conflict, and how we approach our work. It ensures that how we deliver results is just as important as the results themselves.',
+    shortOverview: 'Culture is not just a vibe; it is an engineered system. At Digital Qatalyst, the House of Values (HoV) defines the mindset and behaviors that make high performance possible. It is the cultural foundation that builds trust, enabling us to move fast and deliver exceptional results.\n\nInstead of relying on rigid rules, the HoV uses shared principles to give you the freedom to act autonomously while staying aligned with the team. When we all live by these values, we create an environment where innovation thrives and people grow.\n\nThis framework governs how we treat each other, how we handle challenges, and how we approach our work. It ensures that how we deliver results is just as important as the results themselves.',
     highlights: [
-      'Psychological Safety: Build a fearless environment where people feel safe to speak up and take risks.',
-      'Faster Decisions: Rely on shared principles to make quick choices without needing constant approval.',
-      'Stronger Trust: Collaborate seamlessly with anyone in the organisation because you share a common code.',
-      'Reduced Friction: Resolve conflicts easily by referring to agreed-upon behaviors and standards.',
-      'Sustainable Pace: Work in a way that respects well-being while driving high performance.'
+      'Psychological Safety: Build a fearless environment where Qatalysts feel safe to speak up, share ideas, and take calculated risks.',
+      'Faster Decisions: Rely on our shared Guiding Values to make quick, confident choices without needing constant approval.',
+      'Stronger Trust: Collaborate seamlessly with anyone in the organisation because you share a common behavioral code.',
+      'Reduced Friction: Resolve conflicts easily by referring to our agreed-upon standards of work.',
+      'Sustainable Growth: Work in a way that prioritises continuous learning and self-development alongside high performance.'
     ],
-    storybookIntro: 'Understand the specific pillars that hold up our culture, such as Trust, Speed, and Quality. We break down what these values actually look like in practice, moving beyond buzzwords to real actions.\n\nYou will explore the "above the line" and "below the line" behaviors that define our interactions. This helps you recognize when a team is healthy and when it needs a cultural reset.\n\nBy understanding the HoV, you gain the tools to build a high-performing team dynamic. It clarifies the expectations we have for every associate, regardless of their role or seniority.',
+    storybookIntro: 'Understand the specific Mantras and Guiding Values that hold up our culture. We break down what these values actually look like in practice, moving beyond buzzwords to real, everyday actions.\n\nYou will explore the specific behaviors that define how we interact with our teams, our clients, and our work. This helps you recognize what good looks like and understand what to do when a situation requires more from you.\n\nBy understanding the HoV, you gain the tools to build a high-performing team dynamic. It clarifies the exact expectations we have for every Qatalyst, regardless of their role or seniority.',
     whatYouWillLearn: [
-      'Core Pillars: The specific values that define the Digital Qatalyst culture.',
-      'Behavioral Indicators: The specific actions that demonstrate or violate our values.',
-      'The Trust Equation: How reliability and intimacy build the trust needed for speed.',
-      'Cultural Alignment: How our culture supports our ability to be Agile and innovative.',
-      'Accountability: How we hold each other responsible for maintaining these standards.'
+      'The Core Mantras: The three foundational beliefs (Self-Development, Lean Working, Value Co-Creation) that shape our mindset.',
+      'Guiding Values: The specific actions and behaviors that demonstrate our culture in everyday scenarios.',
+      'The Trust Equation: How honesty, clarity, and shared responsibility build the trust needed for speed.',
+      'Cultural Evolution: How we use the Competing Values Framework (CVF) to measure and shift our culture toward innovation and agility.',
+      'Accountability: How we hold ourselves and each other responsible for maintaining these high standards.'
     ],
-    courseIntro: 'Start with the HoV Overview to see how culture drives performance in an Agile environment. You will learn why "soft skills" are actually the hard drivers of our success and speed.\n\nFrom there, explore modules on giving feedback, handling conflict, and building trust within a squad. You will learn practical techniques to embody these values in your daily meetings and interactions.\n\nFinally, practice these behaviors through role-playing and scenario-based exercises. This helps you build the muscle memory to react with integrity and empathy, even under pressure.',
+    courseIntro: 'Start with the HoV Overview to see how culture directly drives performance. You will learn why emotional intelligence and collaboration are not just "soft skills" but the actual engines of our success.\n\nFrom there, explore how to apply the three Mantras to your daily work. You will learn practical techniques for giving feedback, owning your decisions, and building trust within your squad.\n\nFinally, practice these behaviors through real-world scenarios. This helps you build the muscle memory to react with precision, empathy, and focus, even under pressure.',
     whatYouWillPractice: [
-      'Active Listening: Practice listening to understand, not just to respond, to build deeper trust.',
-      'Constructive Feedback: Learn to give and receive feedback that helps others grow without hurting relationships.',
-      'Conflict Resolution: Practice resolving disagreements by focusing on problems, not personalities.',
-      'Living the Values: Learn how to model "above the line" behaviors in stressful situations.',
-      'Team Agreements: Practice creating working agreements that bake these values into your squad\'s routine.'
+      'Active Listening: Practice listening deeply to understand client and team needs, building stronger trust.',
+      'Constructive Feedback: Learn to use feedback and failure to drive personal and collective growth.',
+      'Conflict Resolution: Practice resolving disagreements by focusing on solutions and shared purpose rather than personalities.',
+      'Living the Values: Learn how to model our Guiding Values in stressful or high-stakes situations.',
+      'Team Collaboration: Practice working openly and without silos to co-create greater value and impact.'
     ]
   },
   'dq-persona': {
-    title: 'The Personas (Identity)',
-    subtitle: 'Clarity in Every Role We Play',
-    shortOverview: 'In our agile model, we focus on "Personas" rather than rigid job titles to describe the work we do. This approach clarifies exactly who is responsible for what, reducing confusion and overlapping efforts.\n\nIt recognizes that you may wear multiple "hats" depending on the situation, from a Squad Member to a Chapter Lead. This flexibility allows us to deploy talent where it is needed most without bureaucratic hurdles.\n\nBy defining clear accountabilities for each persona, we empower you to take ownership of your domain. You know exactly what is expected of you and where your authority begins and ends.',
+    title: 'The Persona (Identity)',
+    subtitle: 'Discover the mindset, traits, and specific roles that define who succeeds at Digital Qatalyst.',
+    shortOverview: 'Great missions need the right people. At Digital Qatalyst, success is never just about what we do; it is about who we are.\n\nInstead of just looking at technical skills or rigid job titles, we focus on the DQ Persona. This is our model for identifying and empowering the people who bring clarity, courage, and emotional intelligence to our work. It defines the human traits that make success possible across our entire ecosystem.\n\nWhether you are an employee, a client, or a partner, the DQ Persona is not a job title. It is a specific way of showing up. By understanding these personas, you know exactly what is expected of you and how to interact effectively with everyone around you.',
     highlights: [
-      'Role Clarity: Eliminate confusion by clearly defining who is responsible for which tasks and decisions.',
-      'Empowerment: Take full ownership of your domain knowing exactly where you have authority to act.',
-      'Reduced Conflict: Avoid stepping on toes by understanding the boundaries between different roles.',
-      'Career Growth: Explore different "hats" you can wear to expand your skills and influence.',
-      'Agile Flexibility: Move fluidly between different responsibilities as the needs of the team change.'
+      'Clear Expectations: Understand the exact mindset and behaviors required to succeed in your specific role.',
+      'Ecosystem Alignment: See how employees, customers, partners, and investors all share a unified approach to transformation.',
+      'Empowerment: Take full ownership of your work, knowing you are trusted to act with purpose and precision.',
+      'Reduced Friction: Avoid confusion by understanding how different personas collaborate and support each other.',
+      'Growth Mindset: Focus on continuous learning and responsibility rather than just checking boxes.'
     ],
-    storybookIntro: 'Understand the distinct archetypes that drive our teams, such as the Product Owner, Scrum Master, and Squad Member. We explain the specific duties, rights, and interactions for each of these key roles.\n\nYou will explore how these personas interact to create a balanced and effective team. We show how the "Check and Balance" system works between those who define value and those who deliver it.\n\nBy understanding the persona framework, you can navigate the organisation more effectively. You will know exactly who to talk to for a decision, a resource, or a technical solution.',
+    storybookIntro: 'Understand the four main relational categories that make up the DQ ecosystem: Associates, Customers, Partners, and Investors. We break down the specific traits and contributions of each group.\n\nYou will explore the five core characteristics that every successful persona shares: being Purpose-Driven, Perceptive, Proactive, Persevering, and Precise. This helps you recognize what good looks like, no matter who you are working with.\n\nBy understanding this framework, you can navigate the organisation and our external relationships much more effectively. You will know exactly how to build trust and co-create value with anyone in the DQ network.',
     whatYouWillLearn: [
-      'Key Archetypes: The core roles of Product Owner, Scrum Master, and Chapter Lead.',
-      'The "Hat" Concept: How one person can hold different accountabilities in different contexts.',
-      'Decision Rights: Which persona owns which type of decision (e.g., "what" vs. "how").',
-      'Interaction Models: How different personas collaborate without creating bottlenecks.',
-      'Leadership Styles: How leadership is distributed across roles rather than concentrated in one manager.'
+      'The Core Traits: The five characteristics (Purpose-Driven, Perceptive, Proactive, Persevering, Precise) shared by everyone in the DQ ecosystem.',
+      'DQ Associates: The specific expectations for our Employees, Contractors, and Leaders to drive the mission forward.',
+      'DQ Customers: How we identify ideal accounts and work with "Account Coaches" to build digital futures together.',
+      'DQ Partners: How we collaborate with "Solution Coaches" to co-build scalable transformation playbooks.',
+      'DQ Investors: How we align with "Growth Coaches" who fund our long-term systemic impact.'
     ],
-    courseIntro: 'Start with the Persona Overview to see the full cast of characters that make up a Digital Qatalyst tribe. You will learn the unique superpower of each role and how they complement one another.\n\nFrom there, dive into the specifics of your own primary persona and those you interact with most. You will learn the "do\'s and don\'ts" of your role to maximize your effectiveness and team harmony.\n\nFinally, practice "switching hats" through scenarios that require you to step into different responsibilities. This builds your empathy for other roles and makes you a more versatile team player.',
+    courseIntro: 'Start with the Persona Overview to see the full cast of characters that make up the Digital Qatalyst ecosystem. You will learn why behavioral fit is just as important as technical skill.\n\nFrom there, dive into the specifics of your own primary persona (like an Employee or a Leader) and those you interact with most. You will learn how to embed the House of Values into your daily behavior and how to move with purpose and structure.\n\nFinally, practice identifying these traits in real-world scenarios. This builds your ability to collaborate seamlessly across different teams, clients, and partners.',
     whatYouWillPractice: [
-      'Role Definition: Practice defining your own accountabilities clearly to your team.',
-      'Collaborative Handoffs: Learn how to hand off work between personas without dropping the ball.',
-      'Decision Making: Practice making decisions that sit squarely within your persona\'s authority.',
-      'Empathy Building: Learn to see challenges from the perspective of a Product Owner or Scrum Master.',
-      'Situational Leadership: Practice stepping up to lead when your specific expertise is required.'
+      'Embodying the Traits: Practice applying the five core traits (Proactive, Precise, etc.) to your daily tasks.',
+      'Collaborative Delivery: Learn how to hand off work and co-create solutions smoothly with Contractors and Partners.',
+      'Customer Empathy: Practice seeing challenges from the perspective of our clients and their Account Coaches.',
+      'Leading with Culture: Learn how DQ Leaders reinforce clarity, model emotional intelligence, and develop others.',
+      'System Thinking: Practice looking beyond your immediate task to see how your work impacts the wider DQ ecosystem.'
     ]
   },
   'dq-agile-tms': {
     title: 'Agile TMS (Tasks)',
-    subtitle: 'The Backbone of Our Team Organisation',
-    shortOverview: 'The Agile Team Management System (TMS) is the structural backbone that organizes our people into Squads, Chapters, and Tribes. It replaces traditional hierarchy with a network of autonomous teams focused on value delivery.\n\nThis system ensures that every team has the right mix of skills and resources to succeed independently. It minimizes dependencies and allows squads to move fast without waiting for external approvals.\n\nIt also provides the governance needed to keep these autonomous teams aligned. It balances freedom with coordination, ensuring we don\'t descend into chaos as we scale.',
+    subtitle: 'Discover how our Task Management System turns high-level strategy into focused, structured, and purposeful daily action.',
+    shortOverview: 'Great work does not start with hustle; it starts with structure. The Agile Task Management System (TMS) is the beating heart of how we work at Digital Qatalyst. If our Vision gives us purpose, Agile TMS gives us a clear, accountable model for getting things done.\n\nAgile at DQ is not about doing more. It is about doing what matters most right now. The TMS breaks complex work into its most essential parts: what needs to be done, who is doing it, by when, and why it matters.\n\nThis system replaces static job descriptions with dynamic, purposeful execution. It empowers you to reprioritize when needed and ensures that speed never compromises the quality of our work.',
     highlights: [
-      'Autonomy: Work in self-sufficient squads that have everything they need to deliver value.',
-      'Skill Balance: Ensure every team has the right mix of cross-functional talent to succeed.',
-      'Clear Structure: Navigate the organisation easily with a simple model of Squads, Chapters, and Tribes.',
-      'Reduced Handoffs: Keep work within one team to minimize delays caused by external dependencies.',
-      'Scalability: Grow the organisation without adding bureaucracy by simply replicating the squad model.'
+      'Purposeful Action: Ensure every task is tied directly to a larger strategic goal before you start working.',
+      'Structured Delivery: Use a living workflow model that aligns your effort with clear intent and tracks progress transparently.',
+      'Empowered Ownership: Take control of your daily tasks without micromanagement, knowing exactly what success looks like.',
+      'Continuous Momentum: Keep work moving forward through structured cadences, daily check-ins, and clear visibility.',
+      'Adaptable Execution: Pivot quickly when priorities change, using a system designed for flexibility and focus.'
     ],
-    storybookIntro: 'Understand the logic behind our "Spotify-like" model of Squads, Tribes, Chapters, and Guilds. We explain why we organize around products and value streams rather than functional silos.\n\nYou will explore how line management works in this matrix, separating "work management" from "people management." This ensures you get professional development support without slowing down delivery.\n\nBy understanding the TMS, you see how resources are allocated and how teams are formed. It demystifies the organisational chart and shows you how to navigate the structure to get things done.',
+    storybookIntro: 'Understand the core logic behind how we work. Instead of traditional functional silos, we organize our execution around the 7S Tenets: Specify, Socialize, Share, Scrum, Structure, Succeed, and Speed-up.\n\nYou will explore how these tenets guide everything from how we define a task to how we run our meetings. You will also understand the ATP (Associate Timesheet & Performance) system, which is the backbone of our transparent work management.\n\nBy understanding this system, you see exactly how your daily backlog connects to the company\'s biggest goals. It demystifies how we measure success and how you can accelerate your own growth.',
     whatYouWillLearn: [
-      'Squads & Tribes: The primary delivery units and how they group together.',
-      'Chapters & Guilds: The structures used for knowledge sharing and skill development.',
-      'Matrix Management: How you report to a Chapter Lead for growth while working for a PO on tasks.',
-      'Resource Allocation: How people are moved and assigned to where value is needed most.',
-      'Governance Model: The light-touch rules that keep the system running smoothly.'
+      'The 7S Tenets: The seven actionable principles that guide all work and collaboration at DQ.',
+      'Working Sessions: The specific formats (like CWS, BWS, and PWS) we use to collaborate, brainstorm, or do deep solo work.',
+      'Agile Rituals: The rhythm of our daily standups, weekly Control Tower sessions, and monthly Townhalls.',
+      'The ATP System: How we use the Associate Timesheet & Performance model to structure, track, and validate work.',
+      'The xPA Framework: How your performance, development, and rewards are measured and supported.'
     ],
-    courseIntro: 'Start with the TMS Overview to visualize the structure of our organisation. You will learn how to identify which Squad, Tribe, and Chapter you belong to and what that means for your daily work.\n\nFrom there, learn how to leverage Chapters and Guilds to grow your career and solve technical problems. You will discover how to access knowledge from across the organisation, not just within your team.\n\nFinally, practice operating within this structure through scenarios on resource sharing and cross-squad collaboration. This helps you work effectively in a matrix without getting confused by dual reporting lines.',
+    courseIntro: 'Start with the Agile TMS Overview to understand how we translate strategy into movement. You will learn why reducing waste and focusing on clarity is our primary competitive advantage.\n\nFrom there, dive into the specifics of the 7S Tenets. You will learn how to properly "Specify" a task with clear intent, and how to "Socialize" your progress so your team stays aligned without unnecessary meetings.\n\nFinally, practice using the different Working Session formats and the ATP system. This builds your ability to manage your time effectively, collaborate seamlessly, and deliver high-value outcomes.',
     whatYouWillPractice: [
-      'Structure Navigation: Practice identifying the right teams and people to connect with for specific needs.',
-      'Chapter Participation: Learn how to contribute to and benefit from your professional Chapter.',
-      'Cross-Functional Work: Practice working effectively with teammates from completely different backgrounds.',
-      'Managing Reporting Lines: Learn to balance the needs of your Squad (Product) and Chapter (People).',
-      'Scaling Knowledge: Practice sharing your learnings through Guilds to help other teams improve.'
+      'Task Specification: Practice defining the clear Context, Purpose, and Outcome for every task you create.',
+      'Working Sessions: Learn when to call a fast-paced Co-Working Session (CWS) versus blocking out time for Personal Work (PWS).',
+      'Daily Discipline: Practice using the SEDU (Start-End Day Update) to keep your team aligned asynchronously.',
+      'Agile Cadence: Learn how to participate effectively in Daily Scrums and Weekly Control Tower sessions.',
+      'Smart Acceleration: Practice using AI and productivity tools to speed up your workflow without losing precision.'
     ]
   },
   'dq-agile-sos': {
     title: 'Agile SoS (Governance)',
-    subtitle: 'Connecting Our Systems for Scale',
-    shortOverview: 'Agile SoS acts as a "System of Systems," connecting our independent squads into a unified, high-performing network. It provides the governance layer that ensures every separate team functions in perfect harmony with the whole.\n\nThis meta-structure prevents silos by synchronizing the rhythm of information flow and critical decision-making. It ensures that the output of one system seamlessly integrates with the needs of another.\n\nIt serves as the ultimate alignment mechanism, allowing us to scale agility from a single team to the entire organisation. When complex challenges arise, this system provides the stability and pathways to resolve them instantly.',
+    subtitle: 'Discover how our four pillars of governance enable intelligent, disciplined, and aligned execution across the entire organisation.',
+    shortOverview: 'Execution at scale demands more than just discipline; it demands design. Agile SoS acts as a System of Systems, connecting our independent teams into a unified and high-performing network. It provides the governance layer that ensures every separate squad functions in perfect harmony with the whole.\n\nAt Digital Qatalyst, governance is not the enemy of agility. It is the enabler. This structure prevents silos by synchronizing information flow and critical decision making. It ensures that the output of one team seamlessly integrates with the strategic needs of the organisation.\n\nIt serves as our ultimate alignment tool, allowing us to scale agility without relying on micromanagement. When complex challenges arise, this framework provides the stability and pathways to resolve them instantly.',
     highlights: [
-      'Scale Complexity: Manage complex interactions between multiple teams without losing speed or agility.',
-      'Systemic Alignment: Ensure all independent systems (squads) are moving toward the same strategic goals.',
-      'Rapid Resolution: Use established pathways to escalate and solve systemic blockers immediately.',
-      'Holistic Visibility: See the health of the entire organisation, not just individual team performance.',
-      'Coordinated Delivery: Synchronize release cycles across the entire "System of Systems" for maximum impact.'
+      'Scale with Clarity: Manage complex interactions across multiple teams without losing your speed or focus.',
+      'Systemic Alignment: Ensure all teams move toward the exact same strategic goals using our Functional Trackers.',
+      'Engineered Quality: Uphold high standards everywhere through our System of Quality and shared playbooks.',
+      'Intentional Value: Design value into every task from the start to ensure measurable business impact.',
+      'Built-in Discipline: Use structured protocols to pause, reflect, and fix root causes when team momentum drops.'
     ],
-    storybookIntro: 'Understand how the System of Systems architecture functions to govern our scaling efforts without adding bureaucracy. We break down the mechanics of how independent nodes (squads) link together to form a cohesive whole.\n\nYou will explore the interfaces and protocols that allow information to flow up, down, and across the network. This clarity prevents the chaos that usually happens when you try to scale without a meta-system.\n\nBy grasping this concept, you see that SoS is not just a meeting, but the operating system of the organisation. It clarifies how your local team decisions impact the global system performance.',
+    storybookIntro: 'Understand how our System of Systems functions to govern our scaling efforts without adding heavy bureaucracy. We break down the mechanics of how our four core systems link together to form a cohesive whole.\n\nYou will explore the protocols that allow information to flow smoothly across the network. This clarity prevents the chaos that usually happens when organisations try to grow without a strong foundation.\n\nBy grasping this concept, you will see that governance is the true operating system of our organisation. It clarifies how your daily team decisions impact our global performance and long-term success.',
     whatYouWillLearn: [
-      'The Meta-Layer: How SoS functions as the governing layer above individual squads.',
-      'Inter-System Links: How dependencies are managed as connections between different systems.',
-      'Information Flow: The protocols for moving data from the edge (squads) to the center (leadership).',
-      'Global Optimization: The concept of optimizing the whole system rather than just local parts.',
-      'Resilience: How the System of Systems design makes the organisation more robust against failure.'
+      'The Four Systems: How Governance, Quality, Value, and Discipline work together to guide our execution.',
+      'Steering with SoG: How functional trackers connect high-level strategy directly to your daily tasks.',
+      'Engineering Quality: The specific tools and playbooks that make excellence a repeatable habit.',
+      'Designing Value: How we measure the actual impact of our work rather than just tracking our effort.',
+      'Maintaining Discipline: How we use tools like the STOP Protocol to self-correct and solve recurring problems.'
     ],
-    courseIntro: 'Start with the SoS Overview to visualize the System of Systems model in action across the organisation. You will learn the specific behaviors required to operate effectively within this highly interconnected environment.\n\nFrom there, dive into the protocols for synchronization and escalation that keep the wider system healthy. You will learn to identify "systemic noise" and how to filter it out to focus on the signal.\n\nFinally, practice your role as a connector within this network through real-world simulation exercises. This builds your ability to navigate the complex web of relationships and deliver value at scale.',
+    courseIntro: 'Start with the SoS Overview to visualize the four governance systems in action across the organisation. You will learn the specific behaviors required to operate effectively within this highly interconnected environment.\n\nFrom there, dive into the protocols for synchronization and escalation that keep our wider network healthy. You will learn to identify real value and how to filter out distractions to focus on what matters most.\n\nFinally, practice your role as a connector within this framework through real-world scenarios. This builds your ability to navigate our complex web of relationships and deliver high-quality results at scale.',
     whatYouWillPractice: [
-      'System Navigation: Practice identifying where your team fits within the larger System of Systems.',
-      'Interface Management: Learn to manage the "API" of your team: how you send and receive work.',
-      'Escalation Protocols: Practice using the correct channels to flag systemic risks or failures.',
-      'Cross-System Sync: Learn to align your local rhythm with the global heartbeat of the organisation.',
-      'Impact Analysis: Practice assessing how changes in your area ripple through the rest of the system.'
+      'Aligning Work: Practice using functional trackers to connect your tasks to the broader business strategy.',
+      'Upholding Standards: Learn to use our shared playbooks and quality guidelines in your daily delivery.',
+      'Measuring Impact: Practice asking how your work creates value and defining how that success is measured.',
+      'Applying Discipline: Learn when and how to use the STOP Protocol to address recurring team challenges.',
+      'Cross-System Sync: Practice aligning your local team rhythm with the global heartbeat of the organisation.'
     ]
   },
   'dq-agile-flows': {
     title: 'Agile Flows (Value Streams)',
-    subtitle: 'From Idea to Impact Without Waste',
-    shortOverview: 'Agile Flows define the lifecycle of our work, from the first spark of an idea to the final delivery to the customer. It is the roadmap that ensures we build the right thing, the right way, at the right time.\n\nThis system optimizes our "value stream," removing bottlenecks and wait times that slow us down. It focuses on flow efficiency, ensuring that work is always moving forward and never stuck in a queue.\n\nIt standardizes our major ceremonies and artifacts so everyone knows what to expect. This consistency allows us to move fast because we don\'t have to reinvent the process for every new project.',
+    subtitle: 'How We Orchestrate Value',
+    shortOverview: 'Value does not just come from what we build; it comes from how we build it. Agile Flows is our operating architecture for creating value at scale. It outlines how we design and deliver outcomes not as isolated departments, but as connected systems.\n\nIn most organisations, delivery is broken. Strategy happens in one place, design in another, and execution somewhere else. This creates bottlenecks, lost time, and diluted results. At Digital Qatalyst, Agile Flows prevents this by connecting our entire process into structured streams.\n\nThis is not just project management or ticket tracking. It is value orchestration. It ensures that every handoff between teams is intentional, every dependency is clear, and every outcome is traceable directly back to our strategic goals.',
     highlights: [
-      'Efficiency: Eliminate waste and waiting time to get value to the customer faster.',
-      'Predictability: Use a standard process to make delivery timelines more reliable and transparent.',
-      'Quality Control: Build in checks at every stage to catch errors before they reach production.',
-      'Transparency: See exactly where every piece of work is in the pipeline at any moment.',
-      'Continuous Flow: Maintain a steady rhythm of delivery rather than working in chaotic bursts.'
+      'End-to-End Visibility: See exactly how work moves from an initial idea all the way to lasting client loyalty.',
+      'Seamless Handoffs: Eliminate the friction and wait times that usually happen when work passes between different teams.',
+      'Outcome Focus: Ensure every task is tied directly to a larger business outcome, not just a list of activities.',
+      'Continuous Efficiency: Use Value Stream Mapping as a living tool to constantly find and fix bottlenecks in our process.',
+      'Scale Without Chaos: Maintain a steady, predictable rhythm of delivery across the entire organisation.'
     ],
-    storybookIntro: 'Understand the specific stages of our flow, including Upstream (Discovery) and Downstream (Delivery). We explain the "Definition of Ready" and "Definition of Done" that act as gates between these stages.\n\nYou will explore the key ceremonies like Sprint Planning, Review, and Retrospective in depth. We show the intent behind each meeting so they don\'t just become empty rituals.\n\nBy understanding Agile Flows, you gain the ability to spot bottlenecks in your own team. You will see clearly where work is getting stuck and have the vocabulary to fix it.',
+    storybookIntro: 'Understand the specific stages of our end-to-end value chain. We break down the six critical flows that take us from market insight to revenue and loyalty.\n\nYou will explore how we use "Outcome Layering" to ensure our daily work actually improves the digital systems we build for our clients. This logic shows how frictionless client experiences, powered by data and intelligence, become our engine for growth.\n\nBy understanding these flows, you gain the ability to spot where work is getting stuck in your own team. You will see clearly how your specific role contributes to the bigger picture of revenue and client success.',
     whatYouWillLearn: [
-      'The Value Stream: Understand the end-to-end journey of a feature from concept to cash.',
-      'Gate Criteria: Understand the "Definition of Ready" and "Definition of Done" standards.',
-      'Ceremony Intent: Grasp the specific purpose and desired outcome of every Agile event.',
-      'Kanban Principles: Understand how we limit work-in-progress (WIP) to improve speed.',
-      'Metrics: See how we use Cycle Time and Lead Time to measure the health of our flow.'
+      'The Six Value Streams: The specific stages from Market to Lead (M2L) all the way to Revenue to Loyalty (R2L).',
+      'Outcome Layering: How we connect high-level goals down to the specific tasks in your Agile TMS.',
+      'Value Specifications: How we define the success criteria for every Epic, Feature, User Story, and Task.',
+      'Task Friction: How we remove blockers by making ownership and accountability explicit at every stage.',
+      'The Growth Equation: How seamless client experiences and intelligent decision-making drive repeatable growth.'
     ],
-    courseIntro: 'Start with the Flows Overview to visualize the standard path for delivery at DQ. You will learn why we strictly separate "Discovery" work from "Delivery" work to keep the engine running smoothly.\n\nFrom there, learn how to facilitate key events like the Retrospective to drive real improvement. You will discover techniques to visualize your team\'s work and identify hidden waste.\n\nFinally, practice optimizing a workflow through simulation exercises. This helps you build the mindset of a "process engineer," constantly tweaking the system to make it faster and better.',
+    courseIntro: 'Start with the Flows Overview to visualize the standard path for delivery at DQ. You will learn why we map our value streams not just to diagnose problems, but as a dynamic tool for continuous improvement.\n\nFrom there, dive into the specific flow that matches your role. For example, if you are in business development, you will focus on Market to Lead (M2L) and Lead to Opportunity (L2O). If you are in delivery, you will focus on Order to Fulfillment (O2F).\n\nFinally, practice connecting your daily tasks to these larger streams. This builds your ability to work cross-functionally and ensures you are participating in the flow of value, not just performing isolated tasks.',
     whatYouWillPractice: [
-      'Backlog Management: Practice refining and prioritizing work to keep the flow steady.',
-      'Meeting Facilitation: Learn to run high-energy planning and review sessions.',
-      'Visualizing Work: Practice using Kanban boards to make bottlenecks immediately visible.',
-      'Process Improvement: Learn to use Retrospectives to change how you work, not just what you do.',
-      'Reducing Waste: Practice identifying and eliminating non-value-added activities from your day.'
+      'Stream Navigation: Practice identifying exactly where your current project sits within the six DQ Agile Flows.',
+      'Outcome Alignment: Learn how to link your daily backlog items directly to defined value outcomes.',
+      'Frictionless Handoffs: Practice passing work to the next team (e.g., from Sales to Delivery) without dropping critical context.',
+      'Bottleneck Identification: Learn to use Value Stream Maps to spot where work is slowing down and propose solutions.',
+      'Client Nurturing: Practice structured feedback loops in the Revenue to Loyalty (R2L) stage to turn delivery into repeat business.'
     ]
   },
   'dq-agile-6xd': {

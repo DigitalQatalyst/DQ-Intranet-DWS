@@ -107,7 +107,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
         'dq-ghc': 'GHC Overview',
         'dq-vision': 'GHC 1 - Vision (Purpose)',
         'dq-hov': 'GHC 2 - House of Values (HoV)',
-        'dq-persona': 'GHC 3 - Personas',
+        'dq-persona': 'GHC 3 - Persona',
         'dq-agile-tms': 'GHC 4 - Agile TMS',
         'dq-agile-sos': 'GHC 5 - Agile SoS',
         'dq-agile-flows': 'GHC 6 - Agile Flows',
@@ -315,8 +315,8 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
         {timeBucket && <span>{timeBucket}</span>}
         {lastUpdated && <span>{lastUpdated}</span>}
       </div>
-            {/* Show author info only when provided and not a product */}
-      {(!isBlueprint && !isGhcOverview && (guide.authorName || guide.authorOrg)) && (
+      {/* Show author info only when provided and not a product or GHC/Strategy guide */}
+      {(!isBlueprint && !isGhcOverview && domain?.toLowerCase() !== 'strategy' && (guide.authorName || guide.authorOrg)) && (
         <div className="text-xs text-gray-600 mb-2.5 flex-shrink-0">
           <span
             className="truncate"

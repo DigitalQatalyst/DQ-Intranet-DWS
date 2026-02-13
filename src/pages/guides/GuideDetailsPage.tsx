@@ -224,7 +224,12 @@ function GuideDetailsPage() {
               <li>
                 <div className="flex items-center">
                   <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-md">GHC</span>
+                  <Link 
+                    to="/marketplace/guides?tab=strategy" 
+                    className="ml-1 px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 transition-colors"
+                  >
+                    GHC
+                  </Link>
                 </div>
               </li>
               <li aria-current="page">
@@ -244,31 +249,16 @@ function GuideDetailsPage() {
         style={{ 
           backgroundImage: `linear-gradient(rgba(3, 14, 49, 0.8), rgba(3, 14, 49, 0.8)), url('/images/guidelines-content.PNG')`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center'
+          backgroundPosition: 'center',
+          height: '325px'
         }}
       >
-        <div className="pl-20 pr-8 py-16">
+        <div className="h-full flex items-center pl-20 pr-8">
           <div className="text-left">
-            <h1 className={`font-bold mb-4 ${guide.slug === 'dq-ghc' ? 'text-3xl' : 'text-4xl'}`}>{guide.title}</h1>
+            <h1 className="text-[40px] font-bold mb-4 leading-tight">{guide.title}</h1>
             {guide.summary && (
-              <p className="text-xl mb-8 max-w-3xl opacity-90">{guide.summary}</p>
+              <p className="text-[14px] mb-4 max-w-3xl opacity-90">{guide.summary}</p>
             )}
-            
-            {/* Guide Meta Info */}
-            <div className="flex flex-wrap gap-6 text-sm mb-8">
-              {guide.estimated_time_min && (
-                <div className="flex items-center">
-                  <Clock size={18} className="mr-2" />
-                  <span>{guide.estimated_time_min} min read</span>
-                </div>
-              )}
-              {guide.guide_type && (
-                <div className="flex items-center">
-                  <User size={18} className="mr-2" />
-                  <span>{guide.guide_type}</span>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>
@@ -283,10 +273,6 @@ function GuideDetailsPage() {
                 <div className="space-y-8">
                   {sections.map((section, index) => (
                     <section key={section.id} id={section.id} className="scroll-mt-24">
-                      {/* Thin divider line between sections (not before first section) */}
-                      {index > 0 && (
-                        <div className="border-t border-gray-200 mb-6"></div>
-                      )}
                       {/* Section Content */}
                       <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
                         <MarkdownRenderer body={section.content.trim()} />
