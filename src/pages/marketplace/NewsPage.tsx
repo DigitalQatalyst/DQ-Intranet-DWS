@@ -8,13 +8,11 @@ import { Input } from '@/components/ui/input';
 import FiltersPanel from '@/components/media-center/FiltersPanel';
 import AnnouncementsGrid from '@/components/media-center/AnnouncementsGrid';
 import BlogsGrid from '@/components/media-center/BlogsGrid';
-import PodcastsGrid from '@/components/media-center/PodcastsGrid';
 import JobsGrid from '@/components/media-center/JobsGrid';
 import type { FacetConfig, FiltersValue, MediaCenterTabKey } from '@/components/media-center/types';
 import type { NewsItem } from '@/data/media/news';
 import type { JobItem } from '@/data/media/jobs';
 import { fetchAllNews, fetchAllJobs } from '@/services/mediaCenterService';
-import { markMediaItemSeen, getSeenMediaItems } from '@/utils/mediaTracking';
 
 const PINNED_FACETS: FacetConfig[] = [
   {
@@ -63,13 +61,8 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
     { key: 'location', label: 'Location', options: ['Dubai', 'Nairobi', 'Riyadh', 'Remote'] },
     {
       key: 'newsType',
-      label: 'Type',
-      options: [
-        'Policy Update',
-        'Upcoming Events',
-        'Company News',
-        'Holidays'
-      ]
+      label: 'News Type',
+      options: ['Corporate Announcements', 'Product / Project Updates', 'Events & Campaigns', 'Digital Tech News']
     },
     {
       key: 'newsSource',
@@ -93,16 +86,6 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
     }
   ],
   insights: [
-    {
-      key: 'format',
-      label: 'Format',
-      options: ['Blog', 'Article', 'Research Report']
-    },
-    {
-      key: 'source',
-      label: 'Category',
-      options: ['DigitalQatalyst', 'ADGM Academy', 'Abu Dhabi Export Office', 'Khalifa Fund']
-    },
     {
       key: 'department',
       label: 'Department',
@@ -137,23 +120,6 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
       key: 'readingTime',
       label: 'Reading Time',
       options: ['<5', '5–10', '10–20', '20+']
-    }
-  ],
-  podcasts: [
-    {
-      key: 'domain',
-      label: 'Domain',
-      options: ['Business', 'People', 'Operations']
-    },
-    {
-      key: 'theme',
-      label: 'Theme',
-      options: ['Leadership', 'Delivery', 'Culture']
-    },
-    {
-      key: 'readingTime',
-      label: 'Duration',
-      options: ['10–20', '20+']
     }
   ],
   opportunities: [
@@ -198,6 +164,8 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
   ]
 };
 
+const MEDIA_SEEN_STORAGE_KEY = 'dq-media-center-seen-items';
+
 type MediaKind = 'news' | 'job';
 
 interface MediaNotification {
@@ -207,6 +175,29 @@ interface MediaNotification {
   href: string;
   meta: string;
 }
+
+const markMediaItemSeen = (kind: MediaKind, id: string) => {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = window.localStorage.getItem(MEDIA_SEEN_STORAGE_KEY);
+    let seen: { news: string[]; jobs: string[] } = { news: [], jobs: [] };
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<{ news: string[]; jobs: string[] }>;
+      seen = {
+        news: parsed.news ?? [],
+        jobs: parsed.jobs ?? []
+      };
+    }
+
+    const key = kind === 'news' ? 'news' : 'jobs';
+    if (!seen[key].includes(id)) {
+      seen[key] = [...seen[key], id];
+      window.localStorage.setItem(MEDIA_SEEN_STORAGE_KEY, JSON.stringify(seen));
+    }
+  } catch {
+    // Ignore storage errors
+  }
+};
 
 const buildNewsNotification = (item: NewsItem): MediaNotification => {
   const isBlog = item.type === 'Thought Leadership';
@@ -233,9 +224,10 @@ const buildJobNotification = (job: JobItem): MediaNotification => {
 const getLatestUnseenMediaItem = (newsItems: NewsItem[], jobItems: JobItem[]): MediaNotification | null => {
   if (typeof window === 'undefined') return null;
   try {
-    const seen = getSeenMediaItems();
-    const seenNews = new Set(seen.news);
-    const seenJobs = new Set(seen.jobs);
+    const raw = window.localStorage.getItem(MEDIA_SEEN_STORAGE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Partial<{ news: string[]; jobs: string[] }>) : {};
+    const seenNews = new Set(parsed.news ?? []);
+    const seenJobs = new Set(parsed.jobs ?? []);
 
     const latestUnseenNews = [...newsItems]
       .sort((a, b) => (a.date < b.date ? 1 : -1))
@@ -279,12 +271,6 @@ const TAB_SUMMARIES: Record<
       'Long-form blogs and thought-leadership pieces that codify craft, behaviours, and delivery lessons from across chapters.',
     meta: 'Authored by DQ Associates, Leads, and Partners.'
   },
-  podcasts: {
-    title: 'Podcasts',
-    description:
-      'Audio content featuring interviews, discussions, and insights from DQ leaders, associates, and industry experts.',
-    meta: 'Listen to conversations that matter.'
-  },
   opportunities: {
     title: 'Job Openings',
     description:
@@ -300,9 +286,8 @@ const NewsPage: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [tab, setTab] = useState<MediaCenterTabKey>(() => {
     const paramTab = searchParams.get('tab');
-    const validTabs: MediaCenterTabKey[] = ['announcements', 'insights', 'podcasts', 'opportunities'];
-    if (paramTab && validTabs.includes(paramTab as MediaCenterTabKey)) {
-      return paramTab as MediaCenterTabKey;
+    if (paramTab === 'announcements' || paramTab === 'insights' || paramTab === 'opportunities') {
+      return paramTab;
     }
     if (location.pathname.includes('/opportunities')) {
       return 'opportunities';
@@ -319,6 +304,18 @@ const NewsPage: React.FC = () => {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  // Update tab when searchParams change (e.g., when navigating with query params)
+  useEffect(() => {
+    const paramTab = searchParams.get('tab');
+    if (paramTab === 'announcements' || paramTab === 'insights' || paramTab === 'opportunities') {
+      setTab(paramTab);
+    } else if (location.pathname.includes('/opportunities')) {
+      setTab('opportunities');
+    } else if (!paramTab) {
+      setTab('announcements');
+    }
+  }, [searchParams, location.pathname]);
+
   useEffect(() => {
     setFilters({});
   }, [tab]);
@@ -333,7 +330,8 @@ const NewsPage: React.FC = () => {
       const { units, ...rest } = legacyFilters;
       setFilters({ ...rest, department: units });
     }
-  }, [filters]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Keep local search text in sync with URL ?q= from external entry points (e.g., hero search)
   useEffect(() => {
@@ -354,6 +352,8 @@ const NewsPage: React.FC = () => {
         setLoadError(null);
       } catch (error) {
         if (!isMounted) return;
+        // eslint-disable-next-line no-console
+        console.error('Error loading media center data', error);
         setLoadError('Unable to load media items right now.');
       } finally {
         if (isMounted) {
@@ -391,29 +391,12 @@ const NewsPage: React.FC = () => {
     [tab, queryText, filters]
   );
 
-  // Podcast episode search results for the Podcasts tab
-  const podcastSearchResults = useMemo(() => {
-    if (tab !== 'podcasts') return [] as NewsItem[];
-    const search = queryText.trim().toLowerCase();
-    if (!search) return [] as NewsItem[];
-
-    return newsItems
-      .filter(
-        (item) =>
-          item.format === 'Podcast' ||
-          item.tags?.some((tag) => tag.toLowerCase().includes('podcast'))
-      )
-      .filter((item) => item.title.toLowerCase().includes(search));
-  }, [tab, queryText, newsItems]);
-
   const searchPlaceholder = useMemo(() => {
     switch (tab) {
       case 'announcements':
         return 'Search announcements and updates… e.g., townhall, product update';
       case 'insights':
         return 'Search blogs and insights… e.g., case study, delivery lessons';
-      case 'podcasts':
-        return 'Search podcast titles… e.g., Execution Beats Intelligence';
       case 'opportunities':
         return 'Search jobs and roles… e.g., SFIA L3, frontend developer';
       default:
@@ -476,7 +459,7 @@ const NewsPage: React.FC = () => {
         <nav className="flex mb-4 text-sm text-gray-600" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-2">
             <li className="inline-flex items-center">
-              <a href="/" className="inline-flex items-center text-gray-600 hover:text-gray-900" rel="noopener noreferrer">
+              <a href="/" className="inline-flex items-center text-gray-600 hover:text-gray-900">
                 <HomeIcon size={16} className="mr-1" />
                 Home
               </a>
@@ -544,12 +527,6 @@ const NewsPage: React.FC = () => {
                 Blogs
               </TabsTrigger>
               <TabsTrigger
-                value="podcasts"
-                className="rounded-none border-b-2 border-transparent px-0 py-2 justify-start text-left text-gray-700 transition-colors duration-200 data-[state=active]:border-[#1A2E6E] data-[state=active]:font-medium data-[state=active]:text-[#1A2E6E]"
-              >
-                Podcasts
-              </TabsTrigger>
-              <TabsTrigger
                 value="opportunities"
                 className="rounded-none border-b-2 border-transparent px-0 py-2 justify-start text-left text-gray-700 transition-colors duration-200 data-[state=active]:border-[#1A2E6E] data-[state=active]:font-medium data-[state=active]:text-[#1A2E6E]"
               >
@@ -567,33 +544,6 @@ const NewsPage: React.FC = () => {
                 placeholder={searchPlaceholder}
                 className="h-11 pl-10 w-full"
               />
-              {tab === 'podcasts' && queryText.trim() && (
-                <div className="absolute z-20 mt-1 w-full max-h-64 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
-                  {podcastSearchResults.length === 0 ? (
-                    <div className="px-3 py-2 text-sm text-gray-500">
-                      No podcast episodes found.
-                    </div>
-                  ) : (
-                    podcastSearchResults.map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => {
-                          setQueryText('');
-                          const params = new URLSearchParams(location.search);
-                          params.set('tab', 'podcasts');
-                          params.set('episode', item.id);
-                          navigate(`/marketplace/news/action-solver-podcast?${params.toString()}`);
-                        }}
-                        className="flex w-full flex-col items-start px-3 py-2 text-left text-sm hover:bg-gray-50"
-                      >
-                        <span className="font-medium text-gray-900 line-clamp-1">{item.title}</span>
-                        <span className="text-xs text-gray-500">Podcast episode</span>
-                      </button>
-                    ))
-                  )}
-                </div>
-              )}
             </div>
             <div className="flex items-center gap-3 md:hidden">
               <button
@@ -704,9 +654,6 @@ const NewsPage: React.FC = () => {
               </TabsContent>
               <TabsContent value="insights">
                 <BlogsGrid query={query} items={newsItems} />
-              </TabsContent>
-              <TabsContent value="podcasts">
-                <PodcastsGrid query={query} items={newsItems} />
               </TabsContent>
               <TabsContent value="opportunities">
                 <JobsGrid query={query} jobs={jobItems} />

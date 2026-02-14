@@ -8,18 +8,14 @@ import { DollarSign, Briefcase, Calendar, BookOpen } from 'lucide-react';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
 import NewsPage from './NewsPage';
 import NewsDetailPage from './NewsDetailPage';
-import PodcastSeriesPage from './PodcastSeriesPage';
 import { DQWorkDirectoryPage } from '../DQWorkDirectoryPage';
 import JobDetailPage from './JobDetailPage';
 import JobApplicationPage from './JobApplicationPage';
 const GrowthAreasPage = React.lazy(() => import('../GrowthAreasPage'));
 const GuideDetailPage = React.lazy(() => import('../guides/GuideDetailPage'));
 const GlossaryPage = React.lazy(() => import('../guides/GlossaryPage'));
-const GlossaryTermDetailPage = React.lazy(() => import('../guides/GlossaryTermDetailPage'));
-const SixXDPerspectiveDetailPage = React.lazy(() => import('../guides/SixXDPerspectiveDetailPage'));
 const FAQsPage = React.lazy(() => import('../guides/FAQsPage'));
 const TestimonialsDetailPage = React.lazy(() => import('../guides/TestimonialsDetailPage'));
-const ProductDetailPage = React.lazy(() => import('../products/ProductDetailPage'));
 // Promo cards for courses marketplace
 const coursePromoCards = [{
   id: 'finance-promo',
@@ -102,7 +98,6 @@ export const MarketplaceRouter: React.FC = () => {
   const nonFinancialConfig = getMarketplaceConfig('non-financial');
   const knowledgeHubConfig = getMarketplaceConfig('knowledge-hub');
   const guidesConfig = getMarketplaceConfig('guides');
-  const designSystemConfig = getMarketplaceConfig('design-system');
   // State for bookmarked items and comparison
   const [bookmarkedItems, setBookmarkedItems] = useState<Record<string, string[]>>({
     courses: [],
@@ -143,25 +138,16 @@ export const MarketplaceRouter: React.FC = () => {
       {/* Guides Marketplace (canonical) */}
       <Route path="/guides" element={<MarketplacePage marketplaceType="guides" title={guidesConfig.title} description={guidesConfig.description} promoCards={knowledgeHubPromoCards} />} />
       <Route path="/guides/glossary" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><GlossaryPage /></React.Suspense>} />
-      <Route path="/guides/glossary/:termId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><GlossaryTermDetailPage /></React.Suspense>} />
-      <Route path="/guides/6xd-perspective/:perspectiveId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><SixXDPerspectiveDetailPage /></React.Suspense>} />
       <Route path="/guides/faqs" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><FAQsPage /></React.Suspense>} />
       <Route path="/guides/testimonials" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><TestimonialsDetailPage /></React.Suspense>} />
       <Route path="/guides/:itemId" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><GuideDetailPage /></React.Suspense>} />
       
-      {/* Products Detail Pages */}
-      <Route path="/products/:slug" element={<React.Suspense fallback={<div className="p-6 text-center">Loading...</div>}><ProductDetailPage /></React.Suspense>} />
-      
       {/* Backward compatibility: Knowledge Hub routes (aliased to Guides) */}
       <Route path="/knowledge-hub" element={<MarketplacePage marketplaceType="knowledge-hub" title={knowledgeHubConfig.title} description={knowledgeHubConfig.description} promoCards={knowledgeHubPromoCards} />} />
       <Route path="/knowledge-hub/:itemId" element={<MarketplaceDetailsPage marketplaceType="knowledge-hub" bookmarkedItems={bookmarkedItems['knowledge-hub']} onToggleBookmark={itemId => handleToggleBookmark('knowledge-hub', itemId)} />} />
-      
-      {/* Design System Marketplace */}
-      <Route path="/design-system" element={<MarketplacePage marketplaceType="design-system" title={designSystemConfig.title} description={designSystemConfig.description} promoCards={[]} />} />
-      <Route path="/design-system/:itemId" element={<MarketplaceDetailsPage marketplaceType="design-system" bookmarkedItems={bookmarkedItems['design-system'] || []} onToggleBookmark={itemId => handleToggleBookmark('design-system', itemId)} />} />
+
       {/* News & Opportunities Marketplace - Redirected to /guides */}
       <Route path="/news" element={<Navigate to="/marketplace/guides" replace />} />
-      <Route path="/news/action-solver-podcast" element={<PodcastSeriesPage />} />
       <Route path="/news/:id" element={<NewsDetailPage />} />
       <Route path="/opportunities" element={<NewsPage />} />
       <Route path="/opportunities/:id" element={<JobDetailPage />} />

@@ -3,7 +3,6 @@ import {
   Star,
   Play,
   X,
-  User,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -22,162 +21,6 @@ import {
   type Testimonial,
 } from '../data/landingPageContent';
 
-interface AssociateFeedback {
-  id: string;
-  name: string;
-  role: string;
-  imageUrl: string;
-  rating?: number;
-  feedback: string;
-}
-
-const associateFeedbacks: AssociateFeedback[] = [
-  {
-    id: 'vishnu',
-    name: 'Vishnu Chandran',
-    role: 'CoE Analyst, Digital Qatalyst',
-    imageUrl:
-      'https://i.ibb.co/XkGXwk4Z/Screenshot-2026-01-27-at-3-39-28-PM.png',
-    rating: 5,
-    feedback:
-      'DigitalQatalyst’s values helped me focus on creating real impact, not just completing tasks. They pushed me to take ownership, think clearly about outcomes, and stay open to continuous learning. Over time, this shifted how I approach my work: I plan with intent, communicate with purpose, and follow through with accountability. I’ve become more confident in making decisions, raising risks early, and supporting the team when challenges come up. These values also shaped me personally, helping me stay disciplined, curious, and responsible every day.',
-  },
-  {
-    id: 'jerry',
-    name: 'Jerry Ashie',
-    role: 'Accounts Manager & Scrum Master, Digital Qatalyst',
-    imageUrl:
-      'https://i.ibb.co/XMPk1nQ/Whats-App-Image-2026-01-23-at-11-20-35-AM-1.jpg',
-    rating: 5,
-    feedback:
-      'DigitalQatalyst’s values and mission encourage me to keep learning, adapt fast, and take real ownership of my work. They push me to face challenges with curiosity and to treat feedback as fuel for growth, not criticism. In a collaborative, innovative culture, I’ve strengthened my problem-solving, communication, and prioritization skills. I now raise risks earlier, ask better questions, and contribute with more confidence in meetings. This mindset helps me deliver value, not just activity, every single day. Overall, I’m more resilient and confident professionally and personally.',
-  },
-  {
-    id: 'sharon',
-    name: 'Sharon Adhiambo',
-    role: 'HR Analyst, Digital Qatalyst',
-    imageUrl:
-      'https://images.pexels.com/photos/3760853/pexels-photo-3760853.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    rating: 5,
-    feedback:
-      'A value that has significantly influenced my growth is Collaboration. It taught me to lean on others’ strengths and share progress, challenges, and insights openly. By engaging more with my team, I gained fresh perspectives that improved the quality of my work and helped me avoid blind spots. I also learned to ask for feedback earlier, not at the end, so I can adjust faster and deliver stronger outcomes. Involving the right people sooner has made my work more efficient, better aligned, and more impactful.',
-  },
-  {
-    id: 'fadil',
-    name: 'Fadil Alli',
-    role: 'CoE Analyst',
-    imageUrl:
-      'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    rating: 5,
-    feedback:
-      "One key value in DQ that has influenced my growth is ownership. It's still something I'm working on every day, but I've already noticed the positive impact it has on how I approach my tasks. For example, as a Scrum Master, I've been focusing on taking more responsibility for the challenges in the Product Factory. While it's a work in progress, I've seen improved collaboration and clearer accountability within the team when there's a strong sense of ownership, which has led to more streamlined processes.",
-  },
-];
-
-const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
-  const disclaimer = '(not approved for external publication)';
-
-  return (
-    <div className="h-full rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md flex flex-col">
-      <div className="flex items-center gap-4 mb-4">
-        <div className="w-12 h-12 rounded-lg bg-white border-2 border-gray-200 flex items-center justify-center flex-shrink-0">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="text-gray-600"
-          >
-            <path
-              d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
-              fill="currentColor"
-            />
-            <path
-              d="M12 14C7.58172 14 4 16.6863 4 20V22H20V20C20 16.6863 16.4183 14 12 14Z"
-              fill="currentColor"
-            />
-          </svg>
-        </div>
-        <div>
-          <p className="text-base font-semibold text-gray-900">
-            {testimonial.name}
-          </p>
-          <p className="text-sm text-gray-500">{testimonial.context}</p>
-          <p className="text-sm text-gray-400">{testimonial.role}</p>
-        </div>
-      </div>
-      <p className="text-gray-600 leading-relaxed text-base">
-        "{testimonial.quote}"
-        <span className="block text-xs text-gray-500 italic mt-2">{disclaimer}</span>
-      </p>
-      {testimonial.note && testimonial.note.toLowerCase().trim() !== disclaimer.replace(/[()]/g, '').toLowerCase() && (
-        <p className="text-xs text-amber-600 mt-4">
-          {testimonial.note}
-        </p>
-      )}
-    </div>
-  );
-};
-
-const AssociateFeedbackCard = ({ feedback }: { feedback: AssociateFeedback }) => {
-  return (
-    <div className="flex items-start gap-4 md:gap-6 rounded-2xl bg-white/90 border border-gray-200 shadow-sm px-5 py-4 md:px-6 md:py-5 md:h-[332px] md:max-w-[593px]">
-      {/* Associate icon placeholder */}
-      <div className="flex-shrink-0 h-14 w-14 md:h-16 md:w-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-500">
-        <User size={28} strokeWidth={2} className="md:w-8 md:h-8 w-7 h-7" />
-      </div>
-
-      {/* Text content */}
-      <div className="flex-1 min-w-0 h-full">
-        <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1 mb-2">
-          <div>
-            <p className="text-base md:text-lg font-semibold text-gray-900">
-              {feedback.name}
-            </p>
-            <p className="text-sm text-gray-500">{feedback.role}</p>
-          </div>
-
-          {/* Subtle, optional rating */}
-          {typeof feedback.rating === 'number' && (
-            <div className="flex items-center gap-1 text-xs text-gray-400 md:text-sm md:text-gray-500">
-              <Star size={14} className="text-amber-400 fill-amber-400" />
-              <span className="font-medium">{feedback.rating}/5</span>
-              <span className="hidden md:inline text-gray-400">reflection</span>
-            </div>
-          )}
-        </div>
-
-        <p className="text-sm md:text-base leading-relaxed text-gray-700 overflow-y-auto pr-1">
-          “{feedback.feedback}”
-        </p>
-      </div>
-    </div>
-  );
-};
-
-export const TestimonialsShowcase = () => {
-  return (
-    <div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {testimonials.map((testimonial, index) => (
-          <FadeInUpOnScroll key={testimonial.id} delay={index * 0.08}>
-            <TestimonialCard testimonial={testimonial} />
-          </FadeInUpOnScroll>
-        ))}
-      </div>
-      <div className="flex justify-center mt-6">
-        <button
-          type="button"
-          className="px-5 py-2 text-sm font-semibold text-[var(--guidelines-primary-dark)] border border-gray-200 rounded-full bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]"
-        >
-          Show more stories
-        </button>
-      </div>
-    </div>
-  );
-};
-
 const VideoTestimonialCard = ({
   testimonial,
   onClick,
@@ -187,12 +30,8 @@ const VideoTestimonialCard = ({
 }) => {
   const [isHovering, setIsHovering] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const isImageOnly = testimonial.mediaType === "image";
 
   useEffect(() => {
-    if (isImageOnly) {
-      return;
-    }
     if (videoRef.current) {
       if (isHovering) {
         videoRef.current
@@ -215,24 +54,22 @@ const VideoTestimonialCard = ({
       {/* Video/Thumbnail Background */}
       <div className="absolute inset-0 bg-gray-900 overflow-hidden">
         <img
-          src={testimonial.imageUrl || testimonial.videoThumbnail}
+          src={testimonial.videoThumbnail}
           alt={`${testimonial.name} from ${testimonial.company}`}
           className={`w-full h-full object-cover transition-opacity duration-300 ${
-            !isImageOnly && isHovering ? "opacity-0" : "opacity-100"
+            isHovering ? "opacity-0" : "opacity-100"
           }`}
         />
-        {!isImageOnly && (
-          <video
-            ref={videoRef}
-            src={testimonial.videoUrl}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
-              isHovering ? "opacity-100" : "opacity-0"
-            }`}
-            muted
-            playsInline
-            loop
-          />
-        )}
+        <video
+          ref={videoRef}
+          src={testimonial.videoUrl}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+            isHovering ? "opacity-100" : "opacity-0"
+          }`}
+          muted
+          playsInline
+          loop
+        />
       </div>
 
       {/* Overlay with content */}
@@ -339,20 +176,12 @@ const TestimonialModal = ({
       >
         <div className="relative flex-shrink-0">
           <div className="w-full aspect-video bg-gray-900">
-            {testimonial.mediaType === "image" || !testimonial.videoUrl ? (
-              <img
-                src={testimonial.imageUrl || testimonial.videoThumbnail}
-                alt={testimonial.modalTitle || testimonial.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <video
-                src={testimonial.videoUrl}
-                controls
-                autoPlay
-                className="w-full h-full object-cover"
-              />
-            )}
+            <video
+              src={testimonial.videoUrl}
+              controls
+              autoPlay
+              className="w-full h-full object-cover"
+            />
           </div>
           <button
             className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-all"
@@ -371,7 +200,7 @@ const TestimonialModal = ({
             />
             <div>
               <h3 className="text-xl font-bold text-gray-900">
-                {testimonial.modalTitle || `How ${testimonial.company} scaled with Enterprise Journey`}
+                How {testimonial.company} scaled with Enterprise Journey
               </h3>
               <div className="flex items-center mt-1">
                 {[...Array(5)].map((_, i) => (
@@ -409,19 +238,16 @@ const TestimonialModal = ({
           </div>
 
           <div className="mt-6 pt-6 border-t border-gray-200">
-            {testimonial.metric && testimonial.metricLabel && (
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">
-                    {testimonial.metric} {testimonial.metricLabel}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {testimonial.impactDescription ||
-                      "Impact achieved through DQ Workspace"}
-                  </p>
-                </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">
+                  {testimonial.metric} {testimonial.metricLabel}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Impact achieved through DQ Workspace
+                </p>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
@@ -429,7 +255,7 @@ const TestimonialModal = ({
   );
 };
 
-export const VideoTestimonialCarousel = () => {
+const VideoTestimonialCarousel = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedTestimonial, setSelectedTestimonial] =
     useState<Testimonial | null>(null);
@@ -532,181 +358,6 @@ export const VideoTestimonialCarousel = () => {
   );
 };
 
-const AssociateFeedbackCarousel = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [selectedFeedback, setSelectedFeedback] =
-    useState<AssociateFeedback | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const touchStartX = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (isPaused) return;
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % associateFeedbacks.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [isPaused]);
-
-  useEffect(() => {
-    if (carouselRef.current) {
-      const cardWidth =
-        carouselRef.current.scrollWidth / associateFeedbacks.length;
-      const scrollAmount = activeIndex * cardWidth;
-      carouselRef.current.scrollTo({ left: scrollAmount, behavior: 'smooth' });
-    }
-  }, [activeIndex]);
-
-  const handlePrev = () =>
-    setActiveIndex(
-      (prev) => (prev - 1 + associateFeedbacks.length) % associateFeedbacks.length
-    );
-  const handleNext = () =>
-    setActiveIndex((prev) => (prev + 1) % associateFeedbacks.length);
-
-  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    touchStartX.current = event.touches[0]?.clientX ?? null;
-    setIsPaused(true);
-  };
-
-  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
-    if (touchStartX.current == null) {
-      setIsPaused(false);
-      return;
-    }
-    const deltaX = event.changedTouches[0]?.clientX - touchStartX.current;
-    const threshold = 40;
-    if (deltaX > threshold) {
-      handlePrev();
-    } else if (deltaX < -threshold) {
-      handleNext();
-    }
-    touchStartX.current = null;
-    setIsPaused(false);
-  };
-
-  return (
-    <div
-      className="relative"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
-      <div
-        ref={carouselRef}
-        className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth gap-6 pb-6"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        {associateFeedbacks.map((feedback, index) => (
-          <div
-            key={feedback.id}
-            className="min-w-full sm:min-w-[420px] lg:min-w-[620px] flex-shrink-0 snap-center"
-          >
-            <FadeInUpOnScroll delay={index * 0.1}>
-              <button
-                type="button"
-                className="w-full text-left focus:outline-none"
-                onClick={() => {
-                  setSelectedFeedback(feedback);
-                  setIsModalOpen(true);
-                }}
-              >
-                <AssociateFeedbackCard feedback={feedback} />
-              </button>
-            </FadeInUpOnScroll>
-          </div>
-        ))}
-      </div>
-
-      {/* Arrows */}
-      <div className="absolute top-1/2 left-0 right-0 flex justify-between items-center transform -translate-y-1/2 pointer-events-none px-2 sm:px-4">
-        <button
-          className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-all pointer-events-auto"
-          onClick={handlePrev}
-          aria-label="Previous associate reflection"
-        >
-          <ChevronLeft size={18} />
-        </button>
-        <button
-          className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-all pointer-events-auto"
-          onClick={handleNext}
-          aria-label="Next associate reflection"
-        >
-          <ChevronRight size={18} />
-        </button>
-      </div>
-
-      {/* Dots */}
-      <div className="flex justify-center mt-3 gap-2">
-        {associateFeedbacks.map((item, index) => (
-          <button
-            key={item.id}
-            className={`w-2 h-2 rounded-full transition-all ${
-              activeIndex === index ? 'bg-dq-coral w-6' : 'bg-gray-300'
-            }`}
-            onClick={() => setActiveIndex(index)}
-            aria-label={`Go to associate reflection ${index + 1}`}
-          />
-        ))}
-      </div>
-
-      {/* Expanded associate feedback modal */}
-      {isModalOpen && selectedFeedback && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all duration-300">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] shadow-2xl transform transition-all duration-300 animate-fadeIn flex flex-col overflow-hidden">
-            <div className="p-6 border-b border-gray-200 flex items-start gap-4">
-              <div className="flex-shrink-0 h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-500">
-                <User size={28} strokeWidth={2} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline justify-between gap-2">
-                  <div>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {selectedFeedback.name}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {selectedFeedback.role}
-                    </p>
-                  </div>
-                  {typeof selectedFeedback.rating === 'number' && (
-                    <div className="flex items-center gap-1 text-xs text-gray-400 md:text-sm md:text-gray-500">
-                      <Star
-                        size={16}
-                        className="text-amber-400 fill-amber-400"
-                      />
-                      <span className="font-medium">
-                        {selectedFeedback.rating}/5
-                      </span>
-                      <span className="hidden md:inline text-gray-400">
-                        reflection
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <button
-                type="button"
-                className="ml-2 text-gray-400 hover:text-gray-600"
-                onClick={() => setIsModalOpen(false)}
-                aria-label="Close associate feedback"
-              >
-                <X size={18} />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto">
-              <p className="text-sm md:text-base leading-relaxed text-gray-700">
-                “{selectedFeedback.feedback}”
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
 // Partner Category Card component
 const PartnerCategoryCard = ({ category }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -772,7 +423,7 @@ const PartnerLogo = ({ sector }) => {
   const [isHovered, setIsHovered] = useState(false);
   return (
     <div
-      className={`relative mx-5 my-2 transition-all duration-300 ease-out transform ${
+      className={`relative mx-4 my-1 transition-all duration-300 ease-out transform ${
         isHovered ? 'scale-110' : ''
       }`}
       onMouseEnter={() => setIsHovered(true)}
@@ -781,12 +432,12 @@ const PartnerLogo = ({ sector }) => {
       <img
         src={sector.logo}
         alt={sector.name}
-        className="h-16 md:h-20 object-contain transition-all duration-500"
+        className="h-12 object-contain transition-all duration-500"
         style={{
           filter: isHovered ? "none" : "grayscale(100%)",
           opacity: isHovered ? 1 : 0.7,
           width: "auto",
-          maxWidth: "160px",
+          maxWidth: "120px",
         }}
       />
     </div>
@@ -833,12 +484,12 @@ const FeaturedPartnersCarousel = () => {
   };
 
   return (
-    <div className="relative h-auto pt-8 pb-4 md:pt-10 md:pb-6">
-      <FadeInUpOnScroll className="text-center mb-8">
-        <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+    <div className="relative h-auto pt-6 pb-2 md:pt-8 md:pb-3">
+      <FadeInUpOnScroll className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">
           Featured Sectors
         </h3>
-        <p className="text-gray-600 text-base md:text-lg">
+        <p className="text-gray-600">
           Trusted core factories and streams across DQ
         </p>
       </FadeInUpOnScroll>
@@ -846,7 +497,7 @@ const FeaturedPartnersCarousel = () => {
       <div className="relative h-auto overflow-visible">
         <div
           ref={carouselRef}
-          className="flex overflow-x-auto py-6 md:py-8 scrollbar-hide gap-8"
+          className="flex overflow-x-auto py-2 scrollbar-hide gap-6"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {[...sectors, ...sectors].map((sector, index) => (
@@ -881,17 +532,18 @@ const FeaturedPartnersCarousel = () => {
 
 const ProofAndTrust: React.FC = () => {
   return (
-    <div className="bg-white pt-16 pb-8">
+    <div className="bg-white py-16">
       <div className="container mx-auto px-4">
         {/* Why Abu Dhabi / Platform Impact */}
         <div className="mb-16">
           <FadeInUpOnScroll className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-900 mb-3 clamp-1">
-              The DQ Agile Advantage
+              Why Agile Working Accelerates Growth
             </h2>
             <div>
-              <p className="text-base sm:text-lg text-gray-600 mx-auto mb-8 text-balance leading-tight whitespace-normal sm:whitespace-nowrap max-w-full sm:max-w-4xl">
-                See how our way of working creates time for what matters: learning, focus, and meaningful impact.
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8 text-balance clamp-2">
+                Agile working empowers teams to adapt, collaborate, and grow
+                faster together.
               </p>
             </div>
           </FadeInUpOnScroll>
@@ -936,19 +588,17 @@ const ProofAndTrust: React.FC = () => {
         <div className="mb-16 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 md:p-12 overflow-hidden relative">
           <FadeInUpOnScroll className="text-center mb-10 relative z-10">
             <h2 className="text-3xl font-bold text-gray-900 mb-3 clamp-1">
-              What Our Team Says
+              Success Stories from DQ Employees
             </h2>
             <div>
-              <p className="text-base sm:text-lg text-gray-600 mx-auto clamp-1 leading-tight whitespace-normal sm:whitespace-nowrap max-w-full sm:max-w-4xl">
-                Hear directly from the people who make it all happen.
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto clamp-2">
+                Discover how DQ teams work smarter and collaborate better every
+                day.
               </p>
             </div>
           </FadeInUpOnScroll>
-
-          <div className="relative z-10">
-            <AssociateFeedbackCarousel />
+            <VideoTestimonialCarousel />
           </div>
-        </div>
 
         {/* Powered by Strategic Partnerships - NEW SECTION */}
         <div className="mb-16 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 md:p-12 overflow-visible relative">
@@ -961,7 +611,7 @@ const ProofAndTrust: React.FC = () => {
             </h2>
             <div className="relative">
               <p className="text-lg text-gray-600 max-w-3xl mx-auto clamp-2">
-                Governance, Operations, Platforms, and Delivery the four
+                Governance, Operations, Platforms, and Delivery — the four
                 pillars driving DQ’s success.
               </p>
             </div>

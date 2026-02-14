@@ -411,14 +411,10 @@ export const createDummyRemoteStream = async (): Promise<MediaStream> => {
     const ctx = canvas.getContext("2d");
 
     // Create a media stream from the canvas
-    const stream = (canvas as HTMLCanvasElement & {
+    const captureStream = (canvas as HTMLCanvasElement & {
       captureStream?: (fps?: number) => MediaStream;
-    }).captureStream
-      ? // Some browsers may not support captureStream; guard usage
-        (canvas as HTMLCanvasElement & {
-          captureStream: (fps?: number) => MediaStream;
-        }).captureStream(30)
-      : new MediaStream();
+    }).captureStream;
+    const stream = captureStream ? captureStream.call(canvas, 30) : new MediaStream();
 
     // Add audio track if needed
     try {

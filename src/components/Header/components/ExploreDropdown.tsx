@@ -9,7 +9,6 @@ import {
   SparklesIcon,
   LucideProps,
   BookOpen,
-  Layers,
 } from 'lucide-react';
 
 interface Marketplace {
@@ -26,10 +25,10 @@ const marketplaces: Marketplace[] = [
   {
     id: 'learning-center',
     name: 'DQ Learning Center',
-    description: 'Explore LMS courses, onboarding tracks, and learning resources across GHC, 6xD, DWS, and DXP.',
+    description: 'Courses, learning tracks, and associate reviews.',
     icon: GraduationCapIcon,
     href: '/lms',
-    isComingSoon: false,
+    isComingSoon: true,
   },
   {
     id: 'services-center',
@@ -37,7 +36,6 @@ const marketplaces: Marketplace[] = [
     description: 'Business services, technology services, and digital worker tools.',
     icon: BuildingIcon,
     href: '/marketplace/services-center',
-    isComingSoon: true,
   },
   {
     id: 'work-center',
@@ -56,11 +54,11 @@ const marketplaces: Marketplace[] = [
     isComingSoon: true,
   },
   {
-    id: 'news-center',
+    id: 'media-center',
     name: 'DQ Media Center',
-    description: 'View DQ updates, corporate news, blogs, job openings, and essential announcements.',
+    description: 'News, announcements, job openings, and blogs.',
     icon: NewspaperIcon,
-    href: '/marketplace/opportunities?tab=announcements',
+    href: '/marketplace/opportunities',
   },
   {
     id: 'work-communities',
@@ -76,13 +74,6 @@ const marketplaces: Marketplace[] = [
     description: 'Strategy guides, blueprints, libraries, and testimonials.',
     icon: BookOpen,
     href: '/marketplace/guides',
-  },
-  {
-    id: 'design-system',
-    name: 'Design System Marketplace',
-    description: 'Explore design system components, patterns, and resources (CI.DS, V.DS, CDS).',
-    icon: Layers,
-    href: '/marketplace/design-system',
   },
 ];
 
@@ -193,17 +184,16 @@ export function ExploreDropdown({ isCompact = false }: ExploreDropdownProps) {
           aria-orientation="vertical"
           aria-labelledby="explore-menu"
         >
-          <div className="px-4 py-2 border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-dq-navy">Explore DWS</h3>
-            <p className="text-xs text-dq-navy/70 mt-1 line-clamp-2">
-              Your entry point to how work, learning, and collaboration happen at DigitalQatalyst.
-            </p>
-          </div>
           <div className="max-h-[480px] overflow-y-auto">
             {marketplaces.map((marketplace, index) => {
               const Icon = marketplace.icon;
               const isComingSoon = marketplace.isComingSoon;
-              const isActive = marketplace.id === 'news-center' && (location.pathname.startsWith('/marketplace/opportunities') || location.pathname.startsWith('/marketplace/news'));
+              const isActive =
+                (marketplace.id === 'knowledge-center' &&
+                  (location.pathname.startsWith('/marketplace/guides') ||
+                    location.pathname.startsWith('/marketplace/knowledge-hub'))) ||
+                (marketplace.id === 'services-center' &&
+                  location.pathname.startsWith('/marketplace/services-center'));
               return (
                 <a
                   key={marketplace.id}

@@ -7,7 +7,6 @@ import { NotificationCenter } from "./notifications/NotificationCenter";
 import { mockNotifications } from "./utils/mockNotifications";
 import { useAuth } from "./context/AuthContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { assetPath } from "../../../utils/assetPath";
 import EnquiryModal from "../Enquiry/EnquiryModal";
 
 interface HeaderProps {
@@ -115,8 +114,8 @@ export function Header({
             }`}
         >
           <img
-            src={assetPath('DWS-Logo.png')}
-            alt="DQ Logo"
+            src="/public/logo/mzn_logo.svg"
+            alt="MZN Logo"
             className={`transition-all duration-300 ${isSticky ? "h-8" : "h-10"
               }`}
           />
