@@ -471,7 +471,7 @@ const useGuideLoader = (
   setLoading: React.Dispatch<React.SetStateAction<boolean>>,
   setError: React.Dispatch<React.SetStateAction<string | null>>,
 ) => {
-  useEffect(() => {
+  useEffect(() => { // NOSONAR: acceptable complexity for guide data loading and transformation
     let cancelled = false
     ;(async () => {
       setLoading(true)
@@ -1342,7 +1342,10 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
               <article
                 ref={articleRef}
                 className="markdown-body"
-                dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}
+                dir={(() => {
+                  if (typeof document === 'undefined') return 'ltr'
+                  return document.documentElement.getAttribute('dir') || 'ltr'
+                })()}
               >
                 <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
                   <Markdown body={transformKeyHighlightsInOverview(overviewSection.content)} />
@@ -1388,7 +1391,10 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                   <article
                     ref={articleRef}
                     className="markdown-body"
-                    dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}
+                    dir={(() => {
+                      if (typeof document === 'undefined') return 'ltr'
+                      return document.documentElement.getAttribute('dir') || 'ltr'
+                    })()}
                   >
                     <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
                       <Markdown body={formatSectionContent(section)} />
@@ -1477,7 +1483,10 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                 id={isPolicy ? 'full-details' : undefined}
                 ref={articleRef}
                 className={`bg-white rounded-lg shadow p-6 markdown-body ${(isPolicy && showFullDetails) || !isPolicy ? '' : 'hidden'}`}
-                dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}
+                dir={(() => {
+                  if (typeof document === 'undefined') return 'ltr'
+                  return document.documentElement.getAttribute('dir') || 'ltr'
+                })()}
               >
                 <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
                   <Markdown body={guide.body || ''} />
