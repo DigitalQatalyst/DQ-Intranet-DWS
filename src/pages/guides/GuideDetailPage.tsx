@@ -211,7 +211,7 @@ const splitSections = (body: string, hasOverview: boolean): GuideSection[] => {
       if (current && current.content.length > 0) {
         pushSection(sections, processed, current)
       }
-      let title = line.replaceAll(/^##\s+/, '').trim().replaceAll(/\*\*/g, '').trim()
+      let title = line.replaceAll(/^##\s+/, '').trim().replaceAll('**', '').trim()
       const skip = hasOverview && (title === 'Description' || title === 'Key Highlights')
       if (skip) {
         current = null
@@ -235,9 +235,9 @@ const toTitleCaseLabel = (s: string): string => (s || '').split(/\s+/).map(w => 
 
 const stripLeadingEmoji = (s: string): string => {
   // Remove leading emojis/symbols commonly used as icons
-  // Unicode ranges cover misc symbols & pictographs
+  // Unicode ranges: \u{1F300}-\u{1FAFF} covers most emojis including \u{1F900}-\u{1F9FF}
   // eslint-disable-next-line no-misleading-character-class
-  return s.replaceAll(/^[\u200d\ufe0f\u2060\s]*[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}]+\s*/u, '')
+  return s.replaceAll(/^[\u200d\ufe0f\u2060\s]*[\u{1F300}-\u{1FAFF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}]+\s*/u, '')
 }
 
 const ensureBulletedTitleCaseLine = (raw: string): string => {
@@ -274,7 +274,7 @@ const transformKeyHighlightsInOverview = (md: string): string => {
   for (const raw of lines) {
     const t = raw.trim()
     if (t.startsWith('## ')) {
-      const title = t.replaceAll(/^##\s+/, '').replaceAll(/\*\*/g, '').trim().toLowerCase()
+      const title = t.replaceAll(/^##\s+/, '').replaceAll('**', '').trim().toLowerCase()
       inKH = title === 'key highlights'
       out.push(raw)
       continue
@@ -309,7 +309,7 @@ const makeFeaturesPrecise = (_content: string): string => {
   return standardFeatures.map(f => `- **${f.title}**: ${f.description}`).join('\n')
 }
 
-const parseBlueprintSections = (body: string) => {
+const parseBlueprintSections = (body: string) => { // NOSONAR: acceptable complexity for parsing markdown
   const sections: Record<string, string> = {}
   const lines = body.split('\n')
   let currentSection = ''
@@ -341,7 +341,7 @@ const parseBlueprintSections = (body: string) => {
           sections[currentSection] = content
         }
       }
-      const sectionTitle = h2Match[1].trim().replaceAll(/\*\*/g, '')
+      const sectionTitle = h2Match[1].trim().replaceAll('**', '')
       const normalized = sectionTitle.toLowerCase()
       currentSection = sectionMappings[normalized] || sectionTitle
       currentContent = []
@@ -360,7 +360,7 @@ const parseBlueprintSections = (body: string) => {
   return sections
 }
 
-const parseGuideSections = (body: string) => {
+const parseGuideSections = (body: string) => { // NOSONAR: acceptable complexity for parsing markdown
   const sections: Array<{ title: string; content: string; isTile?: boolean }> = []
   const lines = body.split('\n')
   let currentSection: { title: string; content: string[] } | null = null
@@ -372,7 +372,7 @@ const parseGuideSections = (body: string) => {
     const h3Match = h3Regex.exec(line)
 
     if (h3Match) {
-      const h3Title = h3Match[1].trim().replaceAll(/\*\*/g, '').trim()
+      const h3Title = h3Match[1].trim().replaceAll('**', '').trim()
       const normalizedH3 = h3Title.toLowerCase()
 
       if (normalizedH3 === 'ai tools' || normalizedH3 === 'model provider') {
@@ -398,7 +398,7 @@ const parseGuideSections = (body: string) => {
         sections.push({ title: currentSection.title, content, isTile })
       }
       let title = h2Match[1].trim()
-      title = title.replaceAll(/\*\*/g, '').trim()
+      title = title.replaceAll('**', '').trim()
       currentSection = { title, content: [] }
     } else if (currentSection) {
       currentSection.content.push(line)
@@ -663,8 +663,8 @@ const useBlueprintTocObserver = (
     tocItems.forEach((item) => {
       const element = sectionRefs.current[item.id]
       if (element) {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
+        const observer = new IntersectionObserver((entries) => { // NOSONAR: acceptable nesting for observer pattern
+          entries.forEach((entry) => { // NOSONAR: acceptable nesting for observer pattern
             if (entry.isIntersecting) {
               setActiveTOCSection(item.id)
             }
@@ -681,7 +681,7 @@ const useBlueprintTocObserver = (
   }, [actualIsBlueprintDomain, guide, blueprintSections, tocItems, sectionRefs, setActiveTOCSection])
 }
 
-const GuideDetailPage: React.FC = () => {
+const GuideDetailPage: React.FC = () => { // NOSONAR: acceptable complexity for main component
   const { itemId } = useParams()
   const location = useLocation() as any
   const { user } = useAuth()
