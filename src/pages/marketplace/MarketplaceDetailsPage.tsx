@@ -340,12 +340,17 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const isDigitalWorker = item.category === 'Digital Worker';
   const isLeaveApplication = item.id === '13';
   const isITSupportService = marketplaceType === 'non-financial' && ['1', '2', '3'].includes(item.id);
-  const primaryAction =
-    isLeaveApplication ? 'Apply For Leave'
-    : isPromptLibrary ? 'View Prompt'
-    : isDigitalWorker ? 'View Details'
-    : isAITool ? 'Request Tool'
-    : config.primaryCTA;
+  
+  // Determine primary action based on item type
+  const getPrimaryAction = (): string => {
+    if (isLeaveApplication) return 'Apply For Leave';
+    if (isPromptLibrary) return 'View Prompt';
+    if (isDigitalWorker) return 'View Details';
+    if (isAITool) return 'Request Tool';
+    return config.primaryCTA;
+  };
+  const primaryAction = getPrimaryAction();
+  
   // const secondaryAction = config.secondaryCTA;
   // Extract details for the sidebar
   const detailItems = config.attributes.map(attr => ({
@@ -1578,7 +1583,11 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     {provider.name}
                   </h3>
                   <p className="text-gray-600 text-sm">
-                    {marketplaceType === 'courses' ? 'Leading provider of business education' : marketplaceType === 'financial' ? 'Trusted financial services provider' : 'Expert business services provider'}
+                    {(() => {
+                      if (marketplaceType === 'courses') return 'Leading provider of business education';
+                      if (marketplaceType === 'financial') return 'Trusted financial services provider';
+                      return 'Expert business services provider';
+                    })()}
                   </p>
                 </div>
                 <div className="md:ml-auto flex flex-col md:items-end">
@@ -1877,7 +1886,11 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             <div className="flex items-center justify-between max-w-sm mx-auto">
               <div className="mr-3">
                 <div className="text-gray-900 font-bold">
-                  {marketplaceType === 'courses' ? item.price || 'Free' : marketplaceType === 'financial' ? item.amount || 'Apply Now' : 'Request Now'}
+                  {(() => {
+                    if (marketplaceType === 'courses') return item.price || 'Free';
+                    if (marketplaceType === 'financial') return item.amount || 'Apply Now';
+                    return 'Request Now';
+                  })()}
                 </div>
                 <div className="text-sm text-gray-600">
                   {item.duration || item.serviceType || ''}
