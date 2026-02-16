@@ -571,7 +571,7 @@ const useGuideBodyLinkTracking = (
     const onClick = (e: Event) => {
       const t = e.target as HTMLElement | null
       if (!t) return
-      const a = t.closest('a') as HTMLAnchorElement | null
+      const a = t.closest('a')
       if (!a) return
       const href = a.getAttribute('href') || ''
       if (href.startsWith('#')) {
@@ -945,10 +945,10 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     [guide, stateTab, derivedKey]
   )
   const breadcrumbLabel = useMemo(() => TAB_LABELS[activeTabKey], [activeTabKey])
-  const fallbackHref = useMemo(() => 
-    activeTabKey !== 'guidelines' ? `/marketplace/guides?tab=${activeTabKey}` : '/marketplace/guides',
-    [activeTabKey]
-  )
+  const fallbackHref = useMemo(() => {
+    if (activeTabKey === 'guidelines') return '/marketplace/guides'
+    return `/marketplace/guides?tab=${activeTabKey}`
+  }, [activeTabKey])
   const backHref = useMemo(() => {
     if (backQuery) return initialBackHref
     return fallbackHref
@@ -1063,7 +1063,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                       else if (actualIsStrategyDomain) category = 'view_strategy_clicked'
                       track('Guides.CTA', { category, slug: guide.slug || guide.id, title: guide.title })
                     }}
-                    className={`px-6 py-3 text-white font-semibold rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap ${!primaryDocUrl ? 'opacity-50 cursor-not-allowed' : ''} focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]`}
+                    className={`px-6 py-3 text-white font-semibold rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap ${primaryDocUrl ? '' : 'opacity-50 cursor-not-allowed'} focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]`}
                     style={{ 
                       backgroundColor: '#030E31',
                     }}
@@ -1106,23 +1106,31 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                     </div>
                   ))}
                 </div>
-              ) : guide.body ? (
-                <div className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
-                  <div className="p-6 md:p-8">
-                    <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
-                      <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                        <Markdown body={guide.body} />
-                      </React.Suspense>
+              ) : (() => {
+                if (guide.body) {
+                  return (
+                    <div className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
+                      <div className="p-6 md:p-8">
+                        <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
+                          <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
+                            <Markdown body={guide.body} />
+                          </React.Suspense>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ) : guide.summary ? (
-                <div className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
-                  <div className="p-6 md:p-8">
-                    <p className="text-gray-700 leading-relaxed">{guide.summary}</p>
-                  </div>
-                </div>
-              ) : null}
+                  )
+                }
+                if (guide.summary) {
+                  return (
+                    <div className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
+                      <div className="p-6 md:p-8">
+                        <p className="text-gray-700 leading-relaxed">{guide.summary}</p>
+                      </div>
+                    </div>
+                  )
+                }
+                return null
+              })()}
           </div>
 
           {/* Related Guides Section - Full width at bottom */}
@@ -1468,7 +1476,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
               <article
                 id={isPolicy ? 'full-details' : undefined}
                 ref={articleRef}
-                className={`bg-white rounded-lg shadow p-6 markdown-body ${isPolicy && !showFullDetails ? 'hidden' : ''}`}
+                className={`bg-white rounded-lg shadow p-6 markdown-body ${(isPolicy && showFullDetails) || !isPolicy ? '' : 'hidden'}`}
                 dir={typeof document !== 'undefined' ? (document.documentElement.getAttribute('dir') || 'ltr') : 'ltr'}
               >
                 <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
@@ -1550,9 +1558,21 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                   {guide.functionArea && <div><dt className="text-gray-500 text-sm">Function Area</dt><dd className="text-gray-900">{guide.functionArea}</dd></div>}
                   {guide.estimatedTimeMin != null && <div><dt className="text-gray-500 text-sm">Estimated Time</dt><dd className="text-gray-900">{guide.estimatedTimeMin} min</dd></div>}
                   {lastUpdated && <div><dt className="text-gray-500 text-sm">Last Updated</dt><dd className="text-gray-900">{lastUpdated}</dd></div>}
-                  {(guide.authorName || guide.authorOrg) && <div className="sm:col-span-2"><dt className="text-gray-500 text-sm">Publisher</dt><dd className="text-gray-900">{guide.authorName || ''}{guide.authorOrg ? (guide.authorName ? ' • ' : '') + guide.authorOrg : ''}</dd></div>}
+                  {(guide.authorName || guide.authorOrg) && (
+                    <div className="sm:col-span-2">
+                      <dt className="text-gray-500 text-sm">Publisher</dt>
+                      <dd className="text-gray-900">
+                        {(() => {
+                          const parts: string[] = []
+                          if (guide.authorName) parts.push(guide.authorName)
+                          if (guide.authorOrg) parts.push(guide.authorOrg)
+                          return parts.join(' • ')
+                        })()}
+                      </dd>
+                    </div>
+                  )}
                 </dl>
-                {!guide.body && guide.summary && (
+                {guide.body && guide.summary && (
                   <p className="text-sm text-gray-600 mt-4">{guide.summary}</p>
                 )}
               </section>
