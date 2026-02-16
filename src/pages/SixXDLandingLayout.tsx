@@ -1233,9 +1233,10 @@ function SevenResponsesRailCarousel({ // NOSONAR: props are intentionally mutabl
             </p>
           </div>
 
-          <div
+          <section
+            aria-label="Interactive carousel"
             className="mt-10 grid grid-cols-1 lg:grid-cols-[34%_66%] gap-8 lg:gap-10 items-start"
-            onMouseEnter={() => setIsPaused(true)} // NOSONAR: mouse interaction is intentional for carousel pause
+            onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
             <aside className="p-5 md:p-6">
@@ -1337,7 +1338,7 @@ function SevenResponsesRailCarousel({ // NOSONAR: props are intentionally mutabl
                 </div>
               ) : null}
             </div>
-          </div>
+          </section>
         </div>
       </div>
     </section>
@@ -1649,13 +1650,11 @@ const TakeActionGridLayout = ({
                 type="button"
                 onClick={locked ? undefined : () => handleNavigate(card.path)}
                 aria-disabled={locked}
-                className={`mt-auto w-full inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-lg border px-3 py-2 transition ${ // NOSONAR: nested ternary is clear for button styling
-                  locked
-                    ? 'opacity-50 cursor-not-allowed border-[#e6eaf5] text-[#9aa4c6]'
-                    : isPrimary
-                      ? 'bg-[#131e42] text-white border-[#131e42] hover:opacity-90'
-                      : 'border-[#d5dbea] text-[#131e42] bg-white hover:bg-[#f5f7ff]'
-                }`}
+                className={`mt-auto w-full inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-lg border px-3 py-2 transition ${(() => {
+                  if (locked) return 'opacity-50 cursor-not-allowed border-[#e6eaf5] text-[#9aa4c6]';
+                  if (isPrimary) return 'bg-[#131e42] text-white border-[#131e42] hover:opacity-90';
+                  return 'border-[#d5dbea] text-[#131e42] bg-white hover:bg-[#f5f7ff]';
+                })()}`}
               >
                 {locked ? <Lock className="h-4 w-4" /> : null}
                 {card.cta}
@@ -2011,13 +2010,11 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
                     type="button"
                     onClick={isActionLocked(card) ? undefined : () => handleNavigate(card.path)}
                     aria-disabled={isActionLocked(card)}
-                    className={`mt-auto w-full inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-lg border px-3 py-2 transition ${ // NOSONAR: nested ternary is clear for button styling
-                      isActionLocked(card)
-                        ? 'opacity-50 cursor-not-allowed border-[#e6eaf5] text-[#9aa4c6]'
-                        : isPrimary
-                          ? 'bg-[#131e42] text-white border-[#131e42] hover:opacity-90'
-                          : 'border-[#d5dbea] text-[#131e42] bg-white hover:bg-[#f5f7ff]'
-                    }`}
+                    className={`mt-auto w-full inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-lg border px-3 py-2 transition ${(() => {
+                      if (isActionLocked(card)) return 'opacity-50 cursor-not-allowed border-[#e6eaf5] text-[#9aa4c6]';
+                      if (isPrimary) return 'bg-[#131e42] text-white border-[#131e42] hover:opacity-90';
+                      return 'border-[#d5dbea] text-[#131e42] bg-white hover:bg-[#f5f7ff]';
+                    })()}`}
                   >
                     {isActionLocked(card) ? <Lock className="h-4 w-4" /> : null}
                     {card.cta}

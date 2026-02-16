@@ -883,11 +883,11 @@ export function OnboardingLanding() {
                 style={{
                   width: `${20 + (i % 4) * 15}px`,
                   height: `${20 + (i % 4) * 15}px`,
-                  background: i % 3 === 0  // NOSONAR: nested ternary is clear for gradient selection
-                    ? 'radial-gradient(circle, rgba(251, 85, 53, 0.6) 0%, transparent 70%)'
-                    : i % 3 === 1
-                    ? 'radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%)'
-                    : 'radial-gradient(circle, rgba(3, 15, 53, 0.5) 0%, transparent 70%)',
+                  background: (() => {
+                    if (i % 3 === 0) return 'radial-gradient(circle, rgba(251, 85, 53, 0.6) 0%, transparent 70%)';
+                    if (i % 3 === 1) return 'radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%)';
+                    return 'radial-gradient(circle, rgba(3, 15, 53, 0.5) 0%, transparent 70%)';
+                  })(),
                   top: `${10 + (i * 7)}%`,
                   left: `${5 + (i * 8)}%`,
                   animationDelay: `${i * 0.5}s`,
@@ -987,13 +987,23 @@ export function OnboardingLanding() {
                     <div 
                       className="backdrop-blur-lg rounded-2xl shadow-2xl p-8 flex flex-col h-full hover:shadow-[0_25px_70px_-10px_rgba(0,0,0,0.5)] hover:scale-[1.03] transition-all duration-500 relative overflow-hidden group"
                       style={{
-                        background: index === 0 // NOSONAR: nested ternary is clear for gradient selection 
-                          ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 248, 248, 0.96) 100%)'
-                          : index === 1
-                          ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 248, 255, 0.96) 100%)'
-                          : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 248, 255, 0.96) 100%)',
+                        background: (() => {
+                          if (index === 0) return 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 248, 248, 0.96) 100%)';
+                          if (index === 1) return 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 248, 255, 0.96) 100%)';
+                          return 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 248, 255, 0.96) 100%)';
+                        })(),
                         border: `2px solid ${cardBorders[index]}`,
-                        boxShadow: `0 20px 50px -15px ${index === 0 ? 'rgba(251, 85, 53, 0.2)' : index === 1 ? 'rgba(3, 15, 53, 0.2)' : 'rgba(251, 85, 53, 0.15)'}, 0 0 0 1px rgba(255, 255, 255, 0.1)` // NOSONAR: nested ternary is clear for shadow selection
+                        boxShadow: (() => {
+                          let shadowColor;
+                          if (index === 0) {
+                            shadowColor = 'rgba(251, 85, 53, 0.2)';
+                          } else if (index === 1) {
+                            shadowColor = 'rgba(3, 15, 53, 0.2)';
+                          } else {
+                            shadowColor = 'rgba(251, 85, 53, 0.15)';
+                          }
+                          return `0 20px 50px -15px ${shadowColor}, 0 0 0 1px rgba(255, 255, 255, 0.1)`;
+                        })()
                       }}
                     >
                       {support.comingSoon && (
@@ -1064,13 +1074,17 @@ export function OnboardingLanding() {
                             ? undefined
                             : {
                                 background: gradients[index % 3],
-                                boxShadow: `0 4px 20px -3px ${ // NOSONAR: nested ternary is clear for shadow selection
-                                  index % 3 === 0
-                                    ? 'rgba(251, 85, 53, 0.5)'
-                                    : index % 3 === 1
-                                    ? 'rgba(3, 15, 53, 0.5)'
-                                    : 'rgba(251, 85, 53, 0.4)'
-                                }`,
+                        boxShadow: (() => {
+                          let shadowColor;
+                          if (index % 3 === 0) {
+                            shadowColor = 'rgba(251, 85, 53, 0.5)';
+                          } else if (index % 3 === 1) {
+                            shadowColor = 'rgba(3, 15, 53, 0.5)';
+                          } else {
+                            shadowColor = 'rgba(251, 85, 53, 0.4)';
+                          }
+                          return `0 4px 20px -3px ${shadowColor}`;
+                        })(),
                               }
                         }
                       >
