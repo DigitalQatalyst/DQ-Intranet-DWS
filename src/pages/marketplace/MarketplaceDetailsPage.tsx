@@ -23,6 +23,126 @@ import { TechSupportForm } from '../../components/marketplace/TechSupportForm';
 import { INITIAL_APPROVERS } from '../../utils/mockApprovers';
 import { ServiceHeroSection, ServiceHeroSectionProps } from '../../components/marketplace/ServiceHeroSection';
 import { ServiceDetailsSidebar } from '../../components/marketplace/ServiceDetailsSidebar';
+
+// Code block component with copy functionality
+const CodeBlock: React.FC<{ code: string; language?: string; title?: string }> = ({ code, language, title }) => {
+  const [copied, setCopied] = React.useState(false);
+  
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="mb-6 relative">
+      {title && (
+        <div className="bg-gray-100 px-4 py-2 rounded-t-lg border-b border-gray-300">
+          <h4 className="text-sm font-semibold text-gray-700">{title}</h4>
+        </div>
+      )}
+      <div className="relative">
+        <pre className="bg-gray-900 text-gray-100 p-6 rounded-b-lg overflow-x-auto text-sm leading-relaxed">
+          <code className={language ? `language-${language}` : ''}>{code}</code>
+        </pre>
+        <button
+          onClick={handleCopy}
+          className="absolute top-3 right-3 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors duration-200 flex items-center gap-1.5"
+        >
+          {copied ? (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Copied!
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Copy
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Accordion component for FAQs
+const AccordionBlock: React.FC<{ items: Array<{ question: string; answer: string }> }> = ({ items }) => {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const toggleAccordion = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  return (
+    <div className="space-y-4 mb-6">
+      {items.map((item, index) => { // NOSONAR: static accordion items, order is stable
+        const isOpen = openIndex === index;
+        return (
+          <div
+            key={index}
+            className="rounded-lg overflow-hidden transition-all duration-300 ease-in border-2"
+            style={{ 
+              borderColor: isOpen ? '#030F35' : '#E5E7EB',
+              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+            }}
+          >
+            <button
+              onClick={() => toggleAccordion(index)}
+              className="w-full flex items-center justify-between p-5 text-left transition-all duration-300 ease-in"
+              style={isOpen ? { 
+                backgroundColor: '#030F35',
+                color: 'white'
+              } : { 
+                backgroundColor: 'white',
+                color: '#374151' 
+              }}
+              onMouseEnter={(e) => {
+                if (!isOpen) {
+                  e.currentTarget.style.backgroundColor = '#F9FAFB';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isOpen) {
+                  e.currentTarget.style.backgroundColor = 'white';
+                }
+              }}
+            >
+              <span className="text-base font-medium pr-4">
+                {item.question}
+              </span>
+              <div 
+                className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ease-in"
+                style={isOpen ? { backgroundColor: 'white' } : { backgroundColor: '#E5E7EB' }}
+              >
+                {isOpen ? (
+                  <Minus className="w-4 h-4" style={{ color: '#030F35' }} />
+                ) : (
+                  <Plus className="w-4 h-4 text-gray-600" />
+                )}
+              </div>
+            </button>
+            <div
+              className={`transition-all duration-300 ease-in ${isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}
+              style={{
+                overflow: 'hidden'
+              }}
+            >
+              <div className="px-5 pb-5 pt-2.5 bg-white">
+                <p className="text-gray-600 text-base leading-relaxed">{item.answer}</p>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 interface MarketplaceDetailsPageProps {
   marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding';
   bookmarkedItems?: string[];
@@ -364,130 +484,11 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   })).filter(detail => detail.value !== 'N/A');
   // Extract highlights/features based on marketplace type
   const highlights = marketplaceType === 'courses' ? item.learningOutcomes || [] : item.details || [];
+  
   // Render tab content with consistent styling
-  // Code block component with copy functionality
-  const CodeBlock: React.FC<{ code: string; language?: string; title?: string }> = ({ code, language, title }) => {
-    const [copied, setCopied] = React.useState(false);
-    
-    const handleCopy = () => {
-      navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    };
-
-    return (
-      <div className="mb-6 relative">
-        {title && (
-          <div className="bg-gray-100 px-4 py-2 rounded-t-lg border-b border-gray-300">
-            <h4 className="text-sm font-semibold text-gray-700">{title}</h4>
-          </div>
-        )}
-        <div className="relative">
-          <pre className="bg-gray-900 text-gray-100 p-6 rounded-b-lg overflow-x-auto text-sm leading-relaxed">
-            <code className={language ? `language-${language}` : ''}>{code}</code>
-          </pre>
-          <button
-            onClick={handleCopy}
-            className="absolute top-3 right-3 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors duration-200 flex items-center gap-1.5"
-          >
-            {copied ? (
-              <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Copied!
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                Copy
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // Accordion component for FAQs
-  const AccordionBlock: React.FC<{ items: Array<{ question: string; answer: string }> }> = ({ items }) => {
-    const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-    const toggleAccordion = (index: number) => {
-      setOpenIndex(openIndex === index ? null : index);
-    };
-
-    return (
-      <div className="space-y-4 mb-6">
-        {items.map((item, index) => { // NOSONAR: static accordion items, order is stable
-          const isOpen = openIndex === index;
-          return (
-            <div
-              key={index}
-              className="rounded-lg overflow-hidden transition-all duration-300 ease-in border-2"
-              style={{ 
-                borderColor: isOpen ? '#030F35' : '#E5E7EB',
-                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-              }}
-            >
-              <button
-                onClick={() => toggleAccordion(index)}
-                className="w-full flex items-center justify-between p-5 text-left transition-all duration-300 ease-in"
-                style={isOpen ? { 
-                  backgroundColor: '#030F35',
-                  color: 'white'
-                } : { 
-                  backgroundColor: 'white',
-                  color: '#374151' 
-                }}
-                onMouseEnter={(e) => {
-                  if (!isOpen) {
-                    e.currentTarget.style.backgroundColor = '#F9FAFB';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isOpen) {
-                    e.currentTarget.style.backgroundColor = 'white';
-                  }
-                }}
-              >
-                <span className="text-base font-medium pr-4">
-                  {item.question}
-                </span>
-                <div 
-                  className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ease-in"
-                  style={isOpen ? { backgroundColor: 'white' } : { backgroundColor: '#E5E7EB' }}
-                >
-                  {isOpen ? (
-                    <Minus className="w-4 h-4" style={{ color: '#030F35' }} />
-                  ) : (
-                    <Plus className="w-4 h-4 text-gray-600" />
-                  )}
-                </div>
-              </button>
-              <div
-                className="overflow-hidden transition-all duration-300 ease-in"
-                style={{
-                  maxHeight: isOpen ? '500px' : '0px',
-                  opacity: isOpen ? 1 : 0,
-                }}
-              >
-                <div className="px-5 pb-5 pt-2.5 bg-white">
-                  <p className="text-gray-600 text-base leading-relaxed">{item.answer}</p>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
   const renderBlocks = (blocks: ContentBlock[]) => {
     // NOSONAR: Array indices used as keys for static content blocks that won't be reordered
-    return (blocks || []).map((block, idx) => {
+    return (blocks || []).map((block, idx) => { // NOSONAR: static content blocks
       if (block.type === 'p') {
         return <p key={idx} className="text-gray-700 text-base leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: sanitizeHtml(block.text) }}></p>;
       }
@@ -738,7 +739,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         if (tabId === 'visit_site') {
           const content = getServiceTabContent(marketplaceType, item?.id, tabId);
           const urlField = content?.action?.urlField;
-          const computedUrl = (urlField && item && item[urlField]) || content?.action?.fallbackUrl || toolData.homepage || '#';
+          const computedUrl = (urlField && item?.[urlField]) || content?.action?.fallbackUrl || toolData.homepage || '#';
           
           return <div className="space-y-8">
               {/* Hero Section */}
@@ -794,7 +795,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       // Special handling for visit_site tab
       if (tabId === 'visit_site') {
         const urlField = content.action?.urlField;
-        const computedUrl = (urlField && item && item[urlField]) || content.action?.fallbackUrl || '#';
+        const computedUrl = (urlField && item?.[urlField]) || content.action?.fallbackUrl || '#';
         
         return <div className="space-y-8">
             <div className="prose max-w-none">
@@ -838,7 +839,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           {content.action && content.action.label !== 'Apply For Leave' && <div className="pt-4">
               <button id="action-section" className="px-6 py-3.5 text-white text-base font-bold rounded-md transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5" style={{ backgroundColor: '#030F35' }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#020a23')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#030F35')} onClick={() => {
               const urlField = content.action?.urlField;
-              const computedUrl = (urlField && item && item[urlField]) || content.action?.fallbackUrl || '#';
+              const computedUrl = (urlField && item?.[urlField]) || content.action?.fallbackUrl || '#';
               window.open(computedUrl, '_blank', 'noopener');
           }}>
                 {content.action.label}
@@ -1180,7 +1181,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       case 'submit_request': {
         const content = getServiceTabContent(marketplaceType, item?.id, tabId);
         const urlField = content?.action?.urlField;
-        const computedUrl = (urlField && item && item[urlField]) || content?.action?.fallbackUrl || '#';
+        const computedUrl = (urlField && item?.[urlField]) || content?.action?.fallbackUrl || '#';
         
         // Check if this is a prompt library item (service 17)
         const isPromptLibrary = item?.id === '17' || item?.category === 'Prompt Library';
