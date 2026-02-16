@@ -54,7 +54,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
               minHeight: '44px',
               maxHeight: '44px',
               lineHeight: '1.375rem'
-            }}>The DQ Effect - Client feedback</h3>
+            }}>The Client Perspective</h3>
             
             {/* Description */}
             <p className="text-sm text-gray-600 mb-2 flex-shrink-0" style={{
@@ -66,7 +66,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
               maxHeight: '36px',
               lineHeight: '1.125rem'
             }}>
-              What does true transformation look like?
+              Client feedback on driving strategic transformation outcomes.
             </p>
             
             {/* Tag */}
@@ -118,7 +118,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
               minHeight: '44px',
               maxHeight: '44px',
               lineHeight: '1.375rem'
-            }}>Life at DQ - Associate feedback</h3>
+            }}>The Associate Perspective</h3>
             
             {/* Description */}
             <p className="text-sm text-gray-600 mb-2 flex-shrink-0" style={{
@@ -130,7 +130,7 @@ const TestimonialsGrid: React.FC<Props> = ({ items, onClickGuide }) => {
               maxHeight: '36px',
               lineHeight: '1.125rem'
             }}>
-              What does it mean to be a Digital Qatalyst?
+              Associate feedback on professional growth and DQ culture.
             </p>
             
             {/* Tag */}

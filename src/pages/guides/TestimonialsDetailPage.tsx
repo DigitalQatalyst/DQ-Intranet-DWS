@@ -79,7 +79,7 @@ const TestimonialsDetailPage: React.FC = () => {
               Client Feedback
             </h1>
             <p className="text-white/85 max-w-2xl">
-              Highlights from leading financial, regulatory, and government institutions showcasing how Digital Qatalyst engagements accelerate transformation outcomes.
+              Feedback from institutions on how DQ accelerates strategic transformation outcomes.
             </p>
           </div>
         </div>

@@ -85,7 +85,7 @@ const AssociateTestimonialsDetailPage: React.FC = () => {
               Associate Testimonials
             </h1>
             <p className="text-white/85 max-w-2xl">
-              Voices of DQ: Real stories of growth, culture, and transformation from the people who make it happen.
+              Team stories showcasing how DQ culture supports personal growth and potential.
             </p>
           </div>
         </div>

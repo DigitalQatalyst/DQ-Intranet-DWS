@@ -315,8 +315,8 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
         {timeBucket && <span>{timeBucket}</span>}
         {lastUpdated && <span>{lastUpdated}</span>}
       </div>
-      {/* Show author info only when provided and not a product or GHC/Strategy guide */}
-      {(!isBlueprint && !isGhcOverview && domain?.toLowerCase() !== 'strategy' && (guide.authorName || guide.authorOrg)) && (
+      {/* Show author info only when provided and not a product or GHC/Strategy guide or Guidelines */}
+      {(!isBlueprint && !isGhcOverview && domain?.toLowerCase() !== 'strategy' && domain?.toLowerCase() !== 'guidelines' && (guide.authorName || guide.authorOrg)) && (
         <div className="text-xs text-gray-600 mb-2.5 flex-shrink-0">
           <span
             className="truncate"
