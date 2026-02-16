@@ -13,7 +13,7 @@ type EventName =
   | 'Guides.Print'
   | 'Guides.TabChanged'
 
-export const track = (name: EventName, payload: Record<string, any>) => {
+export const track = (name: EventName, payload: Record<string, unknown>) => {
   try {
     // Hook here to your analytics provider. For now, log once per action.
     console.info('[analytics]', name, payload)

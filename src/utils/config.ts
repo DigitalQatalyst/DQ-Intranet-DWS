@@ -1331,8 +1331,8 @@ export const getCompanyStageById = (stageId) => {
 };
 
 // Get all mandatory fields for a given company stage
-export const getMandatoryFieldsForStage = (stageId) => {
-  const mandatoryFields: any = [];
+export const getMandatoryFieldsForStage = (stageId: string) => {
+  const mandatoryFields: Record<string, unknown>[] = [];
   profileConfig.tabs.forEach((tab) => {
     tab.groups.forEach((group) => {
       group.fields.forEach((field) => {
@@ -1341,7 +1341,7 @@ export const getMandatoryFieldsForStage = (stageId) => {
             tabId: tab.id,
             groupName: group.groupName,
             ...field,
-          } as any);
+          });
         }
       });
     });
@@ -1350,11 +1350,12 @@ export const getMandatoryFieldsForStage = (stageId) => {
 };
 
 // Check completion of mandatory fields for a company stage
-export const checkMandatoryFieldsCompletion = (profileData, companyStage) => {
+export const checkMandatoryFieldsCompletion = (profileData: { sections?: Record<string, { fields?: Record<string, string> }> }, companyStage: string) => {
   const mandatoryFields = getMandatoryFieldsForStage(companyStage);
-  const missingFields: any = [];
+  const missingFields: Record<string, unknown>[] = [];
   mandatoryFields.forEach((field) => {
-    const sectionData = profileData.sections[field.tabId];
+    const sections = profileData.sections ?? {};
+    const sectionData = sections[field.tabId as string];
     if (
       !sectionData ||
       !sectionData.fields ||

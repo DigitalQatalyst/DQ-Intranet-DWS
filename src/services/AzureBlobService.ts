@@ -20,7 +20,7 @@ const CONTAINER_NAME = "documents";
 export const generateUploadSasUrl = async (
   blobName: string,
   contentType: string,
-  expiryMinutes = 15
+  _expiryMinutes = 15
 ): Promise<string> => {
   // For demo purposes, return a placeholder URL
   console.log("Generating upload SAS URL for:", blobName, contentType);
@@ -37,7 +37,7 @@ export const generateUploadSasUrl = async (
  */
 export const generateDownloadSasUrl = async (
   blobName: string,
-  expiryMinutes = 60
+  _expiryMinutes = 60
 ): Promise<string> => {
   // For demo purposes, return a placeholder URL
   console.log("Generating download SAS URL for:", blobName);

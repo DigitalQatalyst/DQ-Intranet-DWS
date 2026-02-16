@@ -6,7 +6,7 @@ import {
 } from "@azure/msal-browser";
 
 // Support both NEXT_PUBLIC_* and VITE_* envs
-const env = (import.meta as any).env as Record<string, string | undefined>;
+const env = (import.meta as { env: Record<string, string | undefined> }).env;
 console.log(env);
 
 const CLIENT_ID = env.NEXT_PUBLIC_AAD_CLIENT_ID || env.VITE_AZURE_CLIENT_ID || "f996140d-d79b-419d-a64c-f211d23a38ad";
@@ -28,7 +28,7 @@ const DEFAULT_OIDC_SCOPES = ["openid", "profile", "email", "offline_access"] as 
 
 // Vite exposes only VITE_* via import.meta.env (not process.env)
 const TENANT_NAME = env.NEXT_PUBLIC_B2C_TENANT_NAME || env.VITE_B2C_TENANT_NAME || "dqproj";
-const POLICY_SIGNUP_SIGNIN =
+const _POLICY_SIGNUP_SIGNIN =
   env.NEXT_PUBLIC_B2C_POLICY_SIGNUP_SIGNIN || env.VITE_B2C_POLICY_SIGNUP_SIGNIN || "F1_CustomerSUSILocal_KF";
 // Optional dedicated Sign-Up policy/user flow
 const POLICY_SIGNUP = env.NEXT_PUBLIC_B2C_POLICY_SIGNUP || env.VITE_B2C_POLICY_SIGNUP;
@@ -60,7 +60,7 @@ const AUTHORITY_SIGNUP = POLICY_SIGNUP
 // 2. Azure AD tenant (https://login.microsoftonline.com/{tenantId})
 // 3. CIAM subdomain (https://{sub}.ciamlogin.com/)
 // 4. Fallback to common
-const computedAuthority = `https://${SUB}.ciamlogin.com/`;
+const _computedAuthority = `https://${SUB}.ciamlogin.com/`;
 // if (CUSTOM_DOMAIN && TENANT_ID) {
 //   computedAuthority = `https://${CUSTOM_DOMAIN}/${TENANT_ID}`;
 // } else if (TENANT_ID) {

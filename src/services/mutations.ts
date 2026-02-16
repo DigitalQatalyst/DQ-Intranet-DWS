@@ -4,8 +4,7 @@
  * This module provides functions for performing mutations related to courses,
  * such as enrolling in a course, bookmarking a course, etc.
  */
-import { graphqlClient } from './graphql/client';
-import { CourseType } from '../types/course';
+import { graphqlClient as _graphqlClient } from './graphql/client';
 /**
  * Enrolls a user in a course
  *

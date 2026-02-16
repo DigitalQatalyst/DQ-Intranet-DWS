@@ -1,31 +1,31 @@
 import * as React from 'react';
 import { ReactNode } from 'react';
-import { DollarSign, Calendar, Clock, Users, MapPin, CheckCircle, BarChart, Award, FileText, Info, BookOpen, ClipboardList, Building, FileType, Bookmark, TrendingUp, Compass, Layers } from 'lucide-react';
+import { DollarSign, Calendar, Clock, Users, MapPin, CheckCircle, BarChart, Award, FileText, Info, BookOpen, ClipboardList, Building, FileType, Bookmark, TrendingUp, Compass } from 'lucide-react';
 import { mockCourses, providers, mockOnboardingFlowsData } from './mockData';
 import { mockFinancialServices, mockNonFinancialServices, mockKnowledgeHubItems, mockKnowledgeHubFilterOptions } from './mockMarketplaceData';
 // Define a Tab type for consistency across marketplace pages
 export interface MarketplaceTab {
   id: string;
   label: string;
-  icon?: any;
+  icon?: React.ReactNode;
   iconBgColor?: string;
   iconColor?: string;
-  renderContent?: (item: any, marketplaceType: string) => React.ReactNode;
+  renderContent?: (item: Record<string, unknown>, marketplaceType: string) => React.ReactNode;
 }
 // Configuration type definitions
 export interface AttributeConfig {
   key: string;
   label: string;
   icon: ReactNode;
-  formatter?: (value: any) => string;
+  formatter?: (value: unknown) => string;
 }
 export interface TabConfig {
   id: string;
   label: string;
-  icon?: any;
+  icon?: React.ReactNode;
   iconBgColor?: string;
   iconColor?: string;
-  renderContent?: (item: any, marketplaceType: string) => React.ReactNode;
+  renderContent?: (item: Record<string, unknown>, marketplaceType: string) => React.ReactNode;
 }
 export interface FilterCategoryConfig {
   id: string;
@@ -50,14 +50,14 @@ export interface MarketplaceConfig {
   summarySticky?: boolean;
   filterCategories: FilterCategoryConfig[];
   // New fields for GraphQL integration
-  mapListResponse?: (data: any[]) => any[];
-  mapDetailResponse?: (data: any) => any;
-  mapFilterResponse?: (data: any) => FilterCategoryConfig[];
+  mapListResponse?: (data: unknown[]) => unknown[];
+  mapDetailResponse?: (data: unknown) => unknown;
+  mapFilterResponse?: (data: Record<string, unknown>) => FilterCategoryConfig[];
   // Mock data for fallback and schema reference
   mockData?: {
-    items: any[];
-    filterOptions: any;
-    providers: any[];
+    items: unknown[];
+    filterOptions: Record<string, unknown>;
+    providers: unknown[];
   };
 }
 // Mock data for financial services
@@ -228,7 +228,7 @@ const knowledgeHubBaseConfig: MarketplaceConfig = {
     options: [{ id: 'latest', name: 'Latest' }, { id: 'trending', name: 'Trending' }, { id: 'downloaded', name: 'Most Downloaded' }, { id: 'editors', name: "Editor's Pick" }]
   }],
   mapListResponse: data => {
-    return data.map((item: any) => ({
+    return data.map((item: Record<string, unknown>) => ({
       ...item,
       tags: item.tags || [item.mediaType, item.domain].filter(Boolean)
     }));
@@ -384,7 +384,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
       }]
     }],
     mapListResponse: data => {
-      return data.map((item: any) => ({
+      return data.map((item: Record<string, unknown>) => ({
         ...item,
         tags: item.tags || [item.category || item.journeyPhase, item.deliveryMode].filter(Boolean)
       }));
@@ -603,7 +603,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     }],
     // Data mapping functions
     mapListResponse: data => {
-      return data.map((item: any) => ({
+      return data.map((item: Record<string, unknown>) => ({
         ...item,
         // Transform any fields if needed
         tags: item.tags || [item.category, item.deliveryMode].filter(Boolean)
@@ -716,7 +716,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     }],
     // Data mapping functions
     mapListResponse: data => {
-      return data.map((item: any) => ({
+      return data.map((item: Record<string, unknown>) => ({
         ...item,
         // Transform any fields if needed
         tags: item.tags || [item.category].filter(Boolean)
@@ -854,7 +854,7 @@ export const marketplaceConfig: Record<string, MarketplaceConfig> = {
     }],
     // Data mapping functions
     mapListResponse: data => {
-      return data.map((item: any) => ({
+      return data.map((item: Record<string, unknown>) => ({
         ...item,
         // Transform any fields if needed
         tags: item.tags || [item.category, item.deliveryMode].filter(Boolean)

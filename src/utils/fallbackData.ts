@@ -8,7 +8,7 @@ import {
 /**
  * Get fallback items for a specific marketplace type when API calls fail
  */
-export const getFallbackItems = (marketplaceType: string): any[] => {
+export const getFallbackItems = (marketplaceType: string): unknown[] => {
   switch (marketplaceType) {
     case 'courses':
       return mockCourses
@@ -32,7 +32,7 @@ export const getFallbackItems = (marketplaceType: string): any[] => {
 export const getFallbackItemDetails = (
   marketplaceType: string,
   itemId: string,
-): any => {
+): unknown => {
   const items = getFallbackItems(marketplaceType)
   // Try to find the item with the matching ID
   const item = items.find((item) => item.id === itemId)
@@ -86,7 +86,7 @@ export const getFallbackKnowledgeHubItems = () => {
 /**
  * Get Knowledge Hub item details by ID directly from the fallback dataset
  */
-export const getFallbackKnowledgeHubItemDetails = (itemId: string): any => {
+export const getFallbackKnowledgeHubItemDetails = (itemId: string): unknown => {
   const item = mockKnowledgeHubItems.find((item) => item.id === itemId)
   return (
     item || (mockKnowledgeHubItems.length > 0 ? mockKnowledgeHubItems[0] : null)
