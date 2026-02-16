@@ -13,10 +13,10 @@
  * - Keep AZURE_STORAGE_ACCOUNT_KEY secret (do NOT expose to the browser)
  */
 
-import formidable, { File as FormidableFile } from 'formidable';
-import type { IncomingMessage } from 'http';
-import fs from 'fs/promises';
-import { Buffer } from 'buffer';
+import formidable, { File as FormidableFile, Fields, Files } from 'formidable';
+import type { IncomingMessage } from 'node:http';
+import fs from 'node:fs/promises';
+import { Buffer } from 'node:buffer';
 import {
   StorageSharedKeyCredential,
   BlobServiceClient
@@ -121,9 +121,9 @@ export default async function handler(req: AnyRequest, res: AnyResponse): Promis
     if (contentType.startsWith('multipart/form-data')) {
       const form = formidable({ multiples: true, keepExtensions: true });
 
-      const { files } = await new Promise<{ fields: formidable.Fields; files: formidable.Files }>(
+      const { files } = await new Promise<{ fields: Fields; files: Files }>(
         (resolve, reject) => {
-          form.parse(req as IncomingMessage, (err, fields, parsedFiles) => {
+          form.parse(req as unknown as IncomingMessage, (err: Error | null, fields: Fields, parsedFiles: Files) => {
             if (err) return reject(err);
             resolve({ fields, files: parsedFiles });
           });
@@ -179,8 +179,8 @@ export default async function handler(req: AnyRequest, res: AnyResponse): Promis
 
     // Read raw body from async iterable request
     const chunks: Buffer[] = [];
-    for await (const chunk of req as AsyncIterable<Buffer | string>) {
-      chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : Buffer.from(chunk));
+    for await (const chunk of req as unknown as AsyncIterable<Buffer | string>) {
+      chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
     }
     const buffer = Buffer.concat(chunks);
     console.log('buffer', buffer);
