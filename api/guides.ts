@@ -2,20 +2,43 @@ type AnyRequest = {
   method?: string;
   headers: Record<string, string | undefined> & { host?: string; 'x-forwarded-proto'?: string };
   url?: string;
-  body?: any;
-  [key: string]: any;
+  body?: unknown;
+  [key: string]: unknown;
 };
 
 type AnyResponse = {
   status?: (code: number) => AnyResponse;
-  json?: (body: any) => void;
+  json?: (body: unknown) => void;
   setHeader?: (k: string, v: string) => void;
-  end?: (body?: any) => void;
-  [key: string]: any;
+  end?: (body?: unknown) => void;
+  [key: string]: unknown;
 };
 
 import { supabaseAdmin } from './lib/supabaseAdmin.js';
 import { createHash } from 'crypto';
+
+type GuideRow = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  hero_image_url?: string | null;
+  updated_at?: string | null;
+  download_count?: number | null;
+  guide_type?: string | null;
+  domain?: string | null;
+  function_area?: string | null;
+  status?: string | null;
+  has_more?: boolean;
+  cursor?: string | number | null;
+};
+
+type FacetRow = {
+  domain?: string | null;
+  guide_type?: string | null;
+  function_area?: string | null;
+  status?: string | null;
+};
 
 export default async function handler(req: AnyRequest, res: AnyResponse) {
   try {
@@ -38,10 +61,10 @@ export default async function handler(req: AnyRequest, res: AnyResponse) {
         .select('domain,guide_type,function_area,status');
       if (error) throw error;
       
-      const uniq = (arr: any[], key: 'domain'|'guide_type'|'function_area'|'status') => {
+      const uniq = (arr: FacetRow[] | null | undefined, key: 'domain'|'guide_type'|'function_area'|'status') => {
         const set = new Set<string>();
         for (const r of arr || []) { 
-          const v = (r as any)[key]; 
+          const v = r?.[key]; 
           if (v) set.add(String(v)); 
         }
         return Array.from(set).sort().map((name, i) => ({ id: i + 1, name }));
@@ -162,8 +185,8 @@ export default async function handler(req: AnyRequest, res: AnyResponse) {
       });
       
       if (error) throw error;
-      const rows = (data as any[]) || [];
-      const items = rows.map((r: any) => ({
+      const rows = (data as GuideRow[]) || [];
+      const items = rows.map((r) => ({
         id: r.id,
         slug: r.slug,
         title: r.title,
@@ -191,10 +214,10 @@ export default async function handler(req: AnyRequest, res: AnyResponse) {
       const { data: facetRows, error: facetErr } = await facetBase;
       if (facetErr) throw facetErr;
       
-      const countBy = (arr: any[], key: 'domain'|'guide_type'|'function_area'|'status') => {
+      const countBy = (arr: FacetRow[] | null | undefined, key: 'domain'|'guide_type'|'function_area'|'status') => {
         const m = new Map<string, number>();
         for (const r of arr || []) { 
-          const v = (r as any)[key]; 
+          const v = r?.[key]; 
           if (!v) continue; 
           m.set(v, (m.get(v)||0)+1); 
         }
@@ -226,9 +249,10 @@ export default async function handler(req: AnyRequest, res: AnyResponse) {
 
     res.status?.(405); 
     res.json?.({ error: 'Method not allowed' });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('api/guides error:', err);
+    const message = err instanceof Error ? err.message : 'Server error';
     res.status?.(500); 
-    res.json?.({ error: err?.message || 'Server error' });
+    res.json?.({ error: message });
   }
 }

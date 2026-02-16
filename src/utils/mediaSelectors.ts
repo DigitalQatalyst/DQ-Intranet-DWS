@@ -6,6 +6,25 @@
  * consistent display of media properties in both card and detail views.
  */
 import { formatDuration, VideoDurationInfo } from './videoUtils'
+
+export type MediaItem = {
+  processedAudioUrl?: string | null;
+  audioUrl?: string | null;
+  processedVideoUrl?: string | null;
+  videoUrl?: string | null;
+  videoMetadata?: { thumbnailUrl?: string | null };
+  processedVideoMetadata?: {
+    poster?: string | null;
+    preview?: string | null;
+    snapshot?: string | null;
+    duration?: string | null;
+  };
+  imageUrl?: string | null;
+  thumbnailUrl?: string | null;
+  duration?: number | string | null;
+  processedAudioMetadata?: { duration?: string | null };
+  mediaType?: string | null;
+};
 /**
  * Get the primary audio URL following a consistent resolution order:
  * 1. Processed/streaming variant (if available)
@@ -15,7 +34,7 @@ import { formatDuration, VideoDurationInfo } from './videoUtils'
  * @param item - The media item
  * @returns The resolved audio URL or null
  */
-export const getAudioUrl = (item: any): string | null => {
+export const getAudioUrl = (item: MediaItem | null | undefined): string | null => {
   // Check for processed/streaming variant first
   if (item?.processedAudioUrl) {
     return item.processedAudioUrl
@@ -36,7 +55,7 @@ export const getAudioUrl = (item: any): string | null => {
  * @param item - The media item
  * @returns The resolved video URL or null
  */
-export const getVideoUrl = (item: any): string | null => {
+export const getVideoUrl = (item: MediaItem | null | undefined): string | null => {
   // Check for processed/streaming variant first
   if (item?.processedVideoUrl) {
     return item.processedVideoUrl
@@ -58,7 +77,7 @@ export const getVideoUrl = (item: any): string | null => {
  * @param item - The media item
  * @returns The resolved poster URL
  */
-export const getPosterUrl = (item: any): string => {
+export const getPosterUrl = (item: MediaItem | null | undefined): string => {
   // Fallback placeholder to use if no poster is found
   const fallbackPosterUrl =
     'https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
@@ -97,7 +116,7 @@ export const getPosterUrl = (item: any): string => {
  * @returns Object containing seconds, formatted duration and availability flag
  */
 export const getDuration = (
-  item: any,
+  item: MediaItem | null | undefined,
   mediaElement?: HTMLVideoElement | HTMLAudioElement | null,
 ): VideoDurationInfo => {
   // Default return when duration is unavailable
@@ -189,7 +208,7 @@ export const getDuration = (
  * @param item - The media item
  * @returns boolean indicating if the item is audio
  */
-export const isAudioItem = (item: any): boolean => {
+export const isAudioItem = (item: MediaItem | null | undefined): boolean => {
   return (
     item?.mediaType?.toLowerCase() === 'podcast' ||
     item?.mediaType?.toLowerCase() === 'audio' ||
@@ -203,7 +222,7 @@ export const isAudioItem = (item: any): boolean => {
  * @param item - The media item
  * @returns boolean indicating if the item is video
  */
-export const isVideoItem = (item: any): boolean => {
+export const isVideoItem = (item: MediaItem | null | undefined): boolean => {
   return (
     item?.mediaType?.toLowerCase() === 'video' ||
     !!item?.videoUrl ||

@@ -527,10 +527,13 @@ export const mockOnboardingFlowsData = {
   providers
 };
 
+type ProfileField = { label: string; value?: string; status?: string };
+type ProfileGroup = { groupName: string; fields: ProfileField[] };
+
 // Helper function to assign random statuses to fields
-const assignFieldStatuses = (fields: any) => {
+const assignFieldStatuses = (fields: ProfileField[]): ProfileField[] => {
   const statuses = ["locked", "editable", "completed"];
-  return fields.map((field: any) => ({
+  return fields.map((field) => ({
     ...field,
     status:
       field.status || statuses[Math.floor(Math.random() * statuses.length)], // Randomly assign a status
@@ -538,9 +541,9 @@ const assignFieldStatuses = (fields: any) => {
 };
 
 // Add some empty fields to demonstrate placeholder styling
-const addEmptyFields = (groups: any) => {
-  return groups.map((group: any) => {
-    const updatedFields = group.fields.map((field: any, index: any) => {
+const addEmptyFields = (groups: ProfileGroup[]): ProfileGroup[] => {
+  return groups.map((group) => {
+    const updatedFields = group.fields.map((field, index) => {
       // Make some fields empty (roughly 10%)
       if (index % 10 === 0) {
         return { ...field, value: "" };

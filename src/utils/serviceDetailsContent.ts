@@ -23,10 +23,10 @@ export interface TabContent {
 export interface CustomTab {
   id: string;
   label: string;
-  icon?: any;
+  icon?: React.ReactNode;
   iconBgColor?: string;
   iconColor?: string;
-  renderContent?: (item: any, marketplaceType: string) => React.ReactNode;
+  renderContent?: (item: Record<string, unknown>, marketplaceType: string) => React.ReactNode;
 }
 
 // Custom tabs for specific services
@@ -1525,6 +1525,5 @@ export function getCustomTabs(
   if (!serviceId) return undefined;
   return SERVICE_CUSTOM_TABS[marketplaceType]?.[serviceId];
 }
-
 
 

@@ -38,7 +38,7 @@ async function testConnection() {
     console.log('📡 Testing connection with anon key...');
     
     // Test 1: Check if we can connect
-    const { data: healthCheck, error: healthError } = await supabaseClient
+    const { error: healthError } = await supabaseClient
       .from('guides')
       .select('count')
       .limit(1);
@@ -63,7 +63,7 @@ async function testConnection() {
     ];
 
     for (const table of tables) {
-      const { data, error } = await supabaseClient
+      const { error } = await supabaseClient
         .from(table)
         .select('*')
         .limit(1);
@@ -123,4 +123,3 @@ async function testConnection() {
 }
 
 testConnection();
-

@@ -1,21 +1,21 @@
 import { supabaseAdmin } from './lib/supabaseAdmin'
 
-type AnyRequest = { 
-  method?: string; 
-  headers: Record<string,string|undefined>; 
-  url?: string; 
-  [k:string]: any 
-}
+type AnyRequest = {
+  method?: string;
+  headers: Record<string, string | string[] | undefined>;
+  url?: string;
+  on: (event: 'data' | 'end' | 'error', listener: (chunk?: unknown) => void) => void;
+};
 
-type AnyResponse = { 
-  status?: (c:number)=>AnyResponse; 
-  json?: (b:any)=>void 
-}
+type AnyResponse = {
+  status?: (c: number) => AnyResponse;
+  json?: (body: unknown) => void;
+};
 
-function parseJSONBody(req: AnyRequest): Promise<any> {
+function parseJSONBody(req: AnyRequest): Promise<unknown> {
   return new Promise((resolve, reject) => {
     let data = ''
-    req.on('data', (c: any) => (data += c))
+    req.on('data', (c) => (data += String(c ?? '')))
     req.on('end', () => { 
       try { 
         resolve(data ? JSON.parse(data) : {}) 
@@ -30,7 +30,8 @@ function parseJSONBody(req: AnyRequest): Promise<any> {
 export default async function handler(req: AnyRequest, res: AnyResponse) {
   try {
     const host = req.headers.host || 'localhost'
-    const proto = (req.headers as any)['x-forwarded-proto'] || 'https'
+    const forwardedProto = req.headers['x-forwarded-proto']
+    const proto = Array.isArray(forwardedProto) ? forwardedProto[0] : forwardedProto || 'https'
     const url = new URL(`${proto}://${host}${req.url}`)
     const pathParts = url.pathname.split('/').filter(Boolean)
     const lastPart = pathParts[pathParts.length - 1]
@@ -74,9 +75,10 @@ export default async function handler(req: AnyRequest, res: AnyResponse) {
     
     res.status?.(405)
     res.json?.({ error: 'Method not allowed' })
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error('api/admin-guides error:', e)
     res.status?.(500)
-    res.json?.({ error: e?.message || 'Server error' })
+    const message = e instanceof Error ? e.message : 'Server error'
+    res.json?.({ error: message })
   }
 }

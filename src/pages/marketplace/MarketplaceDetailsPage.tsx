@@ -13,6 +13,7 @@ import { getFallbackItemDetails, getFallbackItems } from '../../utils/fallbackDa
 import { getAIToolDataById } from '../../utils/aiToolsData';
 import { getDigitalWorkerServiceById } from '../../utils/digitalWorkerData';
 import { ProcedureStages, procedureStagesConfigs } from '../../components/ProcedureStages';
+import { sanitizeHtml } from '@/utils/sanitizeHtml';
 import LeaveRequestForm from '../../components/marketplace/LeaveRequestForm';
 import { TechSupportForm } from '../../components/marketplace/TechSupportForm';
 import { INITIAL_APPROVERS } from '../../utils/mockApprovers';
@@ -474,7 +475,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const renderBlocks = (blocks: ContentBlock[]) => {
     return (blocks || []).map((block, idx) => {
       if (block.type === 'p') {
-        return <p key={idx} className="text-gray-700 text-base leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: block.text }}></p>;
+        return <p key={idx} className="text-gray-700 text-base leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: sanitizeHtml(block.text) }}></p>;
       }
       if (block.type === 'ol') {
         return <ol key={idx} className="list-decimal pl-6 space-y-3 text-gray-700 mb-4 text-base">
@@ -1935,4 +1936,3 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     </div>;
 };
 export default MarketplaceDetailsPage;
-

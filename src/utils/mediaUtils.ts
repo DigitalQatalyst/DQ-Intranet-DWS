@@ -40,26 +40,27 @@ export const initializeLocalMedia = async (
       throw new Error("No audio track found in the media stream");
     }
     return stream;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error accessing media devices:", error);
+    const err = error as { name?: string; message?: string } | undefined;
     // Provide more specific error messages based on the error type
     if (
-      error.name === "NotAllowedError" ||
-      error.name === "PermissionDeniedError"
+      err?.name === "NotAllowedError" ||
+      err?.name === "PermissionDeniedError"
     ) {
       throw new Error(
         `Microphone access was denied. Please check your browser permissions and ensure your microphone is enabled.`
       );
     } else if (
-      error.name === "NotFoundError" ||
-      error.name === "DevicesNotFoundError"
+      err?.name === "NotFoundError" ||
+      err?.name === "DevicesNotFoundError"
     ) {
       throw new Error(
         `No microphone found. Please connect a microphone and try again.`
       );
     } else if (
-      error.name === "NotReadableError" ||
-      error.name === "TrackStartError"
+      err?.name === "NotReadableError" ||
+      err?.name === "TrackStartError"
     ) {
       throw new Error(
         `Your microphone is in use by another application. Please close other applications that might be using your microphone.`
@@ -68,7 +69,7 @@ export const initializeLocalMedia = async (
       throw new Error(
         `Could not access ${
           video ? "camera and microphone" : "microphone"
-        }. Error: ${error.message || error.name || "Unknown error"}`
+        }. Error: ${err?.message || err?.name || "Unknown error"}`
       );
     }
   }

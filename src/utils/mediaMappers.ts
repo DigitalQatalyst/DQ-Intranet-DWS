@@ -4,11 +4,40 @@ import {
   getPosterUrl,
   getDuration,
 } from './mediaSelectors'
+import type { MediaItem } from './mediaSelectors'
+
+type Resource = { id?: string; title?: string; type?: string; url?: string; fileSize?: unknown };
+
+type MediaLike = MediaItem & {
+  id: string;
+  title: string;
+  description?: string;
+  mediaType?: string | null;
+  provider?: { name?: string; logoUrl?: string | null };
+  source?: string;
+  tags?: unknown[];
+  date?: unknown;
+  lastUpdated?: unknown;
+  downloadCount?: number;
+  fileSize?: unknown;
+  duration?: string | number | null;
+  location?: unknown;
+  category?: unknown;
+  format?: unknown;
+  popularity?: unknown;
+  episodes?: unknown;
+  businessStage?: unknown;
+  relatedItems?: MediaLike[];
+  content?: unknown;
+  resources?: Resource[];
+  downloadUrl?: string | null;
+  externalUrl?: string | null;
+};
 
 /**
  * Maps an API item to the props format expected by the card component
  */
-export function mapApiItemToCardProps(item: any) {
+export function mapApiItemToCardProps(item: MediaLike) {
   // Get normalized duration info
   const durationInfo = getDuration(item)
   // Extract and normalize data from the API item
@@ -47,7 +76,7 @@ export function mapApiItemToCardProps(item: any) {
 /**
  * Maps an API item to the detailed props format expected by the detail page
  */
-export function mapApiItemToDetailProps(item: any) {
+export function mapApiItemToDetailProps(item: MediaLike) {
   // Start with the card props as a base
   const baseProps = mapApiItemToCardProps(item)
   // Add additional detail-specific properties
@@ -70,7 +99,7 @@ export function mapApiItemToDetailProps(item: any) {
     },
     // Format resources for rendering
     resources: item.resources
-      ? item.resources.map((resource: any) => ({
+      ? item.resources.map((resource: Resource) => ({
           id: resource.id,
           title: resource.title,
           type: resource.type,
