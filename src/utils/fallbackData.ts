@@ -1,28 +1,28 @@
-import { mockCourses, mockOnboardingFlows } from './mockData'
+import { mockCourses, mockOnboardingFlows } from './mockData';
 import {
   mockFinancialServices,
   mockNonFinancialServices,
   mockKnowledgeHubItems,
-} from './mockMarketplaceData'
+} from './mockMarketplaceData';
 
 /**
  * Get fallback items for a specific marketplace type when API calls fail
  */
-export const getFallbackItems = (marketplaceType: string): unknown[] => {
+export const getFallbackItems = <T = unknown>(marketplaceType: string): T[] => {
   switch (marketplaceType) {
     case 'courses':
-      return mockCourses
+      return mockCourses as T[]
     case 'financial':
-      return mockFinancialServices
+      return mockFinancialServices as T[]
     case 'non-financial':
-      return mockNonFinancialServices
+      return mockNonFinancialServices as T[]
     case 'guides':
     case 'knowledge-hub':
-      return mockKnowledgeHubItems
+      return mockKnowledgeHubItems as T[]
     case 'onboarding':
-      return mockOnboardingFlows
+      return mockOnboardingFlows as T[]
     default:
-      return []
+      return [] as T[]
   }
 }
 

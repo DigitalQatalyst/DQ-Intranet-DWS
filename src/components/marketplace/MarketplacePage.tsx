@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from './FilterSidebar.js';
 import { MarketplaceGrid } from './MarketplaceGrid.js';
-import type { MarketplaceItem } from './MarketplaceGrid.js';
+import type { MarketplaceItem, PromoCardData } from './MarketplaceGrid.js';
 import { SearchBar } from '../SearchBar.js';
 import { FilterIcon, XIcon, HomeIcon, ChevronRightIcon } from 'lucide-react';
 import { ErrorDisplay, CourseCardSkeleton } from '../SkeletonLoader.js';
@@ -27,6 +27,7 @@ import GuidesGrid from '../guides/GuidesGrid';
 import TestimonialsGrid from '../guides/TestimonialsGrid';
 import GlossaryGrid from '../guides/GlossaryGrid';
 import { supabaseClient } from '../../lib/supabaseClient';
+import type { PostgrestSingleResponse } from '@supabase/supabase-js';
 import { track } from '../../utils/analytics';
 import FAQsPageContent from '@/pages/guides/FAQsPageContent.tsx';
 import { glossaryTerms, GlossaryTerm } from '@/pages/guides/glossaryData.ts';
@@ -342,7 +343,7 @@ export interface MarketplacePageProps {
   marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding' | 'guides';
   title: string;
   description: string;
-  promoCards?: unknown[];
+  promoCards?: PromoCardData[];
 }
 
 const SUBDOMAIN_BY_DOMAIN: Record<string, string[]> = {
@@ -781,7 +782,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
       // KNOWLEDGE HUB: use fallback data (no API)
       if (isKnowledgeHub) {
-        const fallbackItems = getFallbackItems(marketplaceType);
+        const fallbackItems = getFallbackItems<MarketplaceItem>(marketplaceType);
         setItems(fallbackItems);
         setFilteredItems(fallbackItems);
         setTotalCount(fallbackItems.length);
@@ -936,10 +937,15 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           // Only filter by status if needed
           if (statuses.length)   facetQ = facetQ.in('status', statuses);
 
-          const [{ data: rows, count, error }, { data: facetRows, error: facetError }] = await Promise.all([
-            listPromise,
-            facetQ,
+          const [guideResp, facetResp] = await Promise.all([
+            listPromise as Promise<PostgrestSingleResponse<GuideResult[]>>,
+            facetQ as Promise<PostgrestSingleResponse<GuideResult[]>>,
           ]);
+          const rows = (guideResp.data ?? []) as GuideResult[];
+          const count = guideResp.count ?? null;
+          const error = guideResp.error;
+          const facetRows = (facetResp.data ?? []) as GuideResult[];
+          const facetError = facetResp.error;
           if (error) {
             console.error('Guides query error:', error);
             throw error;
@@ -1306,7 +1312,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           searchQuery,
         )) as MarketplaceItem[] | null | undefined;
 
-        const fallbackItems = getFallbackItems(marketplaceType) as MarketplaceItem[];
+        const fallbackItems = getFallbackItems<MarketplaceItem>(marketplaceType);
         const finalItems: MarketplaceItem[] =
           itemsData && itemsData.length ? itemsData : fallbackItems;
 
@@ -1327,7 +1333,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
       } catch (err) {
         console.error(`Error fetching ${marketplaceType} items:`, err);
         setError(`Failed to load ${marketplaceType}`);
-        const fallbackItems = getFallbackItems(marketplaceType) as MarketplaceItem[];
+        const fallbackItems = getFallbackItems<MarketplaceItem>(marketplaceType);
         setItems(fallbackItems);
 
         const filteredFallback = isServicesCenter
@@ -1940,16 +1946,20 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                   </>
                 );
               }
-              const gridItems = isCourses 
+              const gridItems: MarketplaceItem[] = isCourses 
                 ? searchFilteredItems.map(course => {
                     const allowedSet = new Set<string>(LOCATION_ALLOW as readonly string[]);
                     const safeLocations = (course.locations || []).filter(loc => allowedSet.has(loc));
                     return {
                       ...course,
                       locations: safeLocations.length ? safeLocations : ['Global'],
-                      provider: { name: course.provider, logoUrl: '/DWS-Logo.png' },
+                      provider: {
+                        name: course.provider,
+                        logoUrl: '/DWS-Logo.png',
+                        description: course.providerDescription || course.summary || ''
+                      },
                       description: course.summary
-                    };
+                    } as MarketplaceItem;
                   })
                 : filteredItems;
               return (
