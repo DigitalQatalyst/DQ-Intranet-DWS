@@ -368,9 +368,8 @@ const NewsDetailPage: React.FC = () => {
 
   const overview = article ? buildOverview(article) : [];
   const isBlogArticle = article?.type === 'Thought Leadership' && article.format !== 'Podcast';
-  // Check if article should use the new layout (blogs, news, announcements, podcasts)
+  // Check if article should use the new layout (blogs and podcasts only)
   const shouldUseNewLayout = isBlogArticle || 
-    article?.type === 'Announcement' || 
     (article?.format === 'Podcast' || article?.tags?.some(tag => tag.toLowerCase().includes('podcast')));
 
   // Load likes and views, and interaction state from localStorage
@@ -471,12 +470,38 @@ const NewsDetailPage: React.FC = () => {
   const handleLike = () => {
     if (!id) return;
     if (!hasLiked) {
-      setLikes(prev => prev + 1);
+      // Like the article
+      setLikes(prev => {
+        const newLikes = prev + 1;
+        try {
+          localStorage.setItem(`news-likes-${id}`, newLikes.toString());
+        } catch (error) {
+          console.error('Error saving like count:', error);
+        }
+        return newLikes;
+      });
       setHasLiked(true);
       try {
         localStorage.setItem(`news-hasLiked-${id}`, 'true');
       } catch (error) {
         console.error('Error saving like state:', error);
+      }
+    } else {
+      // Unlike the article
+      setLikes(prev => {
+        const newLikes = Math.max(0, prev - 1);
+        try {
+          localStorage.setItem(`news-likes-${id}`, newLikes.toString());
+        } catch (error) {
+          console.error('Error saving like count:', error);
+        }
+        return newLikes;
+      });
+      setHasLiked(false);
+      try {
+        localStorage.removeItem(`news-hasLiked-${id}`);
+      } catch (error) {
+        console.error('Error saving unlike state:', error);
       }
     }
   };
@@ -621,13 +646,8 @@ const NewsDetailPage: React.FC = () => {
           {/* Content */}
           <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-24 w-full flex-1 flex items-center">
             <div className="max-w-4xl w-full">
-              {/* Category Tag */}
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-white/20 backdrop-blur-sm text-white mb-4">
-                {getNewsTypeDisplay(article).label}
-              </span>
-              
               {/* Date */}
-              <div className="text-white/90 text-sm mb-2">
+              <div className="text-white/90 text-sm mb-4">
                 {announcementDate}
               </div>
 
@@ -814,7 +834,7 @@ const NewsDetailPage: React.FC = () => {
             </div>
 
             {/* Engagement Metrics - Stretches full width below article summary */}
-            {shouldUseNewLayout && (
+            {article && (
               <div className="mt-4 bg-white rounded-lg shadow-sm p-4 border border-gray-200">
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-1.5 text-sm text-gray-600">
@@ -823,7 +843,7 @@ const NewsDetailPage: React.FC = () => {
                   <button 
                     type="button"
                     onClick={handleLike}
-                    className={`flex items-center gap-1.5 text-sm transition-colors ${
+                    className={`flex items-center gap-1.5 text-sm transition-colors cursor-pointer ${
                       hasLiked 
                         ? 'text-red-600 hover:text-red-700' 
                         : 'text-gray-600 hover:text-red-600'
