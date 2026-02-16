@@ -215,36 +215,43 @@ const handleGuidesList = async (urlObj: URL, res: AnyResponse, req: AnyRequest) 
   sendWithEtag(res, body, inm);
 };
 
+const getRouteInfo = (urlObj: URL) => {
+  const pathParts = urlObj.pathname.split('/').filter(Boolean);
+  const lastPart = pathParts[pathParts.length - 1];
+  const routeKey = pathParts.includes('taxonomies')
+    ? 'TAXONOMIES'
+    : (lastPart && lastPart !== 'guides' ? 'ITEM' : 'LIST');
+  const isUuid = lastPart ? /^[0-9a-z-]+$/i.test(lastPart) : false;
+  return { routeKey, lastPart, isUuid };
+};
+
+const ensureGetMethod = (req: AnyRequest, res: AnyResponse) => {
+  if (req.method === 'GET') return true;
+  sendNotAllowed(res);
+  return false;
+};
+
 export default async function handler(req: AnyRequest, res: AnyResponse) {
   try {
     const urlObj = buildUrl(req);
-    const pathParts = urlObj.pathname.split('/').filter(Boolean);
-    const lastPart = pathParts[pathParts.length - 1];
-    const routeKey = pathParts.includes('taxonomies')
-      ? 'TAXONOMIES'
-      : (lastPart && lastPart !== 'guides' ? 'ITEM' : 'LIST');
+    const { routeKey, lastPart, isUuid } = getRouteInfo(urlObj);
 
-    if (routeKey === 'TAXONOMIES') {
-      if (req.method !== 'GET') return sendNotAllowed(res);
-      await handleTaxonomies(res);
-      return;
+    switch (routeKey) {
+      case 'TAXONOMIES':
+        if (!ensureGetMethod(req, res)) return;
+        await handleTaxonomies(res);
+        return;
+      case 'ITEM':
+        if (!ensureGetMethod(req, res)) return;
+        await handleGuideById(lastPart, isUuid, urlObj, req, res);
+        return;
+      case 'LIST':
+        if (!ensureGetMethod(req, res)) return;
+        await handleGuidesList(urlObj, res, req);
+        return;
+      default:
+        sendNotAllowed(res);
     }
-
-    if (routeKey === 'ITEM') {
-      if (req.method !== 'GET') return sendNotAllowed(res);
-      const id = lastPart;
-      const isUuid = /^[0-9a-z-]+$/i.test(id);
-      await handleGuideById(id, isUuid, urlObj, req, res);
-      return;
-    }
-
-    if (routeKey === 'LIST') {
-      if (req.method !== 'GET') return sendNotAllowed(res);
-      await handleGuidesList(urlObj, res, req);
-      return;
-    }
-
-    sendNotAllowed(res);
   } catch (err: unknown) {
     console.error('api/guides error:', err);
     const message = err instanceof Error ? err.message : 'Server error';

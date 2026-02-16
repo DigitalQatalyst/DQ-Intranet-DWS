@@ -1,16 +1,10 @@
 /**
  * Service for interacting with Microsoft Dataverse Web API
  */
-// Configuration values - in a real implementation, these would come from environment variables
-// For demo purposes, we'll use placeholder values
-const _DATAVERSE_API_URL = "https://your-org.api.crm.dynamics.com/api/data/v9.2";
-const _DOCUMENT_ENTITY_NAME = "cr123_document"; // Replace with your actual entity name
-// Get the authentication token (this would be handled by your auth provider)
-const _getAuthToken = async () => {
-  // In a real implementation, this would get a token from your auth provider
-  // For example, using MSAL.js, Azure AD, etc.
-  return "dummy-token";
-};
+// Configuration placeholders for a real Dataverse setup (unused in mock)
+// const DATAVERSE_API_URL = "https://your-org.api.crm.dynamics.com/api/data/v9.2";
+// const DOCUMENT_ENTITY_NAME = "cr123_document"; // Replace with your actual entity name
+// const getAuthToken = async () => "dummy-token";
 type SectionFields = Record<string, string>;
 type SectionData = { fields?: SectionFields };
 type ProfileSections = Record<string, SectionData>;
@@ -350,6 +344,13 @@ export const fetchBusinessProfileData = async () => {
   return mockData;
 };
 // Save profile data to Dataverse
+const mergeSections = (current?: ProfileSections, incoming?: ProfileSections) => {
+  const merged: ProfileSections = {};
+  if (current) Object.assign(merged, current);
+  if (incoming) Object.assign(merged, incoming);
+  return merged;
+};
+
 export const saveProfileData = async (profileData: ProfileData) => {
   // Simulate API latency
   await new Promise((resolve) => setTimeout(resolve, 800));
@@ -363,16 +364,13 @@ export const saveProfileData = async (profileData: ProfileData) => {
   // });
   // const data = await response.json();
   // For now, we'll just update our cache
-  const cachedSections = dataCache?.sections || {};
-  const incomingSections = profileData.sections || {};
+  const cachedSections = dataCache?.sections;
+  const incomingSections = profileData.sections;
+  const baseCache = dataCache ? { ...dataCache } : undefined;
   dataCache = {
-    ...(dataCache || {}),
+    ...(baseCache || {}),
     ...profileData,
-    // Merge sections rather than replacing them
-    sections: {
-      ...cachedSections,
-      ...incomingSections,
-    },
+    sections: mergeSections(cachedSections, incomingSections),
   };
   // Store in localStorage for persistence across page reloads
   localStorage.setItem("profileData", JSON.stringify(dataCache));
@@ -390,7 +388,7 @@ export const calculateSectionCompletion = (sectionData?: SectionData | null) => 
   Object.keys(fields).forEach((fieldKey) => {
     totalFields++;
     const value = fields[fieldKey];
-    if (value && value.trim() !== "") {
+    if (value?.trim()) {
       completedFields++;
     }
   });
@@ -413,13 +411,13 @@ export const calculateMandatoryCompletion = (
   let completedMandatory = 0;
   sectionConfig.groups.forEach((group) => {
     group.fields.forEach((field) => {
-          if (field.mandatory?.includes(companyStage)) {
-            mandatoryFields++;
-            const value = fields[field.fieldName];
-            if (value && value.trim() !== "") {
-              completedMandatory++;
-            }
+        if (field.mandatory?.includes(companyStage)) {
+          mandatoryFields++;
+          const value = fields[field.fieldName];
+          if (value?.trim()) {
+            completedMandatory++;
           }
+        }
     });
   });
   return {
@@ -433,6 +431,10 @@ export const calculateMandatoryCompletion = (
 };
 // Check if onboarding has been completed
 export const isOnboardingCompleted = () => {
+  const hasBasicFields = (sections?: ProfileSections) => {
+    const basicFields = sections?.basic?.fields;
+    return !!basicFields && Object.keys(basicFields).length > 0;
+  };
   // Check localStorage first
   const onboardingStatus = localStorage.getItem("onboardingComplete");
   if (onboardingStatus === "true") {
@@ -446,9 +448,7 @@ export const isOnboardingCompleted = () => {
       return false;
     }
     // For simplicity, we'll consider onboarding complete if basic section exists
-    return (
-      sections.basic && Object.keys(sections.basic.fields || {}).length > 0
-    );
+    return hasBasicFields(sections);
   }
   // Check localStorage for profile data
   const storedData = localStorage.getItem("profileData");
@@ -461,9 +461,7 @@ export const isOnboardingCompleted = () => {
       if (!companyStage || !sections) {
         return false;
       }
-      return (
-        sections.basic && Object.keys(sections.basic.fields || {}).length > 0
-      );
+      return hasBasicFields(sections);
     } catch (error) {
       console.error("Error parsing stored profile data:", error);
       return false;

@@ -80,151 +80,387 @@ interface GuideRecord {
   templates?: Array<{ id?: string; title?: string; url?: string; size?: string }>
 }
 
-const GuideDetailPage: React.FC = () => {
-  const { itemId } = useParams()
-  const location = useLocation() as any
-  const { user } = useAuth()
+type GuideSection = { id: string; title: string; content: string }
 
-  const [guide, setGuide] = useState<GuideRecord | null>(null)
-  const [related, setRelated] = useState<GuideRecord[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [checklistState, setChecklistState] = useState<Record<string, boolean>>({})
-  const [previewUnavailable, setPreviewUnavailable] = useState(false)
-  const articleRef = useRef<HTMLDivElement | null>(null)
-  const [activeContentTab, setActiveContentTab] = useState<string>('overview')
-  const isClientTestimonials = useMemo(() => (guide?.slug || '').toLowerCase() === 'client-testimonials', [guide?.slug])
-  const isL24WorkingRooms = useMemo(() => (guide?.slug || '').toLowerCase() === 'dq-l24-working-rooms-guidelines' || (guide?.title || '').toLowerCase().includes('l24 working rooms'), [guide?.slug, guide?.title])
-  const isRescueShift = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-rescue-shift-guidelines' || slug === 'rescue-shift-guidelines' || title.includes('rescue shift')
-  }, [guide?.slug, guide?.title])
-  const isRAID = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'raid-guidelines' || slug === 'dq-raid-guidelines' || title.includes('raid guidelines')
-  }, [guide?.slug, guide?.title])
-  const isAgendaScheduling = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-agenda-and-scheduling-guidelines' || slug === 'agenda-scheduling-guidelines' || title.includes('agenda') && title.includes('scheduling')
-  }, [guide?.slug, guide?.title])
-  const isFunctionalTracker = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-functional-tracker-guidelines' || slug === 'functional-tracker-guidelines' || title.includes('functional tracker')
-  }, [guide?.slug, guide?.title])
-  const isScrumMaster = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-scrum-master-guidelines' || slug === 'scrum-master-guidelines' || title.includes('scrum master')
-  }, [guide?.slug, guide?.title])
-  const isQForum = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'forum-guidelines' || slug === 'dq-forum-guidelines' || slug === 'qforum-guidelines' || title.includes('forum guidelines')
-  }, [guide?.slug, guide?.title])
-  const isDQCompetencies = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    // Exclude GHC - check for GHC first, then check for competencies
-    if (slug === 'dq-ghc' || slug === 'ghc' || slug === 'golden-honeycomb' || title.includes('ghc') || title.includes('golden honeycomb')) {
-      return false
+type GuideFlags = {
+  isClientTestimonials: boolean
+  isL24WorkingRooms: boolean
+  isRescueShift: boolean
+  isRAID: boolean
+  isAgendaScheduling: boolean
+  isFunctionalTracker: boolean
+  isScrumMaster: boolean
+  isQForum: boolean
+  isDQCompetencies: boolean
+  isDQVisionMission: boolean
+  isDQGHC: boolean
+  isDQProducts: boolean
+  isDQVision: boolean
+  isDQHoV: boolean
+  isDQPersona: boolean
+  isDQAgileTMS: boolean
+  isDQAgileSoS: boolean
+  isDQAgileFlows: boolean
+  isDQAgile6xD: boolean
+  hasCustomGuidelinePage: boolean
+}
+
+const normalizeTagValue = (value?: string | null) => {
+  if (!value) return ''
+  const cleaned = value.toLowerCase().replace(/[_-]+/g, ' ').trim()
+  return cleaned.endsWith('s') ? cleaned.slice(0, -1) : cleaned
+}
+
+const buildGuideFlags = (guide: GuideRecord | null): GuideFlags => {
+  const slug = (guide?.slug || '').toLowerCase()
+  const title = (guide?.title || '').toLowerCase()
+
+  const isClientTestimonials = slug === 'client-testimonials'
+  const isL24WorkingRooms = slug === 'dq-l24-working-rooms-guidelines' || title.includes('l24 working rooms')
+  const isRescueShift = slug === 'dq-rescue-shift-guidelines' || slug === 'rescue-shift-guidelines' || title.includes('rescue shift')
+  const isRAID = slug === 'raid-guidelines' || slug === 'dq-raid-guidelines' || title.includes('raid guidelines')
+  const isAgendaScheduling = slug === 'dq-agenda-and-scheduling-guidelines' || slug === 'agenda-scheduling-guidelines' || (title.includes('agenda') && title.includes('scheduling'))
+  const isFunctionalTracker = slug === 'dq-functional-tracker-guidelines' || slug === 'functional-tracker-guidelines' || title.includes('functional tracker')
+  const isScrumMaster = slug === 'dq-scrum-master-guidelines' || slug === 'scrum-master-guidelines' || title.includes('scrum master')
+  const isQForum = slug === 'forum-guidelines' || slug === 'dq-forum-guidelines' || slug === 'qforum-guidelines' || title.includes('forum guidelines')
+
+  const isDQGHC = slug === 'dq-ghc' || slug === 'ghc' || slug === 'golden-honeycomb' || title.includes('ghc') || title.includes('golden honeycomb') || (title.includes('foundation') && title.includes('dna'))
+  const isDQCompetencies = !isDQGHC && (slug === 'dq-competencies' || title.includes('dq competencies') || (title.includes('competencies') && !title.includes('ghc')))
+  const isDQVisionMission = slug === 'dq-vision-and-mission' || slug === 'dq-vision-mission' || (title.includes('dq vision') && title.includes('mission')) || (title.includes('vision') && title.includes('mission'))
+  const isDQProducts = slug === 'dq-products' || title.includes('dq products') || (title.includes('products') && !title.includes('6xd'))
+  const isDQVision = slug === 'dq-vision' || slug === 'dq-vision-purpose'
+  const isDQHoV = slug === 'dq-hov' || slug === 'hov' || slug === 'house-of-values'
+  const isDQPersona = slug === 'dq-persona' || slug === 'persona-identity'
+  const isDQAgileTMS = slug === 'dq-agile-tms' || slug === 'agile-tms'
+  const isDQAgileSoS = slug === 'dq-agile-sos' || slug === 'agile-sos'
+  const isDQAgileFlows = slug === 'dq-agile-flows' || slug === 'agile-flows'
+  const isDQAgile6xD = slug === 'dq-agile-6xd' || slug === 'agile-6xd'
+
+  const hasCustomGuidelinePage = isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isDQCompetencies || isDQVisionMission || isDQGHC || isDQProducts || isDQVision || isDQHoV || isDQPersona || isDQAgileTMS || isDQAgileSoS || isDQAgileFlows || isDQAgile6xD
+
+  return {
+    isClientTestimonials,
+    isL24WorkingRooms,
+    isRescueShift,
+    isRAID,
+    isAgendaScheduling,
+    isFunctionalTracker,
+    isScrumMaster,
+    isQForum,
+    isDQCompetencies,
+    isDQVisionMission,
+    isDQGHC,
+    isDQProducts,
+    isDQVision,
+    isDQHoV,
+    isDQPersona,
+    isDQAgileTMS,
+    isDQAgileSoS,
+    isDQAgileFlows,
+    isDQAgile6xD,
+    hasCustomGuidelinePage,
+  }
+}
+
+const isValidDomainForSections = (domain?: string | null) =>
+  ['Guidelines', 'Strategy', 'Testimonials', 'Testimonial', 'Blueprint'].includes(domain || '')
+
+const extractOverview = (body: string): GuideSection | null => {
+  const descMatch = body.match(/## Description\s*\n+([\s\S]*?)(?=\n##|\n#|$)/)
+  const highlightsMatch = body.match(/## Key Highlights:?\s*\n+([\s\S]*?)(?=\n##|\n#|$)/)
+  if (descMatch || highlightsMatch) {
+    let overviewContent = ''
+    if (descMatch) overviewContent += descMatch[1].trim() + '\n\n'
+    if (highlightsMatch) overviewContent += '## Key Highlights\n\n' + highlightsMatch[1].trim()
+    return { id: 'overview', title: 'Overview', content: overviewContent }
+  }
+  const firstSectionMatch = body.match(/^# [^\n]+\n\n([\s\S]*?)(?=\n##|\n#|$)/)
+  if (firstSectionMatch && firstSectionMatch[1].trim()) {
+    const sectionCount = (body.match(/^## /gm) || []).length
+    if (sectionCount > 1) {
+      return { id: 'overview', title: 'Overview', content: firstSectionMatch[1].trim() }
     }
-    return slug === 'dq-competencies' || title.toLowerCase().includes('dq competencies') || (title.toLowerCase().includes('competencies') && !title.includes('ghc'))
-  }, [guide?.slug, guide?.title])
-  const isDQVisionMission = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-vision-and-mission' || slug === 'dq-vision-mission' || title.toLowerCase().includes('dq vision') && title.toLowerCase().includes('mission') || (title.toLowerCase().includes('vision') && title.toLowerCase().includes('mission'))
-  }, [guide?.slug, guide?.title])
-  const isDQGHC = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-ghc' || slug === 'ghc' || slug === 'golden-honeycomb' || title.includes('ghc') || title.includes('golden honeycomb') || (title.includes('foundation') && title.includes('dna'))
-  }, [guide?.slug, guide?.title])
-  const isDQProducts = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    const title = (guide?.title || '').toLowerCase()
-    return slug === 'dq-products' || slug === 'dq-products' || title.toLowerCase().includes('dq products') || (title.toLowerCase().includes('products') && !title.toLowerCase().includes('6xd'))
-  }, [guide?.slug, guide?.title])
-  const isDQVision = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-vision' || slug === 'dq-vision-purpose'
-  }, [guide?.slug])
-  const isDQHoV = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-hov' || slug === 'hov' || slug === 'house-of-values'
-  }, [guide?.slug])
-  const isDQPersona = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-persona' || slug === 'persona-identity'
-  }, [guide?.slug])
-  const isDQAgileTMS = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-agile-tms' || slug === 'agile-tms'
-  }, [guide?.slug])
-  const isDQAgileSoS = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-agile-sos' || slug === 'agile-sos'
-  }, [guide?.slug])
-  const isDQAgileFlows = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-agile-flows' || slug === 'agile-flows'
-  }, [guide?.slug])
-  const isDQAgile6xD = useMemo(() => {
-    const slug = (guide?.slug || '').toLowerCase()
-    return slug === 'dq-agile-6xd' || slug === 'agile-6xd'
-  }, [guide?.slug])
-  
-  // Check if this guide should use a custom GuidelinePage
-  const hasCustomGuidelinePage = useMemo(() => {
-    return isL24WorkingRooms || isRescueShift || isRAID || isAgendaScheduling || isFunctionalTracker || isScrumMaster || isQForum || isDQCompetencies || isDQVisionMission || isDQGHC || isDQProducts || isDQVision || isDQHoV || isDQPersona || isDQAgileTMS || isDQAgileSoS || isDQAgileFlows || isDQAgile6xD
-  }, [isL24WorkingRooms, isRescueShift, isRAID, isAgendaScheduling, isFunctionalTracker, isScrumMaster, isQForum, isDQCompetencies, isDQVisionMission, isDQGHC, isDQProducts, isDQVision, isDQHoV, isDQPersona, isDQAgileTMS, isDQAgileSoS, isDQAgileFlows, isDQAgile6xD])
-  const featuredClientTestimonials = [
-    {
-      id: 'khalifa',
-      name: 'Ali Al Jasmi',
-      role: 'Head of Technology • Khalifa Fund',
-      quote:
-        'DQ designed and implemented a multi-sided marketplace concept that revitalises SME growth and links vision to delivery through one integrated strategy.',
-      avatar: 'https://randomuser.me/api/portraits/men/52.jpg'
-    },
-    {
-      id: 'adib',
-      name: 'Kamran Sheikh',
-      role: 'Head of Enterprise Architecture & Analytics • ADIB',
-      quote:
-        'DQ re-centered the ADIB EA function at the heart of technology decision making, bringing pragmatic EA-driven transformation approaches.',
-      avatar: 'https://randomuser.me/api/portraits/men/50.jpg'
-    },
-    {
-      id: 'dfsa',
-      name: 'Waleed Saeed Al Awadhi',
-      role: 'Chief Operating Officer • DFSA',
-      quote:
-        'DQ established a practical transformation design and delivered it through agile implementation, laying the foundation for intuitive, data-driven services.',
-      avatar: 'https://randomuser.me/api/portraits/men/40.jpg'
+  }
+  return null
+}
+
+const pushSection = (
+  sections: GuideSection[],
+  processed: Set<string>,
+  section: { id: string; title: string; content: string[] },
+) => {
+  const content = section.content.join('\n').trim()
+  if (content.length > 0 && !processed.has(section.id)) {
+    sections.push({ id: section.id, title: section.title, content })
+  }
+}
+
+const splitSections = (body: string, hasOverview: boolean): GuideSection[] => {
+  const lines = body.split('\n')
+  const processed = new Set<string>(['overview', 'description', 'key-highlights'])
+  const sections: GuideSection[] = []
+  let current: { id: string; title: string; content: string[] } | null = null
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+    const isH2 = trimmed.startsWith('## ') && !trimmed.startsWith('### ')
+    if (isH2) {
+      if (current && current.content.length > 0) {
+        pushSection(sections, processed, current)
+      }
+      let title = line.replace(/^##\s+/, '').trim().replace(/\*\*/g, '').trim()
+      const skip = hasOverview && (title === 'Description' || title === 'Key Highlights')
+      if (skip) {
+        current = null
+        continue
+      }
+      const sectionId = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+      current = { id: sectionId, title, content: [] }
+    } else if (current) {
+      current.content.push(line)
     }
+  }
+
+  if (current && current.content.length > 0) {
+    pushSection(sections, processed, current)
+  }
+
+  return sections
+}
+
+const toTitleCaseLabel = (s: string): string => (s || '').split(/\s+/).map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(' ')
+
+const stripLeadingEmoji = (s: string): string => {
+  // Remove leading emojis/symbols commonly used as icons
+  // Unicode ranges cover misc symbols & pictographs
+  // eslint-disable-next-line no-misleading-character-class
+  return s.replace(/^[\u200d\ufe0f\uFE0F\u2060\s]*[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}]+\s*/u, '')
+}
+
+const ensureBulletedTitleCaseLine = (raw: string): string => {
+  const line = stripLeadingEmoji(raw.trim())
+  if (!line || line.startsWith('##')) return raw
+  // - **Label**: text
+  const m1 = line.match(/^-\s*\*\*([^*]+)\*\*\s*:\s*(.*)$/)
+  if (m1) return `- **${toTitleCaseLabel(stripLeadingEmoji(m1[1]))}**: ${m1[2]}`
+  // **Label**: text
+  const m2 = line.match(/^\*\*([^*]+)\*\*\s*:\s*(.*)$/)
+  if (m2) return `- **${toTitleCaseLabel(stripLeadingEmoji(m2[1]))}**: ${m2[2]}`
+  // - Label: text
+  const m3 = line.match(/^-\s*([^:]+)\s*:\s*(.*)$/)
+  if (m3) return `- **${toTitleCaseLabel(stripLeadingEmoji(m3[1]))}**: ${m3[2]}`
+  // Label: text (leading letter, avoid headers/lists)
+  const m4 = line.match(/^[A-Za-z][^:]*:\s*.*$/)
+  if (m4) {
+    const idx = line.indexOf(':')
+    const label = stripLeadingEmoji(line.slice(0, idx))
+    const rest = line.slice(idx + 1).trim()
+    return `- **${toTitleCaseLabel(label)}**: ${rest}`
+  }
+  return raw
+}
+
+const transformKeyHighlightsInOverview = (md: string): string => {
+  const lines = (md || '').split('\n')
+  let inKH = false
+  const out: string[] = []
+  for (const raw of lines) {
+    const t = raw.trim()
+    if (t.startsWith('## ')) {
+      const title = t.replace(/^##\s+/, '').replace(/\*\*/g, '').trim().toLowerCase()
+      inKH = title === 'key highlights'
+      out.push(raw)
+      continue
+    }
+    out.push(inKH ? ensureBulletedTitleCaseLine(raw) : raw)
+  }
+  return out.join('\n')
+}
+
+const formatSectionContent = (section: any): string => {
+  const title = String(section?.title || '').trim().toLowerCase()
+  if (title === 'key highlights') {
+    const lines = (section.content || '').split('\n').map(ensureBulletedTitleCaseLine)
+    return lines.join('\n')
+  }
+  return section.content || ''
+}
+
+const makeFeaturesPrecise = (_content: string): string => {
+  const standardFeatures = [
+    { title: 'DWS Landing (Home)', description: 'Main entry point and navigation hub for the Digital Workspace platform' },
+    { title: 'DQ Learning Center (Courses & Curricula)', description: 'Access to structured learning courses and curriculum programs' },
+    { title: 'DQ Learning Center (Learning Tracks)', description: 'Guided learning paths for skill development' },
+    { title: 'DQ Learning Center (Reviews)', description: 'Review and track learning progress and achievements' },
+    { title: 'DQ Services Center (Technology)', description: 'Technology services and solutions marketplace' },
+    { title: 'DQ Services Center (Business)', description: 'Business services and offerings' },
+    { title: 'DQ Service Center (Digital Worker)', description: 'Digital worker services and tools' },
+    { title: 'DQ Work Center (Activities - Sessions)', description: 'Manage and participate in work sessions' },
+    { title: 'DQ Work Center (Activities - projects / task)', description: 'Track and manage projects and tasks' },
+    { title: 'DQ Work Center (Activities - Trackers)', description: 'Monitor progress with activity trackers' }
+  ]
+  return standardFeatures.map(f => `- **${f.title}**: ${f.description}`).join('\n')
+}
+
+const parseBlueprintSections = (body: string) => {
+  const sections: Record<string, string> = {}
+  const lines = body.split('\n')
+  let currentSection = ''
+  let currentContent: string[] = []
+
+  const sectionMappings: Record<string, string> = {
+    'overview': 'Overview',
+    'description': 'Overview',
+    'key highlights': 'Key Highlights',
+    'highlights': 'Key Highlights',
+    'features': 'Features',
+    'feature': 'Features',
+    'guidelines': 'Guidelines & Integrations',
+    'integrations': 'Guidelines & Integrations',
+    'guidelines & integrations': 'Guidelines & Integrations',
+    'templates': 'Templates',
+    'template': 'Templates'
+  }
+
+  for (const line of lines) {
+    const h2Match = line.match(/^##\s+(.+)$/)
+    if (h2Match) {
+      if (currentSection) {
+        const content = currentContent.join('\n').trim()
+        if (currentSection === 'Features') {
+          sections[currentSection] = makeFeaturesPrecise(content)
+        } else {
+          sections[currentSection] = content
+        }
+      }
+      const sectionTitle = h2Match[1].trim().replace(/\*\*/g, '')
+      const normalized = sectionTitle.toLowerCase()
+      currentSection = sectionMappings[normalized] || sectionTitle
+      currentContent = []
+    } else {
+      currentContent.push(line)
+    }
+  }
+  if (currentSection) {
+    const content = currentContent.join('\n').trim()
+    if (currentSection === 'Features') {
+      sections[currentSection] = makeFeaturesPrecise(content)
+    } else {
+      sections[currentSection] = content
+    }
+  }
+  return sections
+}
+
+const parseGuideSections = (body: string) => {
+  const sections: Array<{ title: string; content: string; isTile?: boolean }> = []
+  const lines = body.split('\n')
+  let currentSection: { title: string; content: string[] } | null = null
+
+  for (const line of lines) {
+    const h2Match = line.match(/^##\s+(.+)$/)
+    const h3Match = line.match(/^###\s+(.+)$/)
+
+    if (h3Match) {
+      const h3Title = h3Match[1].trim().replace(/\*\*/g, '').trim()
+      const normalizedH3 = h3Title.toLowerCase()
+
+      if (normalizedH3 === 'ai tools' || normalizedH3 === 'model provider') {
+        if (currentSection && currentSection.content.length > 0) {
+          let content = currentSection.content.join('\n').trim()
+          if (currentSection.title.toLowerCase().includes('feature')) {
+            content = makeFeaturesPrecise(content)
+          }
+          sections.push({ title: currentSection.title, content })
+        }
+        currentSection = { title: h3Title, content: [] }
+        continue
+      }
+    }
+
+    if (h2Match) {
+      if (currentSection && currentSection.content.length > 0) {
+        let content = currentSection.content.join('\n').trim()
+        if (currentSection.title.toLowerCase().includes('feature')) {
+          content = makeFeaturesPrecise(content)
+        }
+        const isTile = currentSection.title.toLowerCase() === 'ai tools' || currentSection.title.toLowerCase() === 'model provider'
+        sections.push({ title: currentSection.title, content, isTile })
+      }
+      let title = h2Match[1].trim()
+      title = title.replace(/\*\*/g, '').trim()
+      currentSection = { title, content: [] }
+    } else if (currentSection) {
+      currentSection.content.push(line)
+    }
+  }
+  if (currentSection && currentSection.content.length > 0) {
+    let content = currentSection.content.join('\n').trim()
+    if (currentSection.title.toLowerCase().includes('feature')) {
+      content = makeFeaturesPrecise(content)
+    }
+    const isTile = currentSection.title.toLowerCase() === 'ai tools' || currentSection.title.toLowerCase() === 'model provider'
+    sections.push({ title: currentSection.title, content, isTile })
+  }
+  return sections
+}
+
+const buildGuideSections = (
+  guide: GuideRecord | null,
+  isClientTestimonials: boolean,
+): { guideSections: GuideSection[] | null; overviewSection: GuideSection | null; sectionsForTabs: GuideSection[] | null } => {
+  if (isClientTestimonials || !guide?.body) return { guideSections: null, overviewSection: null, sectionsForTabs: null }
+  if (!isValidDomainForSections(guide.domain)) return { guideSections: null, overviewSection: null, sectionsForTabs: null }
+
+  const overview = extractOverview(guide.body)
+  const remainingSections = splitSections(guide.body, !!overview)
+  const allSections = [...(overview ? [overview] : []), ...remainingSections]
+  const sectionsForTabs = overview ? remainingSections : allSections
+
+  return {
+    guideSections: allSections.length > 0 ? allSections : null,
+    overviewSection: overview,
+    sectionsForTabs: sectionsForTabs.length > 0 ? sectionsForTabs : null,
+  }
+}
+
+const renderCustomGuidelinePage = (flags: GuideFlags) => {
+  if (!flags.hasCustomGuidelinePage) return null
+
+  const orderedPages: Array<{ condition: boolean; node: React.ReactNode }> = [
+    { condition: flags.isL24WorkingRooms, node: <L24WorkingRoomsGuidelinePage /> },
+    { condition: flags.isRescueShift, node: <RescueShiftGuidelinePage /> },
+    { condition: flags.isRAID, node: <RAIDGuidelinePage /> },
+    { condition: flags.isAgendaScheduling, node: <AgendaSchedulingGuidelinePage /> },
+    { condition: flags.isFunctionalTracker, node: <FunctionalTrackerGuidelinePage /> },
+    { condition: flags.isScrumMaster, node: <ScrumMasterGuidelinePage /> },
+    { condition: flags.isQForum, node: <QForumGuidelinePage /> },
+    { condition: flags.isDQGHC, node: <DQGHCPage /> },
+    { condition: flags.isDQCompetencies, node: <DQCompetenciesPage /> },
+    { condition: flags.isDQProducts, node: <DQProductsPage /> },
+    { condition: flags.isDQVisionMission, node: <DQVisionMissionPage /> },
+    { condition: flags.isDQVision, node: <DQVisionPage /> },
+    { condition: flags.isDQHoV, node: <DQHoVPage /> },
+    { condition: flags.isDQPersona, node: <DQPersonaPage /> },
+    { condition: flags.isDQAgileTMS, node: <DQAgileTMSPage /> },
+    { condition: flags.isDQAgileSoS, node: <DQAgileSoSPage /> },
+    { condition: flags.isDQAgileFlows, node: <DQAgileFlowsPage /> },
+    { condition: flags.isDQAgile6xD, node: <DQAgile6xDPage /> },
   ]
 
-  const backQuery = (location?.state && location.state.fromQuery) ? String(location.state.fromQuery) : ''
-  const initialBackHref = `/marketplace/guides${backQuery ? `?${backQuery}` : ''}`
-  const activeTabFromState = (location?.state && location.state.activeTab) ? String(location.state.activeTab) : undefined
-  type GuideTabKey = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials'
-const TAB_LABELS: Record<GuideTabKey, string> = {
-  guidelines: 'Guidelines',
-  strategy: 'Strategy',
-  blueprints: 'Blueprints',
-  testimonials: 'Testimonials'
+  const match = orderedPages.find(({ condition }) => condition)
+  return match ? withSuspense(match.node) : null
 }
-  const normalizedStateTab = (activeTabFromState || '').toLowerCase()
-  const stateTab: GuideTabKey | undefined =
-    normalizedStateTab === 'strategy' || normalizedStateTab === 'blueprints'
-      ? normalizedStateTab as GuideTabKey
-      : undefined
 
+const renderBlueprintPage = (isBlueprint: boolean) =>
+  isBlueprint ? withSuspense(<BlueprintPage />) : null
+
+const useGuideLoader = (
+  itemId: string | undefined,
+  setGuide: React.Dispatch<React.SetStateAction<GuideRecord | null>>,
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>,
+) => {
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -281,11 +517,17 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
       }
     })()
     return () => { cancelled = true }
-  }, [itemId])
+  }, [itemId, setGuide, setLoading, setError])
+}
 
+const useGuideViewTracking = (guide: GuideRecord | null) => {
   useEffect(() => { if (guide?.slug) track('Guides.ViewDetail', { slug: guide.slug }) }, [guide?.slug])
+}
 
-  // Progressive body fetch
+const useProgressiveBodyFetch = (
+  guide: GuideRecord | null,
+  setGuide: React.Dispatch<React.SetStateAction<GuideRecord | null>>,
+) => {
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -303,9 +545,13 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
       }
     })()
     return () => { cancelled = true }
-  }, [guide?.id, guide?.slug])
+  }, [guide, guide?.id, guide?.slug, setGuide])
+}
 
-  // Build ToC and track body link clicks
+const useGuideBodyLinkTracking = (
+  guide: GuideRecord | null,
+  articleRef: React.RefObject<HTMLDivElement | null>,
+) => {
   useEffect(() => {
     const el = articleRef.current
     if (!el) return
@@ -320,9 +566,13 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     }
     el.addEventListener('click', onClick)
     return () => { el.removeEventListener('click', onClick) }
-  }, [guide?.slug, guide?.id, guide?.body])
+  }, [guide?.slug, guide?.id, guide?.body, articleRef])
+}
 
-  // Related guides
+const useRelatedGuides = (
+  guide: GuideRecord | null,
+  setRelated: React.Dispatch<React.SetStateAction<GuideRecord[]>>,
+) => {
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -379,7 +629,133 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
       }
     })()
     return () => { cancelled = true }
-  }, [guide?.id, guide?.domain, guide?.guideType, guide?.slug])
+  }, [guide, guide?.id, guide?.domain, guide?.guideType, guide?.slug, setRelated])
+}
+
+const useBlueprintTocObserver = (
+  actualIsBlueprintDomain: boolean,
+  guide: GuideRecord | null,
+  blueprintSections: Record<string, string>,
+  tocItems: Array<{ id: string; label: string }>,
+  sectionRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>,
+  setActiveTOCSection: React.Dispatch<React.SetStateAction<string>>,
+) => {
+  useEffect(() => {
+    if (!actualIsBlueprintDomain || !guide) return
+
+    const observers: IntersectionObserver[] = []
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -60% 0px',
+      threshold: 0
+    }
+
+    tocItems.forEach((item) => {
+      const element = sectionRefs.current[item.id]
+      if (element) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setActiveTOCSection(item.id)
+            }
+          })
+        }, observerOptions)
+        observer.observe(element)
+        observers.push(observer)
+      }
+    })
+
+    return () => {
+      observers.forEach(obs => obs.disconnect())
+    }
+  }, [actualIsBlueprintDomain, guide, blueprintSections, tocItems, sectionRefs, setActiveTOCSection])
+}
+
+const GuideDetailPage: React.FC = () => {
+  const { itemId } = useParams()
+  const location = useLocation() as any
+  const { user } = useAuth()
+
+  const [guide, setGuide] = useState<GuideRecord | null>(null)
+  const [related, setRelated] = useState<GuideRecord[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [checklistState, setChecklistState] = useState<Record<string, boolean>>({})
+  const [previewUnavailable, setPreviewUnavailable] = useState(false)
+  const articleRef = useRef<HTMLDivElement | null>(null)
+  const [activeContentTab, setActiveContentTab] = useState<string>('overview')
+
+  const guideFlags = useMemo(() => buildGuideFlags(guide), [guide?.slug, guide?.title])
+  const {
+    isClientTestimonials,
+    isL24WorkingRooms,
+    isRescueShift,
+    isRAID,
+    isAgendaScheduling,
+    isFunctionalTracker,
+    isScrumMaster,
+    isQForum,
+    isDQCompetencies,
+    isDQVisionMission,
+    isDQGHC,
+    isDQProducts,
+    isDQVision,
+    isDQHoV,
+    isDQPersona,
+    isDQAgileTMS,
+    isDQAgileSoS,
+    isDQAgileFlows,
+    isDQAgile6xD,
+    hasCustomGuidelinePage,
+  } = guideFlags
+  const featuredClientTestimonials = [
+    {
+      id: 'khalifa',
+      name: 'Ali Al Jasmi',
+      role: 'Head of Technology • Khalifa Fund',
+      quote:
+        'DQ designed and implemented a multi-sided marketplace concept that revitalises SME growth and links vision to delivery through one integrated strategy.',
+      avatar: 'https://randomuser.me/api/portraits/men/52.jpg'
+    },
+    {
+      id: 'adib',
+      name: 'Kamran Sheikh',
+      role: 'Head of Enterprise Architecture & Analytics • ADIB',
+      quote:
+        'DQ re-centered the ADIB EA function at the heart of technology decision making, bringing pragmatic EA-driven transformation approaches.',
+      avatar: 'https://randomuser.me/api/portraits/men/50.jpg'
+    },
+    {
+      id: 'dfsa',
+      name: 'Waleed Saeed Al Awadhi',
+      role: 'Chief Operating Officer • DFSA',
+      quote:
+        'DQ established a practical transformation design and delivered it through agile implementation, laying the foundation for intuitive, data-driven services.',
+      avatar: 'https://randomuser.me/api/portraits/men/40.jpg'
+    }
+  ]
+
+  const backQuery = (location?.state && location.state.fromQuery) ? String(location.state.fromQuery) : ''
+  const initialBackHref = `/marketplace/guides${backQuery ? `?${backQuery}` : ''}`
+  const activeTabFromState = (location?.state && location.state.activeTab) ? String(location.state.activeTab) : undefined
+  type GuideTabKey = 'guidelines' | 'strategy' | 'blueprints' | 'testimonials'
+const TAB_LABELS: Record<GuideTabKey, string> = {
+  guidelines: 'Guidelines',
+  strategy: 'Strategy',
+  blueprints: 'Blueprints',
+  testimonials: 'Testimonials'
+}
+  const normalizedStateTab = (activeTabFromState || '').toLowerCase()
+  const stateTab: GuideTabKey | undefined =
+    normalizedStateTab === 'strategy' || normalizedStateTab === 'blueprints'
+      ? normalizedStateTab as GuideTabKey
+      : undefined
+
+  useGuideLoader(itemId, setGuide, setLoading, setError)
+  useGuideViewTracking(guide)
+  useProgressiveBodyFetch(guide, setGuide)
+  useGuideBodyLinkTracking(guide, articleRef)
+  useRelatedGuides(guide, setRelated)
 
   const imageUrl = useMemo(() => getGuideImageUrl({
     heroImageUrl: guide?.heroImageUrl || undefined,
@@ -389,121 +765,13 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     slug: guide?.slug,
     title: guide?.title,
   }), [guide?.heroImageUrl, guide?.domain, guide?.guideType, guide?.id, guide?.slug, guide?.title])
-  const normalizeTag = (value?: string | null) => {
-    if (!value) return ''
-    const cleaned = value.toLowerCase().replace(/[_-]+/g, ' ').trim()
-    return cleaned.endsWith('s') ? cleaned.slice(0, -1) : cleaned
-  }
-  const isDuplicateTag = normalizeTag(guide?.domain) !== '' && normalizeTag(guide?.domain) === normalizeTag(guide?.guideType)
+  const isDuplicateTag = normalizeTagValue(guide?.domain) !== '' && normalizeTagValue(guide?.domain) === normalizeTagValue(guide?.guideType)
   const isStrategyFramework = (guide?.domain || '').toLowerCase().includes('strategy') && (guide?.guideType || '').toLowerCase().includes('framework')
 
-  // Parse guide body into sections for tabs (for Guidelines, Strategy, Testimonials, and Blueprints)
-  const guideSections = useMemo(() => {
-    if (isClientTestimonials) return null
-    if (!guide?.body) return null
-    // Apply tab navigation to all guides that have sections
-    const hasValidDomain = ['Guidelines', 'Strategy', 'Testimonials', 'Testimonial', 'Blueprint'].includes(guide.domain || '')
-    if (!hasValidDomain) return null
-    
-    const body = guide.body
-    const sections: Array<{ id: string; title: string; content: string }> = []
-    
-    // Extract Description and Key Highlights for Overview tab (if they exist)
-    // Handle both single and double newlines, and Key Highlights with or without colon
-    const descMatch = body.match(/## Description\s*\n+([\s\S]*?)(?=\n##|\n#|$)/)
-    const highlightsMatch = body.match(/## Key Highlights:?\s*\n+([\s\S]*?)(?=\n##|\n#|$)/)
-    
-    if (descMatch || highlightsMatch) {
-      let overviewContent = ''
-      if (descMatch) overviewContent += descMatch[1].trim() + '\n\n'
-      if (highlightsMatch) overviewContent += '## Key Highlights\n\n' + highlightsMatch[1].trim()
-      sections.push({ id: 'overview', title: 'Overview', content: overviewContent })
-    } else {
-      // For guides without Description/Key Highlights, use first paragraph as Overview
-      const firstSectionMatch = body.match(/^# [^\n]+\n\n([\s\S]*?)(?=\n##|\n#|$)/)
-      if (firstSectionMatch && firstSectionMatch[1].trim()) {
-        const firstContent = firstSectionMatch[1].trim()
-        // Only create Overview if there are multiple sections
-        const sectionCount = (body.match(/^## /gm) || []).length
-        if (sectionCount > 1) {
-          sections.push({ id: 'overview', title: 'Overview', content: firstContent })
-        }
-      }
-    }
-    
-    // Split body by section headers (## Title or ## **Title**)
-    // This approach handles both single and double newlines after headers
-    const lines = body.split('\n')
-    const processedSections = new Set<string>(['overview', 'description', 'key-highlights'])
-    let currentSection: { id: string; title: string; content: string[] } | null = null
-    
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-      // Match only H2 headers (##), not H3 (###)
-      const trimmed = line.trim()
-      if (trimmed.startsWith('## ') && !trimmed.startsWith('### ')) {
-        // Save previous section
-        if (currentSection && currentSection.content.length > 0) {
-          const content = currentSection.content.join('\n').trim()
-          if (content.length > 0 && !processedSections.has(currentSection.id)) {
-            processedSections.add(currentSection.id)
-            sections.push({
-              id: currentSection.id,
-              title: currentSection.title,
-              content
-            })
-          }
-        }
-        
-        // Extract title by removing ## and any bold markers
-        let title = line.replace(/^##\s+/, '').trim()
-        title = title.replace(/\*\*/g, '').trim()
-        
-        // Skip Description and Key Highlights (already in Overview if they exist)
-        // But only skip if Overview was created
-        const hasOverview = sections.some(s => s.id === 'overview')
-        if (hasOverview && (title === 'Description' || title === 'Key Highlights')) {
-          currentSection = null
-        } else {
-          const sectionId = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-          currentSection = {
-            id: sectionId,
-            title,
-            content: []
-          }
-        }
-      } else if (currentSection) {
-        // Add line to current section content
-        currentSection.content.push(line)
-      }
-    }
-    
-    // Save last section
-    if (currentSection && currentSection.content.length > 0) {
-      const content = currentSection.content.join('\n').trim()
-      if (content.length > 0 && !processedSections.has(currentSection.id)) {
-        sections.push({
-          id: currentSection.id,
-          title: currentSection.title,
-          content
-        })
-      }
-    }
-    
-    return sections.length > 0 ? sections : null
-  }, [isClientTestimonials, guide?.body, guide?.domain])
-
-  // Two-tier layout: Overview on top, other sections as tabs below (applies to all guides with Overview section)
-  const overviewSection = useMemo(() => {
-    if (!guideSections) return null
-    return (guideSections || [])?.find((s: any) => s.id === 'overview') || null
-  }, [guideSections])
-  const sectionsForTabs = useMemo(() => {
-    if (!guideSections) return null
-    // If there's an Overview section, show it separately and put other sections in tabs
-    // Otherwise, show all sections as tabs
-    return overviewSection ? guideSections.filter((s: any) => s.id !== 'overview') : guideSections
-  }, [guideSections, overviewSection])
+  const { guideSections, overviewSection, sectionsForTabs } = useMemo(
+    () => buildGuideSections(guide, isClientTestimonials),
+    [guide, isClientTestimonials],
+  )
   const hasTabsEffective = !!(sectionsForTabs && sectionsForTabs.length > 0)
   const hasOverviewSection = !!overviewSection
 
@@ -518,61 +786,6 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   
   // For "View" buttons - check domain (only if guide exists)
   // These will be recalculated after guide loads - using actualIsBlueprintDomain below
-
-  // Formatting helpers: Title-case labels and ensure bullet points for highlight items
-  const toTitleCaseLabel = (s: string): string => (s || '').split(/\s+/).map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(' ')
-  const stripLeadingEmoji = (s: string): string => {
-    // Remove leading emojis/symbols commonly used as icons
-    // Unicode ranges cover misc symbols & pictographs
-    // eslint-disable-next-line no-misleading-character-class
-    return s.replace(/^[\u200d\ufe0f\uFE0F\u2060\s]*[\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}]+\s*/u, '')
-  }
-  const ensureBulletedTitleCaseLine = (raw: string): string => {
-    const line = stripLeadingEmoji(raw.trim())
-    if (!line || line.startsWith('##')) return raw
-    // - **Label**: text
-    const m1 = line.match(/^-\s*\*\*([^*]+)\*\*\s*:\s*(.*)$/)
-    if (m1) return `- **${toTitleCaseLabel(stripLeadingEmoji(m1[1]))}**: ${m1[2]}`
-    // **Label**: text
-    const m2 = line.match(/^\*\*([^*]+)\*\*\s*:\s*(.*)$/)
-    if (m2) return `- **${toTitleCaseLabel(stripLeadingEmoji(m2[1]))}**: ${m2[2]}`
-    // - Label: text
-    const m3 = line.match(/^-\s*([^:]+)\s*:\s*(.*)$/)
-    if (m3) return `- **${toTitleCaseLabel(stripLeadingEmoji(m3[1]))}**: ${m3[2]}`
-    // Label: text (leading letter, avoid headers/lists)
-    const m4 = line.match(/^[A-Za-z][^:]*:\s*.*$/)
-    if (m4) {
-      const idx = line.indexOf(':')
-      const label = stripLeadingEmoji(line.slice(0, idx))
-      const rest = line.slice(idx + 1).trim()
-      return `- **${toTitleCaseLabel(label)}**: ${rest}`
-    }
-    return raw
-  }
-  const transformKeyHighlightsInOverview = (md: string): string => {
-    const lines = (md || '').split('\n')
-    let inKH = false
-    const out: string[] = []
-    for (const raw of lines) {
-      const t = raw.trim()
-      if (t.startsWith('## ')) {
-        const title = t.replace(/^##\s+/, '').replace(/\*\*/g, '').trim().toLowerCase()
-        inKH = title === 'key highlights'
-        out.push(raw)
-        continue
-      }
-      out.push(inKH ? ensureBulletedTitleCaseLine(raw) : raw)
-    }
-    return out.join('\n')
-  }
-  const formatSectionContent = (section: any): string => {
-    const title = String(section?.title || '').trim().toLowerCase()
-    if (title === 'key highlights') {
-      const lines = (section.content || '').split('\n').map(ensureBulletedTitleCaseLine)
-      return lines.join('\n')
-    }
-    return section.content || ''
-  }
 
   // CODEx: build concise summary from provided summary or derived from body
   const derivedSummary: string | null = useMemo(() => {
@@ -607,79 +820,6 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   
   // activeTOCSection is set by IntersectionObserver but not currently used in render
   void activeTOCSection
-
-  // Helper function to format Features: list the 10 DWS platform features
-  const makeFeaturesPrecise = (_content: string): string => {
-    // Return the standard 10 DWS features for blueprints
-    const standardFeatures = [
-      { title: 'DWS Landing (Home)', description: 'Main entry point and navigation hub for the Digital Workspace platform' },
-      { title: 'DQ Learning Center (Courses & Curricula)', description: 'Access to structured learning courses and curriculum programs' },
-      { title: 'DQ Learning Center (Learning Tracks)', description: 'Guided learning paths for skill development' },
-      { title: 'DQ Learning Center (Reviews)', description: 'Review and track learning progress and achievements' },
-      { title: 'DQ Services Center (Technology)', description: 'Technology services and solutions marketplace' },
-      { title: 'DQ Services Center (Business)', description: 'Business services and offerings' },
-      { title: 'DQ Service Center (Digital Worker)', description: 'Digital worker services and tools' },
-      { title: 'DQ Work Center (Activities - Sessions)', description: 'Manage and participate in work sessions' },
-      { title: 'DQ Work Center (Activities - projects / task)', description: 'Track and manage projects and tasks' },
-      { title: 'DQ Work Center (Activities - Trackers)', description: 'Monitor progress with activity trackers' }
-    ]
-    
-    // Format as "**Title**: description" for each feature
-    return standardFeatures.map(f => `- **${f.title}**: ${f.description}`).join('\n')
-  }
-
-  // Parse blueprint sections helper function
-  const parseBlueprintSections = (body: string) => {
-    const sections: Record<string, string> = {}
-    const lines = body.split('\n')
-    let currentSection = ''
-    let currentContent: string[] = []
-
-    const sectionMappings: Record<string, string> = {
-      'overview': 'Overview',
-      'description': 'Overview',
-      'key highlights': 'Key Highlights',
-      'highlights': 'Key Highlights',
-      'features': 'Features',
-      'feature': 'Features',
-      'guidelines': 'Guidelines & Integrations',
-      'integrations': 'Guidelines & Integrations',
-      'guidelines & integrations': 'Guidelines & Integrations',
-      'templates': 'Templates',
-      'template': 'Templates'
-    }
-
-    for (const line of lines) {
-      const h2Match = line.match(/^##\s+(.+)$/)
-      if (h2Match) {
-        if (currentSection) {
-          const content = currentContent.join('\n').trim()
-          // Apply precision to Features section
-          if (currentSection === 'Features') {
-            sections[currentSection] = makeFeaturesPrecise(content)
-          } else {
-            sections[currentSection] = content
-          }
-        }
-        const sectionTitle = h2Match[1].trim().replace(/\*\*/g, '')
-        const normalized = sectionTitle.toLowerCase()
-        currentSection = sectionMappings[normalized] || sectionTitle
-        currentContent = []
-      } else {
-        currentContent.push(line)
-      }
-    }
-    if (currentSection) {
-      const content = currentContent.join('\n').trim()
-      // Apply precision to Features section
-      if (currentSection === 'Features') {
-        sections[currentSection] = makeFeaturesPrecise(content)
-      } else {
-        sections[currentSection] = content
-      }
-    }
-    return sections
-  }
 
   // Domain detection - MOVED TO TOP (using derived values)
   const derivedKey = useMemo(() => {
@@ -740,119 +880,9 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     setPreviewUnavailable(false)
   }, [documentUrl])
 
-  // Intersection Observer for TOC highlighting - MOVED TO TOP
-  useEffect(() => {
-    if (!actualIsBlueprintDomain || !guide) return
-
-    const observers: IntersectionObserver[] = []
-    const observerOptions = {
-      root: null,
-      rootMargin: '-20% 0px -60% 0px',
-      threshold: 0
-    }
-
-    tocItems.forEach((item) => {
-      const element = sectionRefs.current[item.id]
-      if (element) {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setActiveTOCSection(item.id)
-            }
-          })
-        }, observerOptions)
-        observer.observe(element)
-        observers.push(observer)
-      }
-    })
-
-    return () => {
-      observers.forEach(obs => obs.disconnect())
-    }
-  }, [actualIsBlueprintDomain, guide, blueprintSections, tocItems])
+  useBlueprintTocObserver(actualIsBlueprintDomain, guide, blueprintSections, tocItems, sectionRefs, setActiveTOCSection)
 
   // Parse sections from markdown body for all guides
-  const parseGuideSections = (body: string) => {
-    const sections: Array<{ title: string; content: string; isTile?: boolean }> = []
-    const lines = body.split('\n')
-    let currentSection: { title: string; content: string[] } | null = null
-
-    for (const line of lines) {
-      const h2Match = line.match(/^##\s+(.+)$/)
-      const h3Match = line.match(/^###\s+(.+)$/)
-      
-      // Check for H3 sections that should be tiles (AI Tools, Model Provider)
-      if (h3Match) {
-        const h3Title = h3Match[1].trim().replace(/\*\*/g, '').trim()
-        const normalizedH3 = h3Title.toLowerCase()
-        
-        // If this is AI Tools or Model Provider, save current section first, then start new tile section
-        if (normalizedH3 === 'ai tools' || normalizedH3 === 'model provider') {
-          // Save current section if exists
-          if (currentSection && currentSection.content.length > 0) {
-            let content = currentSection.content.join('\n').trim()
-            if (currentSection.title.toLowerCase().includes('feature')) {
-              content = makeFeaturesPrecise(content)
-            }
-            sections.push({
-              title: currentSection.title,
-              content: content
-            })
-          }
-          // Start new tile section
-          currentSection = {
-            title: h3Title,
-            content: []
-          }
-          continue
-        }
-      }
-      
-      if (h2Match) {
-        if (currentSection && currentSection.content.length > 0) {
-          let content = currentSection.content.join('\n').trim()
-          // Apply precision to Features section
-          if (currentSection.title.toLowerCase().includes('feature')) {
-            content = makeFeaturesPrecise(content)
-          }
-          // Check if this section should be a tile
-          const isTile = currentSection.title.toLowerCase() === 'ai tools' || 
-                        currentSection.title.toLowerCase() === 'model provider'
-          sections.push({
-            title: currentSection.title,
-            content: content,
-            isTile: isTile
-          })
-        }
-        let title = h2Match[1].trim()
-        // Remove markdown bold syntax (**)
-        title = title.replace(/\*\*/g, '').trim()
-        currentSection = {
-          title: title,
-          content: []
-        }
-      } else if (currentSection) {
-        currentSection.content.push(line)
-      }
-    }
-    if (currentSection && currentSection.content.length > 0) {
-      let content = currentSection.content.join('\n').trim()
-      // Apply precision to Features section
-      if (currentSection.title.toLowerCase().includes('feature')) {
-        content = makeFeaturesPrecise(content)
-      }
-      // Check if this section should be a tile
-      const isTile = currentSection.title.toLowerCase() === 'ai tools' || 
-                    currentSection.title.toLowerCase() === 'model provider'
-      sections.push({
-        title: currentSection.title,
-        content: content,
-        isTile: isTile
-      })
-    }
-    return sections
-  }
-
   const parsedGuideSections = useMemo(() => {
     if (!guide?.body) return []
     return parseGuideSections(guide.body)
@@ -936,42 +966,10 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   }
 
   // Use custom layout for guidelines with custom GuidelinePage components
-  const renderCustomGuidelinePage = () => {
-    if (!hasCustomGuidelinePage) return null
-
-    const orderedPages: Array<{ condition: boolean; node: React.ReactNode }> = [
-      { condition: isL24WorkingRooms, node: <L24WorkingRoomsGuidelinePage /> },
-      { condition: isRescueShift, node: <RescueShiftGuidelinePage /> },
-      { condition: isRAID, node: <RAIDGuidelinePage /> },
-      { condition: isAgendaScheduling, node: <AgendaSchedulingGuidelinePage /> },
-      { condition: isFunctionalTracker, node: <FunctionalTrackerGuidelinePage /> },
-      { condition: isScrumMaster, node: <ScrumMasterGuidelinePage /> },
-      { condition: isQForum, node: <QForumGuidelinePage /> },
-      // GHC must be checked before competencies
-      { condition: isDQGHC, node: <DQGHCPage /> },
-      { condition: isDQCompetencies, node: <DQCompetenciesPage /> },
-      { condition: isDQProducts, node: <DQProductsPage /> },
-      { condition: isDQVisionMission, node: <DQVisionMissionPage /> },
-      { condition: isDQVision, node: <DQVisionPage /> },
-      { condition: isDQHoV, node: <DQHoVPage /> },
-      { condition: isDQPersona, node: <DQPersonaPage /> },
-      { condition: isDQAgileTMS, node: <DQAgileTMSPage /> },
-      { condition: isDQAgileSoS, node: <DQAgileSoSPage /> },
-      { condition: isDQAgileFlows, node: <DQAgileFlowsPage /> },
-      { condition: isDQAgile6xD, node: <DQAgile6xDPage /> },
-    ]
-
-    const match = orderedPages.find(({ condition }) => condition)
-    return match ? withSuspense(match.node) : null
-  }
-
-  const renderBlueprintPage = () =>
-    actualIsBlueprintDomain ? withSuspense(<BlueprintPage />) : null
-
-  const customGuidelinePage = renderCustomGuidelinePage()
+  const customGuidelinePage = renderCustomGuidelinePage(guideFlags)
   if (customGuidelinePage) return customGuidelinePage
 
-  const blueprintPage = renderBlueprintPage()
+  const blueprintPage = renderBlueprintPage(actualIsBlueprintDomain)
   if (blueprintPage) return blueprintPage
 
   // Render all guides with clean card layout (no tabs) - Matching the design image

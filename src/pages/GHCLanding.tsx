@@ -163,7 +163,7 @@ const COMPETENCY_CARDS_DEFAULT: CompetencyCard[] = [
     icon: Zap,
     gradient: 'bg-gradient-to-br from-[#1f2c63] via-[#2d3f80] to-[#e1513b]',
     accent: '#f0f6ff',
-    image: 'https://image2url.com/r2/default/images/1770034932697-4c5808eb-ce02-4b4f-bb98-d02e0c693303.png',
+    image: 'https://image2url.com/r2/default/images/1771227673622-73211dd1-0e2c-4c4c-a984-bca43f2453cc.jpg',
   },
   {
     id: 'governance',

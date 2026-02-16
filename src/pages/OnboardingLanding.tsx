@@ -12,6 +12,7 @@ interface SupportCard {
   description: string;
   href: string;
   buttonText: string;
+  comingSoon?: boolean;
 }
 
 const supportOptions: SupportCard[] = [
@@ -28,6 +29,7 @@ const supportOptions: SupportCard[] = [
     description: 'Updates, announcements, and what\'s changing across DQ.',
     href: '/support/communication-center',
     buttonText: 'Get in Touch',
+    comingSoon: true,
   },
   {
     icon: <BookOpen size={28} color="white" />,
@@ -35,6 +37,7 @@ const supportOptions: SupportCard[] = [
     description: 'Quick answers to common questions and DQ terms in one place.',
     href: '/support/faqs',
     buttonText: 'Get in Touch',
+    comingSoon: true,
   },
   {
     icon: <UsersIcon size={28} color="white" />,
@@ -993,6 +996,13 @@ export function OnboardingLanding() {
                         boxShadow: `0 20px 50px -15px ${index === 0 ? 'rgba(251, 85, 53, 0.2)' : index === 1 ? 'rgba(3, 15, 53, 0.2)' : 'rgba(251, 85, 53, 0.15)'}, 0 0 0 1px rgba(255, 255, 255, 0.1)`
                       }}
                     >
+                      {support.comingSoon && (
+                        <div className="absolute top-3 right-3 z-20">
+                          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-white/90 text-[#030F35] border border-white/60 shadow-sm">
+                            Coming Soon
+                          </span>
+                        </div>
+                      )}
                       {/* Shimmer effect on hover */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                         <div 
@@ -1042,16 +1052,44 @@ export function OnboardingLanding() {
                       
                       {/* CTA Button with enhanced premium effect */}
                       <button
-                        onClick={() => navigate(support.href)}
-                        className="w-full px-6 py-3.5 rounded-lg font-semibold text-white flex items-center justify-center gap-2 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] group/btn relative overflow-hidden"
-                        style={{
-                          background: gradients[index % 3],
-                          boxShadow: `0 4px 20px -3px ${index % 3 === 0 ? 'rgba(251, 85, 53, 0.5)' : index % 3 === 1 ? 'rgba(3, 15, 53, 0.5)' : 'rgba(251, 85, 53, 0.4)'}`
+                        type="button"
+                        disabled={support.comingSoon}
+                        onClick={() => {
+                          if (support.comingSoon) return;
+                          navigate(support.href);
                         }}
+                        className={`w-full px-6 py-3.5 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all duration-300 group/btn relative overflow-hidden ${
+                          support.comingSoon
+                            ? 'bg-gray-300 text-gray-700 cursor-not-allowed opacity-80'
+                            : 'text-white hover:shadow-xl hover:scale-[1.02]'
+                        }`}
+                        style={
+                          support.comingSoon
+                            ? undefined
+                            : {
+                                background: gradients[index % 3],
+                                boxShadow: `0 4px 20px -3px ${
+                                  index % 3 === 0
+                                    ? 'rgba(251, 85, 53, 0.5)'
+                                    : index % 3 === 1
+                                    ? 'rgba(3, 15, 53, 0.5)'
+                                    : 'rgba(251, 85, 53, 0.4)'
+                                }`,
+                              }
+                        }
                       >
-                        <span className="relative z-10">{support.buttonText}</span>
-                        <ArrowRight size={18} className="transition-transform group-hover/btn:translate-x-1 relative z-10" />
-                        <div className="absolute inset-0 bg-white/20 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                        <span className="relative z-10">
+                          {support.comingSoon ? 'Coming Soon' : support.buttonText}
+                        </span>
+                        <ArrowRight
+                          size={18}
+                          className={`transition-transform relative z-10 ${
+                            support.comingSoon ? 'opacity-60' : 'group-hover/btn:translate-x-1'
+                          }`}
+                        />
+                        {!support.comingSoon && (
+                          <div className="absolute inset-0 bg-white/20 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300" />
+                        )}
                   </button>
                     </div>
                 </FadeInUpOnScroll>

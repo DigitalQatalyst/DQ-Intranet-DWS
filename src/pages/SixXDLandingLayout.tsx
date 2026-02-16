@@ -1369,8 +1369,12 @@ function ClassGrid({
     : cards.filter((card) => card.category === activeClass);
 
   const classCode = (category: string) => {
-    const match = category.match(/\(([^)]+)\)/);
-    return match ? match[1] : category;
+    const start = category.lastIndexOf('(');
+    const end = start >= 0 ? category.indexOf(')', start + 1) : -1;
+    if (start >= 0 && end > start + 1) {
+      return category.slice(start + 1, end);
+    }
+    return category;
   };
 
   const scrollerRef = useRef<HTMLDivElement | null>(null);
