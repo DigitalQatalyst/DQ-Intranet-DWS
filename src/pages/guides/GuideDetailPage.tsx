@@ -490,7 +490,7 @@ const useGuideLoader = (
           if (!row) {
             const { data: row2, error: err2 } = await supabaseClient.from('guides').select('*').eq('id', key).maybeSingle()
             if (err2) throw err2
-            row = row2 as any
+            row = row2
           }
           if (!row) throw new Error('Not found')
           const mapped: GuideRecord = {
@@ -521,7 +521,10 @@ const useGuideLoader = (
           if (!cancelled) setGuide(mapped)
         }
       } catch (e: any) {
-        if (!cancelled) setError('Guide not found')
+        if (!cancelled) {
+          console.error('Failed to load guide:', e)
+          setError('Guide not found')
+        }
       } finally {
         if (!cancelled) setLoading(false)
       }
@@ -571,8 +574,11 @@ const useGuideBodyLinkTracking = (
       const a = t.closest('a') as HTMLAnchorElement | null
       if (!a) return
       const href = a.getAttribute('href') || ''
-      if (href.startsWith('#')) track('Guides.CTA', { category: 'guide_heading_anchor', id: href.replace(/^#/, ''), slug: guide?.slug || guide?.id })
-      else track('Guides.CTA', { category: 'guide_body_link', href, slug: guide?.slug || guide?.id })
+      if (href.startsWith('#')) {
+        track('Guides.CTA', { category: 'guide_heading_anchor', id: href.replace(/^#/, ''), slug: guide?.slug || guide?.id })
+      } else {
+        track('Guides.CTA', { category: 'guide_body_link', href, slug: guide?.slug || guide?.id })
+      }
     }
     el.addEventListener('click', onClick)
     return () => { el.removeEventListener('click', onClick) }
@@ -830,7 +836,8 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
   
   // activeTOCSection is set by IntersectionObserver but not currently used in render
-  void activeTOCSection
+  // Keeping it for future TOC highlighting feature
+  const _ = activeTOCSection // NOSONAR: reserved for future use
 
   // Domain detection - MOVED TO TOP (using derived values)
   const derivedKey = useMemo(() => {
@@ -942,7 +949,10 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     activeTabKey !== 'guidelines' ? `/marketplace/guides?tab=${activeTabKey}` : '/marketplace/guides',
     [activeTabKey]
   )
-  const backHref = useMemo(() => backQuery ? initialBackHref : fallbackHref, [backQuery, initialBackHref, fallbackHref])
+  const backHref = useMemo(() => {
+    if (backQuery) return initialBackHref
+    return fallbackHref
+  }, [backQuery, initialBackHref, fallbackHref])
 
   if (loading) {
     return (
@@ -1047,9 +1057,10 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                         e.preventDefault()
                         return
                       }
-                      const category = actualIsBlueprintDomain ? 'view_blueprint_clicked' : 
-                                     actualIsGuidelinesDomain ? 'view_guideline_clicked' :
-                                     actualIsStrategyDomain ? 'view_strategy_clicked' : 'view_guide_clicked'
+                      let category = 'view_guide_clicked'
+                      if (actualIsBlueprintDomain) category = 'view_blueprint_clicked'
+                      else if (actualIsGuidelinesDomain) category = 'view_guideline_clicked'
+                      else if (actualIsStrategyDomain) category = 'view_strategy_clicked'
                       track('Guides.CTA', { category, slug: guide.slug || guide.id, title: guide.title })
                     }}
                     className={`px-6 py-3 text-white font-semibold rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap ${!primaryDocUrl ? 'opacity-50 cursor-not-allowed' : ''} focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]`}
@@ -1069,9 +1080,12 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                   >
                     <ExternalLink size={18} />
                     <span>
-                      {actualIsBlueprintDomain ? 'View Blueprint' : 
-                       actualIsGuidelinesDomain ? 'View Guideline' :
-                       actualIsStrategyDomain ? 'View Strategy' : 'View Guide'}
+                      {(() => {
+                        if (actualIsBlueprintDomain) return 'View Blueprint'
+                        if (actualIsGuidelinesDomain) return 'View Guideline'
+                        if (actualIsStrategyDomain) return 'View Strategy'
+                        return 'View Guide'
+                      })()}
                     </span>
                   </a>
                 </div>
@@ -1079,8 +1093,8 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
               {/* Content Sections as Cards */}
               {parsedGuideSections.length > 0 ? (
                 <div className="space-y-6">
-                  {parsedGuideSections.map((section, index) => (
-                    <div key={index} className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
+                  {parsedGuideSections.map((section) => (
+                    <div key={section.title} className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
                       <div className="p-6 md:p-8">
                         <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">{section.title}</h2>
                         <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed space-y-4">
@@ -1490,16 +1504,31 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
 
             {(showSteps) && (
               <section aria-labelledby="steps-title" className="bg-white rounded-lg shadow p-6" id="content">
-                <h2 id="steps-title" className="text-xl font-semibold mb-4">{type === 'process' || type === 'sop' || type === 'procedure' ? 'Process' : type === 'checklist' ? 'Checklist' : type === 'best practice' || type === 'best-practice' ? 'Recommended Actions' : 'Steps'}</h2>
+                <h2 id="steps-title" className="text-xl font-semibold mb-4">
+                  {(() => {
+                    if (type === 'process' || type === 'sop' || type === 'procedure') return 'Process'
+                    if (type === 'checklist') return 'Checklist'
+                    if (type === 'best practice' || type === 'best-practice') return 'Recommended Actions'
+                    return 'Steps'
+                  })()}
+                </h2>
                 <ol className="space-y-3">
-                  {(guide.steps && guide.steps.length > 0 ? guide.steps : []).map((s, idx) => (
-                    <li key={(s.id || `${idx}`) as string} className="flex items-start gap-2">
+                  {(guide.steps && guide.steps.length > 0 ? guide.steps : []).map((s, idx) => {
+                    const stepKey = s.id || String(idx)
+                    return (
+                    <li key={stepKey} className="flex items-start gap-2">
                       <CheckCircle size={18} className="text-green-600 mt-0.5" />
                       <div className="flex-1">
                         <div className="font-medium">{s.title || `Step ${s.position || idx + 1}`}</div>
                         {type === 'checklist' ? (
                           <div className="mt-1 flex items-center gap-2">
-                            <input type="checkbox" className="h-4 w-4" aria-label={`Mark ${s.title || `Step ${idx + 1}`} as complete`} checked={!!checklistState[String(idx)]} onChange={(e) => setChecklistState(prev => ({ ...prev, [String(idx)]: e.target.checked }))} />
+                            <input 
+                              type="checkbox" 
+                              className="h-4 w-4" 
+                              aria-label={`Mark ${s.title || 'Step ' + (idx + 1)} as complete`} 
+                              checked={!!checklistState[String(idx)]} 
+                              onChange={(e) => setChecklistState(prev => ({ ...prev, [String(idx)]: e.target.checked }))} 
+                            />
                             <span className="text-sm text-gray-700 whitespace-pre-wrap">{s.content}</span>
                           </div>
                         ) : (
@@ -1507,7 +1536,8 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                         )}
                       </div>
                     </li>
-                  ))}
+                  )
+                  })}
                 </ol>
               </section>
             )}
@@ -1533,7 +1563,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                 <h2 id="templates-title" className="text-xl font-semibold mb-4">Templates</h2>
                 {(guide.templates && guide.templates.length > 0) ? (
                   <ul className="divide-y divide-gray-100">
-                    {guide.templates!.map((t, i) => (
+                    {guide.templates.map((t, i) => (
                       <li key={t.id || i} className="py-3 flex items-center justify-between gap-4">
                         <div className="min-w-0">
                           <div className="font-medium text-gray-900 truncate">{t.title || t.url}</div>
@@ -1556,7 +1586,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                 <h2 id="attachments-title" className="text-xl font-semibold mb-4">Attachments</h2>
                 {(guide.attachments && guide.attachments.length > 0) ? (
                   <ul className="divide-y divide-gray-100">
-                    {guide.attachments!.map((a, i) => (
+                    {guide.attachments.map((a, i) => (
                       <li key={a.id || i} className="py-3 flex items-center justify-between gap-4">
                         <div className="min-w-0">
                           <div className="font-medium text-gray-900 truncate">{a.title || a.url}</div>
