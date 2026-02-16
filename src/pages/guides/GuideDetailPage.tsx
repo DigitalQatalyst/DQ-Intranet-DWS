@@ -37,6 +37,19 @@ const DQAgileFlowsPage = React.lazy(() => import('../strategy/dq-agile-flows/Gui
 const DQAgile6xDPage = React.lazy(() => import('../strategy/dq-agile-6xd/GuidelinePage'))
 const BlueprintPage = React.lazy(() => import('../blueprints/detail/BlueprintPage'))
 
+const withSuspense = (node: React.ReactNode) => (
+  <React.Suspense fallback={
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Loading...</p>
+      </div>
+    </div>
+  }>
+    {node}
+  </React.Suspense>
+)
+
 const Markdown = React.lazy(() => import('../../components/guides/MarkdownRenderer'))
 
 interface GuideRecord {
@@ -923,286 +936,43 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   }
 
   // Use custom layout for guidelines with custom GuidelinePage components
-  if (hasCustomGuidelinePage) {
-    const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
-      <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div><p className="mt-4 text-gray-600">Loading...</p></div></div>}>
-        {children}
-      </React.Suspense>
-    )
+  const renderCustomGuidelinePage = () => {
+    if (!hasCustomGuidelinePage) return null
 
-    if (isL24WorkingRooms) {
-      return <SuspenseWrapper><L24WorkingRoomsGuidelinePage /></SuspenseWrapper>
-    }
-    
-    if (isRescueShift) {
-      return <SuspenseWrapper><RescueShiftGuidelinePage /></SuspenseWrapper>
-    }
-    
-    if (isRAID) {
-      return <SuspenseWrapper><RAIDGuidelinePage /></SuspenseWrapper>
-    }
+    const orderedPages: Array<{ condition: boolean; node: React.ReactNode }> = [
+      { condition: isL24WorkingRooms, node: <L24WorkingRoomsGuidelinePage /> },
+      { condition: isRescueShift, node: <RescueShiftGuidelinePage /> },
+      { condition: isRAID, node: <RAIDGuidelinePage /> },
+      { condition: isAgendaScheduling, node: <AgendaSchedulingGuidelinePage /> },
+      { condition: isFunctionalTracker, node: <FunctionalTrackerGuidelinePage /> },
+      { condition: isScrumMaster, node: <ScrumMasterGuidelinePage /> },
+      { condition: isQForum, node: <QForumGuidelinePage /> },
+      // GHC must be checked before competencies
+      { condition: isDQGHC, node: <DQGHCPage /> },
+      { condition: isDQCompetencies, node: <DQCompetenciesPage /> },
+      { condition: isDQProducts, node: <DQProductsPage /> },
+      { condition: isDQVisionMission, node: <DQVisionMissionPage /> },
+      { condition: isDQVision, node: <DQVisionPage /> },
+      { condition: isDQHoV, node: <DQHoVPage /> },
+      { condition: isDQPersona, node: <DQPersonaPage /> },
+      { condition: isDQAgileTMS, node: <DQAgileTMSPage /> },
+      { condition: isDQAgileSoS, node: <DQAgileSoSPage /> },
+      { condition: isDQAgileFlows, node: <DQAgileFlowsPage /> },
+      { condition: isDQAgile6xD, node: <DQAgile6xDPage /> },
+    ]
 
-    if (isAgendaScheduling) {
-      return <SuspenseWrapper><AgendaSchedulingGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isFunctionalTracker) {
-      return <SuspenseWrapper><FunctionalTrackerGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isScrumMaster) {
-      return <SuspenseWrapper><ScrumMasterGuidelinePage /></SuspenseWrapper>
-    }
-
-    if (isQForum) {
-      return <SuspenseWrapper><QForumGuidelinePage /></SuspenseWrapper>
-    }
-
-    // Check GHC BEFORE DQ Competencies (GHC is more specific and its title contains "Competencies")
-    if (isDQGHC) {
-      return <SuspenseWrapper><DQGHCPage /></SuspenseWrapper>
-    }
-
-    if (isDQCompetencies) {
-      return <SuspenseWrapper><DQCompetenciesPage /></SuspenseWrapper>
-    }
-
-    if (isDQProducts) {
-      return <SuspenseWrapper><DQProductsPage /></SuspenseWrapper>
-    }
-
-    if (isDQVisionMission) {
-      return <SuspenseWrapper><DQVisionMissionPage /></SuspenseWrapper>
-    }
-
-    // GHC Core Elements
-    if (isDQVision) {
-      return <SuspenseWrapper><DQVisionPage /></SuspenseWrapper>
-    }
-
-    if (isDQHoV) {
-      return <SuspenseWrapper><DQHoVPage /></SuspenseWrapper>
-    }
-
-    if (isDQPersona) {
-      return <SuspenseWrapper><DQPersonaPage /></SuspenseWrapper>
-    }
-
-    if (isDQAgileTMS) {
-      return <SuspenseWrapper><DQAgileTMSPage /></SuspenseWrapper>
-    }
-
-    if (isDQAgileSoS) {
-      return <SuspenseWrapper><DQAgileSoSPage /></SuspenseWrapper>
-    }
-
-    if (isDQAgileFlows) {
-      return <SuspenseWrapper><DQAgileFlowsPage /></SuspenseWrapper>
-    }
-
-    if (isDQAgile6xD) {
-      return <SuspenseWrapper><DQAgile6xDPage /></SuspenseWrapper>
-    }
+    const match = orderedPages.find(({ condition }) => condition)
+    return match ? withSuspense(match.node) : null
   }
 
+  const renderBlueprintPage = () =>
+    actualIsBlueprintDomain ? withSuspense(<BlueprintPage />) : null
 
+  const customGuidelinePage = renderCustomGuidelinePage()
+  if (customGuidelinePage) return customGuidelinePage
 
-
-  // Route blueprints to the new BlueprintPage component (same format as DQ Competencies)
-  if (actualIsBlueprintDomain) {
-    const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
-      <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div><p className="mt-4 text-gray-600">Loading...</p></div></div>}>
-        {children}
-      </React.Suspense>
-    )
-    return <SuspenseWrapper><BlueprintPage /></SuspenseWrapper>
-  }
-
-  // OLD Blueprint rendering - now replaced by BlueprintPage component above
-  // eslint-disable-next-line no-constant-condition
-  if (false && actualIsBlueprintDomain) {
-    return (
-      <div className="min-h-screen flex flex-col guidelines-theme dq-products-bg" style={{ minHeight: '100vh' }}>
-        <Header toggleSidebar={() => undefined} sidebarOpen={false} />
-        <main className="container mx-auto px-4 py-8 flex-grow max-w-7xl" role="main" style={{ backgroundColor: 'transparent' }}>
-          <nav className="flex mb-6" aria-label="Breadcrumb">
-            <ol className="inline-flex items-center space-x-1 md:space-x-2">
-              <li className="inline-flex items-center">
-                <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
-                  <HomeIcon size={16} className="mr-1" />
-                  <span>Home</span>
-                </Link>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-gray-400" />
-                  <Link to={backHref} className="ml-1 text-gray-600 hover:text-gray-900 md:ml-2">{breadcrumbLabel}</Link>
-                </div>
-              </li>
-              <li aria-current="page">
-                <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2">{guide.title}</span>
-                </div>
-              </li>
-            </ol>
-          </nav>
-
-          {/* Full Width Layout */}
-          <div className="space-y-6">
-              {/* Hero Image - In left column */}
-              {imageUrl && (
-                <div className="rounded-xl overflow-hidden">
-                  <img 
-                    src={imageUrl} 
-                    alt={guide.title} 
-                    className="w-full h-auto object-cover"
-                    style={{ maxHeight: '400px' }}
-                  />
-                </div>
-              )}
-
-              {/* Title Section - In left column below image */}
-              <div className="mb-8">
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="flex-1">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{guide.title}</h1>
-                    {guide.lastUpdatedAt && (
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span>{new Date(guide.lastUpdatedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                      </div>
-                    )}
-                  </div>
-                  <a
-                    href={primaryDocUrl || '#'}
-                    target={primaryDocUrl ? "_blank" : undefined}
-                    rel={primaryDocUrl ? "noopener noreferrer" : undefined}
-                    onClick={(e) => {
-                      if (!primaryDocUrl) {
-                        e.preventDefault()
-                        return
-                      }
-                      const category = actualIsBlueprintDomain ? 'view_blueprint_clicked' : 
-                                     actualIsGuidelinesDomain ? 'view_guideline_clicked' :
-                                     actualIsStrategyDomain ? 'view_strategy_clicked' : 'view_guide_clicked'
-                      track('Guides.CTA', { category, slug: guide.slug || guide.id, title: guide.title })
-                    }}
-                    className={`px-6 py-3 text-white font-semibold rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap ${!primaryDocUrl ? 'opacity-50 cursor-not-allowed' : ''} focus:outline-none focus:ring-2 focus:ring-[var(--guidelines-ring-color)]`}
-                    style={{ 
-                      backgroundColor: '#030E31',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (primaryDocUrl) {
-                        e.currentTarget.style.backgroundColor = '#020A28'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (primaryDocUrl) {
-                        e.currentTarget.style.backgroundColor = '#030E31'
-                      }
-                    }}
-                  >
-                    <ExternalLink size={18} />
-                    <span>
-                      {actualIsBlueprintDomain ? 'View Blueprint' : 
-                       actualIsGuidelinesDomain ? 'View Guideline' :
-                       actualIsStrategyDomain ? 'View Strategy' : 'View Guide'}
-                    </span>
-                  </a>
-                </div>
-              </div>
-              {/* Content Sections as Cards */}
-              {parsedGuideSections.length > 0 ? (
-                <div className="space-y-6">
-                  {parsedGuideSections.map((section, index) => (
-                    <div key={index} className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
-                      <div className="p-6 md:p-8">
-                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6">{section.title}</h2>
-                        <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed space-y-4">
-                          <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                            <Markdown body={section.content} />
-                          </React.Suspense>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : guide.body ? (
-                <div className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
-                  <div className="p-6 md:p-8">
-                    <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
-                      <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                        <Markdown body={guide.body} />
-                      </React.Suspense>
-                    </div>
-                  </div>
-                </div>
-              ) : guide.summary ? (
-                <div className="rounded-xl shadow-sm border border-gray-200" style={{ backgroundColor: '#F8FAFC' }}>
-                  <div className="p-6 md:p-8">
-                    <p className="text-gray-700 leading-relaxed">{guide.summary}</p>
-                  </div>
-                </div>
-              ) : null}
-          </div>
-
-          {/* Related Guides Section - Full width at bottom */}
-          {related && related.length > 0 && (
-            <div className="mt-12">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Related Guides</h2>
-                <Link 
-                  to={backHref} 
-                  className="font-medium flex items-center transition-colors" 
-                  style={{ color: '#0B1E67' }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = '#092256'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = '#0B1E67'}
-                >
-                  See All Guides
-                  <ChevronRightIcon size={16} className="ml-1" />
-                </Link>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {related.slice(0, 3).map((r) => (
-                  <Link
-                    key={r.slug || r.id}
-                    to={`/marketplace/guides/${encodeURIComponent(r.slug || r.id)}`}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                  >
-                    <img
-                      src={getGuideImageUrl({
-                        heroImageUrl: r.heroImageUrl || undefined,
-                        domain: r.domain || undefined,
-                        guideType: r.guideType || undefined,
-                        id: r.id,
-                        slug: r.slug,
-                        title: r.title,
-                      })}
-                      alt={r.title}
-                      className="w-full h-32 object-cover"
-                      loading="lazy"
-                    />
-                    <div className="p-4">
-                      {r.lastUpdatedAt && (
-                        <p className="text-xs text-gray-500 mb-2">
-                          {new Date(r.lastUpdatedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                        </p>
-                      )}
-                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{r.title}</h3>
-                      {r.summary && (
-                        <p className="text-sm text-gray-600 line-clamp-2">{r.summary}</p>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-        </main>
-        <Footer isLoggedIn={!!user} />
-      </div>
-    )
-  }
+  const blueprintPage = renderBlueprintPage()
+  if (blueprintPage) return blueprintPage
 
   // Render all guides with clean card layout (no tabs) - Matching the design image
   // Skip blueprint domain as it has its own special layout
