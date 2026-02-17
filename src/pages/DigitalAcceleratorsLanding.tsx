@@ -339,9 +339,11 @@ export function DigitalAcceleratorsLanding() {
               
               {/* Data Streams - Platform Data Flow */}
               <g opacity="0.6">
-                {Array.from({ length: 10 }).map((_, i) => (
+                {Array.from({ length: 10 }).map((_, i) => {
+                  const key = `data-${i}`;
+                  return (
                   <circle
-                    key={`data-${i}`}
+                    key={key}
                     cx={250 + (i * 150)}
                     cy={400 + (i % 4) * 120}
                     r="4"
@@ -351,11 +353,13 @@ export function DigitalAcceleratorsLanding() {
                       animationDelay: `${i * 0.4}s`
                     }}
                     filter="url(#productGlow)"
-                  />
-                ))}
-                {Array.from({ length: 8 }).map((_, i) => (
+                  />);
+                })}
+                {Array.from({ length: 8 }).map((_, i) => {
+                  const key = `data2-${i}`;
+                  return (
                   <circle
-                    key={`data2-${i}`}
+                    key={key}
                     cx={300 + (i * 180)}
                     cy={500 + (i % 3) * 100}
                     r="3"
@@ -365,8 +369,8 @@ export function DigitalAcceleratorsLanding() {
                       animationDelay: `${i * 0.5}s`
                     }}
                     filter="url(#productGlow)"
-                  />
-                ))}
+                  />);
+                })}
               </g>
               
               {/* Tool Icons - Representing Product Tools */}
@@ -399,9 +403,11 @@ export function DigitalAcceleratorsLanding() {
               </g>
               
               {/* Acceleration Indicators - Speed Lines */}
-              {Array.from({ length: 6 }).map((_, i) => (
+              {Array.from({ length: 6 }).map((_, i) => {
+                const key = `accel-${i}`;
+                return (
                 <line
-                  key={`accel-${i}`}
+                  key={key}
                   x1={300 + i * 250}
                   y1={250 + (i % 2) * 150}
                   x2={500 + i * 250}
@@ -414,8 +420,8 @@ export function DigitalAcceleratorsLanding() {
                     animationDelay: `${i * 0.6}s`
                   }}
                   filter="url(#productGlow)"
-                />
-              ))}
+                />);
+              })}
             </svg>
           </div>
 
@@ -432,9 +438,11 @@ export function DigitalAcceleratorsLanding() {
               
               {/* Platform Grid Lines */}
               <g stroke="url(#gridGradient)" strokeWidth="0.8">
-                {Array.from({ length: 10 }).map((_, i) => (
+                {Array.from({ length: 10 }).map((_, i) => {
+                  const key = `v-${i}`;
+                  return (
                   <line
-                    key={`v-${i}`}
+                    key={key}
                     x1={i * 192}
                     y1="0"
                     x2={i * 192}
@@ -444,11 +452,13 @@ export function DigitalAcceleratorsLanding() {
                       animation: `pulse ${7 + i * 0.3}s ease-in-out infinite`,
                       animationDelay: `${i * 0.2}s`
                     }}
-                  />
-                ))}
-                {Array.from({ length: 8 }).map((_, i) => (
+                  />);
+                })}
+                {Array.from({ length: 8 }).map((_, i) => {
+                  const key = `h-${i}`;
+                  return (
                   <line
-                    key={`h-${i}`}
+                    key={key}
                     x1="0"
                     y1={i * 135}
                     x2="1920"
@@ -458,8 +468,8 @@ export function DigitalAcceleratorsLanding() {
                       animation: `pulse ${9 + i * 0.3}s ease-in-out infinite`,
                       animationDelay: `${i * 0.3}s`
                     }}
-                  />
-                ))}
+                  />);
+                })}
               </g>
             </svg>
           </div>
