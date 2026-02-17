@@ -3,12 +3,9 @@
 /* eslint-disable sonarjs/no-nested-template-literals */
 /* eslint-disable sonarjs/prefer-immediate-return */
 /* eslint-disable sonarjs/no-duplicate-string */
-/* eslint-disable @typescript-eslint/prefer-string-replace-all */
 /* eslint-disable sonarjs/no-nested-conditional */
-/* eslint-disable sonarjs/prefer-nullish-coalescing */
 /* eslint-disable sonarjs/no-identical-conditions */
 /* eslint-disable sonarjs/no-collapsible-if */
-/* eslint-disable sonarjs/prefer-optional-chain */
 /* eslint-disable sonarjs/no-ignored-exceptions */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
@@ -75,9 +72,9 @@ const slugify = (value: string): string =>
   value
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, '-')
+    .replaceAll(/[^a-z0-9]+/g, '-')
     // eslint-disable-next-line
-    .replace(/^-+|-+$/g, '');
+    .replaceAll(/^-+|-+$/g, '');
 
 const prependLearningTypeFilter = (marketplaceType: string, configs: FilterConfig[]): FilterConfig[] => {
   if (marketplaceType !== 'courses') {
@@ -535,7 +532,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
         const searchLower = searchQuery.toLowerCase();
         const matchesSearch = 
           term.term.toLowerCase().includes(searchLower) ||
-          (term.shortIntro && term.shortIntro.toLowerCase().includes(searchLower)) ||
+          term.shortIntro?.toLowerCase().includes(searchLower) ||
           term.explanation.toLowerCase().includes(searchLower) ||
           term.tags.some(tag => tag.toLowerCase().includes(searchLower));
         if (!matchesSearch) return false;
@@ -1336,7 +1333,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                   const normalizedFilter = filterType.toLowerCase().trim();
                   // Normalize variations: 'self-service', 'self service', 'selfservice' all match
                   const normalizeType = (type: string) => {
-                    return type.replace(/[\s-]/g, '').toLowerCase();
+                    return type.replaceAll(/[\s-]/g, '').toLowerCase();
                   };
                   const normalizedItemType = normalizeType(itemServiceType);
                   const normalizedFilterType = normalizeType(normalizedFilter);
@@ -1390,7 +1387,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                 const itemDeviceOwnershipsArray = Array.isArray(itemDeviceOwnerships) ? itemDeviceOwnerships : [itemDeviceOwnerships];
                 return deviceOwnerships.some(filterOwnership => 
                   itemDeviceOwnershipsArray.some(itemOwn => 
-                    itemOwn.toLowerCase().replace(/[\s-]/g, '') === filterOwnership.toLowerCase().replace(/[\s-]/g, '')
+                    itemOwn.toLowerCase().replaceAll(/[\s-]/g, '') === filterOwnership.toLowerCase().replaceAll(/[\s-]/g, '')
                   )
                 );
               });
@@ -1407,7 +1404,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                 const itemServicesArray = Array.isArray(itemServices) ? itemServices : [itemServices];
                 return services.some(filterService => 
                   itemServicesArray.some(itemSvc => 
-                    itemSvc.toLowerCase().replace(/[\s_]/g, '') === filterService.toLowerCase().replace(/[\s_]/g, '')
+                    itemSvc.toLowerCase().replaceAll(/[\s_]/g, '') === filterService.toLowerCase().replaceAll(/[\s_]/g, '')
                   )
                 );
               });
@@ -1441,7 +1438,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                 const itemServiceDomainsArray = Array.isArray(itemServiceDomains) ? itemServiceDomains : [itemServiceDomains];
                 return serviceDomains.some(filterDomain => 
                   itemServiceDomainsArray.some(itemDomain => 
-                    itemDomain.toLowerCase().replace(/[\s_&]/g, '') === filterDomain.toLowerCase().replace(/[\s_&]/g, '')
+                    itemDomain.toLowerCase().replaceAll(/[\s_&]/g, '') === filterDomain.toLowerCase().replaceAll(/[\s_&]/g, '')
                   )
                 );
               });
@@ -1458,7 +1455,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                 const itemMaturityLevelArray = Array.isArray(itemMaturityLevel) ? itemMaturityLevel : [itemMaturityLevel];
                 return aiMaturityLevels.some(filterLevel => 
                   itemMaturityLevelArray.some(itemLevel => 
-                    itemLevel.toLowerCase().replace(/[\s_()]/g, '') === filterLevel.toLowerCase().replace(/[\s_()]/g, '')
+                    itemLevel.toLowerCase().replaceAll(/[\s_()]/g, '') === filterLevel.toLowerCase().replaceAll(/[\s_()]/g, '')
                   )
                 );
               });
@@ -1473,7 +1470,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               filtered = filtered.filter(item => {
                 const itemToolCategory = item.toolCategory || '';
                 return toolCategories.some(filterCategory => 
-                  itemToolCategory.toLowerCase().replace(/[\s_]/g, '') === filterCategory.toLowerCase().replace(/[\s_]/g, '')
+                  itemToolCategory.toLowerCase().replaceAll(/[\s_]/g, '') === filterCategory.toLowerCase().replaceAll(/[\s_]/g, '')
                 );
               });
             }
@@ -1491,7 +1488,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                   // Normalize variations: 'inperson', 'in person', 'in-person' all match
                   const normalizeMode = (mode: string) => {
                     // Remove spaces and hyphens for comparison
-                    const cleaned = mode.replace(/[\s-]/g, '');
+                    const cleaned = mode.replaceAll(/[\s-]/g, '');
                     if (cleaned === 'inperson' || cleaned.includes('person')) {
                       return 'inperson';
                     }

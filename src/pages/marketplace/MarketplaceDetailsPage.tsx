@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Calendar, MapPin, CheckCircleIcon, ExternalLinkIcon, ChevronRightIcon, HomeIcon, FileText, ChevronLeft, ChevronRight, MoreHorizontal, XIcon, Plus, Minus, BookmarkIcon, ScaleIcon, Clock, DollarSign, ArrowLeftIcon, StarIcon, BuildingIcon, Target, Award, TrendingUp, BookOpen, Users } from 'lucide-react';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Calendar, MapPin, CheckCircleIcon, ExternalLinkIcon, ChevronRightIcon, HomeIcon, FileText, ChevronLeft, ChevronRight, Plus, Minus, BookmarkIcon, Clock, StarIcon, Users } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
@@ -8,7 +8,6 @@ import { getServiceTabContent, getCustomTabs } from '../../utils/serviceDetailsC
 import type { ContentBlock } from '../../utils/serviceDetailsContent';
 import { fetchMarketplaceItemDetails, fetchRelatedMarketplaceItems } from '../../services/marketplace';
 import { ErrorDisplay } from '../../components/SkeletonLoader';
-import { Link } from 'react-router-dom';
 import { getFallbackItemDetails, getFallbackItems } from '../../utils/fallbackData';
 import { getAIToolDataById } from '../../utils/aiToolsData';
 import { getDigitalWorkerServiceById } from '../../utils/digitalWorkerData';
@@ -24,14 +23,17 @@ interface MarketplaceDetailsPageProps {
   marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding' | 'events';
   bookmarkedItems?: string[];
   onToggleBookmark?: (itemId: string) => void;
-  onAddToComparison?: (item: any) => void;
 }
 const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   marketplaceType,
   bookmarkedItems = [],
-  onToggleBookmark: _onToggleBookmark = () => { },
-  onAddToComparison: _onAddToComparison = () => { }
+  onToggleBookmark: _onToggleBookmark = () => { }
 }) => {
+  // Helper to generate unique keys
+  const getUniqueKey = (prefix: string, id: any, index: number) => {
+    return id ? `${prefix}-${id}` : `${prefix}-${index}`;
+  };
+
   const {
     itemId
   } = useParams<{
@@ -63,14 +65,13 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     }
     return config.route;
   };
-  const [item, setItem] = useState<any | null>(null);
+  const [item, setItem] = useState<any>(null);
   const [relatedItems, setRelatedItems] = useState<any[]>([]);
   const [relatedEventsLoading, setRelatedEventsLoading] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showTabsMenu, setShowTabsMenu] = useState(false);
   const [showNavigation, setShowNavigation] = useState(false);
   const [showStickyBottomCTA, setShowStickyBottomCTA] = useState(false);
   // FLOATING CARD STATE REMOVED:
@@ -88,7 +89,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const summaryCardRef = useRef<HTMLDivElement>(null);
-  const footerRef = useRef<HTMLElement | null>(null);
   const contentColumnRef = useRef<HTMLDivElement>(null);
   // Check if tabs overflow and need navigation controls
   const checkOverflow = () => {
@@ -110,24 +110,8 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   // Update floating card visibility based on scroll position - restored from Communities
   useEffect(() => {
     const handleScroll = () => {
-      // Get header height dynamically
-      const header = document.querySelector('header');
-      const headerHeight = header ? header.offsetHeight : 80;
-      // setHeaderHeight(headerHeight); // State removed in HEAD, but logic below uses headerHeight var
-
       if (heroRef.current && contentColumnRef.current) {
-        const heroRect = heroRef.current.getBoundingClientRect();
-        const heroBottom = heroRect.bottom;
-        const contentColumnRect = contentColumnRef.current.getBoundingClientRect();
-
-        // Card height estimate
-        const cardHeight = 400;
-        const cardBottomPosition = headerHeight + cardHeight + 20;
-
-        const isHeroScrolledPast = heroBottom <= headerHeight + 16;
-        const isContentColumnVisible = contentColumnRect.top < window.innerHeight;
-        const isWithinContentBounds = contentColumnRect.bottom > cardBottomPosition;
-
+        // Removed unused variables: heroBottom, contentColumnRect, cardBottomPosition, headerHeight
         // setIsVisible(isHeroScrolledPast && isContentColumnVisible && isWithinContentBounds); // State removed in HEAD?
         // If we want to restore floating card, we need isVisible state.
         // For now, focusing on sticky bottom CTA
@@ -218,7 +202,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       }
       try {
         // Try to fetch item details
-        let itemData = null;
+        let itemData: any = null;
         try {
           itemData = await fetchMarketplaceItemDetails(marketplaceType, itemId);
         } catch (fetchError) {
@@ -250,7 +234,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                 .limit(5); // Limit to 5 events
 
               if (!relatedError && relatedEventsData) {
-                const transformedRelated = relatedEventsData.map((event: any) => ({
+                const transformedRelated: any[] = relatedEventsData.map((event: any) => ({
                   id: event.id,
                   event_title: event.title,
                   title: event.title,
@@ -270,7 +254,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             }
           } else {
             // For non-events or events without category, fetch related items normally
-            let relatedItemsData = [];
+            let relatedItemsData: any[] = [];
             try {
               relatedItemsData = await fetchRelatedMarketplaceItems(marketplaceType, itemData.id, itemData.category || '', itemData.provider?.name || '');
             } catch (relatedError) {
@@ -285,7 +269,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             setItem(finalItemData);
             setIsBookmarked(bookmarkedItems.includes(finalItemData.id));
             // Fetch related items
-            let relatedItemsData = [];
+            let relatedItemsData: any[] = [];
             try {
               relatedItemsData = await fetchRelatedMarketplaceItems(marketplaceType, finalItemData.id, finalItemData.category || '', finalItemData.provider?.name || '');
             } catch (relatedError) {
@@ -340,13 +324,8 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
 
   const handleToggleBookmark = () => {
     if (item) {
-      onToggleBookmark(item.id);
+      _onToggleBookmark(item.id);
       setIsBookmarked(!isBookmarked);
-    }
-  };
-  const handleAddToComparison = () => {
-    if (item) {
-      onAddToComparison(item);
     }
   };
 
@@ -363,48 +342,20 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     }
   };
 
-  // Legacy function (keeping for compatibility)
-  const handleEventRegistrationLegacy = async () => {
-    if (marketplaceType !== 'events' || !item || !itemId) {
-      return;
-    }
-
-    try {
-      // Get current user from Supabase
-      const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-
-      if (authError || !user) {
-        toast.error('Please sign in to register for events');
-        // Optionally redirect to sign in page
-        // navigate('/sign-in');
-        return;
-      }
-
-      // Save registration to event_registrations table
-      const { error: registrationError } = await supabaseClient
-        .from('event_registrations')
-        .insert({
-          user_id: user.id,
-          event_id: itemId,
-          status: 'registered'
-        });
-
-      if (registrationError) {
-        // Check if user is already registered
-        if (registrationError.code === '23505') { // Unique constraint violation
-          toast.info('You are already registered for this event');
-          return;
-        }
-        throw new Error(`Registration failed: ${registrationError.message}`);
-      }
-
-      // Registration successful
-      toast.success('Successfully registered for the event!');
-    } catch (error) {
-      console.error('Error registering for event:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to register for event');
+  // Handle primary action button click
+  const handlePrimaryActionClick = () => {
+    // Check if this is Leave Application service (id '13')
+    if (isLeaveApplication) {
+      setIsRequestFormOpen(true);
+    } else if (isITSupportService) {
+      setIsTechSupportFormOpen(true);
+    } else if (isPromptLibrary && item?.sourceUrl) {
+      window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
+    } else if (isAITool) {
+      setIsTechSupportFormOpen(true);
     }
   };
+
   const retryFetch = () => {
     setError(null);
     // Re-fetch by triggering the useEffect
@@ -497,15 +448,19 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const isLeaveApplication = item.id === '13';
   const isITSupportService = marketplaceType === 'non-financial' && ['1', '2', '3'].includes(item.id);
 
-  const primaryAction =
-    marketplaceType === 'events' ? 'Join' :
-      isLeaveApplication ? 'Apply For Leave' :
-        isPromptLibrary ? 'View Prompt' :
-          isDigitalWorker ? 'View Details' :
-            isAITool ? 'Request Tool' :
-              config.primaryCTA;
-
-  const secondaryAction = config.secondaryCTA;
+  // Determine primary action based on marketplace type and item
+  let primaryAction = config.primaryCTA;
+  if (marketplaceType === 'events') {
+    primaryAction = 'Join';
+  } else if (isLeaveApplication) {
+    primaryAction = 'Apply For Leave';
+  } else if (isPromptLibrary) {
+    primaryAction = 'View Prompt';
+  } else if (isDigitalWorker) {
+    primaryAction = 'View Details';
+  } else if (isAITool) {
+    primaryAction = 'Request Tool';
+  }
 
   // Extract tags based on marketplace type
   // For events, combine actual filter fields: category (if not null), location_filter (if Remote or physical), department, and tags
@@ -520,11 +475,19 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             item.location_filter.toLowerCase().includes(platform.toLowerCase())
           ))) ? [item.location_filter] : []),
       // Include department(s) - handle both array and single value
-      ...(item.department ? (Array.isArray(item.department) ? item.department : [item.department]) : []),
+      ...(item.department 
+        ? (Array.isArray(item.department) 
+          ? item.department 
+          : [item.department]) 
+        : []),
       // Include existing tags
       ...(item.tags || [])
     ].filter(Boolean)
-    : (item.tags || [item.category, marketplaceType === 'courses' ? item.deliveryMode : item.serviceType, item.businessStage].filter(Boolean));
+    : (item.tags || [
+      item.category,
+      marketplaceType === 'courses' ? item.deliveryMode : item.serviceType,
+      item.businessStage
+    ].filter(Boolean));
   // Extract details for the sidebar
   const detailItems = config.attributes.map(attr => ({
     label: attr.label,
@@ -593,7 +556,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           const isOpen = openIndex === index;
           return (
             <div
-              key={index}
+              key={getUniqueKey('accordion', item.question, index)}
               className="rounded-lg overflow-hidden transition-all duration-300 ease-in border-2"
               style={{
                 borderColor: isOpen ? '#030F35' : '#E5E7EB',
@@ -674,8 +637,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             src={block.src}
             width={block.width || '640'}
             height={block.height || '360'}
-            frameBorder="0"
-            scrolling="no"
+            style={{ border: 0 }}
             allowFullScreen
             title={block.title || 'Embedded video'}
             className="rounded-lg shadow-md"
@@ -763,7 +725,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   {Object.entries(requirements.minimum).map(([key, value]) => (
                     <li key={key} className="flex items-start gap-3">
                       <span className="text-xs font-semibold text-gray-500 uppercase w-24 flex-shrink-0 pt-0.5">
-                        {key.replace(/([A-Z])/g, ' $1').trim()}:
+                        {key.replaceAll(/([A-Z])/g, ' $1').trim()}:
                       </span>
                       <span className="text-sm text-gray-700 flex-1">{value}</span>
                     </li>
@@ -778,7 +740,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   {Object.entries(requirements.recommended).map(([key, value]) => (
                     <li key={key} className="flex items-start gap-3">
                       <span className="text-xs font-semibold text-gray-500 uppercase w-24 flex-shrink-0 pt-0.5">
-                        {key.replace(/([A-Z])/g, ' $1').trim()}:
+                        {key.replaceAll(/([A-Z])/g, ' $1').trim()}:
                       </span>
                       <span className="text-sm text-gray-700 flex-1">{value}</span>
                     </li>
@@ -906,7 +868,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         if (tabId === 'visit_site') {
           const content = getServiceTabContent(marketplaceType, item?.id, tabId);
           const urlField = content?.action?.urlField;
-          const computedUrl = (urlField && item && item[urlField]) || content?.action?.fallbackUrl || toolData.homepage || '#';
+          const computedUrl = (urlField && item?.[urlField]) || content?.action?.fallbackUrl || toolData.homepage || '#';
 
           return <div className="space-y-8">
             {/* Hero Section */}
@@ -962,7 +924,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       // Special handling for visit_site tab
       if (tabId === 'visit_site') {
         const urlField = content.action?.urlField;
-        const computedUrl = (urlField && item && item[urlField]) || content.action?.fallbackUrl || '#';
+        const computedUrl = (urlField && item?.[urlField]) || content.action?.fallbackUrl || '#';
 
         return <div className="space-y-8">
           <div className="prose max-w-none">
@@ -1006,7 +968,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         {content.action && content.action.label !== 'Apply For Leave' && <div className="pt-4">
           <button id="action-section" className="px-6 py-3.5 text-white text-base font-bold rounded-md transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5" style={{ backgroundColor: '#030F35' }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#020a23')} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#030F35')} onClick={() => {
             const urlField = content.action?.urlField;
-            const computedUrl = (urlField && item && item[urlField]) || content.action?.fallbackUrl || '#';
+            const computedUrl = (urlField && item?.[urlField]) || content.action?.fallbackUrl || '#';
             window.open(computedUrl, '_blank', 'noopener');
           }}>
             {content.action.label}
@@ -1348,7 +1310,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       case 'submit_request': {
         const content = getServiceTabContent(marketplaceType, item?.id, tabId);
         const urlField = content?.action?.urlField;
-        const computedUrl = (urlField && item && item[urlField]) || content?.action?.fallbackUrl || '#';
+        const computedUrl = (urlField && item?.[urlField]) || content?.action?.fallbackUrl || '#';
 
         // Check if this is a prompt library item (service 17)
         const isPromptLibrary = item?.id === '17' || item?.category === 'Prompt Library';
@@ -1378,15 +1340,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           </div>}
         </div>;
       }
-      case 'self_service_faq': {
-        const content = getServiceTabContent(marketplaceType, item?.id, tabId);
-        return <div className="space-y-6">
-          <div className="prose max-w-none">
-            {content?.heading && <h3 className="text-xl font-bold text-gray-900 mb-2">{content.heading}</h3>}
-            {renderBlocks(content?.blocks || [])}
-          </div>
-        </div>;
-      }
+      case 'self_service_faq':
       case 'contact_sla': {
         const content = getServiceTabContent(marketplaceType, item?.id, tabId);
         return <div className="space-y-6">
@@ -1396,13 +1350,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           </div>
         </div>;
       }
-      case 'required_documents':
-        return <div className="space-y-6">
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Required Documents</h3>
-            <p className="text-gray-700">No required documents.</p>
-          </div>
-        </div>;
       case 'about':
         return <div className="space-y-6">
           {marketplaceType !== 'events' && (
@@ -2026,7 +1973,11 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   {provider.name}
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  {marketplaceType === 'courses' ? 'Leading provider of business education' : marketplaceType === 'financial' ? 'Trusted financial services provider' : 'Expert business services provider'}
+                  {marketplaceType === 'courses' 
+                    ? 'Leading provider of business education' 
+                    : marketplaceType === 'financial' 
+                      ? 'Trusted financial services provider' 
+                      : 'Expert business services provider'}
                 </p>
               </div>
               <div className="md:ml-auto flex flex-col md:items-end">
@@ -2107,84 +2058,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     }
   };
   // Combined SummaryCard component that works for both desktop and mobile
-  const SummaryCard = ({
-    isFloating = false
-  }) => {
-    // Handle primary action button click
-    const handlePrimaryActionClick = () => {
-      // Check if this is Leave Application service (id '13')
-      if (isLeaveApplication) {
-        setIsRequestFormOpen(true);
-      } else if (isITSupportService) {
-        setIsTechSupportFormOpen(true);
-      } else if (isPromptLibrary && item.sourceUrl) {
-        window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
-      } else if (isAITool) {
-        setIsTechSupportFormOpen(true);
-      }
-    };
-
-    return (
-      <div ref={isFloating ? null : summaryCardRef} className={`
-        bg-white rounded-lg shadow-md border border-[#030F35]/20 overflow-hidden
-        ${isFloating ? 'fixed z-[100]' : ''}
-      `} style={isFloating ? {
-          top: `${headerHeight + 20}px`,
-          right: '2rem',
-          width: '340px',
-          maxHeight: 'calc(100vh - 120px)',
-          overflowY: 'auto'
-        } : {}}>
-        <div className="bg-[#030F35]/5 p-4 border-b border-[#030F35]/20">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium text-lg text-[#030F35]">
-              {config.itemName} Details
-            </h3>
-            {isFloating && <button onClick={() => setIsFloatingCardVisible(false)} className="p-1 hover:bg-[#030F35]/10 rounded transition-colors text-[#030F35]/70" aria-label="Hide card">
-              <XIcon size={16} />
-            </button>}
-          </div>
-        </div>
-        <div className="p-4">
-          <div className="space-y-2 mb-4">
-            {detailItems.map((detail, index) => <div key={index} className="flex justify-between items-center">
-              <span className="text-sm text-[#030F35]/60">{detail.label}:</span>
-              <span className="text-sm font-medium text-[#030F35]">
-                {detail.value || 'N/A'}
-              </span>
-            </div>)}
-          </div>
-          <div className="border-t border-[#030F35]/20 pt-4 mb-4">
-            <h4 className="text-sm font-medium text-[#030F35] mb-3">
-              {marketplaceType === 'courses' ? 'This course includes:' : marketplaceType === 'financial' ? 'This service includes:' : 'This service includes:'}
-            </h4>
-            <ul className="space-y-2">
-              {highlights.slice(0, 4).map((highlight, index) => <li key={index} className="flex items-start">
-                <CheckCircleIcon size={14} className="text-[#FB5535] mr-2 mt-1 flex-shrink-0" />
-                <span className="text-sm text-[#030F35]/80">{highlight}</span>
-              </li>)}
-            </ul>
-          </div>
-          <button
-            id="action-section"
-            onClick={marketplaceType === 'events' ? handleEventRegistration : handlePrimaryActionClick}
-            className={`w-full px-4 py-3 text-white font-bold rounded-md transition-colors shadow-md ${marketplaceType === 'events' ? '' : 'mb-3'} ${marketplaceType === 'events'
-              ? 'bg-[#030F35] hover:bg-[#13285A] active:bg-[#0A1F2E]'
-              : 'bg-gradient-to-r from-[#030F35] via-[#1A2E6E] to-[#030F35] hover:from-[#13285A] hover:via-[#1A2E6E] hover:to-[#13285A]'
-              }`}
-          >
-            {primaryAction}
-          </button>
-          {marketplaceType !== 'events' && (
-            <button onClick={handleAddToComparison} className="w-full px-4 py-2.5 text-[#030F35] font-medium bg-white border border-[#030F35]/30 rounded-md hover:bg-[#030F35]/10 transition-colors flex items-center justify-center">
-              <ScaleIcon size={16} className="mr-2" />
-              Add to Comparison
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  };
   return <div className="bg-white min-h-screen flex flex-col">
     <style>{`
         @keyframes pulse {
@@ -2313,7 +2186,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                       'bg-purple-100 text-purple-700 border-purple-200',
                       'bg-pink-100 text-pink-700 border-pink-200'
                     ];
-                    const colorClass = tagColors[index] || tagColors[tagColors.length - 1];
+                    const colorClass = tagColors[index] || tagColors.at(-1);
 
                     return (
                       <span
@@ -2401,7 +2274,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                       'bg-purple-100 text-purple-700 border-purple-200',
                       'bg-pink-100 text-pink-700 border-pink-200'
                     ];
-                    const colorClass = tagColors[index] || tagColors[tagColors.length - 1];
+                    const colorClass = tagColors[index] || tagColors.at(-1);
 
                     return (
                       <span
@@ -2427,14 +2300,14 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                 <div className="flex items-center w-full mb-4">
                   <div className="flex items-center">
                     <div className="flex items-center">
-                      {[1, 2, 3, 4, 5].map(star => <StarIcon key={star} size={16} className={`${parseFloat(rating) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />)}
+                      {[1, 2, 3, 4, 5].map(star => <StarIcon key={star} size={16} className={`${Number.parseFloat(item.rating) >= star ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />)}
                     </div>
                     <span className="ml-2 text-sm font-medium text-gray-700">
-                      {rating}
+                      {item.rating}
                     </span>
                     <span className="mx-1.5 text-gray-500">·</span>
                     <span className="text-sm text-gray-500">
-                      {reviewCount} reviews
+                      {item.reviewCount} reviews
                     </span>
                   </div>
                   <button onClick={handleToggleBookmark} className={`p-1.5 rounded-full ${isBookmarked ? 'bg-yellow-100 text-yellow-600' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'} ml-2`} aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'} title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}>
@@ -2478,7 +2351,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   <div className="py-1 max-h-64 overflow-y-auto">
                     {tabsToUse.map(tab => <button key={tab.id} className={`w-full text-left px-4 py-2 text-sm transition-colors ${activeTab === tab.id ? 'bg-[#030F35]/10 text-[#030F35]' : 'text-[#030F35]/80 hover:bg-[#030F35]/5'}`} onClick={() => {
                       setActiveTab(tab.id);
-                      setShowTabsMenu(false);
                     }} role="menuitem">
                       {tab.label}
                     </button>)}
@@ -2559,8 +2431,16 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     <div
                       key={relatedEvent.id || index}
                       className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow border border-[#030F35]/10"
+                      role="button"
+                      tabIndex={0}
                       onClick={() => {
                         if (relatedEvent.id) {
+                          navigate(`/marketplace/${marketplaceType}/${relatedEvent.id}`);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if ((e.key === 'Enter' || e.key === ' ') && relatedEvent.id) {
+                          e.preventDefault();
                           navigate(`/marketplace/${marketplaceType}/${relatedEvent.id}`);
                         }
                       }}
@@ -2594,7 +2474,19 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           ) : relatedItems.length > 0 ? (
             <div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {relatedItems.map(relatedItem => <div key={relatedItem.id} className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow border border-[#030F35]/10" onClick={() => navigate(`/marketplace/${marketplaceType}/${relatedItem.id}`)}>
+                {relatedItems.map(relatedItem => <div 
+                  key={relatedItem.id} 
+                  className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow border border-[#030F35]/10" 
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate(`/marketplace/${marketplaceType}/${relatedItem.id}`)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/marketplace/${marketplaceType}/${relatedItem.id}`);
+                    }
+                  }}
+                >
                   <div className="flex items-center mb-3">
                     <img src={relatedItem.provider.logoUrl} alt={relatedItem.provider.name} className="h-8 w-8 object-contain mr-2 rounded" />
                     <span className="text-sm text-[#030F35]/70">
@@ -2631,14 +2523,20 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           <div className="flex items-center justify-between max-w-sm mx-auto">
             <div className="mr-3">
               <div className="text-[#030F35] font-bold">
-                {marketplaceType === 'courses' ? item.price || 'Free' : marketplaceType === 'financial' ? item.amount || 'Apply Now' : marketplaceType === 'events' ? '' : 'Request Now'}
+                {marketplaceType === 'courses' 
+                  ? item.price || 'Free' 
+                  : marketplaceType === 'financial' 
+                    ? item.amount || 'Apply Now' 
+                    : marketplaceType === 'events' 
+                      ? '' 
+                      : 'Request Now'}
               </div>
               <div className="text-sm text-[#030F35]/70">
                 {item.duration || item.serviceType || ''}
               </div>
             </div>
             <button
-              onClick={(e) => {
+              onClick={() => {
                 if (marketplaceType === 'events') {
                   handleEventRegistration();
                   return;
