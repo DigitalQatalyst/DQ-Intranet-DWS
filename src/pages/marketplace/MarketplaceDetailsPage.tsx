@@ -573,6 +573,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     primaryAction = 'Request Tool';
   }
 
+  // Helper function to get department array
+  const getDepartmentArray = (dept: any) => {
+    if (!dept) return [];
+    return Array.isArray(dept) ? dept : [dept];
+  };
+
   // Extract tags based on marketplace type
   // For events, combine actual filter fields: category (if not null), location_filter (if Remote or physical), department, and tags
   const displayTags = marketplaceType === 'events'
@@ -586,9 +592,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             item.location_filter.toLowerCase().includes(platform.toLowerCase())
           ))) ? [item.location_filter] : []),
       // Include department(s) - handle both array and single value
-      ...(item.department 
-        ? (Array.isArray(item.department) ? item.department : [item.department])
-        : []),
+      ...getDepartmentArray(item.department),
       // Include existing tags
       ...(item.tags || [])
     ].filter(Boolean)
@@ -1962,7 +1966,11 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   {provider.name}
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  {marketplaceType === 'courses' ? 'Leading provider of business education' : (marketplaceType === 'financial' ? 'Trusted financial services provider' : 'Expert business services provider')}
+                  {(() => {
+                    if (marketplaceType === 'courses') return 'Leading provider of business education';
+                    if (marketplaceType === 'financial') return 'Trusted financial services provider';
+                    return 'Expert business services provider';
+                  })()}
                 </p>
               </div>
               <div className="md:ml-auto flex flex-col md:items-end">
@@ -2403,103 +2411,102 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             </a>
           </div>
           {/* For events, fetch and display related events dynamically */}
-          {marketplaceType === 'events' ? (
-            relatedEventsLoading ? (
-              <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#030F35]"></div>
-                <p className="mt-4 text-[#030F35]/70">Loading related events...</p>
-              </div>
-            ) : relatedItems.length > 0 ? (
-              <div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {relatedItems.map((relatedEvent: any, index: number) => (
-                    <div
-                      key={relatedEvent.id || index}
-                      className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow border border-[#030F35]/10"
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => {
-                        if (relatedEvent.id) {
-                          navigate(`/marketplace/${marketplaceType}/${relatedEvent.id}`);
-                        }
-                      }}
-                      onKeyDown={(e) => {
-                        if ((e.key === 'Enter' || e.key === ' ') && relatedEvent.id) {
-                          e.preventDefault();
-                          navigate(`/marketplace/${marketplaceType}/${relatedEvent.id}`);
-                        }
-                      }}
+          {(() => {
+            if (marketplaceType === 'events') {
+              if (relatedEventsLoading) {
+                return (
+                  <div className="text-center py-8">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#030F35]"></div>
+                    <p className="mt-4 text-[#030F35]/70">Loading related events...</p>
+                  </div>
+                );
+              }
+              if (relatedItems.length > 0) {
+                return (
+                  <div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {relatedItems.map((relatedEvent: any, index: number) => (
+                        <button
+                          key={relatedEvent.id || index}
+                          type="button"
+                          className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow border border-[#030F35]/10 text-left w-full"
+                          onClick={() => {
+                            if (relatedEvent.id) {
+                              navigate(`/marketplace/${marketplaceType}/${relatedEvent.id}`);
+                            }
+                          }}
+                        >
+                          <h3 className="font-semibold text-[#030F35] mb-2">
+                            {relatedEvent.event_title || relatedEvent.title || 'Related Event'}
+                          </h3>
+                          <p className="text-sm text-[#030F35]/70 line-clamp-2 mb-3">
+                            {relatedEvent.event_description || relatedEvent.description || ''}
+                          </p>
+                          {relatedEvent.tags && relatedEvent.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {relatedEvent.tags.slice(0, 2).map((tag: string, idx: number) => (
+                                <span key={getUniqueKey('related-event-tag', tag, idx)} className="px-2 py-0.5 bg-[#030F35]/10 text-[#030F35] text-xs rounded-full">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-[#030F35]/20">
+                  <p className="text-[#030F35]/70">
+                    No related events found in the same category.
+                  </p>
+                </div>
+              );
+            }
+            
+            if (relatedItems.length > 0) {
+              return (
+                <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {relatedItems.map(relatedItem => <button 
+                      key={relatedItem.id}
+                      type="button"
+                      className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow border border-[#030F35]/10 text-left w-full"
+                      onClick={() => navigate(`/marketplace/${marketplaceType}/${relatedItem.id}`)}
                     >
+                      <div className="flex items-center mb-3">
+                        <img src={relatedItem.provider.logoUrl} alt={relatedItem.provider.name} className="h-8 w-8 object-contain mr-2 rounded" />
+                        <span className="text-sm text-[#030F35]/70">
+                          {relatedItem.provider.name}
+                        </span>
+                      </div>
                       <h3 className="font-semibold text-[#030F35] mb-2">
-                        {relatedEvent.event_title || relatedEvent.title || 'Related Event'}
+                        {relatedItem.title}
                       </h3>
                       <p className="text-sm text-[#030F35]/70 line-clamp-2 mb-3">
-                        {relatedEvent.event_description || relatedEvent.description || ''}
+                        {relatedItem.description}
                       </p>
-                      {relatedEvent.tags && relatedEvent.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {relatedEvent.tags.slice(0, 2).map((tag: string, idx: number) => (
-                            <span key={getUniqueKey('related-event-tag', tag, idx)} className="px-2 py-0.5 bg-[#030F35]/10 text-[#030F35] text-xs rounded-full">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                      <div className="flex flex-wrap gap-1">
+                        {(relatedItem.tags || []).slice(0, 2).map((tag, idx) => <span key={getUniqueKey('related-item-tag', tag, idx)} className="px-2 py-0.5 bg-[#030F35]/10 text-[#030F35] text-xs rounded-full">
+                          {tag}
+                        </span>)}
+                      </div>
+                    </button>)}
+                  </div>
                 </div>
-              </div>
-            ) : (
+              );
+            }
+            
+            return (
               <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-[#030F35]/20">
-                <p className="text-[#030F35]/70">
-                  No related events found in the same category.
+                <p className="text-[#030F35]/60">
+                  No related {config.itemNamePlural.toLowerCase()} found
                 </p>
               </div>
-            )
-          ) : relatedItems.length > 0 ? (
-            <div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {relatedItems.map(relatedItem => <div 
-                  key={relatedItem.id} 
-                  className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow border border-[#030F35]/10" 
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => navigate(`/marketplace/${marketplaceType}/${relatedItem.id}`)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      navigate(`/marketplace/${marketplaceType}/${relatedItem.id}`);
-                    }
-                  }}
-                >
-                  <div className="flex items-center mb-3">
-                    <img src={relatedItem.provider.logoUrl} alt={relatedItem.provider.name} className="h-8 w-8 object-contain mr-2 rounded" />
-                    <span className="text-sm text-[#030F35]/70">
-                      {relatedItem.provider.name}
-                    </span>
-                  </div>
-                  <h3 className="font-semibold text-[#030F35] mb-2">
-                    {relatedItem.title}
-                  </h3>
-                  <p className="text-sm text-[#030F35]/70 line-clamp-2 mb-3">
-                    {relatedItem.description}
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {(relatedItem.tags || []).slice(0, 2).map((tag, idx) => <span key={getUniqueKey('related-item-tag', tag, idx)} className="px-2 py-0.5 bg-[#030F35]/10 text-[#030F35] text-xs rounded-full">
-                      {tag}
-                    </span>)}
-                  </div>
-                </div>)}
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-[#030F35]/20">
-              <p className="text-[#030F35]/60">
-                No related {config.itemNamePlural.toLowerCase()} found
-              </p>
-            </div>
-          )
-          }
+            );
+          })()}
         </div >
       </section >
       {/* Sticky mobile CTA */}
@@ -2508,7 +2515,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           <div className="flex items-center justify-between max-w-sm mx-auto">
             <div className="mr-3">
               <div className="text-[#030F35] font-bold">
-                {marketplaceType === 'courses' ? (item.price || 'Free') : (marketplaceType === 'financial' ? (item.amount || 'Apply Now') : (marketplaceType === 'events' ? '' : 'Request Now'))}
+                {(() => {
+                  if (marketplaceType === 'courses') return item.price || 'Free';
+                  if (marketplaceType === 'financial') return item.amount || 'Apply Now';
+                  if (marketplaceType === 'events') return '';
+                  return 'Request Now';
+                })()}
               </div>
               <div className="text-sm text-[#030F35]/70">
                 {item.duration || item.serviceType || ''}
