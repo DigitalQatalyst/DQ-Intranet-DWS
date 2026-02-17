@@ -1,6 +1,9 @@
 -- Comprehensive RLS Fix for glossary_terms
 -- This script diagnoses and fixes RLS issues
 
+-- Define table name constant
+\set table_name 'glossary_terms'
+
 -- Step 1: Check current state
 SELECT '=== CURRENT STATE ===' as step;
 
@@ -9,7 +12,7 @@ SELECT
   rowsecurity as rls_enabled,
   schemaname
 FROM pg_tables 
-WHERE tablename = 'glossary_terms';
+WHERE tablename = :'table_name';
 
 SELECT 
   policyname,
@@ -19,7 +22,7 @@ SELECT
   qual,
   with_check
 FROM pg_policies
-WHERE tablename = 'glossary_terms';
+WHERE tablename = :'table_name';
 
 -- Step 2: Ensure we're in the right schema
 SET search_path TO public;
@@ -57,7 +60,7 @@ SELECT
   cmd,
   qual
 FROM pg_policies
-WHERE tablename = 'glossary_terms';
+WHERE tablename = :'table_name';
 
 -- Step 9: Test query (should work now)
 SELECT '=== TEST QUERY ===' as step;
