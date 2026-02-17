@@ -24,7 +24,7 @@ import {
 } from '../../services/AzureBlobService';
 import { updateDocument, deleteDocument } from '../../services/DataverseService';
 
-type DocumentStatus = 'Active' | 'Pending' | 'Expired' | string | undefined;
+type DocumentStatus = 'Active' | 'Pending' | 'Expired' | 'Unknown' | undefined;
 
 type DocumentVersion = {
     id?: string;
@@ -158,37 +158,12 @@ const ReplaceSection = ({
                 className="text-blue-500 hover:text-blue-700"
                 onClick={onCancel}
                 disabled={isProcessing}
+                type="button"
             >
                 <XIcon size={16} />
             </button>
         </div>
-        {!newFile ? (
-            <div
-                className={`border-2 border-dashed border-blue-300 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
-                role="button"
-                tabIndex={0}
-                onClick={onTriggerUpload}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        onTriggerUpload();
-                    }
-                }}
-            >
-                <UploadIcon size={24} className="text-blue-500" />
-                <p className="mt-2 text-sm text-blue-600 text-center">
-                    Click to upload a new version
-                </p>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    onChange={onFileChange}
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif"
-                    disabled={isProcessing}
-                />
-            </div>
-        ) : (
+        {newFile ? (
             <div>
                 <div className="flex items-center">
                     <FileIcon size={20} className="text-blue-500 mr-3" />
@@ -222,6 +197,31 @@ const ReplaceSection = ({
                     </div>
                 </div>
             </div>
+        ) : (
+            <button
+                type="button"
+                className={`w-full border-2 border-dashed border-blue-300 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
+                onClick={onTriggerUpload}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onTriggerUpload();
+                    }
+                }}
+            >
+                <UploadIcon size={24} className="text-blue-500" />
+                <p className="mt-2 text-sm text-blue-600 text-center">
+                    Click to upload a new version
+                </p>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    className="hidden"
+                    onChange={onFileChange}
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif"
+                    disabled={isProcessing}
+                />
+            </button>
         )}
     </div>
 );
@@ -373,6 +373,7 @@ export function DocumentDetail({ document, onClose, onReplace, onDelete }: Docum
                     uploadDate: new Date().toISOString().split('T')[0],
                     versionNumber: (document.versionNumber || 1) + 1,
                     previousVersionId: document.id,
+                    uploadedBy: document.uploadedBy,
                 };
                 await updateDocument(document.id, newVersion);
                 clearInterval(progressInterval);
@@ -388,7 +389,7 @@ export function DocumentDetail({ document, onClose, onReplace, onDelete }: Docum
                 setUploadProgress(0);
             }
         },
-        [document.id, document.versionNumber, onReplace, startProgressSimulation],
+        [document.id, document.uploadedBy, document.versionNumber, onReplace, startProgressSimulation],
     );
 
     const handleFileChange = useCallback(
