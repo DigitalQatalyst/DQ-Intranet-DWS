@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Calendar, MapPin, CheckCircleIcon, ExternalLinkIcon, ChevronRightIcon, HomeIcon, FileText, ChevronLeft, ChevronRight, Plus, Minus, BookmarkIcon, Clock, StarIcon, Users } from 'lucide-react';
+import { Calendar, MapPin, CheckCircleIcon, ExternalLinkIcon, ChevronRightIcon, HomeIcon, FileText, ChevronLeft, ChevronRight, BookmarkIcon, Clock, StarIcon, Users } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { getMarketplaceConfig } from '../../utils/marketplaceConfig';
@@ -19,6 +19,117 @@ import { ServiceHeroSection } from '../../components/marketplace/ServiceHeroSect
 import { ServiceDetailsSidebar } from '../../components/marketplace/ServiceDetailsSidebar';
 import { supabaseClient } from '../../lib/supabaseClient';
 import { toast } from 'sonner';
+
+// Code block component with copy functionality - extracted to avoid re-creation
+const CodeBlock: React.FC<{ code: string; language?: string; title?: string }> = ({ code, language, title }) => {
+  const [copied, setCopied] = React.useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="mb-6 relative">
+      {title && (
+        <div className="bg-gray-100 px-4 py-2 rounded-t-lg border-b border-gray-300">
+          <h4 className="text-sm font-semibold text-gray-700">{title}</h4>
+        </div>
+      )}
+      <div className="relative">
+        <pre className="bg-gray-900 text-gray-100 p-6 rounded-b-lg overflow-x-auto text-sm leading-relaxed">
+          <code className={language ? `language-${language}` : ''}>{code}</code>
+        </pre>
+        <button
+          onClick={handleCopy}
+          className="absolute top-3 right-3 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors duration-200 flex items-center gap-1.5"
+        >
+          {copied ? (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Copied!
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Copy
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Accordion component for FAQs - extracted to avoid re-creation
+const AccordionBlock: React.FC<{ 
+  items: Array<{ question: string; answer: string }>;
+  getUniqueKey: (prefix: string, id: any, index: number) => string;
+}> = ({ items, getUniqueKey }) => {
+  const [openIndex, setOpenIndex] = React.useState<number | null>(null);
+
+  const toggleAccordion = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  return (
+    <div className="space-y-4 mb-6">
+      {items.map((item, index) => {
+        const isOpen = openIndex === index;
+        return (
+          <div
+            key={getUniqueKey('accordion', item.question, index)}
+            className="rounded-lg overflow-hidden transition-all duration-300 ease-in border-2"
+            style={{
+              borderColor: isOpen ? '#030F35' : '#E5E7EB',
+              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+            }}
+          >
+            <button
+              onClick={() => toggleAccordion(index)}
+              className="w-full flex items-center justify-between p-5 text-left transition-all duration-300 ease-in"
+              style={isOpen ? {
+                backgroundColor: '#030F35',
+                color: 'white'
+              } : {
+                backgroundColor: 'white',
+                color: '#374151'
+              }}
+              onMouseEnter={(e) => {
+                if (!isOpen) {
+                  e.currentTarget.style.backgroundColor = '#F9FAFB';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isOpen) {
+                  e.currentTarget.style.backgroundColor = 'white';
+                }
+              }}
+            >
+              <span className="font-semibold text-base pr-4">{item.question}</span>
+              <span className="flex-shrink-0 text-2xl font-light transition-transform duration-300" style={{
+                transform: isOpen ? 'rotate(45deg)' : 'rotate(0deg)'
+              }}>
+                +
+              </span>
+            </button>
+            {isOpen && (
+              <div className="p-5 bg-white border-t" style={{ borderTopColor: '#E5E7EB' }}>
+                <p className="text-gray-700 leading-relaxed">{item.answer}</p>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 interface MarketplaceDetailsPageProps {
   marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding' | 'events';
   bookmarkedItems?: string[];
@@ -476,9 +587,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           ))) ? [item.location_filter] : []),
       // Include department(s) - handle both array and single value
       ...(item.department 
-        ? (Array.isArray(item.department) 
-          ? item.department 
-          : [item.department]) 
+        ? (Array.isArray(item.department) ? item.department : [item.department])
         : []),
       // Include existing tags
       ...(item.tags || [])
@@ -496,143 +605,23 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   // Extract highlights/features based on marketplace type
   const highlights = marketplaceType === 'courses' ? item.learningOutcomes || [] : item.details || [];
   // Render tab content with consistent styling
-  // Code block component with copy functionality
-  const CodeBlock: React.FC<{ code: string; language?: string; title?: string }> = ({ code, language, title }) => {
-    const [copied, setCopied] = React.useState(false);
-
-    const handleCopy = () => {
-      navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    };
-
-    return (
-      <div className="mb-6 relative">
-        {title && (
-          <div className="bg-gray-100 px-4 py-2 rounded-t-lg border-b border-gray-300">
-            <h4 className="text-sm font-semibold text-gray-700">{title}</h4>
-          </div>
-        )}
-        <div className="relative">
-          <pre className="bg-gray-900 text-gray-100 p-6 rounded-b-lg overflow-x-auto text-sm leading-relaxed">
-            <code className={language ? `language-${language}` : ''}>{code}</code>
-          </pre>
-          <button
-            onClick={handleCopy}
-            className="absolute top-3 right-3 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded transition-colors duration-200 flex items-center gap-1.5"
-          >
-            {copied ? (
-              <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Copied!
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-                Copy
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // Accordion component for FAQs
-  const AccordionBlock: React.FC<{ items: Array<{ question: string; answer: string }> }> = ({ items }) => {
-    const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-    const toggleAccordion = (index: number) => {
-      setOpenIndex(openIndex === index ? null : index);
-    };
-
-    return (
-      <div className="space-y-4 mb-6">
-        {items.map((item, index) => {
-          const isOpen = openIndex === index;
-          return (
-            <div
-              key={getUniqueKey('accordion', item.question, index)}
-              className="rounded-lg overflow-hidden transition-all duration-300 ease-in border-2"
-              style={{
-                borderColor: isOpen ? '#030F35' : '#E5E7EB',
-                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-              }}
-            >
-              <button
-                onClick={() => toggleAccordion(index)}
-                className="w-full flex items-center justify-between p-5 text-left transition-all duration-300 ease-in"
-                style={isOpen ? {
-                  backgroundColor: '#030F35',
-                  color: 'white'
-                } : {
-                  backgroundColor: 'white',
-                  color: '#374151'
-                }}
-                onMouseEnter={(e) => {
-                  if (!isOpen) {
-                    e.currentTarget.style.backgroundColor = '#F9FAFB';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isOpen) {
-                    e.currentTarget.style.backgroundColor = 'white';
-                  }
-                }}
-              >
-                <span className="text-base font-medium pr-4">
-                  {item.question}
-                </span>
-                <div
-                  className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ease-in"
-                  style={isOpen ? { backgroundColor: 'white' } : { backgroundColor: '#E5E7EB' }}
-                >
-                  {isOpen ? (
-                    <Minus className="w-4 h-4" style={{ color: '#030F35' }} />
-                  ) : (
-                    <Plus className="w-4 h-4 text-gray-600" />
-                  )}
-                </div>
-              </button>
-              <div
-                className="overflow-hidden transition-all duration-300 ease-in"
-                style={{
-                  maxHeight: isOpen ? '500px' : '0px',
-                  opacity: isOpen ? 1 : 0,
-                }}
-              >
-                <div className="px-5 pb-5 pt-2.5 bg-white">
-                  <p className="text-gray-600 text-base leading-relaxed">{item.answer}</p>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
   const renderBlocks = (blocks: ContentBlock[]) => {
     return (blocks || []).map((block, idx) => {
       if (block.type === 'p') {
-        return <p key={idx} className="text-gray-700 text-base leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: block.text }}></p>;
+        return <p key={getUniqueKey('block-p', block.text, idx)} className="text-gray-700 text-base leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: block.text }}></p>;
       }
       if (block.type === 'ol') {
-        return <ol key={idx} className="list-decimal pl-6 space-y-3 text-gray-700 mb-4 text-base">
-          {block.items.map((it, i) => <li key={i} className="pl-2 leading-relaxed">{it}</li>)}
+        return <ol key={getUniqueKey('block-ol', block.items?.[0], idx)} className="list-decimal pl-6 space-y-3 text-gray-700 mb-4 text-base">
+          {block.items.map((it, i) => <li key={getUniqueKey('ol-item', it, i)} className="pl-2 leading-relaxed">{it}</li>)}
         </ol>;
       }
       if (block.type === 'ul') {
-        return <ul key={idx} className="list-disc pl-6 space-y-3 text-gray-700 mb-4 text-base">
-          {block.items.map((it, i) => <li key={i} className="pl-2 leading-relaxed">{it}</li>)}
+        return <ul key={getUniqueKey('block-ul', block.items?.[0], idx)} className="list-disc pl-6 space-y-3 text-gray-700 mb-4 text-base">
+          {block.items.map((it, i) => <li key={getUniqueKey('ul-item', it, i)} className="pl-2 leading-relaxed">{it}</li>)}
         </ul>;
       }
       if (block.type === 'iframe') {
-        return <div key={idx} className="mb-6">
+        return <div key={getUniqueKey('block-iframe', block.src, idx)} className="mb-6">
           <iframe
             src={block.src}
             width={block.width || '640'}
@@ -645,15 +634,15 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         </div>;
       }
       if (block.type === 'accordion') {
-        return <AccordionBlock key={idx} items={block.items || []} />;
+        return <AccordionBlock key={getUniqueKey('block-accordion', block.items?.[0]?.question, idx)} items={block.items || []} getUniqueKey={getUniqueKey} />;
       }
       if (block.type === 'code') {
-        return <CodeBlock key={idx} code={block.code} language={block.language} title={block.title} />;
+        return <CodeBlock key={getUniqueKey('block-code', block.code, idx)} code={block.code} language={block.language} title={block.title} />;
       }
       if (block.type === 'procedure_stages') {
         const config = procedureStagesConfigs[block.configKey as keyof typeof procedureStagesConfigs];
         if (config) {
-          return <ProcedureStages key={idx} config={{ ...config, title: '' }} className="my-6" />;
+          return <ProcedureStages key={getUniqueKey('block-procedure', block.configKey, idx)} config={{ ...config, title: '' }} className="my-6" />;
         }
         return null;
       }
@@ -690,7 +679,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
 
               <div className="grid gap-3 md:grid-cols-2">
                 {toolData.features.keyFeatures.map((feature, index) => (
-                  <div key={index} className="group flex items-start gap-3 rounded-xl bg-white p-4 border border-gray-100 transition-all duration-200 hover:border-blue-300 hover:shadow-md">
+                  <div key={getUniqueKey('key-feature', feature, index)} className="group flex items-start gap-3 rounded-xl bg-white p-4 border border-gray-100 transition-all duration-200 hover:border-blue-300 hover:shadow-md">
                     <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md" style={{ background: 'linear-gradient(135deg, #1A2E6E 0%, #152347 100%)' }}>
                       <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -754,7 +743,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Additional Notes</h3>
                   <ul className="space-y-2">
                     {requirements.additionalNotes.map((note, index) => (
-                      <li key={index} className="flex items-start gap-2">
+                      <li key={getUniqueKey('additional-note', note, index)} className="flex items-start gap-2">
                         <span className="text-gray-400 mt-0.5">•</span>
                         <span className="text-sm text-gray-700">{note}</span>
                       </li>
@@ -1003,7 +992,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
 
               <div className="grid gap-3 md:grid-cols-2">
                 {dwService.keyHighlights.map((highlight, index) => (
-                  <div key={index} className="group flex items-start gap-3 rounded-xl bg-white p-4 border border-gray-100 transition-all duration-200 hover:border-blue-300 hover:shadow-md">
+                  <div key={getUniqueKey('dw-highlight', highlight, index)} className="group flex items-start gap-3 rounded-xl bg-white p-4 border border-gray-100 transition-all duration-200 hover:border-blue-300 hover:shadow-md">
                     <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md" style={{ background: 'linear-gradient(135deg, #1A2E6E 0%, #152347 100%)' }}>
                       <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -1033,7 +1022,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               <div className="border-l-4 bg-white p-6 rounded-r-lg shadow-sm" style={{ borderLeftColor: '#030F35' }}>
                 <ul className="space-y-4">
                   {dwService.requirements.map((requirement, index) => (
-                    <li key={index} className="flex items-start gap-4">
+                    <li key={getUniqueKey('dw-requirement', requirement, index)} className="flex items-start gap-4">
                       <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md mt-0.5" style={{ background: 'linear-gradient(135deg, #1A2E6E 0%, #152347 100%)' }}>
                         <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -1063,7 +1052,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               {/* Tools Grid */}
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {dwService.tools.map((tool, index) => (
-                  <div key={index} className="group relative overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-5 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:border-blue-300">
+                  <div key={getUniqueKey('dw-tool', tool, index)} className="group relative overflow-hidden rounded-xl border-2 border-gray-200 bg-white p-5 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:border-blue-300">
                     <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-blue-400/10 blur-2xl"></div>
 
                     <div className="relative flex items-center gap-3">
@@ -1096,7 +1085,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               {/* Use Case Steps */}
               <div className="space-y-4">
                 {dwService.sampleUseCase.steps.map((step, index) => (
-                  <div key={index} className="flex gap-4">
+                  <div key={getUniqueKey('use-case-step', step, index)} className="flex gap-4">
                     <div className="flex-shrink-0">
                       <div className="flex h-10 w-10 items-center justify-center rounded-full font-bold text-white" style={{ background: 'linear-gradient(135deg, #1A2E6E 0%, #152347 100%)' }}>
                         {index + 1}
@@ -1271,7 +1260,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
 
                 <div className="grid gap-3 md:grid-cols-2">
                   {toolData.features.keyFeatures.map((feature, index) => (
-                    <div key={index} className="group flex items-start gap-3 rounded-xl bg-white p-4 border border-gray-100 transition-all duration-200 hover:border-blue-300 hover:shadow-md">
+                    <div key={getUniqueKey('tool-feature', feature, index)} className="group flex items-start gap-3 rounded-xl bg-white p-4 border border-gray-100 transition-all duration-200 hover:border-blue-300 hover:shadow-md">
                       <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md" style={{ background: 'linear-gradient(135deg, #1A2E6E 0%, #152347 100%)' }}>
                         <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -1439,7 +1428,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
             </h3>
             {/* Features/Highlights list - Consistent for all types */}
             <ul className="space-y-2">
-              {highlights.map((highlight, index) => <li key={index} className="flex items-start">
+              {highlights.map((highlight, index) => <li key={getUniqueKey('highlight', highlight, index)} className="flex items-start">
                 <CheckCircleIcon size={16} className="text-[#FB5535] mr-3 mt-1 flex-shrink-0" />
                 <span className="text-[#030F35]/80">{highlight}</span>
               </li >)}
@@ -1525,7 +1514,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               Core Learning Outcomes
             </h3>
             <ol className="space-y-3">
-              {highlights.map((outcome, index) => <li key={index} className="pl-2">
+              {highlights.map((outcome, index) => <li key={getUniqueKey('outcome', outcome, index)} className="pl-2">
                 <div className="flex items-start gap-3">
                   <span className="text-gray-500 font-medium">
                     {index + 1}.
@@ -1541,7 +1530,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               Skills You'll Gain
             </h3>
             <div className="grid md:grid-cols-2 gap-2">
-              {['Strategic thinking and planning', 'Problem-solving techniques', 'Implementation best practices', 'Performance measurement', 'Risk assessment and mitigation', 'Communication and presentation'].map((skill, index) => <div key={index} className="flex items-center">
+              {['Strategic thinking and planning', 'Problem-solving techniques', 'Implementation best practices', 'Performance measurement', 'Risk assessment and mitigation', 'Communication and presentation'].map((skill, index) => <div key={getUniqueKey('skill', skill, index)} className="flex items-center">
                 <CheckCircleIcon size={16} className="text-[#1A2E6E] mr-2 flex-shrink-0" />
                 <span className="text-gray-700">{skill}</span>
               </div >)}
@@ -1625,7 +1614,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                 Event Tags
               </h3>
               <div className="flex flex-wrap gap-2">
-                {item.tags.map((tag: string, index: number) => <span key={index} className="px-3 py-1 bg-[#030F35]/10 text-[#030F35] rounded-full text-sm font-medium">
+                {item.tags.map((tag: string, index: number) => <span key={getUniqueKey('event-tag', tag, index)} className="px-3 py-1 bg-[#030F35]/10 text-[#030F35] rounded-full text-sm font-medium">
                   {tag}
                 </span>)}
               </div>
@@ -1644,7 +1633,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               Eligibility Requirements
             </h3>
             <ul className="space-y-2">
-              {item.eligibilityCriteria ? item.eligibilityCriteria.map((criteria, index) => <li key={index} className="flex items-start">
+              {item.eligibilityCriteria ? item.eligibilityCriteria.map((criteria, index) => <li key={getUniqueKey('eligibility', criteria, index)} className="flex items-start">
                 <CheckCircleIcon size={16} className="text-[#1A2E6E] mr-3 mt-1 flex-shrink-0" />
                 <span className="text-gray-700">{criteria}</span>
               </li >) : <li className="flex items-start">
@@ -1683,7 +1672,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               Additional Terms
             </h4>
             <ul className="space-y-2">
-              {item.additionalTerms ? item.additionalTerms.map((term, index) => <li key={index} className="flex items-start">
+              {item.additionalTerms ? item.additionalTerms.map((term, index) => <li key={getUniqueKey('additional-term', term, index)} className="flex items-start">
                 <span className="text-gray-400 mr-2">•</span>
                 <span className="text-gray-700">{term}</span>
               </li>) : <>
@@ -1774,7 +1763,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           </p>
           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="space-y-3">
-              {item.applicationProcess ? item.applicationProcess.map((step, index) => <div key={index} className="flex items-start gap-3">
+              {item.applicationProcess ? item.applicationProcess.map((step, index) => <div key={getUniqueKey('app-process', step.title, index)} className="flex items-start gap-3">
                 <span className="text-gray-500 font-medium">
                   {index + 1}.
                 </span>
@@ -1839,7 +1828,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                 What to Bring
               </h3>
               {item.requiredDocuments && item.requiredDocuments.length > 0 ? <div className="grid md:grid-cols-2 gap-3">
-                {item.requiredDocuments.map((doc: string, index: number) => <div key={index} className="flex items-start">
+                {item.requiredDocuments.map((doc: string, index: number) => <div key={getUniqueKey('event-doc', doc, index)} className="flex items-start">
                   <FileText size={16} className="text-[#030F35] mr-3 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700">{doc}</span>
                 </div>)}
@@ -1880,7 +1869,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               Required Documents
             </h3>
             <div className="grid md:grid-cols-2 gap-3">
-              {item.requiredDocuments ? item.requiredDocuments.map((doc, index) => <div key={index} className="flex items-start">
+              {item.requiredDocuments ? item.requiredDocuments.map((doc, index) => <div key={getUniqueKey('req-doc', doc, index)} className="flex items-start">
                 <FileText size={16} className="text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
                 <span className="text-gray-700">{doc}</span>
               </div>) : <>
@@ -1952,7 +1941,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   Event Categories
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                  {item.tags.map((tag: string, index: number) => <span key={index} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                  {item.tags.map((tag: string, index: number) => <span key={getUniqueKey('provider-tag', tag, index)} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
                     {tag}
                   </span>)}
                 </div>
@@ -1973,11 +1962,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                   {provider.name}
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  {marketplaceType === 'courses' 
-                    ? 'Leading provider of business education' 
-                    : marketplaceType === 'financial' 
-                      ? 'Trusted financial services provider' 
-                      : 'Expert business services provider'}
+                  {marketplaceType === 'courses' ? 'Leading provider of business education' : (marketplaceType === 'financial' ? 'Trusted financial services provider' : 'Expert business services provider')}
                 </p>
               </div>
               <div className="md:ml-auto flex flex-col md:items-end">
@@ -1995,7 +1980,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               Areas of Expertise
             </h4>
             <div className="flex flex-wrap gap-2 mb-6">
-              {item.providerExpertise ? item.providerExpertise.map((expertise, index) => <span key={index} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+              {item.providerExpertise ? item.providerExpertise.map((expertise, index) => <span key={getUniqueKey('expertise', expertise, index)} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
                 {expertise}
               </span>) : <>
                 <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
@@ -2190,7 +2175,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
 
                     return (
                       <span
-                        key={index}
+                        key={getUniqueKey('display-tag-1', tag, index)}
                         className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium border ${colorClass}`}
                       >
                         {tag}
@@ -2278,7 +2263,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
 
                     return (
                       <span
-                        key={index}
+                        key={getUniqueKey('display-tag-2', tag, index)}
                         className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium border ${colorClass}`}
                       >
                         {tag}
@@ -2454,7 +2439,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                       {relatedEvent.tags && relatedEvent.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {relatedEvent.tags.slice(0, 2).map((tag: string, idx: number) => (
-                            <span key={idx} className="px-2 py-0.5 bg-[#030F35]/10 text-[#030F35] text-xs rounded-full">
+                            <span key={getUniqueKey('related-event-tag', tag, idx)} className="px-2 py-0.5 bg-[#030F35]/10 text-[#030F35] text-xs rounded-full">
                               {tag}
                             </span>
                           ))}
@@ -2500,7 +2485,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
                     {relatedItem.description}
                   </p>
                   <div className="flex flex-wrap gap-1">
-                    {(relatedItem.tags || []).slice(0, 2).map((tag, idx) => <span key={idx} className="px-2 py-0.5 bg-[#030F35]/10 text-[#030F35] text-xs rounded-full">
+                    {(relatedItem.tags || []).slice(0, 2).map((tag, idx) => <span key={getUniqueKey('related-item-tag', tag, idx)} className="px-2 py-0.5 bg-[#030F35]/10 text-[#030F35] text-xs rounded-full">
                       {tag}
                     </span>)}
                   </div>
@@ -2523,13 +2508,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           <div className="flex items-center justify-between max-w-sm mx-auto">
             <div className="mr-3">
               <div className="text-[#030F35] font-bold">
-                {marketplaceType === 'courses' 
-                  ? item.price || 'Free' 
-                  : marketplaceType === 'financial' 
-                    ? item.amount || 'Apply Now' 
-                    : marketplaceType === 'events' 
-                      ? '' 
-                      : 'Request Now'}
+                {marketplaceType === 'courses' ? (item.price || 'Free') : (marketplaceType === 'financial' ? (item.amount || 'Apply Now') : (marketplaceType === 'events' ? '' : 'Request Now'))}
               </div>
               <div className="text-sm text-[#030F35]/70">
                 {item.duration || item.serviceType || ''}
