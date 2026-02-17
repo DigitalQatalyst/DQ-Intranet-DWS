@@ -113,6 +113,9 @@ export default function SixPerspectivesCarousel({
             onMouseLeave={() => setIsPaused(false)}
             onFocus={() => setIsPaused(true)}
             onBlur={() => setIsPaused(false)}
+            role="group"
+            tabIndex={0}
+            aria-label="Perspective carousel"
           >
             <PerspectiveNav
               perspectives={perspectives}

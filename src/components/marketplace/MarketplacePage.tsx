@@ -504,13 +504,13 @@ const computeFilteredGlossaryTerms = (queryParams: URLSearchParams, terms: Gloss
     hasNormalizedOverlap(term.usedIn || [], usedIn, /\s/g) &&
     hasNormalizedOverlap(term.whoUsesIt || [], whoUsesIt, /\s/g);
 
-  const matchesLetter = (term: GlossaryTerm) =>
-    !letters.length || letters.includes(term.letter.toUpperCase());
+const matchesLetter = (term: GlossaryTerm) =>
+  !letters.length || letters.includes(term.letter.toUpperCase());
 
-  const matchesSearch = (term: GlossaryTerm) => {
-    if (!searchLower) return true;
-    return (
-      term.term.toLowerCase().includes(searchLower) ||
+const matchesSearch = (term: GlossaryTerm) => {
+  if (!searchLower) return true;
+  return (
+    term.term.toLowerCase().includes(searchLower) ||
       (term.shortIntro?.toLowerCase().includes(searchLower)) ||
       term.explanation.toLowerCase().includes(searchLower) ||
       term.tags.some((tag) => tag.toLowerCase().includes(searchLower))
@@ -529,8 +529,101 @@ const computeFilteredGlossaryTerms = (queryParams: URLSearchParams, terms: Gloss
   );
 };
 
-// NOSONAR: Cognitive complexity acceptable for main component
-export const MarketplacePage: React.FC<MarketplacePageProps> = ({ // NOSONAR typescript:S3776
+const SERVICE_TABS = ['technology', 'business', 'digital_worker', 'prompt_library', 'ai_tools'] as const;
+
+const getServiceTabFromParams = (params: URLSearchParams): string => {
+  const tab = params.get('tab');
+  return tab && SERVICE_TABS.includes(tab as (typeof SERVICE_TABS)[number]) ? tab : 'technology';
+};
+
+const useServiceTabState = (
+  isServicesCenter: boolean,
+  searchParams: URLSearchParams,
+  setSearchParams: (params: URLSearchParams, options?: { replace?: boolean }) => void,
+) => {
+  const [activeServiceTab, setActiveServiceTab] = useState<string>(() => {
+    if (!isServicesCenter) return 'technology';
+    const params = globalThis.window
+      ? new URLSearchParams(globalThis.window.location.search)
+      : new URLSearchParams();
+    return getServiceTabFromParams(params);
+  });
+
+  useEffect(() => {
+    if (!isServicesCenter) return;
+    const currentTab = searchParams.get('tab');
+    const validTabs = new Set<string>(SERVICE_TABS);
+    if (currentTab && validTabs.has(currentTab) && currentTab !== activeServiceTab) {
+      setActiveServiceTab(currentTab);
+      return;
+    }
+    if (!currentTab || !validTabs.has(currentTab)) {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('tab', activeServiceTab);
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [isServicesCenter, searchParams, activeServiceTab, setSearchParams]);
+
+  return { activeServiceTab, setActiveServiceTab };
+};
+
+const VALID_GUIDE_TABS_SET = new Set<WorkGuideTab>(['guidelines', 'strategy', 'blueprints', 'testimonials', 'glossary', 'faqs']);
+
+const getGuideTabFromParams = (params: URLSearchParams): WorkGuideTab => {
+  const tab = params.get('tab') as WorkGuideTab | null;
+  return tab && VALID_GUIDE_TABS_SET.has(tab) ? tab : 'guidelines';
+};
+
+const useGuideTabState = (isGuides: boolean) => {
+  const [queryParams, setQueryParams] = useState(() => {
+    if (globalThis.window !== undefined) {
+      return new URLSearchParams(globalThis.window.location.search);
+    }
+    return new URLSearchParams('');
+  });
+
+  const [activeTab, setActiveTab] = useState<WorkGuideTab>(() => getGuideTabFromParams(queryParams));
+  const prevTabRef = useRef<WorkGuideTab>(activeTab);
+  const searchStartRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!isGuides) return;
+    setActiveTab(getGuideTabFromParams(queryParams));
+  }, [isGuides, queryParams]);
+
+  useEffect(() => {
+    if (!isGuides) return;
+    if (activeTab === 'guidelines') return;
+    if (prevTabRef.current === activeTab) return;
+    prevTabRef.current = activeTab;
+    const { next, changed } = cleanFiltersForActiveTab(activeTab, queryParams);
+    if (!changed) return;
+    syncUrlParams(next);
+    setQueryParams(new URLSearchParams(next.toString()));
+  }, [isGuides, activeTab, queryParams, setQueryParams]);
+
+  const handleGuidesTabChange = useCallback(
+    (tab: WorkGuideTab) => {
+      setActiveTab(tab);
+      const next = buildGuidesTabParams(tab, queryParams);
+      syncUrlParams(next);
+      setQueryParams(new URLSearchParams(next.toString()));
+      track('Guides.TabChanged', { tab });
+    },
+    [queryParams, setQueryParams],
+  );
+
+  return {
+    queryParams,
+    setQueryParams,
+    activeTab,
+    handleGuidesTabChange,
+    searchStartRef,
+  };
+};
+
+// NOSONAR typescript:S3776: top-level orchestrator coordinates multiple marketplace modes; further decomposition would duplicate logic
+export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   marketplaceType,
   promoCards = []
 }) => {
@@ -543,37 +636,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({ // NOSONAR typ
   const [searchParams, setSearchParams] = useSearchParams();
   const config = getMarketplaceConfig(marketplaceType);
   
-  // Service Center tabs - sync with URL params
-  const getServiceTabFromParams = useCallback((params: URLSearchParams): string => {
-    const tab = params.get('tab');
-    const validTabs = ['technology', 'business', 'digital_worker', 'prompt_library', 'ai_tools'];
-    return tab && validTabs.includes(tab) ? tab : 'technology';
-  }, []);
-  const [activeServiceTab, setActiveServiceTab] = useState<string>(() => {
-    if (isServicesCenter) {
-      const params = globalThis.window 
-        ? new URLSearchParams(globalThis.window.location.search)
-        : new URLSearchParams();
-      return getServiceTabFromParams(params);
-    }
-    return 'technology';
-  });
-  
-  // Sync activeServiceTab with URL params
-  useEffect(() => {
-    if (isServicesCenter) {
-      const currentTab = searchParams.get('tab');
-      const validTabs = new Set(['technology', 'business', 'digital_worker', 'prompt_library', 'ai_tools']);
-      if (currentTab && validTabs.has(currentTab) && currentTab !== activeServiceTab) {
-        setActiveServiceTab(currentTab);
-      } else if (!currentTab || !validTabs.has(currentTab)) {
-        // Set default tab in URL if not present
-        const newParams = new URLSearchParams(searchParams);
-        newParams.set('tab', activeServiceTab);
-        setSearchParams(newParams, { replace: true });
-      }
-    }
-  }, [isServicesCenter, searchParams, activeServiceTab, setSearchParams]);
+  const { activeServiceTab, setActiveServiceTab } = useServiceTabState(isServicesCenter, searchParams, setSearchParams);
 
   // Items & filters state (stored in ref because value is not read in render)
   const itemsRef = useRef<MarketplaceItem[]>([]);
@@ -587,50 +650,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({ // NOSONAR typ
 
   // Guides facets + URL state
   const [facets, setFacets] = useState<GuidesFacets>({});
-  const [queryParams, setQueryParams] = useState(() => {
-    if (globalThis.window !== undefined) {
-      return new URLSearchParams(globalThis.window.location.search);
-    }
-    return new URLSearchParams('');
-  });
-  const searchStartRef = useRef<number | null>(null);
-  const getTabFromParams = useCallback((params: URLSearchParams): WorkGuideTab => {
-    const tab = params.get('tab');
-    return tab === 'strategy' || tab === 'blueprints' || tab === 'testimonials' || tab === 'glossary' || tab === 'faqs' ? tab : 'guidelines';
-  }, []);
-  const [activeTab, setActiveTab] = useState<WorkGuideTab>(() => {
-    if (globalThis.window !== undefined) {
-      return getTabFromParams(new URLSearchParams(globalThis.window.location.search));
-    }
-    return getTabFromParams(new URLSearchParams());
-  });
-
-  useEffect(() => {
-    if (!isGuides) return;
-    setActiveTab(getTabFromParams(queryParams));
-  }, [isGuides, queryParams, getTabFromParams]);
-
-  const handleGuidesTabChange = useCallback((tab: WorkGuideTab) => {
-    setActiveTab(tab);
-    const next = buildGuidesTabParams(tab, queryParams);
-    syncUrlParams(next);
-    setQueryParams(new URLSearchParams(next.toString()));
-    track('Guides.TabChanged', { tab });
-  }, [queryParams, setQueryParams]);
-
-  // Clean up incompatible filters when tab changes (not on every query change)
-  const prevTabRef = useRef<WorkGuideTab>(activeTab);
-  useEffect(() => {
-    if (!isGuides) return;
-    if (activeTab === 'guidelines') return;
-    // Only run if tab actually changed
-    if (prevTabRef.current === activeTab) return;
-    prevTabRef.current = activeTab;
-    const { next, changed } = cleanFiltersForActiveTab(activeTab, queryParams);
-    if (!changed) return;
-    syncUrlParams(next);
-    setQueryParams(new URLSearchParams(next.toString()));
-  }, [isGuides, activeTab, queryParams]);
+  const { queryParams, setQueryParams, activeTab, handleGuidesTabChange, searchStartRef } = useGuideTabState(isGuides);
 
   const pageSize = Math.min(200, Math.max(1, Number.parseInt(queryParams.get('pageSize') || String(DEFAULT_GUIDE_PAGE_SIZE), 10)));
   const currentPage = Math.max(1, Number.parseInt(queryParams.get('page') || '1', 10));
@@ -1357,7 +1377,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({ // NOSONAR typ
 
     run();
     // Keep deps lean; no need to include functions like isGuides
-  }, [marketplaceType, filters, filterSignature, filterConfig.length, searchQuery, queryParams, isCourses, isKnowledgeHub, isGuides, currentPage, pageSize, isServicesCenter, activeServiceTab, activeTab, searchFilteredItems.length]);
+  }, [marketplaceType, filters, filterSignature, filterConfig.length, searchQuery, queryParams, isCourses, isKnowledgeHub, isGuides, currentPage, pageSize, isServicesCenter, activeServiceTab, activeTab, searchFilteredItems.length, setQueryParams, searchStartRef]);
 
   // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
@@ -1402,7 +1422,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({ // NOSONAR typ
       setFilters(empty);
       setSearchQuery('');
     }
-  }, [isCourses, isKnowledgeHub, isGuides, filterConfig, setSearchParams]);
+  }, [isCourses, isKnowledgeHub, isGuides, filterConfig, setSearchParams, setQueryParams]);
   
   // Knowledge Hub filter handlers
   const handleKnowledgeHubFilterChange = useCallback((filter: string) => {
@@ -1450,7 +1470,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({ // NOSONAR typ
       globalThis.window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     setQueryParams(new URLSearchParams(next.toString()));
-  }, [queryParams, totalPages]);
+  }, [queryParams, totalPages, setQueryParams]);
 
   return (
     <div className={`min-h-screen flex flex-col bg-gray-50 ${isGuides ? 'guidelines-theme' : ''}`}>
