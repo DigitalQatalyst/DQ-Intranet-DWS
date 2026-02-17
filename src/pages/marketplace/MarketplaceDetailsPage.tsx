@@ -130,6 +130,56 @@ const AccordionBlock: React.FC<{
   );
 };
 
+// Custom hook to handle overflow checking for tabs
+const useTabOverflow = (containerRef: React.RefObject<HTMLDivElement>, tabsRef: React.RefObject<HTMLDivElement>, dependencies: any[]) => {
+  const [showNavigation, setShowNavigation] = useState(false);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (tabsRef.current && containerRef.current) {
+        const scrollWidth = tabsRef.current.scrollWidth;
+        const clientWidth = containerRef.current.clientWidth - 96;
+        setShowNavigation(scrollWidth > clientWidth);
+      }
+    };
+
+    checkOverflow();
+    const resizeObserver = new ResizeObserver(checkOverflow);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+    return () => resizeObserver.disconnect();
+  }, dependencies);
+
+  return showNavigation;
+};
+
+// Custom hook to handle sticky bottom CTA visibility
+const useStickyBottomCTA = (summaryCardRef: React.RefObject<HTMLDivElement>) => {
+  const [showStickyBottomCTA, setShowStickyBottomCTA] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (summaryCardRef.current && window.innerWidth < 1024) {
+        const summaryCardBottom = summaryCardRef.current.offsetTop + summaryCardRef.current.offsetHeight;
+        const scrollPosition = window.scrollY + window.innerHeight;
+        setShowStickyBottomCTA(scrollPosition > summaryCardBottom + 100);
+      } else {
+        setShowStickyBottomCTA(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [summaryCardRef]);
+
+  return showStickyBottomCTA;
+};
+
 interface MarketplaceDetailsPageProps {
   marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding' | 'events';
   bookmarkedItems?: string[];
@@ -183,15 +233,6 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showNavigation, setShowNavigation] = useState(false);
-  const [showStickyBottomCTA, setShowStickyBottomCTA] = useState(false);
-  // FLOATING CARD STATE REMOVED:
-  // Removed isVisible, isFloatingCardVisible, and headerHeight state variables
-  // as they were only used for the floating sidebar behavior which has been removed.
-  // To restore floating behavior, add back:
-  // const [isVisible, setIsVisible] = useState(false);
-  // const [isFloatingCardVisible, setIsFloatingCardVisible] = useState(true);
-  // const [headerHeight, setHeaderHeight] = useState(80);
   const [redirectTimer, setRedirectTimer] = useState<NodeJS.Timeout | null>(null);
   const [isRequestFormOpen, setIsRequestFormOpen] = useState(false);
   const [isTechSupportFormOpen, setIsTechSupportFormOpen] = useState(false);
@@ -201,67 +242,10 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const heroRef = useRef<HTMLDivElement>(null);
   const summaryCardRef = useRef<HTMLDivElement>(null);
   const contentColumnRef = useRef<HTMLDivElement>(null);
-  // Check if tabs overflow and need navigation controls
-  const checkOverflow = () => {
-    if (tabsRef.current && containerRef.current) {
-      const scrollWidth = tabsRef.current.scrollWidth;
-      const clientWidth = containerRef.current.clientWidth - 96; // Account for potential arrow buttons
-      setShowNavigation(scrollWidth > clientWidth);
-    }
-  };
-  useEffect(() => {
-    checkOverflow();
-    const resizeObserver = new ResizeObserver(checkOverflow);
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
-    return () => resizeObserver.disconnect();
-  }, [item, config.tabs]);
-
-  // Update floating card visibility based on scroll position - restored from Communities
-  useEffect(() => {
-    const handleScroll = () => {
-      if (heroRef.current && contentColumnRef.current) {
-        // Removed unused variables: heroBottom, contentColumnRect, cardBottomPosition, headerHeight
-        // setIsVisible(isHeroScrolledPast && isContentColumnVisible && isWithinContentBounds); // State removed in HEAD?
-        // If we want to restore floating card, we need isVisible state.
-        // For now, focusing on sticky bottom CTA
-
-        if (window.innerWidth < 1024) {
-          const summaryCardBottom = summaryCardRef.current?.getBoundingClientRect().bottom || 0;
-          setShowStickyBottomCTA(summaryCardBottom < 0);
-        } else {
-          setShowStickyBottomCTA(false);
-        }
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
-    handleScroll();
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, []);
-  // Handle scroll for sticky bottom CTA on mobile
-  useEffect(() => {
-    const handleScroll = () => {
-      if (summaryCardRef.current && window.innerWidth < 1024) {
-        const summaryCardBottom = summaryCardRef.current.offsetTop + summaryCardRef.current.offsetHeight;
-        const scrollPosition = window.scrollY + window.innerHeight;
-        // Show sticky CTA when scrolled past summary card
-        setShowStickyBottomCTA(scrollPosition > summaryCardBottom + 100);
-      } else {
-        setShowStickyBottomCTA(false);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, []);
+  
+  // Use custom hooks to reduce complexity
+  const showNavigation = useTabOverflow(containerRef, tabsRef, [item, config.tabs]);
+  const showStickyBottomCTA = useStickyBottomCTA(summaryCardRef);
   // Clear any redirect timers when component unmounts
   useEffect(() => {
     return () => {
@@ -298,6 +282,90 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       setActiveTab(customTabs[0].id);
     }
   }, [customTabs]);
+
+  // Helper function to fetch related events
+  const fetchRelatedEventsData = async (itemData: any, itemId: string) => {
+    if (marketplaceType !== 'events' || !itemData.category) return [];
+    
+    setRelatedEventsLoading(true);
+    try {
+      const { data, error } = await supabaseClient
+        .from('events_v2')
+        .select('id, title, description, start_time, end_time, category, location, image_url, tags')
+        .eq('status', 'published')
+        .eq('category', itemData.category)
+        .neq('id', itemId)
+        .gte('start_time', new Date().toISOString())
+        .order('start_time', { ascending: true })
+        .limit(5);
+
+      if (!error && data) {
+        return data.map((event: any) => ({
+          id: event.id,
+          event_title: event.title,
+          title: event.title,
+          event_description: event.description,
+          description: event.description,
+          tags: event.tags || []
+        }));
+      }
+      return [];
+    } catch (error) {
+      console.error('Error fetching related events:', error);
+      return [];
+    } finally {
+      setRelatedEventsLoading(false);
+    }
+  };
+
+  // Helper function to fetch related items
+  const fetchRelatedItemsData = async (itemData: any) => {
+    try {
+      const data = await fetchRelatedMarketplaceItems(
+        marketplaceType,
+        itemData.id,
+        itemData.category || '',
+        itemData.provider?.name || ''
+      );
+      return data && data.length > 0 ? data : [];
+    } catch (error) {
+      console.error('Error fetching related items:', error);
+      return [];
+    }
+  };
+
+  // Helper function to handle events marketplace
+  const handleEventsMarketplace = async (itemData: any, itemId: string) => {
+    if (!itemData) {
+      setError('Event not found. Please check the event ID and try again.');
+      setLoading(false);
+      return;
+    }
+    
+    setItem(itemData);
+    setIsBookmarked(bookmarkedItems.includes(itemData.id));
+    const related = await fetchRelatedEventsData(itemData, itemId);
+    setRelatedItems(related);
+  };
+
+  // Helper function to handle non-events marketplace
+  const handleNonEventsMarketplace = async (itemData: any) => {
+    const finalItemData = itemData || getFallbackItemDetails(marketplaceType, itemId || 'fallback-1');
+    
+    if (finalItemData) {
+      setItem(finalItemData);
+      setIsBookmarked(bookmarkedItems.includes(finalItemData.id));
+      const related = await fetchRelatedItemsData(finalItemData);
+      setRelatedItems(related.length > 0 ? related : getFallbackItems(marketplaceType));
+    } else {
+      const genericFallback = getFallbackItemDetails(marketplaceType, 'generic-fallback');
+      setItem(genericFallback);
+      setError(null);
+      const timer = setTimeout(() => navigate(config.route), 5000);
+      setRedirectTimer(timer);
+    }
+  };
+
   // Generate a random rating between 4.0 and 5.0 for display purposes
   // const rating = (4 + Math.random()).toFixed(1);
   // const reviewCount = Math.floor(Math.random() * 50) + 10;
@@ -320,86 +388,12 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           console.error(`Error fetching ${marketplaceType} item details:`, fetchError);
           // We'll handle this below by using fallback data
         }
-        // For events, only use database data - don't fall back to mock data
+        
+        // Handle events vs non-events marketplace
         if (marketplaceType === 'events') {
-          if (!itemData) {
-            setError('Event not found. Please check the event ID and try again.');
-            setLoading(false);
-            return;
-          }
-          setItem(itemData);
-          setIsBookmarked(bookmarkedItems.includes(itemData.id));
-
-          // Fetch related events from database (only for events marketplace)
-          if (marketplaceType === 'events' && itemData.category) {
-            setRelatedEventsLoading(true);
-            try {
-              const { data: relatedEventsData, error: relatedError } = await supabaseClient
-                .from('events_v2')
-                .select('id, title, description, start_time, end_time, category, location, image_url, tags')
-                .eq('status', 'published')
-                .eq('category', itemData.category) // Filter by same category
-                .neq('id', itemId) // Exclude current event
-                .gte('start_time', new Date().toISOString()) // Only future events
-                .order('start_time', { ascending: true })
-                .limit(5); // Limit to 5 events
-
-              if (!relatedError && relatedEventsData) {
-                const transformedRelated: any[] = relatedEventsData.map((event: any) => ({
-                  id: event.id,
-                  event_title: event.title,
-                  title: event.title,
-                  event_description: event.description,
-                  description: event.description,
-                  tags: event.tags || []
-                }));
-                setRelatedItems(transformedRelated);
-              } else {
-                setRelatedItems([]);
-              }
-            } catch (relatedError) {
-              console.error('Error fetching related events:', relatedError);
-              setRelatedItems([]);
-            } finally {
-              setRelatedEventsLoading(false);
-            }
-          } else {
-            // For non-events or events without category, fetch related items normally
-            let relatedItemsData: any[] = [];
-            try {
-              relatedItemsData = await fetchRelatedMarketplaceItems(marketplaceType, itemData.id, itemData.category || '', itemData.provider?.name || '');
-            } catch (relatedError) {
-              console.error('Error fetching related items:', relatedError);
-            }
-            setRelatedItems(relatedItemsData && relatedItemsData.length > 0 ? relatedItemsData : []);
-          }
+          await handleEventsMarketplace(itemData, itemId);
         } else {
-          // For other marketplace types, use fallback data if needed
-          const finalItemData = itemData || getFallbackItemDetails(marketplaceType, itemId || 'fallback-1');
-          if (finalItemData) {
-            setItem(finalItemData);
-            setIsBookmarked(bookmarkedItems.includes(finalItemData.id));
-            // Fetch related items
-            let relatedItemsData: any[] = [];
-            try {
-              relatedItemsData = await fetchRelatedMarketplaceItems(marketplaceType, finalItemData.id, finalItemData.category || '', finalItemData.provider?.name || '');
-            } catch (relatedError) {
-              console.error('Error fetching related items:', relatedError);
-              // Use fallback related items on error
-            }
-            // Use fetched related items if available, otherwise use fallback
-            setRelatedItems(relatedItemsData && relatedItemsData.length > 0 ? relatedItemsData : getFallbackItems(marketplaceType));
-          } else {
-            // Item not found - use generic fallback
-            const genericFallback = getFallbackItemDetails(marketplaceType, 'generic-fallback');
-            setItem(genericFallback);
-            setError(null); // Clear any error since we're showing fallback data
-            // Set a redirect timer with a longer delay (5 seconds)
-            const timer = setTimeout(() => {
-              navigate(config.route);
-            }, 5000);
-            setRedirectTimer(timer);
-          }
+          await handleNonEventsMarketplace(itemData);
         }
 
         // If the action parameter is true, scroll to the action section
@@ -407,23 +401,19 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           setTimeout(() => {
             const actionSection = document.getElementById('action-section');
             if (actionSection) {
-              actionSection.scrollIntoView({
-                behavior: 'smooth'
-              });
+              actionSection.scrollIntoView({ behavior: 'smooth' });
             }
           }, 100);
         }
       } catch (err) {
         console.error(`Error in marketplace details page:`, err);
-        // For events, show error instead of fallback
         if (marketplaceType === 'events') {
           setError(`Failed to load event details: ${err instanceof Error ? err.message : 'Unknown error'}`);
         } else {
-          // Use fallback data even on general errors for other types
           const fallbackItem = getFallbackItemDetails(marketplaceType, 'generic-fallback');
           setItem(fallbackItem);
           setRelatedItems(getFallbackItems(marketplaceType));
-          setError(null); // Clear error since we're showing fallback data
+          setError(null);
         }
       } finally {
         setLoading(false);
