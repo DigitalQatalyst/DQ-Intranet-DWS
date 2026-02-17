@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/communities/contexts/AuthProvider';
 import { supabase } from '@/communities/integrations/supabase/client';
@@ -18,6 +18,7 @@ import { Skeleton } from '@/communities/components/ui/skeleton';
 // Import PageLayout components
 import { PageLayout, PageSection, SectionHeader, SectionContent } from '@/communities/components/DesignSystem/PageLayout/PageLayout';
 import type { BreadcrumbItem } from '@/communities/components/DesignSystem/PageLayout/PageLayout';
+import type { User as AuthUser } from '@/communities/contexts/AuthProvider';
 interface Community {
   id: string;
   name: string;
@@ -42,13 +43,13 @@ interface Post {
   comment_count?: number;
   tags?: string[];
   post_type?: 'text' | 'media' | 'poll' | 'event' | 'article' | 'announcement';
-  metadata?: any;
+  metadata?: Record<string, unknown> | null;
   event_date?: string;
   event_location?: string;
 }
 const FALLBACK_IMAGE_URL = 'https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1400&q=80';
 
-function useCommunityBreadcrumbs(community: Community | null): BreadcrumbItem[] {
+function useCommunityBreadcrumbs(community: Readonly<Community> | null): BreadcrumbItem[] {
   if (!community) return [];
   return [
     { label: 'Home', href: '/', icon: Home },
@@ -72,7 +73,7 @@ function LoadingState() {
   );
 }
 
-function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+function ErrorState({ message, onRetry }: { readonly message: string; readonly onRetry: () => void }) {
   return (
     <MainLayout hidePageLayout>
       <PageLayout title={message || 'Community not found'}>
@@ -117,16 +118,16 @@ function CommunityHeroSection({
   handleJoinLeave,
   setImageDialogOpen,
 }: {
-  community: Community;
-  memberCount: number;
-  isOwner: boolean;
-  isAdmin: boolean;
-  user: any;
-  id?: string;
-  isMember: boolean;
-  joinLoading: boolean;
-  handleJoinLeave: () => void;
-  setImageDialogOpen: (open: boolean) => void;
+  readonly community: Community;
+  readonly memberCount: number;
+  readonly isOwner: boolean;
+  readonly isAdmin: boolean;
+  readonly user: AuthUser | null;
+  readonly id?: string;
+  readonly isMember: boolean;
+  readonly joinLoading: boolean;
+  readonly handleJoinLeave: () => void;
+  readonly setImageDialogOpen: (open: boolean) => void;
 }) {
   return (
     <PageSection className="p-0 overflow-hidden mb-6">
@@ -184,19 +185,27 @@ function CommunityHeroSection({
                 </div>
                 <div className="mt-6 md:mt-0 md:ml-8">
                   <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
-                    {!user ? (
-                      <Button onClick={() => undefined} className="bg-white text-blue-600 hover:bg-gray-100" disabled>
-                        Login to Join
-                      </Button>
-                    ) : isMember ? (
-                      <Button onClick={handleJoinLeave} variant="outline" className="bg-white text-blue-600 border-blue-200 hover:bg-blue-50" disabled={joinLoading}>
-                        {joinLoading ? 'Processing...' : 'Leave Community'}
-                      </Button>
-                    ) : (
-                      <Button onClick={handleJoinLeave} className="bg-blue-600 text-white hover:bg-blue-700" disabled={joinLoading}>
-                        {joinLoading ? 'Processing...' : 'Join Community'}
-                      </Button>
-                    )}
+                    {(() => {
+                      if (user) {
+                        if (isMember) {
+                          return (
+                            <Button onClick={handleJoinLeave} variant="outline" className="bg-white text-blue-600 border-blue-200 hover:bg-blue-50" disabled={joinLoading}>
+                              {joinLoading ? 'Processing...' : 'Leave Community'}
+                            </Button>
+                          );
+                        }
+                        return (
+                          <Button onClick={handleJoinLeave} className="bg-blue-600 text-white hover:bg-blue-700" disabled={joinLoading}>
+                            {joinLoading ? 'Processing...' : 'Join Community'}
+                          </Button>
+                        );
+                      }
+                      return (
+                        <Button onClick={() => undefined} className="bg-white text-blue-600 hover:bg-gray-100" disabled>
+                          Login to Join
+                        </Button>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
@@ -208,7 +217,7 @@ function CommunityHeroSection({
   );
 }
 
-function CommunityTabs({ id, location }: { id?: string; location: ReturnType<typeof useLocation> }) {
+function CommunityTabs({ id, location }: { readonly id?: string; readonly location: ReturnType<typeof useLocation> }) {
   return (
     <PageSection className="p-0 border-b border-gray-200">
       <div className="flex items-center gap-1 overflow-x-auto">
@@ -267,15 +276,15 @@ function PostsSection({
   id,
   navigate,
 }: {
-  user: any;
-  isMember: boolean;
-  postsLoading: boolean;
-  postsError: string | null;
-  posts: Post[];
-  handlePostCreated: () => void;
-  fetchPosts: () => void;
-  id?: string;
-  navigate: ReturnType<typeof useNavigate>;
+  readonly user: AuthUser | null;
+  readonly isMember: boolean;
+  readonly postsLoading: boolean;
+  readonly postsError: string | null;
+  readonly posts: Post[];
+  readonly handlePostCreated: () => void;
+  readonly fetchPosts: () => void;
+  readonly id?: string;
+  readonly navigate: ReturnType<typeof useNavigate>;
 }) {
   return (
     <PageSection>
@@ -286,49 +295,60 @@ function PostsSection({
         </SectionContent>
       )}
       <SectionContent className={user && isMember ? 'pt-4' : ''}>
-        {postsLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-gray-50 rounded-lg p-4">
-                <Skeleton className="h-6 w-1/3 mb-2" />
-                <Skeleton className="h-4 w-full mb-2" />
-                <Skeleton className="h-4 w-2/3" />
+        {(() => {
+          if (postsLoading) {
+            return (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="bg-gray-50 rounded-lg p-4">
+                    <Skeleton className="h-6 w-1/3 mb-2" />
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        ) : postsError ? (
-          <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-md">
-            <p>{postsError}</p>
-            <Button variant="outline" size="sm" onClick={fetchPosts} className="mt-2">
-              Retry
-            </Button>
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="bg-gray-50 rounded-lg p-8 text-center">
-            <div className="flex flex-col items-center justify-center">
-              <div className="bg-gray-100 p-3 rounded-full mb-4">
-                <AlertCircle className="h-6 w-6 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No posts yet</h3>
-              <p className="text-gray-500 mb-4">
-                Be the first to start a conversation in this community
-              </p>
-              {user && isMember && (
-                <Button onClick={() => navigate(`/create-post?communityId=${id}`)} className="bg-blue-600 text-white hover:bg-blue-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Post
+            );
+          }
+          if (postsError) {
+            return (
+              <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-md">
+                <p>{postsError}</p>
+                <Button variant="outline" size="sm" onClick={fetchPosts} className="mt-2">
+                  Retry
                 </Button>
-              )}
-              {!user && <p className="text-gray-400 text-sm">Join this community to start posting</p>}
+              </div>
+            );
+          }
+          if (posts.length === 0) {
+            return (
+              <div className="bg-gray-50 rounded-lg p-8 text-center">
+                <div className="flex flex-col items-center justify-center">
+                  <div className="bg-gray-100 p-3 rounded-full mb-4">
+                    <AlertCircle className="h-6 w-6 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No posts yet</h3>
+                  <p className="text-gray-500 mb-4">
+                    Be the first to start a conversation in this community
+                  </p>
+                  {user && isMember && (
+                    <Button onClick={() => navigate(`/create-post?communityId=${id}`)} className="bg-blue-600 text-white hover:bg-blue-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Post
+                    </Button>
+                  )}
+                  {!user && <p className="text-gray-400 text-sm">Join this community to start posting</p>}
+                </div>
+              </div>
+            );
+          }
+          return (
+            <div className="space-y-4">
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} onActionComplete={handlePostCreated} />
+              ))}
             </div>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} onActionComplete={handlePostCreated} />
-            ))}
-          </div>
-        )}
+          );
+        })()}
       </SectionContent>
     </PageSection>
   );
@@ -341,11 +361,11 @@ function SidebarColumn({
   isOwner,
   isAdmin,
 }: {
-  id?: string;
-  community: Community;
-  memberCount: number;
-  isOwner: boolean;
-  isAdmin: boolean;
+  readonly id?: string;
+  readonly community: Community;
+  readonly memberCount: number;
+  readonly isOwner: boolean;
+  readonly isAdmin: boolean;
 }) {
   return (
     <div className="space-y-6">
@@ -397,7 +417,7 @@ function SidebarColumn({
   );
 }
 
-function FloatingCreateButton({ visible, navigate, id }: { visible: boolean; navigate: ReturnType<typeof useNavigate>; id?: string }) {
+function FloatingCreateButton({ visible, navigate, id }: { readonly visible: boolean; readonly navigate: ReturnType<typeof useNavigate>; readonly id?: string }) {
   if (!visible) return null;
   return (
     <Button
@@ -418,12 +438,12 @@ function ImageUpdateDialog({
   updateImageLoading,
   handleUpdateImage,
 }: {
-  imageDialogOpen: boolean;
-  setImageDialogOpen: (open: boolean) => void;
-  newImageUrl: string;
-  setNewImageUrl: (url: string) => void;
-  updateImageLoading: boolean;
-  handleUpdateImage: () => void;
+  readonly imageDialogOpen: boolean;
+  readonly setImageDialogOpen: (open: boolean) => void;
+  readonly newImageUrl: string;
+  readonly setNewImageUrl: (url: string) => void;
+  readonly updateImageLoading: boolean;
+  readonly handleUpdateImage: () => void;
 }) {
   return (
     <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
@@ -503,21 +523,7 @@ export default function Community() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
-  useEffect(() => {
-    if (id) {
-      fetchCommunity();
-      fetchPosts();
-      if (user) {
-        checkMembership();
-      }
-    }
-  }, [id, user]);
-  useEffect(() => {
-    if (id) {
-      fetchPosts();
-    }
-  }, [refreshKey]);
-  const fetchCommunity = async () => {
+  const fetchCommunity = useCallback(async () => {
     if (!id) return;
     setLoading(true);
     setError(null);
@@ -541,8 +547,8 @@ export default function Community() {
       // Fetch the community's creator to check ownership
       if (user && id) {
         const ownerQuery = supabase.from('communities').select('created_by').eq('id', id).maybeSingle();
-        const [ownerData] = await safeFetch(ownerQuery);
-        const isUserOwner = ownerData?.created_by === user.id;
+    const [ownerData] = await safeFetch(ownerQuery);
+    const isUserOwner = ownerData?.created_by === user.id;
         setIsOwner(isUserOwner);
         // Check if user is admin
         if (!isUserOwner && user.role === 'admin') {
@@ -555,13 +561,13 @@ export default function Community() {
       }
     }
       setLoading(false);
-  };
-  const checkMembership = async () => {
+  }, [id, user]);
+  const checkMembership = useCallback(async () => {
     if (!user || !id) return;
     const query = supabase.from('memberships').select('id').eq('user_id', user.id).eq('community_id', id).maybeSingle();
     const [data] = await safeFetch(query);
     setIsMember(!!data);
-  };
+  }, [id, user]);
   const handleJoinLeave = async () => {
     if (!user) {
       toast.error('Please sign in to join communities');
@@ -597,14 +603,14 @@ export default function Community() {
     }
     setJoinLoading(false);
   };
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     if (!id) return;
     setPostsLoading(true);
     setPostsError(null);
     // Build query - moderators/admins see all posts, regular users see only active
     let query = supabase.from('posts_with_reactions').select('*').eq('community_id', id);
     // Regular users only see active posts
-    if (user && user.role === 'member') {
+    if (user?.role === 'member') {
       query = query.eq('status', 'active');
     }
     query = query.order('created_at', {
@@ -620,7 +626,7 @@ export default function Community() {
       setPosts(data as Post[]);
     }
     setPostsLoading(false);
-  };
+  }, [id, user]);
   const handlePostCreated = () => {
     setRefreshKey(prev => prev + 1);
   };
@@ -642,7 +648,7 @@ export default function Community() {
     } else {
       toast.success('Community image updated successfully');
       setCommunity(prev => prev ? {
-              ...prev,
+        ...prev,
         imageurl: newImageUrl.trim()
       } : null);
       setImageDialogOpen(false);
@@ -650,6 +656,20 @@ export default function Community() {
     }
     setUpdateImageLoading(false);
   };
+  useEffect(() => {
+    if (id) {
+      fetchCommunity();
+      fetchPosts();
+      if (user) {
+        checkMembership();
+      }
+    }
+  }, [checkMembership, fetchCommunity, fetchPosts, id, user]);
+  useEffect(() => {
+    if (id) {
+      fetchPosts();
+    }
+  }, [fetchPosts, id, refreshKey]);
   const breadcrumbItems = useCommunityBreadcrumbs(community);
   if (loading) return <LoadingState />;
   if (error || !community) return <ErrorState message={error || 'Community not found'} onRetry={fetchCommunity} />;
