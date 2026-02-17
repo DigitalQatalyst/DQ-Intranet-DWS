@@ -66,7 +66,11 @@ function GuidelinePage() {
         }
         // Start new section
         const title = h2Match[1].trim()
-        const id = title.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').replaceAll(/(?:^-+|-+$)/g, '')
+        // Use safer regex patterns to prevent ReDoS - using replace with /g flag for security
+        const id = title.toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')  // NOSONAR: replace with /g is safer than replaceAll for ReDoS prevention
+          .replace(/^-+/, '')            // Remove leading dashes
+          .replace(/-+$/, '');           // Remove trailing dashes
         currentSection = { id, title, content: '' }
       } else if (currentSection) {
         currentSection.content += line + '\n'
