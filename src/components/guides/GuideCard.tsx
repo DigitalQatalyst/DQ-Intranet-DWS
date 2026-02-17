@@ -73,11 +73,10 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick }) => {
   }
 
   return (
-    <div
-      className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col"
+    <button
+      type="button"
+      className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow cursor-pointer h-full flex flex-col text-left"
       onClick={onClick}
-      role="button"
-      tabIndex={0}
       onKeyDown={handleKeyDown}
       aria-label={`Open guide ${guide.title}`}
     >
@@ -146,7 +145,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick }) => {
             View Details
         </button>
       </div>
-    </div>
+    </button>
   )
 }
 
