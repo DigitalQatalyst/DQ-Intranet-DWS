@@ -15,7 +15,7 @@ type AnyResponse = {
 };
 
 import { supabaseAdmin } from './lib/supabaseAdmin.js';
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 
 type GuideRow = {
   id: string;
@@ -139,8 +139,10 @@ const handleGuideById = async (id: string, isUuid: boolean, urlObj: URL, req: An
   sendWithEtag(res, out, inm);
 };
 
-const buildSortParam = (raw: string) =>
-  raw === 'downloads' || raw === 'relevance' ? 'downloads' : (raw === 'updated' ? 'updated' : 'updated');
+const buildSortParam = (raw: string) => {
+  if (raw === 'downloads' || raw === 'relevance') return 'downloads';
+  return 'updated';
+};
 
 const countBy = (arr: FacetRow[] | null | undefined, key: 'domain'|'guide_type'|'function_area'|'status') => {
   const m = new Map<string, number>();
@@ -155,7 +157,7 @@ const countBy = (arr: FacetRow[] | null | undefined, key: 'domain'|'guide_type'|
 const handleGuidesList = async (urlObj: URL, res: AnyResponse, req: AnyRequest) => {
   const q = urlObj.searchParams.get('q') || '';
   const sort = buildSortParam((urlObj.searchParams.get('sort') || 'relevance') as string);
-  const pageSize = Math.min(50, Math.max(1, parseInt(urlObj.searchParams.get('pageSize') || '12', 10)));
+  const pageSize = Math.min(50, Math.max(1, Number.parseInt(urlObj.searchParams.get('pageSize') || '12', 10)));
   const cursor = urlObj.searchParams.get('cursor') || '';
   const domains = parseCsv(urlObj.searchParams, 'domain');
   const types = parseCsv(urlObj.searchParams, 'guide_type');
@@ -218,9 +220,16 @@ const handleGuidesList = async (urlObj: URL, res: AnyResponse, req: AnyRequest) 
 const getRouteInfo = (urlObj: URL) => {
   const pathParts = urlObj.pathname.split('/').filter(Boolean);
   const lastPart = pathParts[pathParts.length - 1];
-  const routeKey = pathParts.includes('taxonomies')
-    ? 'TAXONOMIES'
-    : (lastPart && lastPart !== 'guides' ? 'ITEM' : 'LIST');
+  
+  let routeKey: 'TAXONOMIES' | 'ITEM' | 'LIST';
+  if (pathParts.includes('taxonomies')) {
+    routeKey = 'TAXONOMIES';
+  } else if (lastPart && lastPart !== 'guides') {
+    routeKey = 'ITEM';
+  } else {
+    routeKey = 'LIST';
+  }
+  
   const isUuid = lastPart ? /^[0-9a-z-]+$/i.test(lastPart) : false;
   return { routeKey, lastPart, isUuid };
 };
