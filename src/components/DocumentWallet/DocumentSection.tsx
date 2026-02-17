@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 type DocumentStatus = "Approved" | "Pending" | "Rejected" | "Complete" | "Draft" | "Unknown";
+type UploadStatus = "uploading" | "complete";
 
 type DocumentItem = {
     id: string;
@@ -22,9 +23,9 @@ type DocumentItem = {
     status: DocumentStatus;
 };
 
-type UploadingFile = DocumentItem & {
+type UploadingFile = Omit<DocumentItem, "status"> & {
+    status: UploadStatus;
     progress: number;
-    status: "uploading" | "complete";
 };
 
 type DocumentsPageProps = {
