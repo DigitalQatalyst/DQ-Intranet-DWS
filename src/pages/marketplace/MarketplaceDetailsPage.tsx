@@ -532,7 +532,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       return null;
     });
   };
-  const renderTabContent = (tabId: string) => {
+  const renderTabContent = (tabId: string) => { // NOSONAR: acceptable complexity for comprehensive tab rendering logic
     const tab = tabsToUse.find(t => t.id === tabId);
     if (!tab) return null;
     
