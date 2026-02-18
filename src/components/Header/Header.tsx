@@ -26,7 +26,7 @@ export function Header({
   const [isSticky, setIsSticky] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const onboardingPath = '/onboarding/start';
+  const onboardingPath = '/onboarding/welcome';
 
   // Count unread notifications
   const unreadCount = mockNotifications.filter(notif => !notif.read).length;

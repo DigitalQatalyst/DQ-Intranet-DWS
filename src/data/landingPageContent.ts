@@ -305,7 +305,7 @@ export const getLeadApplyCards = (navigate: (path: string) => void): LeadApplyCa
     description:
       "Discover how DQ works, what we build, and how the Digital Workspace supports your role from day one.",
     cta: "Begin Onboarding →",
-    onClick: () => navigate("/onboarding/start"),
+    onClick: () => navigate("/onboarding/welcome"),
     ariaLabel: "Start Your DQ Journey",
     testId: "start-dq-journey-cta",
   },

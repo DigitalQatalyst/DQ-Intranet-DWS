@@ -17,7 +17,7 @@ interface HeroSectionProps {
 const HeroSection: React.FC<HeroSectionProps> = ({ "data-id": dataId }) => {
   const { user } = useAuth();
   const isAuthenticated = Boolean(user);
-  const onboardingPath = "/onboarding/start";
+  const onboardingPath = "/onboarding/welcome";
   const ctaHref = isAuthenticated
     ? onboardingPath
     : `/signin?redirect=${encodeURIComponent(onboardingPath)}`;
