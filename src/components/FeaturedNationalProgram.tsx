@@ -19,7 +19,7 @@ function isPodcast(item: NewsItem): boolean {
     return true;
   }
 
-  if (item.tags && item.tags.some((tag) => tag.toLowerCase().includes('podcast'))) {
+  if (item.tags?.some((tag) => tag.toLowerCase().includes('podcast'))) {
     return true;
   }
 
@@ -31,7 +31,7 @@ function isEvent(item: NewsItem): boolean {
     return true;
   }
 
-  if (item.tags && item.tags.some((tag) => tag.toLowerCase().includes('event'))) {
+  if (item.tags?.some((tag) => tag.toLowerCase().includes('event'))) {
     return true;
   }
 
@@ -44,10 +44,20 @@ function mapNewsToFeatured(item: NewsItem): FeaturedProgram {
   const partnership = item.byline || item.author || 'DQ Communications';
   const localFallback = "url(/images/honeycomb.png)";
   const bgImage = item.image?.startsWith("/") ? `url(${item.image})` : localFallback;
+  
+  let title: string;
+  if (isPodcastItem) {
+    title = `Podcast | ${item.title}`;
+  } else if (isBlog) {
+    title = `Blog | ${item.title}`;
+  } else {
+    title = `Update | ${item.title}`;
+  }
+  
   return {
     id: `news-${item.id}`,
     partnership,
-    title: isPodcastItem ? `Podcast | ${item.title}` : isBlog ? `Blog | ${item.title}` : `Update | ${item.title}`,
+    title,
     description: item.excerpt,
     learnMoreHref: `/marketplace/news/${item.id}`,
     backgroundImage: bgImage,

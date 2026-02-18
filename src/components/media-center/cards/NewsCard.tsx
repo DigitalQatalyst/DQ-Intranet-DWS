@@ -14,7 +14,7 @@ const fallbackImages = [
   'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80'
 ];
 
-export function NewsCard({ item, href }: NewsCardProps) {
+export function NewsCard({ item, href }: Readonly<NewsCardProps>) {
   const imageSrc = item.image || getFallbackImage(item.id, fallbackImages);
   const displayTitle = generateTitle(item);
   const newsTypeDisplay = getNewsTypeDisplay(item);
