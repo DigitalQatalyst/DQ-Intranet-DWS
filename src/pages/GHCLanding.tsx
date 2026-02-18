@@ -505,7 +505,6 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   const foundationTitle = overrides?.foundationTitle ?? 'What is the Golden Honeycomb?';
   const foundationTitleFontSize = overrides?.foundationTitleFontSize;
   const foundationSubtitleFontSize = overrides?.foundationSubtitleFontSize;
-  const foundationCTA = overrides?.foundationCTA ?? 'Read the full GHC Storybook';
   const responsesTitle = overrides?.responsesTitle ?? 'Seven responses';
   const responsesIntro =
     overrides?.responsesIntro ??
@@ -516,10 +515,6 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   const finalSubtitle =
     overrides?.finalSubtitle ??
     'The Golden Honeycomb comes to life through real decisions, tools, and daily work inside the DQ Digital Workspace.';
-
-  const handleEnterHoneycomb = useCallback(() => {
-    navigate('/marketplace/guides/dq-ghc');
-  }, [navigate]);
 
   const handleReadStorybook = useCallback(() => {
     const isExternal = /^https?:\/\//i.test(heroCTALink);
@@ -727,7 +722,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
       {/* -----------------------------------------
           2. WHAT IS GHC SECTION
           ----------------------------------------- */}
-      <SectionWhatIsGHC onReadStorybook={handleEnterHoneycomb} content={overrides} />
+      <SectionWhatIsGHC content={overrides} />
 
       {/* -----------------------------------------
           3. SEVEN RESPONSES CAROUSEL
@@ -763,11 +758,10 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
    ----------------------------------------- */
 
 interface SectionWhatIsGHCProps {
-  onReadStorybook: () => void;
   content?: LandingOverrides;
 }
 
-function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
+function SectionWhatIsGHC({ content }: SectionWhatIsGHCProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const foundationTitle = content?.foundationTitle ?? 'What is the Golden Honeycomb?';
@@ -775,9 +769,6 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
   const foundationTitleFontSize = content?.foundationTitleFontSize;
   const foundationSubtitleFontSize = content?.foundationSubtitleFontSize;
   const foundationCards = content?.foundationCards ?? FEATURE_CARDS_DEFAULT;
-  const foundationCTA = content?.foundationCTA ?? 'Read the full GHC storybook';
-  const foundationCTATo =
-    content?.foundationCTATo ?? 'https://preview.shorthand.com/Pg0KQCF1Rp904ao7';
   const isTwoCardLayout = foundationCards.length === 2;
 
   return (
@@ -846,29 +837,6 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
               </p>
             </motion.div>
           ))}
-        </motion.div>
-
-        <motion.div
-          variants={itemVariants}
-          className="mt-10 flex justify-center max-w-6xl mx-auto px-2"
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-        >
-          <button
-            type="button"
-            onClick={() => {
-              if (foundationCTATo) {
-                window.open(foundationCTATo, '_blank', 'noopener,noreferrer');
-              } else {
-                onReadStorybook();
-              }
-            }}
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold border border-[#d9e3ff] text-[#131e42] bg-white hover:bg-[#e8eefc] transition-colors shadow-sm"
-          >
-            <BookOpen className="h-5 w-5" />
-            {foundationCTA}
-            <ArrowRight className="h-5 w-5" />
-          </button>
         </motion.div>
       </div>
     </section>
@@ -1674,28 +1642,50 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
   return (
     <section
       ref={ref}
-      className="relative overflow-hidden"
+      className="relative overflow-hidden dq-gradient-animated"
       style={{
-        background:
-          'radial-gradient(circle at 20% 20%, rgba(240,246,255,0.35), transparent 45%), radial-gradient(circle at 80% 30%, rgba(225,81,59,0.25), transparent 45%), linear-gradient(115deg, #131e42 0%, #1f2d5c 60%, #e1513b 100%)',
+        background: 'linear-gradient(120deg, #131e42 0%, #1b2553 45%, #e1513b 100%)',
       }}
     >
+      <div className="dq-digital-bg" aria-hidden="true">
+        <svg viewBox="0 0 1440 640" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="dq-digital-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(240,246,255,0.6)" />
+              <stop offset="100%" stopColor="rgba(225,81,59,0.6)" />
+            </linearGradient>
+          </defs>
+          <path className="dq-digital-line" d="M-40 140 L240 90 L520 160 L820 110 L1160 170 L1480 120" />
+          <path className="dq-digital-line alt" d="M-60 260 L180 220 L520 300 L860 240 L1180 320 L1500 260" />
+          <path className="dq-digital-line" d="M-40 400 L260 360 L520 420 L820 370 L1120 430 L1460 380" />
+          <path className="dq-digital-line alt" d="M-80 520 L220 500 L520 560 L840 520 L1160 580 L1500 540" />
+          <path className="dq-digital-line" d="M120 60 L280 180 L460 80 L640 200 L820 120 L1040 220 L1240 140" />
+          <path className="dq-digital-line alt" d="M240 120 L420 260 L620 150 L840 300 L1040 190 L1260 320" />
+
+          <circle className="dq-digital-dot" cx="240" cy="90" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="520" cy="160" r="4" />
+          <circle className="dq-digital-dot" cx="820" cy="110" r="3" />
+          <circle className="dq-digital-dot alt" cx="1160" cy="170" r="4.5" />
+          <circle className="dq-digital-dot" cx="180" cy="220" r="3" />
+          <circle className="dq-digital-dot alt" cx="520" cy="300" r="4" />
+          <circle className="dq-digital-dot" cx="860" cy="240" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="1180" cy="320" r="4" />
+          <circle className="dq-digital-dot" cx="260" cy="360" r="3" />
+          <circle className="dq-digital-dot alt" cx="520" cy="420" r="4" />
+          <circle className="dq-digital-dot" cx="820" cy="370" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="1120" cy="430" r="4" />
+          <circle className="dq-digital-dot" cx="220" cy="500" r="3" />
+          <circle className="dq-digital-dot alt" cx="520" cy="560" r="4" />
+          <circle className="dq-digital-dot" cx="840" cy="520" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="1160" cy="580" r="4" />
+          <circle className="dq-digital-dot" cx="420" cy="260" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="640" cy="200" r="4" />
+          <circle className="dq-digital-dot" cx="1040" cy="220" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="1260" cy="320" r="4" />
+        </svg>
+      </div>
       <div className="container mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
         <div className="relative min-h-[420px] lg:min-h-[520px] flex items-center">
-          {/* Animated background orbs */}
-          <motion.div
-            className="absolute w-[420px] h-[420px] rounded-full blur-3xl"
-            style={{ left: '-10%', top: '10%', backgroundColor: 'rgba(240,246,255,0.28)' }}
-            animate={{ x: [0, 30, -10, 0], y: [0, -20, 10, 0], scale: [1, 1.06, 1] }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute w-[360px] h-[360px] rounded-full blur-3xl"
-            style={{ right: '5%', bottom: '-5%', backgroundColor: 'rgba(225,81,59,0.28)' }}
-            animate={{ x: [0, -25, 15, 0], y: [0, 18, -12, 0], scale: [1, 1.05, 1] }}
-            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-          />
-
           <motion.div
             className="relative z-10 max-w-3xl py-16 md:py-20 px-2 sm:px-4 md:px-0 text-left"
             initial={{ opacity: 0, y: 20 }}

@@ -6,6 +6,7 @@ import {
   BookOpen,
   Brain,
   Briefcase,
+  Lock,
   Cog,
   Globe,
   GraduationCap,
@@ -317,12 +318,14 @@ const PATHS = [
     description: 'Structured onboarding and capability pathways built for high-velocity transformation teams.',
     cta: 'Start in DTMA',
     icon: GraduationCap,
+    comingSoon: true,
   },
   {
     label: 'Leaders & Strategists',
-    title: 'Explore 6xD & DTMI',
+    title: 'Explore DTMI Insight',
     description: 'Gain the strategic context, insight signals, and governance models behind DQ execution.',
-    cta: 'Explore DTMI',
+    cta: 'Explore DTMI Insight',
+    href: 'https://corp-web.qatalyst.tech/marketplace/dtmi',
     icon: BarChart3,
   },
   {
@@ -387,7 +390,7 @@ export default function SixXDProductsLanding() {
               <Button
                 size="lg"
                 variant="ghost"
-                className="!bg-white font-semibold !text-primary hover:!bg-white/90"
+                className="!bg-white font-semibold !text-primary hover:!bg-white/90 rounded-xl"
                 asChild
               >
                 <a href="/marketplace/directory/products">
@@ -402,7 +405,7 @@ export default function SixXDProductsLanding() {
                 asChild
               >
                 <a
-                  href="/marketplace/guides/dq-6xd"
+                  href="https://corp-web.qatalyst.tech/marketplace/dtmi"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center"
@@ -504,13 +507,14 @@ export default function SixXDProductsLanding() {
                     <h3 className="font-display text-[15px] font-semibold">{card.title}</h3>
                   </div>
                   <p className="mb-5 mt-4 text-sm leading-relaxed text-muted-foreground">{card.description}</p>
-                  <a
-                    href="#products"
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-all duration-200 hover:gap-2.5"
+                  <button
+                    type="button"
+                    aria-disabled="true"
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary/60 cursor-not-allowed"
                   >
+                    <Lock className="h-3.5 w-3.5" />
                     Read More
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </a>
+                  </button>
                 </motion.div>
               );
             })}
@@ -523,9 +527,13 @@ export default function SixXDProductsLanding() {
             transition={{ duration: 0.5, delay: 0.3 }}
             viewport={{ once: true, margin: '-50px' }}
           >
-            <Button size="lg" className="rounded-full px-8 font-semibold text-white gradient-hero hover:opacity-90" asChild>
-              <a href="/marketplace/guides/dq-6xd">
-                Read the 6xD Foundations
+            <Button size="lg" className="rounded-xl px-8 font-semibold text-white gradient-hero hover:opacity-90" asChild>
+              <a
+                href="https://digital-qatalyst.shorthandstories.com/4d9b256d-1632-4c32-bc0c-73d9cdfa57fc/index.html"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Read the 6xD Books
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>
             </Button>
@@ -636,7 +644,14 @@ export default function SixXDProductsLanding() {
                             <h4 className="mt-4 font-display text-base font-semibold">{product.name}</h4>
                             <p className="mt-1 text-xs text-[hsl(var(--primary)/0.7)]">{product.subtitle}</p>
                             <p className="mt-3 flex-1 text-sm text-muted-foreground">{product.description}</p>
-                            <Button variant="outline" size="sm" className="mt-5 w-full">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="mt-5 w-full cursor-not-allowed opacity-75"
+                              disabled
+                              aria-disabled="true"
+                            >
+                              <Lock className="mr-2 h-4 w-4" />
                               {product.cta}
                             </Button>
                           </motion.div>
@@ -725,15 +740,6 @@ export default function SixXDProductsLanding() {
                     </motion.a>
                   ))}
                 </div>
-                <a
-                  href={group.items.find((i) => i.href)?.href ?? '#'}
-                  target={group.items.find((i) => i.href)?.href ? '_blank' : undefined}
-                  rel={group.items.find((i) => i.href)?.href ? 'noreferrer' : undefined}
-                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-all duration-200 hover:gap-2.5"
-                >
-                  Read More
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </a>
               </motion.div>
             ))}
           </div>
@@ -776,6 +782,7 @@ export default function SixXDProductsLanding() {
                     title={path.title}
                     desc={path.description}
                     index={index}
+                    pillText="Coming soon"
                   />
                 ) : (
                   <motion.div
@@ -803,13 +810,16 @@ export default function SixXDProductsLanding() {
                       <p className="mt-3 text-sm text-muted-foreground transition-colors duration-500 group-hover:text-white/80">
                         {path.description}
                       </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="mt-auto w-full transition-colors duration-500 group-hover:border-transparent group-hover:bg-white/90 group-hover:text-primary sm:w-auto"
-                      >
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-auto w-full transition-colors duration-500 group-hover:border-transparent group-hover:bg-white/90 group-hover:text-primary sm:w-auto"
+                      asChild
+                    >
+                      <a href={path.href ?? '#'} target={path.href ? '_blank' : undefined} rel={path.href ? 'noreferrer' : undefined}>
                         {path.cta}
-                      </Button>
+                      </a>
+                    </Button>
                     </div>
                   </motion.div>
                 )
@@ -869,8 +879,8 @@ export default function SixXDProductsLanding() {
 
             <div className="flex flex-col gap-4">
               {[
-                { label: 'Explore Product Marketplace', icon: ShoppingBag, href: '/marketplace/directory/products' },
-                { label: 'Explore 6xD & DTMI', icon: BookOpen, href: '/marketplace/guides/dq-6xd' },
+                { label: 'Explore Product Marketplace', icon: ShoppingBag, href: 'https://corp-web.qatalyst.tech/products' },
+                { label: 'Explore DTMI Insight', icon: BookOpen, href: 'https://corp-web.qatalyst.tech/dtmi' },
               ].map((item, index) => {
                 const Icon = item.icon;
                 return (

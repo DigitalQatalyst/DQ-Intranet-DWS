@@ -4,7 +4,6 @@ import { ArrowRight, User, MessageCircle, BookOpen, Users as UsersIcon, ChevronD
 import { FadeInUpOnScroll, StaggeredFadeIn } from '../components/AnimationUtils';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
-import { OnboardingChatbot } from '../components/OnboardingChatbot';
 
 interface SupportCard {
   icon: React.ReactNode;
@@ -22,6 +21,7 @@ const supportOptions: SupportCard[] = [
     description: 'Onboarding support, role guidance, and people-related questions.',
     href: '/support/people-partner',
     buttonText: 'Get in Touch',
+    comingSoon: true,
   },
   {
     icon: <MessageCircle size={28} color="white" />,
@@ -1110,7 +1110,6 @@ export function OnboardingLanding() {
         </section>
       </main>
 
-      <OnboardingChatbot />
       <Footer isLoggedIn={false} />
     </div>
   );

@@ -239,8 +239,8 @@ export default function SixXDLanding() {
         finalHeadline: "Agile 6xD runs inside DQ first then becomes products you can deploy.",
         finalSubtitle:
           "Agile 6xD runs inside DQ first; here we learn, harden, and scale it through real delivery. We then package that proven system into Agile 6xD Products teams can deploy with confidence.",
-        finalCTALabel: "Read the Agile 6xD Storybook",
-        finalCTATo: "https://digital-qatalyst.shorthandstories.com/4d9b256d-1632-4c32-bc0c-73d9cdfa57fc/index.html",
+        finalCTALabel: "",
+        finalCTATo: "",
         finalCTASecondaryLabel: "Explore Agile 6xD Products",
         finalCTASecondaryTo: "/6xd-products",
         finalHeadlineFontSize: "36px",

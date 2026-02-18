@@ -1124,13 +1124,12 @@ function ResponseRailCard({ card }: { card: CompetencyCard }) { // NOSONAR: prop
           className={[
             'mt-auto pt-5 font-semibold inline-flex items-center gap-2 self-start',
             isLocked
-              ? 'text-[#9aa4c6] cursor-not-allowed'
+              ? 'text-[#8c94b3] cursor-not-allowed'
               : 'text-[hsl(var(--accent))] hover:underline',
           ].join(' ')}
         >
           {isLocked ? <Lock className="h-4 w-4" /> : null}
           {card.ctaLabel ?? 'Explore in Knowledge Center →'}
-          {isLocked ? <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span> : null}
         </button>
       </div>
     </article>
@@ -1339,17 +1338,15 @@ function SevenResponsesRailCarousel({ // NOSONAR: props are intentionally mutabl
                     aria-disabled={isCTALocked}
                     disabled={isCTALocked}
                     className={[
-                      'inline-flex items-center gap-3 rounded-xl px-7 py-3.5 font-semibold transition border',
+                      'inline-flex items-center gap-3 rounded-xl px-7 py-3.5 font-semibold transition border backdrop-blur',
                       isCTALocked
-                        ? 'bg-white text-[#9aa4c6] border-[#e5e9f5] cursor-not-allowed shadow-[0_6px_16px_rgba(12,20,40,0.12)]'
+                        ? 'bg-[#0f172a]/70 text-white/80 border-white/15 cursor-not-allowed shadow-[0_12px_32px_rgba(6,12,26,0.35)]'
                         : 'bg-[#151c2d] text-white border-transparent shadow-[0_10px_28px_rgba(12,20,40,0.28)] hover:-translate-y-0.5 hover:shadow-[0_14px_34px_rgba(12,20,40,0.32)]'
                     ].join(' ')}
                   >
                     {isCTALocked ? <Lock className="h-5 w-5" /> : <BookOpen className="h-5 w-5" />}
                     <span className="text-base">{ctaLabel}</span>
-                    {isCTALocked ? (
-                      <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span>
-                    ) : <ArrowRight className="h-5 w-5" />}
+                    {!isCTALocked ? <ArrowRight className="h-5 w-5" /> : null}
                   </button>
                 </div>
               ) : null}
@@ -2301,8 +2298,9 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
   const finalSubtitle =
     content?.finalSubtitle ??
     'The Golden Honeycomb comes to life inside the DQ Digital Workspace, guiding tools, decisions, and daily work.';
-  const finalCTALabel = content?.finalCTALabel ?? 'Go to the DQ Digital Workspace';
-  const finalCTATo = content?.finalCTATo ?? '/';
+  const primaryCTAHidden = content?.finalCTALabel === '' || content?.finalCTALabel === null;
+  const finalCTALabel = primaryCTAHidden ? null : (content?.finalCTALabel ?? 'Go to the DQ Digital Workspace');
+  const finalCTATo = primaryCTAHidden ? null : (content?.finalCTATo ?? '/');
   const finalCTASecondaryLabel = content?.finalCTASecondaryLabel;
   const finalCTASecondaryTo = content?.finalCTASecondaryTo;
   const finalHeadlineFontSize = content?.finalHeadlineFontSize;
@@ -2387,20 +2385,22 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
               transition={{ duration: 0.5, delay: 0.35 }}
             >
             <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  if (finalCTATo.startsWith('http')) {
-                    window.open(finalCTATo, '_blank', 'noopener,noreferrer');
-                  } else {
-                    navigate(finalCTATo);
-                  }
-                }}
-                className="inline-flex items-center gap-2.5 h-[52px] px-7 rounded-lg bg-white text-[#131e42] font-semibold text-base shadow-xl shadow-black/12 transition transform hover:-translate-y-0.5 hover:bg-white/95"
-              >
-                {finalCTALabel}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </button>
+              {finalCTALabel && finalCTATo ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (finalCTATo.startsWith('http')) {
+                      window.open(finalCTATo, '_blank', 'noopener,noreferrer');
+                    } else {
+                      navigate(finalCTATo);
+                    }
+                  }}
+                  className="inline-flex items-center gap-2.5 h-[52px] px-7 rounded-lg bg-white text-[#131e42] font-semibold text-base shadow-xl shadow-black/12 transition transform hover:-translate-y-0.5 hover:bg-white/95"
+                >
+                  {finalCTALabel}
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </button>
+              ) : null}
               {finalCTASecondaryLabel && finalCTASecondaryTo ? (
                 <button
                   type="button"
