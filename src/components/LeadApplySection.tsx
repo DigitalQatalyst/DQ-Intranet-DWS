@@ -1,6 +1,6 @@
 import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Phone, X } from "lucide-react";
+import { Phone, X, Lock, Clock } from "lucide-react";
 import { FadeInUpOnScroll } from "./AnimationUtils";
 import { getLeadApplyCards } from "../data/landingPageContent";
 
@@ -22,6 +22,7 @@ type CardConfig = {
   onClick: () => void;
   ariaLabel?: string;
   testId?: string;
+  comingSoon?: boolean;
 };
 
 type SupportStatus = { type: "ok" | "err"; text: string };
@@ -184,34 +185,62 @@ const LeadApplySection = () => {
         </FadeInUpOnScroll>
 
         <div className="flex flex-wrap justify-center gap-6 mt-8">
-          {cards.map(({ id, iconComponent, iconSize, iconClassName, title, description, cta, onClick, ariaLabel, testId }, idx) => {
+          {cards.map(({ id, iconComponent, iconSize, iconClassName, title, description, cta, onClick, ariaLabel, testId, comingSoon }, idx) => {
             const Icon = iconComponent;
+            const isLocked = comingSoon;
             return (
             <FadeInUpOnScroll key={id} delay={0.3 + idx * 0.2} className="flex">
-              <article className="flex h-[350px] w-[320px] flex-col justify-between rounded-2xl bg-white p-6 text-left shadow-md transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
+              <article className={`relative flex h-[350px] w-[320px] flex-col justify-between rounded-2xl bg-white p-6 text-left shadow-md transition-transform duration-300 ${
+                isLocked 
+                  ? 'opacity-70 cursor-not-allowed' 
+                  : 'hover:-translate-y-1 hover:shadow-lg cursor-pointer'
+              }`}>
+                {isLocked && (
+                  <div className="absolute top-3 right-3 bg-yellow-400 text-[10px] font-bold px-2 py-1 rounded-full text-gray-900 flex items-center">
+                    <Clock size={12} className="mr-1" />
+                    Coming Soon
+                  </div>
+                )}
                 <div>
                   <div className="mb-3 flex justify-center">
-                    <div className="inline-flex items-center justify-center rounded-full bg-[#FB5535]/10 p-3">
-                      <Icon size={iconSize || 28} className={iconClassName} />
+                    <div className={`inline-flex items-center justify-center rounded-full p-3 ${
+                      isLocked ? 'bg-gray-100' : 'bg-[#FB5535]/10'
+                    }`}>
+                      <Icon size={iconSize || 28} className={isLocked ? 'text-gray-400' : iconClassName} />
                     </div>
                   </div>
-                  <h3 className="mb-3 text-center text-lg font-semibold text-[#030F35]">{title}</h3>
-                  <p className="text-center text-gray-600 leading-relaxed">{description}</p>
+                  <h3 className={`mb-3 text-center text-lg font-semibold ${
+                    isLocked ? 'text-gray-500' : 'text-[#030F35]'
+                  }`}>{title}</h3>
+                  <p className={`text-center leading-relaxed ${
+                    isLocked ? 'text-gray-400' : 'text-gray-600'
+                  }`}>{description}</p>
                 </div>
                 <button
                   type="button"
-                  onClick={onClick}
+                  onClick={isLocked ? undefined : onClick}
                   onKeyDown={(event) => {
-                    if (event.key === "Enter") {
+                    if (event.key === "Enter" && !isLocked) {
                       event.preventDefault();
                       onClick();
                     }
                   }}
                   aria-label={ariaLabel}
                   data-testid={testId}
-                  className="mx-auto mt-6 rounded-md bg-[linear-gradient(135deg,#FB5535_0%,#1A2E6E_50%,#030F35_100%)] px-5 py-2.5 font-semibold text-white shadow-[0_6px_20px_rgba(3,15,53,0.18)] transition-transform duration-300 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#FB5535]/60 focus:ring-offset-2 focus:ring-offset-white"
+                  disabled={isLocked}
+                  className={`mx-auto mt-6 rounded-md px-5 py-2.5 font-semibold shadow-[0_6px_20px_rgba(3,15,53,0.18)] transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white flex items-center justify-center ${
+                    isLocked
+                      ? 'bg-white/70 text-gray-800 cursor-not-allowed'
+                      : 'bg-[linear-gradient(135deg,#FB5535_0%,#1A2E6E_50%,#030F35_100%)] text-white hover:-translate-y-0.5 focus:ring-[#FB5535]/60'
+                  }`}
                 >
-                  {cta}
+                  {isLocked ? (
+                    <>
+                      <Lock size={14} className="mr-2" /> Coming Soon
+                    </>
+                  ) : (
+                    cta
+                  )}
                 </button>
               </article>
             </FadeInUpOnScroll>
@@ -220,25 +249,29 @@ const LeadApplySection = () => {
           <FadeInUpOnScroll delay={supportDelay} className="flex">
             <article
               id="get-support"
-              className="flex h-[350px] w-[320px] flex-col justify-between rounded-2xl bg-white p-6 text-left shadow-md transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg"
+              className="relative flex h-[350px] w-[320px] flex-col justify-between rounded-2xl bg-white p-6 text-left shadow-md transition-transform duration-300 opacity-70 cursor-not-allowed"
             >
+              <div className="absolute top-3 right-3 bg-yellow-400 text-[10px] font-bold px-2 py-1 rounded-full text-gray-900 flex items-center">
+                <Clock size={12} className="mr-1" />
+                Coming Soon
+              </div>
               <div>
                 <div className="mb-3 flex justify-center">
-                  <div className="inline-flex items-center justify-center rounded-full bg-[#FB5535]/10 p-3">
-                    <Phone size={28} className="text-[#FB5535]" />
+                  <div className="inline-flex items-center justify-center rounded-full bg-gray-100 p-3">
+                    <Phone size={28} className="text-gray-400" />
                   </div>
                 </div>
-                <h3 className="mb-3 text-center text-lg font-semibold text-[#030F35]">Get Support</h3>
-                <p className="text-center text-gray-600 leading-relaxed">
+                <h3 className="mb-3 text-center text-lg font-semibold text-gray-500">Get Support</h3>
+                <p className="text-center text-gray-400 leading-relaxed">
                   Own — reach out to DQ Support for quick help and unblock what matters most.
                 </p>
               </div>
               <button
                 type="button"
-                onClick={openSupportModal}
-                className="mx-auto mt-6 rounded-md bg-[linear-gradient(135deg,#FB5535_0%,#1A2E6E_50%,#030F35_100%)] px-5 py-2.5 font-semibold text-white shadow-[0_6px_20px_rgba(3,15,53,0.18)] transition-transform duration-300 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#FB5535]/60 focus:ring-offset-2 focus:ring-offset-white"
+                disabled
+                className="mx-auto mt-6 rounded-md bg-white/70 text-gray-800 px-5 py-2.5 font-semibold shadow-[0_6px_20px_rgba(3,15,53,0.18)] cursor-not-allowed flex items-center justify-center"
               >
-                Get in Touch → 
+                <Lock size={14} className="mr-2" /> Coming Soon
               </button>
             </article>
           </FadeInUpOnScroll>

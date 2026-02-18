@@ -84,6 +84,7 @@ export interface LeadApplyCard {
   onClick: () => void;
   ariaLabel?: string;
   testId?: string;
+  comingSoon?: boolean;
 }
 
 // ============================================
@@ -317,9 +318,10 @@ export const getLeadApplyCards = (navigate: (path: string) => void): LeadApplyCa
     title: "AI Prompting Page",
     description:
       "Learn how AI prompting is used across DQ to improve thinking, delivery, and everyday digital work.",
-    cta: "Learn AI Prompting →",
-    onClick: () => navigate("/ai-prompting"),
-    ariaLabel: "AI Prompting Page",
+    cta: "Coming Soon",
+    onClick: () => {}, // Disabled for coming soon
+    ariaLabel: "AI Prompting Page - Coming Soon",
     testId: "ai-prompting-cta",
+    comingSoon: true,
   },
 ];
