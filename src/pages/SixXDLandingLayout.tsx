@@ -76,8 +76,8 @@ type Overrides = {
 };
 
 type GHCLandingProps = {
-  badgeLabel?: string;
-  overrides?: Overrides;
+  readonly badgeLabel?: string;
+  readonly overrides?: Overrides;
 };
 
 export default function GHCLanding({ badgeLabel, overrides = {} }: GHCLandingProps) {
@@ -99,8 +99,6 @@ export default function GHCLanding({ badgeLabel, overrides = {} }: GHCLandingPro
     responsesIntro,
     responseCards = [],
     actionCards = [],
-    takeActionTitle,
-    takeActionSubtitle,
     finalHeadline,
     finalSubtitle,
     finalCTALabel,
@@ -169,9 +167,9 @@ export default function GHCLanding({ badgeLabel, overrides = {} }: GHCLandingPro
             </p>
           )}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {foundationCards.map((card, idx) => (
+            {foundationCards.map((card) => (
               <div
-                key={idx}
+                key={card.title}
                 className="rounded-2xl border border-gray-200 bg-white p-6 text-left shadow-sm"
               >
                 <h3 className="text-xl font-semibold mb-2">{card.title}</h3>
