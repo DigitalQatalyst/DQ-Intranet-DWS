@@ -6,20 +6,41 @@
 import { securityMonitor } from './securityMonitor';
 
 /**
- * Safely removes script tags and dangerous content using DOMParser
+ * Safely removes script tags using DOMParser (browser) or simple safe regex (SSR/Node)
  * Avoids ReDoS vulnerability (Sonar S5852) from complex regex backtracking
+ * 
+ * Browser: Uses DOMParser for robust HTML parsing
+ * SSR/Node: Falls back to simple, non-backtracking regex patterns
  */
 const removeScriptTags = (html: string): string => {
-  // Use DOMParser to safely parse and manipulate HTML
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
+  // Check if we're in a browser environment with DOMParser available
+  if (globalThis.window !== undefined && typeof DOMParser !== 'undefined') {
+    try {
+      // Use DOMParser to safely parse and manipulate HTML (browser only)
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      
+      // Remove all script elements
+      const scripts = doc.querySelectorAll('script');
+      scripts.forEach(script => script.remove());
+      
+      // Return cleaned HTML
+      return doc.body.innerHTML;
+    } catch (error) {
+      // Fall through to regex fallback if DOMParser fails
+      console.warn('DOMParser failed, using fallback:', error);
+    }
+  }
   
-  // Remove all script elements
-  const scripts = doc.querySelectorAll('script');
-  scripts.forEach(script => script.remove());
+  // Fallback for SSR/Node or if DOMParser fails
+  // Use simple, non-backtracking patterns to avoid ReDoS (Sonar S5852)
+  // Pattern 1: Remove <script> tags with simple greedy match (no nested quantifiers)
+  let result = html.replaceAll(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
   
-  // Return cleaned HTML
-  return doc.body.innerHTML;
+  // Pattern 2: Remove any remaining opening or closing script tags
+  result = result.replaceAll(/<\/?script[^>]*>/gi, '');
+  
+  return result;
 };
 
 // Simple HTML sanitizer for basic formatting
@@ -28,8 +49,8 @@ export const sanitizeHtml = (html: string): string => {
   
   const originalLength = html.length;
   
-  // Remove script tags safely using DOMParser (fixes Sonar S5852 - ReDoS vulnerability)
-  // Previous regex: /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi was vulnerable to backtracking
+  // Remove script tags safely (fixes Sonar S5852 - ReDoS vulnerability)
+  // Uses DOMParser in browser, safe regex patterns in SSR/Node
   let sanitized = removeScriptTags(html);
   
   // Remove dangerous attributes
