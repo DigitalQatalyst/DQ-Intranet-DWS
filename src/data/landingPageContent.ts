@@ -4,7 +4,6 @@ import {
   Network,
   Users2,
   Users,
-  Clock,
   BookOpen,
   Heart,
   Rocket,
