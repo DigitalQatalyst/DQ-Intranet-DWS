@@ -252,16 +252,7 @@ export const impactStats: ImpactStat[] = [
     iconClassName: "text-[#FB5535]",
   },
   {
-    label: 'Deep Work Time Saved',
-    value: 6,
-    prefix: '+',
-    suffix: 'hrs',
-    iconComponent: Clock,
-    iconSize: 20,
-    iconClassName: "text-[#FB5535]",
-  },
-  {
-    label: 'New Skills Daily',
+    label: 'Learn New Skills Weekly',
     value: 5,
     suffix: '+',
     iconComponent: BookOpen,
@@ -284,7 +275,7 @@ export const impactStats: ImpactStat[] = [
 export const heroContent: HeroContent = {
   title: "Welcome Home, Qatalyst.",
   subtitle:
-    "Connect, learn, and collaborate in one place. Your personalized hub designed to make your daily work simpler and more meaningful.",
+    "Connect, learn, and collaborate in one place. Your personalized workspace designed to make your daily work simpler and more meaningful.",
   suggestionPills: [
     "Open an IT service request",
     "Where's the HR leave policy?",
