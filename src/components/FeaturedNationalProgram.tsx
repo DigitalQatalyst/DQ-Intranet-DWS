@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, FileText, TrendingUp, BookOpen } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { FadeInUpOnScroll } from './AnimationUtils';
 import { fetchAllNews, fetchAllJobs } from '@/services/mediaCenterService';
 import type { NewsItem } from '@/data/media/news';
@@ -106,28 +106,7 @@ const fallbackPrograms: FeaturedProgram[] = [
 export const FeaturedNationalProgram: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [programs, setPrograms] = useState<FeaturedProgram[]>([]);
-  const [allPrograms, setAllPrograms] = useState<FeaturedProgram[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const activeProgram = programs[activeIndex] ?? null;
-  
-  const categories = [
-    { name: 'Articles', icon: FileText },
-    { name: 'Predictions', icon: TrendingUp },
-    { name: 'Case Studies', icon: BookOpen },
-  ];
-
-  // Filter programs when category changes
-  useEffect(() => {
-    if (selectedCategory === 'All') {
-      setPrograms(allPrograms);
-    } else {
-      const filtered = allPrograms.filter(
-        (program) => program.category === selectedCategory
-      );
-      setPrograms(filtered.length > 0 ? filtered : allPrograms);
-    }
-    setActiveIndex(0);
-  }, [selectedCategory, allPrograms]);
 
   // Auto-advance carousel
   useEffect(() => {
@@ -169,12 +148,10 @@ export const FeaturedNationalProgram: React.FC = () => {
 
         const combined = [...latestArticles, ...latestJobs];
 
-        setAllPrograms(combined.length > 0 ? combined : fallbackPrograms);
         setPrograms(combined.length > 0 ? combined : fallbackPrograms);
         setActiveIndex(0);
       } catch (error) {
         console.error('Failed to load featured updates from media center', error);
-        setAllPrograms(fallbackPrograms);
         setPrograms(fallbackPrograms);
       }
     }
@@ -226,7 +203,7 @@ export const FeaturedNationalProgram: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center justify-between relative z-10">
+          <div className="flex items-center relative z-10">
             <a
               href={activeProgram.learnMoreHref}
               className="px-6 py-3 bg-white text-[#0F1D4A] font-semibold rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2 shadow-lg"
@@ -234,28 +211,6 @@ export const FeaturedNationalProgram: React.FC = () => {
               {activeProgram.category === 'Jobs' ? 'VIEW OPPORTUNITY' : 'READ MORE'}
               <ArrowRight size={18} />
             </a>
-            
-            {/* Category buttons on the right */}
-            <div className="flex gap-3">
-              {categories.map((cat) => {
-                const Icon = cat.icon;
-                const isActive = selectedCategory === cat.name;
-                return (
-                  <button
-                    key={cat.name}
-                    onClick={() => setSelectedCategory(cat.name)}
-                    className={`flex items-center gap-2 px-4 py-2 backdrop-blur-sm border rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-white text-[#0F1D4A] border-white'
-                        : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
-                    }`}
-                  >
-                    <Icon size={16} />
-                    <span className="text-sm font-medium">{cat.name}</span>
-                  </button>
-                );
-              })}
-            </div>
           </div>
         </div>
         )}
