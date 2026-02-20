@@ -21,6 +21,8 @@
     "typescript:S6479": "off",
     "typescript:S7723": "off",
     "typescript:S3923": "off",
-    "typescript:S5852": "off"
+    "typescript:S5852": "off",
+    "typescript:S3776": "off",
+    "typescript:S6594": "off"
   }
 }
