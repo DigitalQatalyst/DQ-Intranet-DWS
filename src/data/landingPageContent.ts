@@ -251,7 +251,7 @@ export const impactStats: ImpactStat[] = [
     iconClassName: "text-[#FB5535]",
   },
   {
-    label: 'Learn New Skills Weekly',
+    label: 'New Skills Learned Weekly',
     value: 5,
     suffix: '+',
     iconComponent: BookOpen,
