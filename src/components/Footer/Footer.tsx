@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ExternalLink, ChevronDown, ChevronUp, MessageSquare, Share2, Linkedin, Globe } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 // Custom YouTube icon component
 const YoutubeIcon = ({ size = 16, className = '' }: Readonly<{ size?: number; className?: string }>) => (
@@ -44,10 +43,6 @@ export function Footer({
   'data-id': dataId,
   isLoggedIn = false
 }: Readonly<FooterProps>) {
-  const navigate = useNavigate();
-  const handleFooterLinkClick = (title: string) => {
-    navigate(`/workspace-link-coming-soon?title=${encodeURIComponent(title)}`);
-  };
   const externalLinks = [
     {
       label: 'Viva Engage',
@@ -76,10 +71,10 @@ export function Footer({
     }
   ];
   const forYouLinks = [
-    'DQ LMS Courses',
-    'Services & Requests',
-    'Communities & Surveys',
-    'News & Announcements'
+    { label: 'Learning Center', href: '/lms' },
+    { label: 'Media Center', href: '/marketplace/news' },
+    { label: 'Knowledge Center', href: '/marketplace/knowledge' },
+    { label: 'Design System', href: '/marketplace/design-system' }
   ];
   // Minimal App Footer (Post-login)
   if (isLoggedIn) {
@@ -122,27 +117,16 @@ export function Footer({
           <div className="mb-8">
             <AccordionSection title="For You">
               <ul className="space-y-2 pt-1">
-                <li>
-                  <a
-                    href="/lms"
-                    className="text-white/90 hover:text-white transition-colors text-sm block py-2 border-b border-white/5 last:border-0"
-                  >
-                    Learning Center
-                  </a>
-                </li>
-                {forYouLinks
-                  .filter((label) => label !== 'DQ LMS Courses')
-                  .map((label) => (
-                    <li key={label}>
-                      <button
-                        type="button"
-                        onClick={() => handleFooterLinkClick(label)}
-                        className="text-white/90 hover:text-white transition-colors text-sm block text-left w-full py-2 border-b border-white/5 last:border-0"
-                      >
-                        {label}
-                      </button>
-                    </li>
-                  ))}
+                {forYouLinks.map((item) => (
+                  <li key={item.label}>
+                    <a
+                      href={item.href}
+                      className="text-white/90 hover:text-white transition-colors text-sm block py-2 border-b border-white/5 last:border-0"
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </AccordionSection>
             <AccordionSection title="Find Us">
@@ -200,27 +184,16 @@ export function Footer({
                 For You
               </h3>
               <ul className="space-y-3">
-                <li>
-                  <a
-                    href="/lms"
-                    className="text-white/85 hover:text-white text-sm transition-colors inline-block hover:underline underline-offset-2"
-                  >
-                    Learning Center
-                  </a>
-                </li>
-                {forYouLinks
-                  .filter((label) => label !== 'DQ LMS Courses')
-                  .map((label) => (
-                    <li key={label}>
-                      <button
-                        type="button"
-                        onClick={() => handleFooterLinkClick(label)}
-                        className="text-white/85 hover:text-white text-sm text-left transition-colors hover:underline underline-offset-2"
-                      >
-                        {label}
-                      </button>
-                    </li>
-                  ))}
+                {forYouLinks.map((item) => (
+                  <li key={item.label}>
+                    <a
+                      href={item.href}
+                      className="text-white/85 hover:text-white text-sm transition-colors inline-block hover:underline underline-offset-2"
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
