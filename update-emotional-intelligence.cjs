@@ -23,7 +23,7 @@ async function updateEmotionalIntelligence() {
     console.log('Current body preview:', guide.body.substring(0, 300));
 
     // Replace "## Overview\n\n### Introduction" with "## Introduction"
-    const updatedBody = guide.body.replace(/## Overview\s*\n\s*### Introduction/g, '## Introduction');
+    const updatedBody = guide.body.replace(/## Overview[ \t]*\n[ \t]*### Introduction/g, '## Introduction');
 
     // Update the guide
     const { data, error } = await supabase

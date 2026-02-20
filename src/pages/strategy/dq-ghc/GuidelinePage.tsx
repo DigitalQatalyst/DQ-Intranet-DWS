@@ -20,9 +20,9 @@ function GuidelinePage() {
 
   const formatGhcTitle = (title: string) => {
     const t = (title || '').trim()
-    const m1 = /^GHC\s*(?:Competency\s*)?(\d+)\s*:\s*(.+)$/i.exec(t)
+    const m1 = /^GHC[ \t]*(?:Competency[ \t]*)?(\d+)[ \t]*:[ \t]*(.+)$/i.exec(t)
     if (m1) return `GHC ${m1[1]} - ${m1[2].trim()}`
-    const m2 = /^GHC\s*(\d+)\s*[-:]\s*(.+)$/i.exec(t)
+    const m2 = /^GHC[ \t]*(\d+)[ \t]*[-:][ \t]*(.+)$/i.exec(t)
     if (m2) return `GHC ${m2[1]} - ${m2[2].trim()}`
     return t
   }
