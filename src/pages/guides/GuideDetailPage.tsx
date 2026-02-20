@@ -833,22 +833,22 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   const LABEL_REGEX = /^[A-Za-z][\w\s]*:\s*.*$/
   
   const formatBulletBoldLabel = (line: string): string | null => {
-    const match = line.match(BULLET_BOLD_LABEL_REGEX)
+    const match = BULLET_BOLD_LABEL_REGEX.exec(line)
     return match ? `- **${toTitleCaseLabel(stripLeadingEmoji(match[1]))}**: ${match[2]}` : null
   }
   
   const formatBoldLabel = (line: string): string | null => {
-    const match = line.match(BOLD_LABEL_REGEX)
+    const match = BOLD_LABEL_REGEX.exec(line)
     return match ? `- **${toTitleCaseLabel(stripLeadingEmoji(match[1]))}**: ${match[2]}` : null
   }
   
   const formatBulletLabel = (line: string): string | null => {
-    const match = line.match(BULLET_LABEL_REGEX)
+    const match = BULLET_LABEL_REGEX.exec(line)
     return match ? `- **${toTitleCaseLabel(stripLeadingEmoji(match[1]))}**: ${match[2]}` : null
   }
   
   const formatPlainLabel = (line: string): string | null => {
-    const match = line.match(LABEL_REGEX)
+    const match = LABEL_REGEX.exec(line)
     if (match) {
       const idx = line.indexOf(':')
       const label = stripLeadingEmoji(line.slice(0, idx))
@@ -913,13 +913,13 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     if (!src) return null
     // Strip basic Markdown/HTML for a clean snippet
     const withoutMd = src
-      .replace(/```[^`]*```/g, ' ') // code blocks
-      .replace(/`[^`\n]*`/g, ' ') // inline code
-      .replace(/^#+\s[^\n]*$/gm, ' ') // headings
-      .replace(/\*\*|__/g, '') // bold markers
-      .replace(/[*_~]|>\s?/g, ' ') // other markers
-      .replace(/<[^>]+>/g, ' ') // html tags
-      .replace(/\s+/g, ' ') // collapse spaces
+      .replaceAll(/```[^`]*```/g, ' ') // code blocks
+      .replaceAll(/`[^`\n]*`/g, ' ') // inline code
+      .replaceAll(/^#+\s[^\n]*$/gm, ' ') // headings
+      .replaceAll(/\*\*|__/g, '') // bold markers
+      .replaceAll(/[*_~]|>\s?/g, ' ') // other markers
+      .replaceAll(/<[^>]+>/g, ' ') // html tags
+      .replaceAll(/\s+/g, ' ') // collapse spaces
       .trim()
     if (!withoutMd) return null
     const max = 480
