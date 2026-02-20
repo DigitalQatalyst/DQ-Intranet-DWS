@@ -2106,23 +2106,25 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         </div>;
     }
   };
+  // Handle primary action button click - defined at component scope so it can be
+  // used both inside SummaryCard and passed as a prop to ServiceDetailsSidebar
+  const handlePrimaryActionClick = () => {
+    // Check if this is Leave Application service (id '13')
+    if (isLeaveApplication) {
+      setIsRequestFormOpen(true);
+    } else if (isITSupportService) {
+      setIsTechSupportFormOpen(true);
+    } else if (isPromptLibrary && item.sourceUrl) {
+      window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
+    } else if (isAITool) {
+      setIsTechSupportFormOpen(true);
+    }
+  };
+
   // Combined SummaryCard component that works for both desktop and mobile
   const SummaryCard = ({
     isFloating = false
   }) => {
-    // Handle primary action button click
-    const handlePrimaryActionClick = () => {
-      // Check if this is Leave Application service (id '13')
-      if (isLeaveApplication) {
-        setIsRequestFormOpen(true);
-      } else if (isITSupportService) {
-        setIsTechSupportFormOpen(true);
-      } else if (isPromptLibrary && item.sourceUrl) {
-        window.open(item.sourceUrl, '_blank', 'noopener,noreferrer');
-      } else if (isAITool) {
-        setIsTechSupportFormOpen(true);
-      }
-    };
 
     return (
       <div ref={isFloating ? null : summaryCardRef} className={`
@@ -2596,9 +2598,11 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {relatedItems.map(relatedItem => <div key={relatedItem.id} className="bg-white rounded-lg shadow p-4 cursor-pointer hover:shadow-md transition-shadow border border-[#030F35]/10" onClick={() => navigate(`/marketplace/${marketplaceType}/${relatedItem.id}`)}>
                   <div className="flex items-center mb-3">
-                    <img src={relatedItem.provider.logoUrl} alt={relatedItem.provider.name} className="h-8 w-8 object-contain mr-2 rounded" />
+                    {relatedItem.provider?.logoUrl && (
+                      <img src={relatedItem.provider.logoUrl} alt={relatedItem.provider?.name ?? ''} className="h-8 w-8 object-contain mr-2 rounded" />
+                    )}
                     <span className="text-sm text-[#030F35]/70">
-                      {relatedItem.provider.name}
+                      {relatedItem.provider?.name ?? ''}
                     </span>
                   </div>
                   <h3 className="font-semibold text-[#030F35] mb-2">
