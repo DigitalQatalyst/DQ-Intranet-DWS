@@ -694,15 +694,15 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     let descMatch: string | null = null
     let highlightsMatch: string | null = null
     
-    if (descIndex !== -1) {
+    if (descIndex >= 0) {
       const nextSection = body.indexOf('\n##', descIndex + 1)
-      const endIndex = nextSection !== -1 ? nextSection : body.length
+      const endIndex = nextSection >= 0 ? nextSection : body.length
       descMatch = body.substring(descIndex + 14, endIndex).trim()
     }
     
-    if (highlightsIndex !== -1) {
+    if (highlightsIndex >= 0) {
       const nextSection = body.indexOf('\n##', highlightsIndex + 1)
-      const endIndex = nextSection !== -1 ? nextSection : body.length
+      const endIndex = nextSection >= 0 ? nextSection : body.length
       highlightsMatch = body.substring(highlightsIndex + 17, endIndex).trim()
     }
     
@@ -714,11 +714,11 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     } else {
       // For guides without Description/Key Highlights, use first paragraph as Overview
       const firstHeaderIndex = body.indexOf('# ')
-      if (firstHeaderIndex !== -1) {
+      if (firstHeaderIndex >= 0) {
         const firstSectionStart = body.indexOf('\n\n', firstHeaderIndex)
-        if (firstSectionStart !== -1) {
+        if (firstSectionStart >= 0) {
           const nextSection = body.indexOf('\n##', firstSectionStart)
-          const endIndex = nextSection !== -1 ? nextSection : body.length
+          const endIndex = nextSection >= 0 ? nextSection : body.length
           const firstContent = body.substring(firstSectionStart + 2, endIndex).trim()
           
           if (firstContent) {
@@ -832,37 +832,50 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
   const BULLET_LABEL_REGEX = /^-\s*([^:]+?)\s*:\s*(.*)$/
   const LABEL_REGEX = /^[A-Za-z][\w\s]*:\s*.*$/
   
+  const formatBulletBoldLabel = (line: string): string | null => {
+    const match = line.match(BULLET_BOLD_LABEL_REGEX)
+    return match ? `- **${toTitleCaseLabel(stripLeadingEmoji(match[1]))}**: ${match[2]}` : null
+  }
+  
+  const formatBoldLabel = (line: string): string | null => {
+    const match = line.match(BOLD_LABEL_REGEX)
+    return match ? `- **${toTitleCaseLabel(stripLeadingEmoji(match[1]))}**: ${match[2]}` : null
+  }
+  
+  const formatBulletLabel = (line: string): string | null => {
+    const match = line.match(BULLET_LABEL_REGEX)
+    return match ? `- **${toTitleCaseLabel(stripLeadingEmoji(match[1]))}**: ${match[2]}` : null
+  }
+  
+  const formatPlainLabel = (line: string): string | null => {
+    const match = line.match(LABEL_REGEX)
+    if (match) {
+      const idx = line.indexOf(':')
+      const label = stripLeadingEmoji(line.slice(0, idx))
+      const rest = line.slice(idx + 1).trim()
+      return `- **${toTitleCaseLabel(label)}**: ${rest}`
+    }
+    return null
+  }
+  
   const ensureBulletedTitleCaseLine = (raw: string): string => {
     const line = stripLeadingEmoji(raw.trim())
     if (!line || line.startsWith('##')) return raw
     
-    // - **Label**: text
     if (line.startsWith('- **') && line.includes('**:')) {
-      const match = line.match(BULLET_BOLD_LABEL_REGEX)
-      if (match) return `- **${toTitleCaseLabel(stripLeadingEmoji(match[1]))}**: ${match[2]}`
+      return formatBulletBoldLabel(line) || raw
     }
     
-    // **Label**: text
     if (line.startsWith('**') && line.includes('**:')) {
-      const match = line.match(BOLD_LABEL_REGEX)
-      if (match) return `- **${toTitleCaseLabel(stripLeadingEmoji(match[1]))}**: ${match[2]}`
+      return formatBoldLabel(line) || raw
     }
     
-    // - Label: text
     if (line.startsWith('- ') && line.includes(':')) {
-      const match = line.match(BULLET_LABEL_REGEX)
-      if (match) return `- **${toTitleCaseLabel(stripLeadingEmoji(match[1]))}**: ${match[2]}`
+      return formatBulletLabel(line) || raw
     }
     
-    // Label: text (leading letter, avoid headers/lists)
     if (/^[A-Za-z]/.test(line) && line.includes(':')) {
-      const match = line.match(LABEL_REGEX)
-      if (match) {
-        const idx = line.indexOf(':')
-        const label = stripLeadingEmoji(line.slice(0, idx))
-        const rest = line.slice(idx + 1).trim()
-        return `- **${toTitleCaseLabel(label)}**: ${rest}`
-      }
+      return formatPlainLabel(line) || raw
     }
     
     return raw
