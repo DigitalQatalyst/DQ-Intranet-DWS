@@ -192,35 +192,6 @@ const saveCurrentSection = (
   }
 }
 
-// Helper to handle H3 match
-const handleH3Match = (
-  h3Match: RegExpExecArray,
-  currentSection: { title: string; content: string[] } | null,
-  sections: Array<{ title: string; content: string; isTile?: boolean }>
-): { section: { title: string; content: string[] } | null; shouldContinue: boolean } => {
-  const h3Title = h3Match[1].trim().replaceAll('**', '').trim()
-  
-  if (isSpecialTileSection(h3Title)) {
-    if (currentSection && currentSection.content.length > 0) {
-      const { content } = processSectionContent(currentSection)
-      sections.push({ title: currentSection.title, content })
-    }
-    return { section: { title: h3Title, content: [] }, shouldContinue: true }
-  }
-  return { section: currentSection, shouldContinue: false }
-}
-
-// Helper to handle H2 match
-const handleH2Match = (
-  h2Match: RegExpExecArray,
-  currentSection: { title: string; content: string[] } | null,
-  sections: Array<{ title: string; content: string; isTile?: boolean }>
-): { title: string; content: string[] } => {
-  saveCurrentSection(currentSection, sections)
-  const title = h2Match[1].trim().replaceAll('**', '').trim()
-  return { title, content: [] }
-}
-
 // Helper to apply precision to Features section
 const applyFeaturesPrecision = (sectionName: string, content: string): string => {
   return sectionName === 'Features' ? makeFeaturesPrecise(content) : content
@@ -259,12 +230,10 @@ const parseBlueprintSections = (body: string): Record<string, string> => {
     'template': 'Templates'
   }
 
-  const h2Regex = /^##\s+([^\n#]+)$/
   for (const line of lines) {
-    const h2Match = h2Regex.exec(line)
-    if (h2Match) {
+    if (line.trim().startsWith('## ')) {
       saveBlueprintSection(currentSection, currentContent, sections)
-      const sectionTitle = h2Match[1].trim().replaceAll('**', '')
+      const sectionTitle = line.replace(/^##\s+/, '').trim().replaceAll('**', '')
       const normalized = sectionTitle.toLowerCase()
       currentSection = sectionMappings[normalized] || sectionTitle
       currentContent = []
@@ -276,26 +245,31 @@ const parseBlueprintSections = (body: string): Record<string, string> => {
   return sections
 }
 
-// Regex patterns for parsing (defined once to avoid ReDoS issues)
-const H2_REGEX = /^##\s+([^\n#]+)$/
-const H3_REGEX = /^###\s+([^\n#]+)$/
-
 // Helper to process a single line in parseGuideSections
 const processLineInSection = (
   line: string,
   currentSection: { title: string; content: string[] } | null,
   sections: Array<{ title: string; content: string; isTile?: boolean }>
 ): { title: string; content: string[] } | null => {
-  const h2Match = H2_REGEX.exec(line)
-  const h3Match = H3_REGEX.exec(line)
+  const trimmed = line.trim()
   
-  if (h3Match) {
-    const result = handleH3Match(h3Match, currentSection, sections)
-    return result.section
+  if (trimmed.startsWith('### ')) {
+    const h3Title = trimmed.replace(/^###\s+/, '').replaceAll('**', '').trim()
+    
+    if (isSpecialTileSection(h3Title)) {
+      if (currentSection && currentSection.content.length > 0) {
+        const { content } = processSectionContent(currentSection)
+        sections.push({ title: currentSection.title, content })
+      }
+      return { title: h3Title, content: [] }
+    }
+    return currentSection
   }
   
-  if (h2Match) {
-    return handleH2Match(h2Match, currentSection, sections)
+  if (trimmed.startsWith('## ')) {
+    saveCurrentSection(currentSection, sections)
+    const title = trimmed.replace(/^##\s+/, '').replaceAll('**', '').trim()
+    return { title, content: [] }
   }
   
   if (currentSection) {
@@ -714,32 +688,47 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     
     // Extract Description and Key Highlights for Overview tab (if they exist)
     // Handle both single and double newlines, and Key Highlights with or without colon
-    const descRegex = /## Description\s*\n+([^#]*?)(?=\n##|\n#|$)/
-    const descMatch = descRegex.exec(body)
-    const highlightsRegex = /## Key Highlights:?\s*\n+([^#]*?)(?=\n##|\n#|$)/
-    const highlightsMatch = highlightsRegex.exec(body)
+    const descIndex = body.indexOf('## Description')
+    const highlightsIndex = body.indexOf('## Key Highlights')
+    
+    let descMatch: string | null = null
+    let highlightsMatch: string | null = null
+    
+    if (descIndex !== -1) {
+      const nextSection = body.indexOf('\n##', descIndex + 1)
+      const endIndex = nextSection !== -1 ? nextSection : body.length
+      descMatch = body.substring(descIndex + 14, endIndex).trim()
+    }
+    
+    if (highlightsIndex !== -1) {
+      const nextSection = body.indexOf('\n##', highlightsIndex + 1)
+      const endIndex = nextSection !== -1 ? nextSection : body.length
+      highlightsMatch = body.substring(highlightsIndex + 17, endIndex).trim()
+    }
     
     if (descMatch || highlightsMatch) {
       let overviewContent = ''
-      if (descMatch) overviewContent += descMatch[1].trim() + '\n\n'
-      if (highlightsMatch) overviewContent += '## Key Highlights\n\n' + highlightsMatch[1].trim()
+      if (descMatch) overviewContent += descMatch + '\n\n'
+      if (highlightsMatch) overviewContent += '## Key Highlights\n\n' + highlightsMatch
       sections.push({ id: 'overview', title: 'Overview', content: overviewContent })
     } else {
       // For guides without Description/Key Highlights, use first paragraph as Overview
-      const firstSectionRegex = /^# [^\n#]+\n\n([^#]*?)(?=\n##|\n#|$)/
-      const firstSectionMatch = firstSectionRegex.exec(body)
-      if (firstSectionMatch?.[1]?.trim()) {
-        const firstContent = firstSectionMatch[1].trim()
-        // Only create Overview if there are multiple sections
-        const sectionCountRegex = /^## /gm
-        const matches: RegExpExecArray[] = []
-        let match
-        while ((match = sectionCountRegex.exec(body)) !== null) {
-          matches.push(match)
-        }
-        const sectionCount = matches.length
-        if (sectionCount > 1) {
-          sections.push({ id: 'overview', title: 'Overview', content: firstContent })
+      const firstHeaderIndex = body.indexOf('# ')
+      if (firstHeaderIndex !== -1) {
+        const firstSectionStart = body.indexOf('\n\n', firstHeaderIndex)
+        if (firstSectionStart !== -1) {
+          const nextSection = body.indexOf('\n##', firstSectionStart)
+          const endIndex = nextSection !== -1 ? nextSection : body.length
+          const firstContent = body.substring(firstSectionStart + 2, endIndex).trim()
+          
+          if (firstContent) {
+            // Only create Overview if there are multiple sections
+            const sectionMatches = body.match(/^## /gm)
+            const sectionCount = sectionMatches ? sectionMatches.length : 0
+            if (sectionCount > 1) {
+              sections.push({ id: 'overview', title: 'Overview', content: firstContent })
+            }
+          }
         }
       }
     }
@@ -837,32 +826,45 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     return s.replace(/^[\ufe0f\u2060\s]*[\u{1F300}-\u{1FAFF}\u{1F1E6}-\u{1F1FF}\u{2600}-\u{27BF}]+\s*/u, '')
   }
   
-  // Regex patterns for bullet formatting (defined once to avoid ReDoS issues)
-  const BULLET_BOLD_LABEL_REGEX = /^-\s*\*\*([^*\n#]+)\*\*\s*:\s*(.*)$/
-  const BOLD_LABEL_REGEX = /^\*\*([^*\n#]+)\*\*\s*:\s*(.*)$/
-  const BULLET_LABEL_REGEX = /^-\s*([^:\n#]+)\s*:\s*(.*)$/
-  const LABEL_REGEX = /^[A-Za-z][^:\n#]*:\s*[^\n]*$/
+  // Regex patterns for bullet formatting (using simple patterns)
+  const BULLET_BOLD_LABEL_REGEX = /^-\s*\*\*([^*]+?)\*\*\s*:\s*(.*)$/
+  const BOLD_LABEL_REGEX = /^\*\*([^*]+?)\*\*\s*:\s*(.*)$/
+  const BULLET_LABEL_REGEX = /^-\s*([^:]+?)\s*:\s*(.*)$/
+  const LABEL_REGEX = /^[A-Za-z][\w\s]*:\s*.*$/
   
   const ensureBulletedTitleCaseLine = (raw: string): string => {
     const line = stripLeadingEmoji(raw.trim())
     if (!line || line.startsWith('##')) return raw
+    
     // - **Label**: text
-    const m1 = BULLET_BOLD_LABEL_REGEX.exec(line)
-    if (m1) return `- **${toTitleCaseLabel(stripLeadingEmoji(m1[1]))}**: ${m1[2]}`
-    // **Label**: text
-    const m2 = BOLD_LABEL_REGEX.exec(line)
-    if (m2) return `- **${toTitleCaseLabel(stripLeadingEmoji(m2[1]))}**: ${m2[2]}`
-    // - Label: text
-    const m3 = BULLET_LABEL_REGEX.exec(line)
-    if (m3) return `- **${toTitleCaseLabel(stripLeadingEmoji(m3[1]))}**: ${m3[2]}`
-    // Label: text (leading letter, avoid headers/lists)
-    const m4 = LABEL_REGEX.exec(line)
-    if (m4) {
-      const idx = line.indexOf(':')
-      const label = stripLeadingEmoji(line.slice(0, idx))
-      const rest = line.slice(idx + 1).trim()
-      return `- **${toTitleCaseLabel(label)}**: ${rest}`
+    if (line.startsWith('- **') && line.includes('**:')) {
+      const match = line.match(BULLET_BOLD_LABEL_REGEX)
+      if (match) return `- **${toTitleCaseLabel(stripLeadingEmoji(match[1]))}**: ${match[2]}`
     }
+    
+    // **Label**: text
+    if (line.startsWith('**') && line.includes('**:')) {
+      const match = line.match(BOLD_LABEL_REGEX)
+      if (match) return `- **${toTitleCaseLabel(stripLeadingEmoji(match[1]))}**: ${match[2]}`
+    }
+    
+    // - Label: text
+    if (line.startsWith('- ') && line.includes(':')) {
+      const match = line.match(BULLET_LABEL_REGEX)
+      if (match) return `- **${toTitleCaseLabel(stripLeadingEmoji(match[1]))}**: ${match[2]}`
+    }
+    
+    // Label: text (leading letter, avoid headers/lists)
+    if (/^[A-Za-z]/.test(line) && line.includes(':')) {
+      const match = line.match(LABEL_REGEX)
+      if (match) {
+        const idx = line.indexOf(':')
+        const label = stripLeadingEmoji(line.slice(0, idx))
+        const rest = line.slice(idx + 1).trim()
+        return `- **${toTitleCaseLabel(label)}**: ${rest}`
+      }
+    }
+    
     return raw
   }
   const transformKeyHighlightsInOverview = (md: string): string => {
