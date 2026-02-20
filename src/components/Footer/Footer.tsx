@@ -113,8 +113,9 @@ export function Footer({
           </div>
 
           <div className="mb-8 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+            <h3 className="text-white font-semibold text-base mb-2">Perfecting Life Transactions</h3>
             <p className="text-white/90 text-sm mb-4 leading-relaxed">
-              Stay connected with the latest tools, learning resources, and workspace updates from DQ.
+              Stay updated with the latest digital transformation insights, solutions, and innovations from DigitalQatalyst.
             </p>
             <div className="flex gap-2">
               <input
@@ -201,8 +202,9 @@ export function Footer({
                 <span className="text-white/95">Workspace</span>
               </h2>
               <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                <h3 className="text-white font-semibold text-base mb-2">Perfecting Life Transactions</h3>
                 <p className="text-white/90 text-sm mb-4 leading-relaxed">
-                  Stay connected with the latest tools, learning resources, and workspace updates from DQ.
+                  Stay updated with the latest digital transformation insights, solutions, and innovations from DigitalQatalyst.
                 </p>
                 <div className="flex gap-2">
                   <input
