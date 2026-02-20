@@ -236,7 +236,7 @@ export const FeaturedNationalProgram: React.FC = () => {
               href={activeProgram.learnMoreHref}
               className="px-6 py-3 bg-white text-[#0F1D4A] font-semibold rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2 shadow-lg"
             >
-              EXPLORE {activeProgram.category.toUpperCase()}
+              {activeProgram.category === 'Jobs' ? 'VIEW OPPORTUNITY' : 'READ MORE'}
               <ArrowRight size={18} />
             </a>
             
