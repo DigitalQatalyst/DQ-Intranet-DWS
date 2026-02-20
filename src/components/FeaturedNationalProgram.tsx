@@ -218,11 +218,6 @@ export const FeaturedNationalProgram: React.FC = () => {
         >
 
           <div className="flex-1 flex flex-col justify-center text-white relative z-10">
-            <div className="inline-flex items-center rounded-full px-4 py-1.5 mb-4 w-fit bg-white/10 backdrop-blur-sm text-white border border-white/20">
-              <p className="text-xs font-medium uppercase tracking-wide">
-                {activeProgram.partnership}
-              </p>
-            </div>
             <h3 className="font-bold mb-4 text-white max-w-3xl leading-tight" style={{ fontSize: '30px' }}>
               {activeProgram.title}
             </h3>
