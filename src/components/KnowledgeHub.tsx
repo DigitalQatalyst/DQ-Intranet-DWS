@@ -3,6 +3,7 @@ import { Newspaper, Loader, AlertCircle, Radio } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { FadeInUpOnScroll } from "./AnimationUtils";
 import { NewsCard } from "./CardComponents";
+import { PodcastCard } from "./PodcastCard";
 import { fetchAllNews, fetchAllJobs } from '@/services/mediaCenterService';
 import type { NewsItem as MediaCenterNewsItem } from '@/data/media/news';
 import type { JobItem } from '@/data/media/jobs';
@@ -281,6 +282,23 @@ const KnowledgeHubContent = () => {
 
   const getPodcastData = () => {
     const source = mediaCenterNews.length > 0 ? mediaCenterNews : newsItems;
+    const podcastColors = [
+      '#0F1D4A', // Navy blue
+      '#10B981', // Green
+      '#F97316', // Orange
+      '#8B5CF6', // Purple
+      '#DC2626', // Red
+      '#1F2937', // Dark gray
+    ];
+    
+    const getDuration = (readingTime?: string) => {
+      if (readingTime === '<5') return '5 min';
+      if (readingTime === '5–10') return '8 min';
+      if (readingTime === '10–20') return '15 min';
+      if (readingTime === '20+') return '25 min';
+      return '10 min';
+    };
+    
     return source
       .filter(
         (item) =>
@@ -289,16 +307,18 @@ const KnowledgeHubContent = () => {
             item.tags?.some((tag) => tag.toLowerCase().includes("podcast")))
       )
       .slice(0, 6)
-      .map((item) => ({
+      .map((item, index) => ({
         id: item.id,
         title: item.title,
         excerpt: item.excerpt,
         date: item.date,
-        category: "Podcast",
+        category: item.department || "DQ Leadership",
         tags: ["Podcast", "Play ▶"],
-        source:
-          item.newsSource || item.byline || item.author || "DQ Media Center",
+        source: item.newsSource || item.byline || item.author || "DQ Media Center",
         imageUrl: item.image || undefined,
+        episode: `EP ${source.length - index}`,
+        backgroundColor: podcastColors[index % podcastColors.length],
+        duration: getDuration(item.readingTime),
       }));
   };
 
@@ -413,21 +433,15 @@ const KnowledgeHubContent = () => {
                         animationDelay: `${index * 0.1}s`,
                       }}
                     >
-                      <NewsCard
-                        content={{
-                          title: item.title,
-                          description: item.excerpt,
-                          imageUrl: item.imageUrl,
-                          tags: item.tags ?? [item.category],
-                          date: item.date,
-                          source: item.source,
-                        }}
-                        onQuickView={() =>
-                          navigate(`/marketplace/news/${item.id}`)
-                        }
-                        onReadMore={() =>
-                          navigate(`/marketplace/news/${item.id}`)
-                        }
+                      <PodcastCard
+                        episode={item.episode}
+                        title={item.title}
+                        category={item.category}
+                        description={item.excerpt}
+                        date={item.date}
+                        duration={item.duration}
+                        backgroundColor={item.backgroundColor}
+                        onPlay={() => navigate(`/marketplace/news/${item.id}`)}
                       />
                     </div>
                   ))
