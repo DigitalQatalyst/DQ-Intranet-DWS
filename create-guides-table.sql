@@ -64,13 +64,7 @@ INSERT INTO "public"."guides" (
     'sample-guide',
     'Sample Guide',
     'This is a sample guide to test the table setup.',
-    '# Sample Guide
-
-This is a test guide to verify the table is working correctly.
-
-## Test Section
-
-Content goes here.',
+    E'# Sample Guide\n\nThis is a test guide to verify the table is working correctly.\n\n## Test Section\n\nContent goes here.',
     'Approved',
     'Beginner',
     'Strategy',
