@@ -18,6 +18,7 @@ import CreatePost from "./communities/pages/CreatePost";
 import PostDetail from "./communities/pages/PostDetail";
 import ProfileDashboard from "./communities/pages/ProfileDashboard";
 import { AuthProvider as CommunitiesAuthProvider } from "./communities/contexts/AuthProvider";
+import { CommunitiesRouter } from "./communities/CommunitiesRouter";
 
 import MarketplaceDetailsPage from "./pages/marketplace/MarketplaceDetailsPage";
 import LmsCourseDetailPage from "./pages/lms/LmsCourseDetailPage";
@@ -73,6 +74,7 @@ export function AppRouter() {
                 <Route path="/discover-dq" element={<DiscoverDQ />} />
                 <Route path="/coming-soon" element={<ComingSoonPage />} />
                 <Route path="/growth-sectors-coming-soon" element={<GrowthSectorsComingSoon />} />
+                <Route path="/marketplace/*" element={<MarketplaceRouter />} />
                 <Route path="/*" element={<App />} />
                 <Route path="/courses/:itemId" element={<LmsCourseDetailPage />} />
                 <Route path="/lms" element={<LmsCourses />} />
@@ -92,31 +94,31 @@ export function AppRouter() {
                     />
                   }
                 />
-{/* Admin Section */}
-<Route path="/admin/guides" element={<AdminGuidesList />} />
-<Route path="/admin/guides/new" element={<GuideEditor />} />
-<Route path="/admin/guides/:id" element={<GuideEditor />} />
-<Route path="/admin/ghc-inspector" element={<React.Suspense fallback={<Loading />}><GHCInspectorPage /></React.Suspense>} />
+                {/* Admin Section */}
+                <Route path="/admin/guides" element={<AdminGuidesList />} />
+                <Route path="/admin/guides/new" element={<GuideEditor />} />
+                <Route path="/admin/guides/:id" element={<GuideEditor />} />
+                <Route path="/admin/ghc-inspector" element={<React.Suspense fallback={<div>Loading...</div>}><GHCInspectorPage /></React.Suspense>} />
 
-{/* Onboarding & Directory */}
-<Route path="/onboarding/:itemId/details" element={<MarketplaceDetailsPage marketplaceType="onboarding" />} />
-<Route path="/work-directory/units/:slug" element={<UnitProfilePage />} />
-<Route path="/work-directory/positions/:slug" element={<WorkPositionProfilePage />} />
-<Route path="/roles/:slug" element={<RoleProfilePage />} />
+                {/* Onboarding & Directory */}
+                <Route path="/onboarding/:itemId/details" element={<MarketplaceDetailsPage marketplaceType="onboarding" />} />
+                <Route path="/work-directory/units/:slug" element={<UnitProfilePage />} />
+                <Route path="/work-directory/positions/:slug" element={<WorkPositionProfilePage />} />
+                <Route path="/roles/:slug" element={<RoleProfilePage />} />
 
-{/* Messaging & Communities */}
-{/* Note: I've used the CommunitiesRouter here. 
+                {/* Messaging & Communities */}
+                {/* Note: I've used the CommunitiesRouter here. 
     Ensure the routes from 'develop' (Feed, Analytics, etc.) 
     are moved into the CommunitiesRouter component. 
 */}
-<Route path="/communities/*" element={<CommunitiesRouter />} />
-<Route path="/messages" element={<MessagingDashboard />} />
+                <Route path="/communities/*" element={<CommunitiesRouter />} />
+                <Route path="/messages" element={<MessagingDashboard />} />
 
-{/* Utilities */}
-<Route path="/asset-library" element={<AssetLibraryPage />} />
-<Route path="/discover-dq" element={<DiscoverDQ />} />
-<Route path="/thank-you" element={<ThankYou />} />
-<Route path="/404" element={<NotFound />} />
+                {/* Utilities */}
+                <Route path="/asset-library" element={<AssetLibraryPage />} />
+                <Route path="/discover-dq" element={<DiscoverDQ />} />
+                <Route path="/thank-you" element={<ThankYou />} />
+                <Route path="/404" element={<NotFound />} />
 
                 <Route path="*" element={<Navigate to="/404" replace />} />
               </Routes>

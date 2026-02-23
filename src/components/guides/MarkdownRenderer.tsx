@@ -123,7 +123,7 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
     <ReactMarkdown
       remarkPlugins={([remarkGfm as any, remarkSlug as any] as any)}
       rehypePlugins={[
-        [rehypeAutolinkHeadings, { behavior: 'append' }], 
+        [rehypeAutolinkHeadings, { behavior: 'append' }],
         rehypeRaw,
         rehypePreserveDivClass as any,
         [
@@ -194,38 +194,38 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
           <tr className="bg-white" {...(props as any)} />
         ),
         th: ({ node, ...props }) => (
-          <th 
-            className="px-6 py-4 text-left text-sm font-semibold text-white border border-gray-300" 
-            style={{ backgroundColor: '#030E31', minWidth: '180px' }} 
-            {...(props as any)} 
+          <th
+            className="px-6 py-4 text-left text-sm font-semibold text-white border border-gray-300"
+            style={{ backgroundColor: '#030E31', minWidth: '180px' }}
+            {...(props as any)}
           />
         ),
         td: ({ node, ...props }) => (
-          <td 
-            className="px-6 py-4 text-sm text-gray-900 border border-gray-300 whitespace-pre-line" 
-            style={{ minWidth: '300px' }} 
-            {...(props as any)} 
+          <td
+            className="px-6 py-4 text-sm text-gray-900 border border-gray-300 whitespace-pre-line"
+            style={{ minWidth: '300px' }}
+            {...(props as any)}
           />
         ),
         div: (props: any) => {
           const { node, children, className, class: classProp, ...restProps } = props
-          
+
           // CRITICAL: Check node.properties FIRST (this is where rehypePreserveDivClass sets it)
           const nodeClass = node?.properties?.className || node?.properties?.class
-          const nodeClassStr = nodeClass 
+          const nodeClassStr = nodeClass
             ? (Array.isArray(nodeClass) ? nodeClass.join(' ') : String(nodeClass))
             : ''
-          
+
           // Also check props (fallback)
           const propsClass = className || classProp
           const propsClassStr = propsClass
             ? (Array.isArray(propsClass) ? propsClass.join(' ') : String(propsClass))
             : ''
-          
+
           // Combine and check
           const combinedClass = nodeClassStr || propsClassStr
           const isFeatureBox = combinedClass && combinedClass.includes('feature-box')
-          
+
           if (isFeatureBox) {
             // Filter out empty children (whitespace-only text nodes, empty elements)
             const filteredChildren = React.Children.toArray(children).filter((child: any) => {
@@ -239,32 +239,33 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
                 if (typeof childChildren === 'string') {
                   return childChildren.trim().length > 0
                 }
-                return false
-              })
-
-              // Don't render if no meaningful content
-              if (filteredChildren.length === 0) {
-                return null
+                return true
               }
+              return true
+            })
 
-              return (
-                <div
-                  className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-4"
-                  {...restProps}
-                >
-                  {filteredChildren}
-                </div>
-              )
+            // Don't render if no meaningful content
+            if (filteredChildren.length === 0) {
+              return null
             }
 
-            // Default div rendering - preserve className
-            return <div className={combinedClass || className || classProp} {...restProps}>{children}</div>
+            return (
+              <div
+                className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-4"
+                {...restProps}
+              >
+                {filteredChildren}
+              </div>
+            )
           }
-        }}
-      >
-        {processedBody}
-      </ReactMarkdown>
-    </div>
+
+          // Default div rendering - preserve className
+          return <div className={combinedClass || className || classProp} {...restProps}>{children}</div>
+        }
+      }}
+    >
+      {processedBody}
+    </ReactMarkdown>
   )
 }
 

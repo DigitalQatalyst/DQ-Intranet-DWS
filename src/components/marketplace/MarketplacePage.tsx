@@ -376,6 +376,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const isKnowledgeHub = marketplaceType === 'knowledge-hub';
   const isServicesCenter = marketplaceType === 'non-financial';
   const isEvents = marketplaceType === 'events';
+  const isDesignSystem = marketplaceType === 'design-system';
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -411,7 +412,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   }, [isServicesCenter, searchParams, activeServiceTab, setSearchParams]);
 
   // Items & filters state
-  const [_items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<any[]>([]);
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState('');
@@ -422,13 +423,19 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   const [facets, setFacets] = useState<GuidesFacets>({});
   const [queryParams, setQueryParams] = useState(() => new URLSearchParams(typeof window !== 'undefined' ? window.location.search : ''));
   const searchStartRef = useRef<number | null>(null);
-type WorkGuideTab = 'guidelines' | 'strategy' | '6xd' | 'blueprints' | 'testimonials' | 'glossary' | 'faqs';
-type DesignSystemTab = 'cids' | 'vds' | 'cds';
+  type WorkGuideTab = 'guidelines' | 'strategy' | '6xd' | 'blueprints' | 'testimonials' | 'glossary' | 'faqs';
+  type DesignSystemTab = 'cids' | 'vds' | 'cds';
   const getTabFromParams = useCallback((params: URLSearchParams): WorkGuideTab => {
     const tab = params.get('tab');
     return tab === 'strategy' || tab === '6xd' || tab === 'blueprints' || tab === 'testimonials' || tab === 'glossary' || tab === 'faqs' ? tab : 'guidelines';
   }, []);
   const [activeTab, setActiveTab] = useState<WorkGuideTab>(() => getTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()));
+
+  const getDesignSystemTabFromParams = useCallback((params: URLSearchParams): DesignSystemTab => {
+    const tab = params.get('tab');
+    return tab === 'cids' || tab === 'vds' || tab === 'cds' ? (tab as DesignSystemTab) : 'cids';
+  }, []);
+  const [activeDesignSystemTab, setActiveDesignSystemTab] = useState<DesignSystemTab>(() => getDesignSystemTabFromParams(typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams()));
 
   const TAB_LABELS: Record<WorkGuideTab, string> = {
     strategy: 'GHC',
@@ -941,7 +948,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
           setTotalCount(0);
           return;
         }
-        
+
         // Products tab: Skip database query entirely, use static products
         if (activeTab === 'blueprints') {
           setLoading(true);
@@ -1003,95 +1010,20 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               });
             }
 
-            // Apply location filter (backend)
-            // Use exact database column name: location_filter
-            // filtersByCategory['location'] contains option_label values which match option_value in our database
-            if (filtersByCategory['location'] && filtersByCategory['location'].length > 0) {
-              const locationValues = filtersByCategory['location'];
-              // Use these values directly as they match the database option_value
-              eventsQuery = eventsQuery.in('location_filter', locationValues);
-            }
-          }
-
-          // Apply ordering
-          eventsQuery = eventsQuery.order("start_time", { ascending: true });
-
-          // Explicitly set a high limit to ensure we get all events (Supabase default is 1000, but let's be explicit)
-          // Note: If you have more than 1000 events, you'll need pagination
-          eventsQuery = eventsQuery.limit(1000);
-
-          const queryResult = await eventsQuery;
-
-          console.log('[Events Marketplace] Query result:', {
-            hasData: !!queryResult.data,
-            dataLength: queryResult.data?.length || 0,
-            hasError: !!queryResult.error,
-            error: queryResult.error
-          });
-
-          if (!queryResult.error && queryResult.data) {
-            data = queryResult.data;
-            console.log(`[Events Marketplace] Successfully fetched ${data.length} events`);
-          } else {
-            error = queryResult.error || new Error("Events_v2 table query failed");
-            console.error('[Events Marketplace] Query error:', error);
-          }
-
-          // Handle errors gracefully - for events, don't use fallback data
-          if (error && (!data || data.length === 0)) {
-            if (error?.code === '42501') {
-              console.warn("[Events Marketplace] Permission denied: Events may require authentication or proper RLS policies.");
-              setError("Permission denied: Events may require authentication or proper RLS policies.");
-            } else {
-              console.error("[Events Marketplace] Error fetching events:", error);
-              setError(`Failed to load events: ${error?.message || 'Unknown error'}`);
-            }
-            // Show empty state instead of fallback data
+            setItems(out);
+            setFilteredItems(out);
+            setTotalCount(out.length);
+          } catch (err) {
+            console.error("Error loading static products:", err);
             setItems([]);
             setFilteredItems([]);
             setTotalCount(0);
+          } finally {
             setLoading(false);
-            return;
           }
-
-          if (!data || data.length === 0) {
-            console.log("[Events Marketplace] No events found in Supabase - this may be normal if there are no published future events");
-            // Show empty state - no fallback to mock data
-            setItems([]);
-            setFilteredItems([]);
-            setTotalCount(0);
-            setLoading(false);
-            return;
-          }
-
-          // Transform Supabase data to marketplace format
-          const marketplaceEvents = data.map(transformEventToMarketplace);
-
-          setItems(marketplaceEvents);
-          setFilteredItems(marketplaceEvents);
-          setTotalCount(marketplaceEvents.length);
-        } catch (err) {
-          console.error("Error in fetchEvents:", err);
-          // For events, show error instead of fallback data
-          setError(`Failed to load events: ${err instanceof Error ? err.message : 'Unknown error'}`);
-          setItems([]);
-          setFilteredItems([]);
-          setTotalCount(0);
-        } finally {
-          setLoading(false);
-        }
-        return;
-      }
-
-      // GUIDES: Supabase query + facets
-      if (isGuides) {
-        if (activeTab === 'glossary' || activeTab === 'faqs') {
-          setLoading(false);
-          setItems([]);
-          setFilteredItems([]);
-          setTotalCount(0);
           return;
         }
+
         setLoading(true);
         try {
           // Exclude removed guidelines from frontend
@@ -1203,11 +1135,11 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
           // If unit filtering or framework filtering is needed client-side, fetch ALL results first, then filter and paginate
           // Otherwise, use server-side pagination
           const needsClientSideUnitFilter = effectiveUnits.length > 0;
-          const needsClientSideFrameworkFilter = (isStrategyTab && strategyFrameworks.length > 0) || 
-                                                 (isBlueprintTab && (blueprintFrameworks.length > 0 || blueprintSectors.length > 0 || productTypes.length > 0 || productStages.length > 0 || productSectors.length > 0)) ||
-                                                 (isGuidelinesTab && guidelinesCategories.length > 0);
+          const needsClientSideFrameworkFilter = (isStrategyTab && strategyFrameworks.length > 0) ||
+            (isBlueprintTab && (blueprintFrameworks.length > 0 || blueprintSectors.length > 0 || productTypes.length > 0 || productStages.length > 0 || productSectors.length > 0)) ||
+            (isGuidelinesTab && guidelinesCategories.length > 0);
           const needsClientSideFiltering = needsClientSideUnitFilter || needsClientSideFrameworkFilter || categorization.length > 0 || attachmentsFilter.length > 0;
-          
+
           const from = (currentPage - 1) * pageSize;
           const to = from + pageSize - 1;
 
@@ -1219,7 +1151,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
           let facetQ = supabaseClient
             .from('guides')
             .select('domain,sub_domain,guide_type,function_area,unit,location,status');
-          
+
           // Apply same status filter as main query for facets
           if (statuses.length) {
             facetQ = facetQ.in('status', statuses);
@@ -1232,7 +1164,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               facetQ = facetQ.eq('status', 'Approved');
             }
           }
-          
+
           excludedSlugs.forEach(slug => {
             facetQ = facetQ.neq('slug', slug);
           });
@@ -1335,7 +1267,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               'dq-journey', // Exclude DQ Journey
               'journey', // Exclude any guide with "journey" slug
             ];
-            
+
             // Canonical GHC slugs - only these should be shown
             const canonicalGHCSlugs = [
               'dq-ghc',
@@ -1347,33 +1279,33 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               'dq-agile-flows',
               'dq-agile-6xd'
             ];
-            
+
             out = out.filter(it => {
               const slug = (it.slug || '').toLowerCase();
               const title = (it.title || '').toLowerCase();
-              
+
               // Exclude if slug matches any excluded slug
               if (excludedStrategySlugs.includes(slug)) return false;
-              
+
               // Exclude if title contains unwanted keywords
-              if (title.includes('dq journey') || 
-                  title.includes('dq beliefs') || 
-                  title.includes('strategy 2021') ||
-                  title.includes('strategy 2030')) {
+              if (title.includes('dq journey') ||
+                title.includes('dq beliefs') ||
+                title.includes('strategy 2021') ||
+                title.includes('strategy 2030')) {
                 return false;
               }
-              
+
               // For GHC guides, only allow canonical slugs to prevent duplicates
               // Check if this looks like a GHC guide (has GHC-related keywords)
-              const looksLikeGHC = title.includes('ghc') || 
-                                   title.includes('agile tms') || 
-                                   title.includes('agile sos') || 
-                                   title.includes('agile flows') || 
-                                   title.includes('agile 6xd') ||
-                                   title.includes('6xd') ||
-                                   slug.includes('ghc') ||
-                                   slug.includes('agile');
-              
+              const looksLikeGHC = title.includes('ghc') ||
+                title.includes('agile tms') ||
+                title.includes('agile sos') ||
+                title.includes('agile flows') ||
+                title.includes('agile 6xd') ||
+                title.includes('6xd') ||
+                slug.includes('ghc') ||
+                slug.includes('agile');
+
               // If it looks like a GHC guide but doesn't have a canonical slug, exclude it
               if (looksLikeGHC && !canonicalGHCSlugs.includes(slug)) {
                 // Exception: allow if it's explicitly not a duplicate (doesn't match canonical titles)
@@ -1388,19 +1320,19 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                   'agile flows',
                   'agile 6xd'
                 ];
-                
+
                 // If title closely matches a canonical title, it's likely a duplicate
                 const matchesCanonical = canonicalTitles.some(canonical => {
                   // Remove common prefixes/suffixes for comparison
                   const cleanTitle = title.replace(/^(ghc|dq)\s+/i, '').replace(/\s+\(.*\)$/i, '').trim();
                   return cleanTitle.includes(canonical) || canonical.includes(cleanTitle);
                 });
-                
+
                 if (matchesCanonical) {
                   return false; // Exclude duplicate
                 }
               }
-              
+
               return true;
             });
           } else if (isBlueprintTab) {
@@ -2414,11 +2346,10 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                       newParams.set('tab', tab.id);
                       setSearchParams(newParams, { replace: true });
                     }}
-                    className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors focus:outline-none ${
-                      isActive
-                        ? 'border-blue-700'
-                        : 'text-gray-700 border-transparent hover:text-gray-900 hover:border-gray-300'
-                    }`}
+                    className={`py-4 px-1 text-sm font-medium border-b-2 transition-colors focus:outline-none ${isActive
+                      ? 'border-blue-700'
+                      : 'text-gray-700 border-transparent hover:text-gray-900 hover:border-gray-300'
+                      }`}
                     style={isActive ? { color: '#030F35', borderColor: '#030F35' } : {}}
                   >
                     {tab.label}
@@ -2441,10 +2372,9 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                     onClick={() => handleGuidesTabChange(tab)}
                     className={`
                       py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none
-                      ${
-                        activeTab === tab
-                          ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ${activeTab === tab
+                        ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }
                     `}
                     aria-current={activeTab === tab ? 'page' : undefined}
@@ -2505,10 +2435,9 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                       onClick={() => handleDesignSystemTabChange(tab)}
                       className={`
                         py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                        ${
-                          activeDesignSystemTab === tab
-                            ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ${activeDesignSystemTab === tab
+                          ? 'border-[var(--guidelines-primary)] text-[var(--guidelines-primary)]'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                         }
                       `}
                       aria-current={activeDesignSystemTab === tab ? 'page' : undefined}
