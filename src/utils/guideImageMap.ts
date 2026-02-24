@@ -111,6 +111,15 @@ const stringHash = (value: string): number => {
   return hash
 }
 
+function isMainGHC(g: GuideLike): boolean {
+  const slug = (g.slug || '').toLowerCase()
+  const title = (g.title || '').toLowerCase()
+  return slug === 'dq-ghc' ||
+         slug.includes('golden-honeycomb') ||
+         title.includes('golden honeycomb') ||
+         title.includes('dq ghc')
+}
+
 // Check if guide is HoV (House of Values) related
 function isHOVGuide(g: GuideLike): boolean {
   const slug = (g.slug || '').toLowerCase()
@@ -207,75 +216,30 @@ function isGHCGuide(g: GuideLike): boolean {
 export function getGuideImageUrl(g: GuideLike): string {
   const slug = (g.slug || '').toLowerCase()
   const title = (g.title || '').toLowerCase()
-  const isMainGHC = () => {
-    return slug === 'dq-ghc' ||
-           slug.includes('golden-honeycomb') ||
-           title.includes('golden honeycomb') ||
-           title.includes('dq ghc')
-  }
-  
-  // Determine guide categories first
-  const isBlueprint = (g.domain || '').toLowerCase().includes('blueprint') || 
-                      (g.guideType || '').toLowerCase().includes('blueprint')
   const domainLower = (g.domain || '').toLowerCase()
   const guideTypeLower = (g.guideType || '').toLowerCase()
-  const isStrategy = domainLower.includes('strategy') ||
-                     guideTypeLower.includes('strategy') ||
+
+  const isBlueprint = domainLower.includes('blueprint') || guideTypeLower.includes('blueprint')
+  const isStrategy = domainLower.includes('strategy') || guideTypeLower.includes('strategy') ||
                      domainLower.includes('ghc') || guideTypeLower.includes('ghc')
-  const isTestimonial = (g.domain || '').toLowerCase().includes('testimonial') ||
-                        (g.guideType || '').toLowerCase().includes('testimonial')
-  
-  // Check if this is a guidelines guide - only apply guidelines image if domain is explicitly "Guidelines"
-  // This ensures the image only appears in the guidelines tab, not products/blueprints tab
-  const isGuidelinesDomain = (g.domain || '').toLowerCase().trim() === 'guidelines' ||
-                             (g.domain || '').toLowerCase().trim() === 'guideline'
-  
-  // Only apply guidelines image if domain is explicitly Guidelines (not for products/blueprints)
+  const isTestimonial = domainLower.includes('testimonial') || guideTypeLower.includes('testimonial')
+  const isGuidelinesDomain = domainLower.trim() === 'guidelines' || domainLower.trim() === 'guideline'
+
   if (isGuidelinesDomain && !isHOVGuide(g) && !isGHCGuide(g) && !isBlueprint && !isStrategy && !isTestimonial) {
     return GUIDELINES_IMAGE
   }
+  if (isHOVGuide(g)) return HOV_IMAGE
+  if (isMainGHC(g)) return '/images/DQ%20GHC%20Overview%20.png'
 
-  // HoV: always use local House of Values image, overriding remote hero images
-  if (isHOVGuide(g)) {
-    return HOV_IMAGE
-  }
-
-  // For the main GHC overview card, force the overview image even if a heroImageUrl exists
-  if (isMainGHC()) {
-    return '/images/DQ%20GHC%20Overview%20.png'
-  }
-  
-  // For non-guidelines guides, prioritize heroImageUrl if it's a valid URL
   const src = (g.heroImageUrl || '').trim()
-  if (src && src.startsWith('http')) {
-    return src
-  }
-  
-  // Check for specific guide images (DQ Vision and Mission, etc.)
+  if (src && src.startsWith('http')) return src
+
   for (const [guideSlug, imageUrl] of Object.entries(specificGuideImages)) {
     if (slug === guideSlug || slug.includes(guideSlug) || title.includes(guideSlug)) {
       return imageUrl
     }
   }
-  
-  // Check if this is an HoV guide - use appropriate HoV images
-  if (isHOVGuide(g)) {
-    // Check for specific guiding value images
-    for (const [valueSlug, imageUrl] of Object.entries(hovValueImages)) {
-      if (slug.includes(valueSlug)) {
-        return imageUrl
-      }
-    }
-    
-    // Main HoV guides (dq-hov, dq-competencies) use the house-of-values image
-    if (slug === 'dq-hov' || slug === 'dq-competencies' || slug.includes('house-of-values')) {
-      return HOV_IMAGE
-    }
-    
-    // Default HoV image for other HoV-related guides
-    return HOV_IMAGE
-  }
-  
+
   // Check if this is a GHC guide - use golden honeycomb image
   if (isGHCGuide(g)) {
     // First try explicit mappings so card titles get matching artwork

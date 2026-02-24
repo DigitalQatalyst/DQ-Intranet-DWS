@@ -5,6 +5,9 @@ import { createGuide, updateGuide } from '../../../services/adminGuides';
 import { Guide, GuideTaxonomies } from '../../../types/guide';
 import { supabaseClient } from '../../../lib/supabaseClient';
 
+const GHC_SLUGS = new Set(['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'])
+const GHC_SLUGS_ARRAY = Array.from(GHC_SLUGS)
+
 const empty: Guide = { title: '', status: 'draft', contributors: [], steps: [], attachments: [], templates: [], relatedTools: [] };
 
 const GuideEditor: React.FC = () => {
@@ -26,7 +29,7 @@ const GuideEditor: React.FC = () => {
         setGuide(g);
         
         // Check for shared content if this is a GHC guide
-        if (id && g.slug && ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(g.slug)) {
+        if (id && g.slug && GHC_SLUGS.has(g.slug)) {
           checkForSharedContent(g.slug, g.body || '');
         }
       } finally { setLoading(false); }
@@ -40,7 +43,7 @@ const GuideEditor: React.FC = () => {
       const { data: allGHCGuides } = await supabaseClient
         .from('guides')
         .select('id, slug, title, body')
-        .in('slug', ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd']);
+        .in('slug', GHC_SLUGS_ARRAY);
       
       if (!allGHCGuides) return;
       
@@ -71,13 +74,11 @@ const GuideEditor: React.FC = () => {
     if (typeof payload.contributors === 'string') payload.contributors = parseList(payload.contributors as any);
     
     if (id) {
-      // GHC element slugs - prevent accidental changes
-      const GHC_SLUGS = ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd']
-      const isGHCGuide = guide.slug && GHC_SLUGS.includes(guide.slug)
+      const isGHCGuide = guide.slug && GHC_SLUGS.has(guide.slug)
       
       // Verify we're updating the correct guide by checking slug matches
       if (payload.slug && guide.slug && payload.slug !== guide.slug) {
-        if (isGHCGuide && GHC_SLUGS.includes(payload.slug)) {
+        if (isGHCGuide && GHC_SLUGS.has(payload.slug)) {
           alert(
             `❌ ERROR: Cannot change GHC element slug!\n\n` +
             `You are trying to change "${guide.slug}" to "${payload.slug}".\n\n` +
@@ -135,29 +136,29 @@ const GuideEditor: React.FC = () => {
       {id && guide.slug && (
         <>
           <div className={`mb-4 p-3 border rounded-lg ${
-            ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
+            GHC_SLUGS.has(guide.slug)
               ? 'bg-amber-50 border-amber-300' 
               : 'bg-blue-50 border-blue-200'
           }`}>
             <p className={`text-sm font-semibold ${
-              ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
+              GHC_SLUGS.has(guide.slug)
                 ? 'text-amber-900' 
                 : 'text-blue-800'
             }`}>
               <strong>Editing:</strong> <code className={`px-2 py-1 rounded ${
-                ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
+                GHC_SLUGS.has(guide.slug)
                   ? 'bg-amber-100' 
                   : 'bg-blue-100'
               }`}>{guide.slug}</code> 
               {guide.title && <span className="ml-2">({guide.title})</span>}
             </p>
-            {['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug) && (
+            {GHC_SLUGS.has(guide.slug) && (
               <p className="text-xs text-amber-700 mt-1 font-medium">
                 ⚠️ GHC Element: Slug is fixed and cannot be changed to another GHC slug
               </p>
             )}
             <p className={`text-xs mt-1 ${
-              ['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug)
+              GHC_SLUGS.has(guide.slug)
                 ? 'text-amber-600' 
                 : 'text-blue-600'
             }`}>
@@ -198,7 +199,7 @@ const GuideEditor: React.FC = () => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium">Slug</label>
-            {['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'].includes(guide.slug || '') ? (
+            {GHC_SLUGS.has(guide.slug || '') ? (
               <div>
                 <input 
                   className="border rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed" 

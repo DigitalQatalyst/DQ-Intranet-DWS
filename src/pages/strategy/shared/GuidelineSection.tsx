@@ -6,6 +6,34 @@ interface GuidelineSectionProps {
   children: React.ReactNode
 }
 
+function processInlineMarkdown(text: string): React.ReactNode[] {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  return parts.map((part, idx) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={idx} className="text-gray-900 font-semibold">{part.slice(2, -2)}</strong>
+    }
+    return part
+  })
+}
+
+function renderListItem(item: string, idx: number): React.ReactNode {
+  const colonIndex = item.indexOf(':')
+  if (colonIndex > 0) {
+    return (
+      <li key={idx} className="flex items-start">
+        <span className="text-gray-700 text-base leading-relaxed">
+          • <strong>{item.substring(0, colonIndex)}</strong>{item.substring(colonIndex)}
+        </span>
+      </li>
+    )
+  }
+  return (
+    <li key={idx} className="flex items-start">
+      <span className="text-gray-700 text-base leading-relaxed">• {item}</span>
+    </li>
+  )
+}
+
 // Helper function to parse content with type markers
 function parseContentWithMarkers(content: string) {
   const contentTypes = {
@@ -84,27 +112,7 @@ export function GuidelineSection({ id, title, children }: GuidelineSectionProps)
         if (currentList.length > 0) {
           enhancedChildren.push(
             <ul key={`list-${index}`} className="mb-6 ml-4 space-y-2">
-              {currentList.map((item, idx) => {
-                // Check if the item has a colon to make text before it bold
-                const colonIndex = item.indexOf(':')
-                if (colonIndex > 0) {
-                  const beforeColon = item.substring(0, colonIndex)
-                  const afterColon = item.substring(colonIndex)
-                  return (
-                    <li key={idx} className="flex items-start">
-                      <span className="text-gray-700 text-base leading-relaxed">
-                        • <strong>{beforeColon}</strong>{afterColon}
-                      </span>
-                    </li>
-                  )
-                } else {
-                  return (
-                    <li key={idx} className="flex items-start">
-                      <span className="text-gray-700 text-base leading-relaxed">• {item}</span>
-                    </li>
-                  )
-                }
-              })}
+              {currentList.map(renderListItem)}
             </ul>
           )
         }
@@ -176,19 +184,6 @@ export function GuidelineSection({ id, title, children }: GuidelineSectionProps)
         return
       }
       
-      // Regular content - handle inline markdown
-      const processInlineMarkdown = (text: string) => {
-        // Handle bold text **text**
-        const parts = text.split(/(\*\*[^*]+\*\*)/g)
-        return parts.map((part, idx) => {
-          if (part.startsWith('**') && part.endsWith('**')) {
-            const boldText = part.slice(2, -2)
-            return <strong key={idx} className="text-gray-900 font-semibold">{boldText}</strong>
-          }
-          return part
-        })
-      }
-
       enhancedChildren.push(
         <p key={index} className="mb-4 text-gray-700 text-base leading-relaxed">
           {processInlineMarkdown(content)}

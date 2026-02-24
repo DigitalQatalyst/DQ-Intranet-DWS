@@ -5,6 +5,33 @@ import { useNavigate } from 'react-router-dom'
 import { supabaseClient } from '../../lib/supabaseClient'
 import { getProductMetadata } from '../../utils/productMetadata'
 
+const GHC_TITLE_BY_SLUG: Record<string, string> = {
+  'dq-ghc': 'GHC Overview',
+  'dq-vision': 'GHC 1 - Vision (Purpose)',
+  'dq-hov': 'GHC 2 - House of Values (HoV)',
+  'dq-persona': 'GHC 3 - Personas',
+  'dq-agile-tms': 'GHC 4 - Agile TMS',
+  'dq-agile-sos': 'GHC 5 - Agile SoS',
+  'dq-agile-flows': 'GHC 6 - Agile Flows',
+  'dq-agile-6xd': 'GHC 7 - Agile 6xD (Products)',
+}
+
+const HOV_ORDER = [
+  'dq-competencies-emotional-intelligence', 'dq-competencies-growth-mindset',
+  'dq-competencies-purpose', 'dq-competencies-perceptive', 'dq-competencies-proactive',
+  'dq-competencies-perseverance', 'dq-competencies-precision', 'dq-competencies-customer',
+  'dq-competencies-learning', 'dq-competencies-collaboration',
+  'dq-competencies-responsibility', 'dq-competencies-trust',
+]
+
+function hovTitleFromSlug(slug: string): string | null {
+  const idx = HOV_ORDER.indexOf(slug)
+  if (idx === -1) return null
+  const label = slug.replace('dq-competencies-', '').replace(/-/g, ' ')
+  const nice = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+  return `HoV ${idx + 1} - ${nice}`
+}
+
 export interface GuideCardProps {
   guide: any
   onClick: () => void
@@ -101,40 +128,8 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
     if (!isBlueprint) {
       const rawTitle = guide.title || ''
       const slug = (guide.slug || '').toLowerCase()
-      
-      // Canonical GHC element titles with numbering
-      const ghcTitleBySlug: Record<string, string> = {
-        'dq-ghc': 'GHC Overview',
-        'dq-vision': 'GHC 1 - Vision (Purpose)',
-        'dq-hov': 'GHC 2 - House of Values (HoV)',
-        'dq-persona': 'GHC 3 - Personas',
-        'dq-agile-tms': 'GHC 4 - Agile TMS',
-        'dq-agile-sos': 'GHC 5 - Agile SoS',
-        'dq-agile-flows': 'GHC 6 - Agile Flows',
-        'dq-agile-6xd': 'GHC 7 - Agile 6xD (Products)',
-      }
-      const hovOrder = [
-        'dq-competencies-emotional-intelligence',
-        'dq-competencies-growth-mindset',
-        'dq-competencies-purpose',
-        'dq-competencies-perceptive',
-        'dq-competencies-proactive',
-        'dq-competencies-perseverance',
-        'dq-competencies-precision',
-        'dq-competencies-customer',
-        'dq-competencies-learning',
-        'dq-competencies-collaboration',
-        'dq-competencies-responsibility',
-        'dq-competencies-trust'
-      ]
-      const hovTitleFromSlug = (s: string): string | null => {
-        const idx = hovOrder.indexOf(s)
-        if (idx === -1) return null
-        const label = s.replace('dq-competencies-', '').replace(/-/g, ' ')
-        const nice = label.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-        return `HoV ${idx + 1} - ${nice}`
-      }
-      if (slug && ghcTitleBySlug[slug]) return ghcTitleBySlug[slug]
+
+      if (slug && GHC_TITLE_BY_SLUG[slug]) return GHC_TITLE_BY_SLUG[slug]
       const hovTitle = slug ? hovTitleFromSlug(slug) : null
       if (hovTitle) return hovTitle
       

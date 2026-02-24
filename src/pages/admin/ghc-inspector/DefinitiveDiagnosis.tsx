@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { supabaseClient } from '../../../lib/supabaseClient';
 
-const GHC_SLUGS = [
-  'dq-vision',
-  'dq-hov',
-  'dq-persona',
-  'dq-agile-tms',
-  'dq-agile-sos',
-  'dq-agile-flows',
-  'dq-agile-6xd'
-];
+const GHC_SLUGS = new Set(['dq-vision', 'dq-hov', 'dq-persona', 'dq-agile-tms', 'dq-agile-sos', 'dq-agile-flows', 'dq-agile-6xd'])
+const GHC_SLUGS_ARRAY = Array.from(GHC_SLUGS)
+
+function buildBodyMap(guides: Guide[]): Map<string, Guide[]> {
+  const bodyMap = new Map<string, Guide[]>()
+  for (const guide of guides) {
+    if (!guide.body || guide.body.trim().length === 0) continue
+    const bodyKey = guide.body.trim()
+    if (!bodyMap.has(bodyKey)) bodyMap.set(bodyKey, [])
+    bodyMap.get(bodyKey)!.push(guide)
+  }
+  return bodyMap
+}
 
 interface Guide {
   id: string;
@@ -22,87 +26,59 @@ export function DefinitiveDiagnosis() {
   const [diagnosis, setDiagnosis] = useState<string>('');
   const [proof, setProof] = useState<any>(null);
 
-  useEffect(() => {
-    async function diagnose() {
-      try {
-        // Fetch all GHC guides
-        const { data: guides, error } = await supabaseClient
-          .from('guides')
-          .select('id, slug, title, body')
-          .in('slug', GHC_SLUGS)
-          .order('slug');
+  async function diagnose() {
+    try {
+      const { data: guides, error } = await supabaseClient
+        .from('guides')
+        .select('id, slug, title, body')
+        .in('slug', GHC_SLUGS_ARRAY)
+        .order('slug');
 
-        if (error) {
-          setDiagnosis(`❌ Error fetching: ${error.message}`);
-          return;
-        }
+      if (error) { setDiagnosis(`❌ Error fetching: ${error.message}`); return; }
+      if (!guides || guides.length === 0) { setDiagnosis('❌ No GHC guides found in database'); return; }
 
-        if (!guides || guides.length === 0) {
-          setDiagnosis('❌ No GHC guides found in database');
-          return;
-        }
+      const slugSet = new Set(guides.map(g => g.slug));
+      const duplicateSlugs = guides.length !== slugSet.size;
+      const bodyMap = buildBodyMap(guides);
+      const sharedBodies = Array.from(bodyMap.entries()).filter(([, gs]) => gs.length > 1);
 
-        // Check 1: Are all slugs unique?
-        const slugSet = new Set(guides.map(g => g.slug));
-        const duplicateSlugs = guides.length !== slugSet.size;
+      setProof({
+        totalGuides: guides.length,
+        uniqueSlugs: slugSet.size,
+        duplicateSlugs,
+        sharedBodyGroups: sharedBodies.length,
+        sharedBodyDetails: sharedBodies.map(([body, gs]) => ({
+          bodyPreview: body.substring(0, 100),
+          bodyLength: body.length,
+          guides: gs.map(g => ({ id: g.id, slug: g.slug, title: g.title }))
+        })),
+        allGuides: guides.map(g => ({
+          id: g.id, slug: g.slug, title: g.title,
+          bodyLength: g.body?.length || 0,
+          bodyPreview: g.body ? g.body.substring(0, 50) : 'EMPTY'
+        }))
+      });
 
-        // Check 2: Do multiple guides have identical body content?
-        const bodyMap = new Map<string, Guide[]>();
-        guides.forEach(guide => {
-          if (!guide.body || guide.body.trim().length === 0) return;
-          const bodyKey = guide.body.trim();
-          if (!bodyMap.has(bodyKey)) {
-            bodyMap.set(bodyKey, []);
-          }
-          bodyMap.get(bodyKey)!.push(guide);
-        });
-
-        const sharedBodies = Array.from(bodyMap.entries()).filter(([_, guides]) => guides.length > 1);
-
-        // Build proof
-        const proofData = {
-          totalGuides: guides.length,
-          uniqueSlugs: slugSet.size,
-          duplicateSlugs,
-          sharedBodyGroups: sharedBodies.length,
-          sharedBodyDetails: sharedBodies.map(([body, guides]) => ({
-            bodyPreview: body.substring(0, 100),
-            bodyLength: body.length,
-            guides: guides.map(g => ({ id: g.id, slug: g.slug, title: g.title }))
-          })),
-          allGuides: guides.map(g => ({
-            id: g.id,
-            slug: g.slug,
-            title: g.title,
-            bodyLength: g.body?.length || 0,
-            bodyPreview: g.body ? g.body.substring(0, 50) : 'EMPTY'
-          }))
-        };
-
-        setProof(proofData);
-
-        // Determine diagnosis
-        if (duplicateSlugs) {
-          setDiagnosis('❌ SUPABASE ISSUE: Duplicate slugs found in database. This is a data integrity problem.');
-        } else if (sharedBodies.length > 0) {
-          setDiagnosis(
-            `❌ SUPABASE ISSUE: ${sharedBodies.length} group(s) of guides have IDENTICAL body content. ` +
-            `This is why changes to one appear on others. The UI is working correctly - it fetches by unique slug, ` +
-            `but multiple database records have the same content.`
-          );
-        } else {
-          setDiagnosis(
-            '✅ DATABASE LOOKS GOOD: All guides have unique slugs and unique content. ' +
-            'If you\'re still seeing shared content, it might be browser caching. Try hard refresh (Ctrl+Shift+R or Cmd+Shift+R).'
-          );
-        }
-      } catch (err: any) {
-        setDiagnosis(`❌ Error: ${err.message}`);
+      if (duplicateSlugs) {
+        setDiagnosis('❌ SUPABASE ISSUE: Duplicate slugs found in database. This is a data integrity problem.');
+      } else if (sharedBodies.length > 0) {
+        setDiagnosis(
+          `❌ SUPABASE ISSUE: ${sharedBodies.length} group(s) of guides have IDENTICAL body content. ` +
+          `This is why changes to one appear on others. The UI is working correctly - it fetches by unique slug, ` +
+          `but multiple database records have the same content.`
+        );
+      } else {
+        setDiagnosis(
+          '✅ DATABASE LOOKS GOOD: All guides have unique slugs and unique content. ' +
+          'If you\'re still seeing shared content, it might be browser caching. Try hard refresh (Ctrl+Shift+R or Cmd+Shift+R).'
+        );
       }
+    } catch (err: any) {
+      setDiagnosis(`❌ Error: ${err.message}`);
     }
+  }
 
-    diagnose();
-  }, []);
+  useEffect(() => { diagnose(); }, []);
 
   return (
     <div className="bg-white border-2 border-gray-300 rounded-lg p-6 mb-6">
