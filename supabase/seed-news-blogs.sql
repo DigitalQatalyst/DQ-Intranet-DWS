@@ -29,13 +29,13 @@ INSERT INTO public.news (
   'Company News',
   'DQ Leadership',
   'GHC',
-  '# Are We Watching the Rise of Compute Nationalism?
+  $content$# Are We Watching the Rise of Compute Nationalism?
 
 Geopolitics & Technology
 
 As nations race to control AI infrastructure and computing resources, we explore how geopolitical tensions are reshaping the global technology landscape and what it means for businesses.
 
-There''s a strange new tension shaping the world right now—one that feels familiar, yet entirely new. We once competed over oil fields, shipping routes, and manufacturing dominance. Today, the new territory everyone is scrambling to control is invisible, humming quietly inside massive concrete buildings packed with GPUs, fiber, cooling pipes, and backup generators.
+There's a strange new tension shaping the world right now—one that feels familiar, yet entirely new. We once competed over oil fields, shipping routes, and manufacturing dominance. Today, the new territory everyone is scrambling to control is invisible, humming quietly inside massive concrete buildings packed with GPUs, fiber, cooling pipes, and backup generators.
 
 **Compute.**
 
@@ -49,9 +49,9 @@ And the latest U.S. government push under President Trump to dramatically expand
 
 A new era where countries no longer fight to control land or resources—but processing power?
 
-Let''s break down what''s really happening, why it matters, and what the rest of the world should be paying close attention to.
+Let's break down what's really happening, why it matters, and what the rest of the world should be paying close attention to.
 
-## The New Power Source Isn''t Oil — It''s Compute
+## The New Power Source Isn't Oil — It's Compute
 
 Every major breakthrough in AI over the past decade has been the direct result of one thing: more compute.
 
@@ -69,7 +69,7 @@ China understands this.
 
 The EU is scrambling to understand this.
 
-And Trump''s administration appears to be taking the position that AI supremacy requires compute supremacy—and compute supremacy requires state-level intervention.
+And Trump's administration appears to be taking the position that AI supremacy requires compute supremacy—and compute supremacy requires state-level intervention.
 
 This is a shift.
 
@@ -92,7 +92,7 @@ China has the advantage of:
 
 If China decides to deploy 200 gigawatts of AI-ready datacenters, it can do so without a political fight.
 
-The U.S. can''t. So Trump''s administration is moving preemptively—essentially saying:
+The U.S. can't. So Trump's administration is moving preemptively—essentially saying:
 
 "If compute is the foundation of the future economy, the government must secure it."
 
@@ -121,7 +121,7 @@ Just like oil in the 20th century.
 
 ## What Exactly Is "Compute Nationalism"?
 
-It''s the idea that nations must:
+It's the idea that nations must:
 
 - own,
 - control, or
@@ -131,7 +131,7 @@ high-performance compute to ensure economic and geopolitical dominance.
 
 In other words:
 
-"If you don''t own the servers, you don''t own the future."
+"If you don't own the servers, you don't own the future."
 
 Compute nationalism may include:
 
@@ -143,7 +143,7 @@ Compute nationalism may include:
 - national AI research clouds
 - sovereign compute reserves (yes, this is already being discussed)
 
-It''s the new form of industrial policy.
+It's the new form of industrial policy.
 
 Some call it smart.
 
@@ -183,7 +183,7 @@ All of them could position themselves as neutral global compute hubs. The world 
 
 ## The Real Question We Should Be Asking
 
-The Trump administration''s datacenter push will shape global AI power dynamics—but the deeper question sits beneath the politics:
+The Trump administration's datacenter push will shape global AI power dynamics—but the deeper question sits beneath the politics:
 
 **Should compute be treated like a national asset—or a global public good?**
 
@@ -206,7 +206,7 @@ Right now, the U.S. is choosing a defensive path: secure compute first, debate g
 
 ## Final Thought
 
-Whether you admire or criticize Trump''s approach, one thing is undeniable:
+Whether you admire or criticize Trump's approach, one thing is undeniable:
 
 **The AI economy will be shaped by those who control compute.**
 
@@ -214,7 +214,7 @@ And today, for the first time in history, we are watching nations fight not for 
 
 Compute nationalism has arrived.
 
-The question now is: Who gets left behind?',
+The question now is: Who gets left behind?$content$,
   'Blog',
   'DigitalQatalyst',
   NULL
@@ -238,11 +238,11 @@ The question now is: Who gets left behind?',
   'Company News',
   'DQ Leadership',
   'GHC',
-  '# Is Beijing Building the World''s First AI Superstate?
+  $content$# Is Beijing Building the World's First AI Superstate?
 
 While the U.S. pushes a loud "compute nationalism" agenda, China is quietly executing a parallel strategy that is more coordinated, vertically integrated, and harder to track.
 
-There is a strange calm around China''s AI strategy right now. No loud announcements. No flashy political statements. No weekly executive orders.
+There is a strange calm around China's AI strategy right now. No loud announcements. No flashy political statements. No weekly executive orders.
 
 **Just… quiet expansion.**
 
@@ -252,17 +252,17 @@ While the U.S. under Trump is pushing a loud and public "compute nationalism" ag
 
 So the question is worth asking:
 
-**Is China quietly building the world''s first AI superstate?**
+**Is China quietly building the world's first AI superstate?**
 
-Let''s unpack what''s actually happening.
+Let's unpack what's actually happening.
 
-## China Doesn''t Announce the Plan — It Already Builds It
+## China Doesn't Announce the Plan — It Already Builds It
 
 Unlike the U.S., China does not debate infrastructure at length.
 
 **It activates.**
 
-Here''s what gives China a structural advantage in the AI infrastructure race:
+Here's what gives China a structural advantage in the AI infrastructure race:
 
 ### 1. State-directed industrial capacity
 
@@ -288,7 +288,7 @@ A hyperscale datacenter in the U.S. may take 24–36 months to complete.
 
 In China, it can be done in 10–14 months—sometimes less.
 
-And while export controls limit China''s access to the newest Nvidia chips, it still produces:
+And while export controls limit China's access to the newest Nvidia chips, it still produces:
 
 - competitive domestic GPUs
 - specialized AI ASICs
@@ -297,7 +297,7 @@ And while export controls limit China''s access to the newest Nvidia chips, it s
 
 China is not slowing down—it is diversifying.
 
-## The World''s Largest Compute Clusters—You''ve Never Heard Of
+## The World's Largest Compute Clusters—You've Never Heard Of
 
 China already operates some of the largest AI training clusters on the planet.
 
@@ -309,7 +309,7 @@ Their bet is simple:
 
 **If you control compute, you control intelligence. If you control intelligence, you control global influence.**
 
-This is why China''s approach is so unsettling for Western policymakers—it is not noisy, reactive, or political. It is engineered.
+This is why China's approach is so unsettling for Western policymakers—it is not noisy, reactive, or political. It is engineered.
 
 ## Will China Overtake the U.S.?
 
@@ -317,7 +317,7 @@ Not immediately.
 
 But the long-term risk is real.
 
-**China''s strengths:**
+**China's strengths:**
 
 - speed of execution
 - government coordination
@@ -332,11 +332,11 @@ But the long-term risk is real.
 - massive private-sector R&D
 - deep capital markets
 
-The AI race is no longer about who builds the best model—it''s about who builds the most infrastructure.
+The AI race is no longer about who builds the best model—it's about who builds the most infrastructure.
 
-In that contest, China is not behind. It''s simply quiet.
+In that contest, China is not behind. It's simply quiet.
 
-**The world should pay attention.**',
+**The world should pay attention.**$content$,
   'Blog',
   'DigitalQatalyst',
   NULL
@@ -360,19 +360,19 @@ In that contest, China is not behind. It''s simply quiet.
   'Company News',
   'DQ Leadership',
   'GHC',
-  '# Europe Wants Ethical AI. But Without Compute, Can It Compete?
+  $content$# Europe Wants Ethical AI. But Without Compute, Can It Compete?
 
 The European Union has positioned itself as the global moral compass on AI—privacy, ethics, regulation, digital rights, and responsible innovation.
 
-It''s admirable.
+It's admirable.
 
-It''s important.
+It's important.
 
-But there''s a problem no one in Brussels wants to say out loud:
+But there's a problem no one in Brussels wants to say out loud:
 
-**Ethical leadership doesn''t matter if you don''t have compute leadership.**
+**Ethical leadership doesn't matter if you don't have compute leadership.**
 
-This is harsh, but it''s true.
+This is harsh, but it's true.
 
 AI power is increasingly determined by:
 
@@ -384,7 +384,7 @@ AI power is increasingly determined by:
 
 Europe is struggling on all of these fronts.
 
-## The EU''s Compute Challenge
+## The EU's Compute Challenge
 
 ### 1. Energy costs are too high
 
@@ -415,7 +415,7 @@ While globally praised, it risks pushing European startups to:
 
 Ethics without infrastructure becomes philosophy—not power.
 
-## The EU''s Hope: Sovereign Compute Initiatives
+## The EU's Hope: Sovereign Compute Initiatives
 
 To be fair, Europe is trying.
 
@@ -463,7 +463,7 @@ Leadership in ethics is noble.
 
 But leadership in compute is necessary.
 
-Until Europe builds the latter, the former will not shape the future.',
+Until Europe builds the latter, the former will not shape the future.$content$,
   'Blog',
   'DigitalQatalyst',
   NULL
@@ -487,9 +487,9 @@ Until Europe builds the latter, the former will not shape the future.',
   'Company News',
   'DQ Leadership',
   'GHC',
-  '# AI Without Compute: Is the Global South Being Left Out of the New Digital Economy?
+  $content$# AI Without Compute: Is the Global South Being Left Out of the New Digital Economy?
 
-There''s a growing fear across Africa, Southeast Asia, and parts of Latin America: Is the AI revolution about to leave the Global South behind?
+There's a growing fear across Africa, Southeast Asia, and parts of Latin America: Is the AI revolution about to leave the Global South behind?
 
 Not because of talent.
 
@@ -531,7 +531,7 @@ This is the new digital divide.
 
 ## But the Global South Has Unique Leverage
 
-Here''s the twist: the Global South also has opportunities the West doesn''t.
+Here's the twist: the Global South also has opportunities the West doesn't.
 
 ### 1. Cheap renewable energy
 
@@ -602,7 +602,7 @@ If the Global South wants to shape its own digital destiny, it must build the in
 
 Because in the AI age:
 
-**If you don''t control compute, you don''t control your future.**',
+**If you don't control compute, you don't control your future.**$content$,
   'Blog',
   'DigitalQatalyst',
   NULL
@@ -626,7 +626,7 @@ Because in the AI age:
   'Company News',
   'DQ Leadership',
   'GHC',
-  '# How Nations Weaponize Attention Before Missiles
+  $content$# How Nations Weaponize Attention Before Missiles
 
 When influence campaigns, coordinated misinformation, and AI-generated narratives shape public sentiment and global alliances before any physical conflict begins.
 
@@ -666,15 +666,15 @@ The playbook is clear:
 
 These tactics are deliberate. Their goal is simple: shift public sentiment.
 
-And this isn''t something happening only in obscure corners of the internet.
+And this isn't something happening only in obscure corners of the internet.
 
 It has moved into the highest levels of state communication.
 
 A clear illustration is how the White House now uses Instagram and X to shape political sentiment; not through formal statements, but through trend-aligned, algorithm-friendly content.
 
-During the ICE deportation rollout, for example, the administration circulated upbeat, meme-styled videos overlaid with viral music and edits. These weren''t designed to inform as much as to capture attention, ride trends, and speak directly to younger digital audiences whose political perceptions are increasingly shaped by feed aesthetics.
+During the ICE deportation rollout, for example, the administration circulated upbeat, meme-styled videos overlaid with viral music and edits. These weren't designed to inform as much as to capture attention, ride trends, and speak directly to younger digital audiences whose political perceptions are increasingly shaped by feed aesthetics.
 
-It''s a reminder that influence campaigns are now woven into mainstream state communication.
+It's a reminder that influence campaigns are now woven into mainstream state communication.
 
 And the effects are powerful. Influence efforts can:
 
@@ -698,9 +698,9 @@ A dramatic video outruns a neutral report.
 
 An emotional meme defeats a policy brief.
 
-This isn''t just a glitch in our information systems.
+This isn't just a glitch in our information systems.
 
-It''s the availability heuristic in action: people remember, trust, and act on what is most vivid, dramatic, and memorable; not necessarily what is true.
+It's the availability heuristic in action: people remember, trust, and act on what is most vivid, dramatic, and memorable; not necessarily what is true.
 
 By the time misinformation is corrected, if it ever is, the emotional impact has already landed. Certainty is seeded. Fear is activated. People remember the first story they hear, not the correction that follows.
 
@@ -730,7 +730,7 @@ In the age of AI, perception becomes programmable.
 
 ## When Public Sentiment Shapes Foreign Policy
 
-The most striking change in this new era is not the technology, but it''s the power shift.
+The most striking change in this new era is not the technology, but it's the power shift.
 
 Public opinion now moves faster than institutions.
 
@@ -738,7 +738,7 @@ People form positions before leaders issue statements.
 
 Social media sentiment often pressures governments into action.
 
-This means influence campaigns don''t just shape narratives.
+This means influence campaigns don't just shape narratives.
 
 They shape:
 
@@ -772,9 +772,9 @@ The future of geopolitical stability depends not only on military power or econo
 
 Because the digital war is not coming.
 
-It''s here.
+It's here.
 
-And the battlefield is us.',
+And the battlefield is us.$content$,
   'Blog',
   'DigitalQatalyst',
   NULL
@@ -798,7 +798,7 @@ And the battlefield is us.',
   'Company News',
   'DQ Leadership',
   'Culture & People',
-  '# The Rise of the Half-Attention Worker
+  $content$# The Rise of the Half-Attention Worker
 
 Why digital environments hardwire workers into split-attention behaviors that harm quality, and how Digital Cognitive Organizations can reclaim the conditions for full attention.
 
@@ -806,15 +806,15 @@ You can see it in every modern workplace.
 
 People nodding in a meeting while typing a reply in Teams, listening to a colleague while checking an email, and trying to review a document whilst five new notifications pop up; each one demanding immediate attention.
 
-It''s not that we don''t want to focus.
+It's not that we don't want to focus.
 
-It''s that the system doesn''t let us.
+It's that the system doesn't let us.
 
 Welcome to the era of the Half-Attention Worker; the digital professional who is physically present, partially listening, somewhat thinking, occasionally absorbing, and constantly switching.
 
-Not because they''re careless, but because this is what digital work now demands for survival.
+Not because they're careless, but because this is what digital work now demands for survival.
 
-We didn''t design it this way on purpose either.
+We didn't design it this way on purpose either.
 
 We drifted into it through a thousand micro-interruptions, until distraction became the default and focus became the exception.
 
@@ -829,7 +829,7 @@ Somewhere along the way, productivity became synonymous with responsiveness:
 - "Can we hop on a call?"
 - "Saw this yet?"
 
-In this environment, we learn quickly that attention is a currency we don''t own.
+In this environment, we learn quickly that attention is a currency we don't own.
 
 To keep up and survive:
 
@@ -837,7 +837,7 @@ We keep one eye on the task, one eye on notifications, one ear on the meeting, a
 
 This is the illusion of productive multitasking.
 
-It''s micro-survival in a system built on speed.
+It's micro-survival in a system built on speed.
 
 ## The Cognitive Cost No One Sees
 
@@ -853,9 +853,9 @@ Yet, digital environments operate on:
 
 We ask the brain to read, write, listen, plan, decide, and socialize — all while negotiating an endless stream of digital prompts.
 
-When workers say, "I feel like I can''t think properly anymore," we''re not exaggerating.
+When workers say, "I feel like I can't think properly anymore," we're not exaggerating.
 
-We''re describing the neurological overload caused by perpetual surface-level attention.
+We're describing the neurological overload caused by perpetual surface-level attention.
 
 The result? Predictable and evident.
 
@@ -865,15 +865,15 @@ The result? Predictable and evident.
 - Rework increases
 - Decisions become reactive
 
-The Half-Attention Worker isn''t less capable.
+The Half-Attention Worker isn't less capable.
 
-We''re simply stretched beyond what the mind was built to handle.
+We're simply stretched beyond what the mind was built to handle.
 
 ## When Work Suffers, So Do We
 
-Here''s the strange thing:
+Here's the strange thing:
 
-Digital workplaces celebrate multitasking as if it''s a strength; the heroic ability to juggle 10 things at once.
+Digital workplaces celebrate multitasking as if it's a strength; the heroic ability to juggle 10 things at once.
 
 But in reality, what looks like multitasking is often:
 
@@ -883,7 +883,7 @@ But in reality, what looks like multitasking is often:
 - pressure to appear available,
 - and constant vigilance.
 
-In a hyper-reactive culture, the person who focuses deeply risks being the person who "didn''t see the message," "didn''t respond fast enough," or "missed the call."
+In a hyper-reactive culture, the person who focuses deeply risks being the person who "didn't see the message," "didn't respond fast enough," or "missed the call."
 
 Half-attention becomes a defensive posture.
 
@@ -893,8 +893,8 @@ It creates:
 
 - Persistent micro-anxiety ("What did I miss?")
 - Cognitive fatigue ("Why is everything mentally tiring?")
-- Emotional fragmentation ("I''m always in a rush, never in control")
-- Lower confidence ("Why can''t I concentrate like I used to?")
+- Emotional fragmentation ("I'm always in a rush, never in control")
+- Lower confidence ("Why can't I concentrate like I used to?")
 - Mental fragmentation ("My mind feels scattered")
 
 It becomes impossible to feel proud of work when the cognitive state required for excellence is rarely accessed.
@@ -905,7 +905,7 @@ Over time, we forget what real focus feels like.
 
 If attention is the foundation of all intelligent work, then organizations must treat it as a protected asset.
 
-A Digital Cognitive Organization (DCO) doesn''t ask workers to be superhuman multitaskers. It redesigns the environment so human attention can actually perform at its best.
+A Digital Cognitive Organization (DCO) doesn't ask workers to be superhuman multitaskers. It redesigns the environment so human attention can actually perform at its best.
 
 This means:
 
@@ -915,9 +915,9 @@ This means:
 - Minimizing unnecessary meetings
 - Designing platforms that orchestrate clarity
 
-The real productivity unlock isn''t doing more.
+The real productivity unlock isn't doing more.
 
-It''s doing fewer tasks with full attention.
+It's doing fewer tasks with full attention.
 
 When organizations protect attention, workers reclaim:
 
@@ -946,7 +946,7 @@ Close or minimize tabs that trigger mental fragmentation.
 
 ### 4. Practice mental stillness
 
-Short pauses, even 20–30 seconds, resets the brain''s processing load.
+Short pauses, even 20–30 seconds, resets the brain's processing load.
 
 ### 5. Protect boundaries
 
@@ -971,7 +971,7 @@ The organizations that will lead the next decade are those that:
 
 In a world drowning in digital noise, focus becomes a competitive advantage; both for organizations and individuals.
 
-The workers and workplaces that learn to protect human attention will unlock levels of performance the Half-Attention environment could never produce.',
+The workers and workplaces that learn to protect human attention will unlock levels of performance the Half-Attention environment could never produce.$content$,
   'Blog',
   'DigitalQatalyst',
   NULL
@@ -995,21 +995,21 @@ The workers and workplaces that learn to protect human attention will unlock lev
   'Company News',
   'DQ Leadership',
   'Culture & People',
-  '# The Architecture of Addiction: How Interface Design Creates Digital Habits
+  $content$# The Architecture of Addiction: How Interface Design Creates Digital Habits
 
 Small triggers, frictionless actions, and micro-gratifications engineered into UI patterns — and why they matter in the Digital Cognitive era.
 
 Most people believe they choose how they use social media.
 
-But spend five minutes on any platform and you''ll notice something unsettling:
+But spend five minutes on any platform and you'll notice something unsettling:
 
 **The platform is choosing how we behave.**
 
 Every tap, swipe, pause, scroll, refresh, and notification is carefully engineered to pull attention, reward micro-behaviors, and build habits that become almost automatic.
 
-This isn''t accidental design.
+This isn't accidental design.
 
-It''s strategic behavioral architecture.
+It's strategic behavioral architecture.
 
 And the more time we spend "engaged", the more invisible it becomes.
 
@@ -1043,7 +1043,7 @@ Understanding this explains why platforms evolved the way they did:
 - Like counts → emotional feedback loops
 - Personalized feeds → dopamine-driven relevance
 
-These choices aren''t value judgments; they are the logical outcomes of an incentive system built around engagement.
+These choices aren't value judgments; they are the logical outcomes of an incentive system built around engagement.
 
 But necessary economics can still create unintended cognitive consequences.
 
@@ -1086,7 +1086,7 @@ We have created ecosystems that overstimulate the mind while undernourishing cog
 
 But the solution is not abandoning digital platforms.
 
-It''s redesigning the relationship between humans and technology.
+It's redesigning the relationship between humans and technology.
 
 ## Designing for Attention, not Addiction
 
@@ -1174,11 +1174,11 @@ We need platforms designed for:
 
 Because our attention is more than a metric. It is the foundation of our autonomy, our cognition, and our humanity.
 
-The question isn''t whether technology will shape us.
+The question isn't whether technology will shape us.
 
 It already has.
 
-The real question is whether we''ll sculpt technology into a tool of clarity; or will we let it continue to blur the edges of our humanity?',
+The real question is whether we'll sculpt technology into a tool of clarity; or will we let it continue to blur the edges of our humanity?$content$,
   'Blog',
   'DigitalQatalyst',
   NULL

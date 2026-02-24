@@ -10,7 +10,16 @@
 WITH constants AS (
   SELECT 
     'HRA'::TEXT AS hra_author,
-    'DQ Operations'::TEXT AS dq_operations
+    'DQ Operations'::TEXT AS dq_operations,
+    'Operations'::TEXT AS operations_domain,
+    'Culture & People'::TEXT AS culture_people_focus,
+    'Dubai'::TEXT AS dubai_location,
+    'People'::TEXT AS people_domain,
+    'Policy Update'::TEXT AS policy_update_type,
+    'Company News'::TEXT AS company_news_type,
+    '5–10'::TEXT AS reading_time_5_10,
+    'DQ Communications'::TEXT AS dq_communications,
+    'HRA (People)'::TEXT AS hra_people_dept
 )
 INSERT INTO public.news (
   id, title, type, date, author, byline, views, excerpt, image,
@@ -29,20 +38,20 @@ INSERT INTO public.news (
   'Due to unfavourable weather conditions, the DQ Studios Y/E Annual Gathering scheduled for 19.12.2025 has been rescheduled for everyone''s safety.',
   'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80',
   (SELECT dq_operations FROM constants),
-  'Dubai',
-  'Operations',
+  (SELECT dubai_location FROM constants),
+  (SELECT operations_domain FROM constants),
   ARRAY['event','postponement','annual gathering','weather'],
   '<5',
-  'Company News',
+  (SELECT company_news_type FROM constants),
   (SELECT dq_operations FROM constants),
-  'Culture & People',
-  '# DXB EoY Event Postponement
+  (SELECT culture_people_focus FROM constants),
+  $content$# DXB EoY Event Postponement
 
-Due to unfavourable weather conditions, the DQ Studios Y/E Annual Gathering scheduled for 19.12.2025 has been rescheduled for everyone''s safety.
+Due to unfavourable weather conditions, the DQ Studios Y/E Annual Gathering scheduled for 19.12.2025 has been rescheduled for everyone's safety.
 
 We sincerely apologise for the inconvenience and appreciate your understanding.
 
-To ensure the date chosen is convenient for DXB Associates. I will be sharing a poll shortly to confirm a date. Once confirmed, details regarding the rescheduled date will be shared after.',
+To ensure the date chosen is convenient for DXB Associates. I will be sharing a poll shortly to confirm a date. Once confirmed, details regarding the rescheduled date will be shared after.$content$,
   NULL,
   NULL,
   NULL
@@ -59,14 +68,14 @@ To ensure the date chosen is convenient for DXB Associates. I will be sharing a 
   'In observance of the Christmas and New Year season, please note the work arrangements and holiday schedule for DXB and KSA associates, including official holidays and mandatory WFH days.',
   'https://images.unsplash.com/photo-1482517967863-00e15c9b44be?auto=format&fit=crop&w=1200&q=80',
   (SELECT dq_operations FROM constants),
-  'Dubai',
-  'Operations',
+  (SELECT dubai_location FROM constants),
+  (SELECT operations_domain FROM constants),
   ARRAY['holiday','christmas','new year','WFH','schedule'],
-  '5–10',
-  'Company News',
+  (SELECT reading_time_5_10 FROM constants),
+  (SELECT company_news_type FROM constants),
   (SELECT dq_operations FROM constants),
-  'Culture & People',
-  '# Christmas & New Year Schedule
+  (SELECT culture_people_focus FROM constants),
+  $content$# Christmas & New Year Schedule
 
 In observance of the Christmas and New Year season, please note the work arrangements and holiday schedule for DXB and KSA associates, including official holidays and mandatory WFH days.
 
@@ -75,7 +84,7 @@ In observance of the Christmas and New Year season, please note the work arrange
 The following days are designated as official holidays:
 
 - Thursday, 25th December 2025 – Christmas Day
-- Thursday, 1st January 2026 – New Year''s Day
+- Thursday, 1st January 2026 – New Year's Day
 
 ## | Mandatory Work-From-Home (WFH) Days
 
@@ -100,7 +109,7 @@ To ensure productivity and visibility, please adhere to these daily requirements
 
 All other weekdays outside the dates listed above will follow the standard office work policy.
 
-We wish everyone a safe, joyful, and restful festive season.',
+We wish everyone a safe, joyful, and restful festive season.$content$,
   NULL,
   NULL,
   NULL
@@ -118,13 +127,13 @@ We wish everyone a safe, joyful, and restful festive season.',
   'https://images.unsplash.com/photo-1512389142860-9c449e58a543?auto=format&fit=crop&w=1200&q=80',
   (SELECT dq_operations FROM constants),
   'Nairobi',
-  'Operations',
+  (SELECT operations_domain FROM constants),
   ARRAY['holiday','christmas','new year','WFH','schedule','NBO'],
-  '5–10',
-  'Company News',
+  (SELECT reading_time_5_10 FROM constants),
+  (SELECT company_news_type FROM constants),
   (SELECT dq_operations FROM constants),
-  'Culture & People',
-  '# Christmas & New Year Schedule
+  (SELECT culture_people_focus FROM constants),
+  $content$# Christmas & New Year Schedule
 
 In observance of the Christmas and New Year season, please note the work arrangements and holiday schedule for NBO associates, including the mandatory WFH period and requirements.
 
@@ -144,7 +153,7 @@ Please note that non-compliance with these requirements will be considered unpai
 The following days are designated as official paid holidays:
 
 - Thursday, 25th December 2025 – Christmas Day
-- Thursday, 1st January 2026 – New Year''s Day
+- Thursday, 1st January 2026 – New Year's Day
 
 ## | Rescue Work & Compensation
 
@@ -158,7 +167,7 @@ NBO associates will also observe the following additional holiday observed as Ut
 
 NBO team members will not be required to work on this date. Those who are required to work will receive additional compensation for this day.
 
-We wish everyone a safe and joyful festive season.',
+We wish everyone a safe and joyful festive season.$content$,
   NULL,
   NULL,
   NULL
@@ -175,20 +184,20 @@ We wish everyone a safe and joyful festive season.',
   'Join us for the upcoming DQ Townhall meeting featuring working room guidelines, Scrum Master framework discussions, and important organizational updates.',
   'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80',
   (SELECT dq_operations FROM constants),
-  'Dubai',
-  'Operations',
+  (SELECT dubai_location FROM constants),
+  (SELECT operations_domain FROM constants),
   ARRAY['townhall','meeting','agenda','framework'],
-  '5–10',
+  (SELECT reading_time_5_10 FROM constants),
   'Upcoming Events',
   (SELECT dq_operations FROM constants),
-  'Culture & People',
-  '# DQ Townhall Meeting Agenda
+  (SELECT culture_people_focus FROM constants),
+  $content$# DQ Townhall Meeting Agenda
 
 Join us for the upcoming DQ Townhall meeting featuring working room guidelines, Scrum Master framework discussions, and important organizational updates.
 
 ## Welcome & Introduction
 
-Join us for an informative and engaging DQ Townhall meeting where we''ll discuss important updates, share insights, and align on our organizational goals and practices.
+Join us for an informative and engaging DQ Townhall meeting where we'll discuss important updates, share insights, and align on our organizational goals and practices.
 
 ## Working Room Guidelines
 
@@ -223,7 +232,7 @@ This townhall aims to:
 
 - Please arrive on time to ensure we can cover all agenda items
 - Questions and discussions are encouraged during designated Q&A segments
-- Meeting materials and recordings will be shared following the session',
+- Meeting materials and recordings will be shared following the session$content$,
   NULL,
   NULL,
   NULL
@@ -235,19 +244,19 @@ This townhall aims to:
   'Guidelines',
   '2025-11-18',
   (SELECT hra_author FROM constants),
-  'HRA (People)',
+  (SELECT hra_people_dept FROM constants),
   0,
   'Complete guide to the leave approval process, including required steps, notification procedures, and consequences for non-compliance.',
   'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80',
-  'HRA (People)',
-  'Dubai',
-  'People',
+  (SELECT hra_people_dept FROM constants),
+  (SELECT dubai_location FROM constants),
+  (SELECT people_domain FROM constants),
   ARRAY['leave','guidelines','policy','HRA'],
-  '5–10',
-  'Policy Update',
+  (SELECT reading_time_5_10 FROM constants),
+  (SELECT policy_update_type FROM constants),
   (SELECT dq_operations FROM constants),
-  'Culture & People',
-  '# DQ Leave Process Guideline
+  (SELECT culture_people_focus FROM constants),
+  $content$# DQ Leave Process Guideline
 
 Complete guide to the leave approval process, including required steps, notification procedures, and consequences for non-compliance.
 
@@ -285,7 +294,7 @@ Any leave taken without prior approval or proper handover is documented as a vio
 Three violations may result in termination of employment.
 
 ## Important Reminder
-**Approval Requirement**: All leave must be approved by HRA and Management to ensure fairness and compliance with company policies.',
+**Approval Requirement**: All leave must be approved by HRA and Management to ensure fairness and compliance with company policies.$content$,
   NULL,
   NULL,
   NULL
@@ -302,12 +311,12 @@ Three violations may result in termination of employment.
   'We''re excited to announce that the DQ Story is now officially published on the DQ Competencies page…',
   NULL,
   'Products',
-  'Dubai',
+  (SELECT dubai_location FROM constants),
   'Business',
   NULL,
   NULL,
-  'Company News',
-  'DQ Communications',
+  (SELECT company_news_type FROM constants),
+  (SELECT dq_communications FROM constants),
   'GHC',
   NULL,
   NULL,
@@ -330,7 +339,7 @@ Three violations may result in termination of employment.
   'Business',
   NULL,
   NULL,
-  'Company News',
+  (SELECT company_news_type FROM constants),
   'DQ Leadership',
   'GHC',
   NULL,
@@ -350,11 +359,11 @@ Three violations may result in termination of employment.
   'New guidelines to enhance fairness and transparency for shifts allocation across teams…',
   'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
   'DCO Operations',
-  'Dubai',
-  'People',
+  (SELECT dubai_location FROM constants),
+  (SELECT people_domain FROM constants),
   ARRAY['shifts','allocation','scheduling','guidelines'],
-  '5–10',
-  'Policy Update',
+  (SELECT reading_time_5_10 FROM constants),
+  (SELECT policy_update_type FROM constants),
   (SELECT dq_operations FROM constants),
   'DWS',
   NULL,
@@ -373,14 +382,14 @@ Three violations may result in termination of employment.
   63,
   'A reflection on Al-Hijra 1447 AH—renewal, gratitude, and the values that ground our community…',
   NULL,
-  'HRA (People)',
-  'Dubai',
-  'People',
+  (SELECT hra_people_dept FROM constants),
+  (SELECT dubai_location FROM constants),
+  (SELECT people_domain FROM constants),
   NULL,
   NULL,
   'Holidays',
-  'DQ Communications',
-  'Culture & People',
+  (SELECT dq_communications FROM constants),
+  (SELECT culture_people_focus FROM constants),
   NULL,
   NULL,
   NULL,
@@ -402,8 +411,8 @@ Three violations may result in termination of employment.
   'Technology',
   NULL,
   NULL,
-  'Company News',
-  'DQ Communications',
+  (SELECT company_news_type FROM constants),
+  (SELECT dq_communications FROM constants),
   'DWS',
   NULL,
   NULL,
@@ -422,11 +431,11 @@ Three violations may result in termination of employment.
   'Standardizing PO–Dev syncs for clarity, cadence, and decision-making across products…',
   NULL,
   'DBP Delivery',
-  'Dubai',
-  'Operations',
+  (SELECT dubai_location FROM constants),
+  (SELECT operations_domain FROM constants),
   NULL,
   NULL,
-  'Policy Update',
+  (SELECT policy_update_type FROM constants),
   (SELECT dq_operations FROM constants),
   'DWS',
   NULL,
@@ -450,7 +459,7 @@ Three violations may result in termination of employment.
   'Technology',
   NULL,
   NULL,
-  'Policy Update',
+  (SELECT policy_update_type FROM constants),
   (SELECT dq_operations FROM constants),
   'DWS',
   NULL,
@@ -469,14 +478,14 @@ Three violations may result in termination of employment.
   47,
   'Warmest wishes to all observing Eid al-Adha—celebrating community and gratitude…',
   NULL,
-  'HRA (People)',
+  (SELECT hra_people_dept FROM constants),
   'Nairobi',
-  'People',
+  (SELECT people_domain FROM constants),
   NULL,
   NULL,
   'Holidays',
-  'DQ Communications',
-  'Culture & People',
+  (SELECT dq_communications FROM constants),
+  (SELECT culture_people_focus FROM constants),
   NULL,
   NULL,
   NULL,
@@ -494,14 +503,14 @@ Three violations may result in termination of employment.
   'Unified lunch break for all associates: 2:00 PM – 3:00 PM DXB Time. Please avoid meetings within this window (except emergencies).',
   'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=800&q=80',
   NULL,
-  'Dubai',
+  (SELECT dubai_location FROM constants),
   NULL,
   ARRAY['policy','schedule','collaboration'],
-  '5–10',
-  'Policy Update',
-  'DQ Communications',
-  'Culture & People',
-  '# Enhancing Collaboration Through Unified Scheduling
+  (SELECT reading_time_5_10 FROM constants),
+  (SELECT policy_update_type FROM constants),
+  (SELECT dq_communications FROM constants),
+  (SELECT culture_people_focus FROM constants),
+  $content$# Enhancing Collaboration Through Unified Scheduling
 
 To enhance collaboration and synchronize workflows across all studios, we are implementing a unified company-wide lunch break schedule.
 
@@ -534,7 +543,7 @@ To enhance collaboration and synchronize workflows across all studios, we are im
 ## Questions?
 For any questions or concerns about this new policy, please reach out to your local HR representative or contact DQ Communications directly.
 
-Thank you for your cooperation in helping us build a more synchronized and efficient work environment.',
+Thank you for your cooperation in helping us build a more synchronized and efficient work environment.$content$,
   NULL,
   NULL,
   NULL
@@ -555,10 +564,10 @@ Thank you for your cooperation in helping us build a more synchronized and effic
   NULL,
   ARRAY['SFIA','grading','capability'],
   '10–20',
-  'Company News',
-  'DQ Communications',
-  'Culture & People',
-  '# DQ Associate Grade Review Program Launch
+  (SELECT company_news_type FROM constants),
+  (SELECT dq_communications FROM constants),
+  (SELECT culture_people_focus FROM constants),
+  $content$# DQ Associate Grade Review Program Launch
 
 We are pleased to announce the launch of the **DQ Associate Grade Review Program (GRP)**. This comprehensive initiative aims to ensure all associates are aligned to the DQ SFIA-based grading scale, reflecting both their competence levels and scope of responsibility.
 
@@ -626,7 +635,7 @@ For questions about the GRP program, please contact:
 
 We are committed to maintaining transparent, fair, and consistent grading standards that support both individual growth and organizational excellence.
 
-*More details will follow as we progress through the program phases. Stay tuned for updates!*',
+*More details will follow as we progress through the program phases. Stay tuned for updates!*$content$,
   NULL,
   NULL,
   NULL
@@ -638,19 +647,19 @@ We are committed to maintaining transparent, fair, and consistent grading standa
   'Guidelines',
   '2025-11-18',
   (SELECT hra_author FROM constants),
-  'HRA (People)',
+  (SELECT hra_people_dept FROM constants),
   0,
   'Work From Home (WFH) guidelines outlining purpose, roles, processes, tools, KPIs, and compliance for remote work across DQ.',
   'https://images.unsplash.com/photo-1587614382346-4ec70e388b28?auto=format&fit=crop&w=800&q=80',
-  'HRA (People)',
+  (SELECT hra_people_dept FROM constants),
   'Remote',
-  'People',
+  (SELECT people_domain FROM constants),
   ARRAY['WFH','guidelines','policy'],
   '10–20',
-  'Policy Update',
+  (SELECT policy_update_type FROM constants),
   (SELECT dq_operations FROM constants),
-  'Culture & People',
-  '# DQ Work From Home (WFH) Guidelines
+  (SELECT culture_people_focus FROM constants),
+  $content$# DQ Work From Home (WFH) Guidelines
 
 Work From Home (WFH) guidelines outlining purpose, roles, processes, tools, KPIs, and compliance for remote work across DQ.
 
@@ -746,7 +755,7 @@ The **Work From Home (WFH) Guidelines** provide a clear framework for how remote
 **Key Contacts**
 - **Pelagie Njiki** – CoE Lead
 - **Mauline Wangui** – TechOps Coordinator
-- **Martin Wambugu** – Content & Marketing Analyst',
+- **Martin Wambugu** – Content & Marketing Analyst$content$,
   NULL,
   NULL,
   NULL
@@ -758,19 +767,19 @@ The **Work From Home (WFH) Guidelines** provide a clear framework for how remote
   'Guidelines',
   '2025-11-18',
   (SELECT hra_author FROM constants),
-  'HRA (People)',
+  (SELECT hra_people_dept FROM constants),
   0,
   'Dress code guideline balancing professionalism and comfort across the work week, with clear expectations, exceptions, and consequences.',
   'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80',
-  'HRA (People)',
-  'Dubai',
-  'People',
+  (SELECT hra_people_dept FROM constants),
+  (SELECT dubai_location FROM constants),
+  (SELECT people_domain FROM constants),
   ARRAY['dress code','guidelines','policy'],
   '10–20',
-  'Policy Update',
+  (SELECT policy_update_type FROM constants),
   (SELECT dq_operations FROM constants),
-  'Culture & People',
-  '# DQ Dress Code Guideline (Version 1.0)
+  (SELECT culture_people_focus FROM constants),
+  $content$# DQ Dress Code Guideline (Version 1.0)
 
 Professional appearance guidelines that set expectations for attire at DigitalQatalyst, balancing professionalism with comfort and supporting our brand perception.
 
@@ -778,11 +787,11 @@ Professional appearance guidelines that set expectations for attire at DigitalQa
 At **DigitalQatalyst (DQ)**, professional appearance shapes how our brand is perceived, supports personal confidence, and creates an environment where associates feel comfortable and productive. This guideline sets expectations for attire so we strike the right balance between professionalism and comfort.
 
 ## Purpose
-These dress code guidelines ensure associates align with DQ''s culture of professionalism while allowing flexibility for creativity and comfort. The standard is **business casual Monday–Thursday** with a more relaxed **Casual Friday**, adapted for the diverse nature of work at DQ.
+These dress code guidelines ensure associates align with DQ's culture of professionalism while allowing flexibility for creativity and comfort. The standard is **business casual Monday–Thursday** with a more relaxed **Casual Friday**, adapted for the diverse nature of work at DQ.
 
 ## Key Characteristics
 
-- **Professional Appearance** – Associates dress in a professional, decent, and clean manner; clothing should enhance DQ''s image.
+- **Professional Appearance** – Associates dress in a professional, decent, and clean manner; clothing should enhance DQ's image.
 - **Cultural Sensitivity** – Outfits should be respectful of cultural and religious norms.
 - **Personal Grooming** – Hair, nails, and hygiene are maintained to a high standard. Fragrances, jewelry, and accessories should not distract from the professional setting.
 
@@ -830,7 +839,7 @@ Before rolling out the dress code:
 Failure to comply with the dress code may result in:
 
 1. **Verbal warning** – Direct message to the associate.
-2. **Written warning** – Formal note placed on the associate''s HR channel.
+2. **Written warning** – Formal note placed on the associate's HR channel.
 3. **Further disciplinary action** – May include suspension or other actions as deemed appropriate.
 
 Associates and leaders are jointly responsible for ensuring the guideline is understood and consistently applied.
@@ -870,7 +879,7 @@ These recognitions help reinforce the guideline in a positive, motivating way.
 - **Business Casual** – Button-up shirt, slacks, blazer (men); blouse and pencil skirt or knee-length dress with flats or heels (women).
 - **Casual Fridays** – Polo shirt and jeans with casual shoes (men); casual top with jeans and flats/sneakers (women). Always maintain neat, non-revealing, and culturally respectful outfits.
 
-Where in doubt, associates should choose the more professional option and consult HR or their Line Manager for clarification.',
+Where in doubt, associates should choose the more professional option and consult HR or their Line Manager for clarification.$content$,
   NULL,
   NULL,
   NULL
@@ -881,7 +890,7 @@ Where in doubt, associates should choose the more professional option and consul
   'DQ Storybook — Latest Version and Links',
   'Announcement',
   '2025-11-13',
-  'HRA',
+  (SELECT hra_author FROM constants),
   NULL,
   0,
   'Explore the latest DQ Storybook and quick links to GHC elements including Vision, HoV, Persona, Agile TMS/SoS/Flows, and 6xD.',
@@ -890,20 +899,20 @@ Where in doubt, associates should choose the more professional option and consul
   NULL,
   'Business',
   ARRAY['story','GHC','references'],
-  '5–10',
-  'Company News',
-  'DQ Communications',
+  (SELECT reading_time_5_10 FROM constants),
+  (SELECT company_news_type FROM constants),
+  (SELECT dq_communications FROM constants),
   'GHC',
-  '# DQ Storybook — Latest Version and Quick Reference Links
+  $content$# DQ Storybook — Latest Version and Quick Reference Links
 
 Explore the latest DQ Storybook and quick links to GHC elements including Vision, HoV, Persona, Agile TMS/SoS/Flows, and 6xD.
 
 ## Introduction
-Here''s the latest version of the **DQ Storybook** — our evolving narrative that brings the Golden Honeycomb of Competencies (GHC) to life. We''re continuing to shape and refine this Storybook, so keep an eye out for new updates and deep dives in the coming weeks.
+Here's the latest version of the **DQ Storybook** — our evolving narrative that brings the Golden Honeycomb of Competencies (GHC) to life. We're continuing to shape and refine this Storybook, so keep an eye out for new updates and deep dives in the coming weeks.
 
 ## Main Storybook Access
 **[DQ Storybook: Complete Guide](https://dq-storybook.example.com)**
-*Your comprehensive resource for understanding DQ''s methodology, culture, and operational excellence.*
+*Your comprehensive resource for understanding DQ's methodology, culture, and operational excellence.*
 
 ---
 
@@ -987,7 +996,7 @@ For questions about any of these resources or to request additional documentatio
 
 ---
 
-*Keep this reference handy for quick access to all DQ frameworks and methodologies. Together, we continue to build excellence through shared knowledge and consistent application of our proven approaches.*',
+*Keep this reference handy for quick access to all DQ frameworks and methodologies. Together, we continue to build excellence through shared knowledge and consistent application of our proven approaches.*$content$,
   NULL,
   NULL,
   NULL
@@ -1003,15 +1012,15 @@ For questions about any of these resources or to request additional documentatio
   0,
   'As part of our organizational optimization, we are updating the Scrum Master structure to better align with our delivery framework and enhance team effectiveness.',
   NULL,
-  'Operations',
+  (SELECT operations_domain FROM constants),
   'Remote',
-  'Operations',
+  (SELECT operations_domain FROM constants),
   ARRAY['Scrum Master','Organizational Structure','Leadership'],
   '10–20',
-  'Company News',
+  (SELECT company_news_type FROM constants),
   'DQ Leadership',
-  'Culture & People',
-  '# DQ Changes: Updated Scrum Master Structure
+  (SELECT culture_people_focus FROM constants),
+  $content$# DQ Changes: Updated Scrum Master Structure
 
 As part of our organizational optimization, we are updating the leadership structure across functions to streamline responsibilities and enhance ownership.
 
@@ -1043,7 +1052,7 @@ To maintain a streamlined, transparent, and consistent leadership structure that
 
 ## | Role Expectation
 
-All Scrum Masters are expected to take full ownership of their unit, delivery area, or working room proactively identifying blockers, facilitating progress, and ensuring achievement of defined delivery targets.',
+All Scrum Masters are expected to take full ownership of their unit, delivery area, or working room proactively identifying blockers, facilitating progress, and ensuring achievement of defined delivery targets.$content$,
   NULL,
   NULL,
   NULL
