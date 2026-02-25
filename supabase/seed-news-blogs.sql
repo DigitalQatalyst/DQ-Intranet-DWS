@@ -216,7 +216,7 @@ Compute nationalism has arrived.
 
 The question now is: Who gets left behind?$content$,
   'Blog',
-  'DigitalQatalyst',
+  'https://corp-web.qatalyst.tech/blog/rise-of-compute-nationalism',
   NULL
 ),
 -- Is Beijing Building the World's First AI Superstate?
@@ -338,7 +338,7 @@ In that contest, China is not behind. It's simply quiet.
 
 **The world should pay attention.**$content$,
   'Blog',
-  'DigitalQatalyst',
+  'https://corp-web.qatalyst.tech/blog/china-ai-superstate',
   NULL
 ),
 -- Europe Wants Ethical AI. But Without Compute, Can It Compete?
@@ -465,7 +465,7 @@ But leadership in compute is necessary.
 
 Until Europe builds the latter, the former will not shape the future.$content$,
   'Blog',
-  'DigitalQatalyst',
+  'https://corp-web.qatalyst.tech/blog/europe-ai-compute-challenge',
   NULL
 ),
 -- AI Without Compute: Is the Global South Being Left Out of the New Digital Economy?
