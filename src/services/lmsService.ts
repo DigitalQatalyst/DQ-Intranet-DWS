@@ -199,7 +199,7 @@ export async function fetchAllCourses(): Promise<LmsCard[]> {
   const { data, error } = await lmsSupabaseClient
     .from('lms_courses')
     .select('*')
-    .eq('status', 'published')
+    .neq('status', 'archived')
     .order('title');
 
   if (error) {
@@ -281,7 +281,7 @@ export async function fetchCoursesByFilters(filters: {
   let query = lmsSupabaseClient
     .from('lms_courses')
     .select('*')
-    .eq('status', 'published');
+    .neq('status', 'archived');
 
   // Apply filters
   if (filters.category && filters.category.length > 0) {
@@ -429,7 +429,7 @@ export async function fetchAllLearningPaths(): Promise<LmsCard[]> {
   const { data, error } = await lmsSupabaseClient
     .from('lms_learning_paths')
     .select('*')
-    .eq('status', 'published')
+    .neq('status', 'archived')
     .order('title');
 
   if (error) {
