@@ -106,6 +106,11 @@ export function AppRouter() {
                     />
                   }
                 />
+                {/* Dashboard */}
+                <Route
+                  path="/dashboard/*"
+                  element={<DashboardRouter />}
+                />
                 {/* Admin Section */}
                 <Route path="/admin/guides" element={<AdminGuidesList />} />
                 <Route path="/admin/guides/new" element={<GuideEditor />} />

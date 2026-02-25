@@ -198,14 +198,18 @@ export function useUpdateLessonVideoProgress() {
             courseId,
             courseSlug,
             progressPercentage,
+            hasQuiz,
+            quizPassed,
         }: {
             lessonId: string;
             courseId: string;
             courseSlug: string;
             progressPercentage: number;
+            hasQuiz?: boolean;
+            quizPassed?: boolean;
         }) => {
             if (!user) throw new Error('User not authenticated');
-            return updateLessonVideoProgressSvc(user.id, lessonId, courseId, courseSlug, progressPercentage);
+            return updateLessonVideoProgressSvc(user.id, lessonId, courseId, courseSlug, progressPercentage, hasQuiz, quizPassed);
         },
         onSuccess: (_data, variables) => {
             queryClient.invalidateQueries({ queryKey: ['lms-lesson-progress', variables.lessonId] });
