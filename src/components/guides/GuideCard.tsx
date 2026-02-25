@@ -35,10 +35,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
         navigate(`/marketplace/guides/${encodeURIComponent(data.slug)}`, { state: { fromBlueprint: true } })
         return
       }
-    } catch (e) {
-      // Log and fall back to client-side navigation
-      console.error('GuideCard: failed to resolve guideline slug', e)
-    }
+    } catch (_) {}
     // Fallback to Guidelines tab search
     navigate(`/marketplace/guides?tab=guidelines&q=${encodeURIComponent(guide.title)}`)
   }

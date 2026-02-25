@@ -680,7 +680,7 @@ export const mockNonFinancialServices = [
       'Track support request progress',
       'Get timely assistance from our technical team',
     ],
-    tags: [ 'Hybrid', 'Technology'],
+    tags: ['Hybrid', 'Technology'],
     featuredImageUrl: '/images/services/IT-support.jpg',
     //requestUrl: 'https://forms.office.com/pages/responsepage.aspx?id=Db2eGYYpPU-GWUOIxbKnJCT2lmSqJbRJkPMD7v6Rk31UNjlVQjlRSjFBUk5MSTNGUDJNTjk0S1NMVi4u&route=shorturl',
   },
@@ -1384,7 +1384,6 @@ export const mockNonFinancialServices = [
   },
 ]
 
-// Mock data for events marketplace
 export const mockEvents = [
   {
     id: "evt-1",
@@ -1629,7 +1628,6 @@ export const mockEvents = [
   },
 ];
 
-// Mock data for events filter options
 export const mockEventsFilterOptions = {
   categories: [
     { id: "networking", name: "Networking" },
