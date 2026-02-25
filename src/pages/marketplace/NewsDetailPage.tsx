@@ -63,8 +63,8 @@ const NewsDetailPage: React.FC = () => {
                   onTabChange={setActiveTab}
                   shouldUseNewLayout={useNewLayout}
                 />
-              </div>
-
+                            </div>
+                            
               {useNewLayout && activeTab === 'overview' && (
                 <div className="lg:col-span-1">
                   <div className="sticky top-8 lg:pt-[41px]">

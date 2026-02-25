@@ -53,31 +53,7 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
     }
   ],
   insights: [
-    {
-      key: 'department',
-      label: 'Department',
-      options: [
-        'HRA (People)',
-        'Finance',
-        'Deals',
-        'Stories',
-        'Intelligence',
-        'Solutions',
-        'SecDevOps',
-        'Products',
-        'Delivery — Deploys',
-        'Delivery — Designs',
-        'DCO Operations',
-        'DBP Platform',
-        'DBP Delivery'
-      ]
-    },
     { key: 'location', label: 'Location', options: ['Dubai', 'Nairobi', 'Riyadh', 'Remote'] },
-    {
-      key: 'domain',
-      label: 'Domain',
-      options: ['Technology', 'Business', 'People', 'Operations']
-    },
     {
       key: 'theme',
       label: 'Theme',
@@ -90,11 +66,6 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
     }
   ],
   podcasts: [
-    {
-      key: 'domain',
-      label: 'Domain',
-      options: ['Business', 'People', 'Operations']
-    },
     {
       key: 'theme',
       label: 'Theme',

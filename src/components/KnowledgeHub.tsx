@@ -58,7 +58,9 @@ interface KnowledgeHubProps {
   graphqlEndpoint?: string;
 }
 
-// Mock data for fallback - keep the existing data
+// Legacy hardcoded news data - now replaced by Supabase-backed public.news
+// All news data is fetched from Supabase via fetchAllNews() in mediaCenterService
+/*
 const newsItems: NewsItem[] = [
   {
     id: "1",
@@ -84,7 +86,7 @@ const newsItems: NewsItem[] = [
   },
   {
     id: "3",
-    title: "Leadership Principles | What’s Your Superpower?",
+    title: "Leadership Principles | What's Your Superpower?",
     excerpt:
       "Uncover what makes effective leaders thrive at DQ and explore practical tools to grow your leadership strengths.",
     date: "August 19, 2025",
@@ -127,6 +129,7 @@ const newsItems: NewsItem[] = [
       "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
   },
 ];
+*/
 
 const events: Event[] = [
   {
@@ -413,9 +416,10 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
     loadMediaCenterNews();
   }, [activeTab]);
 
-  // Get data based on active tab - updated to use Media Center news
+  // Get data based on active tab - updated to use Media Center news from Supabase
   const getNewsData = () => {
-    // If we have Media Center news, use it; otherwise fallback to mock data
+    // All news data is fetched from Supabase via fetchAllNews()
+    // Return empty array if no data is available (will show loading/empty state)
     if (mediaCenterNews.length > 0) {
       return mediaCenterNews.map(item => ({
         id: item.id,
@@ -427,8 +431,8 @@ const KnowledgeHubContent = ({ graphqlEndpoint }) => {
         imageUrl: item.image || undefined,
       }));
     }
-    // Fallback to mock data
-    return newsItems;
+    // Return empty array - data will be loaded from Supabase
+    return [];
   };
   const getEventsData = () => events;
   const getResourcesData = () => resources;

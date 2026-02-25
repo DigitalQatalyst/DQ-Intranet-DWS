@@ -15,6 +15,22 @@ export const ArticleSummary: React.FC<ArticleSummaryProps> = ({ article, shouldU
     ? (article.byline || article.author || 'DQ Media Team')
     : article.author;
 
+  const getFullBlogUrl = (): string => {
+    if (article.id === 'compute-nationalism-rise') {
+      return 'https://corp-web.qatalyst.tech/blog/rise-of-compute-nationalism';
+    }
+
+    if (article.id === 'beijing-ai-superstate') {
+      return 'https://corp-web.qatalyst.tech/blog/china-ai-superstate';
+    }
+
+    if (article.id === 'europe-ethical-ai-compute') {
+      return 'https://corp-web.qatalyst.tech/blog/europe-ai-compute-challenge';
+    }
+
+    return `/marketplace/news/${article.id}${location.search || ''}`;
+  };
+
   if (shouldUseNewLayout) {
     return (
       <section className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" aria-label="Article Summary">
@@ -45,7 +61,7 @@ export const ArticleSummary: React.FC<ArticleSummaryProps> = ({ article, shouldU
             className="w-full px-4 py-3 text-white font-semibold rounded-md transition-colors shadow-md hover:opacity-90" 
             style={{ backgroundColor: '#030F35' }}
             onClick={() => {
-              window.open(`/marketplace/news/${article.id}${location.search || ''}`, '_blank');
+              window.open(getFullBlogUrl(), '_blank');
             }}
           >
             View Full Blog

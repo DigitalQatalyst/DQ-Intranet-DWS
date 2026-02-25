@@ -54,8 +54,6 @@ export function useEngagementMetrics(id: string | undefined, articleId?: string 
     }
   }, [id, articleId]);
 
-  return { likes, hasLiked, views, handleLike, trackView };
-
   // Save likes to localStorage whenever they change
   useEffect(() => {
     if (!id) return;
@@ -103,5 +101,7 @@ export function useEngagementMetrics(id: string | undefined, articleId?: string 
       }
     }
   };
+
+  return { likes, hasLiked, views, handleLike };
 
 }
