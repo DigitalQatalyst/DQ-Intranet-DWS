@@ -373,7 +373,7 @@ export const DWS_KNOWLEDGE: DWSKnowledgeMap = {
     details:
       "Start Your Onboarding Journey from the lead/apply section or home: “Begin Onboarding” takes you to the onboarding flow. You’ll get guided tracks, LMS starter courses, and access to the Knowledge Hub. DWS stages (e.g. Starting) include onboarding guides and starter learning.",
     related: ["Start Your DQ Journey", "LMS", "Knowledge Hub", "Services & Enablement"],
-    nextStep: "Use “Start Your DQ Journey” → “Begin Onboarding” on the landing page, or go to /onboarding/start.",
+    nextStep: "Use “Start Your DQ Journey” → “Begin Onboarding” on the landing page, or go to /onboarding/welcome.",
   },
   get_started: {
     summary: "To get started at DQ, begin onboarding and explore the six journey areas.",

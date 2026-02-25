@@ -33,6 +33,3 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
-
-# Workspace directory for temporary AI-generated documents
-/workspace

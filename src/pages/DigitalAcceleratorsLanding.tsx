@@ -131,7 +131,49 @@ const acceleratorSections: AcceleratorSection[] = [
   },
 ];
 
-function SectionImage({ src, alt }: { src?: string; alt?: string }) {
+const dataStreamDots = Array.from({ length: 10 }, (_, i) => ({
+  id: `data-${i}`,
+  cx: 250 + i * 150,
+  cy: 400 + (i % 4) * 120,
+  radius: 4,
+  duration: 4 + i * 0.3,
+  delay: i * 0.4,
+}));
+
+const dataStreamDotsSecondary = Array.from({ length: 8 }, (_, i) => ({
+  id: `data2-${i}`,
+  cx: 300 + i * 180,
+  cy: 500 + (i % 3) * 100,
+  radius: 3,
+  duration: 5 + i * 0.3,
+  delay: i * 0.5,
+}));
+
+const accelerationLines = Array.from({ length: 6 }, (_, i) => ({
+  id: `accel-${i}`,
+  x1: 300 + i * 250,
+  y1: 250 + (i % 2) * 150,
+  x2: 500 + i * 250,
+  y2: 250 + (i % 2) * 150,
+  duration: 3 + i * 0.4,
+  delay: i * 0.6,
+}));
+
+const gridVerticals = Array.from({ length: 10 }, (_, i) => ({
+  id: `v-${i}`,
+  x: i * 192,
+  duration: 7 + i * 0.3,
+  delay: i * 0.2,
+}));
+
+const gridHorizontals = Array.from({ length: 8 }, (_, i) => ({
+  id: `h-${i}`,
+  y: i * 135,
+  duration: 9 + i * 0.3,
+  delay: i * 0.3,
+}));
+
+function SectionImage({ src, alt }: { readonly src?: string; readonly alt?: string }) {
   if (!src) {
     return (
       <div className="w-full max-w-full lg:w-[736px] h-[416px] rounded-2xl border border-white/15 bg-white/10 backdrop-blur-sm" />
@@ -339,30 +381,30 @@ export function DigitalAcceleratorsLanding() {
               
               {/* Data Streams - Platform Data Flow */}
               <g opacity="0.6">
-                {[...Array(10)].map((_, i) => (
+                {dataStreamDots.map((dot) => (
                   <circle
-                    key={`data-${i}`}
-                    cx={250 + (i * 150)}
-                    cy={400 + (i % 4) * 120}
-                    r="4"
+                    key={dot.id}
+                    cx={dot.cx}
+                    cy={dot.cy}
+                    r={dot.radius}
                     fill="#FB5535"
                     style={{
-                      animation: `dataStream ${4 + i * 0.3}s ease-in-out infinite`,
-                      animationDelay: `${i * 0.4}s`
+                      animation: `dataStream ${dot.duration}s ease-in-out infinite`,
+                      animationDelay: `${dot.delay}s`
                     }}
                     filter="url(#productGlow)"
                   />
                 ))}
-                {[...Array(8)].map((_, i) => (
+                {dataStreamDotsSecondary.map((dot) => (
                   <circle
-                    key={`data2-${i}`}
-                    cx={300 + (i * 180)}
-                    cy={500 + (i % 3) * 100}
-                    r="3"
+                    key={dot.id}
+                    cx={dot.cx}
+                    cy={dot.cy}
+                    r={dot.radius}
                     fill="#1A2E6E"
                     style={{
-                      animation: `dataStream ${5 + i * 0.3}s ease-in-out infinite reverse`,
-                      animationDelay: `${i * 0.5}s`
+                      animation: `dataStream ${dot.duration}s ease-in-out infinite reverse`,
+                      animationDelay: `${dot.delay}s`
                     }}
                     filter="url(#productGlow)"
                   />
@@ -399,19 +441,19 @@ export function DigitalAcceleratorsLanding() {
               </g>
               
               {/* Acceleration Indicators - Speed Lines */}
-              {[...Array(6)].map((_, i) => (
+              {accelerationLines.map((line) => (
                 <line
-                  key={`accel-${i}`}
-                  x1={300 + i * 250}
-                  y1={250 + (i % 2) * 150}
-                  x2={500 + i * 250}
-                  y2={250 + (i % 2) * 150}
+                  key={line.id}
+                  x1={line.x1}
+                  y1={line.y1}
+                  x2={line.x2}
+                  y2={line.y2}
                   stroke="url(#serviceGradient)"
                   strokeWidth="2"
                   opacity="0.4"
                   style={{
-                    animation: `velocityStreak ${3 + i * 0.4}s ease-in-out infinite`,
-                    animationDelay: `${i * 0.6}s`
+                    animation: `velocityStreak ${line.duration}s ease-in-out infinite`,
+                    animationDelay: `${line.delay}s`
                   }}
                   filter="url(#productGlow)"
                 />
@@ -432,31 +474,31 @@ export function DigitalAcceleratorsLanding() {
               
               {/* Platform Grid Lines */}
               <g stroke="url(#gridGradient)" strokeWidth="0.8">
-                {[...Array(10)].map((_, i) => (
+                {gridVerticals.map((line) => (
                   <line
-                    key={`v-${i}`}
-                    x1={i * 192}
+                    key={line.id}
+                    x1={line.x}
                     y1="0"
-                    x2={i * 192}
+                    x2={line.x}
                     y2="1080"
                     opacity="0.3"
                     style={{
-                      animation: `pulse ${7 + i * 0.3}s ease-in-out infinite`,
-                      animationDelay: `${i * 0.2}s`
+                      animation: `pulse ${line.duration}s ease-in-out infinite`,
+                      animationDelay: `${line.delay}s`
                     }}
                   />
                 ))}
-                {[...Array(8)].map((_, i) => (
+                {gridHorizontals.map((line) => (
                   <line
-                    key={`h-${i}`}
+                    key={line.id}
                     x1="0"
-                    y1={i * 135}
+                    y1={line.y}
                     x2="1920"
-                    y2={i * 135}
+                    y2={line.y}
                     opacity="0.3"
                     style={{
-                      animation: `pulse ${9 + i * 0.3}s ease-in-out infinite`,
-                      animationDelay: `${i * 0.3}s`
+                      animation: `pulse ${line.duration}s ease-in-out infinite`,
+                      animationDelay: `${line.delay}s`
                     }}
                   />
                 ))}
@@ -590,7 +632,7 @@ export function DigitalAcceleratorsLanding() {
                   <FadeInUpOnScroll>
                     <div
                       className={`grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start ${
-                        !isEven ? 'lg:flex-row-reverse' : ''
+                        isEven ? '' : 'lg:flex-row-reverse'
                       }`}
                     >
                       <div className={isEven ? 'lg:order-1' : 'lg:order-2'}>

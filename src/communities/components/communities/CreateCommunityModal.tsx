@@ -1,26 +1,14 @@
 import { useState } from 'react';
 import { useAuth } from '@/communities/contexts/AuthProvider';
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from '@/communities/integrations/supabase/client';
 import { safeFetch } from '@/communities/utils/safeFetch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/communities/components/ui/dialog';
 import { Button } from '@/communities/components/ui/button';
 import { Input } from '@/communities/components/ui/input';
 import { Textarea } from '@/communities/components/ui/textarea';
 import { Label } from '@/communities/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/communities/components/ui/select';
 import { Loader2, PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
-
-// DQ-specific categories
-const DQ_CATEGORIES = [
-  'GHC - DQ Culture',
-  'GHC - DQ Agile',
-  'GHC - DQ Tech',
-  'GHC - DQ Persona',
-  'GHC - DQ DTMF',
-  'GHC - DQ Vision'
-];
-
 interface CreateCommunityModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -37,7 +25,6 @@ export function CreateCommunityModal({
   const [submitting, setSubmitting] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<string>('');
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -45,7 +32,6 @@ export function CreateCommunityModal({
     const query = supabase.from('communities').insert([{
       name: name,
       description: description,
-      category: category || null,
       created_by: user.id,
       imageurl: ''
     }]);
@@ -56,7 +42,6 @@ export function CreateCommunityModal({
       toast.success('Community created successfully!');
       setName('');
       setDescription('');
-      setCategory('');
       onCommunityCreated();
       onOpenChange(false);
     }
@@ -78,22 +63,6 @@ export function CreateCommunityModal({
           <div className="space-y-2">
             <Label htmlFor="name">Community Name *</Label>
             <Input id="name" placeholder="Enter community name..." value={name} onChange={e => setName(e.target.value)} required disabled={submitting} maxLength={100} />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
-            <Select value={category} onValueChange={setCategory} disabled={submitting}>
-              <SelectTrigger id="category">
-                <SelectValue placeholder="Select a category (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {DQ_CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
 
           <div className="space-y-2">

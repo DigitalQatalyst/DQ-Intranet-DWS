@@ -163,7 +163,7 @@ const COMPETENCY_CARDS_DEFAULT: CompetencyCard[] = [
     icon: Zap,
     gradient: 'bg-gradient-to-br from-[#1f2c63] via-[#2d3f80] to-[#e1513b]',
     accent: '#f0f6ff',
-    image: 'https://image2url.com/r2/default/images/1770034932697-4c5808eb-ce02-4b4f-bb98-d02e0c693303.png',
+    image: 'https://image2url.com/r2/default/images/1771227673622-73211dd1-0e2c-4c4c-a984-bca43f2453cc.jpg',
   },
   {
     id: 'governance',
@@ -505,7 +505,6 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   const foundationTitle = overrides?.foundationTitle ?? 'What is the Golden Honeycomb?';
   const foundationTitleFontSize = overrides?.foundationTitleFontSize;
   const foundationSubtitleFontSize = overrides?.foundationSubtitleFontSize;
-  const foundationCTA = overrides?.foundationCTA ?? 'Read the full GHC Storybook';
   const responsesTitle = overrides?.responsesTitle ?? 'Seven responses';
   const responsesIntro =
     overrides?.responsesIntro ??
@@ -516,10 +515,6 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   const finalSubtitle =
     overrides?.finalSubtitle ??
     'The Golden Honeycomb comes to life through real decisions, tools, and daily work inside the DQ Digital Workspace.';
-
-  const handleEnterHoneycomb = useCallback(() => {
-    navigate('/marketplace/guides/dq-ghc');
-  }, [navigate]);
 
   const handleReadStorybook = useCallback(() => {
     const isExternal = /^https?:\/\//i.test(heroCTALink);
@@ -727,7 +722,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
       {/* -----------------------------------------
           2. WHAT IS GHC SECTION
           ----------------------------------------- */}
-      <SectionWhatIsGHC onReadStorybook={handleEnterHoneycomb} content={overrides} />
+      <SectionWhatIsGHC content={overrides} />
 
       {/* -----------------------------------------
           3. SEVEN RESPONSES CAROUSEL
@@ -763,11 +758,10 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
    ----------------------------------------- */
 
 interface SectionWhatIsGHCProps {
-  onReadStorybook: () => void;
   content?: LandingOverrides;
 }
 
-function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
+function SectionWhatIsGHC({ content }: SectionWhatIsGHCProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const foundationTitle = content?.foundationTitle ?? 'What is the Golden Honeycomb?';
@@ -775,9 +769,6 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
   const foundationTitleFontSize = content?.foundationTitleFontSize;
   const foundationSubtitleFontSize = content?.foundationSubtitleFontSize;
   const foundationCards = content?.foundationCards ?? FEATURE_CARDS_DEFAULT;
-  const foundationCTA = content?.foundationCTA ?? 'Read the full GHC storybook';
-  const foundationCTATo =
-    content?.foundationCTATo ?? 'https://preview.shorthand.com/Pg0KQCF1Rp904ao7';
   const isTwoCardLayout = foundationCards.length === 2;
 
   return (
@@ -846,29 +837,6 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
               </p>
             </motion.div>
           ))}
-        </motion.div>
-
-        <motion.div
-          variants={itemVariants}
-          className="mt-10 flex justify-center max-w-6xl mx-auto px-2"
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-        >
-          <button
-            type="button"
-            onClick={() => {
-              if (foundationCTATo) {
-                window.open(foundationCTATo, '_blank', 'noopener,noreferrer');
-              } else {
-                onReadStorybook();
-              }
-            }}
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold border border-[#d9e3ff] text-[#131e42] bg-white hover:bg-[#e8eefc] transition-colors shadow-sm"
-          >
-            <BookOpen className="h-5 w-5" />
-            {foundationCTA}
-            <ArrowRight className="h-5 w-5" />
-          </button>
         </motion.div>
       </div>
     </section>
@@ -956,10 +924,24 @@ interface CompetencyCardProps {
   variant?: 'default' | 'stage';
 }
 
+const getProblemText = (card: CompetencyCard, hasLens: boolean) => {
+  if (card.executionQuestion) return card.executionQuestion;
+  if (hasLens && card.lensLine1) return card.lensLine1;
+  return card.problem;
+};
+
+const getResponseText = (card: CompetencyCard, hasLens: boolean) => {
+  if (card.executionLens) return card.executionLens;
+  if (hasLens && card.lensLine2) return card.lensLine2;
+  return card.response;
+};
+
 function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
   const navigate = useNavigate();
   const hasLens = Boolean(card.lensLine1 || card.lensLine2);
   const isStage = variant === 'stage';
+  const problemText = getProblemText(card, hasLens);
+  const responseText = getResponseText(card, hasLens);
 
   return (
     <article
@@ -999,11 +981,7 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
             style={{ fontSize: '16px' }}
           >
             <span className="font-semibold">Problem:</span>{' '}
-            {card.executionQuestion
-              ? card.executionQuestion
-              : hasLens && card.lensLine1
-                ? card.lensLine1
-                : card.problem}
+            {problemText}
           </p>
 
           <p
@@ -1013,11 +991,7 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
             style={{ fontSize: '16px' }}
           >
             <span className="font-semibold">Response:</span>{' '}
-            {card.executionLens
-              ? card.executionLens
-              : hasLens && card.lensLine2
-                ? card.lensLine2
-                : card.response}
+            {responseText}
           </p>
         </div>
 
@@ -1268,148 +1242,172 @@ function SevenResponsesRailCarousel({
    Section: Take Action
    ----------------------------------------- */
 
-function SectionTakeAction({ navigate, content }: { navigate: (path: string) => void; content?: LandingOverrides }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.15 });
-  const actionCards = content?.actionCards ?? ACTION_CARDS_DEFAULT;
-  const takeActionTitle = content?.takeActionTitle ?? 'Bring it to life';
-  const takeActionSubtitle =
-    content?.takeActionSubtitle ?? 'Understanding is the start. GHC becomes real through application, practice, and lived experience.';
-  const takeActionTitleFontSize = content?.takeActionTitleFontSize;
-  const takeActionSubtitleFontSize = content?.takeActionSubtitleFontSize;
-  const takeActionLayout = content?.takeActionLayout ?? 'grid';
-  const handleNavigate = (path: string) => {
-    if (path.startsWith('http')) {
-      window.open(path, '_blank', 'noopener,noreferrer');
-    } else {
-      navigate(path);
-    }
-  };
+const TakeActionHeader = ({
+  title,
+  subtitle,
+  titleFontSize,
+  subtitleFontSize,
+  isInView,
+}: {
+  title: string;
+  subtitle: string;
+  titleFontSize?: string;
+  subtitleFontSize?: string;
+  isInView: boolean;
+}) => (
+  <motion.div
+    className="text-center mb-12"
+    initial={{ opacity: 0, y: 20 }}
+    animate={isInView ? { opacity: 1, y: 0 } : {}}
+    transition={{ duration: 0.5 }}
+  >
+    <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur mx-auto mb-2">
+      TAKE ACTION
+    </p>
+    <h2
+      className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3"
+      style={{ fontSize: titleFontSize ?? '36px' }}
+    >
+      {title}
+    </h2>
+    <p
+      className="text-[#4a5678] max-w-2xl mx-auto text-lg"
+      style={{ fontSize: subtitleFontSize ?? '18px', whiteSpace: 'nowrap' }}
+    >
+      {subtitle}
+    </p>
+  </motion.div>
+);
 
-  if (takeActionLayout === 'grid') {
-    return (
-      <section
-        ref={ref}
-        className="py-20 md:py-24"
-        style={{
-          background: 'linear-gradient(180deg, #f0f6ff 0%, #ffffff 55%, #f0f6ff 100%)',
-        }}
+const TakeActionGridLayout = ({
+  refEl,
+  isInView,
+  cards,
+  title,
+  subtitle,
+  titleFontSize,
+  subtitleFontSize,
+  handleNavigate,
+}: {
+  refEl: React.RefObject<HTMLDivElement>;
+  isInView: boolean;
+  cards: ActionCard[];
+  title: string;
+  subtitle: string;
+  titleFontSize?: string;
+  subtitleFontSize?: string;
+  handleNavigate: (path: string) => void;
+}) => (
+  <section
+    ref={refEl}
+    className="py-20 md:py-24"
+    style={{
+      background: 'linear-gradient(180deg, #f0f6ff 0%, #ffffff 55%, #f0f6ff 100%)',
+    }}
+  >
+    <div className="container mx-auto px-4 md:px-6 lg:px-10">
+      <TakeActionHeader
+        title={title}
+        subtitle={subtitle}
+        titleFontSize={titleFontSize}
+        subtitleFontSize={subtitleFontSize}
+        isInView={isInView}
+      />
+
+      <motion.div
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate={isInView ? 'visible' : 'hidden'}
       >
-        <div className="container mx-auto px-4 md:px-6 lg:px-10">
+        {cards.map((card) => (
           <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
+            key={card.title}
+            variants={itemVariants}
+            className={`rounded-3xl p-6 md:p-8 shadow-sm border border-white/60 ${card.bg} flex flex-col`}
           >
-            <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur mx-auto mb-2">
-              TAKE ACTION
-            </p>
-            <h2
-              className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3"
-              style={{ fontSize: takeActionTitleFontSize ?? '36px' }}
-            >
-              {takeActionTitle}
-            </h2>
-            <p
-              className="text-[#4a5678] max-w-2xl mx-auto text-lg"
-              style={{ fontSize: takeActionSubtitleFontSize ?? '18px', whiteSpace: 'nowrap' }}
-            >
-              {takeActionSubtitle}
-            </p>
-          </motion.div>
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
+                <card.icon className="h-6 w-6" style={{ color: card.iconColor }} />
+              </div>
+              <div className="flex-1">
+                <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${card.badgeColor}`}>
+                  {card.badge}
+                </p>
+                <h3 className="mt-2 text-xl md:text-2xl font-semibold text-[#131e42]">
+                  {card.title}
+                </h3>
+                <p className="mt-3 text-sm md:text-base text-[#4a5678] leading-relaxed">
+                  {card.description}
+                </p>
+              </div>
+            </div>
 
-          <motion.div
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto"
-            variants={containerVariants}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-          >
-            {actionCards.map((card) => (
-              <motion.div
-                key={card.title}
-                variants={itemVariants}
-                className={`rounded-3xl p-6 md:p-8 shadow-sm border border-white/60 ${card.bg} flex flex-col`}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
-                    <card.icon className="h-6 w-6" style={{ color: card.iconColor }} />
-                  </div>
-                  <div className="flex-1">
-                    <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${card.badgeColor}`}>
-                      {card.badge}
-                    </p>
-                    <h3 className="mt-2 text-xl md:text-2xl font-semibold text-[#131e42]">
-                      {card.title}
-                    </h3>
-                    <p className="mt-3 text-sm md:text-base text-[#4a5678] leading-relaxed">
-                      {card.description}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {card.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 rounded-full bg-white/70 text-[#4a5678] text-xs font-medium"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleNavigate(card.path)}
-                  className={`mt-5 inline-flex items-center gap-2 text-sm font-semibold ${card.accent} hover:opacity-80`}
+            <div className="mt-4 flex flex-wrap gap-2">
+              {card.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 rounded-full bg-white/70 text-[#4a5678] text-xs font-medium"
                 >
-                  {card.cta}
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-    );
-  }
+                  {tag}
+                </span>
+              ))}
+            </div>
 
-  const primaryCard = actionCards.find((card) => card.variant === 'primary') ?? actionCards[0];
-  const secondaryCards = actionCards.filter((card) => card !== primaryCard);
+            <button
+              type="button"
+              onClick={() => handleNavigate(card.path)}
+              className={`mt-5 inline-flex items-center gap-2 text-sm font-semibold ${card.accent} hover:opacity-80`}
+            >
+              {card.cta}
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  </section>
+);
+
+const TakeActionPrimaryLayout = ({
+  refEl,
+  isInView,
+  cards,
+  title,
+  subtitle,
+  titleFontSize,
+  subtitleFontSize,
+  handleNavigate,
+}: {
+  refEl: React.RefObject<HTMLDivElement>;
+  isInView: boolean;
+  cards: ActionCard[];
+  title: string;
+  subtitle: string;
+  titleFontSize?: string;
+  subtitleFontSize?: string;
+  handleNavigate: (path: string) => void;
+}) => {
+  const primaryCard = cards.find((card) => card.variant === 'primary') ?? cards[0];
+  const secondaryCards = cards.filter((card) => card !== primaryCard);
   const hasPrimary = Boolean(primaryCard);
 
   return (
     <section
-      ref={ref}
+      ref={refEl}
       className="py-20 md:py-24"
       style={{
         background: 'linear-gradient(180deg, #f0f6ff 0%, #ffffff 55%, #f0f6ff 100%)',
       }}
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-10">
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-        >
-          <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur mx-auto mb-2">
-            TAKE ACTION
-          </p>
-          <h2
-            className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3"
-            style={{ fontSize: takeActionTitleFontSize ?? '36px' }}
-          >
-            {takeActionTitle}
-          </h2>
-          <p
-            className="text-[#4a5678] max-w-2xl mx-auto text-lg"
-            style={{ fontSize: takeActionSubtitleFontSize ?? '18px', whiteSpace: 'nowrap' }}
-          >
-            {takeActionSubtitle}
-          </p>
-        </motion.div>
+        <TakeActionHeader
+          title={title}
+          subtitle={subtitle}
+          titleFontSize={titleFontSize}
+          subtitleFontSize={subtitleFontSize}
+          isInView={isInView}
+        />
 
         {hasPrimary ? (
           <div className="grid gap-6 max-w-6xl mx-auto">
@@ -1418,7 +1416,7 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
                 variants={itemVariants}
                 initial="hidden"
                 animate={isInView ? 'visible' : 'hidden'}
-                className={`group relative p-8 md:p-10 rounded-3xl border shadow-[0_18px_36px_rgba(0,0,0,0.12)] bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b] text-white`}
+                className="group relative p-8 md:p-10 rounded-3xl border shadow-[0_18px_36px_rgba(0,0,0,0.12)] bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b] text-white"
               >
                 <div className="flex flex-col md:flex-row md:items-start md:gap-6">
                   <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
@@ -1473,7 +1471,7 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
                 variants={containerVariants}
                 custom={0}
               >
-                {secondaryCards.map((item, i) => (
+                {secondaryCards.map((item) => (
                   <motion.div
                     key={item.title}
                     variants={itemVariants}
@@ -1526,7 +1524,7 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
             variants={containerVariants}
             custom={0}
           >
-            {actionCards.map((item, i) => (
+            {cards.map((item) => (
               <motion.div
                 key={item.title}
                 variants={itemVariants}
@@ -1574,6 +1572,53 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
       </div>
     </section>
   );
+};
+
+function SectionTakeAction({ navigate, content }: { navigate: (path: string) => void; content?: LandingOverrides }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.15 });
+  const actionCards = content?.actionCards ?? ACTION_CARDS_DEFAULT;
+  const takeActionTitle = content?.takeActionTitle ?? 'Bring it to life';
+  const takeActionSubtitle =
+    content?.takeActionSubtitle ?? 'Understanding is the start. GHC becomes real through application, practice, and lived experience.';
+  const takeActionTitleFontSize = content?.takeActionTitleFontSize;
+  const takeActionSubtitleFontSize = content?.takeActionSubtitleFontSize;
+  const takeActionLayout = content?.takeActionLayout ?? 'grid';
+  const handleNavigate = (path: string) => {
+    if (path.startsWith('http')) {
+      window.open(path, '_blank', 'noopener,noreferrer');
+    } else {
+      navigate(path);
+    }
+  };
+
+  if (takeActionLayout === 'grid') {
+    return (
+      <TakeActionGridLayout
+        refEl={ref}
+        isInView={isInView}
+        cards={actionCards}
+        title={takeActionTitle}
+        subtitle={takeActionSubtitle}
+        titleFontSize={takeActionTitleFontSize}
+        subtitleFontSize={takeActionSubtitleFontSize}
+        handleNavigate={handleNavigate}
+      />
+    );
+  }
+
+  return (
+    <TakeActionPrimaryLayout
+      refEl={ref}
+      isInView={isInView}
+      cards={actionCards}
+      title={takeActionTitle}
+      subtitle={takeActionSubtitle}
+      titleFontSize={takeActionTitleFontSize}
+      subtitleFontSize={takeActionSubtitleFontSize}
+      handleNavigate={handleNavigate}
+    />
+  );
 }
 
 /* -----------------------------------------
@@ -1597,28 +1642,50 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
   return (
     <section
       ref={ref}
-      className="relative overflow-hidden"
+      className="relative overflow-hidden dq-gradient-animated"
       style={{
-        background:
-          'radial-gradient(circle at 20% 20%, rgba(240,246,255,0.35), transparent 45%), radial-gradient(circle at 80% 30%, rgba(225,81,59,0.25), transparent 45%), linear-gradient(115deg, #131e42 0%, #1f2d5c 60%, #e1513b 100%)',
+        background: 'linear-gradient(120deg, #131e42 0%, #1b2553 45%, #e1513b 100%)',
       }}
     >
+      <div className="dq-digital-bg" aria-hidden="true">
+        <svg viewBox="0 0 1440 640" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="dq-digital-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(240,246,255,0.6)" />
+              <stop offset="100%" stopColor="rgba(225,81,59,0.6)" />
+            </linearGradient>
+          </defs>
+          <path className="dq-digital-line" d="M-40 140 L240 90 L520 160 L820 110 L1160 170 L1480 120" />
+          <path className="dq-digital-line alt" d="M-60 260 L180 220 L520 300 L860 240 L1180 320 L1500 260" />
+          <path className="dq-digital-line" d="M-40 400 L260 360 L520 420 L820 370 L1120 430 L1460 380" />
+          <path className="dq-digital-line alt" d="M-80 520 L220 500 L520 560 L840 520 L1160 580 L1500 540" />
+          <path className="dq-digital-line" d="M120 60 L280 180 L460 80 L640 200 L820 120 L1040 220 L1240 140" />
+          <path className="dq-digital-line alt" d="M240 120 L420 260 L620 150 L840 300 L1040 190 L1260 320" />
+
+          <circle className="dq-digital-dot" cx="240" cy="90" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="520" cy="160" r="4" />
+          <circle className="dq-digital-dot" cx="820" cy="110" r="3" />
+          <circle className="dq-digital-dot alt" cx="1160" cy="170" r="4.5" />
+          <circle className="dq-digital-dot" cx="180" cy="220" r="3" />
+          <circle className="dq-digital-dot alt" cx="520" cy="300" r="4" />
+          <circle className="dq-digital-dot" cx="860" cy="240" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="1180" cy="320" r="4" />
+          <circle className="dq-digital-dot" cx="260" cy="360" r="3" />
+          <circle className="dq-digital-dot alt" cx="520" cy="420" r="4" />
+          <circle className="dq-digital-dot" cx="820" cy="370" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="1120" cy="430" r="4" />
+          <circle className="dq-digital-dot" cx="220" cy="500" r="3" />
+          <circle className="dq-digital-dot alt" cx="520" cy="560" r="4" />
+          <circle className="dq-digital-dot" cx="840" cy="520" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="1160" cy="580" r="4" />
+          <circle className="dq-digital-dot" cx="420" cy="260" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="640" cy="200" r="4" />
+          <circle className="dq-digital-dot" cx="1040" cy="220" r="3.5" />
+          <circle className="dq-digital-dot alt" cx="1260" cy="320" r="4" />
+        </svg>
+      </div>
       <div className="container mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
         <div className="relative min-h-[420px] lg:min-h-[520px] flex items-center">
-          {/* Animated background orbs */}
-          <motion.div
-            className="absolute w-[420px] h-[420px] rounded-full blur-3xl"
-            style={{ left: '-10%', top: '10%', backgroundColor: 'rgba(240,246,255,0.28)' }}
-            animate={{ x: [0, 30, -10, 0], y: [0, -20, 10, 0], scale: [1, 1.06, 1] }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute w-[360px] h-[360px] rounded-full blur-3xl"
-            style={{ right: '5%', bottom: '-5%', backgroundColor: 'rgba(225,81,59,0.28)' }}
-            animate={{ x: [0, -25, 15, 0], y: [0, 18, -12, 0], scale: [1, 1.05, 1] }}
-            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-          />
-
           <motion.div
             className="relative z-10 max-w-3xl py-16 md:py-20 px-2 sm:px-4 md:px-0 text-left"
             initial={{ opacity: 0, y: 20 }}

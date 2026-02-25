@@ -1,7 +1,7 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { CommunityHome } from './CommunityHome';
-import Communities from './pages/Communities';
+import { CommunityList } from './CommunityList';
 import { CommunityFeed } from './CommunityFeed';
 import Community from './pages/Community';
 import CommunityEvents from './pages/CommunityEvents';
@@ -13,7 +13,7 @@ export function CommunitiesRouter() {
     <AuthProvider>
       <Routes>
         <Route path="/" element={<CommunityHome />} />
-        <Route path="/communities" element={<Communities />} />
+        <Route path="/communities" element={<CommunityList />} />
         <Route path="/feed" element={<CommunityFeed />} />
         <Route path="/community/:id" element={<Community />} />
         <Route path="/community/:id/events" element={<CommunityEvents />} />

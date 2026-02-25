@@ -24,14 +24,14 @@ export const PostTypeBadge: React.FC<PostTypeBadgeProps> = ({
           icon: BarChart3,
           label: 'Poll',
           emoji: '📊',
-          colorClass: 'bg-dq-navy/10 text-dq-navy border-dq-navy/30'
+          colorClass: 'bg-blue-50 text-blue-700 border-blue-200'
         };
       case 'event':
         return {
           icon: Calendar,
           label: 'Event',
           emoji: '📅',
-          colorClass: 'bg-dq-navy/10 text-dq-navy border-dq-navy/30'
+          colorClass: 'bg-blue-50 text-blue-700 border-blue-200'
         };
       case 'announcement':
         return {
@@ -45,7 +45,7 @@ export const PostTypeBadge: React.FC<PostTypeBadgeProps> = ({
           icon: BookOpen,
           label: 'Article',
           emoji: '📝',
-          colorClass: 'bg-dq-navy/10 text-dq-navy border-dq-navy/30'
+          colorClass: 'bg-indigo-50 text-indigo-700 border-indigo-200'
         };
       case 'text':
       default:

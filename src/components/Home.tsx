@@ -65,18 +65,18 @@ const approvedSections = {
       id: 'learning-center',
       title: 'Learning Center',
       description:
-        'Browse glossaries, FAQs, playbooks, and reference resources for everyday work.',
+        'Designed for your continuous growth. Access the upskilling and certification tools you need to deliver excellence.',
       icon: <BookOpen />,
-      path: '/marketplace/guides?tab=glossary',
+      path: '/lms',
       isActive: true,
     },
     {
       id: 'ghc',
       title: 'GHC',
       description:
-        'Explore the Golden Honeycomb of Competencies to understand how DQ works.',
+        'Explore the Golden Honeycomb of Competencies (GHC), the system behind how DQ works and delivers value.',
       icon: <GraduationCap />,
-      path: '/marketplace/guides/dq-ghc',
+      path: '/marketplace/guides?tab=strategy&collapsed=guide_type%2Csub_domain%2Cunit%2Clocation%2Ctestimonial_category%2Cproduct_type%2Cproduct_stage%2Cguidelines_category%2Ccategorization%2Cattachments%2Cstrategy_framework%2Cglossary_knowledge_system%2Cglossary_ghc_dimension%2Cglossary_6xd_perspective%2Cglossary_letter%2Cfaq_category',
       isActive: true,
     },
     {
@@ -85,7 +85,7 @@ const approvedSections = {
       description:
         'Official standards, governance models, and ways of working that guide execution across DQ.',
       icon: <ScrollText />,
-      path: '/marketplace/guides?tab=guidelines',
+      path: '/marketplace/guides?collapsed=guide_type%2Csub_domain%2Cunit%2Clocation%2Ctestimonial_category%2Cproduct_type%2Cproduct_stage%2Cguidelines_category%2Ccategorization%2Cattachments%2Cstrategy_framework%2Cglossary_knowledge_system%2Cglossary_ghc_dimension%2Cglossary_6xd_perspective%2Cglossary_letter%2Cfaq_category',
       isActive: true,
     },
     {
@@ -114,15 +114,15 @@ const approvedSections = {
       id: 'news-announcements',
       title: 'News & Announcements',
       description:
-        'View official DQ news, platform releases, and important organizational updates.',
+        'Discover what is happening in DQ, including important announcements, and what teams are building.',
       icon: <Newspaper />,
-      path: '/marketplace/opportunities?tab=announcements',
+      path: '/marketplace/opportunities',
       isActive: true,
     },
     {
       id: 'podcasts',
       title: 'Podcasts',
-      description: 'Listen to the latest DQ podcast series and episodes.',
+      description: 'Tune in to conversations, stories, and expert insights from DQ leaders and associates.',
       icon: <MessageCircle />,
       path: '/marketplace/opportunities?tab=podcasts',
       isActive: true,
@@ -131,7 +131,7 @@ const approvedSections = {
       id: 'blogs',
       title: 'Blogs',
       description:
-        'Read stories, updates, and perspectives from teams and leaders across DQ.',
+        'Dive into thought leadership, personal stories, and expert insights written by colleagues across DQ.',
       icon: <BookIcon />,
       path: '/marketplace/opportunities?tab=insights',
       isActive: true,
@@ -333,12 +333,14 @@ interface CategoryHeaderProps {
   icon: React.ReactNode;
   title: string;
   count?: number | null;
+  description?: string;
 }
 
 const CategoryHeader: React.FC<CategoryHeaderProps> = ({
   icon,
   title,
   count = null,
+  description,
 }) => {
   const [ref] = useInView({ threshold: 0.1 });
   const [isHovered, setIsHovered] = React.useState(false);
@@ -357,12 +359,17 @@ const CategoryHeader: React.FC<CategoryHeaderProps> = ({
         </div>
         <h2 className="text-2xl font-bold text-gray-800 clamp-1">{title}</h2>
       </div>
+      {description && (
+        <div className="ml-13 text-gray-600 text-base mb-2">
+          {description}
+        </div>
+      )}
       {count !== null && (
         <div className="ml-13 text-gray-600 clamp-2">
           <span className="font-semibold mr-1">
             <AnimatedCounter value={count} />+
           </span>
-          cards in this hub
+          services available in this category
         </div>
       )}
     </div>
@@ -392,9 +399,9 @@ export const HomePage: React.FC = () => {
   };
 
   const sectionStyles: Record<string, SectionStyle> = {
-    'Learning Center & DQ Knowledge Hub': navySectionStyle,
-    'Media & Communications Hub': navySectionStyle,
-    'Service Requests & Enablement Hub': navySectionStyle,
+    'Learning Center & DQ Knowledge': navySectionStyle,
+    'Media & Communications': navySectionStyle,
+    'Service Requests & Enablement': navySectionStyle,
     'Organization, Roles & People': navySectionStyle,
   };
 
@@ -404,14 +411,14 @@ export const HomePage: React.FC = () => {
     <div className="bg-white py-16">
       <div className="container mx-auto px-4">
         {/* Marketplaces by Category */}
-        <div className="mb-16">
+        <div className="mb-16" id="tools-resources-services">
           <FadeInUpOnScroll className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-3 clamp-1">
-              Services & Marketplaces
+              Tools, Resources & Services
             </h2>
             <div>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto clamp-2">
-                Everything you need to get started, work smarter, and unlock real progress at DQ all from one digital workspace.
+              <p className="text-base sm:text-lg text-gray-600 mx-auto leading-relaxed max-w-4xl whitespace-nowrap">
+                Access tools, learning, and guidelines designed to help you work smarter and act confidently all in one place.
               </p>
             </div>
           </FadeInUpOnScroll>
@@ -421,8 +428,8 @@ export const HomePage: React.FC = () => {
             <FadeInUpOnScroll>
               <CategoryHeader
                 icon={<BookOpen size={24} />}
-                title="Learning Center & DQ Knowledge Hub"
-                count={homeSections.learningHub.length}
+                title="Learning Center & DQ Knowledge"
+                description="Learn, reference standards, and access knowledge that guides delivery."
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
@@ -433,7 +440,7 @@ export const HomePage: React.FC = () => {
                   <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
                     <ServiceCard
                       service={service}
-                      sectionStyle={sectionStyles['Learning Center & DQ Knowledge Hub']}
+                      sectionStyle={sectionStyles['Learning Center & DQ Knowledge']}
                       onClick={() => handleServiceClick(service.path)}
                       isComingSoon={!service.isActive}
                     />
@@ -448,8 +455,8 @@ export const HomePage: React.FC = () => {
             <FadeInUpOnScroll>
               <CategoryHeader
                 icon={<Newspaper size={24} />}
-                title="Media & Communications Hub"
-                count={homeSections.mediaHub.length}
+                title="Media & Communications"
+                description="Stay aligned with what's happening — news, stories, and internal updates."
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
@@ -460,7 +467,7 @@ export const HomePage: React.FC = () => {
                   <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
                     <ServiceCard
                       service={service}
-                      sectionStyle={sectionStyles['Media & Communications Hub']}
+                      sectionStyle={sectionStyles['Media & Communications']}
                       onClick={() => handleServiceClick(service.path)}
                       isComingSoon={!service.isActive}
                     />
@@ -475,8 +482,8 @@ export const HomePage: React.FC = () => {
             <FadeInUpOnScroll>
               <CategoryHeader
                 icon={<Briefcase size={24} />}
-                title="Service Requests & Enablement Hub"
-                count={homeSections.serviceEnablementHub.length}
+                title="Service Requests & Enablement"
+                description="Request support and enablement services — tracked and visible."
               />
             </FadeInUpOnScroll>
             <ServiceCarousel
@@ -487,7 +494,7 @@ export const HomePage: React.FC = () => {
                   <FadeInUpOnScroll key={service.id} delay={index * 0.1}>
                     <ServiceCard
                       service={service}
-                      sectionStyle={sectionStyles['Service Requests & Enablement Hub']}
+                      sectionStyle={sectionStyles['Service Requests & Enablement']}
                       onClick={() => handleServiceClick(service.path)}
                       isComingSoon={!service.isActive}
                     />
@@ -503,7 +510,7 @@ export const HomePage: React.FC = () => {
               <CategoryHeader
                 icon={<Users size={24} />}
                 title="Organization, Roles & People"
-                count={homeSections.orgRolesPeople.length}
+                description="Understand teams, roles, and who to contact."
               />
             </FadeInUpOnScroll>
             <ServiceCarousel

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from '@/communities/integrations/supabase/client';
 import { useAuth } from '@/communities/contexts/AuthProvider';
 import { PostCardBase } from './PostCardBase';
 import { PostCardText } from './PostCardText';
@@ -11,8 +11,6 @@ import { PostCardAnnouncement } from './PostCardAnnouncement';
 import { BasePost } from '../types';
 import { usePermissions } from '@/communities/hooks/usePermissions';
 import { AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
-import { safeFetch } from '@/communities/utils/safeFetch';
 interface PostCardProps {
   post: BasePost;
   onActionComplete?: () => void;
@@ -42,123 +40,42 @@ export function PostCard({
   }, [user, post.id]);
   const checkUserReactions = async () => {
     if (!user) return;
-    
-    // Get user ID from Azure AD authentication
-    const userId = user?.id;
-    
-    if (!userId) return;
-    
-    // Use new reactions table
-    const query = supabase
-      .from('community_post_reactions_new')
-      .select('reaction_type')
-      .eq('post_id' as any, post.id)
-      .eq('user_id' as any, userId);
-    
-    const [data, error] = await safeFetch(query);
-    
-    if (error) {
-      console.error('Error checking user reactions:', error);
-      return;
-    }
-    
-    if (data && Array.isArray(data)) {
+    const {
+      data
+    } = await supabase.from('reactions').select('reaction_type').eq('post_id', post.id).eq('user_id', user.id);
+    if (data) {
       setHasReactedHelpful(data.some(r => r.reaction_type === 'helpful'));
       setHasReactedInsightful(data.some(r => r.reaction_type === 'insightful'));
     }
   };
   const handleReaction = async (type: 'helpful' | 'insightful') => {
-    console.log('🔵 handleReaction called:', { type, postId: post.id });
-    
     if (!user) {
-      toast.error('Please sign in to react');
+      navigate('/');
       return;
     }
-    
-    // Get user ID from Azure AD authentication
-    if (!user?.id) {
-      console.error('❌ User not authenticated');
-      toast.error('Unable to verify authentication. Please sign in again.');
-      return;
-    }
-    
-    const userId = session.user.id;
-    console.log('✅ User ID from session:', userId);
-    
     const hasReacted = type === 'helpful' ? hasReactedHelpful : hasReactedInsightful;
-    console.log('📊 Reaction state:', { hasReacted, type });
-    
-    try {
-      if (hasReacted) {
-        // Remove reaction from new table
-        const query = supabase
-          .from('community_post_reactions_new')
-          .delete()
-          .eq('post_id' as any, post.id)
-          .eq('user_id' as any, userId)
-          .eq('reaction_type' as any, type);
-        
-        const [, error] = await safeFetch(query);
-        
-        if (error) {
-          console.error('❌ Error removing reaction:', error);
-          toast.error('Failed to remove reaction: ' + (error.message || 'Unknown error'));
-          return;
-        }
-        
-        console.log('✅ Reaction removed successfully');
-        
-        // Update local state optimistically
-        if (type === 'helpful') {
-          setHelpfulCount(prev => Math.max(0, prev - 1));
-          setHasReactedHelpful(false);
-        } else {
-          setInsightfulCount(prev => Math.max(0, prev - 1));
-          setHasReactedInsightful(false);
-        }
+    if (hasReacted) {
+      await supabase.from('reactions').delete().eq('post_id', post.id).eq('user_id', user.id).eq('reaction_type', type);
+      if (type === 'helpful') {
+        setHelpfulCount(prev => prev - 1);
+        setHasReactedHelpful(false);
       } else {
-        // Add reaction to new table
-        const reactionData = {
-          post_id: post.id,
-          user_id: userId,
-          reaction_type: type
-        };
-        
-        const query = supabase
-          .from('community_post_reactions_new')
-          .insert(reactionData as any);
-        
-        const [, error] = await safeFetch(query);
-        
-        if (error) {
-          console.error('❌ Error adding reaction:', error);
-          // If unique constraint violation, user already reacted
-          if (error.code === '23505') {
-            console.log('⚠️ User already reacted, refreshing...');
-            checkUserReactions();
-            return;
-          }
-          toast.error('Failed to add reaction: ' + (error.message || 'Unknown error'));
-          return;
-        }
-        
-        console.log('✅ Reaction added successfully');
-        
-        // Update local state optimistically
-        if (type === 'helpful') {
-          setHelpfulCount(prev => prev + 1);
-          setHasReactedHelpful(true);
-        } else {
-          setInsightfulCount(prev => prev + 1);
-          setHasReactedInsightful(true);
-        }
+        setInsightfulCount(prev => prev - 1);
+        setHasReactedInsightful(false);
       }
-      
-      // Refresh reaction counts
-      await checkUserReactions();
-    } catch (err: any) {
-      console.error('❌ Unexpected error in handleReaction:', err);
-      toast.error('An unexpected error occurred. Please try again.');
+    } else {
+      await supabase.from('reactions').insert({
+        post_id: post.id,
+        user_id: user.id,
+        reaction_type: type
+      });
+      if (type === 'helpful') {
+        setHelpfulCount(prev => prev + 1);
+        setHasReactedHelpful(true);
+      } else {
+        setInsightfulCount(prev => prev + 1);
+        setHasReactedInsightful(true);
+      }
     }
   };
   const renderPostContent = () => {

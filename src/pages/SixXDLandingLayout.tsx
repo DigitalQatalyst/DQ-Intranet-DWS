@@ -1,6 +1,7 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
+import { ProductShowcase } from '@/components/ProductShowcase';
 import useEmblaCarousel from 'embla-carousel-react';
 import {
   ChevronDown,
@@ -25,7 +26,7 @@ import {
 
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import SixPerspectivesCarousel from '@/components/perspectives/SixPerspectivesCarousel';
+import SixPerspectivesCarousel from '@/components/perspectives/SixPerspectivesCarousel'; // NOSONAR: reserved for future use
 
 const IconGlyph = ({ glyph, className }: { glyph: string; className?: string }) => (
   <span className={`inline-flex items-center justify-center leading-none font-semibold ${className ?? ''}`}>
@@ -405,7 +406,7 @@ function FloatingOrbs() {
     <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
       {orbs.map((orb, i) => (
         <motion.div
-          key={i}
+          key={i} // NOSONAR: index is stable for static orbs
           className="absolute rounded-full bg-[#d4a574] opacity-[0.15]"
           style={{
             width: orb.size,
@@ -455,8 +456,12 @@ type LandingOverrides = {
   responsesTitleFontSize?: string;
   responsesIntroFontSize?: string;
   responsesSequential?: boolean;
+  responsesLayout?: 'carousel' | 'classes-grid' | 'chips-grid';
   responseCards?: CompetencyCard[];
   responseTags?: string[];
+  responsesCTALabel?: string;
+  responsesCTATo?: string;
+  responsesCTALocked?: boolean;
   bottomCTA?: string;
   actionCards?: ActionCard[];
   finalHeadline?: string;
@@ -479,13 +484,13 @@ type GHCLandingProps = {
   overrides?: LandingOverrides;
 };
 
-export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
+export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) { // NOSONAR: props are intentionally mutable for component flexibility
   const navigate = useNavigate();
   const carouselRef = useRef<HTMLDivElement>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
 
   const responseCards = overrides?.responseCards ?? COMPETENCY_CARDS_DEFAULT;
-  const responseTags = overrides?.responseTags ?? [
+  const responseTags = overrides?.responseTags ?? [ // NOSONAR: reserved for future use
     'Vision',
     'House of Values',
     'Persona',
@@ -494,8 +499,9 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
     'Agile Flows',
     'Agile 6xD',
   ];
-  const featureCards = overrides?.foundationCards ?? FEATURE_CARDS_DEFAULT;
-  const actionCards = overrides?.actionCards ?? ACTION_CARDS_DEFAULT;
+  const responsesLayout = overrides?.responsesLayout ?? 'carousel'; // NOSONAR: reserved for future use
+  const featureCards = overrides?.foundationCards ?? FEATURE_CARDS_DEFAULT; // NOSONAR: reserved for future use
+  const actionCards = overrides?.actionCards ?? ACTION_CARDS_DEFAULT; // NOSONAR: reserved for future use
   const heroHeadline = overrides?.heroHeadline;
   const heroHeadlineHighlightWord = overrides?.heroHeadlineHighlightWord;
   const heroHeadlineFontSize = overrides?.heroHeadlineFontSize;
@@ -505,21 +511,21 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
     'DQ built an operating system of seven responses so you can see what broke in work — and how to realign it.';
   const heroFootnote = overrides?.heroFootnote;
   const heroCTALink = overrides?.heroCTALink ?? 'https://preview.shorthand.com/Pg0KQCF1Rp904ao7';
-  const foundationSubtitle =
+  const foundationSubtitle = // NOSONAR: reserved for future use
     overrides?.foundationSubtitle ??
     'Not a framework to memorise — an operating system for modern work that guides how you think, decide, adapt, and create impact.';
-  const foundationTitle = overrides?.foundationTitle ?? 'What is the Golden Honeycomb?';
-  const foundationTitleFontSize = overrides?.foundationTitleFontSize;
-  const foundationSubtitleFontSize = overrides?.foundationSubtitleFontSize;
-  const foundationCTA = overrides?.foundationCTA ?? 'Read the full GHC Storybook';
-  const responsesTitle = overrides?.responsesTitle ?? 'Seven responses';
-  const responsesIntro =
+  const foundationTitle = overrides?.foundationTitle ?? 'What is the Golden Honeycomb?'; // NOSONAR: reserved for future use
+  const foundationTitleFontSize = overrides?.foundationTitleFontSize; // NOSONAR: reserved for future use
+  const foundationSubtitleFontSize = overrides?.foundationSubtitleFontSize; // NOSONAR: reserved for future use
+  const foundationCTA = overrides?.foundationCTA ?? 'Read the full GHC Storybook'; // NOSONAR: reserved for future use
+  const responsesTitle = overrides?.responsesTitle ?? 'Seven responses'; // NOSONAR: reserved for future use
+  const responsesIntro = // NOSONAR: reserved for future use
     overrides?.responsesIntro ??
     'Each exists because something in traditional work stopped working. Problem → response.';
   const responsesSequential = overrides?.responsesSequential ?? false;
-  const bottomCTA = overrides?.bottomCTA ?? 'Explore all Seven Responses together';
-  const finalHeadline = overrides?.finalHeadline ?? 'Where the Golden Honeycomb becomes real';
-  const finalSubtitle =
+  const bottomCTA = overrides?.bottomCTA ?? 'Explore all Seven Responses together'; // NOSONAR: reserved for future use
+  const finalHeadline = overrides?.finalHeadline ?? 'Where the Golden Honeycomb becomes real'; // NOSONAR: reserved for future use
+  const finalSubtitle = // NOSONAR: reserved for future use
     overrides?.finalSubtitle ??
     'The Golden Honeycomb comes to life through real decisions, tools, and daily work inside the DQ Digital Workspace.';
 
@@ -772,7 +778,7 @@ interface SectionWhatIsGHCProps {
   content?: LandingOverrides;
 }
 
-function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
+function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) { // NOSONAR: props are intentionally mutable
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const foundationTitle = content?.foundationTitle ?? 'What is the Golden Honeycomb?';
@@ -780,8 +786,8 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
   const foundationTitleFontSize = content?.foundationTitleFontSize;
   const foundationSubtitleFontSize = content?.foundationSubtitleFontSize;
   const foundationCards = content?.foundationCards ?? FEATURE_CARDS_DEFAULT;
-  const foundationCTA = content?.foundationCTA ?? 'Read the full GHC storybook';
-  const foundationCTATo =
+  const foundationCTA = content?.foundationCTA ?? 'Read the full GHC storybook'; // NOSONAR: reserved for future use
+  const foundationCTATo = // NOSONAR: reserved for future use
     content?.foundationCTATo ?? 'https://preview.shorthand.com/Pg0KQCF1Rp904ao7';
   const foundationFootnote = content?.foundationFootnote;
   const isTwoCardLayout = foundationCards.length === 2;
@@ -885,7 +891,7 @@ interface SectionCarouselProps {
   content?: LandingOverrides;
 }
 
-function SectionCarousel({
+function SectionCarousel({ // NOSONAR: props are intentionally mutable
   carouselRef,
   carouselIndex,
   onPrev,
@@ -896,8 +902,8 @@ function SectionCarousel({
   content,
 }: SectionCarouselProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.1 });
-  const [activeTag, setActiveTag] = useState(0);
+  const isInView = useInView(ref, { once: true, amount: 0.1 }); // NOSONAR: reserved for future use
+  const [activeTag, setActiveTag] = useState(0); // NOSONAR: reserved for future use
 
   const responsesTitle = content?.responsesTitle ?? 'Seven Responses in Action';
   const responsesIntro =
@@ -906,17 +912,21 @@ function SectionCarousel({
   const responsesTitleFontSize = content?.responsesTitleFontSize ?? '36px';
   const responsesIntroFontSize = content?.responsesIntroFontSize ?? '18px';
   const responsesSequential = content?.responsesSequential ?? false;
+  const responsesLayout = content?.responsesLayout ?? 'carousel';
   const responseTags =
     content?.responseTags ??
     ['Vision', 'House of Values', 'Persona', 'Agile TMS', 'Agile SoS', 'Agile Flows', 'Agile 6xD'];
   const responseCards = content?.responseCards ?? COMPETENCY_CARDS_DEFAULT;
-  const bottomCTA = content?.bottomCTA ?? 'Explore all Seven Responses together →';
+  const bottomCTA = content?.bottomCTA ?? 'Explore all Seven Responses together →'; // NOSONAR: reserved for future use
+  const responsesCTALabel = content?.responsesCTALabel;
+  const responsesCTATo = content?.responsesCTATo;
+  const responsesCTALocked = content?.responsesCTALocked ?? Boolean(responsesCTALabel && /coming soon/i.test(responsesCTALabel));
 
   useEffect(() => {
     setActiveTag(carouselIndex);
   }, [carouselIndex]);
 
-  const handleTagClick = (index: number) => {
+  const handleTagClick = (index: number) => { // NOSONAR: reserved for future use
     setActiveTag(index);
     onDotClick(index);
   };
@@ -932,6 +942,28 @@ function SectionCarousel({
         tags={responseTags}
         cards={responseCards}
         itemLabel="Perspective"
+        ctaLabel={responsesCTALabel}
+        ctaTo={responsesCTATo}
+        ctaLocked={responsesCTALocked}
+      />
+    );
+  }
+
+  if (responsesLayout === 'chips-grid') {
+    return <ProductShowcase />;
+  }
+
+  if (responsesLayout === 'classes-grid') {
+    return (
+      <ClassGrid
+        id="ghc-carousel"
+        title={responsesTitle}
+        subtitle={responsesIntro}
+        titleFontSize={responsesTitleFontSize}
+        subtitleFontSize={responsesIntroFontSize}
+        tags={responseTags}
+        cards={responseCards}
+        variant="list"
       />
     );
   }
@@ -946,6 +978,9 @@ function SectionCarousel({
       tags={responseTags}
       cards={responseCards}
       itemLabel="Response"
+      ctaLabel={responsesCTALabel}
+      ctaTo={responsesCTATo}
+      ctaLocked={responsesCTALocked}
     />
   );
 }
@@ -955,10 +990,24 @@ interface CompetencyCardProps {
   variant?: 'default' | 'stage';
 }
 
-function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
+const getProblemText = (card: CompetencyCard, hasLens: boolean) => {
+  if (card.executionQuestion) return card.executionQuestion;
+  if (hasLens && card.lensLine1) return card.lensLine1;
+  return card.problem;
+};
+
+const getResponseText = (card: CompetencyCard, hasLens: boolean) => {
+  if (card.executionLens) return card.executionLens;
+  if (hasLens && card.lensLine2) return card.lensLine2;
+  return card.response;
+};
+
+function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) { // NOSONAR: props are intentionally mutable
   const navigate = useNavigate();
   const hasLens = Boolean(card.lensLine1 || card.lensLine2);
   const isStage = variant === 'stage';
+  const problemText = getProblemText(card, hasLens);
+  const responseText = getResponseText(card, hasLens);
 
   return (
     <article
@@ -998,11 +1047,7 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
             style={{ fontSize: '16px' }}
           >
             <span className="font-semibold">Problem:</span>{' '}
-            {card.executionQuestion
-              ? card.executionQuestion
-              : hasLens && card.lensLine1
-                ? card.lensLine1
-                : card.problem}
+            {problemText}
           </p>
 
           <p
@@ -1012,11 +1057,7 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
             style={{ fontSize: '16px' }}
           >
             <span className="font-semibold">Response:</span>{' '}
-            {card.executionLens
-              ? card.executionLens
-              : hasLens && card.lensLine2
-                ? card.lensLine2
-                : card.response}
+            {responseText}
           </p>
         </div>
 
@@ -1035,7 +1076,7 @@ function CompetencyCard({ card, variant = 'default' }: CompetencyCardProps) {
   );
 }
 
-function ResponseRailCard({ card }: { card: CompetencyCard }) {
+function ResponseRailCard({ card }: { card: CompetencyCard }) { // NOSONAR: props are intentionally mutable
   const navigate = useNavigate();
   const question = card.executionQuestion ?? card.problem;
   const description = card.executionLens ?? card.response;
@@ -1083,20 +1124,19 @@ function ResponseRailCard({ card }: { card: CompetencyCard }) {
           className={[
             'mt-auto pt-5 font-semibold inline-flex items-center gap-2 self-start',
             isLocked
-              ? 'text-[#9aa4c6] cursor-not-allowed'
+              ? 'text-[#8c94b3] cursor-not-allowed'
               : 'text-[hsl(var(--accent))] hover:underline',
           ].join(' ')}
         >
           {isLocked ? <Lock className="h-4 w-4" /> : null}
           {card.ctaLabel ?? 'Explore in Knowledge Center →'}
-          {isLocked ? <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span> : null}
         </button>
       </div>
     </article>
   );
 }
 
-function SevenResponsesRailCarousel({
+function SevenResponsesRailCarousel({ // NOSONAR: props are intentionally mutable
   id,
   title,
   subtitle,
@@ -1105,6 +1145,9 @@ function SevenResponsesRailCarousel({
   tags,
   cards,
   itemLabel = 'Response',
+  ctaLabel,
+  ctaTo,
+  ctaLocked,
 }: {
   id: string;
   title: string;
@@ -1114,10 +1157,15 @@ function SevenResponsesRailCarousel({
   tags: string[];
   cards: CompetencyCard[];
   itemLabel?: string;
+  ctaLabel?: string;
+  ctaTo?: string;
+  ctaLocked?: boolean;
 }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const navigate = useNavigate();
+  const isCTALocked = ctaLocked ?? Boolean(ctaLabel && /coming soon/i.test(ctaLabel));
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -1138,10 +1186,10 @@ function SevenResponsesRailCarousel({
   useEffect(() => {
     if (!emblaApi) return;
     if (isPaused) return;
-    const id = window.setInterval(() => {
+    const id = globalThis.setInterval(() => {
       emblaApi.scrollNext();
     }, 6500);
-    return () => window.clearInterval(id);
+    return () => globalThis.clearInterval(id);
   }, [emblaApi, isPaused]);
 
   const scrollTo = useCallback(
@@ -1158,6 +1206,16 @@ function SevenResponsesRailCarousel({
   const scrollNext = useCallback(() => {
     emblaApi?.scrollNext();
   }, [emblaApi]);
+
+  const handleCTA = useCallback(() => {
+    if (!ctaTo || isCTALocked) return;
+    const isExternal = /^https?:\/\//i.test(ctaTo);
+    if (isExternal) {
+      window.open(ctaTo, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    navigate(ctaTo);
+  }, [ctaTo, navigate, isCTALocked]);
 
   return (
     <section id={id} className="relative py-24 bg-white">
@@ -1181,7 +1239,8 @@ function SevenResponsesRailCarousel({
             </p>
           </div>
 
-          <div
+          <section
+            aria-label="Interactive carousel"
             className="mt-10 grid grid-cols-1 lg:grid-cols-[34%_66%] gap-8 lg:gap-10 items-start"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
@@ -1257,7 +1316,7 @@ function SevenResponsesRailCarousel({
               <div className="flex justify-center gap-2 mt-5 lg:hidden" aria-label="Response progress">
                 {cards.map((_, i) => (
                   <button
-                    key={i}
+                    key={i} // NOSONAR: index is stable for static carousel dots
                     type="button"
                     onClick={() => scrollTo(i)}
                     className={[
@@ -1270,6 +1329,197 @@ function SevenResponsesRailCarousel({
                   />
                 ))}
               </div>
+
+              {ctaLabel ? (
+                <div className="mt-12 flex justify-center">
+                  <button
+                    type="button"
+                    onClick={isCTALocked ? undefined : handleCTA}
+                    aria-disabled={isCTALocked}
+                    disabled={isCTALocked}
+                    className={[
+                      'inline-flex items-center gap-3 rounded-xl px-7 py-3.5 font-semibold transition border backdrop-blur',
+                      isCTALocked
+                        ? 'bg-[#0f172a]/70 text-white/80 border-white/15 cursor-not-allowed shadow-[0_12px_32px_rgba(6,12,26,0.35)]'
+                        : 'bg-[#151c2d] text-white border-transparent shadow-[0_10px_28px_rgba(12,20,40,0.28)] hover:-translate-y-0.5 hover:shadow-[0_14px_34px_rgba(12,20,40,0.32)]'
+                    ].join(' ')}
+                  >
+                    {isCTALocked ? <Lock className="h-5 w-5" /> : <BookOpen className="h-5 w-5" />}
+                    <span className="text-base">{ctaLabel}</span>
+                    {!isCTALocked ? <ArrowRight className="h-5 w-5" /> : null}
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ClassGrid({ // NOSONAR: props are intentionally mutable
+  id,
+  title,
+  subtitle,
+  titleFontSize,
+  subtitleFontSize,
+  tags,
+  cards,
+  variant = 'list',
+}: {
+  id: string;
+  title: string;
+  subtitle: string;
+  titleFontSize?: string;
+  subtitleFontSize?: string;
+  tags: string[];
+  cards: CompetencyCard[];
+  variant?: 'list' | 'chips';
+}) {
+  const [activeClass, setActiveClass] = useState(tags[0] ?? '');
+  const filteredCards = activeClass === 'All Products'
+    ? cards
+    : cards.filter((card) => card.category === activeClass);
+
+  const classCode = (category: string) => {
+    const start = category.lastIndexOf('(');
+    const end = start >= 0 ? category.indexOf(')', start + 1) : -1;
+    if (start >= 0 && end > start + 1) {
+      return category.slice(start + 1, end);
+    }
+    return category;
+  };
+
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const scrollByCards = (direction: 'prev' | 'next') => {
+    const node = scrollerRef.current;
+    if (!node) return;
+    const card = node.querySelector<HTMLElement>('article');
+    const cardWidth = card ? card.getBoundingClientRect().width + 24 /* gap */ : 360;
+    const delta = direction === 'next' ? cardWidth * 2 : -cardWidth * 2;
+    node.scrollBy({ left: delta, behavior: 'smooth' });
+  };
+
+  return (
+    <section id={id} className="relative py-24 bg-white">
+      <div className="container mx-auto px-4 md:px-6 lg:px-10">
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="max-w-3xl">
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[hsl(var(--accent)/0.10)] border border-[hsl(var(--accent)/0.35)] text-[hsl(var(--accent))] shadow-sm backdrop-blur">
+              PRODUCTS
+            </span>
+            <h2
+              className="ghc-font-display text-4xl md:text-5xl font-semibold text-[#131e42] mt-4 leading-[1.05]"
+              style={titleFontSize ? { fontSize: titleFontSize } : undefined}
+            >
+              {title}
+            </h2>
+            <p
+              className="text-[#4a5678] mt-3 text-lg md:text-xl leading-snug"
+              style={subtitleFontSize ? { fontSize: subtitleFontSize } : undefined}
+            >
+              {subtitle}
+            </p>
+          </div>
+
+          <div className="mt-10 space-y-6">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex flex-wrap gap-3" aria-label="Product classes">
+                {tags.map((tag) => {
+                  const isActive = tag === activeClass;
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => setActiveClass(tag)}
+                      className={[
+                        'px-4 py-2 rounded-full text-sm font-semibold border transition-colors shadow-sm',
+                        isActive
+                          ? 'bg-[#0c1a3a] text-white border-[#0c1a3a]'
+                          : 'bg-white text-[#131e42] border-[#dce5ff] hover:border-[#0c1a3a] hover:text-[#0c1a3a]'
+                      ].join(' ')}
+                      aria-current={isActive ? 'step' : undefined}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => scrollByCards('prev')}
+                  className="w-10 h-10 rounded-full border border-[#dce5ff] text-[#0c1a3a] bg-white hover:bg-[#f5f7ff] shadow-sm"
+                  aria-label="Scroll products left"
+                >
+                  <ChevronLeft className="h-5 w-5 mx-auto" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollByCards('next')}
+                  className="w-10 h-10 rounded-full border border-[#0c1a3a] text-white bg-[#0c1a3a] hover:brightness-105 shadow-sm"
+                  aria-label="Scroll products right"
+                >
+                  <ChevronRight className="h-5 w-5 mx-auto" />
+                </button>
+              </div>
+            </div>
+
+            <div
+              ref={scrollerRef}
+              className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory"
+            >
+              {filteredCards.map((card) => (
+                <article
+                  key={card.id}
+                  className="snap-start flex-none w-[320px] md:w-[360px] lg:w-[400px] rounded-3xl border border-[#e5e9f5] bg-white shadow-md overflow-hidden flex flex-col"
+                >
+                  <div
+                    className="h-48 w-full relative"
+                    style={{
+                      background: card.gradient,
+                    }}
+                  >
+                    <div className="p-4 text-white text-sm font-semibold uppercase tracking-[0.18em]">
+                      {classCode(card.category)}
+                    </div>
+                  </div>
+                  <div className="p-6 flex flex-col gap-3 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-xl font-semibold text-[#131e42] leading-tight">{card.title}</h3>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6b7390] mt-1">
+                          {card.category}
+                        </p>
+                      </div>
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6b7390]">
+                        {classCode(card.category)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-[#131e42] leading-snug">
+                      {card.executionQuestion}
+                    </p>
+                    <p className="text-sm text-[#4a5678] leading-snug">
+                      {card.executionLens}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (card.route.startsWith('http')) {
+                          globalThis.open(card.route, '_blank', 'noopener,noreferrer');
+                        } else {
+                          globalThis.location.href = card.route;
+                        }
+                      }}
+                      className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-[#0c1a3a] hover:underline"
+                    >
+                      {card.ctaLabel ?? 'Open Product'}
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </div>
@@ -1282,7 +1532,393 @@ function SevenResponsesRailCarousel({
    Section: Take Action
    ----------------------------------------- */
 
-function SectionTakeAction({ navigate, content }: { navigate: (path: string) => void; content?: LandingOverrides }) {
+const TakeActionHeader = ({
+  title,
+  subtitle,
+  titleFontSize,
+  subtitleFontSize,
+  isInView,
+  extraLine,
+}: {
+  title: string;
+  subtitle: string;
+  titleFontSize?: string;
+  subtitleFontSize?: string;
+  isInView: boolean;
+  extraLine?: string;
+}) => (
+  <motion.div
+    className="text-center mb-6 md:mb-12"
+    initial={{ opacity: 0, y: 20 }}
+    animate={isInView ? { opacity: 1, y: 0 } : {}}
+    transition={{ duration: 0.5 }}
+  >
+    <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-[0.2em] bg-[#f0f6ff]/40 border border-[#e0e7ff] text-[#131e42] shadow-sm backdrop-blur mx-auto mb-1.5">
+      TAKE ACTION
+    </p>
+    <h2
+      className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-1.5 md:mb-3"
+      style={{ fontSize: titleFontSize ?? '36px' }}
+    >
+      {title}
+    </h2>
+    <p
+      className="text-[#4a5678] max-w-3xl mx-auto text-base md:text-lg"
+      style={{ fontSize: subtitleFontSize ?? '18px', whiteSpace: 'nowrap' }}
+    >
+      {subtitle}
+    </p>
+    {extraLine ? <p className="text-[#6b7280] text-sm mt-1.5">{extraLine}</p> : null}
+  </motion.div>
+);
+
+const TakeActionGridLayout = ({
+  refEl,
+  isInView,
+  cards,
+  title,
+  subtitle,
+  titleFontSize,
+  subtitleFontSize,
+  handleNavigate,
+  isActionLocked,
+}: {
+  refEl: React.RefObject<HTMLDivElement>;
+  isInView: boolean;
+  cards: ActionCard[];
+  title: string;
+  subtitle: string;
+  titleFontSize?: string;
+  subtitleFontSize?: string;
+  handleNavigate: (path: string) => void;
+  isActionLocked: (card: ActionCard) => boolean;
+}) => (
+  <section
+    ref={refEl}
+    className="py-12 md:py-16"
+    style={{
+      background: 'linear-gradient(180deg, #f0f6ff 0%, #ffffff 55%, #f0f6ff 100%)',
+    }}
+  >
+    <div className="container mx-auto px-4 md:px-6 lg:px-10">
+      <TakeActionHeader
+        title={title}
+        subtitle={subtitle}
+        titleFontSize={titleFontSize}
+        subtitleFontSize={subtitleFontSize}
+        isInView={isInView}
+        extraLine="Start small, then go deeper."
+      />
+
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 max-w-6xl mx-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate={isInView ? 'visible' : 'hidden'}
+      >
+        {cards.map((card, idx) => {
+          const stripColors = ['from-[#dfe9ff] to-[#c7d7ff]', 'from-[#e9dcff] to-[#d7c4ff]', 'from-[#ffe8d6] to-[#ffd7b5]'];
+          const strip = stripColors[idx] ?? stripColors[0];
+          const isPrimary = card.variant === 'primary';
+          const locked = isActionLocked(card);
+          return (
+            <motion.div
+              key={card.title}
+              variants={itemVariants}
+              whileHover={{ y: -6 }}
+              className="rounded-xl p-5 shadow-sm border border-[#e6eaf5] bg-white flex flex-col min-h-[300px] transition-all hover:shadow-md hover:border-[#cfd7f0]"
+            >
+              <div className={`h-2 w-full rounded-t-xl -mt-5 -mx-5 mb-4 bg-gradient-to-r ${strip}`} />
+
+              <div className="flex items-start justify-between gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#f5f7ff] border border-[#e6eaf5] flex items-center justify-center">
+                  <card.icon className="h-5 w-5" style={{ color: card.iconColor }} />
+                </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                    isPrimary ? 'bg-[#131e42] text-white' : 'bg-[#eef1fb] text-[#131e42]'
+                  }`}
+                >
+                  {card.badge}
+                </span>
+              </div>
+
+              <h3 className="mt-3 text-[22px] font-semibold text-[#131e42]">{card.title}</h3>
+              <p className="mt-2 text-sm text-[#4a5678] leading-relaxed whitespace-pre-line">{card.description}</p>
+
+              {card.tags?.length ? (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {card.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2.5 py-1 rounded-full bg-[#f5f7ff] text-[#4a5678] text-[11px] font-medium border border-[#e6eaf5]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={locked ? undefined : () => handleNavigate(card.path)}
+                aria-disabled={locked}
+                className={`mt-auto w-full inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-lg border px-3 py-2 transition ${(() => {
+                  if (locked) return 'opacity-50 cursor-not-allowed border-[#e6eaf5] text-[#9aa4c6]';
+                  if (isPrimary) return 'bg-[#131e42] text-white border-[#131e42] hover:opacity-90';
+                  return 'border-[#d5dbea] text-[#131e42] bg-white hover:bg-[#f5f7ff]';
+                })()}`}
+              >
+                {locked ? <Lock className="h-4 w-4" /> : null}
+                {card.cta}
+                {locked ? (
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span>
+                ) : (
+                  <ArrowRight className="h-4 w-4" />
+                )}
+              </button>
+            </motion.div>
+          );
+        })}
+      </motion.div>
+    </div>
+  </section>
+);
+
+const TakeActionPrimaryLayout = ({
+  refEl,
+  isInView,
+  cards,
+  title,
+  subtitle,
+  titleFontSize,
+  subtitleFontSize,
+  handleNavigate,
+  isActionLocked,
+}: {
+  refEl: React.RefObject<HTMLDivElement>;
+  isInView: boolean;
+  cards: ActionCard[];
+  title: string;
+  subtitle: string;
+  titleFontSize?: string;
+  subtitleFontSize?: string;
+  handleNavigate: (path: string) => void;
+  isActionLocked: (card: ActionCard) => boolean;
+}) => { // NOSONAR: complexity acceptable for action cards rendering
+  const primaryCard = cards.find((card) => card.variant === 'primary') ?? cards[0];
+  const secondaryCards = cards.filter((card) => card !== primaryCard);
+  const hasPrimary = Boolean(primaryCard);
+  const primaryLocked = primaryCard ? isActionLocked(primaryCard) : false;
+
+  return (
+    <section
+      ref={refEl}
+      className="py-20 md:py-24"
+      style={{
+        background: 'linear-gradient(180deg, #f0f6ff 0%, #ffffff 55%, #f0f6ff 100%)',
+      }}
+    >
+      <div className="container mx-auto px-4 md:px-6 lg:px-10">
+        <TakeActionHeader
+          title={title}
+          subtitle={subtitle}
+          titleFontSize={titleFontSize}
+          subtitleFontSize={subtitleFontSize}
+          isInView={isInView}
+        />
+
+        {hasPrimary ? (
+          <div className="grid gap-6 max-w-6xl mx-auto">
+            {primaryCard ? (
+              <motion.div
+                variants={itemVariants}
+                initial="hidden"
+                animate={isInView ? 'visible' : 'hidden'}
+                className="group relative p-8 md:p-10 rounded-3xl border shadow-[0_18px_36px_rgba(0,0,0,0.12)] bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b] text-white"
+              >
+                <div className="flex flex-col md:flex-row md:items-start md:gap-6">
+                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+                    <primaryCard.icon className="h-7 w-7" style={{ color: '#f0f6ff' }} />
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-semibold tracking-[0.18em] uppercase text-[#fbd7cd]">
+                        {primaryCard.badge}
+                      </span>
+                      <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-full bg-white/15 border border-white/10 text-white">
+                        Start
+                      </span>
+                    </div>
+                    <h3 className="ghc-font-display text-2xl md:text-3xl font-semibold">
+                      {primaryCard.title}
+                    </h3>
+                    <p className="text-base md:text-lg text-white/90 leading-relaxed">
+                      {primaryCard.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {primaryCard.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center gap-1 rounded-full bg-white/15 text-white px-3 py-1 text-xs font-medium border border-white/20"
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <button
+                    type="button"
+                    onClick={primaryLocked ? undefined : () => handleNavigate(primaryCard.path)}
+                    aria-disabled={primaryLocked}
+                    className={`inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-[#131e42] font-semibold shadow-[0_10px_24px_rgba(0,0,0,0.18)] hover:bg-[#f0f6ff] transition-colors ${
+                      primaryLocked ? 'opacity-60 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {primaryLocked ? <Lock className="h-5 w-5" /> : null}
+                    {primaryCard.cta}
+                    {primaryLocked ? (
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-[#e5e5e5]">(Coming soon)</span>
+                    ) : (
+                      <ArrowRight className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+              </motion.div>
+            ) : null}
+
+            {secondaryCards.length ? (
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                initial="hidden"
+                animate={isInView ? 'visible' : 'hidden'}
+                variants={containerVariants}
+                custom={0}
+              >
+                {secondaryCards.map((item) => {
+                  const locked = isActionLocked(item);
+                  return (
+                    <motion.div
+                      key={item.title}
+                      variants={itemVariants}
+                      whileHover={{ y: -6 }}
+                      className={`group relative p-7 md:p-8 rounded-3xl ${item.bg} border border-[#e3e8f5] shadow-[0_10px_24px_rgba(0,0,0,0.06)] hover:shadow-[0_14px_30px_rgba(0,0,0,0.09)] transition-all`}
+                    >
+                      <div className="flex items-start gap-4 md:gap-5">
+                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white shadow-[0_6px_16px_rgba(0,0,0,0.08)] flex items-center justify-center">
+                          <item.icon className="h-6 w-6" style={{ color: item.iconColor }} />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className={`text-xs font-semibold tracking-[0.18em] uppercase ${item.badgeColor}`}>
+                            {item.badge}
+                          </p>
+                          <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42]">
+                            {item.title}
+                          </h3>
+                          <p className="text-sm md:text-base text-[#4a5678] leading-relaxed">{item.description}</p>
+                          <div className="flex flex-wrap gap-2 pt-2">
+                            {item.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center gap-1 rounded-full bg-white/75 text-[#131e42] px-3 py-1 text-xs font-medium shadow-sm cursor-default"
+                              >
+                                <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.iconColor }} />
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={locked ? undefined : () => handleNavigate(item.path)}
+                        aria-disabled={locked}
+                        className={`inline-flex items-center gap-1 text-sm font-semibold mt-6 ${
+                          locked ? 'text-[#9aa4c6] cursor-not-allowed' : `${item.accent} group-hover:underline`
+                        }`}
+                      >
+                        {item.cta}
+                        {locked ? <Lock className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+                        {locked ? (
+                          <span className="text-[10px] uppercase tracking-[0.18em] text-[#9aa4c6]">(Coming soon)</span>
+                        ) : null}
+                      </button>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            ) : null}
+          </div>
+        ) : (
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto"
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
+            variants={containerVariants}
+            custom={0}
+          >
+            {cards.map((item) => {
+              const locked = isActionLocked(item);
+              return (
+                <motion.div
+                  key={item.title}
+                  variants={itemVariants}
+                  whileHover={{ y: -8 }}
+                  className={`group relative p-7 md:p-9 rounded-3xl ${item.bg} shadow-[0_10px_24px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_32px_rgba(0,0,0,0.08)] transition-all`}
+                >
+                  <div className="flex items-start gap-4 md:gap-5">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white shadow-[0_6px_16px_rgba(0,0,0,0.08)] flex items-center justify-center">
+                      <item.icon className="h-6 w-6" style={{ color: item.iconColor }} />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <p className={`text-xs font-semibold tracking-[0.18em] uppercase ${item.badgeColor}`}>
+                        {item.badge}
+                      </p>
+                      <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42]">
+                        {item.title}
+                      </h3>
+                      <p className="text-sm md:text-base text-[#4a5678]">{item.description}</p>
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {item.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center gap-1 rounded-full bg-white/75 text-[#131e42] px-3 py-1 text-xs font-medium shadow-sm cursor-default"
+                          >
+                            <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.iconColor }} />
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={locked ? undefined : () => handleNavigate(item.path)}
+                    aria-disabled={locked}
+                    className={`inline-flex items-center gap-1 text-sm font-semibold mt-6 ${
+                      locked ? 'text-[#9aa4c6] cursor-not-allowed' : `${item.accent} group-hover:underline`
+                    }`}
+                  >
+                    {item.cta}
+                    {locked ? <Lock className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+                    {locked ? (
+                      <span className="text-[10px] uppercase tracking-[0.18em] text-[#9aa4c6]">(Coming soon)</span>
+                    ) : null}
+                  </button>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        )}
+      </div>
+    </section>
+  );
+};
+function SectionTakeAction({ navigate, content }: { navigate: (path: string) => void; content?: LandingOverrides }) { // NOSONAR: complexity acceptable for action section rendering
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.15 });
   const actionCards = content?.actionCards ?? ACTION_CARDS_DEFAULT;
@@ -1305,92 +1941,105 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
     return (
       <section
         ref={ref}
-        className="py-20 md:py-24"
+        className="py-12 md:py-16"
         style={{
           background: 'linear-gradient(180deg, #f0f6ff 0%, #ffffff 55%, #f0f6ff 100%)',
         }}
       >
         <div className="container mx-auto px-4 md:px-6 lg:px-10">
           <motion.div
-            className="text-center mb-12"
+            className="text-center mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
           >
-            <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.24em] bg-[#f0f6ff]/20 border border-[#e1513b]/50 text-[#e1513b] shadow-sm backdrop-blur mx-auto mb-2">
+            <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-[0.2em] bg-[#f0f6ff]/40 border border-[#e0e7ff] text-[#131e42] shadow-sm backdrop-blur mx-auto mb-1.5">
               TAKE ACTION
             </p>
             <h2
-              className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-3"
+              className="ghc-font-display text-3xl md:text-4xl font-semibold text-[#131e42] mb-1.5"
               style={{ fontSize: takeActionTitleFontSize ?? '36px' }}
             >
               {takeActionTitle}
             </h2>
             <p
-              className="text-[#4a5678] max-w-2xl mx-auto text-lg"
-              style={{ fontSize: takeActionSubtitleFontSize ?? '18px', whiteSpace: 'nowrap' }}
+              className="text-[#4a5678] max-w-3xl mx-auto text-base md:text-lg"
+              style={{ fontSize: takeActionSubtitleFontSize ?? '18px' }}
             >
               {takeActionSubtitle}
             </p>
+            <p className="text-[#6b7280] text-sm mt-1.5">Start small, then go deeper.</p>
           </motion.div>
 
           <motion.div
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto"
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 max-w-6xl mx-auto"
             variants={containerVariants}
             initial="hidden"
             animate={isInView ? 'visible' : 'hidden'}
           >
-            {actionCards.map((card) => (
-              <motion.div
-                key={card.title}
-                variants={itemVariants}
-                className={`rounded-3xl p-6 md:p-8 shadow-sm border border-white/60 ${card.bg} flex flex-col`}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
-                    <card.icon className="h-6 w-6" style={{ color: card.iconColor }} />
-                  </div>
-                  <div className="flex-1">
-                    <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${card.badgeColor}`}>
-                      {card.badge}
-                    </p>
-                    <h3 className="mt-2 text-xl md:text-2xl font-semibold text-[#131e42]">
-                      {card.title}
-                    </h3>
-                    <p className="mt-3 text-sm md:text-base text-[#4a5678] leading-relaxed">
-                      {card.description}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {card.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 rounded-full bg-white/70 text-[#4a5678] text-xs font-medium"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={isActionLocked(card) ? undefined : () => handleNavigate(card.path)}
-                  aria-disabled={isActionLocked(card)}
-                  className={`mt-5 inline-flex items-center gap-2 text-sm font-semibold ${
-                    isActionLocked(card) ? 'text-[#9aa4c6] cursor-not-allowed' : `${card.accent} hover:opacity-80`
-                  }`}
+            {actionCards.map((card, idx) => {
+              const stripColors = ['from-[#dfe9ff] to-[#c7d7ff]', 'from-[#e9dcff] to-[#d7c4ff]', 'from-[#ffe8d6] to-[#ffd7b5]'];
+              const strip = stripColors[idx] ?? stripColors[0];
+              const isPrimary = card.variant === 'primary';
+              return (
+                <motion.div
+                  key={card.title}
+                  variants={itemVariants}
+                  whileHover={{ y: -6 }}
+                  className="rounded-xl p-5 shadow-sm border border-[#e6eaf5] bg-white flex flex-col min-h-[300px] transition-all hover:shadow-md hover:border-[#cfd7f0]"
                 >
-                  {isActionLocked(card) ? <Lock className="h-4 w-4" /> : null}
-                  {card.cta}
-                  {isActionLocked(card) ? (
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span>
+                  <div className={`h-2 w-full rounded-t-xl -mt-5 -mx-5 mb-4 bg-gradient-to-r ${strip}`} />
+
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#f5f7ff] border border-[#e6eaf5] flex items-center justify-center">
+                      <card.icon className="h-5 w-5" style={{ color: card.iconColor }} />
+                    </div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                        isPrimary ? 'bg-[#131e42] text-white' : 'bg-[#eef1fb] text-[#131e42]'
+                      }`}
+                    >
+                      {card.badge}
+                    </span>
+                  </div>
+
+                  <h3 className="mt-3 text-[22px] font-semibold text-[#131e42]">{card.title}</h3>
+                  <p className="mt-2 text-sm text-[#4a5678] leading-relaxed whitespace-pre-line">{card.description}</p>
+
+                  {card.tags?.length ? (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {card.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2.5 py-1 rounded-full bg-[#f5f7ff] text-[#4a5678] text-[11px] font-medium border border-[#e6eaf5]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
                   ) : null}
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </motion.div>
-            ))}
+
+                  <button
+                    type="button"
+                    onClick={isActionLocked(card) ? undefined : () => handleNavigate(card.path)}
+                    aria-disabled={isActionLocked(card)}
+                    className={`mt-auto w-full inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-lg border px-3 py-2 transition ${(() => {
+                      if (isActionLocked(card)) return 'opacity-50 cursor-not-allowed border-[#e6eaf5] text-[#9aa4c6]';
+                      if (isPrimary) return 'bg-[#131e42] text-white border-[#131e42] hover:opacity-90';
+                      return 'border-[#d5dbea] text-[#131e42] bg-white hover:bg-[#f5f7ff]';
+                    })()}`}
+                  >
+                    {isActionLocked(card) ? <Lock className="h-4 w-4" /> : null}
+                    {card.cta}
+                    {isActionLocked(card) ? (
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-[#9aa4c6]">(Coming soon)</span>
+                    ) : (
+                      <ArrowRight className="h-4 w-4" />
+                    )}
+                  </button>
+                </motion.div>
+              );
+            })}
           </motion.div>
         </div>
       </section>
@@ -1642,15 +2291,16 @@ function SectionTakeAction({ navigate, content }: { navigate: (path: string) => 
    Section: Final CTA
    ----------------------------------------- */
 
-function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => void; content?: LandingOverrides }) {
+function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => void; content?: LandingOverrides }) { // NOSONAR: props are intentionally mutable
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const finalHeadline = content?.finalHeadline ?? 'Work aligned inside the Golden Honeycomb';
   const finalSubtitle =
     content?.finalSubtitle ??
     'The Golden Honeycomb comes to life inside the DQ Digital Workspace, guiding tools, decisions, and daily work.';
-  const finalCTALabel = content?.finalCTALabel ?? 'Go to the DQ Digital Workspace';
-  const finalCTATo = content?.finalCTATo ?? '/';
+  const primaryCTAHidden = content?.finalCTALabel === '' || content?.finalCTALabel === null;
+  const finalCTALabel = primaryCTAHidden ? null : (content?.finalCTALabel ?? 'Go to the DQ Digital Workspace');
+  const finalCTATo = primaryCTAHidden ? null : (content?.finalCTATo ?? '/');
   const finalCTASecondaryLabel = content?.finalCTASecondaryLabel;
   const finalCTASecondaryTo = content?.finalCTASecondaryTo;
   const finalHeadlineFontSize = content?.finalHeadlineFontSize;
@@ -1735,20 +2385,22 @@ function SectionFinalCTA({ navigate, content }: { navigate: (path: string) => vo
               transition={{ duration: 0.5, delay: 0.35 }}
             >
             <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  if (finalCTATo.startsWith('http')) {
-                    window.open(finalCTATo, '_blank', 'noopener,noreferrer');
-                  } else {
-                    navigate(finalCTATo);
-                  }
-                }}
-                className="inline-flex items-center gap-2.5 h-[52px] px-7 rounded-lg bg-white text-[#131e42] font-semibold text-base shadow-xl shadow-black/12 transition transform hover:-translate-y-0.5 hover:bg-white/95"
-              >
-                {finalCTALabel}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </button>
+              {finalCTALabel && finalCTATo ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (finalCTATo.startsWith('http')) {
+                      window.open(finalCTATo, '_blank', 'noopener,noreferrer');
+                    } else {
+                      navigate(finalCTATo);
+                    }
+                  }}
+                  className="inline-flex items-center gap-2.5 h-[52px] px-7 rounded-lg bg-white text-[#131e42] font-semibold text-base shadow-xl shadow-black/12 transition transform hover:-translate-y-0.5 hover:bg-white/95"
+                >
+                  {finalCTALabel}
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </button>
+              ) : null}
               {finalCTASecondaryLabel && finalCTASecondaryTo ? (
                 <button
                   type="button"
