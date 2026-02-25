@@ -12,6 +12,7 @@ import InsightComingSoonPage from "./pages/InsightComingSoonPage";
 import ResourceComingSoonPage from "./pages/ResourceComingSoonPage";
 import EventComingSoonPage from "./pages/EventComingSoonPage";
 import FooterLinkComingSoonPage from "./pages/FooterLinkComingSoonPage";
+import OnboardingLanding from "./pages/OnboardingLanding";
 
 export function App() {
   return (
@@ -25,14 +26,7 @@ export function App() {
         <Route path="/onboarding" element={<OnboardingMarketplacePage />} />
         <Route path="/onboarding-flows" element={<Navigate to="/onboarding" replace />} />
         <Route path="/onboarding/start" element={<div>HR-style form lives here</div>} />
-        <Route
-          path="/onboarding/welcome"
-          element={
-            <div className="p-10 text-center text-lg font-semibold text-[#030F35]">
-              Welcome to DQ onboarding — dedicated content is coming soon.
-            </div>
-          }
-        />
+        <Route path="/onboarding/welcome" element={<OnboardingLanding />} />
         <Route
           path="/onboarding/profile"
           element={
@@ -109,7 +103,7 @@ export function App() {
           element={<ComingSoonCountdownPage title="Scrum Master Space" />}
         />
         <Route path="*" element={<Navigate to="/404" replace />} />
-      </Routes>
+      </Routes >
     </>
   );
 }

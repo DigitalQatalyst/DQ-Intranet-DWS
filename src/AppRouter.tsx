@@ -55,6 +55,11 @@ import PulseMarketplacePage from "./pages/pulse/PulseMarketplacePage";
 import { PulseDetailPage } from "./pages/pulse/PulseDetailPage";
 import EventsMarketplacePage from "./pages/events/EventsMarketplacePage";
 import { EventDetailPage } from "./pages/events/EventDetailPage";
+import { OnboardingJourney } from "./pages/OnboardingJourney";
+import GHCLanding from "./pages/GHCLanding";
+import SixXDLanding from "./pages/6XDLanding";
+import SixXDProductsLanding from "./pages/6XDProductsLanding";
+import DigitalAcceleratorsLanding from "./pages/DigitalAcceleratorsLanding";
 
 export function AppRouter() {
   const [bookmarkedCourses, setBookmarkedCourses] = useState<string[]>([]);
@@ -98,90 +103,95 @@ export function AppRouter() {
     <QueryClientProvider client={queryClient}>
       <ApolloProvider client={client}>
         <BrowserRouter>
-        <AuthProvider>
-          <CommunitiesAuthProvider>
-            <ChatBot />
-            <ProtectedRoute>
-              <Routes>
-                <Route path="/discover-dq" element={<DiscoverDQ />} />
-                <Route path="/coming-soon" element={<ComingSoonPage />} />
-                <Route path="/growth-sectors-coming-soon" element={<GrowthSectorsComingSoon />} />
-                <Route path="/*" element={<App />} />
-                <Route path="/courses/:itemId" element={<LmsCourseDetailPage />} />
-                <Route path="/lms" element={<LmsCourses />} />
-                <Route path="/lms/:slug/reviews" element={<LmsCourseReviewsPage />} />
-                <Route 
-                  path="/lms/:slug" 
-                  element={<LmsCourseDetailPageWrapper />} 
-                />
-                <Route
-                  path="/onboarding/:itemId"
-                  element={
-                    <MarketplaceDetailsPage
-                      marketplaceType="onboarding"
-                    />
-                  }
-                />
-                <Route
-                  path="/onboarding/:itemId/details"
-                  element={
-                    <MarketplaceDetailsPage
-                      marketplaceType="onboarding"
-                    />
-                  }
-                />
-                <Route path="/marketplace/*" element={<MarketplaceRouter />} />
-                {/* Admin - Guides CRUD */}
-                <Route path="/admin/guides" element={<AdminGuidesList />} />
-                <Route path="/admin/guides/new" element={<GuideEditor />} />
-                <Route path="/admin/guides/:id" element={<GuideEditor />} />
-                {/* Canonical and compatibility routes for Guides marketplace */}
-                <Route path="/guides" element={<Navigate to="/marketplace/guides" replace />} />
-                <Route path="/knowledge-hub" element={<Navigate to="/marketplace/guides" replace />} />
-                <Route
-                  path="/dashboard/*"
-                  element={<DashboardRouter />}
-                />
-                <Route path="/asset-library" element={<AssetLibraryPage />} />
-                <Route path="/blueprints" element={<BlueprintsPage />} />
-                <Route path="/blueprints/:projectId" element={<BlueprintsPage />} />
-                <Route
-                  path="/blueprints/:projectId/:folderId"
-                  element={<BlueprintsPage />}
-                />
-                <Route path="/play/dq-agile-kpis" element={<DQAgileKPIsPage />} />
-                <Route path="/discover-dq" element={<DiscoverDQ />} />
-                <Route path="/thank-you" element={<ThankYou />} />
-                {/* Redirect encoded leading-space path to canonical route */}
-                <Route path="/%20marketplace/news" element={<Navigate to="/marketplace/news" replace />} />
-                <Route path="/events" element={<EventsPage />} />
-                <Route path="/communities/*" element={<CommunitiesRouter />} />
-                <Route path="/community/:id" element={<Community />} />
-                <Route path="/community/:id/members" element={<CommunityMembers />} />
-                <Route path="/community/:id/settings" element={<CommunitySettings />} />
-                <Route path="/community/:id/analytics" element={<CommunityAnalytics />} />
-                <Route path="/create-post" element={<CreatePost />} />
-                <Route path="/post/:id" element={<PostDetail />} />
-                <Route path="/dq-comms" element={<DQCommsPage />} />
-                <Route path="/marketplace/pulse" element={<PulseMarketplacePage />} />
-                <Route path="/marketplace/pulse/detailsPage" element={<PulseDetailPage />} />
-                <Route path="/pulse/:id" element={<PulseDetailPage />} />
-                <Route path="/marketplace/events" element={<EventsMarketplacePage />} />
-                <Route path="/marketplace/events/detailsPage" element={<EventDetailPage />} />
-                <Route path="/events/:id" element={<EventDetailPage />} />
-                <Route path="/work-center/*" element={<WorkCenterRouter />} />
-                <Route
-                  path="/women-entrepreneurs"
-                  element={<WomenEntrepreneursPage />}
-                />
-                <Route path="/404" element={<NotFound />} />
-                <Route path="*" element={<Navigate to="/404" replace />} />
-              </Routes>
-            </ProtectedRoute>
-          </CommunitiesAuthProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </ApolloProvider>
+          <AuthProvider>
+            <CommunitiesAuthProvider>
+              <ChatBot />
+              <ProtectedRoute>
+                <Routes>
+                  <Route path="/discover-dq" element={<DiscoverDQ />} />
+                  <Route path="/coming-soon" element={<ComingSoonPage />} />
+                  <Route path="/growth-sectors-coming-soon" element={<GrowthSectorsComingSoon />} />
+                  <Route path="/*" element={<App />} />
+                  <Route path="/courses/:itemId" element={<LmsCourseDetailPage />} />
+                  <Route path="/lms" element={<LmsCourses />} />
+                  <Route path="/lms/:slug/reviews" element={<LmsCourseReviewsPage />} />
+                  <Route
+                    path="/lms/:slug"
+                    element={<LmsCourseDetailPageWrapper />}
+                  />
+                  <Route
+                    path="/onboarding/:itemId"
+                    element={
+                      <MarketplaceDetailsPage
+                        marketplaceType="onboarding"
+                      />
+                    }
+                  />
+                  <Route
+                    path="/onboarding/:itemId/details"
+                    element={
+                      <MarketplaceDetailsPage
+                        marketplaceType="onboarding"
+                      />
+                    }
+                  />
+                  <Route path="/onboarding/journey" element={<OnboardingJourney />} />
+                  <Route path="/ghc" element={<GHCLanding />} />
+                  <Route path="/6xd" element={<SixXDLanding />} />
+                  <Route path="/6xd-products" element={<SixXDProductsLanding />} />
+                  <Route path="/knowledge-center/products/digital-accelerators" element={<DigitalAcceleratorsLanding />} />
+                  <Route path="/marketplace/*" element={<MarketplaceRouter />} />
+                  {/* Admin - Guides CRUD */}
+                  <Route path="/admin/guides" element={<AdminGuidesList />} />
+                  <Route path="/admin/guides/new" element={<GuideEditor />} />
+                  <Route path="/admin/guides/:id" element={<GuideEditor />} />
+                  {/* Canonical and compatibility routes for Guides marketplace */}
+                  <Route path="/guides" element={<Navigate to="/marketplace/guides" replace />} />
+                  <Route path="/knowledge-hub" element={<Navigate to="/marketplace/guides" replace />} />
+                  <Route
+                    path="/dashboard/*"
+                    element={<DashboardRouter />}
+                  />
+                  <Route path="/asset-library" element={<AssetLibraryPage />} />
+                  <Route path="/blueprints" element={<BlueprintsPage />} />
+                  <Route path="/blueprints/:projectId" element={<BlueprintsPage />} />
+                  <Route
+                    path="/blueprints/:projectId/:folderId"
+                    element={<BlueprintsPage />}
+                  />
+                  <Route path="/play/dq-agile-kpis" element={<DQAgileKPIsPage />} />
+                  <Route path="/discover-dq" element={<DiscoverDQ />} />
+                  <Route path="/thank-you" element={<ThankYou />} />
+                  {/* Redirect encoded leading-space path to canonical route */}
+                  <Route path="/%20marketplace/news" element={<Navigate to="/marketplace/news" replace />} />
+                  <Route path="/events" element={<EventsPage />} />
+                  <Route path="/communities/*" element={<CommunitiesRouter />} />
+                  <Route path="/community/:id" element={<Community />} />
+                  <Route path="/community/:id/members" element={<CommunityMembers />} />
+                  <Route path="/community/:id/settings" element={<CommunitySettings />} />
+                  <Route path="/community/:id/analytics" element={<CommunityAnalytics />} />
+                  <Route path="/create-post" element={<CreatePost />} />
+                  <Route path="/post/:id" element={<PostDetail />} />
+                  <Route path="/dq-comms" element={<DQCommsPage />} />
+                  <Route path="/marketplace/pulse" element={<PulseMarketplacePage />} />
+                  <Route path="/marketplace/pulse/detailsPage" element={<PulseDetailPage />} />
+                  <Route path="/pulse/:id" element={<PulseDetailPage />} />
+                  <Route path="/marketplace/events" element={<EventsMarketplacePage />} />
+                  <Route path="/marketplace/events/detailsPage" element={<EventDetailPage />} />
+                  <Route path="/events/:id" element={<EventDetailPage />} />
+                  <Route path="/work-center/*" element={<WorkCenterRouter />} />
+                  <Route
+                    path="/women-entrepreneurs"
+                    element={<WomenEntrepreneursPage />}
+                  />
+                  <Route path="/404" element={<NotFound />} />
+                  <Route path="*" element={<Navigate to="/404" replace />} />
+                </Routes>
+              </ProtectedRoute>
+            </CommunitiesAuthProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </ApolloProvider>
     </QueryClientProvider>
   );
 }
