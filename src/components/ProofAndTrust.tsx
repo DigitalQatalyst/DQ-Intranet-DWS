@@ -3,9 +3,9 @@ import {
   Star,
   Play,
   X,
-  User,
   ChevronLeft,
   ChevronRight,
+  Lock,
 } from 'lucide-react';
 import {
   AnimatedCounter,
@@ -40,7 +40,7 @@ const associateFeedbacks: AssociateFeedback[] = [
       'https://i.ibb.co/XkGXwk4Z/Screenshot-2026-01-27-at-3-39-28-PM.png',
     rating: 5,
     feedback:
-      'DigitalQatalyst’s values helped me focus on creating real impact, not just completing tasks. It encouraged ownership, clear thinking about outcomes, and continuous learning—helping me grow more confident and responsible in my role and as an individual.',
+      'DigitalQatalyst\'s values shifted my focus from completing tasks to creating measurable impact. They strengthened my ownership, decision-making, and accountability both professionally and personally.',
   },
   {
     id: 'jerry',
@@ -50,7 +50,7 @@ const associateFeedbacks: AssociateFeedback[] = [
       'https://i.ibb.co/XMPk1nQ/Whats-App-Image-2026-01-23-at-11-20-35-AM-1.jpg',
     rating: 5,
     feedback:
-      'Digital Qatalyst’s values and mission encouraged me to continuously learn, adapt, and take ownership of my work. They pushed me to embrace challenges with curiosity and see feedback as a tool for growth. Collaboration and innovation strengthened my problem-solving and communication skills, helping me become more resilient and confident both professionally and personally.',
+      'DigitalQatalyst\'s values drive me to learn continuously, adapt quickly, and take real ownership of outcomes. They\'ve strengthened my problem-solving, confidence, and resilience helping me deliver value, not just activity.',
   },
   {
     id: 'sharon',
@@ -60,7 +60,7 @@ const associateFeedbacks: AssociateFeedback[] = [
       'https://images.pexels.com/photos/3760853/pexels-photo-3760853.jpeg?auto=compress&cs=tinysrgb&w=1200',
     rating: 5,
     feedback:
-      'A value that has significantly influenced my growth is Collaboration. It taught me the importance of leaning on others’ strengths and openly sharing progress, challenges, and insights. By engaging more with my team, I gained new perspectives that improved the quality of my work. Seeking timely feedback and involving the right people earlier made my work more efficient, aligned, and impactful.',
+      'DQ taught me the value of collaboration — I now ask for feedback early and share progress openly. This helps me deliver work that is better aligned, more efficient, and truly impactful.',
   },
   {
     id: 'fadil',
@@ -70,19 +70,12 @@ const associateFeedbacks: AssociateFeedback[] = [
       'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=1200',
     rating: 5,
     feedback:
-      "One key value in DQ that has influenced my growth is ownership. It's still something I'm working on every day, but I've already noticed the positive impact it has on how I approach my tasks. For example, as a Scrum Master, I've been focusing on taking more responsibility for the challenges in the Product Factory. While it's a work in progress, I've seen improved collaboration and clearer accountability within the team when there's a strong sense of ownership, which has led to more streamlined processes.",
+      'One key value at DQ that shaped my growth is ownership — I\'m learning to take full responsibility for challenges, not just tasks. As a Scrum Master, this mindset has improved collaboration, accountability, and the way our team works together.',
   },
 ];
 
 const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
-  const disclaimer = '(not approved for external publication)'
-  const initials =
-    testimonial.name
-      .split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part.charAt(0).toUpperCase())
-      .join("") || "?";
+  const disclaimer = '(not approved for external publication)';
 
   return (
     <div className="h-full rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md flex flex-col">
@@ -128,42 +121,69 @@ const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
 };
 
 const AssociateFeedbackCard = ({ feedback }: { feedback: AssociateFeedback }) => {
+  // Get initials from name
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
   return (
-    <div className="flex items-start gap-4 md:gap-6 rounded-2xl bg-white/90 border border-gray-200 shadow-sm px-5 py-4 md:px-6 md:py-5 md:h-[332px] md:max-w-[593px]">
-      {/* Associate icon placeholder */}
-      <div className="flex-shrink-0 h-14 w-14 md:h-16 md:w-16 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-500">
-        <User size={28} strokeWidth={2} className="md:w-8 md:h-8 w-7 h-7" />
+    <div
+      className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 md:p-8 shadow-sm hover:shadow-md transition-all duration-300 mx-auto flex flex-col overflow-hidden"
+      style={{
+        width: '100%',
+        maxWidth: '1030px',
+        minHeight: 'auto'
+      }}
+    >
+      {/* Large quote mark */}
+      <div className="mb-4 flex-shrink-0">
+        <svg
+          width="48"
+          height="48"
+          viewBox="0 0 24 24"
+          fill="none"
+          className="text-coral-500"
+          style={{ color: 'rgba(251, 85, 53, 0.4)' }}
+        >
+          <path
+            d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z"
+            fill="currentColor"
+          />
+        </svg>
       </div>
 
-      {/* Text content */}
-      <div className="flex-1 min-w-0 h-full">
-        <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-1 mb-2">
-          <div>
-            <p className="text-base md:text-lg font-semibold text-gray-900">
-              {feedback.name}
-            </p>
-            <p className="text-sm text-gray-500">{feedback.role}</p>
-          </div>
+      {/* Testimonial text */}
+      <div className="mb-4 flex-1 min-h-0">
+        <p className="text-gray-700 leading-relaxed italic font-medium" style={{ fontSize: '17px' }}>
+          {feedback.feedback}
+        </p>
+      </div>
 
-          {/* Subtle, optional rating */}
-          {typeof feedback.rating === 'number' && (
-            <div className="flex items-center gap-1 text-xs text-gray-400 md:text-sm md:text-gray-500">
-              <Star size={14} className="text-amber-400 fill-amber-400" />
-              <span className="font-medium">{feedback.rating}/5</span>
-              <span className="hidden md:inline text-gray-400">reflection</span>
-            </div>
-          )}
+      {/* Author info - contained within card */}
+      <div className="flex items-center gap-4 flex-shrink-0 w-full">
+        {/* Avatar with initials */}
+        <div
+          className="w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-base flex-shrink-0"
+          style={{ backgroundColor: 'rgba(251, 85, 53, 0.4)' }}
+        >
+          {getInitials(feedback.name)}
         </div>
 
-        <p className="text-sm md:text-base leading-relaxed text-gray-700 overflow-y-auto pr-1">
-          “{feedback.feedback}”
-        </p>
+        {/* Name and role - properly contained */}
+        <div className="flex flex-col justify-center min-w-0 flex-1">
+          <p className="text-base font-semibold text-gray-900 leading-tight truncate">
+            {feedback.name}
+          </p>
+          <p className="text-sm text-gray-600 leading-tight truncate">
+            {feedback.role}
+          </p>
+        </div>
       </div>
     </div>
   );
 };
 
-const TestimonialsShowcase = () => {
+export const TestimonialsShowcase = () => {
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -436,7 +456,7 @@ const TestimonialModal = ({
   );
 };
 
-const VideoTestimonialCarousel = () => {
+export const VideoTestimonialCarousel = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedTestimonial, setSelectedTestimonial] =
     useState<Testimonial | null>(null);
@@ -542,9 +562,6 @@ const VideoTestimonialCarousel = () => {
 const AssociateFeedbackCarousel = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [selectedFeedback, setSelectedFeedback] =
-    useState<AssociateFeedback | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
 
@@ -609,107 +626,49 @@ const AssociateFeedbackCarousel = () => {
         {associateFeedbacks.map((feedback, index) => (
           <div
             key={feedback.id}
-            className="min-w-full sm:min-w-[420px] lg:min-w-[620px] flex-shrink-0 snap-center"
+            className="min-w-full flex-shrink-0 snap-center"
           >
             <FadeInUpOnScroll delay={index * 0.1}>
-              <button
-                type="button"
-                className="w-full text-left focus:outline-none"
-                onClick={() => {
-                  setSelectedFeedback(feedback);
-                  setIsModalOpen(true);
-                }}
-              >
-                <AssociateFeedbackCard feedback={feedback} />
-              </button>
+              <AssociateFeedbackCard feedback={feedback} />
             </FadeInUpOnScroll>
           </div>
         ))}
       </div>
 
       {/* Arrows */}
-      <div className="absolute top-1/2 left-0 right-0 flex justify-between items-center transform -translate-y-1/2 pointer-events-none px-2 sm:px-4">
+      <div className="absolute top-1/2 left-0 right-0 flex justify-between items-center transform -translate-y-1/2 pointer-events-none px-2">
         <button
-          className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-all pointer-events-auto"
+          className="w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-all pointer-events-auto"
           onClick={handlePrev}
           aria-label="Previous associate reflection"
         >
-          <ChevronLeft size={18} />
+          <ChevronLeft size={16} />
         </button>
         <button
-          className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-all pointer-events-auto"
+          className="w-8 h-8 rounded-full bg-white/90 shadow-md flex items-center justify-center text-gray-700 hover:bg-white transition-all pointer-events-auto"
           onClick={handleNext}
           aria-label="Next associate reflection"
         >
-          <ChevronRight size={18} />
+          <ChevronRight size={16} />
         </button>
       </div>
 
       {/* Dots */}
-      <div className="flex justify-center mt-3 gap-2">
+      <div className="flex justify-center mt-6 gap-2">
         {associateFeedbacks.map((item, index) => (
           <button
             key={item.id}
-            className={`w-2 h-2 rounded-full transition-all ${
-              activeIndex === index ? 'bg-dq-coral w-6' : 'bg-gray-300'
+            className={`h-2 rounded-full transition-all ${
+              activeIndex === index
+                ? 'w-6 bg-coral-500'
+                : 'w-2 bg-gray-300 hover:bg-gray-400'
             }`}
+            style={activeIndex === index ? { backgroundColor: '#FB5535' } : {}}
             onClick={() => setActiveIndex(index)}
             aria-label={`Go to associate reflection ${index + 1}`}
           />
         ))}
       </div>
-
-      {/* Expanded associate feedback modal */}
-      {isModalOpen && selectedFeedback && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all duration-300">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] shadow-2xl transform transition-all duration-300 animate-fadeIn flex flex-col overflow-hidden">
-            <div className="p-6 border-b border-gray-200 flex items-start gap-4">
-              <div className="flex-shrink-0 h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center text-gray-500">
-                <User size={28} strokeWidth={2} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline justify-between gap-2">
-                  <div>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {selectedFeedback.name}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {selectedFeedback.role}
-                    </p>
-                  </div>
-                  {typeof selectedFeedback.rating === 'number' && (
-                    <div className="flex items-center gap-1 text-xs text-gray-400 md:text-sm md:text-gray-500">
-                      <Star
-                        size={16}
-                        className="text-amber-400 fill-amber-400"
-                      />
-                      <span className="font-medium">
-                        {selectedFeedback.rating}/5
-                      </span>
-                      <span className="hidden md:inline text-gray-400">
-                        reflection
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <button
-                type="button"
-                className="ml-2 text-gray-400 hover:text-gray-600"
-                onClick={() => setIsModalOpen(false)}
-                aria-label="Close associate feedback"
-              >
-                <X size={18} />
-              </button>
-            </div>
-            <div className="p-6 overflow-y-auto">
-              <p className="text-sm md:text-base leading-relaxed text-gray-700">
-                “{selectedFeedback.feedback}”
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -727,14 +686,9 @@ const PartnerCategoryCard = ({ category }) => {
   return (
     <div
       ref={ref}
-      className={`relative overflow-hidden rounded-xl p-6 transition-all duration-500 ease-out transform ${
+      className={`relative overflow-hidden rounded-2xl bg-[#F6F7F9] p-6 md:p-8 transition-all duration-500 ease-out transform min-h-[220px] h-full flex flex-col ${
         isHovered ? "shadow-md scale-[1.02]" : "shadow-sm"
       }`}
-      style={{
-        background: isHovered
-          ? `linear-gradient(to bottom right, #f9fafb, #ffffff)`
-          : "#ffffff",
-      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -756,20 +710,10 @@ const PartnerCategoryCard = ({ category }) => {
         </div>
       </div>
 
-      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">
         {category.title}
       </h3>
-      <p className="text-sm text-gray-600 mb-4">{category.subtitle}</p>
-
-      <div
-        className={`text-3xl font-bold transition-all duration-300 ${
-          isHovered ? `text-${category.color}` : `text-${category.color}`
-        }`}
-      >
-        {hasAnimated && <AnimatedCounter value={parseInt(category.metric)} />}
-        {!hasAnimated && "0"}
-        {category.metric.includes("+") && "+"}
-      </div>
+      <p className="text-sm text-gray-600 mb-4 flex-grow">{category.subtitle}</p>
     </div>
   );
 };
@@ -894,18 +838,17 @@ const ProofAndTrust: React.FC = () => {
         <div className="mb-16">
           <FadeInUpOnScroll className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-900 mb-3 clamp-1">
-              Why Agile Working Accelerates Growth
+              Experience the Future of Work in DQ
             </h2>
             <div>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8 text-balance clamp-2">
-                Agile working empowers teams to adapt, collaborate, and grow
-                faster together.
+              <p className="text-base sm:text-lg text-gray-600 mx-auto mb-8 text-balance leading-tight whitespace-normal sm:whitespace-nowrap max-w-full sm:max-w-4xl">
+                DQ brings Agile to life through GHC and 7S ways of working priorities, feedback, and visible execution that moves.
               </p>
             </div>
           </FadeInUpOnScroll>
 
           <StaggeredFadeIn
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto"
             staggerDelay={0.15}
           >
             {impactStats.map((stat, index) => {
@@ -923,67 +866,88 @@ const ProofAndTrust: React.FC = () => {
                       })}
                     </span>
                   </div>
-                  <div className="text-3xl font-bold text-dq-navy mb-1 flex items-baseline justify-center">
-                    {stat.prefix && <span className="mr-1">{stat.prefix}</span>}
-                    <span className="inline-flex items-baseline tabular-nums">
-                      <AnimatedCounter value={stat.value} />{stat.suffix ? (
-                        <span>{stat.suffix}</span>
-                      ) : null}
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-600 text-center leading-tight mt-1 whitespace-normal break-words [text-overflow:clip] [overflow:visible] [display:block]">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
                     {stat.label}
-                  </div>
+                  </h3>
+                  <p className="text-sm text-gray-600 text-center leading-tight">
+                    {stat.description}
+                  </p>
                 </div>
               );
             })}
           </StaggeredFadeIn>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
+            <a
+              href="/ghc"
+              className="px-6 py-3 bg-[#FB5535] hover:bg-[#E64A2E] text-white font-bold rounded-lg shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl text-center flex items-center justify-center"
+            >
+              Explore DQ GHC
+            </a>
+          </div>
         </div>
 
         {/* Success Stories */}
-        <div className="mb-16 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 md:p-12 overflow-hidden relative">
-          <FadeInUpOnScroll className="text-center mb-10 relative z-10">
+        <div className="mb-16 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 overflow-hidden relative">
+          <FadeInUpOnScroll className="text-center mb-8 relative z-10">
             <h2 className="text-3xl font-bold text-gray-900 mb-3 clamp-1">
-              Associate Voices Shaping Digital Qatalyst
+              Some Associates' Perspectives
             </h2>
             <div>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto clamp-2">
-                Real associate stories reflecting ownership, collaboration, growth, learning, and everyday impact.
+              <p className="text-base sm:text-lg text-gray-600 mx-auto clamp-1 leading-tight whitespace-normal sm:whitespace-nowrap max-w-full sm:max-w-4xl">
+                Short reflections from Qatalysts living the DQ DNA what helped them collaborate better, learn faster, and deliver smarter today.
               </p>
             </div>
           </FadeInUpOnScroll>
 
-          <div className="relative z-10">
+          <div className="relative z-10 max-w-6xl mx-auto mb-8">
             <AssociateFeedbackCarousel />
+          </div>
+
+          {/* CTA */}
+          <div className="flex justify-center relative z-10">
+            <a
+              href="/guides/associate-testimonials"
+              className="px-6 py-3 bg-white hover:bg-gray-50 text-gray-900 font-bold rounded-lg shadow-lg transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl text-center flex items-center justify-center border-2 border-gray-200"
+            >
+              Read More Associate Stories
+            </a>
           </div>
         </div>
 
-        {/* Powered by Strategic Partnerships - NEW SECTION */}
-        <div className="mb-16 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 md:p-12 overflow-visible relative">
-          <HorizontalScrollReveal
-            direction="left"
-            className="text-center mb-10 relative z-10"
-          >
+        {/* Our Four Pillars of Success */}
+        <div className="mb-16 bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 overflow-hidden relative">
+          <FadeInUpOnScroll className="text-center mb-8 relative z-10">
             <h2 className="text-3xl font-bold text-gray-900 mb-3 clamp-1">
-              Our Four Pillars of Success
+              Primary Work Sectors in DQ
             </h2>
-            <div className="relative">
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto clamp-2">
-                Governance, Operations, Platforms, and Delivery — the four
-                pillars driving DQ’s success.
+            <div>
+              <p className="text-base sm:text-lg text-gray-600 mx-auto mb-8 text-balance leading-tight whitespace-normal sm:whitespace-nowrap max-w-full sm:max-w-4xl">
+                GHC sets compass; Agile Flows turn it into execution. These pillars show ownership, governance, and delivery across DQ.
               </p>
             </div>
-          </HorizontalScrollReveal>
+          </FadeInUpOnScroll>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {partnerCategories.map((category, index) => (
-              <FadeInUpOnScroll key={category.id} delay={index * 0.15}>
-                <PartnerCategoryCard category={category} />
-              </FadeInUpOnScroll>
+          <StaggeredFadeIn
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto relative z-10 mb-8"
+            staggerDelay={0.15}
+          >
+            {partnerCategories.map((category) => (
+              <PartnerCategoryCard key={category.id} category={category} />
             ))}
-          </div>
+          </StaggeredFadeIn>
 
-          <FeaturedPartnersCarousel />
+          {/* CTA */}
+          <div className="flex justify-center relative z-10">
+            <button
+              disabled
+              className="px-6 py-3 bg-gray-400 text-gray-200 font-bold rounded-lg shadow-lg cursor-not-allowed text-center flex items-center justify-center gap-2 opacity-60"
+            >
+              <Lock size={18} />
+              Explore the Work Directory
+            </button>
+          </div>
         </div>
 
         {/* Animations + CSS vars */}

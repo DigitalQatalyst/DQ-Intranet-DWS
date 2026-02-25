@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/communities/contexts/AuthProvider';
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from '@/communities/integrations/supabase/client';
 import { safeFetch } from '@/communities/utils/safeFetch';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/communities/components/ui/dialog';
 import { Button } from '@/communities/components/ui/button';
@@ -76,37 +76,17 @@ export function NewPostModal({
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast.error('Please sign in to create a post');
-      return;
-    }
-    if (!title.trim() || !content.trim() || !communityId) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
+    if (!user) return;
     setSubmitting(true);
-    
-    // Get user ID from Azure AD authentication
-    if (!user?.id) {
-      console.error('❌ User not authenticated');
-      toast.error('Unable to verify authentication. Please sign in again.');
-      setSubmitting(false);
-      return;
-    }
-    
-    const userId = session.user.id;
-    
-    // Insert the post into posts_v2 (simplified schema)
-    const query = supabase.from('posts_v2').insert({
-      title: title.trim(),
-      content: content.trim(),
+    const query = supabase.from('posts').insert({
+      title,
+      content,
       community_id: communityId,
-      user_id: userId // Must match auth.uid() for RLS
-    }).select().single();
-    const [data, error] = await safeFetch(query);
+      created_by: user.id
+    });
+    const [, error] = await safeFetch(query);
     if (error) {
-      console.error('Post creation error:', error);
-      toast.error('Failed to create post: ' + (error.message || 'Unknown error'));
+      toast.error('Failed to create post');
     } else {
       toast.success('Post created successfully!');
       setTitle('');

@@ -19,6 +19,7 @@ export interface NewsCardProps {
   onReadMore: () => void;
   onQuickView?: () => void;
   pill?: CardContent['pill'];
+  ctaLabel?: string;
   'data-id'?: string;
 }
 
@@ -27,6 +28,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({
   onReadMore,
   onQuickView,
   pill,
+  ctaLabel = 'Details',
   'data-id': dataId
 }) => {
 
@@ -56,7 +58,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({
     },
     pill,
     primaryCTA: {
-      text: 'Details',
+      text: ctaLabel,
       onClick: handleReadMore
     }
   };

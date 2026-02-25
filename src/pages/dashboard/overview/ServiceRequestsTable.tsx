@@ -1,107 +1,134 @@
 import React from 'react';
-import { MoreHorizontal } from 'lucide-react';
-
 interface ServiceRequestsTableProps {
     isLoading: boolean;
 }
-
+// Mock service request data
 const serviceRequests = [
     {
-        id: 'SR-2026-004',
-        category: 'Salary Certificate Request',
+        id: 'SR-2023-001',
+        category: 'Funding Application',
         status: 'In Progress',
-        submittedDate: 'Jan 08, 2026',
+        submittedDate: '2023-11-15',
     },
     {
-        id: 'SR-2026-005',
-        category: 'Annual Leave Application',
+        id: 'SR-2023-002',
+        category: 'Business Registration',
         status: 'Pending Review',
-        submittedDate: 'Jan 07, 2026',
+        submittedDate: '2023-11-10',
     },
     {
-        id: 'SR-2026-006',
-        category: 'Visa Sponsorship Letter',
+        id: 'SR-2023-003',
+        category: 'License Renewal',
         status: 'Approved',
-        submittedDate: 'Jan 05, 2026',
+        submittedDate: '2023-11-05',
     },
 ];
-
 export const ServiceRequestsTable: React.FC<ServiceRequestsTableProps> = ({
     isLoading,
 }) => {
-    const getStatusStyles = (status: string) => {
+    const getStatusStyle = (status: string) => {
         switch (status) {
             case 'Approved':
-                return 'bg-green-50 text-green-700 bg-opacity-70';
+                return 'text-green-700';
             case 'In Progress':
-                return 'bg-blue-50 text-blue-700 bg-opacity-70';
+                return 'text-blue-700';
             case 'Pending Review':
-                return 'bg-orange-50 text-orange-700 bg-opacity-70';
+                return 'text-amber-700';
+            case 'On Hold':
+                return 'text-gray-700';
+            case 'Completed':
+                return 'text-purple-700';
             default:
-                return 'bg-gray-50 text-gray-700 bg-opacity-70';
+                return 'text-gray-700';
         }
     };
-
     if (isLoading) {
         return (
-            <div className="animate-pulse space-y-4">
-                <div className="h-10 bg-gray-50 rounded-xl w-full"></div>
+            <div className="animate-pulse">
+                <div className="h-10 bg-gray-200 rounded w-full mb-4"></div>
                 {[1, 2, 3].map((item) => (
-                    <div key={item} className="h-14 bg-gray-50 rounded-xl w-full"></div>
+                    <div
+                        key={item}
+                        className="h-16 bg-gray-200 rounded w-full mb-2"
+                    ></div>
                 ))}
             </div>
         );
     }
-
     return (
-        <div className="overflow-hidden">
+        <div>
             <div className="overflow-x-auto">
-                <table className="min-w-full">
-                    <thead>
-                        <tr className="border-b border-gray-50">
-                            <th className="px-4 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
                                 Request ID
                             </th>
-                            <th className="px-4 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                            <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
                                 Category
                             </th>
-                            <th className="px-4 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                            <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
                                 Status
                             </th>
-                            <th className="px-4 py-4 text-left text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                                Date
+                            <th
+                                scope="col"
+                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                                Submitted Date
                             </th>
-                            <th className="px-4 py-4 text-right text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                            <th
+                                scope="col"
+                                className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
                                 Actions
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="bg-white divide-y divide-gray-200">
                         {serviceRequests.map((request) => (
-                            <tr key={request.id} className="hover:bg-gray-50/50 transition-colors group">
-                                <td className="px-4 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                            <tr key={request.id} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {request.id}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {request.category}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap">
-                                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide ${getStatusStyles(request.status)}`}>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                        className={`text-xs font-medium ${getStatusStyle(request.status)}`}
+                                    >
                                         {request.status}
                                     </span>
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {request.submittedDate}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all">
-                                        <MoreHorizontal size={18} />
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button className="px-3 py-1 border border-gray-300 rounded-md text-xs text-gray-600 hover:text-blue-600 hover:border-blue-300">
+                                        View
                                     </button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+            </div>
+            <div className="mt-4 flex justify-end">
+                <a
+                    href="#"
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                    View All Requests
+                </a>
             </div>
         </div>
     );

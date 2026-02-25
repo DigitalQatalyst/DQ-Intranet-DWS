@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from '@/communities/integrations/supabase/client';
 import { Badge } from '@/communities/components/ui/badge';
 import { Input } from '@/communities/components/ui/input';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/communities/components/ui/command';

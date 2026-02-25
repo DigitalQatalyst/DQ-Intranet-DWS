@@ -8,7 +8,7 @@ The home page is the signed-out/signed-in landing for Digital Workspace (DQ). It
 ## Layout & Sections (top → bottom)
 1) **Hero**  
    - Full-height gradient hero with animated overlay and AI prompt box.  
-   - Primary CTA: `Start Your Onboarding Journey` → `/signin?redirect=/onboarding/start` (if signed out) or `/onboarding/start` (if signed in).  
+   - Primary CTA: `Start Your Onboarding Journey` → `/signin?redirect=/onboarding/welcome` (if signed out) or `/onboarding/welcome` (if signed in).  
    - Secondary affordances: suggestion pills populate the prompt input; submit dispatches `dq-hero-sent-to-chat` and `dws-chat-send-message` browser events and falls back to `/search?query={text}` when chat is unavailable.  
    - Scroll indicator moves to the next section smoothly.
 

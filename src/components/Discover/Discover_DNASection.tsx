@@ -180,7 +180,7 @@ const GROWTH_DIMENSIONS_CONTENT: Record<number, GrowthDimensionContent> = {
     },
     secondaryCTA: {
       label: "Explore Products in Knowledge Center",
-      href: "/knowledge-center/products",
+      href: "/products",
     },
   },
 };

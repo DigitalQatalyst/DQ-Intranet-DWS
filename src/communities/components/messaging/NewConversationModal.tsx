@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from '@/communities/integrations/supabase/client';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/communities/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/communities/components/ui/tabs';
 import { Button } from '@/communities/components/ui/button';

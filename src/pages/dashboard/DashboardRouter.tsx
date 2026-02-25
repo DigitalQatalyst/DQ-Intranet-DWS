@@ -12,13 +12,14 @@ import { Overview } from "./overview";
 import { ServiceRequestsPage } from "./serviceRequests";
 import { isOnboardingCompleted } from "../../services/DataverseService";
 import { OnboardingForm } from "./onboarding/OnboardingForm";
-import ProfilePage from "./profile";
+import { ReportsPage } from "./reportingObligations/ReportsPage";
+import { AllReceivedReportsPage } from "./reportingObligations/AllReceivedReportsPage";
+import { AllSubmittedReportsPage } from "./reportingObligations/AllSubmittedReportsPage";
+import { AllUpcomingObligationsPage } from "./reportingObligations/AllUpcomingObligationsPage";
+import BusinessProfilePage from "./businessProfile";
 import SupportPage from "./support";
 import SettingsPage from "./settings";
 import { ChatInterface } from "../../components/Chat/ChatInterface";
-import ComingSoonPage from "../ComingSoonPage";
-import LearningPage from "./LearningPage";
-import { WorkspacePage } from "./workspace";
 
 // Form imports
 import BookConsultationForEntrepreneurship from "../forms/BookConsultationForEntrepreneurship";
@@ -139,36 +140,23 @@ const DashboardRouter = () => {
           path="reporting"
           element={<Navigate to="reporting-obligations" replace />}
         />
-        <Route path="reporting-obligations" element={<Navigate to="/dashboard/coming-soon?label=Reporting%20Obligations" replace />} />
+        <Route path="reporting-obligations" element={<ReportsPage />} />
         <Route
           path="reporting-obligations/obligations"
-          element={<Navigate to="/dashboard/coming-soon?label=Reporting%20Obligations" replace />}
+          element={<AllUpcomingObligationsPage />}
         />
         <Route
           path="reporting-obligations/submitted"
-          element={<Navigate to="/dashboard/coming-soon?label=Submitted%20Reports" replace />}
+          element={<AllSubmittedReportsPage />}
         />
         <Route
           path="reporting-obligations/received"
-          element={<Navigate to="/dashboard/coming-soon?label=Received%20Reports" replace />}
+          element={<AllReceivedReportsPage />}
         />
-        <Route path="profile" element={<ProfilePage />} />
+        <Route path="profile" element={<BusinessProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="support" element={<SupportPage />} />
         <Route path="chat-support" element={<ChatInterface />} />
-
-        {/* New Sidebar Routes */}
-        <Route path="learning" element={<LearningPage />} />
-        <Route path="workspace" element={<WorkspacePage />} />
-        <Route path="approvals" element={<Navigate to="/dashboard/coming-soon?label=Approvals" replace />} />
-        <Route path="compliance-tasks" element={<Navigate to="/dashboard/coming-soon?label=Compliance%20Tasks" replace />} />
-        <Route path="notifications" element={<Navigate to="/dashboard/coming-soon?label=Notifications" replace />} />
-        <Route path="messages" element={<Navigate to="/dashboard/coming-soon?label=Messages" replace />} />
-        <Route path="performance/overview" element={<Navigate to="/dashboard/coming-soon?label=Performance%20Overview" replace />} />
-        <Route path="performance/tasks" element={<Navigate to="/dashboard/coming-soon?label=Task%20Completion" replace />} />
-        <Route path="performance/turnaround" element={<Navigate to="/dashboard/coming-soon?label=Request%20Turnaround" replace />} />
-        <Route path="performance/timeline" element={<Navigate to="/dashboard/coming-soon?label=Activity%20Timeline" replace />} />
-        <Route path="coming-soon" element={<ComingSoonPage />} />
 
         {/* Forms Routes */}
         <Route
@@ -219,7 +207,7 @@ const DashboardRouter = () => {
           element={<TrainingInEntrepreneurship />}
         />
 
-
+        
 
         <Route path="*" element={<Navigate to="overview" replace />} />
       </Routes>

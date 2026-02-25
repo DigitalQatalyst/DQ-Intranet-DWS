@@ -8,6 +8,7 @@ import { mockNotifications } from './utils/mockNotifications';
 import { useAuth } from './context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { scrollToSupport } from '../../utils/scroll';
+import { assetPath } from '../../utils/assetPath';
 
 interface HeaderProps {
   toggleSidebar?: () => void;
@@ -25,7 +26,7 @@ export function Header({
   const [isSticky, setIsSticky] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const onboardingPath = '/onboarding/start';
+  const onboardingPath = '/onboarding/welcome';
 
   // Count unread notifications
   const unreadCount = mockNotifications.filter(notif => !notif.read).length;
@@ -89,7 +90,7 @@ export function Header({
           }`}
         >
           <img
-            src="/dq_logo8.png"
+            src={assetPath('dq_logo8.png')}
             alt="DQ"
             className={`transition-all duration-300 ${isSticky ? 'h-10' : 'h-12'}`}
           />

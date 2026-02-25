@@ -1,41 +1,42 @@
-import {PropsWithChildren, useEffect, useState} from 'react';
+import {PropsWithChildren, useEffect} from 'react';
+import {Navigate, useLocation} from 'react-router-dom';
 import {useAuth} from './Header';
-import { useMsal } from '@azure/msal-react';
-import { defaultLoginRequest } from '../services/auth/msal';
 
 /**
- * Guards routes behind MSAL auth. 
- * - Renders NOTHING until user is authenticated
- * - Immediately redirects to login if not authenticated
- * - No content, no loading states, no landing page - complete block until auth
+ * Guards routes behind MSAL auth. If unauthenticated, triggers login and
+ * renders nothing while redirecting. If you prefer redirecting to home
+ * instead of auto-login, set `AUTO_LOGIN` to false below.
  */
+const AUTO_LOGIN = true;
+
 export const ProtectedRoute: React.FC<PropsWithChildren> = ({children}) => {
-    const {user, isLoading} = useAuth();
-    const { instance } = useMsal();
-    const [hasTriggeredLogin, setHasTriggeredLogin] = useState(false);
+    const {user, isLoading, login} = useAuth();
+    const location = useLocation();
 
-    // Immediately trigger login if not authenticated - no content rendered
+    // Not authenticated: either auto-login or redirect to home
     useEffect(() => {
-        if (!isLoading && !user && !hasTriggeredLogin) {
-            setHasTriggeredLogin(true);
-            // Immediately redirect to login - no content shown
-            instance.loginRedirect({
-                ...defaultLoginRequest
-            }).catch((error) => {
-                console.error("Login redirect failed:", error);
-                setHasTriggeredLogin(false); // Allow retry
-            });
+        if (!isLoading && !user && AUTO_LOGIN) {
+            // Kick off MSAL redirect sign-in flow
+            // MSAL will remember current URL so user returns to the same route
+            login();
         }
-    }, [isLoading, user, hasTriggeredLogin, instance]);
+    }, [isLoading, user, login]);
 
-    // While checking auth state or redirecting - render NOTHING (blank screen)
-    if (isLoading || !user) {
-        // Return null - completely blank, no content, no loading indicators
+
+    // While determining auth state, don't render or redirect
+    if (isLoading) {
         return null;
     }
 
-    // Only render content if user is authenticated
-    return <>{children}</>;
+    // If authenticated, render the protected content
+    if (user) {
+        return <>{children}</>;
+    }
+
+
+    if (AUTO_LOGIN) return null;
+
+    return <Navigate to="/" state={{from: location}} replace/>;
 };
 
 export default ProtectedRoute;

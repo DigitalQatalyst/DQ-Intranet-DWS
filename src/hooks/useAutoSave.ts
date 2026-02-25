@@ -1,25 +1,17 @@
-// hooks/useAutoSave.ts
+// hooks/useAutoSave.js
 import { useState, useEffect, useRef } from "react";
-import { useMsal } from "@azure/msal-react";
-import { saveOnboardingData } from "../services/employeeOnboardingService";
 
-export function useAutoSave(formData, currentStep) {
+export function useAutoSave(formData, currentStep, isEditingWelcome) {
   const [autoSaving, setAutoSaving] = useState(false);
   const [progressSaved, setProgressSaved] = useState(false);
   const [savingProgress, setSavingProgress] = useState(false);
 
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastSavedDataRef = useRef<Record<string, any>>({});
-
-  const { accounts } = useMsal();
-
-  // Get employee ID from MSAL account
-  const getEmployeeId = (): string => {
-    const account = accounts[0];
-    return account?.localAccountId || account?.username || "";
-  };
+  const autoSaveTimeoutRef = useRef(null);
+  const lastSavedDataRef = useRef({});
 
   const hasFormDataChanged = () => {
+    if (currentStep === 0 && !isEditingWelcome) return false;
+
     const currentKeys = Object.keys(formData);
     const savedKeys = Object.keys(lastSavedDataRef.current);
 
@@ -33,31 +25,15 @@ export function useAutoSave(formData, currentStep) {
   const autoSaveFormData = async () => {
     if (!hasFormDataChanged()) return;
 
-    const employeeId = getEmployeeId();
-    if (!employeeId) {
-      console.log("No employee ID available for auto-save");
-      return;
-    }
-
     setAutoSaving(true);
     try {
-      const account = accounts[0];
-      const employeeInfo = account ? {
-        name: account.name || "",
-        email: account.username || ""
-      } : undefined;
+      // In real app: await saveOnboardingProgress(formData);
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Save to Supabase
-      const result = await saveOnboardingData(employeeId, formData, currentStep, employeeInfo);
+      lastSavedDataRef.current = { ...formData };
+      setProgressSaved(true);
 
-      if (result.success) {
-        lastSavedDataRef.current = { ...formData };
-        setProgressSaved(true);
-        console.log("✅ Progress auto-saved to Supabase");
-        setTimeout(() => setProgressSaved(false), 3000);
-      } else {
-        console.error("Auto-save failed:", result.error);
-      }
+      setTimeout(() => setProgressSaved(false), 3000);
     } catch (error) {
       console.error("Error auto-saving progress:", error);
     } finally {
@@ -76,14 +52,14 @@ export function useAutoSave(formData, currentStep) {
     }
   };
 
-  // Auto-save effect - triggers 2 seconds after form data changes
+  // Auto-save effect
   useEffect(() => {
     if (Object.keys(formData).length > 0 && hasFormDataChanged()) {
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
       }
 
-      autoSaveTimeoutRef.current = setTimeout(autoSaveFormData, 2000);
+      autoSaveTimeoutRef.current = setTimeout(autoSaveFormData, 2000) as any;
     }
 
     return () => {
@@ -91,7 +67,7 @@ export function useAutoSave(formData, currentStep) {
         clearTimeout(autoSaveTimeoutRef.current);
       }
     };
-  }, [formData, currentStep]);
+  }, [formData]);
 
   return {
     autoSaving,

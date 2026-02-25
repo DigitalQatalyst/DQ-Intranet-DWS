@@ -25,7 +25,7 @@ export function useEventsData(): UseEventsDataReturn {
       setError(null)
 
       const { data, error: fetchError } = await supabaseClient
-        .from('events_v2')
+        .from('events')
         .select('*')
         .gte('start_time', new Date().toISOString())
         .eq('status', 'published')
@@ -64,13 +64,13 @@ export function useEventsData(): UseEventsDataReturn {
 
     // Optional: Set up real-time subscription
     const subscription = supabaseClient
-      .channel('events-v2-changes')
+      .channel('events-changes')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'events_v2',
+          table: 'events',
           filter: 'status=eq.published',
         },
         () => {

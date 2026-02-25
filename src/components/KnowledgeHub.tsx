@@ -89,7 +89,7 @@ const newsItems: NewsItem[] = [
 // Event and Resource mock data removed (unused) to satisfy noUnusedLocals.
 
 // Define interface for tab items
-type TabId = "news" | "podcast";
+type TabId = "ghc" | "guidelines" | "learning";
 
 interface TabItem {
   id: TabId;
@@ -162,7 +162,7 @@ const ErrorMessage = ({ message }) => (
 // KnowledgeHub Content Component
 const KnowledgeHubContent = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TabId>("news");
+  const [activeTab, setActiveTab] = useState<TabId>("ghc");
   const [isTabChanging, setIsTabChanging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<{ message: string } | null>(null);
@@ -171,13 +171,18 @@ const KnowledgeHubContent = () => {
 
   const tabs: TabItem[] = [
     {
-      id: "news",
-      label: "News",
+      id: "ghc",
+      label: "GHC",
       icon: <Newspaper size={16} className="#030F35-600" />,
     },
     {
-      id: "podcast",
-      label: "Podcast",
+      id: "guidelines",
+      label: "Guidelines",
+      icon: <Radio size={16} className="#030F35-600" />,
+    },
+    {
+      id: "learning",
+      label: "Learning",
       icon: <Radio size={16} className="#030F35-600" />,
     },
   ];
@@ -192,21 +197,23 @@ const KnowledgeHubContent = () => {
     }, 300);
   };
 
-  // Fetch latest media center items once, reuse for both tabs
+  // Fetch latest media center items once, reuse for display
   useEffect(() => {
     let isMounted = true;
 
-    async function loadMediaCenterNews() {
+    async function loadMediaCenterData() {
       setIsLoading(true);
       setError(null);
       try {
-        const allNews = await fetchAllNews();
+        const [allNews] = await Promise.all([
+          fetchAllNews()
+        ]);
         if (!isMounted) return;
         setMediaCenterNews(allNews ?? []);
         setLoadFallback(!allNews || allNews.length === 0);
       } catch (err) {
         if (!isMounted) return;
-        console.error("Error loading Media Center news:", err);
+        console.error("Error loading Media Center data:", err);
         setError({
           message: "Unable to load latest media items. Showing fallback content.",
         });
@@ -217,58 +224,73 @@ const KnowledgeHubContent = () => {
       }
     }
 
-    loadMediaCenterNews();
+    loadMediaCenterData();
     return () => {
       isMounted = false;
     };
   }, []);
 
-  // Data helpers (news + podcasts) with graceful fallback
-  const getNewsData = () => {
-    const source = mediaCenterNews.length > 0 ? mediaCenterNews : newsItems;
-    return source
-      .filter(
-        (item) =>
-          item.type === "Announcement" ||
-          item.newsType === "Company News" ||
-          item.newsType === "Policy Update" ||
-          item.newsType === "Upcoming Events"
-      )
-      .slice(0, 6)
+  // Get GHC data
+  const getGhcData = () => {
+    const newsSource = mediaCenterNews.length > 0 ? mediaCenterNews : newsItems;
+    return newsSource
+      .filter((item) => {
+        const category = (item.department || item.newsType || item.category || "").toLowerCase();
+        return category.includes('ghc') || category.includes('governance') || category.includes('agile');
+      })
       .map((item) => ({
         id: item.id,
         title: item.title,
         excerpt: item.excerpt,
         date: item.date,
-        category: item.department || item.newsType || "News",
-        tags: [item.department || item.newsType || "News"],
-        source:
-          item.newsSource || item.byline || item.author || "DQ Media Center",
+        category: item.department || item.newsType || item.category || "GHC",
+        tags: [item.department || item.newsType || item.category || "GHC"],
+        source: item.newsSource || item.byline || item.author || "DQ GHC",
         imageUrl: item.image || undefined,
-      }));
+      }))
+      .slice(0, 6);
   };
 
-  const getPodcastData = () => {
-    const source = mediaCenterNews.length > 0 ? mediaCenterNews : newsItems;
-    return source
-      .filter(
-        (item) =>
-          item.format === "Podcast" ||
-          (item.type === "Thought Leadership" &&
-            item.tags?.some((tag) => tag.toLowerCase().includes("podcast")))
-      )
-      .slice(0, 6)
+  // Get Guidelines data
+  const getGuidelinesData = () => {
+    const newsSource = mediaCenterNews.length > 0 ? mediaCenterNews : newsItems;
+    return newsSource
+      .filter((item) => {
+        const category = (item.department || item.newsType || item.category || "").toLowerCase();
+        return category.includes('guideline') || category.includes('policy') || category.includes('update');
+      })
       .map((item) => ({
         id: item.id,
         title: item.title,
         excerpt: item.excerpt,
         date: item.date,
-        category: "Podcast",
-        tags: ["Podcast", "Play ▶"],
-        source:
-          item.newsSource || item.byline || item.author || "DQ Media Center",
+        category: item.department || item.newsType || item.category || "Guidelines",
+        tags: [item.department || item.newsType || item.category || "Guidelines"],
+        source: item.newsSource || item.byline || item.author || "DQ Guidelines",
         imageUrl: item.image || undefined,
-      }));
+      }))
+      .slice(0, 6);
+  };
+
+  // Get Learning data
+  const getLearningData = () => {
+    const newsSource = mediaCenterNews.length > 0 ? mediaCenterNews : newsItems;
+    return newsSource
+      .filter((item) => {
+        const category = (item.department || item.newsType || item.category || "").toLowerCase();
+        return category.includes('learning') || category.includes('course') || category.includes('training') || category.includes('leadership');
+      })
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        excerpt: item.excerpt,
+        date: item.date,
+        category: item.department || item.newsType || item.category || "Learning",
+        tags: [item.department || item.newsType || item.category || "Learning"],
+        source: item.newsSource || item.byline || item.author || "DQ Learning",
+        imageUrl: item.image || undefined,
+      }))
+      .slice(0, 6);
   };
 
 
@@ -277,11 +299,10 @@ const KnowledgeHubContent = () => {
       <div className="container mx-auto px-4">
         <FadeInUpOnScroll className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-3 clamp-1">
-            Stay Ahead with Workspace Insights
+            Latest DQ Developments
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto clamp-2">
-            Stay current with DQ updates, insights, and events designed to help
-            you work smarter and grow every day.
+          <p className="text-base sm:text-lg text-gray-600 mx-auto clamp-2 leading-relaxed max-w-4xl">
+            Explore the latest GHC courses and guidelines designed to boost your skills and accelerate your DQ journey.
           </p>
         </FadeInUpOnScroll>
         {/* Segmented Tabs */}
@@ -302,26 +323,25 @@ const KnowledgeHubContent = () => {
           {/* Error banner (content still shown below if fallback available) */}
           {error && !isLoading && <ErrorMessage message={error.message} />}
 
-          {/* News Tab */}
-          {activeTab === "news" && !isLoading && (
-            <div
-              id="kh-panel-news"
-              role="tabpanel"
-              aria-labelledby="kh-tab-news"
+          {/* GHC Tab */}
+          {activeTab === "ghc" && !isLoading && (
+            <section
+              id="kh-panel-ghc"
+              aria-label="GHC content"
               aria-live="polite"
             >
               {loadFallback && (
                 <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-                  Showing cached newsroom highlights while live data is unavailable.
+                  Showing cached GHC highlights while live data is unavailable.
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {getNewsData().length === 0 ? (
+                {getGhcData().length === 0 ? (
                   <div className="col-span-full text-center text-gray-600">
-                    No news items available right now.
+                    No GHC items available right now.
                   </div>
                 ) : (
-                  getNewsData().map((item, index) => (
+                  getGhcData().map((item, index) => (
                     <div
                       key={item.id}
                       className="animate-fade-in-up"
@@ -338,40 +358,40 @@ const KnowledgeHubContent = () => {
                           date: item.date,
                           source: item.source,
                         }}
-                        onQuickView={() =>
-                          navigate(`/marketplace/news/${item.id}`)
-                        }
-                        onReadMore={() =>
-                          navigate(`/marketplace/news/${item.id}`)
-                        }
+                        ctaLabel="Explore GHC"
+                        onQuickView={() => {
+                          navigate(`/marketplace/guides?tab=strategy&collapsed=guide_type%2Csub_domain%2Cunit%2Clocation%2Ctestimonial_category%2Cproduct_type%2Cproduct_stage%2Cguidelines_category%2Ccategorization%2Cattachments%2Cstrategy_framework%2Cglossary_knowledge_system%2Cglossary_ghc_dimension%2Cglossary_6xd_perspective%2Cglossary_letter%2Cfaq_category`);
+                        }}
+                        onReadMore={() => {
+                          navigate(`/marketplace/guides?tab=strategy&collapsed=guide_type%2Csub_domain%2Cunit%2Clocation%2Ctestimonial_category%2Cproduct_type%2Cproduct_stage%2Cguidelines_category%2Ccategorization%2Cattachments%2Cstrategy_framework%2Cglossary_knowledge_system%2Cglossary_ghc_dimension%2Cglossary_6xd_perspective%2Cglossary_letter%2Cfaq_category`);
+                        }}
                       />
                     </div>
                   ))
                 )}
               </div>
-            </div>
+            </section>
           )}
 
-          {/* Podcast Tab */}
-          {activeTab === "podcast" && !isLoading && (
-            <div
-              id="kh-panel-podcast"
-              role="tabpanel"
-              aria-labelledby="kh-tab-podcast"
+          {/* Guidelines Tab */}
+          {activeTab === "guidelines" && !isLoading && (
+            <section
+              id="kh-panel-guidelines"
+              aria-label="Guidelines content"
               aria-live="polite"
             >
               {loadFallback && (
                 <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-                  Showing cached podcasts while live data is unavailable.
+                  Showing cached guidelines while live data is unavailable.
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {getPodcastData().length === 0 ? (
+                {getGuidelinesData().length === 0 ? (
                   <div className="col-span-full text-center text-gray-600">
-                    No podcasts published yet. Check back soon.
+                    No guidelines available right now.
                   </div>
                 ) : (
-                  getPodcastData().map((item, index) => (
+                  getGuidelinesData().map((item, index) => (
                     <div
                       key={item.id}
                       className="animate-fade-in-up"
@@ -388,19 +408,71 @@ const KnowledgeHubContent = () => {
                           date: item.date,
                           source: item.source,
                         }}
-                        onQuickView={() =>
-                          navigate(`/marketplace/news/${item.id}`)
-                        }
-                        onReadMore={() =>
-                          navigate(`/marketplace/news/${item.id}`)
-                        }
+                        ctaLabel="Open Guideline"
+                        onQuickView={() => {
+                          navigate(`/guides`);
+                        }}
+                        onReadMore={() => {
+                          navigate(`/guides`);
+                        }}
                       />
                     </div>
                   ))
                 )}
               </div>
-            </div>
+            </section>
           )}
+
+          {/* Learning Tab */}
+          {activeTab === "learning" && !isLoading && (
+            <section
+              id="kh-panel-learning"
+              aria-label="Learning content"
+              aria-live="polite"
+            >
+              {loadFallback && (
+                <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                  Showing cached learning content while live data is unavailable.
+                </div>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {getLearningData().length === 0 ? (
+                  <div className="col-span-full text-center text-gray-600">
+                    No learning content available right now.
+                  </div>
+                ) : (
+                  getLearningData().map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="animate-fade-in-up"
+                      style={{
+                        animationDelay: `${index * 0.1}s`,
+                      }}
+                    >
+                      <NewsCard
+                        content={{
+                          title: item.title,
+                          description: item.excerpt,
+                          imageUrl: item.imageUrl,
+                          tags: item.tags ?? [item.category],
+                          date: item.date,
+                          source: item.source,
+                        }}
+                        ctaLabel="Start Course"
+                        onQuickView={() => {
+                          navigate(`/lms`);
+                        }}
+                        onReadMore={() => {
+                          navigate(`/lms`);
+                        }}
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+          )}
+
         </div>
       </div>
       {/* Add keyframes for animations */}

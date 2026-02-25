@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from '@/communities/integrations/supabase/client';
 import { safeFetch } from '@/communities/utils/safeFetch';
 import { RealtimeChannel } from '@supabase/supabase-js';
 export interface ModerationMetrics {
@@ -220,7 +220,7 @@ class ModerationAPIService {
   /**
    * Take moderation action on a report
    */
-  async takeAction(params: ActionParams, userEmail: string, userId?: string): Promise<{
+  async takeAction(params: ActionParams, userEmail: string): Promise<{
     success: boolean;
     error?: string;
   }> {
@@ -361,14 +361,19 @@ class ModerationAPIService {
       if (reportId) {
         console.log('Updating report status:', reportId, 'to', updateStatus);
 
-        // Use provided userId or null
+        // Get current user ID
+        const {
+          data: {
+            user
+          }
+        } = await supabase.auth.getUser();
         const {
           data: updateResult,
           error: updateError
         } = await supabase.rpc('update_report_status_secure', {
           p_report_id: reportId,
           p_status: updateStatus,
-          p_resolved_by: userId || null
+          p_resolved_by: user?.id || null
         });
         if (updateError) {
           console.error('Failed to update report status:', updateError);

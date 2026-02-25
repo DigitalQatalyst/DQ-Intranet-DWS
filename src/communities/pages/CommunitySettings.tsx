@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { useAuth } from "../contexts/AuthProvider";
-import { supabase } from "@/lib/supabaseClient";
-import { safeFetch } from "../utils/safeFetch";
-import { GeneralSettingsCard } from "../components/community-settings/GeneralSettingsCard";
-import { RolesAndPermissionsCard } from "../components/community-settings/RolesAndPermissionsCard";
-import { InviteMembersCard } from "../components/community-settings/InviteMembersCard";
-import { AuditLogCard } from "../components/community-settings/AuditLogCard";
-import { Skeleton } from "../components/ui/skeleton";
-import { AlertCircle, ChevronLeft, Shield, Home } from 'lucide-react';
-import { Button } from "../components/ui/button";
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "../components/ui/breadcrumb";
-import { MainLayout } from "../components/layout/MainLayout";
+import { useAuth } from '@/communities/contexts/AuthProvider';
+import { supabase } from '@/communities/integrations/supabase/client';
+import { safeFetch } from '@/communities/utils/safeFetch';
+import { Header } from '@/communities/components/layout/Header';
+import { GeneralSettingsCard } from '@/communities/components/community-settings/GeneralSettingsCard';
+import { RolesAndPermissionsCard } from '@/communities/components/community-settings/RolesAndPermissionsCard';
+import { InviteMembersCard } from '@/communities/components/community-settings/InviteMembersCard';
+import { AuditLogCard } from '@/communities/components/community-settings/AuditLogCard';
+import { Skeleton } from '@/communities/components/ui/skeleton';
+import { AlertCircle, ChevronLeft, Shield } from 'lucide-react';
+import { Button } from '@/communities/components/ui/button';
 interface Community {
   id: string;
   name: string;
@@ -85,8 +84,9 @@ export default function CommunitySettings() {
     fetchCommunityAndCheckPermissions();
   };
   if (loading) {
-    return <MainLayout>
-        <div className="p-4 lg:p-6">
+    return <div className="min-h-screen bg-gray-50">
+        <Header />
+        <main className="p-4 lg:p-6">
           <div className="max-w-6xl mx-auto space-y-6">
             <Skeleton className="h-12 w-64" />
             <div className="grid gap-6 lg:grid-cols-2">
@@ -100,12 +100,13 @@ export default function CommunitySettings() {
               </div>
             </div>
           </div>
-        </div>
-      </MainLayout>;
+        </main>
+      </div>;
   }
   if (error || !community) {
-    return <MainLayout>
-        <div className="p-4 lg:p-6">
+    return <div className="min-h-screen bg-gray-50">
+        <Header />
+        <main className="p-4 lg:p-6">
           <div className="max-w-6xl mx-auto">
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden p-6">
               <div className="border border-red-200 bg-red-50 text-red-800 p-3 rounded-md text-sm flex items-center justify-between">
@@ -119,41 +120,13 @@ export default function CommunitySettings() {
               </div>
             </div>
           </div>
-        </div>
-      </MainLayout>;
+        </main>
+      </div>;
   }
-  return <MainLayout>
-      <div className="p-4 lg:p-6">
+  return <div className="min-h-screen bg-gray-50">
+      <Header />
+      <main className="p-4 lg:p-6">
         <div className="max-w-6xl mx-auto space-y-6">
-          {/* Breadcrumbs */}
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link to="/community">
-                    <Home className="h-4 w-4" />
-                  </Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link to="/communities">Communities</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link to={`/community/${id}`}>{community.name}</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Settings</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          
           {/* Page Header */}
           <div className="animate-fade-in">
             <Link to={`/community/${id}`} className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 mb-2 transition-colors">
@@ -161,7 +134,7 @@ export default function CommunitySettings() {
               Back to Community
             </Link>
             <div className="flex items-center gap-3">
-              <Shield className="h-8 w-8 text-dq-navy" />
+              <Shield className="h-8 w-8 text-blue-600" />
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 leading-tight mb-2">
                   Community Settings
@@ -188,6 +161,6 @@ export default function CommunitySettings() {
             </div>
           </div>
         </div>
-      </div>
-    </MainLayout>;
+      </main>
+    </div>;
 }

@@ -45,7 +45,8 @@ export const fetchMarketplaceItems = async (
     const data = (await request(
       query,
       variables,
-      `get${marketplaceType.charAt(0).toUpperCase() + marketplaceType.slice(1)
+      `get${
+        marketplaceType.charAt(0).toUpperCase() + marketplaceType.slice(1)
       }Items`,
       marketplaceType
     )) as any;
@@ -99,7 +100,8 @@ export const fetchMarketplaceFilters = async (
     const data = (await request(
       query,
       {},
-      `get${marketplaceType.charAt(0).toUpperCase() + marketplaceType.slice(1)
+      `get${
+        marketplaceType.charAt(0).toUpperCase() + marketplaceType.slice(1)
       }FilterOptions`,
       marketplaceType
     )) as any;
@@ -145,7 +147,8 @@ export const fetchMarketplaceItemDetails = async (
       {
         id: itemId,
       },
-      `get${marketplaceType.charAt(0).toUpperCase() + marketplaceType.slice(1)
+      `get${
+        marketplaceType.charAt(0).toUpperCase() + marketplaceType.slice(1)
       }ItemDetails`,
       marketplaceType
     )) as any;
@@ -189,7 +192,8 @@ export const fetchRelatedMarketplaceItems = async (
         category,
         provider,
       },
-      `getRelated${marketplaceType.charAt(0).toUpperCase() + marketplaceType.slice(1)
+      `getRelated${
+        marketplaceType.charAt(0).toUpperCase() + marketplaceType.slice(1)
       }Items`,
       marketplaceType
     )) as any;
@@ -224,7 +228,8 @@ export const fetchMarketplaceProviders = async (
     const data = (await request(
       query,
       {},
-      `get${marketplaceType.charAt(0).toUpperCase() + marketplaceType.slice(1)
+      `get${
+        marketplaceType.charAt(0).toUpperCase() + marketplaceType.slice(1)
       }Providers`,
       marketplaceType
     )) as any;
