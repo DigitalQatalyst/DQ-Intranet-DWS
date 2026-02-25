@@ -1316,13 +1316,22 @@ export async function updateLessonVideoProgress(
   lessonId: string,
   courseId: string,
   courseSlug: string,
-  progressPercentage: number
+  progressPercentage: number,
+  hasQuiz: boolean = false,
+  quizPassed: boolean = false
 ): Promise<LmsLessonProgress> {
+  let newStatus: 'in_progress' | 'completed' = 'in_progress';
+  if (progressPercentage >= 90) {
+    if (!hasQuiz || quizPassed) {
+      newStatus = 'completed';
+    }
+  }
+
   return upsertLessonProgress(userId, {
     lesson_id: lessonId,
     course_id: courseId,
     course_slug: courseSlug,
-    status: progressPercentage >= 90 ? 'completed' : 'in_progress',
+    status: newStatus,
     progress_percentage: progressPercentage,
   });
 }
@@ -1334,7 +1343,7 @@ export async function saveQuizSubmission(
   input: SaveQuizSubmissionInput
 ): Promise<LmsQuizSubmission> {
   // First, get the current attempt number for this quiz/user
-  const { count } = await lmsSupabase
+  const { count } = await lmsSupabaseClient
     .from('lms_quiz_submissions')
     .select('*', { count: 'exact', head: true })
     .eq('user_id', userId)
@@ -1342,7 +1351,7 @@ export async function saveQuizSubmission(
 
   const attemptNumber = (count || 0) + 1;
 
-  const { data, error } = await lmsSupabase
+  const { data, error } = await lmsSupabaseClient
     .from('lms_quiz_submissions')
     .insert({
       user_id: userId,

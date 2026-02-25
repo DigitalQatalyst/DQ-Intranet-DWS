@@ -489,6 +489,8 @@ export const LmsLessonPage: React.FC = () => {
         courseId: course.id,
         courseSlug: courseSlug || '',
         progressPercentage: progress,
+        hasQuiz: !!quiz,
+        quizPassed: !!quizPassed,
       });
       lastProgressSyncRef.current = now;
       lastProgressValueRef.current = progress;
@@ -1062,23 +1064,37 @@ export const LmsLessonPage: React.FC = () => {
                       )}
                     </div>
                   ) : hasVideo ? (
-                    <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
-                      <video
-                        ref={videoRef}
-                        src={videoUrl}
-                        className="w-full h-full"
-                        controls
-                        onTimeUpdate={handleVideoTimeUpdate}
-                        onEnded={handleVideoEnded}
-                        onPlay={handleVideoPlay}
-                        onPause={handleVideoPause}
-                      />
+                    <div className="flex flex-col gap-4">
+                      <div className="relative bg-black rounded-lg overflow-hidden aspect-video">
+                        <video
+                          ref={videoRef}
+                          src={videoUrl}
+                          className="w-full h-full"
+                          controls
+                          onTimeUpdate={handleVideoTimeUpdate}
+                          onEnded={handleVideoEnded}
+                          onPlay={handleVideoPlay}
+                          onPause={handleVideoPause}
+                        />
 
+                        {/* Completion Checkmark Overlay */}
+                        {isVideoCompleted && (
+                          <div className="absolute top-4 right-4 bg-green-500 rounded-full p-2">
+                            <CheckCircle2 size={24} className="text-white" />
+                          </div>
+                        )}
+                      </div>
 
-                      {/* Completion Checkmark Overlay */}
-                      {isVideoCompleted && (
-                        <div className="absolute top-4 right-4 bg-green-500 rounded-full p-2">
-                          <CheckCircle2 size={24} className="text-white" />
+                      {/* Manual Trigger for Quiz if Video is Watched but Quiz not passed */}
+                      {quiz && !quizPassed && videoProgress >= 90 && (
+                        <div className="flex justify-start">
+                          <button
+                            onClick={() => setShowQuizOverlay(true)}
+                            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                          >
+                            <HelpCircle size={20} />
+                            <span>Take Quiz to Complete Lesson</span>
+                          </button>
                         </div>
                       )}
                     </div>
@@ -1086,7 +1102,7 @@ export const LmsLessonPage: React.FC = () => {
                     <div className="bg-white rounded-lg border border-gray-200 p-8 max-h-[70vh] overflow-y-auto">
                       <MarkdownRenderer body={lessonContent} />
                       {/* Mark as completed button for content-based lessons */}
-                      {!isVideoCompleted && (
+                      {!isVideoCompleted && !quiz && (
                         <div className="mt-6 pt-6 border-t border-gray-200">
                           <button
                             onClick={() => {
@@ -1111,6 +1127,19 @@ export const LmsLessonPage: React.FC = () => {
                           >
                             <CheckCircle2 size={20} />
                             <span>{markLessonCompletedMutation.isPending ? 'Saving...' : 'Mark as Completed'}</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Take Quiz button for content-based lessons WITH quizzes */}
+                      {!isVideoCompleted && quiz && !quizPassed && (
+                        <div className="mt-6 pt-6 border-t border-gray-200">
+                          <button
+                            onClick={() => setShowQuizOverlay(true)}
+                            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                          >
+                            <HelpCircle size={20} />
+                            <span>Take Quiz to Complete Lesson</span>
                           </button>
                         </div>
                       )}
