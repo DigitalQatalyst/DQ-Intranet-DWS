@@ -74,9 +74,9 @@ export function RichTextEditor({
       `} title={label}>
       <Icon className="h-4 w-4" />
     </button>;
-  return <div className={`border border-gray-300 rounded-md bg-white focus-within:ring-2 ring-brand-teal transition-all duration-200 ${percentage >= 100 ? 'border-red-500' : ''}`}>
-      {/* Toolbar */}
-      <div className="bg-gray-100 border-b border-gray-200 px-3 py-2 flex gap-2 rounded-t-lg flex-wrap">
+  return <div className={`border border-gray-300 rounded-md bg-white focus-within:ring-2 ring-brand-teal transition-all duration-200 ${percentage >= 100 ? 'border-red-500' : ''} flex flex-col ${currentMode === 'long' ? 'max-h-[650px]' : 'max-h-[350px]'}`}>
+      {/* Fixed Toolbar */}
+      <div className="flex-shrink-0 bg-gray-100 border-b border-gray-200 px-3 py-2 flex gap-2 rounded-t-lg flex-wrap">
         <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} isActive={editor.isActive('bold')} icon={Bold} label="Bold" />
         <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} isActive={editor.isActive('italic')} icon={Italic} label="Italic" />
         <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({
@@ -91,8 +91,8 @@ export function RichTextEditor({
         <ToolbarButton onClick={() => editor.chain().focus().toggleBlockquote().run()} isActive={editor.isActive('blockquote')} icon={Quote} label="Quote" />
         <ToolbarButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} isActive={editor.isActive('codeBlock')} icon={Code} label="Code Block" />
       </div>
-      {/* Editor - Clickable container */}
-      <div className={`cursor-text ${currentMode === 'long' ? 'min-h-[400px]' : 'min-h-[200px]'}`} onClick={() => editor?.chain().focus().run()}>
+      {/* Editor - Scrollable container */}
+      <div className="flex-1 overflow-y-auto cursor-text" onClick={() => editor?.chain().focus().run()}>
         <EditorContent editor={editor} className={`max-w-none p-3 focus:outline-none
                      ${currentMode === 'long' ? 'prose prose-lg min-h-[400px]' : 'prose prose-sm min-h-[200px]'}
                      [&_.ProseMirror]:${currentMode === 'long' ? 'min-h-[400px]' : 'min-h-[200px]'} 

@@ -5,61 +5,78 @@ interface SideNavProps {
   onSectionClick?: (sectionId: string) => void
 }
 
-const sections = [
-  { id: 'context', label: 'Context' },
-  { id: 'overview', label: 'Overview' },
-  { id: 'purpose-scope', label: 'Purpose and Scope' },
-  { id: 'core-components', label: 'Core Components' },
-  { id: 'roles-responsibilities', label: 'Roles and Responsibilities' },
-  { id: 'byod', label: '5.1 BYOD (Bring Your Own Device)' },
-  { id: 'byod-procedure', label: '5.1.1 BYOD Procedure' },
-  { id: 'byod-responsibilities', label: '5.1.2 BYOD Responsibilities' },
-  { id: 'fyod', label: '5.2 FYOD (Finance Your Own Device)' },
-  { id: 'fyod-procedure', label: '5.2.1 FYOD Procedure' },
-  { id: 'fyod-responsibilities', label: '5.2.2 FYOD Responsibilities' },
-  { id: 'hyod', label: '5.2.3 HYOD (Hold Your Own Device)' },
-  { id: 'hyod-procedure', label: '5.2.4 HYOD Procedure' },
-  { id: 'hyod-responsibilities', label: '5.2.5 HYOD Responsibilities' },
-  { id: 'guiding-principles', label: 'Guiding Principles and Controls' },
-  { id: 'tools-resources', label: 'Tools and Resources' },
-  { id: 'kpis', label: 'Key Performance Indicators (KPIs)' },
-  { id: 'review-schedule', label: 'Review and Update Schedule' },
-]
-
 export function SideNav({ activeSection, onSectionClick }: SideNavProps) {
-  const [currentSection, setCurrentSection] = useState(activeSection || 'context')
+  const [currentSection, setCurrentSection] = useState(activeSection || '')
+  const [sections, setSections] = useState<{ id: string; label: string }[]>([])
+
+  // Extract H1 headings from the page
+  useEffect(() => {
+    const extractH1Sections = () => {
+      const h1Elements = document.querySelectorAll('.prose h1[id]')
+      const extractedSections = Array.from(h1Elements).map((h1) => ({
+        id: h1.getAttribute('id') || '',
+        label: h1.textContent || '',
+      }))
+      setSections(extractedSections)
+      
+      // Set first section as active if none is set
+      if (extractedSections.length > 0 && !currentSection) {
+        setCurrentSection(extractedSections[0].id)
+      }
+    }
+
+    // Wait for content to be rendered
+    const timer = setTimeout(extractH1Sections, 200)
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
+    if (sections.length === 0) return
+
+    // Better intersection observer settings for accurate section detection
     const observerOptions = {
       root: null,
-      rootMargin: '-20% 0px -60% 0px',
-      threshold: 0,
+      rootMargin: '-100px 0px -66% 0px', // Top offset accounts for navbar, bottom gives priority to top sections
+      threshold: [0, 0.25, 0.5, 0.75, 1], // Multiple thresholds for better detection
     }
 
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const sectionId = entry.target.getAttribute('id')
-          if (sectionId) {
-            setCurrentSection(sectionId)
+      // Find the entry with the highest intersection ratio that's actually intersecting
+      const intersectingEntries = entries.filter(entry => entry.isIntersecting)
+      
+      if (intersectingEntries.length > 0) {
+        // Sort by intersection ratio and position (prefer sections closer to top)
+        intersectingEntries.sort((a, b) => {
+          // If both have similar intersection ratios, prefer the one higher on page
+          if (Math.abs(a.intersectionRatio - b.intersectionRatio) < 0.1) {
+            return a.boundingClientRect.top - b.boundingClientRect.top
           }
+          return b.intersectionRatio - a.intersectionRatio
+        })
+        
+        const sectionId = intersectingEntries[0].target.getAttribute('id')
+        if (sectionId) {
+          setCurrentSection(sectionId)
         }
-      })
+      }
     }
 
     const observer = new IntersectionObserver(observerCallback, observerOptions)
 
-    sections.forEach((section) => {
-      const element = document.getElementById(section.id)
-      if (element) {
-        observer.observe(element)
-      }
-    })
+    // Small delay to ensure DOM is ready
+    setTimeout(() => {
+      sections.forEach((section) => {
+        const element = document.getElementById(section.id)
+        if (element) {
+          observer.observe(element)
+        }
+      })
+    }, 100)
 
     return () => {
       observer.disconnect()
     }
-  }, [])
+  }, [sections])
 
   useEffect(() => {
     if (activeSection) {
@@ -73,8 +90,20 @@ export function SideNav({ activeSection, onSectionClick }: SideNavProps) {
     
     const element = document.getElementById(sectionId)
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      // Calculate offset to account for fixed header (adjust this value based on your header height)
+      const headerOffset = 100 // Adjust this value to match your navbar height + desired spacing
+      const elementPosition = element.getBoundingClientRect().top
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
     }
+  }
+
+  if (sections.length === 0) {
+    return null
   }
 
   return (

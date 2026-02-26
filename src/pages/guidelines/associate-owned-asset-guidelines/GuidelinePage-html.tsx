@@ -16,73 +16,6 @@ function GuidelinePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
-  // Function to generate ID from heading text
-  const generateId = (text: string): string => {
-    return text
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '') // Remove special characters
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/&nbsp;/g, '') // Remove &nbsp;
-      .trim()
-  }
-  
-  // Function to add IDs to headings in HTML
-  const addIdsToHeadings = (html: string): string => {
-    // Map of heading text to desired IDs (based on SideNav sections)
-    const headingIdMap: Record<string, string> = {
-      'context': 'context',
-      'overview': 'overview',
-      'purpose and scope': 'purpose-scope',
-      'core components': 'core-components',
-      'roles and responsibilities': 'roles-responsibilities',
-      'byod bring your own device': 'byod',
-      'procedure': 'byod-procedure', // First procedure is BYOD
-      'responsibilities': 'byod-responsibilities', // First responsibilities is BYOD
-      'fyod finance your own device': 'fyod',
-      'hyod hold your own device': 'hyod',
-      'guiding principles and controls': 'guiding-principles',
-      'tools and resources': 'tools-resources',
-      'key performance indicators kpis': 'kpis',
-      'review and update schedule': 'review-schedule',
-    }
-    
-    let procedureCount = 0
-    let responsibilitiesCount = 0
-    
-    return html.replace(/<(h[1-6])([^>]*)>(.*?)<\/\1>/gi, (match, tag, attrs, content) => {
-      // Clean the content for ID generation
-      const cleanContent = content
-        .replace(/<[^>]+>/g, '') // Remove HTML tags
-        .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
-        .replace(/\./g, '') // Remove periods
-        .trim()
-        .toLowerCase()
-      
-      // Check if heading already has an id
-      if (attrs.includes('id=')) {
-        return match
-      }
-      
-      // Generate ID based on content
-      let id = headingIdMap[cleanContent] || generateId(cleanContent)
-      
-      // Handle duplicate "Procedure" and "Responsibilities" headings
-      if (cleanContent === 'procedure') {
-        procedureCount++
-        if (procedureCount === 1) id = 'byod-procedure'
-        else if (procedureCount === 2) id = 'fyod-procedure'
-        else if (procedureCount === 3) id = 'hyod-procedure'
-      } else if (cleanContent === 'responsibilities') {
-        responsibilitiesCount++
-        if (responsibilitiesCount === 1) id = 'byod-responsibilities'
-        else if (responsibilitiesCount === 2) id = 'fyod-responsibilities'
-        else if (responsibilitiesCount === 3) id = 'hyod-responsibilities'
-      }
-      
-      return `<${tag}${attrs} id="${id}">${content}</${tag}>`
-    })
-  }
-  
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -105,15 +38,7 @@ function GuidelinePage() {
           if (data.body) {
             console.log('✅ [DATABASE] Loaded HTML content from database')
             console.log(`📄 [DATABASE] Content length: ${data.body.length} characters`)
-            
-            // Replace literal \n with actual line breaks
-            let processedHtml = data.body.replace(/\\n/g, '\n')
-            
-            // Add IDs to headings for table of contents navigation
-            processedHtml = addIdsToHeadings(processedHtml)
-            console.log('🔧 [DATABASE] Added IDs to headings for navigation')
-            
-            setGuideHtml(processedHtml)
+            setGuideHtml(data.body)
           }
         }
       } catch (error) {
@@ -195,11 +120,21 @@ function GuidelinePage() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Left Column - Content Area */}
             <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12">
+              {/* HTML Rendering indicator */}
+              <div className="mb-6 flex items-center gap-2 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd"/>
+                </svg>
+                <span className="font-medium">HTML Rendering Mode</span>
+                <span className="text-blue-500">•</span>
+                <span className="text-xs text-blue-600">Content rendered directly from database</span>
+              </div>
+              
               {/* HTML Content */}
               <div 
                 className="prose prose-lg max-w-none
                            prose-headings:font-bold prose-headings:text-gray-900
-                           prose-h1:text-4xl prose-h1:mt-12 prose-h1:mb-6 prose-h1:first:mt-0
+                           prose-h1:text-3xl prose-h1:mb-4
                            prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4
                            prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3
                            prose-p:text-gray-700 prose-p:leading-relaxed prose-p:mb-4
