@@ -214,7 +214,8 @@ And today, for the first time in history, we are watching nations fight not for 
 
 Compute nationalism has arrived.
 
-The question now is: Who gets left behind?$content$,
+The question now is: Who gets left behind?
+$content$,
   'Blog',
   'https://corp-web.qatalyst.tech/blog/rise-of-compute-nationalism',
   NULL
@@ -336,7 +337,8 @@ The AI race is no longer about who builds the best model—it's about who builds
 
 In that contest, China is not behind. It's simply quiet.
 
-**The world should pay attention.**$content$,
+**The world should pay attention.**
+$content$,
   'Blog',
   'https://corp-web.qatalyst.tech/blog/china-ai-superstate',
   NULL
@@ -463,7 +465,8 @@ Leadership in ethics is noble.
 
 But leadership in compute is necessary.
 
-Until Europe builds the latter, the former will not shape the future.$content$,
+Until Europe builds the latter, the former will not shape the future.
+$content$,
   'Blog',
   'https://corp-web.qatalyst.tech/blog/europe-ai-compute-challenge',
   NULL
@@ -602,7 +605,8 @@ If the Global South wants to shape its own digital destiny, it must build the in
 
 Because in the AI age:
 
-**If you don't control compute, you don't control your future.**$content$,
+**If you don't control compute, you don't control your future.**
+$content$,
   'Blog',
   'DigitalQatalyst',
   NULL
@@ -774,7 +778,8 @@ Because the digital war is not coming.
 
 It's here.
 
-And the battlefield is us.$content$,
+And the battlefield is us.
+$content$,
   'Blog',
   'DigitalQatalyst',
   NULL
@@ -971,7 +976,8 @@ The organizations that will lead the next decade are those that:
 
 In a world drowning in digital noise, focus becomes a competitive advantage; both for organizations and individuals.
 
-The workers and workplaces that learn to protect human attention will unlock levels of performance the Half-Attention environment could never produce.$content$,
+The workers and workplaces that learn to protect human attention will unlock levels of performance the Half-Attention environment could never produce.
+$content$,
   'Blog',
   'DigitalQatalyst',
   NULL
@@ -1178,7 +1184,8 @@ The question isn't whether technology will shape us.
 
 It already has.
 
-The real question is whether we'll sculpt technology into a tool of clarity; or will we let it continue to blur the edges of our humanity?$content$,
+The real question is whether we'll sculpt technology into a tool of clarity; or will we let it continue to blur the edges of our humanity?
+$content$,
   'Blog',
   'DigitalQatalyst',
   NULL

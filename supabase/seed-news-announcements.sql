@@ -51,7 +51,8 @@ Due to unfavourable weather conditions, the DQ Studios Y/E Annual Gathering sche
 
 We sincerely apologise for the inconvenience and appreciate your understanding.
 
-To ensure the date chosen is convenient for DXB Associates. I will be sharing a poll shortly to confirm a date. Once confirmed, details regarding the rescheduled date will be shared after.$content$,
+To ensure the date chosen is convenient for DXB Associates. I will be sharing a poll shortly to confirm a date. Once confirmed, details regarding the rescheduled date will be shared after.
+$content$,
   NULL,
   NULL,
   NULL
@@ -109,7 +110,8 @@ To ensure productivity and visibility, please adhere to these daily requirements
 
 All other weekdays outside the dates listed above will follow the standard office work policy.
 
-We wish everyone a safe, joyful, and restful festive season.$content$,
+We wish everyone a safe, joyful, and restful festive season.
+$content$,
   NULL,
   NULL,
   NULL
@@ -167,7 +169,8 @@ NBO associates will also observe the following additional holiday observed as Ut
 
 NBO team members will not be required to work on this date. Those who are required to work will receive additional compensation for this day.
 
-We wish everyone a safe and joyful festive season.$content$,
+We wish everyone a safe and joyful festive season.
+$content$,
   NULL,
   NULL,
   NULL
@@ -191,7 +194,8 @@ We wish everyone a safe and joyful festive season.$content$,
   'Upcoming Events',
   (SELECT dq_operations FROM constants),
   (SELECT culture_people_focus FROM constants),
-  $content$# DQ Townhall Meeting Agenda
+  $content$
+# DQ Townhall Meeting Agenda
 
 Join us for the upcoming DQ Townhall meeting featuring working room guidelines, Scrum Master framework discussions, and important organizational updates.
 
@@ -232,7 +236,8 @@ This townhall aims to:
 
 - Please arrive on time to ensure we can cover all agenda items
 - Questions and discussions are encouraged during designated Q&A segments
-- Meeting materials and recordings will be shared following the session$content$,
+- Meeting materials and recordings will be shared following the session
+$content$,
   NULL,
   NULL,
   NULL
@@ -247,7 +252,7 @@ This townhall aims to:
   (SELECT hra_people_dept FROM constants),
   0,
   'Complete guide to the leave approval process, including required steps, notification procedures, and consequences for non-compliance.',
-  'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1521791136064-b7833e8f5570?auto=format&fit=crop&w=1200&q=80',
   (SELECT hra_people_dept FROM constants),
   (SELECT dubai_location FROM constants),
   (SELECT people_domain FROM constants),
@@ -256,7 +261,8 @@ This townhall aims to:
   (SELECT policy_update_type FROM constants),
   (SELECT dq_operations FROM constants),
   (SELECT culture_people_focus FROM constants),
-  $content$# DQ Leave Process Guideline
+  $content$
+# DQ Leave Process Guideline
 
 Complete guide to the leave approval process, including required steps, notification procedures, and consequences for non-compliance.
 
@@ -294,7 +300,8 @@ Any leave taken without prior approval or proper handover is documented as a vio
 Three violations may result in termination of employment.
 
 ## Important Reminder
-**Approval Requirement**: All leave must be approved by HRA and Management to ensure fairness and compliance with company policies.$content$,
+**Approval Requirement**: All leave must be approved by HRA and Management to ensure fairness and compliance with company policies.
+$content$,
   NULL,
   NULL,
   NULL
@@ -510,7 +517,8 @@ Three violations may result in termination of employment.
   (SELECT policy_update_type FROM constants),
   (SELECT dq_communications FROM constants),
   (SELECT culture_people_focus FROM constants),
-  $content$# Enhancing Collaboration Through Unified Scheduling
+  $content$
+# Enhancing Collaboration Through Unified Scheduling
 
 To enhance collaboration and synchronize workflows across all studios, we are implementing a unified company-wide lunch break schedule.
 
@@ -543,7 +551,8 @@ To enhance collaboration and synchronize workflows across all studios, we are im
 ## Questions?
 For any questions or concerns about this new policy, please reach out to your local HR representative or contact DQ Communications directly.
 
-Thank you for your cooperation in helping us build a more synchronized and efficient work environment.$content$,
+Thank you for your cooperation in helping us build a more synchronized and efficient work environment.
+$content$,
   NULL,
   NULL,
   NULL
@@ -567,7 +576,8 @@ Thank you for your cooperation in helping us build a more synchronized and effic
   (SELECT company_news_type FROM constants),
   (SELECT dq_communications FROM constants),
   (SELECT culture_people_focus FROM constants),
-  $content$# DQ Associate Grade Review Program Launch
+  $content$
+# DQ Associate Grade Review Program Launch
 
 We are pleased to announce the launch of the **DQ Associate Grade Review Program (GRP)**. This comprehensive initiative aims to ensure all associates are aligned to the DQ SFIA-based grading scale, reflecting both their competence levels and scope of responsibility.
 
@@ -635,7 +645,8 @@ For questions about the GRP program, please contact:
 
 We are committed to maintaining transparent, fair, and consistent grading standards that support both individual growth and organizational excellence.
 
-*More details will follow as we progress through the program phases. Stay tuned for updates!*$content$,
+*More details will follow as we progress through the program phases. Stay tuned for updates!*
+$content$,
   NULL,
   NULL,
   NULL
@@ -659,7 +670,8 @@ We are committed to maintaining transparent, fair, and consistent grading standa
   (SELECT policy_update_type FROM constants),
   (SELECT dq_operations FROM constants),
   (SELECT culture_people_focus FROM constants),
-  $content$# DQ Work From Home (WFH) Guidelines
+  $content$
+# DQ Work From Home (WFH) Guidelines
 
 Work From Home (WFH) guidelines outlining purpose, roles, processes, tools, KPIs, and compliance for remote work across DQ.
 
@@ -755,7 +767,8 @@ The **Work From Home (WFH) Guidelines** provide a clear framework for how remote
 **Key Contacts**
 - **Pelagie Njiki** – CoE Lead
 - **Mauline Wangui** – TechOps Coordinator
-- **Martin Wambugu** – Content & Marketing Analyst$content$,
+- **Martin Wambugu** – Content & Marketing Analyst
+$content$,
   NULL,
   NULL,
   NULL
@@ -779,7 +792,8 @@ The **Work From Home (WFH) Guidelines** provide a clear framework for how remote
   (SELECT policy_update_type FROM constants),
   (SELECT dq_operations FROM constants),
   (SELECT culture_people_focus FROM constants),
-  $content$# DQ Dress Code Guideline (Version 1.0)
+  $content$
+# DQ Dress Code Guideline (Version 1.0)
 
 Professional appearance guidelines that set expectations for attire at DigitalQatalyst, balancing professionalism with comfort and supporting our brand perception.
 
@@ -879,7 +893,8 @@ These recognitions help reinforce the guideline in a positive, motivating way.
 - **Business Casual** – Button-up shirt, slacks, blazer (men); blouse and pencil skirt or knee-length dress with flats or heels (women).
 - **Casual Fridays** – Polo shirt and jeans with casual shoes (men); casual top with jeans and flats/sneakers (women). Always maintain neat, non-revealing, and culturally respectful outfits.
 
-Where in doubt, associates should choose the more professional option and consult HR or their Line Manager for clarification.$content$,
+Where in doubt, associates should choose the more professional option and consult HR or their Line Manager for clarification.
+$content$,
   NULL,
   NULL,
   NULL
@@ -996,7 +1011,8 @@ For questions about any of these resources or to request additional documentatio
 
 ---
 
-*Keep this reference handy for quick access to all DQ frameworks and methodologies. Together, we continue to build excellence through shared knowledge and consistent application of our proven approaches.*$content$,
+*Keep this reference handy for quick access to all DQ frameworks and methodologies. Together, we continue to build excellence through shared knowledge and consistent application of our proven approaches.*
+$content$,
   NULL,
   NULL,
   NULL
@@ -1052,7 +1068,8 @@ To maintain a streamlined, transparent, and consistent leadership structure that
 
 ## | Role Expectation
 
-All Scrum Masters are expected to take full ownership of their unit, delivery area, or working room proactively identifying blockers, facilitating progress, and ensuring achievement of defined delivery targets.$content$,
+All Scrum Masters are expected to take full ownership of their unit, delivery area, or working room proactively identifying blockers, facilitating progress, and ensuring achievement of defined delivery targets.
+$content$,
   NULL,
   NULL,
   NULL
