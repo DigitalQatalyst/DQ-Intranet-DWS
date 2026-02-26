@@ -3,48 +3,90 @@ import { toTitleCase } from '@/utils/newsUtils';
 
 // Generate a short, relevant heading for announcements
 export const generateAnnouncementHeading = (article: NewsItem): string => {
-  if (article.title && article.title.trim()) {
-    let title = article.title.trim();
-    if (title.length > 80) {
-      const parts = title.split('|').map(p => p.trim());
-      if (parts.length > 1) {
-        title = parts[0];
-      } else {
-        const sentences = title.split(/[.:]/);
-        if (sentences[0] && sentences[0].length > 20 && sentences[0].length < 80) {
-          title = sentences[0].trim();
-        }
-      }
-    }
-    return toTitleCase(title);
-  }
-  
-  if (article.content) {
-    const lines = article.content.split('\n');
-    for (const line of lines) {
-      const trimmed = line.trim();
-      const headingMatch = trimmed.match(/^#+\s+(.+)$/);
-      if (headingMatch) {
-        const headingText = headingMatch[1].trim().replace(/\*\*/g, '').replace(/\*/g, '');
-        if (headingText.length > 10 && headingText.length < 100) {
-          return toTitleCase(headingText);
-        }
-      }
-    }
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed && !trimmed.match(/^#+\s+/) && trimmed.length > 20 && trimmed.length < 100) {
-        const cleanLine = trimmed.replace(/\*\*/g, '').replace(/\*/g, '').substring(0, 80);
-        return toTitleCase(cleanLine);
-      }
-    }
-  }
-  
-  if (article.excerpt && article.excerpt.length > 20 && article.excerpt.length < 100) {
-    return article.excerpt;
-  }
-  
+  const titleHeading = getHeadingFromTitle(article.title);
+  if (titleHeading) return titleHeading;
+
+  const contentHeading = getHeadingFromContent(article.content);
+  if (contentHeading) return contentHeading;
+
+  const excerptHeading = getHeadingFromExcerpt(article.excerpt);
+  if (excerptHeading) return excerptHeading;
+
   return 'Announcement Details';
+};
+
+const getHeadingFromTitle = (title?: string): string => {
+  if (!title || !title.trim()) return '';
+  let trimmedTitle = title.trim();
+
+  if (trimmedTitle.length > 80) {
+    trimmedTitle = shortenLongTitle(trimmedTitle);
+  }
+
+  return toTitleCase(trimmedTitle);
+};
+
+const shortenLongTitle = (title: string): string => {
+  const parts = title.split('|').map(p => p.trim());
+  if (parts.length > 1) {
+    return parts[0];
+  }
+
+  const sentences = title.split(/[.:]/);
+  if (sentences[0] && sentences[0].length > 20 && sentences[0].length < 80) {
+    return sentences[0].trim();
+  }
+
+  return title;
+};
+
+const getHeadingFromContent = (content?: string): string => {
+  if (!content) return '';
+  const lines = content.split('\n');
+
+  const markdownHeading = findMarkdownHeading(lines);
+  if (markdownHeading) return markdownHeading;
+
+  const firstParagraph = findFirstParagraphHeading(lines);
+  if (firstParagraph) return firstParagraph;
+
+  return '';
+};
+
+const findMarkdownHeading = (lines: string[]): string => {
+  for (const line of lines) {
+    const trimmed = line.trim();
+    const headingMatch = trimmed.match(/^#+\s+(.+)$/);
+    if (!headingMatch) continue;
+
+    const headingText = headingMatch[1].trim().replace(/\*\*/g, '').replace(/\*/g, '');
+    if (headingText.length > 10 && headingText.length < 100) {
+      return toTitleCase(headingText);
+    }
+  }
+
+  return '';
+};
+
+const findFirstParagraphHeading = (lines: string[]): string => {
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    if (trimmed.match(/^#+\s+/)) continue;
+    if (trimmed.length <= 20 || trimmed.length >= 100) continue;
+
+    const cleanLine = trimmed.replace(/\*\*/g, '').replace(/\*/g, '').substring(0, 80);
+    return toTitleCase(cleanLine);
+  }
+
+  return '';
+};
+
+const getHeadingFromExcerpt = (excerpt?: string): string => {
+  if (excerpt && excerpt.length > 20 && excerpt.length < 100) {
+    return excerpt;
+  }
+  return '';
 };
 
 export { buildOverview } from './buildOverview';
