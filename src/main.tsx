@@ -309,5 +309,6 @@ if (container) {
     };
 
     initializeAndHandleAuth();
+    }
   }
 }
