@@ -89,7 +89,7 @@ const newsItems: NewsItem[] = [
 // Event and Resource mock data removed (unused) to satisfy noUnusedLocals.
 
 // Define interface for tab items
-type TabId = "ghc" | "guidelines" | "learning";
+type TabId = "guidelines" | "learning";
 
 interface TabItem {
   id: TabId;
@@ -162,7 +162,7 @@ const ErrorMessage = ({ message }) => (
 // KnowledgeHub Content Component
 const KnowledgeHubContent = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TabId>("ghc");
+  const [activeTab, setActiveTab] = useState<TabId>("guidelines");
   const [isTabChanging, setIsTabChanging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<{ message: string } | null>(null);
@@ -170,11 +170,6 @@ const KnowledgeHubContent = () => {
   const [loadFallback, setLoadFallback] = useState(false);
 
   const tabs: TabItem[] = [
-    {
-      id: "ghc",
-      label: "GHC",
-      icon: <Newspaper size={16} className="#030F35-600" />,
-    },
     {
       id: "guidelines",
       label: "Guidelines",
@@ -347,56 +342,6 @@ const KnowledgeHubContent = () => {
 
           {/* Error banner (content still shown below if fallback available) */}
           {error && !isLoading && <ErrorMessage message={error.message} />}
-
-          {/* GHC Tab */}
-          {activeTab === "ghc" && !isLoading && (
-            <section
-              id="kh-panel-ghc"
-              aria-label="GHC content"
-              aria-live="polite"
-            >
-              {loadFallback && (
-                <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-                  Showing cached GHC highlights while live data is unavailable.
-                </div>
-              )}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {getGhcData().length === 0 ? (
-                  <div className="col-span-full text-center text-gray-600">
-                    No GHC items available right now.
-                  </div>
-                ) : (
-                  getGhcData().map((item, index) => (
-                    <div
-                      key={item.id}
-                      className="animate-fade-in-up"
-                      style={{
-                        animationDelay: `${index * 0.1}s`,
-                      }}
-                    >
-                      <NewsCard
-                        content={{
-                          title: item.title,
-                          description: item.excerpt,
-                          imageUrl: item.imageUrl,
-                          tags: item.tags ?? [item.category],
-                          date: item.date,
-                          source: item.source,
-                        }}
-                        ctaLabel="Explore GHC"
-                        onQuickView={() => {
-                          navigate(`/marketplace/guides?tab=strategy&collapsed=guide_type%2Csub_domain%2Cunit%2Clocation%2Ctestimonial_category%2Cproduct_type%2Cproduct_stage%2Cguidelines_category%2Ccategorization%2Cattachments%2Cstrategy_framework%2Cglossary_knowledge_system%2Cglossary_ghc_dimension%2Cglossary_6xd_perspective%2Cglossary_letter%2Cfaq_category`);
-                        }}
-                        onReadMore={() => {
-                          navigate(`/marketplace/guides?tab=strategy&collapsed=guide_type%2Csub_domain%2Cunit%2Clocation%2Ctestimonial_category%2Cproduct_type%2Cproduct_stage%2Cguidelines_category%2Ccategorization%2Cattachments%2Cstrategy_framework%2Cglossary_knowledge_system%2Cglossary_ghc_dimension%2Cglossary_6xd_perspective%2Cglossary_letter%2Cfaq_category`);
-                        }}
-                      />
-                    </div>
-                  ))
-                )}
-              </div>
-            </section>
-          )}
 
           {/* Guidelines Tab */}
           {activeTab === "guidelines" && !isLoading && (
