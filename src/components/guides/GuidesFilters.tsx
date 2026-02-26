@@ -266,6 +266,57 @@ const CheckboxList: React.FC<{ idPrefix: string; name: string; options: Facet[];
   )
 }
 
+function getTabKeysToDelete(isStrategy: boolean, isTestimonials: boolean): string[] {
+  if (isStrategy) return ['guide_type', 'sub_domain', 'domain', 'unit', 'location']
+  if (isTestimonials) return ['guide_type', 'sub_domain', 'domain']
+  return ['guide_type', 'sub_domain', 'unit', 'domain']
+}
+
+function filterLocationForTab(
+  next: URLSearchParams,
+  isStrategy: boolean,
+  isBlueprint: boolean,
+  isTestimonials: boolean
+): boolean {
+  if (isStrategy) {
+    if (!next.has('location')) return false
+    next.delete('location')
+    return true
+  }
+  const allowedIds = isBlueprint
+    ? BLUEPRINT_LOCATIONS.map(o => o.id)
+    : isTestimonials
+      ? TESTIMONIAL_LOCATIONS.map(o => o.id)
+      : null
+  if (!allowedIds) return false
+  const current = parseCsv(next.get('location'))
+  const filtered = current.filter(val => allowedIds.includes(val))
+  if (filtered.length === current.length) return false
+  if (filtered.length) next.set('location', filtered.join(','))
+  else next.delete('location')
+  return true
+}
+
+function matchesFramework(frameworkId: string, value: string): boolean {
+  if (frameworkId === 'ghc') return value.includes('ghc') || value.includes('golden honeycomb')
+  if (frameworkId === 'hov') return value.includes('hov') || value.includes('house of values') || value.includes('competencies')
+  return value.includes(frameworkId) || frameworkId.includes(value)
+}
+
+function computeAvailableStrategyFrameworks(isStrategySelected: boolean, facets: GuidesFacets): Facet[] {
+  if (!isStrategySelected) return []
+  const noFacets = (!facets.sub_domain || facets.sub_domain.length === 0)
+    && (!facets.domain || facets.domain.length === 0)
+    && (!facets.guide_type || facets.guide_type.length === 0)
+  if (noFacets) return STRATEGY_FRAMEWORKS
+  const allFacetIds = [
+    ...(facets.sub_domain || []).map(f => f.id.toLowerCase()),
+    ...(facets.domain || []).map(f => f.id.toLowerCase()),
+    ...(facets.guide_type || []).map(f => f.id.toLowerCase()),
+  ]
+  return STRATEGY_FRAMEWORKS.filter(fw => allFacetIds.some(v => matchesFramework(fw.id.toLowerCase(), v)))
+}
+
 export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, activeTab }) => {
   const instanceId = useId()
   const isStrategySelected = activeTab === 'strategy'
@@ -277,36 +328,10 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
   const isResourcesSelected = activeTab === 'resources'
   const prevTabRef = useRef<typeof activeTab>(activeTab)
   
-  const availableStrategyFrameworks = useMemo(() => {
-    if (!isStrategySelected) return []
-    // If facets are not loaded yet, show all options (they'll be filtered once data loads)
-    if ((!facets.sub_domain || facets.sub_domain.length === 0) && 
-        (!facets.domain || facets.domain.length === 0) && 
-        (!facets.guide_type || facets.guide_type.length === 0)) {
-      return STRATEGY_FRAMEWORKS
-    }
-    
-    const subDomainIds = new Set((facets.sub_domain || []).map(f => f.id.toLowerCase()))
-    const domainIds = new Set((facets.domain || []).map(f => f.id.toLowerCase()))
-    const guideTypeIds = new Set((facets.guide_type || []).map(f => f.id.toLowerCase()))
-    
-    return STRATEGY_FRAMEWORKS.filter(framework => {
-      const frameworkId = framework.id.toLowerCase()
-      // Check if any facet matches this framework (strategy filters check sub_domain, domain, and guide_type)
-      const allFacetValues = [...subDomainIds, ...domainIds, ...guideTypeIds]
-      return allFacetValues.some(value => {
-        if (frameworkId === 'ghc') {
-          return value.includes('ghc') ||
-                 value.includes('golden honeycomb')
-        } else if (frameworkId === 'hov') {
-          return value.includes('hov') ||
-                 value.includes('house of values') ||
-                 value.includes('competencies')
-        }
-        return value.includes(frameworkId) || frameworkId.includes(value)
-      })
-    })
-  }, [isStrategySelected, facets.sub_domain, facets.domain, facets.guide_type])
+  const availableStrategyFrameworks = useMemo(
+    () => computeAvailableStrategyFrameworks(isStrategySelected, facets),
+    [isStrategySelected, facets.sub_domain, facets.domain, facets.guide_type]
+  )
   const clearAll = () => {
     const next = new URLSearchParams()
     onChange(next)
@@ -335,67 +360,30 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
   // Clean up incompatible filters when switching tabs (only run on actual tab change, not on query changes)
   // Also collapse all filters when switching tabs
   useEffect(() => {
-    // Only run if tab actually changed
     if (prevTabRef.current === activeTab) return
     prevTabRef.current = activeTab
-    
+
     const next = new URLSearchParams(query.toString())
     let changed = false
-    
-    // Collapse all filters when switching tabs
+
     const allCollapsed = new Set(ALL_CATEGORIES)
     const currentCollapsed = new Set(parseCsv(next.get('collapsed')))
-    // Check if collapsed state needs to be updated
-    const collapsedChanged = ALL_CATEGORIES.some(cat => {
-      return allCollapsed.has(cat) !== currentCollapsed.has(cat)
-    })
-    if (collapsedChanged) {
+    if (ALL_CATEGORIES.some(cat => allCollapsed.has(cat) !== currentCollapsed.has(cat))) {
       next.set('collapsed', Array.from(allCollapsed).join(','))
       setCollapsedSet(allCollapsed)
       changed = true
     }
-    
-    if (!(isStrategySelected || isBlueprintSelected || isTestimonialsSelected)) {
-      if (changed) onChange(next)
-      return
-    }
-    
-    const keysToDelete = isStrategySelected 
-      ? ['guide_type', 'sub_domain', 'domain', 'unit', 'location']
-      : isTestimonialsSelected
-        ? ['guide_type', 'sub_domain', 'domain']
-        : ['guide_type', 'sub_domain', 'unit', 'domain']
-    keysToDelete.forEach(key => {
-      if (next.has(key)) {
-        next.delete(key)
-        changed = true
+
+    if (isStrategySelected || isBlueprintSelected || isTestimonialsSelected) {
+      for (const key of getTabKeysToDelete(isStrategySelected, isTestimonialsSelected)) {
+        if (next.has(key)) { next.delete(key); changed = true }
       }
-    })
-    // Don't allow location filter for strategy tab
-    if (!isStrategySelected) {
-      const allowedLocationIds = isBlueprintSelected
-        ? BLUEPRINT_LOCATIONS.map(opt => opt.id)
-        : isTestimonialsSelected
-          ? TESTIMONIAL_LOCATIONS.map(opt => opt.id)
-          : undefined
-      if (allowedLocationIds) {
-        const current = parseCsv(next.get('location'))
-        const filtered = current.filter(val => allowedLocationIds.includes(val))
-        if (filtered.length !== current.length) {
-          changed = true
-          if (filtered.length) next.set('location', filtered.join(','))
-          else next.delete('location')
-        }
-      }
-    } else {
-      // Remove location filter if strategy tab is selected
-      if (next.has('location')) {
-        next.delete('location')
+      if (filterLocationForTab(next, isStrategySelected, isBlueprintSelected, isTestimonialsSelected)) {
         changed = true
       }
     }
-    if (!changed) return
-    onChange(next)
+
+    if (changed) onChange(next)
   }, [activeTab, isStrategySelected, isBlueprintSelected, isTestimonialsSelected, query, onChange])
   const toggleCollapsed = (key: string) => {
     const nextSet = new Set(collapsedSet)
@@ -407,18 +395,19 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
     if (value) next.set('collapsed', value); else next.delete('collapsed')
     onChange(next)
   }
+  const selectedKnowledgeSystems = parseCsv(query.get('glossary_knowledge_system'))
+  const hasGHC = selectedKnowledgeSystems.includes('ghc')
+  const has6xD = selectedKnowledgeSystems.includes('6xd')
+  const showGenericGuideType = !isStrategySelected && !isBlueprintSelected && !isTestimonialsSelected
+    && (facets.guide_type?.length ?? 0) > 0
+
   return (
     <div className="bg-white rounded-lg shadow p-4 sticky top-24 max-h-[70vh] overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} aria-label="Guides filters">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Filters</h2>
         <button onClick={clearAll} className="text-[var(--guidelines-primary)] text-sm font-medium">Clear all</button>
       </div>
-      {isGlossarySelected ? (() => {
-        const selectedKnowledgeSystems = parseCsv(query.get('glossary_knowledge_system'))
-        const hasGHC = selectedKnowledgeSystems.includes('ghc')
-        const has6xD = selectedKnowledgeSystems.includes('6xd')
-
-        return (
+      {isGlossarySelected ? (
           <>
             {/* PRIMARY FILTER: Knowledge System (e.g., GHC, Agile 6xD) */}
             <Section
@@ -520,8 +509,7 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
               </div>
             </Section>
           </>
-        )
-      })() : isBlueprintSelected ? (
+      ) : isBlueprintSelected ? (
         <>
           <Section idPrefix={instanceId} title="Products" category="product_type" collapsed={collapsedSet.has('product_type')} onToggle={toggleCollapsed}>
             <CheckboxList idPrefix={instanceId} name="product_type" options={PRODUCT_TYPES} query={query} onChange={onChange} />
@@ -606,7 +594,7 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
         <Section idPrefix={instanceId} title="Guide Type" category="guide_type" collapsed={collapsedSet.has('guide_type')} onToggle={toggleCollapsed}>
           <CheckboxList idPrefix={instanceId} name="guide_type" options={GUIDELINES_GUIDE_TYPES} query={query} onChange={onChange} />
         </Section>
-      ) : !(isStrategySelected || isBlueprintSelected || isTestimonialsSelected) && facets.guide_type && facets.guide_type.length > 0 && (
+      ) : showGenericGuideType && (
         <Section idPrefix={instanceId} title="Guide Type" category="guide_type" collapsed={collapsedSet.has('guide_type')} onToggle={toggleCollapsed}>
           <CheckboxList idPrefix={instanceId} name="guide_type" options={facets.guide_type || []} query={query} onChange={onChange} />
         </Section>

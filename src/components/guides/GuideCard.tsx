@@ -32,6 +32,54 @@ function hovTitleFromSlug(slug: string): string | null {
   return `HoV ${idx + 1} - ${nice}`
 }
 
+function getNonBlueprintTitle(guide: any): string {
+  const rawTitle = guide.title || ''
+  const slug = (guide.slug || '').toLowerCase()
+  if (slug && GHC_TITLE_BY_SLUG[slug]) return GHC_TITLE_BY_SLUG[slug]
+  const hovTitle = slug ? hovTitleFromSlug(slug) : null
+  if (hovTitle) return hovTitle
+  const lowerTitle = rawTitle.toLowerCase()
+  if (lowerTitle.includes('golden honeycomb')) return 'GHC Overview'
+  const ghcMatch = rawTitle.match(/^GHC\s+Competency\s+(\d+):\s*(.+)/i)
+  if (ghcMatch) return `GHC ${ghcMatch[1]} - ${ghcMatch[2].trim()}`
+  return rawTitle
+}
+
+const KNOWN_PRODUCTS = [
+  'Digital Workspace System (DWS)',
+  'Digital Transformation Management Academy (DTMA)',
+  'Digital Business Platforms (DBP Assists)',
+  'Digital Transformation Management Platform (DTMP)',
+  'Plant 4.0',
+  'TMaaS – Transformation Management as a Service',
+]
+
+function getLegacyBlueprintTitle(guide: any, productMetadata: ReturnType<typeof getProductMetadata>): string {
+  const title = guide.title || ''
+  const lowerTitle = title.toLowerCase()
+  let cleanedTitle = title.replace(/\s*Blueprint\s*/gi, '').trim()
+
+  if (lowerTitle.includes('dws') && !lowerTitle.includes('digital workspace system')) {
+    if (productMetadata || cleanedTitle.toLowerCase() === 'dws') return 'Digital Workspace System (DWS)'
+    if (cleanedTitle.toLowerCase().startsWith('dws')) {
+      return cleanedTitle.replace(/^dws\s*/i, 'Digital Workspace System (DWS)')
+    }
+  }
+
+  cleanedTitle = cleanedTitle.replace(/\s*blueprint\s*/gi, '').trim()
+
+  if (productMetadata) {
+    for (const productName of KNOWN_PRODUCTS) {
+      const meta = getProductMetadata(productName)
+      if (meta?.productType === productMetadata.productType && meta?.productStage === productMetadata.productStage) {
+        return productName
+      }
+    }
+  }
+
+  return (!cleanedTitle || cleanedTitle.toLowerCase() === 'blueprint') ? 'Product' : cleanedTitle
+}
+
 export interface GuideCardProps {
   guide: any
   onClick: () => void
@@ -125,85 +173,9 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
   
   // Transform title to remove "Blueprint" and use proper product naming
   const getDisplayTitle = (): string => {
-    if (!isBlueprint) {
-      const rawTitle = guide.title || ''
-      const slug = (guide.slug || '').toLowerCase()
-
-      if (slug && GHC_TITLE_BY_SLUG[slug]) return GHC_TITLE_BY_SLUG[slug]
-      const hovTitle = slug ? hovTitleFromSlug(slug) : null
-      if (hovTitle) return hovTitle
-      
-      // Title-based fallback for GHC overview
-      const lowerTitle = rawTitle.toLowerCase()
-      if (lowerTitle.includes('golden honeycomb')) return 'GHC Overview'
-      
-      // Regex rename for legacy "GHC Competency N: X (Y)"
-      const ghcCompetencyMatch = rawTitle.match(/^GHC\s+Competency\s+(\d+):\s*(.+)/i)
-      if (ghcCompetencyMatch) {
-        const [, num, rest] = ghcCompetencyMatch
-        return `GHC ${num} - ${rest.trim()}`
-      }
-      return rawTitle
-    }
-    
-    const title = guide.title || ''
-    
-    // If this is a static product (has productType/productStage directly), use title as-is
-    if (guide.productType && guide.productStage) {
-      return title
-    }
-    
-    // Otherwise, this is a legacy blueprint item - clean up the title
-    const lowerTitle = title.toLowerCase()
-    
-    // Remove "Blueprint" from title
-    let cleanedTitle = title.replace(/\s*Blueprint\s*/gi, '').trim()
-    
-    // Map common patterns to proper product names
-    if (lowerTitle.includes('dws') && !lowerTitle.includes('digital workspace system')) {
-      // If it's just "DWS Blueprint" or similar, use full product name
-      if (productMetadata) {
-        if (lowerTitle.includes('dws') || lowerTitle.includes('digital workspace')) {
-          return 'Digital Workspace System (DWS)'
-        }
-      }
-      // Fallback: clean up and add Product if needed
-      if (cleanedTitle.toLowerCase() === 'dws') {
-        return 'Digital Workspace System (DWS)'
-      }
-      if (cleanedTitle.toLowerCase().startsWith('dws')) {
-        return cleanedTitle.replace(/^dws\s*/i, 'Digital Workspace System (DWS)')
-      }
-    }
-    
-    // If title still contains "blueprint" after cleaning, remove it
-    cleanedTitle = cleanedTitle.replace(/\s*blueprint\s*/gi, '').trim()
-    
-    // Try to match to known product names using metadata
-    if (productMetadata) {
-      const knownProducts = [
-        'Digital Workspace System (DWS)',
-        'Digital Transformation Management Academy (DTMA)',
-        'Digital Business Platforms (DBP Assists)',
-        'Digital Transformation Management Platform (DTMP)',
-        'Plant 4.0',
-        'TMaaS – Transformation Management as a Service'
-      ]
-      
-      for (const productName of knownProducts) {
-        const productMeta = getProductMetadata(productName)
-        if (productMeta && productMeta.productType === productMetadata.productType && productMeta.productStage === productMetadata.productStage) {
-          return productName
-        }
-      }
-    }
-    
-    // Final fallback: if title is empty or just "Blueprint", use a generic product name
-    if (!cleanedTitle || cleanedTitle.toLowerCase() === 'blueprint') {
-      return 'Product'
-    }
-    
-    return cleanedTitle
+    if (!isBlueprint) return getNonBlueprintTitle(guide)
+    if (guide.productType && guide.productStage) return guide.title || ''
+    return getLegacyBlueprintTitle(guide, productMetadata)
   }
   
   const displayTitle = getDisplayTitle()

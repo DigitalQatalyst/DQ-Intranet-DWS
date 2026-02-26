@@ -17,7 +17,7 @@ function groupByDomain(data) {
 }
 
 function printDomainGroups(byDomain) {
-  for (const domain of Object.keys(byDomain).sort()) {
+  for (const domain of Object.keys(byDomain).sort((a, b) => a.localeCompare(b))) {
     console.log(`\n${domain} (${byDomain[domain].length} items):`);
     for (const item of byDomain[domain]) {
       console.log(`  - ${item.title} (${item.slug}) [${item.guide_type || 'no type'}]`);
