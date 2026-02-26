@@ -3,7 +3,7 @@ import { Newspaper, Loader, AlertCircle, Radio } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { FadeInUpOnScroll } from "./AnimationUtils";
 import { NewsCard } from "./CardComponents";
-import { fetchAllNews } from '@/services/mediaCenterService';
+import { supabase } from '@/services/supabaseClient';
 import type { NewsItem as MediaCenterNewsItem } from '@/data/media/news';
 
 interface NewsItem {
@@ -200,12 +200,41 @@ const KnowledgeHubContent = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const [allNews] = await Promise.all([
-          fetchAllNews()
-        ]);
+        // Fetch from Supabase v_media_all view
+        const { data, error: fetchError } = await supabase
+          .from('v_media_all')
+          .select('*')
+          .eq('status', 'Approved')
+          .order('date', { ascending: false })
+          .limit(100);
+
+        if (fetchError) {
+          throw fetchError;
+        }
+
         if (!isMounted) return;
-        setMediaCenterNews(allNews ?? []);
-        setLoadFallback(!allNews || allNews.length === 0);
+
+        // Transform Supabase data to match MediaCenterNewsItem format
+        const transformedData: MediaCenterNewsItem[] = (data || []).map((item: any) => ({
+          id: item.id,
+          slug: item.slug,
+          title: item.title,
+          excerpt: item.description || '',
+          date: item.date,
+          image: item.image_url,
+          tags: item.tags || [],
+          type: item.type,
+          category: item.category,
+          newsType: item.news_type,
+          focusArea: item.focus_area,
+          department: item.category,
+          newsSource: item.source,
+          byline: item.source,
+          author: item.source,
+        }));
+
+        setMediaCenterNews(transformedData);
+        setLoadFallback(transformedData.length === 0);
       } catch (err) {
         if (!isMounted) return;
         console.error("Error loading Media Center data:", err);
@@ -261,6 +290,12 @@ const KnowledgeHubContent = () => {
         // Also check newsType for Policy Update
         if (item.newsType === 'Policy Update') return true;
         
+        // Check tags array for guideline-related content
+        if (item.tags && Array.isArray(item.tags)) {
+          const tagString = item.tags.join(' ').toLowerCase();
+          if (tagString.includes('guideline') || tagString.includes('policy')) return true;
+        }
+        
         // Check category fields as fallback
         const category = (item.department || item.newsType || item.category || "").toLowerCase();
         return category.includes('guideline') || category.includes('policy');
@@ -271,7 +306,7 @@ const KnowledgeHubContent = () => {
         excerpt: item.excerpt,
         date: item.date,
         category: item.type === 'Guidelines' ? 'Guidelines' : (item.newsType || item.department || item.category || "Guidelines"),
-        tags: [item.type === 'Guidelines' ? 'Guidelines' : (item.newsType || item.department || item.category || "Guidelines")],
+        tags: item.tags || [item.type === 'Guidelines' ? 'Guidelines' : (item.newsType || item.department || item.category || "Guidelines")],
         source: item.newsSource || item.byline || item.author || "DQ Guidelines",
         imageUrl: item.image || undefined,
       }))
@@ -296,6 +331,13 @@ const KnowledgeHubContent = () => {
           );
         }
         
+        // Check tags array for learning-related content
+        if (item.tags && Array.isArray(item.tags)) {
+          const tagString = item.tags.join(' ').toLowerCase();
+          const learningTags = ['learning', 'course', 'training', 'education', 'skill', 'development'];
+          if (learningTags.some(tag => tagString.includes(tag))) return true;
+        }
+        
         // Check category fields as fallback
         const category = (item.department || item.newsType || item.category || "").toLowerCase();
         return category.includes('learning') || category.includes('course') || category.includes('training');
@@ -306,7 +348,7 @@ const KnowledgeHubContent = () => {
         excerpt: item.excerpt,
         date: item.date,
         category: item.department || item.newsType || item.category || "Learning",
-        tags: [item.department || item.newsType || item.category || "Learning"],
+        tags: item.tags || [item.department || item.newsType || item.category || "Learning"],
         source: item.newsSource || item.byline || item.author || "DQ Learning",
         imageUrl: item.image || undefined,
       }))
