@@ -1,354 +1,65 @@
-DWS | KNOWLEDGE CENTER SPECIFICATION
-Hi Caleb Kellah Chamath Pabasara Joshua Kibuye 
- 
-Here are specs to the DWS Knowledge Center
- 
-1. Overview
- 
-1.1 Purpose
-The DQ Knowledge Center Marketplace is a centralized knowledge repository within DWS that enables associates to understand how DQ works, how decisions are made, and how work is delivered.
- 
-It provides structured access to:
- 
-Golden Honeycomb of Competencies (GHC)
-Governance & Guidelines
-Products & 6xD
-Testimonials
-Glossary
-FAQs
- 
-2. Objectives
- 
-2.1  Objectives
-Ensure alignment across all associates on DQ frameworks.
-Reduce dependency on informal knowledge sharing.
-Provide structured documentation of governance and delivery models.
-Enable onboarding clarity for new associates.
-2.2 User Objectives
-Associates should be able to
-Quickly find official guidelines.
-Understand DQ’s competency model (GHC).
-Search for policies and frameworks.
-Filter knowledge by category.
-Access structured and updated documentation.
- 
-3. Target Users
- 
-User Type
-	
-Use Case
+DWS | MEDIA CENTER REQUIREMENTS SPECIFICATION REPORT (RSR)
 
+1. Page Purpose
+The DQ Media Center is the centralized entry point inside DQ Digital Workspace (DWS) for organizational communications—announcements, blogs, podcasts, and job openings. Objectives: act as the primary hub for associates, keep everyone informed, and route users quickly into the right content flows (News/Announcements, Blogs, Podcasts, Job Openings) while optimizing awareness, enablement, and discovery via tabs, search, and filters.
 
-New Associates & Existining Associates
-	
-Understand DQ structure and frameworks
+2. Target Users
+- New joiners: quickly see major updates, announcements, and culture signals.
+- Existing associates: fast access to latest announcements, blogs, podcasts, and internal career opportunities.
+- Leads & managers: visibility into messages associates see; quick access to job postings for staffing; use blogs/podcasts to amplify initiatives.
 
+3. Information Architecture (priority order)
+- Hero & Global Search: title + short description; global search scoped to all content types.
+- Core Content Services (Tabs): News & Announcements; Blogs; Podcasts; Job Openings.
+- Associate Growth & Enablement: blogs/podcasts for insights; job openings for progression.
+- Awareness & Updates: urgent operational changes and policy shifts via News & Announcements; notification banners for new stories or jobs.
+- Contextual Frameworks: metadata (department, theme, focus area, SFIA level for jobs) aligns content to core pillars.
+- Calls to Action per item: “Read More” (articles/blogs); “Play Episode” (podcasts); “View Role” / “Apply Now” (jobs).
 
-Scrum Masters
-	
-Refer to Agile & governance guidelines
+4. Hero Section Specifications
+- Orientation, not marketing: Title “DQ Media Center”; subtext “Your starting point for news, stories, podcasts, and career opportunities at DQ.”
+- Search bar: global, scoped by type (announcements, blogs, podcasts, job openings); query reflected in URL via ?q=.
+- Primary CTA is implicit: type in search or engage cards; no competing buttons in hero.
 
+5. Content Design Principles
+- Short, scannable sections; one core idea per card/section.
+- User value first: always answer “Why should I read/listen/apply?”
+- Avoid duplication; deep dives live on linked pages.
+- “Why it matters to me” framing for each item.
 
-Product Teams
-	
-Access GHC and 6xD documentation
+6. Services & Marketplaces Specifications
+- Tabs positioned at top of main content: News & Announcements; Blogs; Podcasts; Job Openings (all active; future tabs can be “Coming Soon”).
+- Grouping by purpose, not department.
+- Each tab card includes a 1-line purpose description and clear CTA (“View Details” / “Apply Now” / “Play Episode”).
 
+7. Growth & Enablement Sections
+- Blogs/Podcasts drive learning and capability.
+- Job Openings present SFIA-mapped growth paths.
+- Themes: Learning, Capability Building, Career Progression.
 
-HRA
-	
-Access HR and policy guidelines
+8. Awareness & Communication Sections
+- Focus on policy updates, organizational changes, strategic initiatives.
+- Visible item limit: up to 9 per view; use pagination or “Available Items (N)” indicator for more.
 
+9. Social Proof & Culture
+- Highlight associate-authored blogs and podcast speakers.
+- Culture shown implicitly through topics and stories (avoid explicit “culture quotes” blocks).
 
- 
-	
- 
- 
- 
-4. Functional Scope
-4.1 Marketplace Structure
-Tabs (Primary Navigation)
-GHC
-Guidelines
-6xD
-Products
-Testimonials
-Glossary
-FAQs
-Each tab dynamically filters the content cards.
- 
- 
-4.2 Card-Based Content Layout
-Each knowledge item appears as a card with:
-Thumbnail (Standard DQ Gradient Banner)
-Title
-Short Description (2 lines max)
-Category Tag
-Published Date
-“Read More” CTA
-Card Behaviour
-Click → Opens detailed content page
-Tag → Filters related content
-Search → Returns matching cards dynamically
-4.3 Search Functionality
-Global search within Knowledge Center
-Searches:
-Real-time filtered results
-No external search scope (internal only)
- 
-4.4 Filters (Dynamic Per Tab)
-GHC Tas
-GHC Types (1–7)
- 
-Guidelines Tab
-Categorization
-Attachments
-Location
-Filters must:
-Be multi-select
-Update results instantly
-Support “Clear All”
- 
-4.5 Detailed Page View
-Each item page must include:
- 
-Hero banner
-Title
-Category Tag
-Metadata (Date, Owner Team)
-Structured content (Rich text)
-Attachment support (PDF, links)
-Back to Marketplace button
- 
-5. Non-Functional Requirements
- 
-Requirement
-	
-Description
+10. Visual & Interaction Guidelines
+- Clean layout with generous whitespace; clear hierarchy: title → tabs → filters/search → cards.
+- Responsive: mobile/desktop parity in content priority; single-column grids on mobile.
 
+11. CTA Strategy
+- Intent-based CTAs:
+  - New joiners: learn about DQ culture/policies.
+  - Active associates: engage with relevant updates.
+  - Growth-focused associates: explore career opportunities and growth content.
 
-Performance
-	
-Load time under 2 seconds
+12. Success Criteria
+- Users grasp Media Center purpose within 5 seconds.
+- Users know which tab to click for their need (news, jobs, podcasts, etc.).
+- Engagement tracked by tab interactions and downstream actions (e.g., job applications).
 
-
-Accessibility
-	
-WCAG AA compliance
-
-
-Responsiveness
-	
-Desktop-first, tablet supported
-
-
-Security
-	
-Internal-only access (DQ SSO)
-
-
-Versioning
-	
-Content update tracking
-
-
-Auditability
-	
-Track last updated by
- 
- 
-6. Governance Model
- 
-Role
-	
-Responsibility
-
-
-Product Owner
-	
-Marketplace structure & enhancements
-
-
-Content Owner
-	
-Accuracy of each document
-
-
-Compliance
-	
-Policy validation
-
-
-Platform Team
-	
-Technical maintenance
-Content must not be published without content owner approval.
- 
-7. UX Principles
-Clean grid layout
-Maximum 3 cards per row
-Two-line truncation for descriptions
-Consistent thumbnail branding
-Clear hierarchy between frameworks and policies
- 
- 
-FYI 00. Govern (Specs)
- 
-Hi Michael Kimeu Tina Kimberly 
- 
-In the Knowledge Center, the GHC (Golden Honeycomb of Competencies) tab gives associates a structured view of DQ’s competency framework, spanning direction, culture, execution, and decision-making principles. It centralizes learning, reference, and practical resources across four tabs: Overview, Understand, Learn & Practice, and Other Materials, enabling associates to explore, understand, and apply DQ’s core competencies effectively.
- 
- 
-1. Overview
- 
-1.1 Purpose
-The GHC (Golden Honeycomb of Competencies) marketplace provides associates with a structured understanding of DQ’s competency framework, covering direction, culture, execution, and decision-making principles. It consolidates learning, reference, and practice content across four tabs: Overview, Understand, Learn & Practice, Other Materials.
- 
-1.2 Scope
-This feature is part of Stage 1 of the Knowledge Center Marketplace rollout. All content cards link dynamically to internal resources (storybook, video, course materials). Each card supports multi-tab navigation with distinct CTAs per tab.
- 
- 
- 
-2. Objectives
- 
- 
-Enable associates to quickly understand the GHC framework.
-Provide structured access to learning and reference content.
-Link cards to the correct internal resources:
-
-User Objectives
- 
-Navigate GHC cards easily.
-Filter and access resources by tab.
-Start practical exercises via Learn & Practice videos.
- 
-3. Functional Scope
-3.1 Card-Based Layout
-Each GHC item is a card:
-Clicking a card opens the Overview page by default.
-3.2 Tabs & CTAs
- 
-Tab
-	
-Description
-	
-CTA Behavior
-
-
-Overview
-	
-Read more about GHC item
-	
-Opens detailed content page in Knowledge Center (internal link)
-
-
-Understand
-	
-Key GHC explanations
-	
-Opens Storybook (internal link)
-
-
-Learn & Practice
-	
-Videos or exercises
-	
-Opens Learning Center Marketplace GHC video
-
-
-Other Materials
-	
-Supplemental documents
-	
-Opens attachments (PDF, links)
- 
-3.3 Filters & Search
-Search within GHC tab returns matching cards dynamically.
-Filters:
- 
-4. Non-Functional Requirements
- 
-Requirement
-	
-Description
-
-
-Performance
-	
-Load all GHC cards and content under 2s
-
-
-Accessibility
-	
-WCAG AA compliance
-
-
-Responsiveness
-	
-Desktop-first, tablet & mobile supported
-
-
-Security
-	
-Internal-only access via DQ SSO
-
-
-Auditability
-	
-Track last updated by content owner
-
-
-Versioning
-	
-Maintain content history per GHC item
- 
- 
-7. UX Principles
- 
- 
-Clean grid layout: max 3 cards per row
-Consistent thumbnail branding
-Two-line truncation for descriptions
-Clear hierarchy: Overview → Understand → Learn & Practice → Other Materials
-Tab navigation clearly visible and highlights active tab
- 
- 
- 
- 
-8. Stage Assignment
- 
-Feature
-	
-Stage
-
-
-GHC Marketplace cards & Overview
-	
-Stage 1
-
-
-Understand tab (Storybook)
-	
-Stage 1
-
-
-Learn & Practice tab (Learning Center Video)
-	
-Stage 1
-
-
-Other Materials
-	
-Stage 2 (optional, if attachments exist later)
- 
- 
-9. Correctness Properties
- 
- 
-Card Navigation – Clicking any GHC card opens Overview by default.
-Tab Routing – Tabs correctly route to Storybook, Learning Center, or Other Materials.
-Search & Filter – Filters return correct cards dynamically without breaking layout.
-Responsive Layout – 1 column mobile, 2–3 column tablet/desktop.
-Accessibility – ARIA labels on tabs, buttons, and cards.
-Security – Only authenticated associates can access content.
- 
- 
+13. Out of Scope (explicit)
+- Deep framework education (e.g., SFIA or methodology deep dives).
+- Detailed service explanations; link out to deeper resources instead.
