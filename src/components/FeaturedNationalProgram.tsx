@@ -13,41 +13,83 @@ interface FeaturedProgram {
   learnMoreHref: string;
   applyNowHref?: string;
   backgroundImage?: string;
-  tags?: string[];
+  category: 'News' | 'Insight' | 'Jobs';
+}
+
+function isPodcast(item: NewsItem): boolean {
+  if (item.format === 'Podcast') {
+    return true;
+  }
+
+  if (item.tags?.some((tag) => tag.toLowerCase().includes('podcast'))) {
+    return true;
+  }
+
+  return false;
+}
+
+function isEvent(item: NewsItem): boolean {
+  if (item.newsType === 'Upcoming Events') {
+    return true;
+  }
+
+  if (item.tags?.some((tag) => tag.toLowerCase().includes('event'))) {
+    return true;
+  }
+
+  return false;
 }
 
 function mapNewsToFeatured(item: NewsItem): FeaturedProgram {
-  const isBlog = item.type === 'Thought Leadership';
+  const isBlog = item.type === 'Thought Leadership' && !isPodcast(item);
   const partnership = item.byline || item.author || 'DQ Communications';
+  
+  // Use the actual image from the news item
+  const bgImage = item.image || '/images/honeycomb.png';
+  
+  let title: string;
+  let category: 'News' | 'Insight';
+  let learnMoreHref: string;
+  
+  if (isBlog) {
+    title = item.title;
+    category = 'Insight';
+    learnMoreHref = '/marketplace/opportunities?tab=insights';
+  } else if (item.type === 'Announcement') {
+    title = item.title;
+    category = 'News';
+    learnMoreHref = '/marketplace/opportunities?tab=announcements';
+  } else {
+    title = item.title;
+    category = 'News';
+    learnMoreHref = '/marketplace/opportunities?tab=announcements';
+  }
+  
   return {
     id: `news-${item.id}`,
     partnership,
-    title: isBlog ? `Blog | ${item.title}` : `Update | ${item.title}`,
+    title,
     description: item.excerpt,
-    learnMoreHref: `/marketplace/news/${item.id}`,
-    backgroundImage: item.image
-      ? `url(${item.image})`
-      : 'url(https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1920&q=80)',
-    tags: [
-      item.newsType || 'Corporate Announcements',
-      partnership,
-      ...(item.focusArea ? [item.focusArea] : []),
-    ],
+    learnMoreHref,
+    backgroundImage: `url(${bgImage})`,
+    category,
   };
 }
 
-function mapJobToFeatured(job: JobItem): FeaturedProgram {
+function mapJobToFeatured(item: JobItem): FeaturedProgram {
+  const partnership = item.department || 'DQ Careers';
+  
+  // Use the actual image from the job item
+  const bgImage = item.image || '/images/honeycomb.png';
+  
   return {
-    id: `job-${job.id}`,
-    partnership: job.department,
-    title: `Now Hiring | ${job.title}`,
-    description: job.summary,
-    learnMoreHref: `/marketplace/opportunities/${job.id}`,
-    applyNowHref: `/marketplace/opportunities/${job.id}/apply`,
-    backgroundImage: job.image
-      ? `url(${job.image})`
-      : 'url(https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80)',
-    tags: [job.department, job.location, 'Careers'],
+    id: `job-${item.id}`,
+    partnership,
+    title: item.title,
+    description: item.description,
+    learnMoreHref: '/marketplace/opportunities?tab=opportunities',
+    backgroundImage: `url(${bgImage})`,
+    category: 'Jobs',
   };
 }
 
@@ -55,7 +97,6 @@ export const FeaturedNationalProgram: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [programs, setPrograms] = useState<FeaturedProgram[]>([]);
   const activeProgram = programs[activeIndex] ?? null;
-  const hasImage = Boolean(activeProgram?.backgroundImage);
 
   // Auto-advance carousel
   useEffect(() => {
@@ -68,27 +109,45 @@ export const FeaturedNationalProgram: React.FC = () => {
     return () => clearInterval(interval);
   }, [programs]);
 
-  // Load latest items from DQ Media Center (news + jobs)
+  // Load latest items from DQ Media Center (news, blogs, jobs)
   useEffect(() => {
     let isMounted = true;
 
     async function loadFeatured() {
       try {
-        const [newsItems, jobItems] = await Promise.all([fetchAllNews(), fetchAllJobs()]);
+        const [newsItems, jobItems] = await Promise.all([
+          fetchAllNews(),
+          fetchAllJobs(),
+        ]);
 
         if (!isMounted) return;
 
-        const topNews = (newsItems ?? []).slice(0, 2).map(mapNewsToFeatured);
-        const topJobs = (jobItems ?? []).slice(0, 2).map(mapJobToFeatured);
+        const allNews = newsItems ?? [];
+        const allJobs = jobItems ?? [];
 
-        const combined = [...topNews, ...topJobs];
+        // Latest articles/blogs/news (excluding events and podcasts)
+        const latestNews = allNews
+          .filter((item) => !isPodcast(item) && !isEvent(item))
+          .slice(0, 5)
+          .map(mapNewsToFeatured);
 
+        // Latest jobs
+        const latestJobs = allJobs
+          .slice(0, 3)
+          .map(mapJobToFeatured);
+
+        // Combine and prioritize: mix news and jobs for variety
+        const combined = [...latestNews, ...latestJobs].slice(0, 8);
+
+        // Only set programs if we have data from the database
         if (combined.length > 0) {
           setPrograms(combined);
           setActiveIndex(0);
         }
       } catch (error) {
         console.error('Failed to load featured updates from media center', error);
+        // Don't show fallback - just leave empty if there's an error
+        setPrograms([]);
       }
     }
 
@@ -101,87 +160,59 @@ export const FeaturedNationalProgram: React.FC = () => {
 
   return (
     <div className="w-full py-8 px-4">
-      <FadeInUpOnScroll className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-gray-900 mb-3 clamp-1">
-          Featured Updates & Opportunities
-        </h2>
-        <div>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Stay informed with DWS platform updates, announcements, releases, and key system changes.
-          </p>
-        </div>
-      </FadeInUpOnScroll>
+      {/* Only show section if we have programs to display */}
+      {programs.length > 0 && (
+        <>
+          <FadeInUpOnScroll className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3 clamp-1">
+              Latest Updates
+            </h2>
+            <div>
+              <p className="text-base sm:text-lg text-gray-600 mx-auto text-balance leading-tight whitespace-normal sm:whitespace-nowrap max-w-full sm:max-w-4xl">
+                Catch the latest DQ news, insights, and job opportunities curated for quick scanning, with one click to dive deeper.
+              </p>
+            </div>
+          </FadeInUpOnScroll>
 
-      <div className="relative rounded-2xl overflow-hidden shadow-lg w-full max-w-[1248px] mx-auto">
-        {activeProgram && (
+          <div className="relative rounded-3xl overflow-hidden shadow-xl w-full max-w-[1506px] mx-auto">
+            {activeProgram && (
         <div
           key={activeProgram.id}
-          className={`h-[359px] p-8 flex flex-col justify-between relative animate-fade-in ${
-            activeProgram.backgroundImage ? '' : 'bg-gradient-to-r from-green-400 via-green-300 to-yellow-300'
-          }`}
+          className="h-[360px] p-10 flex flex-col justify-between relative bg-cover bg-center transition-all duration-500"
           style={
             activeProgram.backgroundImage
               ? {
-                  backgroundImage: activeProgram.backgroundImage,
+                  backgroundImage: `linear-gradient(to right, rgba(15, 29, 74, 0.45), rgba(15, 29, 74, 0.45)), ${activeProgram.backgroundImage}`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
+                  animation: 'fadeSlideIn 0.6s ease-out'
                 }
               : {
-                  backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)',
-                  backgroundSize: '20px 20px',
+                  backgroundColor: 'rgba(15, 29, 74, 0.45)',
+                  animation: 'fadeSlideIn 0.6s ease-out'
                 }
           }
         >
-          <div className={`flex-1 flex flex-col justify-center ${hasImage ? 'text-white' : 'text-gray-900'}`}>
-            <div className={`inline-flex items-center rounded-full px-4 py-1.5 mb-4 w-fit ${hasImage ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-700'}`}>
-              <p className="text-sm">
-                {activeProgram.partnership}
-              </p>
-            </div>
-            <h3 className={`text-3xl font-bold mb-4 ${hasImage ? 'text-white' : 'text-gray-900'}`}>
+
+          <div className="flex-1 flex flex-col justify-center text-white relative z-10">
+            <h3 className="font-bold mb-4 text-white max-w-3xl leading-tight" style={{ fontSize: '30px' }}>
               {activeProgram.title}
             </h3>
-            <p className={`text-lg max-w-2xl leading-relaxed ${hasImage ? 'text-white' : 'text-gray-800'}`}>
+            <p className="max-w-2xl leading-relaxed text-white/90" style={{ fontSize: '18px' }}>
               {activeProgram.description}
             </p>
-            {activeProgram.tags && activeProgram.tags.length > 0 && (
-              <div className="mt-6 flex flex-wrap gap-2">
-                {activeProgram.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className={`text-xs font-semibold px-3 py-1 rounded-full ${hasImage ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700'}`}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex items-center relative z-10">
             <a
               href={activeProgram.learnMoreHref}
-              className={`px-6 py-3 font-semibold rounded-lg transition-colors flex items-center gap-2 ${
-                hasImage
-                  ? 'bg-white/90 text-blue-700 hover:bg-white'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
+              className="px-6 py-3 bg-white text-[#0F1D4A] font-semibold rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-2 shadow-lg"
             >
-              View Details
-              <ArrowRight size={18} className={`${hasImage ? 'text-blue-700' : 'text-white'}`} />
+              {activeProgram.category === 'Jobs' && 'VIEW OPPORTUNITY'}
+              {activeProgram.category === 'News' && 'READ STORY'}
+              {activeProgram.category === 'Insight' && 'READ INSIGHT'}
+              <ArrowRight size={18} />
             </a>
-            {activeProgram.applyNowHref && (
-            <a
-              href={activeProgram.applyNowHref}
-                className={`px-6 py-3 font-semibold rounded-lg border transition-colors flex items-center gap-2 ${
-                  hasImage
-                    ? 'border-white/80 text-white hover:bg-white/10'
-                    : 'border-blue-600 text-blue-700 hover:bg-blue-50'
-                }`}
-              >
-                Apply
-              </a>
-            )}
           </div>
         </div>
         )}
@@ -206,23 +237,19 @@ export const FeaturedNationalProgram: React.FC = () => {
       )}
 
       <style>{`
-        @keyframes fade-in {
+        @keyframes fadeSlideIn {
           from {
             opacity: 0;
-            transform: translateX(20px);
+            transform: translateX(30px);
           }
           to {
             opacity: 1;
             transform: translateX(0);
           }
         }
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out;
-        }
       `}</style>
+        </>
+      )}
     </div>
   );
 };
-
-
-

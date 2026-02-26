@@ -20,8 +20,8 @@
   },
   "dependencies": {
     "@apollo/client": "^4.0.5",
-    "@azure/msal-browser": "^4.23.0",
-    "@azure/msal-react": "^3.0.19",
+    "@azure/msal-browser": "^3.10.0",
+    "@azure/msal-react": "^2.0.12",
     "@azure/storage-blob": "^12.28.0",
     "@floating-ui/react": "^0.26.28",
     "@fullcalendar/daygrid": "^6.1.19",
@@ -113,6 +113,7 @@
     "@vercel/node": "^5.3.26",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "latest",
+    "baseline-browser-mapping": "^2.9.19",
     "cross-env": "^10.1.0",
     "eslint": "^8.50.0",
     "eslint-plugin-react-hooks": "^4.6.0",
