@@ -3,7 +3,7 @@ import { Newspaper, Loader, AlertCircle, Radio } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { FadeInUpOnScroll } from "./AnimationUtils";
 import { NewsCard } from "./CardComponents";
-import { supabase } from '@/services/supabaseClient';
+import { knowledgeHubSupabase } from '@/services/knowledgeHubClient';
 import type { NewsItem as MediaCenterNewsItem } from '@/data/media/news';
 
 interface NewsItem {
@@ -200,8 +200,17 @@ const KnowledgeHubContent = () => {
       setIsLoading(true);
       setError(null);
       try {
-        // Fetch from Supabase v_media_all view
-        const { data, error: fetchError } = await supabase
+        // Check if Knowledge Hub client is available
+        if (!knowledgeHubSupabase) {
+          console.warn('Knowledge Hub Supabase not configured, using fallback data');
+          setMediaCenterNews([]);
+          setLoadFallback(true);
+          setIsLoading(false);
+          return;
+        }
+
+        // Fetch from Knowledge Hub Supabase v_media_all view
+        const { data, error: fetchError } = await knowledgeHubSupabase
           .from('v_media_all')
           .select('*')
           .eq('status', 'Approved')
