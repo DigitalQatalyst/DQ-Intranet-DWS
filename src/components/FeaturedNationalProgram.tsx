@@ -184,8 +184,8 @@ export const FeaturedNationalProgram: React.FC = () => {
       <div className="relative rounded-3xl overflow-hidden shadow-xl w-full max-w-[1506px] mx-auto">
         {activeProgram && (
         <div
-          key={`${activeProgram.id}-${activeIndex}`}
-          className="h-[360px] p-10 flex flex-col justify-between relative bg-cover bg-center transition-opacity duration-500"
+          key={activeProgram.id}
+          className="h-[360px] p-10 flex flex-col justify-between relative bg-cover bg-center transition-all duration-500"
           style={
             activeProgram.backgroundImage
               ? {

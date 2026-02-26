@@ -235,6 +235,10 @@ const KnowledgeHubContent = () => {
     const newsSource = mediaCenterNews.length > 0 ? mediaCenterNews : newsItems;
     return newsSource
       .filter((item) => {
+        // Check focusArea field for GHC
+        if (item.focusArea === 'GHC') return true;
+        
+        // Also check category fields as fallback
         const category = (item.department || item.newsType || item.category || "").toLowerCase();
         return category.includes('ghc') || category.includes('governance') || category.includes('agile');
       })
@@ -243,8 +247,8 @@ const KnowledgeHubContent = () => {
         title: item.title,
         excerpt: item.excerpt,
         date: item.date,
-        category: item.department || item.newsType || item.category || "GHC",
-        tags: [item.department || item.newsType || item.category || "GHC"],
+        category: item.focusArea || item.department || item.newsType || item.category || "GHC",
+        tags: [item.focusArea || item.department || item.newsType || item.category || "GHC"],
         source: item.newsSource || item.byline || item.author || "DQ GHC",
         imageUrl: item.image || undefined,
       }))
@@ -256,16 +260,23 @@ const KnowledgeHubContent = () => {
     const newsSource = mediaCenterNews.length > 0 ? mediaCenterNews : newsItems;
     return newsSource
       .filter((item) => {
+        // Check type field for Guidelines
+        if (item.type === 'Guidelines') return true;
+        
+        // Also check newsType for Policy Update
+        if (item.newsType === 'Policy Update') return true;
+        
+        // Check category fields as fallback
         const category = (item.department || item.newsType || item.category || "").toLowerCase();
-        return category.includes('guideline') || category.includes('policy') || category.includes('update');
+        return category.includes('guideline') || category.includes('policy');
       })
       .map((item) => ({
         id: item.id,
         title: item.title,
         excerpt: item.excerpt,
         date: item.date,
-        category: item.department || item.newsType || item.category || "Guidelines",
-        tags: [item.department || item.newsType || item.category || "Guidelines"],
+        category: item.type === 'Guidelines' ? 'Guidelines' : (item.newsType || item.department || item.category || "Guidelines"),
+        tags: [item.type === 'Guidelines' ? 'Guidelines' : (item.newsType || item.department || item.category || "Guidelines")],
         source: item.newsSource || item.byline || item.author || "DQ Guidelines",
         imageUrl: item.image || undefined,
       }))
@@ -277,8 +288,22 @@ const KnowledgeHubContent = () => {
     const newsSource = mediaCenterNews.length > 0 ? mediaCenterNews : newsItems;
     return newsSource
       .filter((item) => {
+        // Check for Thought Leadership items (blogs/articles about learning)
+        if (item.type === 'Thought Leadership') {
+          const title = item.title.toLowerCase();
+          const excerpt = item.excerpt.toLowerCase();
+          const tags = (item.tags || []).join(' ').toLowerCase();
+          
+          // Look for learning-related keywords
+          const learningKeywords = ['leadership', 'execution', 'learning', 'course', 'training', 'skill', 'growth', 'development'];
+          return learningKeywords.some(keyword => 
+            title.includes(keyword) || excerpt.includes(keyword) || tags.includes(keyword)
+          );
+        }
+        
+        // Check category fields as fallback
         const category = (item.department || item.newsType || item.category || "").toLowerCase();
-        return category.includes('learning') || category.includes('course') || category.includes('training') || category.includes('leadership');
+        return category.includes('learning') || category.includes('course') || category.includes('training');
       })
       .map((item) => ({
         id: item.id,
