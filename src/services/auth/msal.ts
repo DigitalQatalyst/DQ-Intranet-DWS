@@ -49,7 +49,14 @@ const LOGIN_HOST =
   env.NEXT_PUBLIC_IDENTITY_HOST ||
   env.VITE_IDENTITY_HOST ||
   (SUB ? `${SUB}.ciamlogin.com` : `${TENANT_NAME}.b2clogin.com`);
-const AUTHORITY_SIGNUP_SIGNIN = `https://${LOGIN_HOST}/${TENANT_NAME}.onmicrosoft.com/`;
+
+// For CIAM (External ID), the authority is just the subdomain without tenant name
+// For B2C, it includes the tenant name
+const isCIAM = LOGIN_HOST.includes('ciamlogin.com');
+const AUTHORITY_SIGNUP_SIGNIN = isCIAM 
+  ? `https://${LOGIN_HOST}/`
+  : `https://${LOGIN_HOST}/${TENANT_NAME}.onmicrosoft.com/${POLICY_SIGNUP_SIGNIN}`;
+
 const AUTHORITY_SIGNUP = POLICY_SIGNUP
   ? `https://${LOGIN_HOST}/${TENANT_NAME}.onmicrosoft.com/${POLICY_SIGNUP}`
   : AUTHORITY_SIGNUP_SIGNIN;

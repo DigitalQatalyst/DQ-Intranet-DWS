@@ -10,6 +10,14 @@ import {useAuth} from './Header';
 const AUTO_LOGIN = true;
 
 export const ProtectedRoute: React.FC<PropsWithChildren> = ({children}) => {
+    // Check if authentication is disabled
+    const authEnabled = import.meta.env.VITE_ENABLE_AUTH !== 'false';
+    
+    // If auth is disabled, just render children directly
+    if (!authEnabled) {
+        return <>{children}</>;
+    }
+
     const {user, isLoading, login} = useAuth();
     const location = useLocation();
 
