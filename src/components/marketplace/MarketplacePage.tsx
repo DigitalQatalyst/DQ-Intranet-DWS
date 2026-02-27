@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { FilterSidebar, FilterConfig } from './FilterSidebar.js';
 import { MarketplaceGrid } from './MarketplaceGrid.js';
@@ -567,6 +567,791 @@ function FilterSidebarSection({
 }
 
 // ---------------------------------------------------------------------------
+// Interfaces and module-level handlers extracted from useMarketplaceData.run()
+// Each handler covers one marketplace type branch, reducing run() complexity.
+// ---------------------------------------------------------------------------
+
+interface ItemSetters {
+  setLoading: (v: boolean) => void;
+  setError: (v: string | null) => void;
+  setItems: (v: any[]) => void;
+  setFilteredItems: (v: any[]) => void;
+  setTotalCount: (v: number) => void;
+}
+
+interface GuidesSetters extends ItemSetters {
+  setFacets: (v: GuidesFacets) => void;
+}
+
+interface GuidesRunParams {
+  activeTab: string;
+  queryParams: URLSearchParams;
+  currentPage: number;
+  pageSize: number;
+  searchStartRef: React.MutableRefObject<number | null>;
+}
+
+interface DesignSystemRunParams {
+  activeDesignSystemTab: string;
+  filters: Record<string, string | string[]>;
+  queryParams: URLSearchParams;
+}
+
+interface OtherMarketplaceRunParams {
+  marketplaceType: string;
+  filters: Record<string, string | string[]>;
+  searchQuery: string;
+  isServicesCenter: boolean;
+  activeServiceTab: string;
+}
+
+function runCoursesLoad(s: ItemSetters, searchFilteredItemsLength: number): void {
+  s.setLoading(false);
+  s.setError(null);
+  s.setTotalCount(searchFilteredItemsLength);
+  s.setItems([]);
+  s.setFilteredItems([]);
+}
+
+function runKnowledgeHubLoad(s: ItemSetters, marketplaceType: string): void {
+  const fallbackItems = getFallbackItems(marketplaceType);
+  s.setItems(fallbackItems);
+  s.setFilteredItems(fallbackItems);
+  s.setTotalCount(fallbackItems.length);
+  s.setLoading(false);
+}
+
+async function runBlueprintTabLoad(s: ItemSetters, queryParams: URLSearchParams): Promise<void> {
+  s.setLoading(true);
+  try {
+    const qStr = queryParams.get('q') || '';
+    const productTypes = parseFilterValues(queryParams, 'product_type');
+    const productStages = parseFilterValues(queryParams, 'product_stage');
+    let out = STATIC_PRODUCTS.map(product => ({
+      id: product.id, slug: product.slug, title: product.title,
+      summary: product.summary, heroImageUrl: product.heroImageUrl,
+      lastUpdatedAt: product.lastUpdatedAt, authorName: product.authorName,
+      authorOrg: product.authorOrg, isEditorsPick: product.isEditorsPick,
+      downloadCount: product.downloadCount, guideType: product.guideType,
+      domain: product.domain, functionArea: null, unit: null,
+      subDomain: null, location: null, status: product.status,
+      complexityLevel: null, productType: product.productType,
+      productStage: product.productStage,
+    }));
+    if (productTypes.length > 0) {
+      out = out.filter(it => {
+        const itemProductType = (it.productType || '').toLowerCase();
+        return productTypes.some(selectedType => {
+          const normalizedSelected = slugify(selectedType);
+          const typeMap: Record<string, string[]> = {
+            'tmaas': ['tmaas'], 'dtma': ['dtma'], 'dtmp': ['dtmp'],
+            'plant-4-0': ['plant 4.0', 'plant-4.0', 'plant40'], 'dtmcc': ['dtmcc'],
+          };
+          return (typeMap[selectedType] || [normalizedSelected]).some(t => itemProductType.includes(t));
+        });
+      });
+    }
+    if (productStages.length > 0) {
+      out = out.filter(it => it.productStage && productStages.includes(it.productStage.toLowerCase()));
+    }
+    if (qStr) {
+      const query = qStr.toLowerCase();
+      out = out.filter(it => {
+        const text = [it.title, it.summary, it.productType, it.productStage].filter(Boolean).join(' ').toLowerCase();
+        return text.includes(query);
+      });
+    }
+    s.setItems(out);
+    s.setFilteredItems(out);
+    s.setTotalCount(out.length);
+    s.setLoading(false);
+  } catch (error) {
+    console.error('Error loading products:', error);
+    s.setLoading(false);
+    s.setItems([]);
+    s.setFilteredItems([]);
+    s.setTotalCount(0);
+  }
+}
+
+async function runMainGuidesLoad(s: GuidesSetters, params: GuidesRunParams): Promise<void> {
+  const { activeTab, queryParams, currentPage, pageSize, searchStartRef } = params;
+  s.setLoading(true);
+  try {
+    const excludedSlugs = ['atp-guidelines', 'agile-working-guidelines', 'client-session-guidelines', 'dbp-support-guidelines', 'dq-products'];
+    let q = supabaseClient.from('guides').select(GUIDE_LIST_SELECT, { count: 'exact' });
+    excludedSlugs.forEach(slug => { q = q.neq('slug', slug); });
+    const qStr = queryParams.get('q') || '';
+    const domains     = parseFilterValues(queryParams, 'domain');
+    const rawSubs     = parseFilterValues(queryParams, 'sub_domain');
+    const guideTypes  = parseFilterValues(queryParams, 'guide_type');
+    const units       = parseFilterValues(queryParams, 'unit');
+    const statuses    = parseFilterValues(queryParams, 'status');
+    const testimonialCategories = parseFilterValues(queryParams, 'testimonial_category');
+    const strategyTypes = parseFilterValues(queryParams, 'strategy_type');
+    const strategyFrameworks = parseFilterValues(queryParams, 'strategy_framework');
+    const guidelinesCategories = parseFilterValues(queryParams, 'guidelines_category');
+    const categorization = parseFilterValues(queryParams, 'categorization');
+    const attachmentsFilter = parseFilterValues(queryParams, 'attachments');
+    const blueprintFrameworks = parseFilterValues(queryParams, 'blueprint_framework');
+    const blueprintSectors = parseFilterValues(queryParams, 'blueprint_sector');
+    const productTypes = parseFilterValues(queryParams, 'product_type');
+    const productStages = parseFilterValues(queryParams, 'product_stage');
+    const productSectors = parseFilterValues(queryParams, 'product_sector');
+    const currentActiveTab = activeTab;
+    const isStrategyTab = currentActiveTab === 'strategy';
+    const isBlueprintTab = currentActiveTab === 'blueprints';
+    const isTestimonialsTab = currentActiveTab === 'testimonials';
+    const isGlossaryTab = currentActiveTab === 'glossary';
+    const isFAQsTab = currentActiveTab === 'faqs';
+    const isGuidelinesTab = currentActiveTab === 'guidelines';
+    const isSpecialTab = isStrategyTab || isBlueprintTab || isTestimonialsTab || isGlossaryTab || isFAQsTab;
+    const allowed = new Set<string>();
+    if (!isSpecialTab) {
+      domains.forEach(d => (SUBDOMAIN_BY_DOMAIN[d] || []).forEach(s => allowed.add(s)));
+    }
+    const subDomains = !isSpecialTab
+      ? (allowed.size ? rawSubs.filter(v => allowed.has(v)) : rawSubs)
+      : [];
+    const effectiveGuideTypes = isSpecialTab ? [] : guideTypes;
+    const effectiveUnits = (isStrategyTab || isBlueprintTab || !isSpecialTab) ? units : [];
+    if (!isSpecialTab && rawSubs.length && subDomains.length !== rawSubs.length) {
+      const next = new URLSearchParams(queryParams.toString());
+      if (subDomains.length) next.set('sub_domain', subDomains.join(','));
+      else next.delete('sub_domain');
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', `${window.location.pathname}${next.toString() ? '?' + next.toString() : ''}`);
+      }
+      s.setLoading(false);
+      return;
+    }
+    if (statuses.length) q = q.in('status', statuses); else q = q.eq('status', 'Approved');
+    if (qStr) q = q.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
+    if (isStrategyTab) {
+      q = q.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
+    } else if (isTestimonialsTab) {
+      q = q.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
+    } else if (isGuidelinesTab) {
+      if (domains.length) { q = q.in('domain', domains); }
+    } else if (domains.length) {
+      q = q.in('domain', domains);
+    }
+    if (!isSpecialTab && subDomains.length) q = q.in('sub_domain', subDomains);
+    if (effectiveGuideTypes.length && !isGuidelinesTab) q = q.in('guide_type', effectiveGuideTypes);
+    const sort = queryParams.get('sort') || 'editorsPick';
+    if (sort === 'updated')        q = q.order('last_updated_at', { ascending: false, nullsFirst: false });
+    else if (sort === 'downloads') q = q.order('download_count',   { ascending: false, nullsFirst: false });
+    else if (sort === 'editorsPick') {
+      q = q.order('is_editors_pick', { ascending: false })
+           .order('last_updated_at', { ascending: false, nullsFirst: false });
+    } else {
+      q = q.order('is_editors_pick', { ascending: false })
+           .order('download_count',   { ascending: false, nullsFirst: false })
+           .order('last_updated_at',  { ascending: false, nullsFirst: false });
+    }
+    const needsClientSideUnitFilter = effectiveUnits.length > 0;
+    const needsClientSideFrameworkFilter =
+      (isStrategyTab && strategyFrameworks.length > 0) ||
+      (isBlueprintTab && (blueprintFrameworks.length > 0 || blueprintSectors.length > 0 || productTypes.length > 0 || productStages.length > 0 || productSectors.length > 0)) ||
+      (isGuidelinesTab && guidelinesCategories.length > 0);
+    const needsClientSideFiltering = needsClientSideUnitFilter || needsClientSideFrameworkFilter || categorization.length > 0 || attachmentsFilter.length > 0;
+    const from = (currentPage - 1) * pageSize;
+    const to   = from + pageSize - 1;
+    const listPromise = needsClientSideFiltering ? q.limit(10000) : q.range(from, to);
+    let facetQ = supabaseClient
+      .from('guides')
+      .select('domain,sub_domain,guide_type,function_area,unit,location,status')
+      .eq('status', 'Approved');
+    excludedSlugs.forEach(slug => { facetQ = facetQ.neq('slug', slug); });
+    if (qStr)              facetQ = facetQ.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
+    if (isStrategyTab)    facetQ = facetQ.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
+    else if (isTestimonialsTab) facetQ = facetQ.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
+    if (statuses.length)   facetQ = facetQ.in('status', statuses);
+    const [{ data: rows, count, error }, { data: facetRows, error: facetError }] = await Promise.all([
+      listPromise,
+      facetQ,
+    ]);
+    if (error) { throw error; }
+    if (facetError) { /* continue without facets */ }
+    const mapped = (rows || []).map((r: any) => {
+      const unitValue = r.unit ?? r.function_area ?? null;
+      const subDomainValue = r.sub_domain ?? r.subDomain ?? null;
+      return {
+        id: r.id, slug: r.slug, title: r.title, summary: r.summary,
+        heroImageUrl: r.hero_image_url ?? r.heroImageUrl,
+        estimatedTimeMin: r.estimated_time_min ?? r.estimatedTimeMin,
+        lastUpdatedAt: r.last_updated_at ?? r.lastUpdatedAt,
+        authorName: r.author_name ?? r.authorName,
+        authorOrg: r.author_org ?? r.authorOrg,
+        isEditorsPick: r.is_editors_pick ?? r.isEditorsPick,
+        downloadCount: r.download_count ?? r.downloadCount,
+        guideType: r.guide_type ?? r.guideType,
+        domain: r.domain ?? null, functionArea: unitValue, unit: unitValue,
+        subDomain: subDomainValue, location: r.location ?? null,
+        status: r.status ?? null, complexityLevel: r.complexity_level ?? null,
+      };
+    });
+    let out = mapped.filter(it => !excludedSlugs.includes(it.slug));
+    if (isStrategyTab) {
+      // Show all strategy guides; server-side query already biases toward Strategy
+    } else if (isBlueprintTab) {
+      out = STATIC_PRODUCTS.map(product => ({
+        id: product.id, slug: product.slug, title: product.title,
+        summary: product.summary, heroImageUrl: product.heroImageUrl,
+        lastUpdatedAt: product.lastUpdatedAt, authorName: product.authorName,
+        authorOrg: product.authorOrg, isEditorsPick: product.isEditorsPick,
+        downloadCount: product.downloadCount, guideType: product.guideType,
+        domain: product.domain, functionArea: null, unit: null,
+        subDomain: null, location: null, status: product.status,
+        complexityLevel: null, productType: product.productType,
+        productStage: product.productStage,
+      }));
+    } else if (isGuidelinesTab) {
+      out = out.filter(it => {
+        const domain = (it.domain || '').toLowerCase().trim();
+        const guideType = (it.guideType || '').toLowerCase().trim();
+        const hasStrategy = domain.includes('strategy') || guideType.includes('strategy');
+        const hasBlueprint = domain.includes('blueprint') || guideType.includes('blueprint');
+        const hasTestimonial = domain.includes('testimonial') || guideType.includes('testimonial');
+        return !hasStrategy && !hasBlueprint && !hasTestimonial;
+      });
+    } else {
+      out = [];
+    }
+    if (domains.length)    out = out.filter(it => it.domain && domains.includes(it.domain));
+    if (subDomains.length) out = out.filter(it => it.subDomain && subDomains.includes(it.subDomain));
+    if (effectiveGuideTypes.length) {
+      out = out.filter(it => {
+        const guideTypeValue = it.guideType;
+        if (!guideTypeValue) return false;
+        const normalizedDbValue = slugify(guideTypeValue);
+        return effectiveGuideTypes.some(selectedType => {
+          const normalizedSelected = slugify(selectedType);
+          return normalizedDbValue === normalizedSelected ||
+                 guideTypeValue.toLowerCase().trim() === selectedType.toLowerCase().trim();
+        });
+      });
+    }
+    if (effectiveUnits.length) {
+      out = out.filter(it => {
+        const unitValue = it.unit || it.functionArea;
+        if (!unitValue) return false;
+        const normalizedDbValue = slugify(unitValue);
+        return effectiveUnits.some(selectedUnit => normalizedDbValue === slugify(selectedUnit));
+      });
+    }
+    if (isGuidelinesTab && categorization.length) {
+      const catKeywords = {
+        'policy-set-1a-opg': ['policy set 1a', 'opg'],
+        'policy-set-1b-ppp': ['policy set 1b', 'ppp'],
+        'policy-set-2a-vision': ['policy set 02', '2a', 'vision'],
+        'policy-set-2b-culture': ['policy set 02', '2b', 'culture'],
+        'policy-set-2c-persona': ['policy set 02', '2c', 'persona'],
+        'policy-set-2d-task': ['policy set 02', '2d', 'task'],
+        'policy-set-2e-govern': ['policy set 02', '2e', 'govern'],
+        'policy-set-2f-flow': ['policy set 02', '2f', 'flow'],
+        'policy-set-2g-product': ['policy set 02', '2g', 'product'],
+      } as Record<string, string[]>;
+      out = out.filter(it => {
+        const haystack = `${it.title || ''} ${it.summary || ''} ${it.subDomain || ''} ${it.slug || ''}`.toLowerCase();
+        return categorization.some(cat => {
+          const kw = catKeywords[cat] || [cat.replace(/-/g, ' ')];
+          return kw.some(k => haystack.includes(k.toLowerCase()));
+        });
+      });
+    }
+    if (isStrategyTab && strategyTypes.length) {
+      out = out.filter(it => {
+        const subDomain = (it.subDomain || '').toLowerCase();
+        const slug = (it.slug || '').toLowerCase();
+        const title = (it.title || '').toLowerCase();
+        const summary = (it.summary || '').toLowerCase();
+        const allText = `${subDomain} ${slug} ${title} ${summary}`.toLowerCase();
+        return strategyTypes.some(selectedType => {
+          const normalizedSelected = slugify(selectedType);
+          const normalizedSubDomain = slugify(subDomain);
+          if (normalizedSubDomain === normalizedSelected ||
+              subDomain.includes(selectedType.toLowerCase()) ||
+              selectedType.toLowerCase().includes(subDomain)) {
+            return true;
+          }
+          if (selectedType.toLowerCase() === 'journey') {
+            const journeyKeywords = ['vision', 'mission', 'dq-vision', 'dq-mission', 'vision-and-mission', 'vision-mission'];
+            return journeyKeywords.some(keyword => slug.includes(keyword) || title.includes(keyword) || allText.includes(keyword));
+          }
+          if (selectedType.toLowerCase() === 'history') {
+            const historyKeywords = ['history', 'origin', 'began', 'founding', 'started', 'beginning', 'evolution', 'story'];
+            return historyKeywords.some(keyword => slug.includes(keyword) || title.includes(keyword) || allText.includes(keyword));
+          }
+          return false;
+        });
+      });
+    }
+    if (isStrategyTab && strategyFrameworks.length) {
+      out = out.filter(it => {
+        const subDomain = (it.subDomain || '').toLowerCase();
+        const domain = (it.domain || '').toLowerCase();
+        const guideType = (it.guideType || '').toLowerCase();
+        const title = (it.title || '').toLowerCase();
+        const slug = (it.slug || '').toLowerCase();
+        const allText = `${subDomain} ${domain} ${guideType} ${title} ${slug}`.toLowerCase();
+        const frameworkKeywords: Record<string, string[]> = {
+          'ghc1': ['vision'], 'ghc2': ['dq-hov', 'house of values'],
+          'ghc3': ['persona'], 'ghc4': ['agile tms', 'tms'],
+          'ghc5': ['agile sos', 'sos'], 'ghc6': ['agile flows', 'flows'],
+          'ghc7': ['agile 6xd', '6xd'],
+        };
+        return strategyFrameworks.some(selected => {
+          if (selected === 'ghc2') {
+            if (slug === 'dq-hov') return true;
+            return title.includes('house of values') && !title.includes('competencies');
+          }
+          return (frameworkKeywords[selected] || [selected]).some(kw => allText.includes(kw));
+        });
+      });
+    }
+    if (isGuidelinesTab && guidelinesCategories.length) {
+      out = out.filter(it => {
+        const subDomain = (it.subDomain || '').toLowerCase();
+        const domain = (it.domain || '').toLowerCase();
+        const guideType = (it.guideType || '').toLowerCase();
+        const title = (it.title || '').toLowerCase();
+        const allText = `${subDomain} ${domain} ${guideType} ${title}`.toLowerCase();
+        return guidelinesCategories.some(selectedCategory => {
+          const normalizedSelected = slugify(selectedCategory);
+          return allText.includes(selectedCategory.toLowerCase()) ||
+                 allText.includes(normalizedSelected) ||
+                 (selectedCategory === 'resources' && (allText.includes('resource') || allText.includes('guideline'))) ||
+                 (selectedCategory === 'policies' && (allText.includes('policy') || allText.includes('policies'))) ||
+                 (selectedCategory === 'xds' && (allText.includes('xds') || allText.includes('design-system') || allText.includes('design systems')));
+        });
+      });
+    }
+    if (isBlueprintTab) {
+      if (productTypes.length) {
+        out = out.filter(it => {
+          const itemProductType = (it.productType || '').toLowerCase();
+          return productTypes.some(selectedType => {
+            const normalizedSelected = slugify(selectedType);
+            const typeMap: Record<string, string[]> = {
+              'platform': ['platform'], 'academy': ['academy'],
+              'framework': ['framework'], 'tooling': ['tooling'],
+              'marketplace': ['marketplace'], 'enablement-product': ['enablement product'],
+            };
+            return (typeMap[selectedType] || [normalizedSelected]).some(t => itemProductType.includes(t));
+          });
+        });
+      }
+      if (productStages.length) {
+        out = out.filter(it => {
+          const itemProductStage = (it.productStage || '').toLowerCase();
+          return productStages.some(selectedStage => {
+            const normalizedSelected = slugify(selectedStage);
+            const stageMap: Record<string, string[]> = {
+              'concept': ['concept'], 'mvp': ['mvp'], 'live': ['live'],
+              'scaling': ['scaling'], 'enterprise-ready': ['enterprise-ready', 'enterprise ready'],
+            };
+            return (stageMap[selectedStage] || [normalizedSelected]).some(t => itemProductStage.includes(t));
+          });
+        });
+      }
+      if (productSectors.length || blueprintSectors.length) { out = []; }
+      if (qStr) {
+        const query = qStr.toLowerCase();
+        out = out.filter(it => {
+          const text = [it.title, it.summary, it.productType, it.productStage].filter(Boolean).join(' ').toLowerCase();
+          return text.includes(query);
+        });
+      }
+    }
+    if (statuses.length) out = out.filter(it => it.status && statuses.includes(it.status));
+    if (sort === 'updated')        out.sort((a,b) => new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
+    else if (sort === 'downloads') out.sort((a,b) => (b.downloadCount||0)-(a.downloadCount||0));
+    else if (sort === 'editorsPick')
+      out.sort((a,b) => (Number(b.isEditorsPick)||0)-(Number(a.isEditorsPick)||0) ||
+                        new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
+    else
+      out.sort((a,b) => (Number(b.isEditorsPick)||0)-(Number(a.isEditorsPick)||0) ||
+                        (b.downloadCount||0)-(a.downloadCount||0) ||
+                        new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
+    if (!isBlueprintTab) {
+      const defaultImage = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=400&fit=crop&q=80';
+      out = out.map(it => ({ ...it, heroImageUrl: it.heroImageUrl || defaultImage }));
+    }
+    const totalFiltered = out.length;
+    if (needsClientSideFiltering || isBlueprintTab) {
+      out = out.slice(from, from + pageSize);
+    }
+    const total = (needsClientSideFiltering || isBlueprintTab) ? totalFiltered : (typeof count === 'number' ? count : out.length);
+    const lastPage = Math.max(1, Math.ceil(total / pageSize));
+    if (currentPage > lastPage) {
+      const next = new URLSearchParams(queryParams.toString());
+      if (lastPage <= 1) next.delete('page'); else next.set('page', '1');
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', `${window.location.pathname}${next.toString() ? '?' + next.toString() : ''}`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      s.setLoading(false);
+      return;
+    }
+    const countBy = (arr: any[] | null | undefined, key: string) => {
+      const m = new Map<string, number>();
+      for (const r of (arr || [])) { const v = (r as any)[key]; if (!v) continue; m.set(v, (m.get(v)||0)+1); }
+      return Array.from(m.entries()).map(([id, cnt]) => ({ id, name: id, count: cnt }))
+                .sort((a,b)=> a.name.localeCompare(b.name));
+    };
+    let filteredFacetRows = facetRows;
+    if (isGuidelinesTab) {
+      filteredFacetRows = (facetRows || []).filter((r: any) => {
+        const domain = ((r.domain || '').toLowerCase().trim());
+        const guideType = ((r.guide_type || '').toLowerCase().trim());
+        const hasStrategy = domain.includes('strategy') || guideType.includes('strategy');
+        const hasBlueprint = domain.includes('blueprint') || guideType.includes('blueprint');
+        const hasTestimonial = domain.includes('testimonial') || guideType.includes('testimonial');
+        return !hasStrategy && !hasBlueprint && !hasTestimonial;
+      });
+    }
+    const domainFacets      = countBy(filteredFacetRows, 'domain');
+    const guideTypeFacets   = countBy(filteredFacetRows, 'guide_type');
+    const subDomainFacetsRaw= countBy(filteredFacetRows, 'sub_domain');
+    const unitFacets        = countBy(filteredFacetRows, 'unit');
+    const locationFacets    = countBy(filteredFacetRows, 'location');
+    const statusFacets      = countBy(filteredFacetRows, 'status');
+    const allowedForFacets = new Set<string>();
+    if (!isSpecialTab) {
+      domains.forEach(d => (SUBDOMAIN_BY_DOMAIN[d] || []).forEach(s => allowedForFacets.add(s)));
+    }
+    const subDomainFacets = allowedForFacets.size
+      ? subDomainFacetsRaw.filter(opt => allowedForFacets.has(opt.id))
+      : subDomainFacetsRaw;
+    if (activeTab === 'strategy') {
+      const ghcOrder = ['dq-ghc','dq-vision','dq-hov','dq-persona','dq-agile-tms','dq-agile-sos','dq-agile-flows','dq-agile-6xd'];
+      const hovOrder = ['dq-competencies-emotional-intelligence','dq-competencies-growth-mindset','dq-competencies-purpose','dq-competencies-perceptive','dq-competencies-proactive','dq-competencies-perseverance','dq-competencies-precision','dq-competencies-customer','dq-competencies-learning','dq-competencies-collaboration','dq-competencies-responsibility','dq-competencies-trust'];
+      const titleOrder = ['dq golden honeycomb of competencies','dq vision','house of values','dq persona','agile tms','agile sos','agile flows','agile 6xd','emotional intelligence','growth mindset','purpose','perceptive','proactive','perseverance','precision','customer','learning','collaboration','responsibility','trust'];
+      const orderIndex = (item: any) => {
+        const slug = (item.slug || '').toLowerCase();
+        const title = (item.title || '').toLowerCase();
+        const slugIdx = ghcOrder.indexOf(slug);
+        if (slugIdx >= 0) return slugIdx;
+        const hovIdx = hovOrder.indexOf(slug);
+        if (hovIdx >= 0) return ghcOrder.length + hovIdx;
+        const titleIdx = titleOrder.findIndex(t => title.includes(t));
+        return titleIdx >= 0 ? titleIdx : Number.MAX_SAFE_INTEGER;
+      };
+      out = [...out].sort((a, b) => orderIndex(a) - orderIndex(b));
+    }
+    s.setItems(out);
+    s.setFilteredItems(out);
+    s.setTotalCount(total);
+    s.setFacets({
+      domain: domainFacets,
+      sub_domain: subDomainFacets,
+      guide_type: guideTypeFacets,
+      unit: unitFacets,
+      location: locationFacets,
+      status: statusFacets,
+    });
+    const start = searchStartRef.current;
+    if (start) { const latency = Date.now() - start; track('Guides.Search', { q: qStr, latency_ms: latency }); searchStartRef.current = null; }
+    track('Guides.ViewList', { q: qStr, sort, page: String(currentPage) });
+  } catch (e) {
+    s.setError('Failed to load guides. Please try again.');
+    s.setItems([]); s.setFilteredItems([]); s.setFacets({}); s.setTotalCount(0);
+  } finally {
+    s.setLoading(false);
+  }
+}
+
+async function runGuidesLoad(s: GuidesSetters, params: GuidesRunParams): Promise<void> {
+  if (params.activeTab === 'glossary' || params.activeTab === 'faqs') {
+    s.setLoading(false);
+    s.setItems([]);
+    s.setFilteredItems([]);
+    s.setTotalCount(0);
+    return;
+  }
+  if (params.activeTab === 'blueprints') {
+    await runBlueprintTabLoad(s, params.queryParams);
+    return;
+  }
+  await runMainGuidesLoad(s, params);
+}
+
+function runDesignSystemLoad(s: ItemSetters, params: DesignSystemRunParams): void {
+  const { activeDesignSystemTab, filters, queryParams } = params;
+  s.setLoading(false);
+  s.setError(null);
+  let filteredDesignSystemItems = getDesignSystemItemsByType(activeDesignSystemTab);
+  const filterKey = activeDesignSystemTab;
+  const categoryFilters = filters[filterKey];
+  const categoryArray = Array.isArray(categoryFilters)
+    ? categoryFilters
+    : (typeof categoryFilters === 'string' && categoryFilters ? categoryFilters.split(',').filter(Boolean) : []);
+  if (categoryArray.length > 0) {
+    filteredDesignSystemItems = filteredDesignSystemItems.filter(item =>
+      item.category && categoryArray.includes(item.category)
+    );
+  }
+  const locationFilters = filters['location'];
+  const locationArray = Array.isArray(locationFilters)
+    ? locationFilters
+    : (typeof locationFilters === 'string' && locationFilters ? locationFilters.split(',').filter(Boolean) : []);
+  if (locationArray.length > 0) {
+    filteredDesignSystemItems = filteredDesignSystemItems.filter(item =>
+      item.location && locationArray.includes(item.location)
+    );
+  }
+  const searchQueryValue = queryParams.get('q') || '';
+  if (searchQueryValue) {
+    const query = searchQueryValue.toLowerCase();
+    filteredDesignSystemItems = filteredDesignSystemItems.filter(item => {
+      const searchableText = [item.title, item.description, item.category, item.location].filter(Boolean).join(' ').toLowerCase();
+      return searchableText.includes(query);
+    });
+  }
+  s.setItems(filteredDesignSystemItems);
+  s.setFilteredItems(filteredDesignSystemItems);
+  s.setTotalCount(filteredDesignSystemItems.length);
+}
+
+async function runOtherMarketplaceLoad(s: ItemSetters, params: OtherMarketplaceRunParams): Promise<void> {
+  const { marketplaceType, filters, searchQuery, isServicesCenter, activeServiceTab } = params;
+  s.setLoading(true);
+  s.setError(null);
+  try {
+    const itemsData = await fetchMarketplaceItems(
+      marketplaceType,
+      Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v.join(',') : (v || '')])),
+      searchQuery
+    );
+    const finalItems = itemsData?.length ? itemsData : getFallbackItems(marketplaceType);
+    s.setItems(finalItems);
+    let filtered = finalItems;
+    if (isServicesCenter) {
+      const tabCategoryMap: Record<string, string> = {
+        'technology': 'Technology', 'business': 'Employee Services',
+        'digital_worker': 'Digital Worker', 'prompt_library': 'Prompt Library', 'ai_tools': 'AI Tools',
+      };
+      const activeTabCategory = tabCategoryMap[activeServiceTab];
+      if (activeTabCategory) {
+        filtered = filtered.filter(item => {
+          const itemCategory = item.category || '';
+          return itemCategory === activeTabCategory;
+        });
+      }
+      const serviceTypeFilter = filters.serviceType;
+      if (serviceTypeFilter) {
+        const serviceTypes = Array.isArray(serviceTypeFilter) ? serviceTypeFilter : [serviceTypeFilter];
+        if (serviceTypes.length > 0) {
+          filtered = filtered.filter(item => {
+            const itemServiceType = (item.serviceType || '').toLowerCase().trim();
+            return serviceTypes.some(filterType => {
+              const normalizedFilter = filterType.toLowerCase().trim();
+              const normalizeType = (type: string) => type.replace(/[\s-]/g, '').toLowerCase();
+              return normalizeType(itemServiceType) === normalizeType(normalizedFilter);
+            });
+          });
+        }
+      }
+      const userCategoryFilter = filters.userCategory;
+      if (userCategoryFilter) {
+        const userCategories = Array.isArray(userCategoryFilter) ? userCategoryFilter : [userCategoryFilter];
+        if (userCategories.length > 0) {
+          filtered = filtered.filter(item => {
+            const itemUserCategoriesArray = Array.isArray(item.userCategory) ? item.userCategory : [item.userCategory];
+            return userCategories.some(filterCategory =>
+              itemUserCategoriesArray.some((itemCat: string) => itemCat.toLowerCase() === filterCategory.toLowerCase())
+            );
+          });
+        }
+      }
+      const technicalCategoryFilter = filters.technicalCategory;
+      if (technicalCategoryFilter) {
+        const technicalCategories = Array.isArray(technicalCategoryFilter) ? technicalCategoryFilter : [technicalCategoryFilter];
+        if (technicalCategories.length > 0) {
+          filtered = filtered.filter(item => {
+            const itemTechnicalCategoriesArray = Array.isArray(item.technicalCategory) ? item.technicalCategory : [item.technicalCategory];
+            return technicalCategories.some(filterCategory =>
+              itemTechnicalCategoriesArray.some((itemCat: string) => itemCat.toLowerCase() === filterCategory.toLowerCase())
+            );
+          });
+        }
+      }
+      const deviceOwnershipFilter = filters.deviceOwnership;
+      if (deviceOwnershipFilter) {
+        const deviceOwnerships = Array.isArray(deviceOwnershipFilter) ? deviceOwnershipFilter : [deviceOwnershipFilter];
+        if (deviceOwnerships.length > 0) {
+          filtered = filtered.filter(item => {
+            const itemDeviceOwnershipsArray = Array.isArray(item.deviceOwnership) ? item.deviceOwnership : [item.deviceOwnership];
+            return deviceOwnerships.some(filterOwnership =>
+              itemDeviceOwnershipsArray.some((itemOwn: string) =>
+                itemOwn.toLowerCase().replace(/[\s-]/g, '') === filterOwnership.toLowerCase().replace(/[\s-]/g, '')
+              )
+            );
+          });
+        }
+      }
+      const servicesFilter = filters.services;
+      if (servicesFilter) {
+        const services = Array.isArray(servicesFilter) ? servicesFilter : [servicesFilter];
+        if (services.length > 0) {
+          filtered = filtered.filter(item => {
+            const itemServicesArray = Array.isArray(item.services) ? item.services : [item.services];
+            return services.some(filterService =>
+              itemServicesArray.some((itemSvc: string) =>
+                itemSvc.toLowerCase().replace(/[\s_]/g, '') === filterService.toLowerCase().replace(/[\s_]/g, '')
+              )
+            );
+          });
+        }
+      }
+      const documentTypeFilter = filters.documentType;
+      if (documentTypeFilter) {
+        const documentTypes = Array.isArray(documentTypeFilter) ? documentTypeFilter : [documentTypeFilter];
+        if (documentTypes.length > 0) {
+          filtered = filtered.filter(item => {
+            const itemDocumentTypesArray = Array.isArray(item.documentType) ? item.documentType : [item.documentType];
+            return documentTypes.some(filterDocType =>
+              itemDocumentTypesArray.some((itemDocType: string) => itemDocType.toLowerCase() === filterDocType.toLowerCase())
+            );
+          });
+        }
+      }
+      const serviceDomainsFilter = filters.serviceDomains;
+      if (serviceDomainsFilter) {
+        const serviceDomains = Array.isArray(serviceDomainsFilter) ? serviceDomainsFilter : [serviceDomainsFilter];
+        if (serviceDomains.length > 0) {
+          filtered = filtered.filter(item => {
+            const itemServiceDomainsArray = Array.isArray(item.serviceDomains) ? item.serviceDomains : [item.serviceDomains];
+            return serviceDomains.some(filterDomain =>
+              itemServiceDomainsArray.some((itemDomain: string) =>
+                itemDomain.toLowerCase().replace(/[\s_&]/g, '') === filterDomain.toLowerCase().replace(/[\s_&]/g, '')
+              )
+            );
+          });
+        }
+      }
+      const aiMaturityLevelFilter = filters.aiMaturityLevel;
+      if (aiMaturityLevelFilter) {
+        const aiMaturityLevels = Array.isArray(aiMaturityLevelFilter) ? aiMaturityLevelFilter : [aiMaturityLevelFilter];
+        if (aiMaturityLevels.length > 0) {
+          filtered = filtered.filter(item => {
+            const itemMaturityLevelArray = Array.isArray(item.aiMaturityLevel) ? item.aiMaturityLevel : [item.aiMaturityLevel];
+            return aiMaturityLevels.some(filterLevel =>
+              itemMaturityLevelArray.some((itemLevel: string) =>
+                itemLevel.toLowerCase().replace(/[\s_()]/g, '') === filterLevel.toLowerCase().replace(/[\s_()]/g, '')
+              )
+            );
+          });
+        }
+      }
+      const toolCategoryFilter = filters.toolCategory;
+      if (toolCategoryFilter) {
+        const toolCategories = Array.isArray(toolCategoryFilter) ? toolCategoryFilter : [toolCategoryFilter];
+        if (toolCategories.length > 0) {
+          filtered = filtered.filter(item => {
+            const itemToolCategory = item.toolCategory || '';
+            return toolCategories.some(filterCategory =>
+              itemToolCategory.toLowerCase().replace(/[\s_]/g, '') === filterCategory.toLowerCase().replace(/[\s_]/g, '')
+            );
+          });
+        }
+      }
+      const deliveryModeFilter = filters.deliveryMode;
+      if (deliveryModeFilter) {
+        const deliveryModes = Array.isArray(deliveryModeFilter) ? deliveryModeFilter : [deliveryModeFilter];
+        if (deliveryModes.length > 0) {
+          filtered = filtered.filter(item => {
+            const itemMode = (item.deliveryMode || '').toLowerCase().trim();
+            return deliveryModes.some(filterMode => {
+              const normalizedFilter = filterMode.toLowerCase().trim();
+              const normalizeMode = (mode: string) => {
+                const cleaned = mode.replace(/[\s-]/g, '');
+                return (cleaned === 'inperson' || cleaned.includes('person')) ? 'inperson' : cleaned;
+              };
+              return normalizeMode(itemMode) === normalizeMode(normalizedFilter);
+            });
+          });
+        }
+      }
+      const providerFilter = filters.provider;
+      if (providerFilter) {
+        const providers = Array.isArray(providerFilter) ? providerFilter : [providerFilter];
+        if (providers.length > 0) {
+          filtered = filtered.filter(item => {
+            const itemProvider = (item.provider?.name || '').toLowerCase();
+            return providers.some(filterProvider => {
+              const normalizedFilter = filterProvider.toLowerCase();
+              const providerMap: Record<string, string[]> = {
+                'it_support': ['it support', 'itsupport'], 'hr': ['hr'],
+                'finance': ['finance'], 'admin': ['admin', 'administrative'],
+              };
+              const possibleNames = providerMap[normalizedFilter] || [normalizedFilter];
+              return possibleNames.some(name => itemProvider === name || itemProvider.includes(name) || name.includes(itemProvider));
+            });
+          });
+        }
+      }
+      const locationFilter = filters.location;
+      if (locationFilter) {
+        const locations = Array.isArray(locationFilter) ? locationFilter : [locationFilter];
+        if (locations.length > 0) {
+          const normalizeLocation = (loc: string) => {
+            const map: Record<string, string> = { 'dubai': 'Dubai', 'nairobi': 'Nairobi', 'riyadh': 'Riyadh' };
+            return map[loc.toLowerCase()] || loc;
+          };
+          filtered = filtered.filter(item => {
+            const itemLocation = item.location || '';
+            return locations.some(filterLocation => {
+              const normalizedFilter = normalizeLocation(filterLocation);
+              return itemLocation === normalizedFilter ||
+                     itemLocation.toLowerCase().includes(normalizedFilter.toLowerCase()) ||
+                     normalizedFilter.toLowerCase().includes(itemLocation.toLowerCase());
+            });
+          });
+        }
+      }
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        filtered = filtered.filter(item => {
+          const searchableText = [item.title, item.description, item.category, item.serviceType, item.deliveryMode, item.provider?.name, ...(item.tags || [])].filter(Boolean).join(' ').toLowerCase();
+          return searchableText.includes(query);
+        });
+      }
+    } else {
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        filtered = filtered.filter(item => {
+          const searchableText = [item.title, item.description, item.category, item.provider?.name, ...(item.tags || [])].filter(Boolean).join(' ').toLowerCase();
+          return searchableText.includes(query);
+        });
+      }
+    }
+    s.setFilteredItems(filtered);
+    s.setTotalCount(filtered.length);
+  } catch (err) {
+    s.setError(`Failed to load ${marketplaceType}`);
+    const fallbackItems = getFallbackItems(marketplaceType);
+    s.setItems(fallbackItems);
+    let filteredFallback = fallbackItems;
+    if (isServicesCenter) {
+      const tabCategoryMap: Record<string, string> = {
+        'technology': 'Technology', 'business': 'Employee Services',
+        'digital_worker': 'Digital Worker', 'prompt_library': 'Prompt Library', 'ai_tools': 'AI Tools',
+      };
+      const activeTabCategory = tabCategoryMap[activeServiceTab];
+      if (activeTabCategory) {
+        filteredFallback = filteredFallback.filter(item => item.category === activeTabCategory);
+      }
+    }
+    s.setFilteredItems(filteredFallback);
+    s.setTotalCount(filteredFallback.length);
+  } finally {
+    s.setLoading(false);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Custom hook: useMarketplaceData
 // Encapsulates filter-config loading + item-fetching side effects so that
 // MarketplacePage only has to call this hook (reducing component complexity).
@@ -668,797 +1453,12 @@ function useMarketplaceData({
   // Fetch items based on marketplace type
   useEffect(() => {
     const run = async () => {
-      if (isCourses) {
-        setLoading(false);
-        setError(null);
-        setTotalCount(searchFilteredItemsLength);
-        setItems([]);
-        setFilteredItems([]);
-        return;
-      }
-      if (isKnowledgeHub) {
-        const fallbackItems = getFallbackItems(marketplaceType);
-        setItems(fallbackItems);
-        setFilteredItems(fallbackItems);
-        setTotalCount(fallbackItems.length);
-        setLoading(false);
-        return;
-      }
-      if (isGuides) {
-        if (activeTab === 'glossary' || activeTab === 'faqs') {
-          setLoading(false);
-          setItems([]);
-          setFilteredItems([]);
-          setTotalCount(0);
-          return;
-        }
-        if (activeTab === 'blueprints') {
-          setLoading(true);
-          try {
-            const qStr = queryParams.get('q') || '';
-            const productTypes = parseFilterValues(queryParams, 'product_type');
-            const productStages = parseFilterValues(queryParams, 'product_stage');
-            let out = STATIC_PRODUCTS.map(product => ({
-              id: product.id,
-              slug: product.slug,
-              title: product.title,
-              summary: product.summary,
-              heroImageUrl: product.heroImageUrl,
-              lastUpdatedAt: product.lastUpdatedAt,
-              authorName: product.authorName,
-              authorOrg: product.authorOrg,
-              isEditorsPick: product.isEditorsPick,
-              downloadCount: product.downloadCount,
-              guideType: product.guideType,
-              domain: product.domain,
-              functionArea: null,
-              unit: null,
-              subDomain: null,
-              location: null,
-              status: product.status,
-              complexityLevel: null,
-              productType: product.productType,
-              productStage: product.productStage,
-            }));
-            if (productTypes.length > 0) {
-              out = out.filter(it => {
-                const itemProductType = (it.productType || '').toLowerCase();
-                return productTypes.some(selectedType => {
-                  const normalizedSelected = slugify(selectedType);
-                  const typeMap: Record<string, string[]> = {
-                    'tmaas': ['tmaas'],
-                    'dtma': ['dtma'],
-                    'dtmp': ['dtmp'],
-                    'plant-4-0': ['plant 4.0', 'plant-4.0', 'plant40'],
-                    'dtmcc': ['dtmcc']
-                  };
-                  const searchTerms = typeMap[selectedType] || [normalizedSelected];
-                  return searchTerms.some(term => itemProductType.includes(term));
-                });
-              });
-            }
-            if (productStages.length > 0) {
-              out = out.filter(it => it.productStage && productStages.includes(it.productStage.toLowerCase()));
-            }
-            if (qStr) {
-              const query = qStr.toLowerCase();
-              out = out.filter(it => {
-                const searchableText = [it.title, it.summary, it.productType, it.productStage].filter(Boolean).join(' ').toLowerCase();
-                return searchableText.includes(query);
-              });
-            }
-            setItems(out);
-            setFilteredItems(out);
-            setTotalCount(out.length);
-            setLoading(false);
-            return;
-          } catch (error) {
-            console.error('Error loading products:', error);
-            setLoading(false);
-            setItems([]);
-            setFilteredItems([]);
-            setTotalCount(0);
-            return;
-          }
-        }
-        setLoading(true);
-        try {
-          const excludedSlugs = ['atp-guidelines', 'agile-working-guidelines', 'client-session-guidelines', 'dbp-support-guidelines', 'dq-products'];
-          let q = supabaseClient.from('guides').select(GUIDE_LIST_SELECT, { count: 'exact' });
-          excludedSlugs.forEach(slug => { q = q.neq('slug', slug); });
-          const qStr = queryParams.get('q') || '';
-          const domains     = parseFilterValues(queryParams, 'domain');
-          const rawSubs     = parseFilterValues(queryParams, 'sub_domain');
-          const guideTypes  = parseFilterValues(queryParams, 'guide_type');
-          const units       = parseFilterValues(queryParams, 'unit');
-          const statuses    = parseFilterValues(queryParams, 'status');
-          const testimonialCategories = parseFilterValues(queryParams, 'testimonial_category');
-          const strategyTypes = parseFilterValues(queryParams, 'strategy_type');
-          const strategyFrameworks = parseFilterValues(queryParams, 'strategy_framework');
-          const guidelinesCategories = parseFilterValues(queryParams, 'guidelines_category');
-          const categorization = parseFilterValues(queryParams, 'categorization');
-          const attachmentsFilter = parseFilterValues(queryParams, 'attachments');
-          const blueprintFrameworks = parseFilterValues(queryParams, 'blueprint_framework');
-          const blueprintSectors = parseFilterValues(queryParams, 'blueprint_sector');
-          const productTypes = parseFilterValues(queryParams, 'product_type');
-          const productStages = parseFilterValues(queryParams, 'product_stage');
-          const productSectors = parseFilterValues(queryParams, 'product_sector');
-          const currentActiveTab = activeTab;
-          const isStrategyTab = currentActiveTab === 'strategy';
-          const isBlueprintTab = currentActiveTab === 'blueprints';
-          const isTestimonialsTab = currentActiveTab === 'testimonials';
-          const isGlossaryTab = currentActiveTab === 'glossary';
-          const isFAQsTab = currentActiveTab === 'faqs';
-          const isGuidelinesTab = currentActiveTab === 'guidelines';
-          const isSpecialTab = isStrategyTab || isBlueprintTab || isTestimonialsTab || isGlossaryTab || isFAQsTab;
-          const allowed = new Set<string>();
-          if (!isSpecialTab) {
-            domains.forEach(d => (SUBDOMAIN_BY_DOMAIN[d] || []).forEach(s => allowed.add(s)));
-          }
-          const subDomains = !isSpecialTab
-            ? (allowed.size ? rawSubs.filter(v => allowed.has(v)) : rawSubs)
-            : [];
-          const effectiveGuideTypes = isSpecialTab ? [] : guideTypes;
-          const effectiveUnits = (isStrategyTab || isBlueprintTab || !isSpecialTab) ? units : [];
-          if (!isSpecialTab && rawSubs.length && subDomains.length !== rawSubs.length) {
-            const next = new URLSearchParams(queryParams.toString());
-            if (subDomains.length) next.set('sub_domain', subDomains.join(','));
-            else next.delete('sub_domain');
-            if (typeof window !== 'undefined') {
-              window.history.replaceState(null, '', `${window.location.pathname}${next.toString() ? '?' + next.toString() : ''}`);
-            }
-            setLoading(false);
-            return;
-          }
-          if (statuses.length) q = q.in('status', statuses); else q = q.eq('status', 'Approved');
-          if (qStr) q = q.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
-          if (isStrategyTab) {
-            q = q.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
-          } else if (isTestimonialsTab) {
-            q = q.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
-          } else if (isGuidelinesTab) {
-            if (domains.length) { q = q.in('domain', domains); }
-          } else if (domains.length) {
-            q = q.in('domain', domains);
-          }
-          if (!isSpecialTab && subDomains.length) q = q.in('sub_domain', subDomains);
-          if (effectiveGuideTypes.length && !isGuidelinesTab) q = q.in('guide_type', effectiveGuideTypes);
-          const sort = queryParams.get('sort') || 'editorsPick';
-          if (sort === 'updated')        q = q.order('last_updated_at', { ascending: false, nullsFirst: false });
-          else if (sort === 'downloads') q = q.order('download_count',   { ascending: false, nullsFirst: false });
-          else if (sort === 'editorsPick') {
-            q = q.order('is_editors_pick', { ascending: false })
-                 .order('last_updated_at', { ascending: false, nullsFirst: false });
-          } else {
-            q = q.order('is_editors_pick', { ascending: false })
-                 .order('download_count',   { ascending: false, nullsFirst: false })
-                 .order('last_updated_at',  { ascending: false, nullsFirst: false });
-          }
-          const needsClientSideUnitFilter = effectiveUnits.length > 0;
-          const needsClientSideFrameworkFilter =
-            (isStrategyTab && strategyFrameworks.length > 0) ||
-            (isBlueprintTab && (blueprintFrameworks.length > 0 || blueprintSectors.length > 0 || productTypes.length > 0 || productStages.length > 0 || productSectors.length > 0)) ||
-            (isGuidelinesTab && guidelinesCategories.length > 0);
-          const needsClientSideFiltering = needsClientSideUnitFilter || needsClientSideFrameworkFilter || categorization.length > 0 || attachmentsFilter.length > 0;
-          const from = (currentPage - 1) * pageSize;
-          const to   = from + pageSize - 1;
-          const listPromise = needsClientSideFiltering ? q.limit(10000) : q.range(from, to);
-          let facetQ = supabaseClient
-            .from('guides')
-            .select('domain,sub_domain,guide_type,function_area,unit,location,status')
-            .eq('status', 'Approved');
-          excludedSlugs.forEach(slug => { facetQ = facetQ.neq('slug', slug); });
-          if (qStr)              facetQ = facetQ.or(`title.ilike.%${qStr}%,summary.ilike.%${qStr}%`);
-          if (isStrategyTab)    facetQ = facetQ.or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%');
-          else if (isTestimonialsTab) facetQ = facetQ.or('domain.ilike.%Testimonial%,guide_type.ilike.%Testimonial%');
-          if (statuses.length)   facetQ = facetQ.in('status', statuses);
-          const [{ data: rows, count, error }, { data: facetRows, error: facetError }] = await Promise.all([
-            listPromise,
-            facetQ,
-          ]);
-          if (error) { throw error; }
-          if (facetError) { /* continue without facets */ }
-          const mapped = (rows || []).map((r: any) => {
-            const unitValue = r.unit ?? r.function_area ?? null;
-            const subDomainValue = r.sub_domain ?? r.subDomain ?? null;
-            return {
-              id: r.id,
-              slug: r.slug,
-              title: r.title,
-              summary: r.summary,
-              heroImageUrl: r.hero_image_url ?? r.heroImageUrl,
-              estimatedTimeMin: r.estimated_time_min ?? r.estimatedTimeMin,
-              lastUpdatedAt: r.last_updated_at ?? r.lastUpdatedAt,
-              authorName: r.author_name ?? r.authorName,
-              authorOrg: r.author_org ?? r.authorOrg,
-              isEditorsPick: r.is_editors_pick ?? r.isEditorsPick,
-              downloadCount: r.download_count ?? r.downloadCount,
-              guideType: r.guide_type ?? r.guideType,
-              domain: r.domain ?? null,
-              functionArea: unitValue,
-              unit: unitValue,
-              subDomain: subDomainValue,
-              location: r.location ?? null,
-              status: r.status ?? null,
-              complexityLevel: r.complexity_level ?? null,
-            };
-          });
-          let out = mapped;
-          out = out.filter(it => !excludedSlugs.includes(it.slug));
-          if (isStrategyTab) {
-            // Show all strategy guides; server-side query already biases toward Strategy
-          } else if (isBlueprintTab) {
-            out = STATIC_PRODUCTS.map(product => ({
-              id: product.id,
-              slug: product.slug,
-              title: product.title,
-              summary: product.summary,
-              heroImageUrl: product.heroImageUrl,
-              lastUpdatedAt: product.lastUpdatedAt,
-              authorName: product.authorName,
-              authorOrg: product.authorOrg,
-              isEditorsPick: product.isEditorsPick,
-              downloadCount: product.downloadCount,
-              guideType: product.guideType,
-              domain: product.domain,
-              functionArea: null,
-              unit: null,
-              subDomain: null,
-              location: null,
-              status: product.status,
-              complexityLevel: null,
-              productType: product.productType,
-              productStage: product.productStage,
-            }));
-          } else if (isGuidelinesTab) {
-            out = out.filter(it => {
-              const domain = (it.domain || '').toLowerCase().trim();
-              const guideType = (it.guideType || '').toLowerCase().trim();
-              const hasStrategy = domain.includes('strategy') || guideType.includes('strategy');
-              const hasBlueprint = domain.includes('blueprint') || guideType.includes('blueprint');
-              const hasTestimonial = domain.includes('testimonial') || guideType.includes('testimonial');
-              return !hasStrategy && !hasBlueprint && !hasTestimonial;
-            });
-          } else {
-            out = [];
-          }
-          if (domains.length)    out = out.filter(it => it.domain && domains.includes(it.domain));
-          if (subDomains.length) out = out.filter(it => it.subDomain && subDomains.includes(it.subDomain));
-          if (effectiveGuideTypes.length) {
-            out = out.filter(it => {
-              const guideTypeValue = it.guideType;
-              if (!guideTypeValue) return false;
-              const normalizedDbValue = slugify(guideTypeValue);
-              return effectiveGuideTypes.some(selectedType => {
-                const normalizedSelected = slugify(selectedType);
-                return normalizedDbValue === normalizedSelected ||
-                       guideTypeValue.toLowerCase().trim() === selectedType.toLowerCase().trim();
-              });
-            });
-          }
-          if (effectiveUnits.length) {
-            out = out.filter(it => {
-              const unitValue = it.unit || it.functionArea;
-              if (!unitValue) return false;
-              const normalizedDbValue = slugify(unitValue);
-              return effectiveUnits.some(selectedUnit => normalizedDbValue === slugify(selectedUnit));
-            });
-          }
-          if (isGuidelinesTab && categorization.length) {
-            const catKeywords = {
-              'policy-set-1a-opg': ['policy set 1a', 'opg'],
-              'policy-set-1b-ppp': ['policy set 1b', 'ppp'],
-              'policy-set-2a-vision': ['policy set 02', '2a', 'vision'],
-              'policy-set-2b-culture': ['policy set 02', '2b', 'culture'],
-              'policy-set-2c-persona': ['policy set 02', '2c', 'persona'],
-              'policy-set-2d-task': ['policy set 02', '2d', 'task'],
-              'policy-set-2e-govern': ['policy set 02', '2e', 'govern'],
-              'policy-set-2f-flow': ['policy set 02', '2f', 'flow'],
-              'policy-set-2g-product': ['policy set 02', '2g', 'product'],
-            } as Record<string, string[]>;
-            out = out.filter(it => {
-              const haystack = `${it.title || ''} ${it.summary || ''} ${it.subDomain || ''} ${it.slug || ''}`.toLowerCase();
-              return categorization.some(cat => {
-                const kw = catKeywords[cat] || [cat.replace(/-/g, ' ')];
-                return kw.some(k => haystack.includes(k.toLowerCase()));
-              });
-            });
-          }
-          if (isStrategyTab && strategyTypes.length) {
-            out = out.filter(it => {
-              const subDomain = (it.subDomain || '').toLowerCase();
-              const slug = (it.slug || '').toLowerCase();
-              const title = (it.title || '').toLowerCase();
-              const summary = (it.summary || '').toLowerCase();
-              const allText = `${subDomain} ${slug} ${title} ${summary}`.toLowerCase();
-              return strategyTypes.some(selectedType => {
-                const normalizedSelected = slugify(selectedType);
-                const normalizedSubDomain = slugify(subDomain);
-                if (normalizedSubDomain === normalizedSelected ||
-                    subDomain.includes(selectedType.toLowerCase()) ||
-                    selectedType.toLowerCase().includes(subDomain)) {
-                  return true;
-                }
-                if (selectedType.toLowerCase() === 'journey') {
-                  const journeyKeywords = ['vision', 'mission', 'dq-vision', 'dq-mission', 'vision-and-mission', 'vision-mission'];
-                  return journeyKeywords.some(keyword => slug.includes(keyword) || title.includes(keyword) || allText.includes(keyword));
-                }
-                if (selectedType.toLowerCase() === 'history') {
-                  const historyKeywords = ['history', 'origin', 'began', 'founding', 'started', 'beginning', 'evolution', 'story'];
-                  return historyKeywords.some(keyword => slug.includes(keyword) || title.includes(keyword) || allText.includes(keyword));
-                }
-                return false;
-              });
-            });
-          }
-          if (isStrategyTab && strategyFrameworks.length) {
-            out = out.filter(it => {
-              const subDomain = (it.subDomain || '').toLowerCase();
-              const domain = (it.domain || '').toLowerCase();
-              const guideType = (it.guideType || '').toLowerCase();
-              const title = (it.title || '').toLowerCase();
-              const slug = (it.slug || '').toLowerCase();
-              const allText = `${subDomain} ${domain} ${guideType} ${title} ${slug}`.toLowerCase();
-              const frameworkKeywords: Record<string, string[]> = {
-                'ghc1': ['vision'],
-                'ghc2': ['dq-hov', 'house of values'],
-                'ghc3': ['persona'],
-                'ghc4': ['agile tms', 'tms'],
-                'ghc5': ['agile sos', 'sos'],
-                'ghc6': ['agile flows', 'flows'],
-                'ghc7': ['agile 6xd', '6xd'],
-              };
-              return strategyFrameworks.some(selected => {
-                if (selected === 'ghc2') {
-                  if (slug === 'dq-hov') return true;
-                  const isHoVTitle = title.includes('house of values') && !title.includes('competencies');
-                  return isHoVTitle;
-                }
-                const keywords = frameworkKeywords[selected] || [selected];
-                return keywords.some(kw => allText.includes(kw));
-              });
-            });
-          }
-          if (isGuidelinesTab && guidelinesCategories.length) {
-            out = out.filter(it => {
-              const subDomain = (it.subDomain || '').toLowerCase();
-              const domain = (it.domain || '').toLowerCase();
-              const guideType = (it.guideType || '').toLowerCase();
-              const title = (it.title || '').toLowerCase();
-              const allText = `${subDomain} ${domain} ${guideType} ${title}`.toLowerCase();
-              return guidelinesCategories.some(selectedCategory => {
-                const normalizedSelected = slugify(selectedCategory);
-                return allText.includes(selectedCategory.toLowerCase()) ||
-                       allText.includes(normalizedSelected) ||
-                       (selectedCategory === 'resources' && (allText.includes('resource') || allText.includes('guideline'))) ||
-                       (selectedCategory === 'policies' && (allText.includes('policy') || allText.includes('policies'))) ||
-                       (selectedCategory === 'xds' && (allText.includes('xds') || allText.includes('design-system') || allText.includes('design systems')));
-              });
-            });
-          }
-          if (isBlueprintTab) {
-            if (productTypes.length) {
-              out = out.filter(it => {
-                const itemProductType = (it.productType || '').toLowerCase();
-                return productTypes.some(selectedType => {
-                  const normalizedSelected = slugify(selectedType);
-                  const typeMap: Record<string, string[]> = {
-                    'platform': ['platform'],
-                    'academy': ['academy'],
-                    'framework': ['framework'],
-                    'tooling': ['tooling'],
-                    'marketplace': ['marketplace'],
-                    'enablement-product': ['enablement product']
-                  };
-                  const searchTerms = typeMap[selectedType] || [normalizedSelected];
-                  return searchTerms.some(term => itemProductType.includes(term));
-                });
-              });
-            }
-            if (productStages.length) {
-              out = out.filter(it => {
-                const itemProductStage = (it.productStage || '').toLowerCase();
-                return productStages.some(selectedStage => {
-                  const normalizedSelected = slugify(selectedStage);
-                  const stageMap: Record<string, string[]> = {
-                    'concept': ['concept'],
-                    'mvp': ['mvp'],
-                    'live': ['live'],
-                    'scaling': ['scaling'],
-                    'enterprise-ready': ['enterprise-ready', 'enterprise ready']
-                  };
-                  const searchTerms = stageMap[selectedStage] || [normalizedSelected];
-                  return searchTerms.some(term => itemProductStage.includes(term));
-                });
-              });
-            }
-            if (productSectors.length || blueprintSectors.length) {
-              out = [];
-            }
-            if (qStr) {
-              const query = qStr.toLowerCase();
-              out = out.filter(it => {
-                const searchableText = [it.title, it.summary, it.productType, it.productStage].filter(Boolean).join(' ').toLowerCase();
-                return searchableText.includes(query);
-              });
-            }
-          }
-          if (statuses.length) out = out.filter(it => it.status && statuses.includes(it.status));
-          if (sort === 'updated')        out.sort((a,b) => new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
-          else if (sort === 'downloads') out.sort((a,b) => (b.downloadCount||0)-(a.downloadCount||0));
-          else if (sort === 'editorsPick')
-            out.sort((a,b) => (Number(b.isEditorsPick)||0)-(Number(a.isEditorsPick)||0) ||
-                              new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
-          else
-            out.sort((a,b) => (Number(b.isEditorsPick)||0)-(Number(a.isEditorsPick)||0) ||
-                              (b.downloadCount||0)-(a.downloadCount||0) ||
-                              new Date(b.lastUpdatedAt||0).getTime() - new Date(a.lastUpdatedAt||0).getTime());
-          if (!isBlueprintTab) {
-            const defaultImage = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=400&fit=crop&q=80';
-            out = out.map(it => ({ ...it, heroImageUrl: it.heroImageUrl || defaultImage }));
-          }
-          const totalFiltered = out.length;
-          if (needsClientSideFiltering || isBlueprintTab) {
-            out = out.slice(from, from + pageSize);
-          }
-          const total = (needsClientSideFiltering || isBlueprintTab) ? totalFiltered : (typeof count === 'number' ? count : out.length);
-          const lastPage = Math.max(1, Math.ceil(total / pageSize));
-          if (currentPage > lastPage) {
-            const next = new URLSearchParams(queryParams.toString());
-            if (lastPage <= 1) next.delete('page'); else next.set('page', '1');
-            if (typeof window !== 'undefined') {
-              window.history.replaceState(null, '', `${window.location.pathname}${next.toString() ? '?' + next.toString() : ''}`);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-            setLoading(false);
-            return;
-          }
-          const countBy = (arr: any[] | null | undefined, key: string) => {
-            const m = new Map<string, number>();
-            for (const r of (arr || [])) { const v = (r as any)[key]; if (!v) continue; m.set(v, (m.get(v)||0)+1); }
-            return Array.from(m.entries()).map(([id, cnt]) => ({ id, name: id, count: cnt }))
-                      .sort((a,b)=> a.name.localeCompare(b.name));
-          };
-          let filteredFacetRows = facetRows;
-          if (isGuidelinesTab) {
-            filteredFacetRows = (facetRows || []).filter((r: any) => {
-              const domain = ((r.domain || '').toLowerCase().trim());
-              const guideType = ((r.guide_type || '').toLowerCase().trim());
-              const hasStrategy = domain.includes('strategy') || guideType.includes('strategy');
-              const hasBlueprint = domain.includes('blueprint') || guideType.includes('blueprint');
-              const hasTestimonial = domain.includes('testimonial') || guideType.includes('testimonial');
-              return !hasStrategy && !hasBlueprint && !hasTestimonial;
-            });
-          }
-          const domainFacets      = countBy(filteredFacetRows, 'domain');
-          const guideTypeFacets   = countBy(filteredFacetRows, 'guide_type');
-          const subDomainFacetsRaw= countBy(filteredFacetRows, 'sub_domain');
-          const unitFacets        = countBy(filteredFacetRows, 'unit');
-          const locationFacets    = countBy(filteredFacetRows, 'location');
-          const statusFacets      = countBy(filteredFacetRows, 'status');
-          const allowedForFacets = new Set<string>();
-          if (!isSpecialTab) {
-            domains.forEach(d => (SUBDOMAIN_BY_DOMAIN[d] || []).forEach(s => allowedForFacets.add(s)));
-          }
-          const subDomainFacets = allowedForFacets.size
-            ? subDomainFacetsRaw.filter(opt => allowedForFacets.has(opt.id))
-            : subDomainFacetsRaw;
-          if (isGuides && activeTab === 'strategy') {
-            const ghcOrder = ['dq-ghc','dq-vision','dq-hov','dq-persona','dq-agile-tms','dq-agile-sos','dq-agile-flows','dq-agile-6xd'];
-            const hovOrder = ['dq-competencies-emotional-intelligence','dq-competencies-growth-mindset','dq-competencies-purpose','dq-competencies-perceptive','dq-competencies-proactive','dq-competencies-perseverance','dq-competencies-precision','dq-competencies-customer','dq-competencies-learning','dq-competencies-collaboration','dq-competencies-responsibility','dq-competencies-trust'];
-            const titleOrder = ['dq golden honeycomb of competencies','dq vision','house of values','dq persona','agile tms','agile sos','agile flows','agile 6xd','emotional intelligence','growth mindset','purpose','perceptive','proactive','perseverance','precision','customer','learning','collaboration','responsibility','trust'];
-            const orderIndex = (item: any) => {
-              const slug = (item.slug || '').toLowerCase();
-              const title = (item.title || '').toLowerCase();
-              const slugIdx = ghcOrder.indexOf(slug);
-              if (slugIdx >= 0) return slugIdx;
-              const hovIdx = hovOrder.indexOf(slug);
-              if (hovIdx >= 0) return ghcOrder.length + hovIdx;
-              const titleIdx = titleOrder.findIndex(t => title.includes(t));
-              return titleIdx >= 0 ? titleIdx : Number.MAX_SAFE_INTEGER;
-            };
-            out = [...out].sort((a, b) => orderIndex(a) - orderIndex(b));
-          }
-          setItems(out);
-          setFilteredItems(out);
-          setTotalCount(total);
-          setFacets({
-            domain: domainFacets,
-            sub_domain: subDomainFacets,
-            guide_type: guideTypeFacets,
-            unit: unitFacets,
-            location: locationFacets,
-            status: statusFacets,
-          });
-          const start = searchStartRef.current;
-          if (start) { const latency = Date.now() - start; track('Guides.Search', { q: qStr, latency_ms: latency }); searchStartRef.current = null; }
-          track('Guides.ViewList', { q: qStr, sort, page: String(currentPage) });
-        } catch (e) {
-          setError('Failed to load guides. Please try again.');
-          setItems([]); setFilteredItems([]); setFacets({}); setTotalCount(0);
-        } finally {
-          setLoading(false);
-        }
-        return;
-      }
-      if (isDesignSystem) {
-        setLoading(false);
-        setError(null);
-        let filteredDesignSystemItems = getDesignSystemItemsByType(activeDesignSystemTab);
-        const filterKey = activeDesignSystemTab;
-        const categoryFilters = filters[filterKey];
-        const categoryArray = Array.isArray(categoryFilters)
-          ? categoryFilters
-          : (typeof categoryFilters === 'string' && categoryFilters ? categoryFilters.split(',').filter(Boolean) : []);
-        if (categoryArray.length > 0) {
-          filteredDesignSystemItems = filteredDesignSystemItems.filter(item =>
-            item.category && categoryArray.includes(item.category)
-          );
-        }
-        const locationFilters = filters['location'];
-        const locationArray = Array.isArray(locationFilters)
-          ? locationFilters
-          : (typeof locationFilters === 'string' && locationFilters ? locationFilters.split(',').filter(Boolean) : []);
-        if (locationArray.length > 0) {
-          filteredDesignSystemItems = filteredDesignSystemItems.filter(item =>
-            item.location && locationArray.includes(item.location)
-          );
-        }
-        const searchQueryValue = queryParams.get('q') || '';
-        if (searchQueryValue) {
-          const query = searchQueryValue.toLowerCase();
-          filteredDesignSystemItems = filteredDesignSystemItems.filter(item => {
-            const searchableText = [item.title, item.description, item.category, item.location].filter(Boolean).join(' ').toLowerCase();
-            return searchableText.includes(query);
-          });
-        }
-        setItems(filteredDesignSystemItems);
-        setFilteredItems(filteredDesignSystemItems);
-        setTotalCount(filteredDesignSystemItems.length);
-        return;
-      }
-      // OTHER MARKETPLACES (financial, non-financial, onboarding)
-      setLoading(true);
-      setError(null);
-      try {
-        const itemsData = await fetchMarketplaceItems(
-          marketplaceType,
-          Object.fromEntries(Object.entries(filters).map(([k, v]) => [k, Array.isArray(v) ? v.join(',') : (v || '')])),
-          searchQuery
-        );
-        const finalItems = itemsData?.length ? itemsData : getFallbackItems(marketplaceType);
-        setItems(finalItems);
-        let filtered = finalItems;
-        if (isServicesCenter) {
-          const tabCategoryMap: Record<string, string> = {
-            'technology': 'Technology',
-            'business': 'Employee Services',
-            'digital_worker': 'Digital Worker',
-            'prompt_library': 'Prompt Library',
-            'ai_tools': 'AI Tools'
-          };
-          const activeTabCategory = tabCategoryMap[activeServiceTab];
-          if (activeTabCategory) {
-            filtered = filtered.filter(item => {
-              const itemCategory = item.category || '';
-              return itemCategory === activeTabCategory;
-            });
-          }
-          const serviceTypeFilter = filters.serviceType;
-          if (serviceTypeFilter) {
-            const serviceTypes = Array.isArray(serviceTypeFilter) ? serviceTypeFilter : [serviceTypeFilter];
-            if (serviceTypes.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemServiceType = (item.serviceType || '').toLowerCase().trim();
-                return serviceTypes.some(filterType => {
-                  const normalizedFilter = filterType.toLowerCase().trim();
-                  const normalizeType = (type: string) => type.replace(/[\s-]/g, '').toLowerCase();
-                  return normalizeType(itemServiceType) === normalizeType(normalizedFilter);
-                });
-              });
-            }
-          }
-          const userCategoryFilter = filters.userCategory;
-          if (userCategoryFilter) {
-            const userCategories = Array.isArray(userCategoryFilter) ? userCategoryFilter : [userCategoryFilter];
-            if (userCategories.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemUserCategoriesArray = Array.isArray(item.userCategory) ? item.userCategory : [item.userCategory];
-                return userCategories.some(filterCategory =>
-                  itemUserCategoriesArray.some((itemCat: string) => itemCat.toLowerCase() === filterCategory.toLowerCase())
-                );
-              });
-            }
-          }
-          const technicalCategoryFilter = filters.technicalCategory;
-          if (technicalCategoryFilter) {
-            const technicalCategories = Array.isArray(technicalCategoryFilter) ? technicalCategoryFilter : [technicalCategoryFilter];
-            if (technicalCategories.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemTechnicalCategoriesArray = Array.isArray(item.technicalCategory) ? item.technicalCategory : [item.technicalCategory];
-                return technicalCategories.some(filterCategory =>
-                  itemTechnicalCategoriesArray.some((itemCat: string) => itemCat.toLowerCase() === filterCategory.toLowerCase())
-                );
-              });
-            }
-          }
-          const deviceOwnershipFilter = filters.deviceOwnership;
-          if (deviceOwnershipFilter) {
-            const deviceOwnerships = Array.isArray(deviceOwnershipFilter) ? deviceOwnershipFilter : [deviceOwnershipFilter];
-            if (deviceOwnerships.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemDeviceOwnershipsArray = Array.isArray(item.deviceOwnership) ? item.deviceOwnership : [item.deviceOwnership];
-                return deviceOwnerships.some(filterOwnership =>
-                  itemDeviceOwnershipsArray.some((itemOwn: string) =>
-                    itemOwn.toLowerCase().replace(/[\s-]/g, '') === filterOwnership.toLowerCase().replace(/[\s-]/g, '')
-                  )
-                );
-              });
-            }
-          }
-          const servicesFilter = filters.services;
-          if (servicesFilter) {
-            const services = Array.isArray(servicesFilter) ? servicesFilter : [servicesFilter];
-            if (services.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemServicesArray = Array.isArray(item.services) ? item.services : [item.services];
-                return services.some(filterService =>
-                  itemServicesArray.some((itemSvc: string) =>
-                    itemSvc.toLowerCase().replace(/[\s_]/g, '') === filterService.toLowerCase().replace(/[\s_]/g, '')
-                  )
-                );
-              });
-            }
-          }
-          const documentTypeFilter = filters.documentType;
-          if (documentTypeFilter) {
-            const documentTypes = Array.isArray(documentTypeFilter) ? documentTypeFilter : [documentTypeFilter];
-            if (documentTypes.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemDocumentTypesArray = Array.isArray(item.documentType) ? item.documentType : [item.documentType];
-                return documentTypes.some(filterDocType =>
-                  itemDocumentTypesArray.some((itemDocType: string) => itemDocType.toLowerCase() === filterDocType.toLowerCase())
-                );
-              });
-            }
-          }
-          const serviceDomainsFilter = filters.serviceDomains;
-          if (serviceDomainsFilter) {
-            const serviceDomains = Array.isArray(serviceDomainsFilter) ? serviceDomainsFilter : [serviceDomainsFilter];
-            if (serviceDomains.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemServiceDomainsArray = Array.isArray(item.serviceDomains) ? item.serviceDomains : [item.serviceDomains];
-                return serviceDomains.some(filterDomain =>
-                  itemServiceDomainsArray.some((itemDomain: string) =>
-                    itemDomain.toLowerCase().replace(/[\s_&]/g, '') === filterDomain.toLowerCase().replace(/[\s_&]/g, '')
-                  )
-                );
-              });
-            }
-          }
-          const aiMaturityLevelFilter = filters.aiMaturityLevel;
-          if (aiMaturityLevelFilter) {
-            const aiMaturityLevels = Array.isArray(aiMaturityLevelFilter) ? aiMaturityLevelFilter : [aiMaturityLevelFilter];
-            if (aiMaturityLevels.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemMaturityLevelArray = Array.isArray(item.aiMaturityLevel) ? item.aiMaturityLevel : [item.aiMaturityLevel];
-                return aiMaturityLevels.some(filterLevel =>
-                  itemMaturityLevelArray.some((itemLevel: string) =>
-                    itemLevel.toLowerCase().replace(/[\s_()]/g, '') === filterLevel.toLowerCase().replace(/[\s_()]/g, '')
-                  )
-                );
-              });
-            }
-          }
-          const toolCategoryFilter = filters.toolCategory;
-          if (toolCategoryFilter) {
-            const toolCategories = Array.isArray(toolCategoryFilter) ? toolCategoryFilter : [toolCategoryFilter];
-            if (toolCategories.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemToolCategory = item.toolCategory || '';
-                return toolCategories.some(filterCategory =>
-                  itemToolCategory.toLowerCase().replace(/[\s_]/g, '') === filterCategory.toLowerCase().replace(/[\s_]/g, '')
-                );
-              });
-            }
-          }
-          const deliveryModeFilter = filters.deliveryMode;
-          if (deliveryModeFilter) {
-            const deliveryModes = Array.isArray(deliveryModeFilter) ? deliveryModeFilter : [deliveryModeFilter];
-            if (deliveryModes.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemMode = (item.deliveryMode || '').toLowerCase().trim();
-                return deliveryModes.some(filterMode => {
-                  const normalizedFilter = filterMode.toLowerCase().trim();
-                  const normalizeMode = (mode: string) => {
-                    const cleaned = mode.replace(/[\s-]/g, '');
-                    return (cleaned === 'inperson' || cleaned.includes('person')) ? 'inperson' : cleaned;
-                  };
-                  return normalizeMode(itemMode) === normalizeMode(normalizedFilter);
-                });
-              });
-            }
-          }
-          const providerFilter = filters.provider;
-          if (providerFilter) {
-            const providers = Array.isArray(providerFilter) ? providerFilter : [providerFilter];
-            if (providers.length > 0) {
-              filtered = filtered.filter(item => {
-                const itemProvider = (item.provider?.name || '').toLowerCase();
-                return providers.some(filterProvider => {
-                  const normalizedFilter = filterProvider.toLowerCase();
-                  const providerMap: Record<string, string[]> = {
-                    'it_support': ['it support', 'itsupport'],
-                    'hr': ['hr'],
-                    'finance': ['finance'],
-                    'admin': ['admin', 'administrative']
-                  };
-                  const possibleNames = providerMap[normalizedFilter] || [normalizedFilter];
-                  return possibleNames.some(name => itemProvider === name || itemProvider.includes(name) || name.includes(itemProvider));
-                });
-              });
-            }
-          }
-          const locationFilter = filters.location;
-          if (locationFilter) {
-            const locations = Array.isArray(locationFilter) ? locationFilter : [locationFilter];
-            if (locations.length > 0) {
-              const normalizeLocation = (loc: string) => {
-                const map: Record<string, string> = { 'dubai': 'Dubai', 'nairobi': 'Nairobi', 'riyadh': 'Riyadh' };
-                return map[loc.toLowerCase()] || loc;
-              };
-              filtered = filtered.filter(item => {
-                const itemLocation = item.location || '';
-                return locations.some(filterLocation => {
-                  const normalizedFilter = normalizeLocation(filterLocation);
-                  return itemLocation === normalizedFilter ||
-                         itemLocation.toLowerCase().includes(normalizedFilter.toLowerCase()) ||
-                         normalizedFilter.toLowerCase().includes(itemLocation.toLowerCase());
-                });
-              });
-            }
-          }
-          if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            filtered = filtered.filter(item => {
-              const searchableText = [item.title, item.description, item.category, item.serviceType, item.deliveryMode, item.provider?.name, ...(item.tags || [])].filter(Boolean).join(' ').toLowerCase();
-              return searchableText.includes(query);
-            });
-          }
-        } else {
-          if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            filtered = filtered.filter(item => {
-              const searchableText = [item.title, item.description, item.category, item.provider?.name, ...(item.tags || [])].filter(Boolean).join(' ').toLowerCase();
-              return searchableText.includes(query);
-            });
-          }
-        }
-        setFilteredItems(filtered);
-        setTotalCount(filtered.length);
-      } catch (err) {
-        setError(`Failed to load ${marketplaceType}`);
-        const fallbackItems = getFallbackItems(marketplaceType);
-        setItems(fallbackItems);
-        let filteredFallback = fallbackItems;
-        if (isServicesCenter) {
-          const tabCategoryMap: Record<string, string> = {
-            'technology': 'Technology',
-            'business': 'Employee Services',
-            'digital_worker': 'Digital Worker',
-            'prompt_library': 'Prompt Library',
-            'ai_tools': 'AI Tools'
-          };
-          const activeTabCategory = tabCategoryMap[activeServiceTab];
-          if (activeTabCategory) {
-            filteredFallback = filteredFallback.filter(item => item.category === activeTabCategory);
-          }
-        }
-        setFilteredItems(filteredFallback);
-        setTotalCount(filteredFallback.length);
-      } finally {
-        setLoading(false);
-      }
+      const s: GuidesSetters = { setLoading, setError, setItems, setFilteredItems, setTotalCount, setFacets };
+      if (isCourses) { runCoursesLoad(s, searchFilteredItemsLength); return; }
+      if (isKnowledgeHub) { runKnowledgeHubLoad(s, marketplaceType); return; }
+      if (isGuides) { await runGuidesLoad(s, { activeTab, queryParams, currentPage, pageSize, searchStartRef }); return; }
+      if (isDesignSystem) { runDesignSystemLoad(s, { activeDesignSystemTab, filters, queryParams }); return; }
+      await runOtherMarketplaceLoad(s, { marketplaceType, filters, searchQuery, isServicesCenter, activeServiceTab });
     };
     run();
   }, [marketplaceType, filters, searchQuery, queryParams, isCourses, isKnowledgeHub, currentPage, pageSize, isServicesCenter, activeServiceTab, activeTab, isDesignSystem, activeDesignSystemTab]);
@@ -1537,6 +1537,239 @@ function applyTabFilterCleanup(tab: WorkGuideTab, currentParams: URLSearchParams
   return changed ? next : null;
 }
 
+// ---------------------------------------------------------------------------
+// More module-level helpers to further reduce MarketplacePage complexity
+// ---------------------------------------------------------------------------
+
+function computeHasActiveFilters(
+  isCourses: boolean,
+  isKnowledgeHub: boolean,
+  isGuides: boolean,
+  urlBasedFilters: Record<string, string[]>,
+  activeFilters: string[],
+  filters: Record<string, string | string[]>,
+): boolean {
+  if (isCourses) return Object.values(urlBasedFilters).some(f => Array.isArray(f) && f.length > 0);
+  if (isKnowledgeHub) return activeFilters.length > 0;
+  if (isGuides) return false;
+  return Object.values(filters).some(f => (Array.isArray(f) ? f.length > 0 : f !== ''));
+}
+
+function computeNextFilters(
+  prev: Record<string, string | string[]>,
+  filterType: string,
+  value: string,
+): Record<string, string | string[]> {
+  const current = prev[filterType];
+  if (Array.isArray(current)) {
+    const nextValues = current.includes(value)
+      ? current.filter(v => v !== value)
+      : [...current, value];
+    return { ...prev, [filterType]: nextValues.join(',') };
+  }
+  return { ...prev, [filterType]: value === current ? '' : value };
+}
+
+function applyNewJoinerTrack(
+  searchParams: URLSearchParams,
+  setSearchParams: (params: URLSearchParams, opts: { replace: boolean }) => void,
+): void {
+  if (searchParams.get('track') !== 'newjoiner') return;
+  const newParams = new URLSearchParams(searchParams);
+  if (!newParams.get('level')) newParams.set('level', 'L1,L2');
+  if (!newParams.get('category')) newParams.set('category', 'Day in DQ');
+  setSearchParams(newParams, { replace: true });
+}
+
+function applyServiceTabSync(
+  currentTab: string | null,
+  activeServiceTab: string,
+  setActiveServiceTab: (tab: string) => void,
+  searchParams: URLSearchParams,
+  setSearchParams: (params: URLSearchParams, opts: { replace: boolean }) => void,
+): void {
+  const isValid = currentTab && VALID_SERVICE_TABS.includes(currentTab);
+  if (isValid && currentTab !== activeServiceTab) {
+    setActiveServiceTab(currentTab as string);
+  } else if (!isValid) {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('tab', activeServiceTab);
+    setSearchParams(newParams, { replace: true });
+  }
+}
+
+function updateSearchQueryParams(
+  queryParams: URLSearchParams,
+  q: string,
+  setQueryParams: (p: URLSearchParams) => void,
+): void {
+  const next = new URLSearchParams(queryParams.toString());
+  next.delete('page');
+  if (q) next.set('q', q); else next.delete('q');
+  const qs = next.toString();
+  window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+  setQueryParams(new URLSearchParams(next.toString()));
+}
+
+function handleTabCleanup(
+  isGuides: boolean,
+  activeTab: WorkGuideTab,
+  prevTabRef: React.MutableRefObject<WorkGuideTab>,
+  queryParams: URLSearchParams,
+  setQueryParams: (p: URLSearchParams) => void,
+): void {
+  if (!isGuides || activeTab === 'guidelines' || prevTabRef.current === activeTab) return;
+  prevTabRef.current = activeTab;
+  const cleaned = applyTabFilterCleanup(activeTab, queryParams);
+  if (!cleaned) return;
+  const qs = cleaned.toString();
+  window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
+  setQueryParams(new URLSearchParams(cleaned.toString()));
+}
+
+function prepareCourseItems(isCourses: boolean, searchFilteredItems: any[], filteredItems: any[]): any[] {
+  if (!isCourses) return filteredItems;
+  return searchFilteredItems.map(course => {
+    const allowedSet = new Set<string>(LOCATION_ALLOW as readonly string[]);
+    const safeLocations = (course.locations || []).filter((loc: string) => allowedSet.has(loc));
+    return {
+      ...course,
+      locations: safeLocations.length ? safeLocations : ['Global'],
+      provider: { name: course.provider, logoUrl: '/DWS-Logo.png' },
+      description: course.summary,
+    };
+  });
+}
+
+function getDesignSystemEmptyLabel(tab: DesignSystemTab): string {
+  if (tab === 'cids') return 'CI.DS';
+  if (tab === 'vds') return 'V.DS';
+  return 'CDS';
+}
+
+// ---------------------------------------------------------------------------
+// Sub-component: MainContent
+// Renders the xl:w-3/4 main content area based on marketplace type.
+// ---------------------------------------------------------------------------
+interface MainContentProps {
+  loading: boolean;
+  error: string | null;
+  isGuides: boolean;
+  isKnowledgeHub: boolean;
+  isDesignSystem: boolean;
+  isCourses: boolean;
+  filteredItems: any[];
+  activeDesignSystemTab: DesignSystemTab;
+  bookmarkedItems: string[];
+  toggleBookmark: (itemId: string) => void;
+  handleAddToComparison: (item: any) => void;
+  searchQuery: string;
+  activeFilters: string[];
+  handleKnowledgeHubFilterChange: (filter: string) => void;
+  clearKnowledgeHubFilters: () => void;
+  retryFetch: () => void;
+  activeTab: WorkGuideTab;
+  filteredGlossaryTerms: any[];
+  queryParams: URLSearchParams;
+  setQueryParams: (p: URLSearchParams) => void;
+  navigate: ReturnType<typeof import('react-router-dom').useNavigate>;
+  currentPage: number;
+  totalPages: number;
+  goToPage: (page: number) => void;
+  searchFilteredItems: any[];
+  marketplaceType: MarketplacePageProps['marketplaceType'];
+  promoCards: any[];
+  activeServiceTab: string;
+}
+
+function MainContent({
+  loading, error, isGuides, isKnowledgeHub, isDesignSystem, isCourses,
+  filteredItems, activeDesignSystemTab, bookmarkedItems, toggleBookmark,
+  handleAddToComparison, searchQuery, activeFilters, handleKnowledgeHubFilterChange,
+  clearKnowledgeHubFilters, retryFetch, activeTab, filteredGlossaryTerms,
+  queryParams, setQueryParams, navigate, currentPage, totalPages, goToPage,
+  searchFilteredItems, marketplaceType, promoCards, activeServiceTab,
+}: MainContentProps) {
+  if (loading) {
+    return (
+      <div className="xl:w-3/4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          {[...Array(6)].map((_, idx) => <CourseCardSkeleton key={idx} />)}
+        </div>
+      </div>
+    );
+  }
+  if (error && !isGuides && !isKnowledgeHub) {
+    return <div className="xl:w-3/4"><ErrorDisplay message={error} onRetry={retryFetch} /></div>;
+  }
+  if (isKnowledgeHub) {
+    return (
+      <div className="xl:w-3/4">
+        <KnowledgeHubGrid
+          bookmarkedItems={bookmarkedItems}
+          onToggleBookmark={toggleBookmark}
+          onAddToComparison={handleAddToComparison}
+          searchQuery={searchQuery}
+          activeFilters={activeFilters}
+          onFilterChange={handleKnowledgeHubFilterChange}
+          onClearFilters={clearKnowledgeHubFilters}
+        />
+      </div>
+    );
+  }
+  if (isDesignSystem) {
+    const emptyLabel = getDesignSystemEmptyLabel(activeDesignSystemTab);
+    return (
+      <div className="xl:w-3/4">
+        {filteredItems.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {filteredItems.map((item: any) => (
+              <DesignSystemCard key={item.id} id={item.id} title={item.title} description={item.description} imageUrl={item.imageUrl} tags={item.tags} type={item.type} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="text-center max-w-md">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No {emptyLabel} services found</h3>
+              <p className="text-gray-600 text-sm">Service cards will appear here once they are added.</p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+  if (isGuides) {
+    return (
+      <div className="xl:w-3/4">
+        <GuidesContent
+          activeTab={activeTab}
+          filteredItems={filteredItems}
+          filteredGlossaryTerms={filteredGlossaryTerms}
+          queryParams={queryParams}
+          setQueryParams={setQueryParams}
+          navigate={navigate}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          goToPage={goToPage}
+        />
+      </div>
+    );
+  }
+  return (
+    <div className="xl:w-3/4">
+      <MarketplaceGrid
+        items={prepareCourseItems(isCourses, searchFilteredItems, filteredItems)}
+        marketplaceType={marketplaceType}
+        bookmarkedItems={bookmarkedItems}
+        onToggleBookmark={toggleBookmark}
+        onAddToComparison={handleAddToComparison}
+        promoCards={promoCards}
+        activeServiceTab={activeServiceTab}
+      />
+    </div>
+  );
+}
+
 export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   marketplaceType,
   title: _title,
@@ -1563,15 +1796,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   // Sync activeServiceTab with URL params
   useEffect(() => {
     if (!isServicesCenter) return;
-    const currentTab = searchParams.get('tab');
-    const isValid = currentTab && VALID_SERVICE_TABS.includes(currentTab);
-    if (isValid && currentTab !== activeServiceTab) {
-      setActiveServiceTab(currentTab);
-    } else if (!isValid) {
-      const newParams = new URLSearchParams(searchParams);
-      newParams.set('tab', activeServiceTab);
-      setSearchParams(newParams, { replace: true });
-    }
+    applyServiceTabSync(searchParams.get('tab'), activeServiceTab, setActiveServiceTab, searchParams, setSearchParams);
   }, [isServicesCenter, searchParams, activeServiceTab, setSearchParams]);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -1613,15 +1838,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   // Clean up incompatible filters when tab changes (not on every query change)
   const prevTabRef = useRef<WorkGuideTab>(activeTab);
   useEffect(() => {
-    if (!isGuides || activeTab === 'guidelines' || prevTabRef.current === activeTab) return;
-    prevTabRef.current = activeTab;
-    const cleaned = applyTabFilterCleanup(activeTab, queryParams);
-    if (!cleaned) return;
-    const qs = cleaned.toString();
-    if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
-    }
-    setQueryParams(new URLSearchParams(cleaned.toString()));
+    handleTabCleanup(isGuides, activeTab, prevTabRef, queryParams, setQueryParams);
   }, [isGuides, activeTab]);
 
   const pageSize = Math.min(200, Math.max(1, parseInt(queryParams.get('pageSize') || String(DEFAULT_GUIDE_PAGE_SIZE), 10)));
@@ -1729,19 +1946,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
   
   // Handle track parameter for newjoiner (courses)
   useEffect(() => {
-    if (isCourses) {
-      const track = searchParams.get('track');
-      if (track === 'newjoiner') {
-        const newParams = new URLSearchParams(searchParams);
-        if (!newParams.get('level')) {
-          newParams.set('level', 'L1,L2');
-        }
-        if (!newParams.get('category')) {
-          newParams.set('category', 'Day in DQ');
-        }
-        setSearchParams(newParams, { replace: true });
-      }
-    }
+    if (isCourses) applyNewJoinerTrack(searchParams, setSearchParams);
   }, [isCourses, searchParams, setSearchParams]);
   
   // (filter config loading is now handled inside useMarketplaceData hook)
@@ -1749,25 +1954,10 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
 
   // Handle filter changes
   const handleFilterChange = useCallback((filterType: string, value: string) => {
-    if (isCourses) {
-      toggleFilter(filterType, value);
-      return;
-    }
-    if (isGuides) {
-      // Guides filters are handled via queryParams in GuidesFilters component
-      return;
-    }
-    setFilters(prev => {
-      const current = prev[filterType];
-      if (Array.isArray(current)) {
-        const exists = current.includes(value);
-        const nextValues = exists ? current.filter(v => v !== value) : [...current, value];
-        return { ...prev, [filterType]: Array.isArray(nextValues) ? nextValues.join(',') : nextValues };
-      } else {
-        return { ...prev, [filterType]: value === prev[filterType] ? '' : value };
-      }
-    });
-  }, [isCourses, isGuides, marketplaceType, toggleFilter]);
+    if (isCourses) { toggleFilter(filterType, value); return; }
+    if (isGuides) return;
+    setFilters(prev => computeNextFilters(prev, filterType, value));
+  }, [isCourses, isGuides, toggleFilter]);
   
   // Reset all filters
   const resetFilters = useCallback(() => {
@@ -1833,14 +2023,15 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
     setQueryParams(new URLSearchParams(next.toString()));
   }, [queryParams, totalPages]);
 
-  // Pre-computed booleans (reduces JSX ternary complexity)
-  const hasActiveFilters = isCourses
-    ? Object.values(urlBasedFilters).some(f => Array.isArray(f) && f.length > 0)
-    : isKnowledgeHub
-      ? activeFilters.length > 0
-      : isGuides
-        ? false
-        : Object.values(filters).some(f => (Array.isArray(f) ? f.length > 0 : f !== ''));
+  const hasActiveFilters = computeHasActiveFilters(isCourses, isKnowledgeHub, isGuides, urlBasedFilters, activeFilters, filters);
+
+  const handleSearchQueryChange = useCallback((q: string) => {
+    if (isGuides || isDesignSystem) {
+      updateSearchQueryParams(queryParams, q, setQueryParams);
+    } else {
+      setSearchQuery(q);
+    }
+  }, [isGuides, isDesignSystem, queryParams]);
 
   return (
     <div className={`min-h-screen flex flex-col bg-gray-50 ${isGuides ? 'guidelines-theme' : ''}`}>
@@ -2025,18 +2216,7 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
                 searchQuery={(isGuides || isDesignSystem) ? (queryParams.get('q') || '') : searchQuery}
                 placeholder={isDesignSystem ? "Search in Design System" : (isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined)}
                 ariaLabel={isDesignSystem ? "Search in Design System" : (isGuides || isKnowledgeHub ? "Search in DQ Knowledge Center" : undefined)}
-                setSearchQuery={(q: string) => {
-                  if (isGuides || isDesignSystem) {
-                    const next = new URLSearchParams(queryParams.toString());
-                    next.delete('page');
-                    if (q) next.set('q', q); else next.delete('q');
-                    const qs = next.toString();
-                    window.history.replaceState(null, '', `${window.location.pathname}${qs ? '?' + qs : ''}`);
-                    setQueryParams(new URLSearchParams(next.toString()));
-                  } else {
-                    setSearchQuery(q);
-                  }
-                }}
+                setSearchQuery={handleSearchQueryChange}
               />
             </div>
           </div>
@@ -2092,83 +2272,36 @@ export const MarketplacePage: React.FC<MarketplacePageProps> = ({
           />
 
           {/* Main content */}
-          <div className="xl:w-3/4">
-            {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                {[...Array(6)].map((_, idx) => <CourseCardSkeleton key={idx} />)}
-              </div>
-            ) : error && !isGuides && !isKnowledgeHub ? (
-              <ErrorDisplay message={error} onRetry={retryFetch} />
-            ) : isKnowledgeHub ? (
-              <KnowledgeHubGrid
-                bookmarkedItems={bookmarkedItems}
-                onToggleBookmark={toggleBookmark}
-                onAddToComparison={handleAddToComparison}
-                searchQuery={searchQuery}
-                activeFilters={activeFilters}
-                onFilterChange={handleKnowledgeHubFilterChange}
-                onClearFilters={clearKnowledgeHubFilters}
-              />
-            ) : isDesignSystem ? (
-              filteredItems.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                  {filteredItems.map((item: any) => (
-                    <DesignSystemCard
-                      key={item.id}
-                      id={item.id}
-                      title={item.title}
-                      description={item.description}
-                      imageUrl={item.imageUrl}
-                      tags={item.tags}
-                      type={item.type}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center py-16 px-4">
-                  <div className="text-center max-w-md">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      No {activeDesignSystemTab === 'cids' ? 'CI.DS' : activeDesignSystemTab === 'vds' ? 'V.DS' : 'CDS'} services found
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      Service cards will appear here once they are added.
-                    </p>
-                  </div>
-                </div>
-              )
-            ) : isGuides ? (
-              <GuidesContent
-                activeTab={activeTab}
-                filteredItems={filteredItems}
-                filteredGlossaryTerms={filteredGlossaryTerms}
-                queryParams={queryParams}
-                setQueryParams={setQueryParams}
-                navigate={navigate}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                goToPage={goToPage}
-              />
-            ) : (
-              <MarketplaceGrid
-                items={isCourses ? searchFilteredItems.map(course => {
-                  const allowedSet = new Set<string>(LOCATION_ALLOW as readonly string[]);
-                  const safeLocations = (course.locations || []).filter(loc => allowedSet.has(loc));
-                  return {
-                    ...course,
-                    locations: safeLocations.length ? safeLocations : ['Global'],
-                    provider: { name: course.provider, logoUrl: '/DWS-Logo.png' },
-                    description: course.summary
-                  };
-                }) : filteredItems}
-                marketplaceType={marketplaceType}
-                bookmarkedItems={bookmarkedItems}
-                onToggleBookmark={toggleBookmark}
-                onAddToComparison={handleAddToComparison}
-                promoCards={promoCards}
-                activeServiceTab={activeServiceTab}
-              />
-            )}
-          </div>
+          <MainContent
+            loading={loading}
+            error={error}
+            isGuides={isGuides}
+            isKnowledgeHub={isKnowledgeHub}
+            isDesignSystem={isDesignSystem}
+            isCourses={isCourses}
+            filteredItems={filteredItems}
+            activeDesignSystemTab={activeDesignSystemTab}
+            bookmarkedItems={bookmarkedItems}
+            toggleBookmark={toggleBookmark}
+            handleAddToComparison={handleAddToComparison}
+            searchQuery={searchQuery}
+            activeFilters={activeFilters}
+            handleKnowledgeHubFilterChange={handleKnowledgeHubFilterChange}
+            clearKnowledgeHubFilters={clearKnowledgeHubFilters}
+            retryFetch={retryFetch}
+            activeTab={activeTab}
+            filteredGlossaryTerms={filteredGlossaryTerms}
+            queryParams={queryParams}
+            setQueryParams={setQueryParams}
+            navigate={navigate}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            goToPage={goToPage}
+            searchFilteredItems={searchFilteredItems}
+            marketplaceType={marketplaceType}
+            promoCards={promoCards}
+            activeServiceTab={activeServiceTab}
+          />
         </div>
 
         {/* Comparison modal */}
