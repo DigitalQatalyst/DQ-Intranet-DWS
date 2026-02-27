@@ -61,23 +61,6 @@ const AUTHORITY_SIGNUP = POLICY_SIGNUP
   ? `https://${LOGIN_HOST}/${TENANT_NAME}.onmicrosoft.com/${POLICY_SIGNUP}`
   : AUTHORITY_SIGNUP_SIGNIN;
 
-// Compute authority URL:
-// Priority:
-// 1. Custom domain + tenant ID (e.g. https://login.example.com/{tenantId})
-// 2. Azure AD tenant (https://login.microsoftonline.com/{tenantId})
-// 3. CIAM subdomain (https://{sub}.ciamlogin.com/)
-// 4. Fallback to common
-let computedAuthority: string;
-// if (CUSTOM_DOMAIN && TENANT_ID) {
-//   computedAuthority = `https://${CUSTOM_DOMAIN}/${TENANT_ID}`;
-// } else if (TENANT_ID) {
-//   computedAuthority = `https://login.microsoftonline.com/${TENANT_ID}`;
-// } else if (SUB) {
-  computedAuthority = `https://${SUB}.ciamlogin.com/`;
-// } else {
-//   computedAuthority = env.VITE_AZURE_AUTHORITY || "https://login.microsoftonline.com/common";
-// }
-
 // Known authorities for MSAL (hostnames only)
 // const knownAuthorities: string[] = (() => {
 //   if (CUSTOM_DOMAIN) return [CUSTOM_DOMAIN];
