@@ -29,175 +29,77 @@ const STRATEGY_FRAMEWORKS = [
   { id: '6xd', name: '6xD (Digital Framework)' }
 ]
 
+function matchesStrategyType(guide, typeId) {
+  const subDomain = (guide.sub_domain || '').toLowerCase()
+  const id = typeId.toLowerCase()
+  return subDomain.includes(id) || subDomain === id
+}
+
+function matchesFramework(guide, frameworkId) {
+  const allText = `${guide.sub_domain || ''} ${guide.domain || ''} ${guide.guide_type || ''}`.toLowerCase()
+  if (frameworkId === '6xd') return allText.includes('6xd') || allText.includes('digital-framework') || allText.includes('digital framework')
+  if (frameworkId === 'ghc') return allText.includes('ghc') || allText.includes('golden honeycomb')
+  return false
+}
+
+function printMatchingSample(matching) {
+  if (matching.length === 0) return
+  const sample = matching.length <= 5 ? matching : matching.slice(0, 3)
+  sample.forEach(g => console.log(`   - ${g.title} (${g.slug})`))
+  if (matching.length > 5) console.log(`   ... and ${matching.length - 3} more`)
+}
+
+function printCoverageSection(label, items, guides, matchFn) {
+  console.log(label)
+  console.log('─'.repeat(50))
+  for (const item of items) {
+    const matching = (guides || []).filter(g => matchFn(g, item.id))
+    const status = matching.length > 0 ? '✅' : '❌'
+    console.log(`${status} ${item.name} (${item.id}): ${matching.length} guides`)
+    printMatchingSample(matching)
+  }
+}
+
 async function checkStrategyFilters() {
   console.log('🔍 Checking strategy filter coverage...\n')
-  
-  // Fetch all strategy guides
+
   const { data: guides, error } = await supabase
     .from('guides')
     .select('id, title, slug, sub_domain, domain, guide_type')
     .or('domain.ilike.%Strategy%,guide_type.ilike.%Strategy%')
     .eq('status', 'Approved')
-  
-  if (error) {
-    console.error('❌ Error fetching guides:', error)
-    return
-  }
-  
+
+  if (error) { console.error('❌ Error fetching guides:', error); return }
+
   console.log(`📊 Total Strategy Guides: ${guides?.length || 0}\n`)
-  
-  // Check Strategy Type coverage
-  console.log('📋 Strategy Type Filter Coverage:')
-  console.log('─'.repeat(50))
-  
-  for (const type of STRATEGY_TYPES) {
-    const matching = guides?.filter(g => {
-      const subDomain = (g.sub_domain || '').toLowerCase()
-      return subDomain.includes(type.id.toLowerCase()) || 
-             subDomain === type.id.toLowerCase()
-    }) || []
-    
-    const hasCards = matching.length > 0
-    const status = hasCards ? '✅' : '❌'
-    console.log(`${status} ${type.name} (${type.id}): ${matching.length} guides`)
-    
-    if (matching.length > 0 && matching.length <= 5) {
-      matching.forEach(g => {
-        console.log(`   - ${g.title} (${g.slug})`)
-      })
-    } else if (matching.length > 5) {
-      matching.slice(0, 3).forEach(g => {
-        console.log(`   - ${g.title} (${g.slug})`)
-      })
-      console.log(`   ... and ${matching.length - 3} more`)
-    }
-  }
-  
+
+  printCoverageSection('📋 Strategy Type Filter Coverage:', STRATEGY_TYPES, guides, matchesStrategyType)
   console.log('\n')
-  
-  // Check Framework/Program coverage
-  console.log('🔧 Framework/Program Filter Coverage:')
-  console.log('─'.repeat(50))
-  
-  for (const framework of STRATEGY_FRAMEWORKS) {
-    const matching = guides?.filter(g => {
-      const subDomain = (g.sub_domain || '').toLowerCase()
-      const domain = (g.domain || '').toLowerCase()
-      const guideType = (g.guide_type || '').toLowerCase()
-      const allText = `${subDomain} ${domain} ${guideType}`.toLowerCase()
-      
-      if (framework.id === '6xd') {
-        return allText.includes('6xd') || 
-               allText.includes('digital-framework') ||
-               allText.includes('digital framework')
-      } else if (framework.id === 'ghc') {
-        return allText.includes('ghc') ||
-               allText.includes('golden honeycomb')
-      }
-      return false
-    }) || []
-    
-    const hasCards = matching.length > 0
-    const status = hasCards ? '✅' : '❌'
-    console.log(`${status} ${framework.name} (${framework.id}): ${matching.length} guides`)
-    
-    if (matching.length > 0 && matching.length <= 5) {
-      matching.forEach(g => {
-        console.log(`   - ${g.title} (${g.slug})`)
-      })
-    } else if (matching.length > 5) {
-      matching.slice(0, 3).forEach(g => {
-        console.log(`   - ${g.title} (${g.slug})`)
-      })
-      console.log(`   ... and ${matching.length - 3} more`)
-    }
-  }
-  
+  printCoverageSection('🔧 Framework/Program Filter Coverage:', STRATEGY_FRAMEWORKS, guides, matchesFramework)
   console.log('\n')
-  
+
   // Summary
   console.log('📈 Summary:')
   console.log('─'.repeat(50))
-  
-  const strategyTypesWithCards = STRATEGY_TYPES.filter(type => {
-    const matching = guides?.filter(g => {
-      const subDomain = (g.sub_domain || '').toLowerCase()
-      return subDomain.includes(type.id.toLowerCase()) || 
-             subDomain === type.id.toLowerCase()
-    }) || []
-    return matching.length > 0
-  })
-  
-  const frameworksWithCards = STRATEGY_FRAMEWORKS.filter(framework => {
-    const matching = guides?.filter(g => {
-      const subDomain = (g.sub_domain || '').toLowerCase()
-      const domain = (g.domain || '').toLowerCase()
-      const guideType = (g.guide_type || '').toLowerCase()
-      const allText = `${subDomain} ${domain} ${guideType}`.toLowerCase()
-      
-      if (framework.id === '6xd') {
-        return allText.includes('6xd') || 
-               allText.includes('digital-framework') ||
-               allText.includes('digital framework')
-      } else if (framework.id === 'ghc') {
-        return allText.includes('ghc') ||
-               allText.includes('golden honeycomb')
-      }
-      return false
-    }) || []
-    return matching.length > 0
-  })
-  
-  console.log(`Strategy Types with cards: ${strategyTypesWithCards.length}/${STRATEGY_TYPES.length}`)
+  const typesWithCards = STRATEGY_TYPES.filter(t => (guides || []).some(g => matchesStrategyType(g, t.id)))
+  const frameworksWithCards = STRATEGY_FRAMEWORKS.filter(f => (guides || []).some(g => matchesFramework(g, f.id)))
+  console.log(`Strategy Types with cards: ${typesWithCards.length}/${STRATEGY_TYPES.length}`)
   console.log(`Frameworks with cards: ${frameworksWithCards.length}/${STRATEGY_FRAMEWORKS.length}`)
-  
+
   // Recommendations
   console.log('\n💡 Recommendations:')
   console.log('─'.repeat(50))
-  
-  const typesWithoutCards = STRATEGY_TYPES.filter(type => {
-    const matching = guides?.filter(g => {
-      const subDomain = (g.sub_domain || '').toLowerCase()
-      return subDomain.includes(type.id.toLowerCase()) || 
-             subDomain === type.id.toLowerCase()
-    }) || []
-    return matching.length === 0
-  })
-  
-  const frameworksWithoutCards = STRATEGY_FRAMEWORKS.filter(framework => {
-    const matching = guides?.filter(g => {
-      const subDomain = (g.sub_domain || '').toLowerCase()
-      const domain = (g.domain || '').toLowerCase()
-      const guideType = (g.guide_type || '').toLowerCase()
-      const allText = `${subDomain} ${domain} ${guideType}`.toLowerCase()
-      
-      if (framework.id === '6xd') {
-        return allText.includes('6xd') || 
-               allText.includes('digital-framework') ||
-               allText.includes('digital framework')
-      } else if (framework.id === 'ghc') {
-        return allText.includes('ghc') ||
-               allText.includes('golden honeycomb')
-      }
-      return false
-    }) || []
-    return matching.length === 0
-  })
-  
+  const typesWithoutCards = STRATEGY_TYPES.filter(t => !(guides || []).some(g => matchesStrategyType(g, t.id)))
+  const frameworksWithoutCards = STRATEGY_FRAMEWORKS.filter(f => !(guides || []).some(g => matchesFramework(g, f.id)))
+
   if (typesWithoutCards.length > 0) {
     console.log(`⚠️  Remove Strategy Types without cards:`)
-    typesWithoutCards.forEach(type => {
-      console.log(`   - ${type.name} (${type.id})`)
-    })
+    typesWithoutCards.forEach(t => console.log(`   - ${t.name} (${t.id})`))
   }
-  
   if (frameworksWithoutCards.length > 0) {
     console.log(`⚠️  Remove Frameworks without cards:`)
-    frameworksWithoutCards.forEach(framework => {
-      console.log(`   - ${framework.name} (${framework.id})`)
-    })
+    frameworksWithoutCards.forEach(f => console.log(`   - ${f.name} (${f.id})`))
   }
-  
   if (typesWithoutCards.length === 0 && frameworksWithoutCards.length === 0) {
     console.log('✅ All filter options have matching guides!')
   }
