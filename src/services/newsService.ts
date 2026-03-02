@@ -210,29 +210,14 @@ export async function toggleBookmark(
     .single();
 
   if (existing) {
-    // Remove bookmark
-    const { error } = await supabase
-      .from('news_bookmarks')
-      .delete()
-      .eq('id', existing.id);
-
-    if (error) {
-      console.error('Error removing bookmark:', error);
-      throw error;
-    }
+    const { error } = await supabase.from('news_bookmarks').delete().eq('id', existing.id);
+    if (error) { console.error('Error removing bookmark:', error); throw error; }
     return false;
-  } else {
-    // Add bookmark
-    const { error } = await supabase
-      .from('news_bookmarks')
-      .insert({ article_id: articleId, user_id: userId });
-
-    if (error) {
-      console.error('Error adding bookmark:', error);
-      throw error;
-    }
-    return true;
   }
+
+  const { error } = await supabase.from('news_bookmarks').insert({ article_id: articleId, user_id: userId });
+  if (error) { console.error('Error adding bookmark:', error); throw error; }
+  return true;
 }
 
 /**
@@ -341,33 +326,16 @@ export async function toggleReaction(
     .single();
 
   if (existing) {
-    // Remove reaction
-    const { error } = await supabase
-      .from('news_reactions')
-      .delete()
-      .eq('id', existing.id);
-
-    if (error) {
-      console.error('Error removing reaction:', error);
-      throw error;
-    }
+    const { error } = await supabase.from('news_reactions').delete().eq('id', existing.id);
+    if (error) { console.error('Error removing reaction:', error); throw error; }
     return false;
-  } else {
-    // Add reaction
-    const { error } = await supabase
-      .from('news_reactions')
-      .insert({
-        article_id: articleId,
-        user_id: userId,
-        reaction_type: reactionType,
-      });
-
-    if (error) {
-      console.error('Error adding reaction:', error);
-      throw error;
-    }
-    return true;
   }
+
+  const { error } = await supabase
+    .from('news_reactions')
+    .insert({ article_id: articleId, user_id: userId, reaction_type: reactionType });
+  if (error) { console.error('Error adding reaction:', error); throw error; }
+  return true;
 }
 
 /**

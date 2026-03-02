@@ -43,42 +43,21 @@ export function useLmsCourse(slug: string) {
     queryKey: ['lms', 'courses', slug],
     queryFn: async () => {
       const searchSlug = slug.trim();
-      console.log('[LMS] useLmsCourse: Searching for course with slug:', searchSlug);
       const courses = await getLmsCourseDetails();
-      console.log('[LMS] useLmsCourse: Total courses available:', courses.length);
-      console.log('[LMS] useLmsCourse: Available slugs:', courses.map(c => c.slug));
-      
-      // Try exact match first
-      let found = courses.find(c => c.slug === searchSlug) || null;
-      
-      // If not found, try case-insensitive match
-      if (!found) {
-        found = courses.find(c => c.slug.toLowerCase() === searchSlug.toLowerCase()) || null;
-        if (found) {
-          console.log('[LMS] useLmsCourse: Found course with case-insensitive match');
-        }
-      }
-      
-      if (!found) {
-        console.warn('[LMS] useLmsCourse: Course not found with slug:', searchSlug);
-        console.warn('[LMS] useLmsCourse: Available slugs:', courses.map(c => ({ slug: c.slug, title: c.title })));
-      } else {
-        console.log('[LMS] useLmsCourse: Found course:', { slug: found.slug, title: found.title });
-      }
-      
-      return found;
+      return (
+        courses.find(c => c.slug === searchSlug) ??
+        courses.find(c => c.slug.toLowerCase() === searchSlug.toLowerCase()) ??
+        null
+      );
     },
     enabled: !!slug,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnMount: true, // Always refetch when component mounts with new slug
-    refetchOnWindowFocus: false, // Don't refetch on window focus
+    staleTime: 5 * 60 * 1000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
   });
 }
 
-/**
- * Hook to fetch filtered courses
- */
-export function useLmsCoursesFiltered(filters: {
+type LmsCourseFilters = {
   category?: string[];
   provider?: string[];
   courseType?: string[];
@@ -86,55 +65,35 @@ export function useLmsCoursesFiltered(filters: {
   audience?: string[];
   sfiaRating?: string[];
   searchQuery?: string;
-}) {
+};
+
+function applyLmsCourseFilters(courses: LmsCard[], filters: LmsCourseFilters): LmsCard[] {
+  return courses
+    .filter(c => !filters.category?.length || filters.category.includes(c.courseCategory))
+    .filter(c => !filters.provider?.length || filters.provider.includes(c.provider))
+    .filter(c => !filters.courseType?.length || (!!c.courseType && filters.courseType.includes(c.courseType)))
+    .filter(c => !filters.location?.length || c.locations.some(loc => filters.location!.includes(loc)))
+    .filter(c => !filters.audience?.length || c.audience.some(aud => filters.audience!.includes(aud)))
+    .filter(c => !filters.sfiaRating?.length || filters.sfiaRating.includes(c.levelCode))
+    .filter(c => {
+      if (!filters.searchQuery) return true;
+      const q = filters.searchQuery.toLowerCase();
+      return (
+        c.title.toLowerCase().includes(q) ||
+        c.summary.toLowerCase().includes(q) ||
+        c.provider.toLowerCase().includes(q)
+      );
+    });
+}
+
+/**
+ * Hook to fetch filtered courses
+ */
+export function useLmsCoursesFiltered(filters: LmsCourseFilters) {
   return useQuery<LmsCard[], Error>({
     queryKey: ['lms', 'courses', 'filtered', filters],
-    queryFn: async () => {
-      const allCourses = await getLmsCourses();
-      
-      // Apply filters client-side
-      let filtered = allCourses;
-      
-      if (filters.category && filters.category.length > 0) {
-        filtered = filtered.filter(c => filters.category!.includes(c.courseCategory));
-      }
-      
-      if (filters.provider && filters.provider.length > 0) {
-        filtered = filtered.filter(c => filters.provider!.includes(c.provider));
-      }
-      
-      if (filters.courseType && filters.courseType.length > 0) {
-        filtered = filtered.filter(c => c.courseType && filters.courseType!.includes(c.courseType));
-      }
-      
-      if (filters.location && filters.location.length > 0) {
-        filtered = filtered.filter(c => 
-          c.locations.some(loc => filters.location!.includes(loc))
-        );
-      }
-      
-      if (filters.audience && filters.audience.length > 0) {
-        filtered = filtered.filter(c => 
-          c.audience.some(aud => filters.audience!.includes(aud))
-        );
-      }
-      
-      if (filters.sfiaRating && filters.sfiaRating.length > 0) {
-        filtered = filtered.filter(c => filters.sfiaRating!.includes(c.levelCode));
-      }
-      
-      if (filters.searchQuery) {
-        const query = filters.searchQuery.toLowerCase();
-        filtered = filtered.filter(c =>
-          c.title.toLowerCase().includes(query) ||
-          c.summary.toLowerCase().includes(query) ||
-          c.provider.toLowerCase().includes(query)
-        );
-      }
-      
-      return filtered;
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryFn: async () => applyLmsCourseFilters(await getLmsCourses(), filters),
+    staleTime: 5 * 60 * 1000,
   });
 }
 

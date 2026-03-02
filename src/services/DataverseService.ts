@@ -427,45 +427,29 @@ export const calculateMandatoryCompletion = (
         : 100,
   };
 };
+// Returns parsed profileData from localStorage, or null if absent/invalid
+const tryParseProfileData = () => {
+  const stored = localStorage.getItem("profileData");
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored);
+  } catch (error) {
+    console.error("Error parsing stored profile data:", error);
+    return null;
+  }
+};
+
+// Returns true if the data object has the mandatory basic section filled
+const hasMandatoryBasicData = (data: any) =>
+  !!(data?.companyStage && data?.sections?.basic &&
+     Object.keys(data.sections.basic.fields || {}).length > 0);
+
 // Check if onboarding has been completed
 export const isOnboardingCompleted = () => {
-  // Check localStorage first
-  const onboardingStatus = localStorage.getItem("onboardingComplete");
-  if (onboardingStatus === "true") {
-    return true;
-  }
-  // Check if we have profile data in the cache
-  if (dataCache) {
-    // Check if mandatory fields are filled
-    const { companyStage, sections } = dataCache;
-    if (!companyStage || !sections) {
-      return false;
-    }
-    // For simplicity, we'll consider onboarding complete if basic section exists
-    return (
-      sections.basic && Object.keys(sections.basic.fields || {}).length > 0
-    );
-  }
-  // Check localStorage for profile data
-  const storedData = localStorage.getItem("profileData");
-  if (storedData) {
-    try {
-      const parsedData = JSON.parse(storedData);
-      dataCache = parsedData; // Update cache
-      // Same check as above
-      const { companyStage, sections } = parsedData;
-      if (!companyStage || !sections) {
-        return false;
-      }
-      return (
-        sections.basic && Object.keys(sections.basic.fields || {}).length > 0
-      );
-    } catch (error) {
-      console.error("Error parsing stored profile data:", error);
-      return false;
-    }
-  }
-  return false;
+  if (localStorage.getItem("onboardingComplete") === "true") return true;
+  const data = dataCache ?? tryParseProfileData();
+  if (data) dataCache = data;
+  return hasMandatoryBasicData(data);
 };
 // Generate mock data structure that simulates Dataverse API response
 function generateMockDataverseResponse() {

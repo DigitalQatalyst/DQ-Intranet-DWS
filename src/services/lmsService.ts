@@ -164,10 +164,39 @@ export async function fetchAllCourses(): Promise<LmsCard[]> {
 }
 
 /**
+ * Fetch lessons for a single topic
+ */
+async function fetchTopicWithLessons(topic: LmsCurriculumTopicRow): Promise<LmsCurriculumTopicWithRelations> {
+  const { data: lessons } = await supabaseClient
+    .from('lms_curriculum_lessons')
+    .select('*')
+    .eq('curriculum_topic_id', topic.id)
+    .order('order_index');
+  return { ...topic, lessons: lessons || [] };
+}
+
+/**
+ * Fetch topics + direct lessons for a single curriculum item
+ */
+async function fetchCurriculumItemWithRelations(item: LmsCurriculumItemRow): Promise<LmsCurriculumItemWithRelations> {
+  const [{ data: topics }, { data: directLessons }] = await Promise.all([
+    supabaseClient.from('lms_curriculum_topics').select('*').eq('curriculum_item_id', item.id).order('order_index'),
+    supabaseClient.from('lms_curriculum_lessons').select('*').eq('curriculum_item_id', item.id).is('curriculum_topic_id', null).order('order_index'),
+  ]);
+
+  const topicsWithLessons = await Promise.all((topics || []).map(fetchTopicWithLessons));
+
+  return {
+    ...item,
+    topics: topicsWithLessons.length > 0 ? topicsWithLessons : undefined,
+    lessons: directLessons && directLessons.length > 0 ? directLessons : undefined,
+  };
+}
+
+/**
  * Fetch course by slug (for detail page)
  */
 export async function fetchCourseBySlug(slug: string): Promise<LmsDetail | null> {
-  // Fetch course with all related data
   const { data: course, error: courseError } = await supabaseClient
     .from('lms_courses')
     .select('*')
@@ -179,81 +208,23 @@ export async function fetchCourseBySlug(slug: string): Promise<LmsDetail | null>
     return null;
   }
 
-  // Fetch reviews
-  const { data: reviews } = await supabaseClient
-    .from('lms_reviews')
-    .select('*')
-    .eq('course_id', course.id)
-    .order('created_at', { ascending: false });
+  const [
+    { data: reviews },
+    { data: caseStudies },
+    { data: references },
+    { data: faqs },
+    { data: curriculumItems },
+  ] = await Promise.all([
+    supabaseClient.from('lms_reviews').select('*').eq('course_id', course.id).order('created_at', { ascending: false }),
+    supabaseClient.from('lms_case_studies').select('*').eq('course_id', course.id).order('created_at'),
+    supabaseClient.from('lms_references').select('*').eq('course_id', course.id).order('created_at'),
+    supabaseClient.from('lms_faqs').select('*').eq('course_id', course.id).order('order_index'),
+    supabaseClient.from('lms_curriculum_items').select('*').eq('course_id', course.id).order('order_index'),
+  ]);
 
-  // Fetch case studies
-  const { data: caseStudies } = await supabaseClient
-    .from('lms_case_studies')
-    .select('*')
-    .eq('course_id', course.id)
-    .order('created_at');
-
-  // Fetch references
-  const { data: references } = await supabaseClient
-    .from('lms_references')
-    .select('*')
-    .eq('course_id', course.id)
-    .order('created_at');
-
-  // Fetch FAQs
-  const { data: faqs } = await supabaseClient
-    .from('lms_faqs')
-    .select('*')
-    .eq('course_id', course.id)
-    .order('order_index');
-
-  // Fetch curriculum items
-  const { data: curriculumItems } = await supabaseClient
-    .from('lms_curriculum_items')
-    .select('*')
-    .eq('course_id', course.id)
-    .order('order_index');
-
-  // Fetch curriculum topics and lessons
-  const curriculumItemsWithRelations: LmsCurriculumItemWithRelations[] = [];
-
-  for (const item of curriculumItems || []) {
-    // Fetch topics for this curriculum item
-    const { data: topics } = await supabaseClient
-      .from('lms_curriculum_topics')
-      .select('*')
-      .eq('curriculum_item_id', item.id)
-      .order('order_index');
-
-    // Fetch lessons for topics
-    const topicsWithLessons: LmsCurriculumTopicWithRelations[] = [];
-    for (const topic of topics || []) {
-      const { data: lessons } = await supabaseClient
-        .from('lms_curriculum_lessons')
-        .select('*')
-        .eq('curriculum_topic_id', topic.id)
-        .order('order_index');
-
-      topicsWithLessons.push({
-        ...topic,
-        lessons: lessons || [],
-      });
-    }
-
-    // Fetch lessons directly for curriculum item (if no topics)
-    const { data: directLessons } = await supabaseClient
-      .from('lms_curriculum_lessons')
-      .select('*')
-      .eq('curriculum_item_id', item.id)
-      .is('curriculum_topic_id', null)
-      .order('order_index');
-
-    curriculumItemsWithRelations.push({
-      ...item,
-      topics: topicsWithLessons.length > 0 ? topicsWithLessons : undefined,
-      lessons: directLessons && directLessons.length > 0 ? directLessons : undefined,
-    });
-  }
+  const curriculumItemsWithRelations = await Promise.all(
+    (curriculumItems || []).map(fetchCurriculumItemWithRelations)
+  );
 
   const courseWithRelations: LmsCourseWithRelations = {
     ...course,
