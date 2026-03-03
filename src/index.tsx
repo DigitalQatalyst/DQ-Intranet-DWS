@@ -74,7 +74,7 @@ if (container) {
             // For other errors, check if we can still proceed
             try {
               // Try to get accounts to see if MSAL is functional
-              const testAccounts = msalInstance.getAllAccounts();
+              msalInstance.getAllAccounts();
               console.log("MSAL appears functional despite init error, continuing...");
               initPromise = Promise.resolve();
             } catch {
