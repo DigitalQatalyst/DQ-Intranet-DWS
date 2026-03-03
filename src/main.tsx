@@ -38,7 +38,7 @@ if (container) {
   const root = createRoot(container);
 
   // Check if authentication is enabled
-  const authEnabled = import.meta.env.VITE_ENABLE_AUTH !== 'false';
+  const authEnabled = import.meta.env.VITE_ENABLE_AUTH === 'true';
 
   // If authentication is disabled, render app directly
   if (!authEnabled) {
