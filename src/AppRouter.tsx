@@ -52,6 +52,7 @@ import GuideEditor from "./pages/admin/guides/GuideEditor";
 const GHCInspectorPage = React.lazy(() => import("./pages/admin/ghc-inspector/GHCInspectorPage"));
 import { ApolloClient, InMemoryCache, HttpLink } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import EventsPage from "./pages/events/EventsPage";
 import ChatBot from "./bot/ChatBot";
 import ThankYou from "./pages/ThankYou";
@@ -59,6 +60,17 @@ import UnitProfilePage from "./pages/UnitProfilePage";
 import WorkPositionProfilePage from "./pages/WorkPositionProfilePage";
 import RoleProfilePage from "./pages/RoleProfilePage";
 import WomenEntrepreneursPage from "./pages/WomenEntrepreneursPage";
+
+// Create a client for React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 export function AppRouter() {
 
@@ -70,7 +82,8 @@ export function AppRouter() {
   });
 
   return (
-    <ApolloProvider client={client}>
+    <QueryClientProvider client={queryClient}>
+      <ApolloProvider client={client}>
       <BrowserRouter>
         <AuthProvider>
           <CommunitiesAuthProvider>
@@ -144,5 +157,6 @@ export function AppRouter() {
         </AuthProvider>
       </BrowserRouter>
     </ApolloProvider>
+    </QueryClientProvider>
   );
 }
