@@ -45,14 +45,13 @@ INSERT INTO public.news (
   (SELECT company_news_type FROM constants),
   (SELECT dq_operations FROM constants),
   (SELECT culture_people_focus FROM constants),
-  $content$# DXB EoY Event Postponement
-
-Due to unfavourable weather conditions, the DQ Studios Y/E Annual Gathering scheduled for 19.12.2025 has been rescheduled for everyone's safety.
-
-We sincerely apologise for the inconvenience and appreciate your understanding.
-
-To ensure the date chosen is convenient for DXB Associates. I will be sharing a poll shortly to confirm a date. Once confirmed, details regarding the rescheduled date will be shared after.
-$content$,
+  E'# DXB EoY Event Postponement\n'
+  || E'\n'
+  || E'Due to unfavourable weather conditions, the DQ Studios Y/E Annual Gathering scheduled for 19.12.2025 has been rescheduled for everyone''s safety.\n'
+  || E'\n'
+  || E'We sincerely apologise for the inconvenience and appreciate your understanding.\n'
+  || E'\n'
+  || E'To ensure the date chosen is convenient for DXB Associates. I will be sharing a poll shortly to confirm a date. Once confirmed, details regarding the rescheduled date will be shared after.',
   NULL,
   NULL,
   NULL
@@ -135,42 +134,41 @@ $content$,
   (SELECT company_news_type FROM constants),
   (SELECT dq_operations FROM constants),
   (SELECT culture_people_focus FROM constants),
-  $content$# Christmas & New Year Schedule
-
-In observance of the Christmas and New Year season, please note the work arrangements and holiday schedule for NBO associates, including the mandatory WFH period and requirements.
-
-## | Work-From-Home (WFH) Period
-
-All associates will work from home from Wednesday, 24th December 2025 through Friday, 2nd January 2026. To ensure productivity and collaboration during this period, please adhere to the following requirements:
-
-- Log in to DQ Live each working day.
-- Log in to your designated working rooms.
-- Share your morning daily activity.
-- Submit a clear end-of-day report.
-
-Please note that non-compliance with these requirements will be considered unpaid.
-
-## | Official Paid Holidays
-
-The following days are designated as official paid holidays:
-
-- Thursday, 25th December 2025 – Christmas Day
-- Thursday, 1st January 2026 – New Year's Day
-
-## | Rescue Work & Compensation
-
-Associates required to work on the official paid holidays (25th December and/or 1st January) will receive rescue pay for those days, in addition to their standard daily compensation.
-
-## | Additional Holidays
-
-NBO associates will also observe the following additional holiday observed as Utamaduni Day in Kenya:
-
-- Friday, 26th December 2025
-
-NBO team members will not be required to work on this date. Those who are required to work will receive additional compensation for this day.
-
-We wish everyone a safe and joyful festive season.
-$content$,
+  E'# Christmas & New Year Schedule\n'
+  || E'\n'
+  || E'In observance of the Christmas and New Year season, please note the work arrangements and holiday schedule for NBO associates, including the mandatory WFH period and requirements.\n'
+  || E'\n'
+  || E'## | Work-From-Home (WFH) Period\n'
+  || E'\n'
+  || E'All associates will work from home from Wednesday, 24th December 2025 through Friday, 2nd January 2026. To ensure productivity and collaboration during this period, please adhere to the following requirements:\n'
+  || E'\n'
+  || E'- Log in to DQ Live each working day.\n'
+  || E'- Log in to your designated working rooms.\n'
+  || E'- Share your morning daily activity.\n'
+  || E'- Submit a clear end-of-day report.\n'
+  || E'\n'
+  || E'Please note that non-compliance with these requirements will be considered unpaid.\n'
+  || E'\n'
+  || E'## | Official Paid Holidays\n'
+  || E'\n'
+  || E'The following days are designated as official paid holidays:\n'
+  || E'\n'
+  || E'- Thursday, 25th December 2025 – Christmas Day\n'
+  || E'- Thursday, 1st January 2026 – New Year''s Day\n'
+  || E'\n'
+  || E'## | Rescue Work & Compensation\n'
+  || E'\n'
+  || E'Associates required to work on the official paid holidays (25th December and/or 1st January) will receive rescue pay for those days, in addition to their standard daily compensation.\n'
+  || E'\n'
+  || E'## | Additional Holidays\n'
+  || E'\n'
+  || E'NBO associates will also observe the following additional holiday observed as Utamaduni Day in Kenya:\n'
+  || E'\n'
+  || E'- Friday, 26th December 2025\n'
+  || E'\n'
+  || E'NBO team members will not be required to work on this date. Those who are required to work will receive additional compensation for this day.\n'
+  || E'\n'
+  || E'We wish everyone a safe and joyful festive season.',
   NULL,
   NULL,
   NULL
@@ -792,109 +790,107 @@ $content$,
   (SELECT policy_update_type FROM constants),
   (SELECT dq_operations FROM constants),
   (SELECT culture_people_focus FROM constants),
-  $content$
-# DQ Dress Code Guideline (Version 1.0)
-
-Professional appearance guidelines that set expectations for attire at DigitalQatalyst, balancing professionalism with comfort and supporting our brand perception.
-
-## Context
-At **DigitalQatalyst (DQ)**, professional appearance shapes how our brand is perceived, supports personal confidence, and creates an environment where associates feel comfortable and productive. This guideline sets expectations for attire so we strike the right balance between professionalism and comfort.
-
-## Purpose
-These dress code guidelines ensure associates align with DQ's culture of professionalism while allowing flexibility for creativity and comfort. The standard is **business casual Monday–Thursday** with a more relaxed **Casual Friday**, adapted for the diverse nature of work at DQ.
-
-## Key Characteristics
-
-- **Professional Appearance** – Associates dress in a professional, decent, and clean manner; clothing should enhance DQ's image.
-- **Cultural Sensitivity** – Outfits should be respectful of cultural and religious norms.
-- **Personal Grooming** – Hair, nails, and hygiene are maintained to a high standard. Fragrances, jewelry, and accessories should not distract from the professional setting.
-
-## Dress Code Details
-
-### Monday to Thursday – Business Casual
-
-- **Men**
-  - Well-fitted button-down shirt or polo
-  - Tailored trousers, khakis, or chinos
-  - Closed-toe shoes such as loafers or formal shoes
-
-- **Women**
-  - Blouse or sweater with tailored pants or skirt
-  - Knee-length professional skirt or dress
-  - Closed-toe shoes (flats or heels)
-
-### Friday – Casual
-
-- **Men**
-  - Polo shirts or casual button-down shirts
-  - Clean, well-fitted jeans
-  - Casual shoes, sneakers, or loafers
-
-- **Women**
-  - Casual blouses or t‑shirts with jeans or casual skirt/dress
-  - Comfortable, casual closed shoes or sneakers
-
-## Preparation Before Implementation
-
-Before rolling out the dress code:
-
-- **Communicate Dress Code** – Send formal communication via Teams explaining the guideline and effective date.
-- **Provide Visuals** – Share example images of acceptable business casual and Casual Friday outfits for men and women.
-- **Clarify Exceptions** – Highlight how medical or other special cases will be handled.
-
-## Guidelines During Workdays
-
-- Associates are expected to follow the dress code **every working day** (business casual Monday–Thursday, casual on Friday).
-- **Team Leads** oversee compliance within their teams and address non-compliance promptly.
-- **HRA** holds overall responsibility for monitoring and enforcing these guidelines.
-
-### Non-Compliance and Escalation
-
-Failure to comply with the dress code may result in:
-
-1. **Verbal warning** – Direct message to the associate.
-2. **Written warning** – Formal note placed on the associate's HR channel.
-3. **Further disciplinary action** – May include suspension or other actions as deemed appropriate.
-
-Associates and leaders are jointly responsible for ensuring the guideline is understood and consistently applied.
-
-## Special Considerations
-
-- **Client-Facing Meetings** – More formal business attire may be required; guidance will be communicated in advance.
-- **Company Events or Presentations** – Formal business attire is required.
-- **Extreme Weather** – Attire may be adjusted for comfort while staying within professional bounds.
-- **Medical Exceptions** – Reasonable adjustments can be made for medical reasons; these should be discussed confidentially with HR.
-
-## Prohibited Attire
-
-The following are **strictly prohibited** during working days:
-
-- Ripped jeans
-- Graphic t‑shirts or overly casual tops
-- Beachwear, sweatpants, gym wear, or shorts
-- Flip-flops, sandals, or other overly casual footwear
-
-## Post-Implementation Review
-
-### Monitor Compliance
-- Conduct occasional reviews to ensure the dress code is being followed across teams and locations.
-
-### Recognition and Rewards
-- **Best Dressed Award** – Recognise associates who consistently model the dress code.
-- **Most Improved Award** – Appreciate associates who show clear improvement in adherence.
-
-These recognitions help reinforce the guideline in a positive, motivating way.
-
-### Adjust Guidelines as Needed
-- Collect feedback and update the guideline where aspects prove unclear, impractical, or misaligned with DQ culture.
-
-## Visuals and Examples
-
-- **Business Casual** – Button-up shirt, slacks, blazer (men); blouse and pencil skirt or knee-length dress with flats or heels (women).
-- **Casual Fridays** – Polo shirt and jeans with casual shoes (men); casual top with jeans and flats/sneakers (women). Always maintain neat, non-revealing, and culturally respectful outfits.
-
-Where in doubt, associates should choose the more professional option and consult HR or their Line Manager for clarification.
-$content$,
+  E'# DQ Dress Code Guideline (Version 1.0)\n'
+  || E'\n'
+  || E'Professional appearance guidelines that set expectations for attire at DigitalQatalyst, balancing professionalism with comfort and supporting our brand perception.\n'
+  || E'\n'
+  || E'## Context\n'
+  || E'At **DigitalQatalyst (DQ)**, professional appearance shapes how our brand is perceived, supports personal confidence, and creates an environment where associates feel comfortable and productive. This guideline sets expectations for attire so we strike the right balance between professionalism and comfort.\n'
+  || E'\n'
+  || E'## Purpose\n'
+  || E'These dress code guidelines ensure associates align with DQ''s culture of professionalism while allowing flexibility for creativity and comfort. The standard is **business casual Monday–Thursday** with a more relaxed **Casual Friday**, adapted for the diverse nature of work at DQ.\n'
+  || E'\n'
+  || E'## Key Characteristics\n'
+  || E'\n'
+  || E'- **Professional Appearance** – Associates dress in a professional, decent, and clean manner; clothing should enhance DQ''s image.\n'
+  || E'- **Cultural Sensitivity** – Outfits should be respectful of cultural and religious norms.\n'
+  || E'- **Personal Grooming** – Hair, nails, and hygiene are maintained to a high standard. Fragrances, jewelry, and accessories should not distract from the professional setting.\n'
+  || E'\n'
+  || E'## Dress Code Details\n'
+  || E'\n'
+  || E'### Monday to Thursday – Business Casual\n'
+  || E'\n'
+  || E'- **Men**\n'
+  || E'  - Well-fitted button-down shirt or polo\n'
+  || E'  - Tailored trousers, khakis, or chinos\n'
+  || E'  - Closed-toe shoes such as loafers or formal shoes\n'
+  || E'\n'
+  || E'- **Women**\n'
+  || E'  - Blouse or sweater with tailored pants or skirt\n'
+  || E'  - Knee-length professional skirt or dress\n'
+  || E'  - Closed-toe shoes (flats or heels)\n'
+  || E'\n'
+  || E'### Friday – Casual\n'
+  || E'\n'
+  || E'- **Men**\n'
+  || E'  - Polo shirts or casual button-down shirts\n'
+  || E'  - Clean, well-fitted jeans\n'
+  || E'  - Casual shoes, sneakers, or loafers\n'
+  || E'\n'
+  || E'- **Women**\n'
+  || E'  - Casual blouses or t‑shirts with jeans or casual skirt/dress\n'
+  || E'  - Comfortable, casual closed shoes or sneakers\n'
+  || E'\n'
+  || E'## Preparation Before Implementation\n'
+  || E'\n'
+  || E'Before rolling out the dress code:\n'
+  || E'\n'
+  || E'- **Communicate Dress Code** – Send formal communication via Teams explaining the guideline and effective date.\n'
+  || E'- **Provide Visuals** – Share example images of acceptable business casual and Casual Friday outfits for men and women.\n'
+  || E'- **Clarify Exceptions** – Highlight how medical or other special cases will be handled.\n'
+  || E'\n'
+  || E'## Guidelines During Workdays\n'
+  || E'\n'
+  || E'- Associates are expected to follow the dress code **every working day** (business casual Monday–Thursday, casual on Friday).\n'
+  || E'- **Team Leads** oversee compliance within their teams and address non-compliance promptly.\n'
+  || E'- **HRA** holds overall responsibility for monitoring and enforcing these guidelines.\n'
+  || E'\n'
+  || E'### Non-Compliance and Escalation\n'
+  || E'\n'
+  || E'Failure to comply with the dress code may result in:\n'
+  || E'\n'
+  || E'1. **Verbal warning** – Direct message to the associate.\n'
+  || E'2. **Written warning** – Formal note placed on the associate''s HR channel.\n'
+  || E'3. **Further disciplinary action** – May include suspension or other actions as deemed appropriate.\n'
+  || E'\n'
+  || E'Associates and leaders are jointly responsible for ensuring the guideline is understood and consistently applied.\n'
+  || E'\n'
+  || E'## Special Considerations\n'
+  || E'\n'
+  || E'- **Client-Facing Meetings** – More formal business attire may be required; guidance will be communicated in advance.\n'
+  || E'- **Company Events or Presentations** – Formal business attire is required.\n'
+  || E'- **Extreme Weather** – Attire may be adjusted for comfort while staying within professional bounds.\n'
+  || E'- **Medical Exceptions** – Reasonable adjustments can be made for medical reasons; these should be discussed confidentially with HR.\n'
+  || E'\n'
+  || E'## Prohibited Attire\n'
+  || E'\n'
+  || E'The following are **strictly prohibited** during working days:\n'
+  || E'\n'
+  || E'- Ripped jeans\n'
+  || E'- Graphic t‑shirts or overly casual tops\n'
+  || E'- Beachwear, sweatpants, gym wear, or shorts\n'
+  || E'- Flip-flops, sandals, or other overly casual footwear\n'
+  || E'\n'
+  || E'## Post-Implementation Review\n'
+  || E'\n'
+  || E'### Monitor Compliance\n'
+  || E'- Conduct occasional reviews to ensure the dress code is being followed across teams and locations.\n'
+  || E'\n'
+  || E'### Recognition and Rewards\n'
+  || E'- **Best Dressed Award** – Recognise associates who consistently model the dress code.\n'
+  || E'- **Most Improved Award** – Appreciate associates who show clear improvement in adherence.\n'
+  || E'\n'
+  || E'These recognitions help reinforce the guideline in a positive, motivating way.\n'
+  || E'\n'
+  || E'### Adjust Guidelines as Needed\n'
+  || E'- Collect feedback and update the guideline where aspects prove unclear, impractical, or misaligned with DQ culture.\n'
+  || E'\n'
+  || E'## Visuals and Examples\n'
+  || E'\n'
+  || E'- **Business Casual** – Button-up shirt, slacks, blazer (men); blouse and pencil skirt or knee-length dress with flats or heels (women).\n'
+  || E'- **Casual Fridays** – Polo shirt and jeans with casual shoes (men); casual top with jeans and flats/sneakers (women). Always maintain neat, non-revealing, and culturally respectful outfits.\n'
+  || E'\n'
+  || E'Where in doubt, associates should choose the more professional option and consult HR or their Line Manager for clarification.',
   NULL,
   NULL,
   NULL
@@ -918,101 +914,100 @@ $content$,
   (SELECT company_news_type FROM constants),
   (SELECT dq_communications FROM constants),
   'GHC',
-  $content$# DQ Storybook — Latest Version and Quick Reference Links
-
-Explore the latest DQ Storybook and quick links to GHC elements including Vision, HoV, Persona, Agile TMS/SoS/Flows, and 6xD.
-
-## Introduction
-Here's the latest version of the **DQ Storybook** — our evolving narrative that brings the Golden Honeycomb of Competencies (GHC) to life. We're continuing to shape and refine this Storybook, so keep an eye out for new updates and deep dives in the coming weeks.
-
-## Main Storybook Access
-**[DQ Storybook: Complete Guide](https://dq-storybook.example.com)**
-*Your comprehensive resource for understanding DQ's methodology, culture, and operational excellence.*
-
----
-
-## Quick Reference Links
-
-### 01. DQ Vision (Purpose)
-**[Access DQ Vision →](https://dq-vision.example.com)**
-- Our foundational purpose and strategic direction
-- Long-term goals and organizational mission
-- Vision alignment across all business units
-
-### 02. DQ HoV (Culture)
-**[Explore House of Values →](https://dq-hov.example.com)**
-- Core values that guide our daily operations
-- Cultural principles and behavioral expectations
-- Team collaboration and ethical standards
-
-### 03. DQ Persona (Identity)
-**[Discover DQ Persona →](https://dq-persona.example.com)**
-- Our unique organizational identity and brand
-- Professional characteristics and market positioning
-- Client interaction and service delivery standards
-
-### 04. Agile TMS (Tasks)
-**[View Task Management System →](https://dq-tms.example.com)**
-- Agile task organization and workflow management
-- Sprint planning and execution methodologies
-- Performance tracking and delivery metrics
-
-### 05. Agile SoS (Governance)
-**[Access Scrum of Scrums →](https://dq-sos.example.com)**
-- Cross-team coordination and governance structures
-- Escalation procedures and decision-making frameworks
-- Inter-departmental communication protocols
-
-### 06. Agile Flows (Value Streams)
-**[Explore Value Streams →](https://dq-flows.example.com)**
-- End-to-end value delivery processes
-- Customer journey mapping and optimization
-- Continuous improvement methodologies
-
-### 07. Agile 6xD (Products)
-**[Discover 6xD Framework →](https://dq-6xd.example.com)**
-*Link to be updated - Coming Soon*
-- Six-dimensional product development approach
-- Innovation frameworks and delivery excellence
-- Product lifecycle management and optimization
-
----
-
-## How to Use These Resources
-
-### For New Team Members
-1. **Start with DQ Vision** to understand our purpose
-2. **Review HoV** to align with our cultural values
-3. **Explore DQ Persona** to understand our identity
-4. **Dive into operational frameworks** (TMS, SoS, Flows, 6xD)
-
-### For Existing Associates
-- **Regular Reference**: Bookmark these links for quick access
-- **Team Meetings**: Use these resources to align discussions
-- **Client Presentations**: Reference our methodologies and approaches
-- **Professional Development**: Deepen your understanding of DQ excellence
-
-### For Project Teams
-- **Project Kickoffs**: Align on DQ methodologies and standards
-- **Sprint Planning**: Reference TMS and Flows for optimal delivery
-- **Stakeholder Communication**: Use Persona and Vision for consistent messaging
-
-## Updates and Maintenance
-- **Regular Updates**: Content is refreshed bi-weekly
-- **Feedback Welcome**: Submit suggestions through DQ Communications
-- **Version Control**: All changes are tracked and communicated
-- **Mobile Optimization**: All links are mobile-friendly for on-the-go access
-
-## Support and Questions
-For questions about any of these resources or to request additional documentation:
-- **DQ Communications Team**: [communications@dq.com](mailto:communications@dq.com)
-- **Internal Slack**: #dq-storybook-support
-- **Knowledge Base**: [help.dq.com](https://help.dq.com)
-
----
-
-*Keep this reference handy for quick access to all DQ frameworks and methodologies. Together, we continue to build excellence through shared knowledge and consistent application of our proven approaches.*
-$content$,
+  E'# DQ Storybook — Latest Version and Quick Reference Links\n'
+  || E'\n'
+  || E'Explore the latest DQ Storybook and quick links to GHC elements including Vision, HoV, Persona, Agile TMS/SoS/Flows, and 6xD.\n'
+  || E'\n'
+  || E'## Introduction\n'
+  || E'Here''s the latest version of the **DQ Storybook** — our evolving narrative that brings the Golden Honeycomb of Competencies (GHC) to life. We''re continuing to shape and refine this Storybook, so keep an eye out for new updates and deep dives in the coming weeks.\n'
+  || E'\n'
+  || E'## Main Storybook Access\n'
+  || E'**[DQ Storybook: Complete Guide](https://dq-storybook.example.com)**\n'
+  || E'*Your comprehensive resource for understanding DQ''s methodology, culture, and operational excellence.*\n'
+  || E'\n'
+  || E'---\n'
+  || E'\n'
+  || E'## Quick Reference Links\n'
+  || E'\n'
+  || E'### 01. DQ Vision (Purpose)\n'
+  || E'**[Access DQ Vision →](https://dq-vision.example.com)**\n'
+  || E'- Our foundational purpose and strategic direction\n'
+  || E'- Long-term goals and organizational mission\n'
+  || E'- Vision alignment across all business units\n'
+  || E'\n'
+  || E'### 02. DQ HoV (Culture)\n'
+  || E'**[Explore House of Values →](https://dq-hov.example.com)**\n'
+  || E'- Core values that guide our daily operations\n'
+  || E'- Cultural principles and behavioral expectations\n'
+  || E'- Team collaboration and ethical standards\n'
+  || E'\n'
+  || E'### 03. DQ Persona (Identity)\n'
+  || E'**[Discover DQ Persona →](https://dq-persona.example.com)**\n'
+  || E'- Our unique organizational identity and brand\n'
+  || E'- Professional characteristics and market positioning\n'
+  || E'- Client interaction and service delivery standards\n'
+  || E'\n'
+  || E'### 04. Agile TMS (Tasks)\n'
+  || E'**[View Task Management System →](https://dq-tms.example.com)**\n'
+  || E'- Agile task organization and workflow management\n'
+  || E'- Sprint planning and execution methodologies\n'
+  || E'- Performance tracking and delivery metrics\n'
+  || E'\n'
+  || E'### 05. Agile SoS (Governance)\n'
+  || E'**[Access Scrum of Scrums →](https://dq-sos.example.com)**\n'
+  || E'- Cross-team coordination and governance structures\n'
+  || E'- Escalation procedures and decision-making frameworks\n'
+  || E'- Inter-departmental communication protocols\n'
+  || E'\n'
+  || E'### 06. Agile Flows (Value Streams)\n'
+  || E'**[Explore Value Streams →](https://dq-flows.example.com)**\n'
+  || E'- End-to-end value delivery processes\n'
+  || E'- Customer journey mapping and optimization\n'
+  || E'- Continuous improvement methodologies\n'
+  || E'\n'
+  || E'### 07. Agile 6xD (Products)\n'
+  || E'**[Discover 6xD Framework →](https://dq-6xd.example.com)**\n'
+  || E'*Link to be updated - Coming Soon*\n'
+  || E'- Six-dimensional product development approach\n'
+  || E'- Innovation frameworks and delivery excellence\n'
+  || E'- Product lifecycle management and optimization\n'
+  || E'\n'
+  || E'---\n'
+  || E'\n'
+  || E'## How to Use These Resources\n'
+  || E'\n'
+  || E'### For New Team Members\n'
+  || E'1. **Start with DQ Vision** to understand our purpose\n'
+  || E'2. **Review HoV** to align with our cultural values\n'
+  || E'3. **Explore DQ Persona** to understand our identity\n'
+  || E'4. **Dive into operational frameworks** (TMS, SoS, Flows, 6xD)\n'
+  || E'\n'
+  || E'### For Existing Associates\n'
+  || E'- **Regular Reference**: Bookmark these links for quick access\n'
+  || E'- **Team Meetings**: Use these resources to align discussions\n'
+  || E'- **Client Presentations**: Reference our methodologies and approaches\n'
+  || E'- **Professional Development**: Deepen your understanding of DQ excellence\n'
+  || E'\n'
+  || E'### For Project Teams\n'
+  || E'- **Project Kickoffs**: Align on DQ methodologies and standards\n'
+  || E'- **Sprint Planning**: Reference TMS and Flows for optimal delivery\n'
+  || E'- **Stakeholder Communication**: Use Persona and Vision for consistent messaging\n'
+  || E'\n'
+  || E'## Updates and Maintenance\n'
+  || E'- **Regular Updates**: Content is refreshed bi-weekly\n'
+  || E'- **Feedback Welcome**: Submit suggestions through DQ Communications\n'
+  || E'- **Version Control**: All changes are tracked and communicated\n'
+  || E'- **Mobile Optimization**: All links are mobile-friendly for on-the-go access\n'
+  || E'\n'
+  || E'## Support and Questions\n'
+  || E'For questions about any of these resources or to request additional documentation:\n'
+  || E'- **DQ Communications Team**: [communications@dq.com](mailto:communications@dq.com)\n'
+  || E'- **Internal Slack**: #dq-storybook-support\n'
+  || E'- **Knowledge Base**: [help.dq.com](https://help.dq.com)\n'
+  || E'\n'
+  || E'---\n'
+  || E'\n'
+  || E'*Keep this reference handy for quick access to all DQ frameworks and methodologies. Together, we continue to build excellence through shared knowledge and consistent application of our proven approaches.*',
   NULL,
   NULL,
   NULL
