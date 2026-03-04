@@ -237,7 +237,7 @@ const KnowledgeHubContent = () => {
       }
     }
 
-    loadMediaCenterNews();
+    loadGuidesData();
   }, [activeTab]);
 
   // Get data based on active tab - updated to use Media Center news from Supabase
@@ -285,6 +285,8 @@ const KnowledgeHubContent = () => {
     // if (event.registrationUrl) {
     //   window.open(event.registrationUrl, '_blank');
     // }
+
+  };
 
   // Map guide data to card format
   const mapGuideToCard = (guide: GuideItem) => ({

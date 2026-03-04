@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, createContext, useContext, useCallback, ReactNode } from 'react';
+import { useEffect, useMemo, useState, createContext, useContext, useCallback, ReactNode } from 'react';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { EventType, AuthenticationResult } from '@azure/msal-browser';
 import { defaultLoginRequest, signupRequest } from '../../../services/auth/msal';
@@ -22,11 +22,32 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({
-  children
-}: Readonly<{
-  children: ReactNode;
-}>) {
+const isAuthEnabled = () =>
+  import.meta.env.PROD
+    ? import.meta.env.VITE_ENABLE_AUTH !== 'false'
+    : import.meta.env.VITE_ENABLE_AUTH === 'true';
+
+function DevAuthProvider({ children }: Readonly<{ children: ReactNode }>) {
+  const user: UserProfile = useMemo(
+    () => ({ id: 'dev', name: 'Developer', email: 'developer@local' }),
+    []
+  );
+
+  const contextValue = useMemo<AuthContextType>(
+    () => ({
+      user,
+      isLoading: false,
+      login: () => {},
+      signup: () => {},
+      logout: () => {},
+    }),
+    [user]
+  );
+
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
+}
+
+function MsalAuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   const { instance, accounts } = useMsal();
   const isAuthenticated = useIsAuthenticated();
   const [isLoading, setIsLoading] = useState(true);
@@ -157,9 +178,19 @@ export function AuthProvider({
     logout
   }), [user, isLoading, login, signup, logout]);
 
-  return <AuthContext.Provider value={contextValue}>
-    {children}
-  </AuthContext.Provider>;
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
+}
+
+export function AuthProvider({
+  children
+}: Readonly<{
+  children: ReactNode;
+}>) {
+  if (!isAuthEnabled()) {
+    return <DevAuthProvider>{children}</DevAuthProvider>;
+  }
+
+  return <MsalAuthProvider>{children}</MsalAuthProvider>;
 }
 
 export function useAuth() {
