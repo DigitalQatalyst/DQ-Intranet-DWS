@@ -28,6 +28,7 @@ import GlossaryGrid from '../guides/GlossaryGrid';
 import { SixXDPerspectiveCards } from '../guides/SixXDPerspectiveCards';
 import { SixXDComingSoonCards } from '../guides/SixXDComingSoonCards';
 import { supabaseClient } from '../../lib/supabaseClient';
+import { knowledgeHubSupabase } from '../../services/knowledgeHubClient';
 import { track } from '../../utils/analytics';
 import FAQsPageContent from '../../pages/guides/FAQsPageContent';
 import { glossaryTerms, GlossaryTerm, CATEGORIES } from '../../pages/guides/glossaryData';
@@ -739,10 +740,15 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
 
         setLoading(true);
         try {
+          // Use Knowledge Hub Supabase client for guides
+          if (!knowledgeHubSupabase) {
+            throw new Error('Knowledge Hub client not initialized');
+          }
+
           // Exclude removed guidelines from frontend
           const excludedSlugs = ['atp-guidelines', 'agile-working-guidelines', 'client-session-guidelines', 'dbp-support-guidelines', 'dq-products'];
           
-          let q = supabaseClient.from('guides').select(GUIDE_LIST_SELECT, { count: 'exact' });
+          let q = knowledgeHubSupabase.from('guides').select(GUIDE_LIST_SELECT, { count: 'exact' });
           excludedSlugs.forEach(slug => {
             q = q.neq('slug', slug);
           });
@@ -855,7 +861,7 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
           const listPromise = needsClientSideFiltering ? q.limit(10000) : q.range(from, to);
           
           // Exclude removed guidelines from facets
-          let facetQ = supabaseClient
+          let facetQ = knowledgeHubSupabase
             .from('guides')
             .select('domain,sub_domain,guide_type,function_area,unit,location,status')
             .eq('status', 'Approved');

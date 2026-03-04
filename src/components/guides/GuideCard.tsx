@@ -3,6 +3,7 @@ import { toTimeBucket } from '../../utils/guides'
 import { getGuideImageUrl } from '../../utils/guideImageMap'
 import { useNavigate } from 'react-router-dom'
 import { supabaseClient } from '../../lib/supabaseClient'
+import { knowledgeHubSupabase } from '../../services/knowledgeHubClient'
 import { getProductMetadata } from '../../utils/productMetadata'
 
 export interface GuideCardProps {
@@ -24,7 +25,7 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
   const handleViewGuideline = async (e: React.MouseEvent) => {
     e.stopPropagation()
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await knowledgeHubSupabase
         .from('guides')
         .select('slug')
         .eq('status', 'Approved')
