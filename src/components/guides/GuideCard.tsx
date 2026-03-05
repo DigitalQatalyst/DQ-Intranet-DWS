@@ -10,6 +10,22 @@ function formatAuthorText(authorName?: string, authorOrg?: string): string | nul
   return (text.toLowerCase() === 'bb' || text.length <= 2) ? null : text
 }
 
+function formatLabel(value?: string | null): string {
+  if (!value) return ''
+  return value
+    .replace(/[_-]+/g, ' ')
+    .split(' ')
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
+
+function normalizeTag(value?: string | null): string {
+  if (!value) return ''
+  const cleaned = value.toLowerCase().replace(/[_-]+/g, ' ').trim()
+  return cleaned.endsWith('s') ? cleaned.slice(0, -1) : cleaned
+}
+
 const GHC_TITLE_BY_SLUG: Record<string, string> = {
   'dq-ghc': 'GHC Overview',
   'dq-vision': 'GHC 1 - Vision (Purpose)',
@@ -121,21 +137,6 @@ export const GuideCard: React.FC<GuideCardProps> = ({ guide, onClick, imageOverr
     // Fallback to Guidelines tab search
     navigate(`/marketplace/guides?tab=guidelines&q=${encodeURIComponent(guide.title)}`)
   }
-  const formatLabel = (value?: string | null) => {
-    if (!value) return ''
-    return value
-      .replace(/[_-]+/g, ' ')
-      .split(' ')
-      .filter(Boolean)
-      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(' ')
-  }
-  const normalizeTag = (value?: string | null) => {
-    if (!value) return ''
-    const cleaned = value.toLowerCase().replace(/[_-]+/g, ' ').trim()
-    return cleaned.endsWith('s') ? cleaned.slice(0, -1) : cleaned
-  }
-  
   // Determine the badge label based on framework for Strategy guides
   const getBadgeLabel = (): string => {
     if (isBlueprint) return 'Product'
