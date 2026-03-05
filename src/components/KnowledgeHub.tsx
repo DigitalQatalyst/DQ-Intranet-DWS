@@ -402,7 +402,7 @@ const KnowledgeHubContent = () => {
             Latest DQ Developments
           </h2>
           <p className="text-base sm:text-lg text-gray-600 mx-auto clamp-2 leading-relaxed max-w-4xl">
-            Explore the latest GHC courses and guidelines designed to boost your skills and accelerate your DQ journey.
+            Explore the latest GHC courses and guidelines to accelerate your journey at DQ.
           </p>
         </FadeInUpOnScroll>
         {/* Segmented Tabs */}
