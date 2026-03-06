@@ -48,7 +48,13 @@ export async function fetchAllNews(): Promise<NewsItem[]> {
 
   if (error) {
     // eslint-disable-next-line no-console
-    console.error('[fetchAllNews] Supabase error:', error)
+    console.error('[fetchAllNews] Supabase error:', {
+      message: (error as any)?.message,
+      code: (error as any)?.code,
+      details: (error as any)?.details,
+      hint: (error as any)?.hint,
+      error,
+    })
     throw error
   }
 
@@ -93,7 +99,13 @@ export async function fetchAllJobs(): Promise<JobItem[]> {
 
   if (error) {
     // eslint-disable-next-line no-console
-    console.error('[fetchAllJobs] Supabase error:', error)
+    console.error('[fetchAllJobs] Supabase error:', {
+      message: (error as any)?.message,
+      code: (error as any)?.code,
+      details: (error as any)?.details,
+      hint: (error as any)?.hint,
+      error,
+    })
     throw error
   }
 
