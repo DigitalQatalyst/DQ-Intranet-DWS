@@ -68,19 +68,22 @@ export const FeaturedNationalProgram: React.FC = () => {
           .filter((item: NewsItem) => {
             // Include announcements, blogs, and thought leadership
             const itemType = (item.type || '').toLowerCase();
+            const itemFormat = (item.format || '').toLowerCase();
             return itemType === 'announcement' || 
-                   itemType === 'blog' || 
-                   itemType === 'thought leadership';
+                   itemType === 'thought leadership' ||
+                   itemFormat === 'blog' ||
+                   itemFormat === 'article';
           })
           .slice(0, 8)
           .map((item: NewsItem) => {
             const itemType = (item.type || '').toLowerCase();
+            const itemFormat = (item.format || '').toLowerCase();
             
             // Determine category and CTA based on type
             let category: 'News' | 'Insight' | 'Jobs';
             let ctaLabel: string;
             
-            if (itemType === 'thought leadership' || itemType === 'blog') {
+            if (itemType === 'thought leadership' || itemFormat === 'blog' || itemFormat === 'article') {
               category = 'Insight';
               ctaLabel = 'READ INSIGHT';
             } else {
@@ -93,7 +96,7 @@ export const FeaturedNationalProgram: React.FC = () => {
               partnership: item.author || item.newsSource || 'DQ Communications',
               title: item.title,
               description: item.excerpt || '',
-              learnMoreHref: `/media-center/news/${item.id}`,
+              learnMoreHref: `/marketplace/news/${item.id}`,
               backgroundImage: item.image ? `url(${item.image})` : undefined,
               category,
               ctaLabel,
