@@ -91,7 +91,7 @@ export const FeaturedNationalProgram: React.FC = () => {
               title: item.title,
               description: item.excerpt || '',
               learnMoreHref: `/marketplace/news/${item.id}`,
-              backgroundImage: `url(${imageSrc})`,
+              backgroundImage: `url("${imageSrc}")`,
               category: 'News' as const,
               ctaLabel: 'READ STORY',
             };
