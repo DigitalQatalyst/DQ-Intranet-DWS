@@ -134,6 +134,40 @@ export async function fetchNewsById(id: string): Promise<NewsItem | null> {
 }
 
 /**
+ * Increment the listen count for a podcast episode
+ */
+export async function incrementListenCount(episodeId: string): Promise<void> {
+  try {
+    // First get current views count
+    const { data: currentData, error: fetchError } = await supabase
+      .from('news')
+      .select('views')
+      .eq('id', episodeId)
+      .single();
+
+    if (fetchError) {
+      console.error('[incrementListenCount] Fetch error:', fetchError);
+      throw fetchError;
+    }
+
+    // Increment the views count
+    const currentViews = currentData?.views || 0;
+    const { error: updateError } = await supabase
+      .from('news')
+      .update({ views: currentViews + 1 })
+      .eq('id', episodeId);
+
+    if (updateError) {
+      console.error('[incrementListenCount] Update error:', updateError);
+      throw updateError;
+    }
+  } catch (error) {
+    console.error('[incrementListenCount] Error:', error);
+    throw error;
+  }
+}
+
+/**
  * Fetch a single job item by ID from Supabase
  */
 export async function fetchJobById(id: string): Promise<JobItem | null> {

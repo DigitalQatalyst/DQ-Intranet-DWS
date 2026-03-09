@@ -4,7 +4,7 @@ import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { Radio, Clock, Play, Pause, Plus, ArrowUpDown, Share2, Download, Bookmark, HomeIcon, ChevronRightIcon, BookmarkIcon, Volume2, VolumeX, RotateCcw, RotateCw } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
-import { fetchAllNews } from '@/services/mediaCenterService';
+import { fetchAllNews, incrementListenCount } from '@/services/mediaCenterService';
 import { formatDateVeryShort, formatDuration, formatListens, formatTime } from '@/utils/newsUtils';
 import { parseBold } from '@/utils/contentParsing';
 import { Breadcrumb } from '@/components/media-center/shared/Breadcrumb';
@@ -58,6 +58,7 @@ export default function PodcastSeriesPage() {
   const [savedEpisodes, setSavedEpisodes] = useState<Set<string>>(new Set());
   const [shareSuccess, setShareSuccess] = useState<string | null>(null);
   const [targetEpisodeId, setTargetEpisodeId] = useState<string | null>(null);
+  const [countedEpisodes, setCountedEpisodes] = useState<Set<string>>(new Set());
 
   // Get tab parameter and filters from URL
   const searchParams = new URLSearchParams(location.search);
@@ -103,6 +104,28 @@ export default function PodcastSeriesPage() {
       }
     }
   }, []);
+
+  // Load counted episodes from localStorage on mount
+  useEffect(() => {
+    const counted = localStorage.getItem('podcast-counted-episodes');
+    if (counted) {
+      try {
+        const countedIds = JSON.parse(counted);
+        setCountedEpisodes(new Set(countedIds));
+      } catch {
+        // Error loading counted episodes - handled silently
+      }
+    }
+  }, []);
+
+  // Save counted episodes to localStorage whenever countedEpisodes changes
+  useEffect(() => {
+    if (countedEpisodes.size > 0) {
+      localStorage.setItem('podcast-counted-episodes', JSON.stringify(Array.from(countedEpisodes)));
+    } else {
+      localStorage.removeItem('podcast-counted-episodes');
+    }
+  }, [countedEpisodes]);
 
   // When a target episode is specified and episodes are loaded, scroll to and expand it
   useEffect(() => {
@@ -442,6 +465,21 @@ export default function PodcastSeriesPage() {
       audio.load();
       
     setCurrentlyPlaying(episode.id);
+      
+      // Increment listen count when a new episode starts playing (only count once per session)
+      if (!countedEpisodes.has(episode.id)) {
+        incrementListenCount(episode.id).catch(error => {
+          console.error('Failed to increment listen count:', error);
+        });
+        
+        // Mark as counted and update local state immediately
+        setCountedEpisodes(prev => new Set(prev).add(episode.id));
+        setEpisodes(prev => prev.map(ep => 
+          ep.id === episode.id 
+            ? { ...ep, views: (ep.views || 0) + 1 }
+            : ep
+        ));
+      }
       
       // Wait for metadata to load before playing
       audio.addEventListener('loadedmetadata', async () => {
@@ -1118,7 +1156,7 @@ export default function PodcastSeriesPage() {
                       )}
                         </div>
                         
-                    {/* Duration and Date - Right Side */}
+                    {/* Duration, Date, and Listens - Right Side */}
                     <div className="flex-shrink-0 text-right">
                       <div className="text-xs text-gray-500 mb-1">
                         {episodeDurations.has(episode.id) 
@@ -1126,8 +1164,11 @@ export default function PodcastSeriesPage() {
                           : formatDuration(episode.readingTime)
                         }
                       </div>
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-gray-400 mb-1">
                         {formatDateVeryShort(episode.date)}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {formatListens(episode.views || 0)}
                       </div>
                     </div>
                   </div>
