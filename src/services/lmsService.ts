@@ -281,7 +281,7 @@ export async function fetchCoursesByFilters(filters: {
   let query = lmsSupabaseClient
     .from('lms_courses')
     .select('*')
-    .eq('status', 'published');
+    .neq('status', 'archived');
 
   // Apply filters
   if (filters.category && filters.category.length > 0) {
