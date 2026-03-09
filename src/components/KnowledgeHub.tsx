@@ -349,16 +349,19 @@ const KnowledgeHubContent = () => {
     const newsSource = mediaCenterNews.length > 0 ? mediaCenterNews : newsItems;
     
     console.log('🔍 getGuidelinesData - Total items:', newsSource.length);
+    console.log('🔍 All items with types:', newsSource.map(i => ({ title: i.title, type: i.type })));
     
     const filtered = newsSource.filter((item) => {
-        // Only show items with type: 'Guideline' (case-insensitive)
+        // Check if item is a guideline by looking at type field
+        // The database has guide_type='Guideline' which gets mapped to type='Guideline'
         const itemType = (item.type || '').toLowerCase();
         const isGuideline = itemType === 'guideline' || itemType === 'guidelines';
         
+        console.log(`🔍 Checking item: "${item.title}" - type: "${item.type}" - isGuideline: ${isGuideline}`);
+        
         if (!isGuideline) return false;
         
-        // Exclude archived guidelines (for now, exclude "DQ LEAVE GUIDELINES" by slug)
-        // TODO: Update database to set status='Archived' for leave guidelines
+        // Exclude archived guidelines
         const isArchived = item.slug === 'dq-leave-guidelines';
         
         if (!isArchived) {
