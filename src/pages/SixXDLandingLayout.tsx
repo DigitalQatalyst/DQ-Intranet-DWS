@@ -513,7 +513,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) { // NOSO
   const heroCTALink = overrides?.heroCTALink ?? 'https://preview.shorthand.com/Pg0KQCF1Rp904ao7';
   const foundationSubtitle = // NOSONAR: reserved for future use
     overrides?.foundationSubtitle ??
-    'Not a framework to memorise — an operating system for modern work that guides how you think, decide, adapt, and create impact.';
+    'Not a framework to memorise, but an operating system for modern work.';
   const foundationTitle = overrides?.foundationTitle ?? 'What is the Golden Honeycomb?'; // NOSONAR: reserved for future use
   const foundationTitleFontSize = overrides?.foundationTitleFontSize; // NOSONAR: reserved for future use
   const foundationSubtitleFontSize = overrides?.foundationSubtitleFontSize; // NOSONAR: reserved for future use
@@ -782,7 +782,7 @@ function SectionWhatIsGHC({ onReadStorybook, content }: SectionWhatIsGHCProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   const foundationTitle = content?.foundationTitle ?? 'What is the Golden Honeycomb?';
-  const foundationSubtitle = content?.foundationSubtitle ?? 'Not a framework to memorise — an operating system for modern work.';
+  const foundationSubtitle = content?.foundationSubtitle ?? 'Not a framework to memorise, but an operating system for modern work.';
   const foundationTitleFontSize = content?.foundationTitleFontSize;
   const foundationSubtitleFontSize = content?.foundationSubtitleFontSize;
   const foundationCards = content?.foundationCards ?? FEATURE_CARDS_DEFAULT;
