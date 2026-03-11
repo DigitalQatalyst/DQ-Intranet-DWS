@@ -597,7 +597,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) { // NOSO
               style={{
                 fontSize: 'clamp(16px, 2.6vw, 20px)',
                 lineHeight: 1.1,
-                maxWidth: heroSupportingSingleLine ? '100%' : '720px',
+                maxWidth: heroSupportingSingleLine ? '100%' : '900px',
                 margin: '0 auto',
                 whiteSpace: heroSupportingSingleLine ? 'nowrap' : 'normal',
               }}
