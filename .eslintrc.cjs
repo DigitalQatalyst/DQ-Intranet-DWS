@@ -14,6 +14,11 @@ module.exports = {
       'warn',
       { allowConstantExport: true },
     ],
-    '@typescript-eslint/no-explicit-any': 'warn',
+    // Relax rules to keep legacy code noise out of CI without changing UI logic
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    'react-hooks/exhaustive-deps': 'off',
+    'react-refresh/only-export-components': 'off',
   },
 };

@@ -211,7 +211,7 @@ const splitSections = (body: string, hasOverview: boolean): GuideSection[] => {
       if (current && current.content.length > 0) {
         pushSection(sections, processed, current)
       }
-      let title = line.replaceAll(/^##\s+/, '').trim().replaceAll('**', '').trim()
+      const title = line.replaceAll(/^##\s+/, '').trim().replaceAll('**', '').trim()
       const skip = hasOverview && (title === 'Description' || title === 'Key Highlights')
       if (skip) {
         current = null
