@@ -427,6 +427,7 @@ type LandingOverrides = {
   heroHeadlineHighlightWord?: string;
   heroCTA?: string;
   heroSupporting?: string;
+  heroSingleLine?: boolean;
   heroFootnote?: string;
   heroCTALink?: string;
   foundationTitle?: string;
@@ -473,6 +474,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   const heroSupporting =
     overrides?.heroSupporting ??
     'DQ built an operating system of seven responses so you can see what broke in work — and how to realign it.';
+  const heroSingleLine = overrides?.heroSingleLine ?? true;
   const heroFootnote = overrides?.heroFootnote;
   const heroCTALink = overrides?.heroCTALink ?? 'https://preview.shorthand.com/Pg0KQCF1Rp904ao7';
 
@@ -493,7 +495,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
     const baseStyle = {
       fontSize: 'clamp(40px, 5vw, 72px)',
       lineHeight: 1.05,
-      whiteSpace: 'normal' as const,
+      whiteSpace: heroSingleLine ? 'nowrap' as const : 'normal' as const,
     };
     const highlightClass = 'text-[#e1513b] underline decoration-[#e1513b] decoration-4 underline-offset-8';
 
@@ -531,7 +533,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
         style={{
           fontSize: 'clamp(40px, 5vw, 72px)',
           lineHeight: 1.05,
-          whiteSpace: 'normal',
+          whiteSpace: heroSingleLine ? 'nowrap' : 'normal',
         }}
       >
         The world of work is{' '}
