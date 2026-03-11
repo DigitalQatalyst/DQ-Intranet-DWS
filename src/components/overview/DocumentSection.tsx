@@ -76,10 +76,33 @@ export function DocumentSection({ title, documents }: DocumentSectionProps) {
         const files = Array.from(e.dataTransfer?.files ?? []);
         handleFiles(files);
     };
+    // Secure random helpers (avoid Math.random for lint rules)
+    const secureRandomInt = (min: number, max: number) => {
+        const range = max - min + 1;
+        if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+            const buf = new Uint32Array(1);
+            crypto.getRandomValues(buf);
+            return min + Math.floor((buf[0] / 0xffffffff) * range);
+        }
+        return min + Math.floor(Math.random() * range);
+    };
+
+    const secureId = () => {
+        if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+            return crypto.randomUUID();
+        }
+        if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+            const buf = new Uint32Array(2);
+            crypto.getRandomValues(buf);
+            return Array.from(buf).map((n) => n.toString(16).padStart(8, '0')).join('');
+        }
+        return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+    };
+
     // Process files
     const handleFiles = (files: File[]) => {
         const newUploadingFiles: UploadingFile[] = files.map(file => ({
-            id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+            id: secureId(),
             name: file.name,
             type: getFileType(file.name),
             size: formatFileSize(file.size),
@@ -134,7 +157,7 @@ export function DocumentSection({ title, documents }: DocumentSectionProps) {
     const simulateUpload = (fileId: string) => {
         let progress = 0;
         const interval = setInterval(() => {
-            progress += Math.floor(Math.random() * 10) + 5;
+            progress += secureRandomInt(5, 14);
             if (progress >= 100) {
                 progress = 100;
                 clearInterval(interval);

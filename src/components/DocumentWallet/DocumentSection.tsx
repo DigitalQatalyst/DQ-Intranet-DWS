@@ -87,10 +87,35 @@ export function DocumentsPage({ title, documents }: DocumentsPageProps) {
         const files = Array.from(e.dataTransfer.files);
         handleFiles(files);
     };
+    // Secure random helpers (avoid Math.random for lint rules)
+    const secureRandomInt = (min: number, max: number) => {
+        const range = max - min + 1;
+        if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+            const buf = new Uint32Array(1);
+            crypto.getRandomValues(buf);
+            return min + Math.floor((buf[0] / 0xffffffff) * range);
+        }
+        return min + Math.floor(Math.random() * range);
+    };
+
+    const secureId = () => {
+        if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+            return crypto.randomUUID();
+        }
+        if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+            const buf = new Uint32Array(2);
+            crypto.getRandomValues(buf);
+            return Array.from(buf)
+                .map((n) => n.toString(16).padStart(8, "0"))
+                .join("");
+        }
+        return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+    };
+
     // Process files
     const handleFiles = (files: File[]) => {
         const newUploadingFiles: UploadingFile[] = files.map((file) => ({
-            id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
+            id: secureId(),
             name: file.name,
             type: getFileType(file.name),
             size: formatFileSize(file.size),
@@ -145,7 +170,7 @@ export function DocumentsPage({ title, documents }: DocumentsPageProps) {
 
     const simulateUpload = (uploadFile: UploadingFile) => {
         const tick = (current: number) => {
-            const next = Math.min(100, current + Math.floor(Math.random() * 10) + 5);
+            const next = Math.min(100, current + secureRandomInt(5, 14));
             if (next >= 100) {
                 finalizeUpload(uploadFile);
                 return;
