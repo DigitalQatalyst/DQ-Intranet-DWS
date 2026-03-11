@@ -591,11 +591,13 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) { // NOSO
           >
             {renderHeroHeadline()}
             <span
-              className="text-white/85 md:whitespace-nowrap"
+              className="text-white/85 block"
               style={{
                 fontSize: 'clamp(16px, 2.6vw, 20px)',
                 lineHeight: 1.1,
-                maxWidth: '100%',
+                maxWidth: '720px',
+                margin: '0 auto',
+                whiteSpace: 'normal',
               }}
             >
               {heroSupporting}
