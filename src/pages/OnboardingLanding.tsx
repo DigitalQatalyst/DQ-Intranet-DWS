@@ -306,20 +306,12 @@ export function OnboardingLanding() {
     navigate('/onboarding/journey');
   };
 
-  const handleExploreOrganization = () => { // NOSONAR: reserved for future use
-    navigate('/discover-dq');
-  };
-
   const handleExploreGHC = () => {
     navigate('/ghc');
   };
 
   const handleExplore6XD = () => {
     navigate('/6xd');
-  };
-
-  const handleViewRole = () => { // NOSONAR: reserved for future use
-    navigate('/marketplace/work-directory?tab=positions');
   };
 
   return (

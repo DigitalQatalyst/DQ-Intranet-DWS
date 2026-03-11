@@ -288,7 +288,7 @@ export function OnboardingJourney() {
               </GuidelineSection>
 
               {/* Journey Phases */}
-              {journeyPhases.map((phase, index) => (
+              {journeyPhases.map((phase) => (
                 <GuidelineSection
                   key={phase.id}
                   id={phase.id}
