@@ -190,6 +190,7 @@ export default function SixXDLanding() {
         heroHeadline: "Digital transformation fails when it stays theoretical.",
         heroHeadlineHighlightWord: "theoretical",
         heroSingleLine: true,
+        heroSupportingSingleLine: true,
         heroSupporting:
           "Agile 6xD is how DQ turns digital and AI transformation into execution designed, delivered, and sustained through real work.",
         heroCTA: "Read the Agile 6xD Storybook",

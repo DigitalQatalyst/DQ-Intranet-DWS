@@ -431,6 +431,7 @@ type LandingOverrides = {
   heroCTA?: string;
   heroSupporting?: string;
   heroSingleLine?: boolean;
+  heroSupportingSingleLine?: boolean;
   heroFootnote?: string;
   heroCTALink?: string;
   foundationTitle?: string;
@@ -485,6 +486,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) { // NOSO
     overrides?.heroSupporting ??
     'DQ built an operating system of seven responses so you can see what broke in work — and how to realign it.';
   const heroSingleLine = overrides?.heroSingleLine ?? true;
+  const heroSupportingSingleLine = overrides?.heroSupportingSingleLine ?? false;
   const heroFootnote = overrides?.heroFootnote;
   const heroCTALink = overrides?.heroCTALink ?? 'https://preview.shorthand.com/Pg0KQCF1Rp904ao7';
 
@@ -591,13 +593,13 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) { // NOSO
           >
             {renderHeroHeadline()}
             <span
-              className="text-white/85 block"
+              className="text-white/85 inline-block text-center"
               style={{
                 fontSize: 'clamp(16px, 2.6vw, 20px)',
                 lineHeight: 1.1,
-                maxWidth: '720px',
+                maxWidth: heroSupportingSingleLine ? '100%' : '720px',
                 margin: '0 auto',
-                whiteSpace: 'normal',
+                whiteSpace: heroSupportingSingleLine ? 'nowrap' : 'normal',
               }}
             >
               {heroSupporting}
