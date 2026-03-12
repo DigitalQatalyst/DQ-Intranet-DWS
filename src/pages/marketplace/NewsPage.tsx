@@ -55,22 +55,12 @@ const SECONDARY_FACETS: Record<MediaCenterTabKey, FacetConfig[]> = {
   insights: [
     { key: 'location', label: 'Location', options: ['Dubai', 'Nairobi', 'Riyadh', 'Remote'] },
     {
-      key: 'theme',
-      label: 'Theme',
-      options: ['Leadership', 'Delivery', 'Culture', 'DTMF']
-    },
-    {
       key: 'readingTime',
       label: 'Reading Time',
       options: ['<5', '5–10', '10–20', '20+']
     }
   ],
   podcasts: [
-    {
-      key: 'theme',
-      label: 'Theme',
-      options: ['Leadership', 'Delivery', 'Culture']
-    },
     {
       key: 'readingTime',
       label: 'Duration',

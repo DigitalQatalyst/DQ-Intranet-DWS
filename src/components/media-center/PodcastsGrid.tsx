@@ -60,15 +60,6 @@ export default function PodcastsGrid({ query, items }: GridProps) {
       if (!hasMatchingDomain) return false;
     }
 
-    // Theme filter - check if any episode matches
-    const themeFilter = filters.theme;
-    if (themeFilter && themeFilter.length > 0) {
-      const hasMatchingTheme = podcastEpisodes.some(
-        (episode) => episode.theme && themeFilter.includes(episode.theme)
-      );
-      if (!hasMatchingTheme) return false;
-    }
-
     // Duration filter - check if average duration matches
     const durationFilter = filters.readingTime;
     if (durationFilter && durationFilter.length > 0) {

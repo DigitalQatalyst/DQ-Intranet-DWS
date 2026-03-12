@@ -44,7 +44,6 @@ export default function BlogsGrid({ query, items }: GridProps) {
         const department = query.filters?.department;
         const location = query.filters?.location;
         const domain = query.filters?.domain;
-        const theme = query.filters?.theme;
         const readingTime = query.filters?.readingTime;
 
         const matches = (val?: string, sel?: string[]) => !sel?.length || (val && sel.includes(val));
@@ -54,7 +53,6 @@ export default function BlogsGrid({ query, items }: GridProps) {
           matches(item.department, department) &&
           matches(item.location, location) &&
           matches(item.domain, domain) &&
-          matches(item.theme, theme) &&
           matches(item.readingTime, readingTime)
         );
       })

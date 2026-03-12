@@ -212,20 +212,12 @@ export default function PodcastSeriesPage() {
 
     // Apply filters from URL
     const domainFilter = urlFilters.domain;
-    const themeFilter = urlFilters.theme;
     const durationFilter = urlFilters.readingTime; // Note: filter key is 'readingTime' but we'll use actual audio duration
 
     filtered = filtered.filter((episode) => {
       // Domain filter
       if (domainFilter && domainFilter.length > 0) {
         if (!episode.domain || !domainFilter.includes(episode.domain)) {
-          return false;
-        }
-      }
-
-      // Theme filter
-      if (themeFilter && themeFilter.length > 0) {
-        if (!episode.theme || !themeFilter.includes(episode.theme)) {
           return false;
         }
       }
