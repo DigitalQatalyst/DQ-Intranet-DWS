@@ -2290,14 +2290,16 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                         const qs = queryParams.toString();
                         // Check if this is a product (has productType and productStage, or domain is 'Product')
                         const isProduct = (g.domain === 'Product') || (g.productType && g.productStage);
+                        
+                        // Treat all non-product guidelines as "services" that should show the Service Detail Page first
                         if (isProduct) {
                           // Navigate to product details page
                           navigate(`/marketplace/products/${encodeURIComponent(g.slug || g.id)}`, {
                             state: { fromQuery: qs, activeTab }
                           });
                         } else {
-                          // Navigate to guide details page
-                          navigate(`/marketplace/guides/${encodeURIComponent(g.slug || g.id)}`, {
+                          // Navigate to service details page as an intermediate summary screen
+                          navigate(`/marketplace/guides/service/${encodeURIComponent(g.slug || g.id)}`, {
                             state: { fromQuery: qs, activeTab }
                           });
                         }
