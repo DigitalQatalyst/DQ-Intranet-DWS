@@ -119,7 +119,7 @@ const COMPETENCY_CARDS_DEFAULT: CompetencyCard[] = [
     icon: Heart,
     gradient: 'bg-gradient-to-br from-[#1b2553] via-[#243a75] to-[#e1513b]',
     accent: '#f0f6ff',
-    image: 'https://image2url.com/r2/default/images/1770021175279-eacca42a-60ed-4c4d-9d14-e724a3e76cd6.png',
+    image: 'https://i.ibb.co/kk5cTGj/99.png',
   },
   {
     id: 'identity',
@@ -141,7 +141,7 @@ const COMPETENCY_CARDS_DEFAULT: CompetencyCard[] = [
     icon: User,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#30478a] to-[#f0f6ff]',
     accent: '#f0f6ff',
-    image: 'https://image2url.com/r2/default/images/1770021424913-1f4da872-0e43-488d-b842-a0e724f6c2c4.png',
+    image: 'https://i.ibb.co/FL7RBcXf/00.png',
   },
   {
     id: 'execution',
@@ -185,7 +185,7 @@ const COMPETENCY_CARDS_DEFAULT: CompetencyCard[] = [
     icon: Shield,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1b2553] to-[#e1513b]',
     accent: '#f0f6ff',
-    image: 'https://image2url.com/r2/default/images/1770021849077-fe5f09ea-4467-4e4c-b1da-a46420d40712.png',
+    image: 'https://i.ibb.co/PsjXNxd7/777.png',
   },
   {
     id: 'flow',
@@ -207,7 +207,7 @@ const COMPETENCY_CARDS_DEFAULT: CompetencyCard[] = [
     icon: GitBranch,
     gradient: 'bg-gradient-to-br from-[#1b2553] via-[#30478a] to-[#e1513b]',
     accent: '#f0f6ff',
-    image: 'https://image2url.com/r2/default/images/1770025109470-b2166816-791e-4ee2-be27-3d57e1e1de96.png',
+    image: 'https://i.ibb.co/jkwCcS66/888.png',
   },
   {
     id: 'transform',
@@ -229,7 +229,7 @@ const COMPETENCY_CARDS_DEFAULT: CompetencyCard[] = [
     icon: Sparkles,
     gradient: 'bg-gradient-to-br from-[#131e42] via-[#1f2c63] to-[#e1513b]',
     accent: '#f0f6ff',
-    image: 'https://image2url.com/r2/default/images/1770026507869-cfe44464-3090-4295-b90e-76feed9666df.png',
+    image: 'https://i.ibb.co/wNhjz6h1/33.png',
   },
 ];
 
@@ -473,7 +473,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
   const heroCTA = overrides?.heroCTA ?? 'Read the Storybook';
   const heroSupporting =
     overrides?.heroSupporting ??
-    'DQ built an operating system of seven responses so you can see what broke in work — and how to realign it.';
+    'DQ built an operating system of seven responses so you can see where work is breaking down — and how to realign it.';
   const heroSingleLine = overrides?.heroSingleLine ?? true;
   const heroFootnote = overrides?.heroFootnote;
   const heroCTALink = overrides?.heroCTALink ?? 'https://preview.shorthand.com/Pg0KQCF1Rp904ao7';
@@ -493,7 +493,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
 
   const renderHeroHeadline = () => {
     const baseStyle = {
-      fontSize: 'clamp(40px, 5vw, 72px)',
+      fontSize: 'clamp(40px, 5vw, 68px)',
       lineHeight: 1.05,
       whiteSpace: heroSingleLine ? 'nowrap' as const : 'normal' as const,
     };
@@ -531,7 +531,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
       <span
         className="ghc-font-display font-bold text-white"
         style={{
-          fontSize: 'clamp(40px, 5vw, 72px)',
+          fontSize: 'clamp(40px, 5vw, 68px)',
           lineHeight: 1.05,
           whiteSpace: heroSingleLine ? 'nowrap' : 'normal',
         }}
@@ -583,7 +583,7 @@ export function GHCLanding({ badgeLabel, overrides }: GHCLandingProps) {
             <span
               className="text-white/85"
               style={{
-                fontSize: 'clamp(16px, 2.6vw, 20px)',
+                fontSize: '18px',
                 lineHeight: 1.1,
                 maxWidth: '100%',
                 whiteSpace: 'normal',
@@ -899,15 +899,15 @@ function ResponseRailCard({ card }: { card: CompetencyCard }) {
         loading="lazy"
         decoding="async"
       />
+      
+      {/* Separator line between image and content */}
+      <div className="border-t border-[#e5e9f5]"></div>
 
       <div className="px-6 pb-6 pt-5 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-4">
           <h3 className="ghc-font-display text-xl md:text-2xl font-semibold text-[#131e42]" style={{ fontSize: '20px' }}>
             {card.title}
           </h3>
-          <span className="bg-[#fef1eb] text-[#e1513b] text-xs px-3 py-1 rounded-full font-semibold">
-            {card.category}
-          </span>
         </div>
 
         <div className="mt-2 flex items-center gap-1.5 text-[11px] text-[#6b7390]">
@@ -1177,7 +1177,7 @@ const TakeActionGridLayout = ({
 }) => (
   <section
     ref={refEl}
-    className="py-20 md:py-24"
+    className="py-16 md:py-20"
     style={{
       background: 'linear-gradient(180deg, #f0f6ff 0%, #ffffff 55%, #f0f6ff 100%)',
     }}
@@ -1192,54 +1192,71 @@ const TakeActionGridLayout = ({
       />
 
       <motion.div
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto"
+        className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-6xl mx-auto"
         variants={containerVariants}
         initial="hidden"
         animate={isInView ? 'visible' : 'hidden'}
       >
-        {cards.map((card) => (
-          <motion.div
+        {cards.map((card, index) => (
+          <motion.article
             key={card.title}
             variants={itemVariants}
-            className={`rounded-3xl p-6 md:p-8 shadow-sm border border-white/60 ${card.bg} flex flex-col`}
+            custom={index}
+            whileHover={{ y: -4, transition: { duration: 0.2 } }}
+            className={`group relative rounded-2xl overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-300 ${card.bg} border border-white/60`}
           >
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white shadow-md flex items-center justify-center">
-                <card.icon className="h-6 w-6" style={{ color: card.iconColor }} />
+            {/* Decorative gradient overlay */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-white/40 to-transparent rounded-bl-[80px] opacity-60" />
+            
+            <div className="relative p-6 flex flex-col h-full">
+              {/* Icon */}
+              <div className="mb-4">
+                <div className="w-12 h-12 rounded-xl bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] flex items-center justify-center group-hover:scale-105 transition-all duration-300">
+                  <card.icon className="h-6 w-6" style={{ color: card.iconColor }} />
+                </div>
               </div>
-              <div className="flex-1">
-                <p className={`text-xs font-semibold uppercase tracking-[0.2em] ${card.badgeColor}`}>
-                  {card.badge}
-                </p>
-                <h3 className="mt-2 text-xl md:text-2xl font-semibold text-[#131e42]">
-                  {card.title}
-                </h3>
-                <p className="mt-3 text-sm md:text-base text-[#4a5678] leading-relaxed">
-                  {card.description}
-                </p>
+
+              {/* Content */}
+              <div className="flex-1 flex flex-col">
+                <div className="mb-4">
+                  <p className={`text-[9px] font-bold uppercase tracking-[0.18em] mb-2 ${card.badgeColor} opacity-80`}>
+                    {card.badge}
+                  </p>
+                  <h3 className="ghc-font-display text-xl font-bold text-[#131e42] leading-tight mb-2">
+                    {card.title}
+                  </h3>
+                  <p className="text-sm text-[#4a5678] leading-relaxed">
+                    {card.description}
+                  </p>
+                </div>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {card.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/90 text-[#131e42] text-[11px] font-medium border border-[#e5e9f5] shadow-sm"
+                    >
+                      <span className="w-1 h-1 rounded-full" style={{ backgroundColor: card.iconColor }} />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                {/* CTA Button */}
+                <div className="mt-auto">
+                  <button
+                    type="button"
+                    onClick={() => handleNavigate(card.path)}
+                    className={`inline-flex items-center gap-1.5 text-sm font-bold ${card.accent} group-hover:gap-2 transition-all duration-300`}
+                  >
+                    {card.cta}
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform duration-300" />
+                  </button>
+                </div>
               </div>
             </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {card.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 rounded-full bg-white/70 text-[#4a5678] text-xs font-medium"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => handleNavigate(card.path)}
-              className={`mt-5 inline-flex items-center gap-2 text-sm font-semibold ${card.accent} hover:opacity-80`}
-            >
-              {card.cta}
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </motion.div>
+          </motion.article>
         ))}
       </motion.div>
     </div>
