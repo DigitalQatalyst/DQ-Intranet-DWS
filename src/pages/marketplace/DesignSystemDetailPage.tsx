@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Home, ChevronRight, Bookmark, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Home, ChevronRight, CheckCircle } from 'lucide-react';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { getDesignSystemItemById } from '../../utils/designSystemData';
@@ -9,7 +9,6 @@ export const DesignSystemDetailPage: React.FC = () => {
   const { cardId } = useParams<{ cardId: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'details' | 'outcomes' | 'curriculum' | 'reviews'>('details');
-  const [isSaved, setIsSaved] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const item = cardId ? getDesignSystemItemById(cardId) : null;
@@ -26,7 +25,7 @@ export const DesignSystemDetailPage: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Design System Not Found</h1>
             <p className="text-gray-600 mb-6">The design system you're looking for doesn't exist.</p>
             <Link
-              to="/marketplace?tab=design-system"
+              to="/marketplace/design-system"
               className="inline-flex items-center gap-2 px-4 py-2 bg-[#0a1628] text-white rounded-lg hover:bg-[#162238] transition-colors"
             >
               <ArrowLeft size={16} />
@@ -58,16 +57,16 @@ export const DesignSystemDetailPage: React.FC = () => {
   };
 
   const handleViewDetails = () => {
-    // Navigate to the appropriate detailed service page with table of contents based on the design system type
+    // Navigate to the appropriate service detail page with table of contents based on the design system type
     switch (item.type) {
       case 'vds':
-        navigate(`/marketplace/design-system/vds/vds-framework`);
+        navigate('/marketplace/vds-service-detail');
         break;
       case 'cds':
-        navigate(`/marketplace/design-system/cds/cds-campaigns-design-system`);
+        navigate('/marketplace/cds-service-detail');
         break;
       case 'cids':
-        navigate(`/marketplace/design-system/cids/cids-introduction`);
+        navigate('/marketplace/cids-service-detail');
         break;
       default:
         // Fallback to the framework page if type is not recognized
@@ -93,7 +92,7 @@ export const DesignSystemDetailPage: React.FC = () => {
               <nav className="flex items-center space-x-2 text-white/80 text-sm">
                 <Home size={16} />
                 <ChevronRight size={16} />
-                <Link to="/marketplace?tab=design-system" className="hover:text-white transition-colors">
+                <Link to="/marketplace/design-system" className="hover:text-white transition-colors">
                   Design Systems
                 </Link>
                 <ChevronRight size={16} />
@@ -101,12 +100,12 @@ export const DesignSystemDetailPage: React.FC = () => {
               </nav>
             </div>
 
-            {/* Hero Content */}
-            <div className="px-4 sm:px-6 lg:px-8 py-12">
-              <div className="max-w-4xl">
+            {/* Hero Content - Card Container */}
+            <div className="px-4 sm:px-6 lg:px-8 py-8">
+              <div className="w-full bg-black/20 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-2xl mx-auto" style={{ maxWidth: 'calc(100vw - 4rem)' }}>
                 {/* Course Badge */}
                 <div className="inline-flex items-center px-3 py-1 bg-white/20 rounded-full text-sm font-medium mb-6">
-                  FRAMEWORK (MULTI-LESSONS)
+                  FRAMEWORK
                 </div>
 
                 {/* Title */}
@@ -118,14 +117,6 @@ export const DesignSystemDetailPage: React.FC = () => {
                 <p className="text-lg text-white/90 mb-8 max-w-2xl">
                   {item.description}
                 </p>
-
-                {/* Meta Tags */}
-                <div className="flex flex-wrap gap-3">
-                  <span className="px-3 py-1 bg-white/20 rounded-full text-sm">1hr</span>
-                  <span className="px-3 py-1 bg-white/20 rounded-full text-sm">9 lessons</span>
-                  <span className="px-3 py-1 bg-white/20 rounded-full text-sm">Online</span>
-                  <span className="px-3 py-1 bg-white/20 rounded-full text-sm">L0. Starting</span>
-                </div>
               </div>
             </div>
           </div>
@@ -300,14 +291,6 @@ export const DesignSystemDetailPage: React.FC = () => {
                   className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors mb-4"
                 >
                   Start Course →
-                </button>
-
-                <button 
-                  onClick={() => setIsSaved(!isSaved)}
-                  className="w-full flex items-center justify-center gap-2 border border-gray-300 hover:border-gray-400 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
-                >
-                  <Bookmark size={16} className={isSaved ? 'fill-current' : ''} />
-                  {isSaved ? 'Saved for Later' : 'Save for Later'}
                 </button>
               </div>
             </div>

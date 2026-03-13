@@ -1,351 +1,198 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Header } from '../../components/Header';
-import { Footer } from '../../components/Footer';
-import { HomeIcon, ChevronRightIcon } from 'lucide-react';
-import { VDS_SERVICE_CARDS } from '@/data/vdsServiceCards';
-import MarkdownRenderer from '../../components/guides/MarkdownRenderer';
-import { SummaryTable } from '../../pages/guidelines/wfh-guidelines/SummaryTable';
-import { FullTableModal } from '../../pages/guidelines/wfh-guidelines/FullTableModal';
+import { Header } from '../../components/Header/Header';
+import { Footer } from '../../components/Footer/Footer';
+
+const getSectionId = (title: string) => {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+};
 
 export default function VDSServiceDetailPage() {
-  const { cardId } = useParams<{ cardId: string }>();
-  const card = VDS_SERVICE_CARDS.find(c => c.id === cardId);
+  const [activeSection, setActiveSection] = useState('introduction');
 
-  const [tableModalOpen, setTableModalOpen] = useState<{ [key: string]: boolean }>({});
-  const [activeSection, setActiveSection] = useState<string>('overview');
-
-  const getSectionId = (rawId: string) =>
-    rawId.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
-
-  const openTableModal = (subsectionId: string) => {
-    setTableModalOpen(prev => ({ ...prev, [subsectionId]: true }));
-  };
-
-  const closeTableModal = (subsectionId: string) => {
-    setTableModalOpen(prev => ({ ...prev, [subsectionId]: false }));
-  };
-
-  // Scroll tracking with IntersectionObserver (aligned with CI.DS behaviour)
+  // Scroll spy functionality
   useEffect(() => {
-    if (!card) return;
+    const handleScroll = () => {
+      const sections = document.querySelectorAll('[id]');
+      const scrollPosition = window.scrollY + 200;
 
-    const observerOptions = {
-      root: null,
-      rootMargin: '-10% 0px -70% 0px',
-      threshold: [0, 0.1, 0.5, 1]
+      sections.forEach((section) => {
+        const element = section as HTMLElement;
+        const offsetTop = element.offsetTop;
+        const offsetHeight = element.offsetHeight;
+
+        if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+          setActiveSection(element.id);
+        }
+      });
     };
 
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      // Sort entries by intersection ratio and position to find the most visible section
-      const visibleEntries = entries
-        .filter(entry => entry.isIntersecting)
-        .sort((a, b) => {
-          // Prioritize entries with higher intersection ratio
-          if (b.intersectionRatio !== a.intersectionRatio) {
-            return b.intersectionRatio - a.intersectionRatio;
-          }
-          // If ratios are equal, prioritize the one higher on the page
-          return a.boundingClientRect.top - b.boundingClientRect.top;
-        });
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-      if (visibleEntries.length > 0) {
-        const currentEntry = visibleEntries[0];
-        const currentId = currentEntry.target.id;
+  const sections = [
+    {
+      id: 'introduction',
+      title: '1. Introduction',
+      content: `This section introduces the V.DS (Video Design System) as DQ's comprehensive framework for creating consistent, high-impact video content. The V.DS represents a shift from ad-hoc video production to a systematic, quality-driven approach that ensures all video content aligns with DQ's brand standards and strategic objectives.
 
-        const isStageTitle = card.content.subsections?.some(s => {
-          const sectionId = getSectionId(s.id);
-          return sectionId === currentId && s.title.toLowerCase().includes('stage');
-        });
+The V.DS is designed to embed greater intentionality, consistency, and performance optimization into the way video content is conceptualized, produced, reviewed, and distributed across all DQ platforms.
 
-        if (isStageTitle) {
-          setActiveSection(currentId);
-          return;
-        }
+By integrating the V.DS within DQ's broader content ecosystem - including DTMB (Books), DTMI (Insights), DTMP (Platform), TMaaS (Deliverables), and DTMA (Academy) - this framework positions video content as a strategic asset for thought leadership, brand engagement, and organizational learning.`
+    },
+    {
+      id: 'who-is-this-for',
+      title: '1.05 Who is this for?',
+      content: `Across DQ, video content is created by diverse teams for multiple purposes - educational content that builds capabilities, thought leadership videos that shape industry conversations, product demonstrations that showcase solutions, and internal communications that align teams.
 
-        const stageMatch = currentId?.match(/^(\d+)-/);
-        if (stageMatch) {
-          const stageId = stageMatch[1];
-          const stageSubsection = card.content.subsections?.find(s => {
-            const sectionId = getSectionId(s.id);
-            return sectionId === stageId && s.title.toLowerCase().includes('stage');
-          });
+V.DS is for all video content creators and stakeholders. It serves the videographer capturing compelling footage, the editor crafting engaging narratives, the content strategist planning video campaigns, the subject-matter expert providing insights, and the executive ensuring brand alignment.
 
-          if (stageSubsection) {
-            setActiveSection(stageId);
-            return;
-          }
-        }
+Whether creating short social media clips, comprehensive training modules, or executive presentations, if someone is responsible for video content that represents DQ, V.DS provides the systematic support they need.`
+    },
+    {
+      id: 'problem-solving',
+      title: '1.06 What problem does it solve?',
+      content: `Before V.DS, video production often lacked consistency. Different teams used varying approaches, quality standards, and brand applications. Video content quality depended heavily on individual skills, and teams spent significant time on revisions and alignment rather than creative storytelling.
 
-        if (currentId) {
-          setActiveSection(currentId);
-        }
-      }
-    };
+V.DS transforms this experience by providing a unified system that brings structure to the entire video production lifecycle - from initial concept and storyboarding to final production and distribution.
 
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
+By establishing common standards, workflows, and quality checkpoints, V.DS eliminates guesswork, reduces production time, and ensures consistent, professional output. Teams can focus on creating compelling video content that effectively communicates DQ's message and engages target audiences.`
+    },
+    {
+      id: 'video-mandate',
+      title: '1.1 Video Content Mandate (DQ Units)',
+      content: `Multiple units across DQ are responsible for producing video content that delivers strategic impact - content designed to educate, engage, and influence audiences across various platforms and contexts.
 
-    const overviewElement = document.getElementById('overview');
-    if (overviewElement && card.content.overview) {
-      observer.observe(overviewElement);
+These video-producing units include:
+
+• DTMA (Digital Transformation Management Academy) – Creates educational video content, training modules, and course materials to support skill development and knowledge transfer.
+
+• DTMI (Digital Transformation Management Insights) – Produces thought leadership videos, trend analyses, and expert interviews aligned with market dynamics.
+
+• DQ Content – Leads video production across digital channels, including social media content, promotional videos, and brand storytelling.
+
+• DQ Deals – Develops video presentations, capability demonstrations, and client-focused content for business development.
+
+• DQ Designs – Creates product demonstration videos, solution walkthroughs, and technical explainer content.
+
+• Internal Communications – Produces company updates, culture videos, and internal training content.`
+    },
+    {
+      id: 'relevant-ecosystem',
+      title: '1.2 Relevant Ecosystem',
+      content: `The V.DS guidelines apply universally across the DQ video content ecosystem and must be upheld to maintain consistency, quality, and brand alignment in every video output.
+
+This includes all video formats, platforms, and distribution channels where DQ video content is created or shared:
+
+• Educational and training videos within DTMA platforms
+• Thought leadership and insight videos on DTMI channels
+• Social media video content across all DQ social platforms
+• Internal communication and culture videos
+• Client-facing presentations and demonstration videos
+• Product and solution explainer videos
+• Event recordings and webinar content`
+    },
+    {
+      id: 'purpose',
+      title: '1.3 V.DS | Purpose',
+      content: `The V.DS is defined as a comprehensive system that ensures all video content is strategically planned, professionally produced, and effectively distributed to maximize audience engagement and business impact.
+
+It provides a unified framework that brings structure, creativity, and purpose to the entire video production lifecycle.
+
+By applying V.DS, DQ ensures that every video output - whether a training module, thought leadership piece, product demo, or social media content - maintains consistent quality, aligns with brand standards, and achieves measurable performance outcomes.
+
+This leads to stronger audience engagement, enhanced brand recognition, streamlined production processes, and higher return on video content investment across all platforms and channels.`
     }
+  ];
 
-    card.content.subsections?.forEach((subsection) => {
-      const sectionId = getSectionId(subsection.id);
-      const element = document.getElementById(sectionId);
-      if (element) {
-        observer.observe(element);
-      }
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [card]);
-
-  if (!card) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">V.DS Service Card Not Found</h1>
-          <p className="text-gray-600 mb-8">The requested V.DS service card could not be found.</p>
-          <Link
-            to="/marketplace/design-system?tab=vds"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Return to V.DS Services
-          </Link>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  // Handle smooth scroll on navigation click
-  const handleNavClick = (e: React.MouseEvent<HTMLButtonElement>, sectionId: string) => {
-    e.preventDefault();
+  const handleSectionClick = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const offset = 100; // Account for sticky header
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    setActiveSection(sectionId);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <div className="container mx-auto px-4 pt-8">
-        {/* Breadcrumb */}
-        <nav className="mb-6 flex items-center text-sm text-gray-600">
-          <Link to="/" className="hover:text-gray-900 flex items-center">
-            <HomeIcon className="w-4 h-4 mr-1" />
-            Home
-          </Link>
-          <ChevronRightIcon className="w-4 h-4 mx-2" />
-          <Link to="/marketplace" className="hover:text-gray-900">Marketplace</Link>
-          <ChevronRightIcon className="w-4 h-4 mx-2" />
-          <Link
-            to="/marketplace/design-system?tab=vds"
-            className="hover:text-gray-900"
-          >
-            Design System
-          </Link>
-          <ChevronRightIcon className="w-4 h-4 mx-2" />
-          <span className="text-gray-900 font-medium">V.DS</span>
-          <ChevronRightIcon className="w-4 h-4 mx-2" />
-          <span className="text-gray-900 font-medium">{card.title}</span>
-        </nav>
-      </div>
-
+      
       {/* Hero Section */}
-      <div className="relative w-full h-[500px] overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: 'url(/images/content.PNG)',
-          }}
-        />
-        <div className="relative z-10 h-full flex flex-col justify-center px-6 md:px-12 lg:px-24 text-white bg-[#030E31]/60">
-          <div className="max-w-4xl">
-            <div className="mb-8">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight font-inter text-white">
-                V.DS Framework
-              </h1>
+      <div className="bg-gradient-to-br from-blue-900 via-purple-800 to-purple-900 text-white py-16">
+        <div className="container mx-auto px-6">
+          <div className="w-full bg-black/20 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-2xl mx-auto" style={{ maxWidth: 'calc(100vw - 4rem)' }}>
+            <div className="inline-flex items-center px-3 py-1 bg-white/20 rounded-full text-sm font-medium mb-6">
+              FRAMEWORK
             </div>
-
-            <div className="flex items-center gap-3 text-sm text-white/90 font-inter font-semibold">
-              <span>DQ Design</span>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              Video Design System (V.DS)
+            </h1>
+            <p className="text-lg text-white/90 mb-8 max-w-2xl">
+              V.DS is DQ's comprehensive framework for creating consistent, high-impact video content at scale. 
+              It provides unified guidelines, production workflows, and quality standards for professional video content.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <span className="px-3 py-1 bg-white/10 rounded-lg text-sm">2-3hrs</span>
+              <span className="px-3 py-1 bg-white/10 rounded-lg text-sm">40+ Components</span>
+              <span className="px-3 py-1 bg-white/10 rounded-lg text-sm">Intermediate</span>
+              <span className="px-3 py-1 bg-white/10 rounded-lg text-sm">Framework</span>
             </div>
           </div>
         </div>
-
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/20"></div>
       </div>
 
       {/* Main Content */}
-      <main className="flex-1">
-        <div className="container mx-auto px-4 py-12 max-w-[90rem]">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Main Content Area */}
-            <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12 min-h-0">
-              {/* Overview Section */}
-              {card.content.overview && (
-                <section id="overview" className="mb-12 scroll-mt-24">
-                  <div className="relative">
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 pl-6 font-inter tracking-tight">
-                      Overview
-                    </h2>
-                  </div>
-                  <div className="pl-6 prose prose-lg max-w-none text-gray-700 leading-relaxed">
-                    <MarkdownRenderer body={card.content.overview} />
-                  </div>
-                </section>
-              )}
-
-              {/* Subsections */}
-              {card.content.subsections?.map((subsection, index) => {
-                const sectionId = getSectionId(subsection.id);
-                // Check if this is a main section (whole number) or subsection
-                const isMainSection = /^\d+$/.test(subsection.id);
-                return (
-                  <section
-                    key={subsection.id}
-                    id={sectionId}
-                    className={`mb-12 scroll-mt-24 ${index === 0 && !card.content.overview ? 'mt-0' : ''}`}
-                  >
-                    <div className="relative">
-                      {/* Only show gradient bar for main sections */}
-                      {isMainSection && (
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
-                      )}
-                      <h2 className={`${isMainSection ? 'text-3xl md:text-4xl pl-6' : 'text-2xl md:text-3xl pl-12'} font-bold text-gray-900 mb-8 font-inter tracking-tight`}>
-                        {subsection.title}
-                      </h2>
-                    </div>
-                    <div className={`${isMainSection ? 'pl-6' : 'pl-12'} prose prose-lg max-w-none text-gray-700 leading-relaxed`}>
-                      <MarkdownRenderer body={subsection.content} />
-                    </div>
-
-                    {/* Table Data */}
-                    {subsection.tableData && (
-                      <div className={`mt-6 ${isMainSection ? 'pl-6' : 'pl-12'}`}>
-                        <SummaryTable
-                          data={subsection.tableData.data}
-                          columns={subsection.tableData.columns}
-                          onViewFull={() => openTableModal(subsection.id)}
-                        />
-                        <FullTableModal
-                          isOpen={tableModalOpen[subsection.id] || false}
-                          onClose={() => closeTableModal(subsection.id)}
-                          title={subsection.title}
-                          data={subsection.tableData.data}
-                          columns={subsection.tableData.columns}
-                        />
-                      </div>
-                    )}
-
-                    {/* Content After Table */}
-                    {subsection.contentAfterTable && (
-                      <div className={`mt-6 ${isMainSection ? 'pl-6' : 'pl-12'} prose max-w-none`}>
-                        <MarkdownRenderer body={subsection.contentAfterTable} />
-                      </div>
-                    )}
-                  </section>
-                );
-              })}
+      <div className="flex-1 bg-gray-50">
+        <div className="container mx-auto px-6 py-8">
+          <div className="flex gap-8">
+            {/* Table of Contents - Left Side */}
+            <div className="w-80">
+              <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-8">
+                <h3 className="font-semibold text-gray-900 mb-4">Contents</h3>
+                <nav className="space-y-2">
+                  {sections.map((section) => (
+                    <button
+                      key={section.id}
+                      onClick={() => handleSectionClick(section.id)}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        activeSection === section.id
+                          ? 'bg-blue-50 text-blue-700 font-medium'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
+                    >
+                      {section.title}
+                    </button>
+                  ))}
+                </nav>
+              </div>
             </div>
 
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <nav className="sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto">
-                <div className="bg-gray-50 p-6">
-                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                    Contents
-                  </h2>
-                  <div className="space-y-2">
-                    {(card.content.overview || card.content.subsections?.find(s => s.id === '1' && s.title.includes('Introduction'))) && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          const introSection = card.content.subsections?.find(s => s.id === '1');
-                          const sectionId = introSection ? getSectionId(introSection.id) : 'overview';
-                          handleNavClick(e, sectionId);
-                        }}
-                        style={{ outline: 'none', border: 'none' }}
-                        className={`block w-full text-left px-3 py-2 text-sm transition-all duration-200 outline-none ${
-                          activeSection === '1' || activeSection === 'overview'
-                            ? 'bg-blue-200 text-blue-900 font-medium outline-none'
-                            : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none active:outline-none'
-                        }`}
-                      >
-                        1. Introduction
-                      </button>
-                    )}
-                    {card.content.subsections
-                      ?.filter((subsection) => {
-                        const title = subsection.title || '';
-                        // Only show: "Who is this for?", "What problem does it solve?", and whole number stages
-                        const isWholeNumber = /^\d+$/.test(subsection.id);
-                        const isStage = title.toLowerCase().includes('stage');
-                        return (
-                          title === 'Who is this for?' ||
-                          title === 'What problem does it solve?' ||
-                          (isWholeNumber && isStage && subsection.id !== '1')
-                        );
-                      })
-                      .map((subsection) => {
-                        const sectionId = getSectionId(subsection.id);
-                        const isActive = activeSection === sectionId;
-                        const originalIndex = card.content.subsections?.findIndex(s => s.id === subsection.id) ?? -1;
-                        let stageCount = 0;
-                        if (originalIndex >= 0 && card.content.subsections) {
-                          for (let i = 0; i <= originalIndex; i++) {
-                            const sub = card.content.subsections[i];
-                            if (sub && /^\d+$/.test(sub.id) && sub.title.toLowerCase().includes('stage')) {
-                              stageCount++;
-                            }
-                          }
-                        }
-                        const isStage = subsection.title.toLowerCase().includes('stage');
-                        // For stages, use the ID number directly (already whole numbers: 2, 3, 4, etc.)
-                        const baseStageTitle = subsection.title.replace(/^\d+\.\s*/, '').trim();
-                        const displayTitle = isStage
-                          ? `${subsection.id}. ${baseStageTitle}`
-                          : subsection.title;
-                        return (
-                          <button
-                            key={subsection.id}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleNavClick(e, sectionId);
-                            }}
-                            style={{ outline: 'none', border: 'none' }}
-                            className={`block w-full text-left px-3 py-2 text-sm transition-all duration-200 outline-none ${
-                              isActive
-                                ? 'bg-blue-200 text-blue-900 font-medium outline-none'
-                                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none active:outline-none'
-                            }`}
-                          >
-                            {displayTitle}
-                          </button>
-                        );
-                      })}
-                  </div>
+            {/* Content - Right Side */}
+            <div className="flex-1">
+              <div className="bg-white rounded-lg shadow-sm border p-8">
+                <div className="space-y-12">
+                  {sections.map((section) => (
+                    <div key={section.id} id={section.id} className="scroll-mt-8">
+                      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                        {section.title}
+                      </h2>
+                      <div className="prose prose-gray max-w-none">
+                        {section.content.split('\n\n').map((paragraph, index) => (
+                          <p key={index} className="mb-4 text-gray-700 leading-relaxed">
+                            {paragraph}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </nav>
+              </div>
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
+      </div>
+
+      <Footer isLoggedIn={false} />
     </div>
   );
 }

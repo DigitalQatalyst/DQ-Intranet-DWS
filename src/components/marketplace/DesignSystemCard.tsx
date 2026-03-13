@@ -47,7 +47,7 @@ export const DesignSystemCard: React.FC<DesignSystemCardProps> = ({
 
         {/* View Details Button */}
         <Link
-          to={`/marketplace/design-system/${id}?tab=${type}`}
+          to={`/marketplace/design-system/${id}`}
           className="w-full block text-center px-6 py-2 bg-[#0a1628] text-white rounded-full font-bold text-sm hover:bg-[#162238] transition-colors duration-200 mb-[-12px]"
         >
           View Details

@@ -1,394 +1,197 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Header } from '../../components/Header';
-import { Footer } from '../../components/Footer';
-import { HomeIcon, ChevronRightIcon } from 'lucide-react';
-import { CIDS_SERVICE_CARDS } from '@/data/cidsServiceCards';
-import MarkdownRenderer from '../../components/guides/MarkdownRenderer';
-import { SummaryTable } from '../../pages/guidelines/wfh-guidelines/SummaryTable';
-import { FullTableModal } from '../../pages/guidelines/wfh-guidelines/FullTableModal';
+import React, { useState, useEffect } from 'react';
+import { Header } from '../../components/Header/Header';
+import { Footer } from '../../components/Footer/Footer';
+
+const getSectionId = (title: string) => {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+};
 
 export default function CIDSServiceDetailPage() {
-  const { cardId } = useParams<{ cardId: string }>();
-  const navigate = useNavigate();
-  
-  const card = CIDS_SERVICE_CARDS.find(c => c.id === cardId);
-  
-  // Modal state management for tables
-  const [tableModalOpen, setTableModalOpen] = useState<{ [key: string]: boolean }>({});
-  
-  // Active section tracking
-  const [activeSection, setActiveSection] = useState<string>('overview');
-  const sectionRefs = useRef<{ [key: string]: HTMLElement | null }>({});
-  
-  const openTableModal = (subsectionId: string) => {
-    setTableModalOpen(prev => ({ ...prev, [subsectionId]: true }));
-  };
-  
-  const closeTableModal = (subsectionId: string) => {
-    setTableModalOpen(prev => ({ ...prev, [subsectionId]: false }));
-  };
+  const [activeSection, setActiveSection] = useState('introduction');
 
-  // Scroll tracking with IntersectionObserver
+  // Scroll spy functionality
   useEffect(() => {
-    if (!card) return;
+    const handleScroll = () => {
+      const sections = document.querySelectorAll('[id]');
+      const scrollPosition = window.scrollY + 200;
 
-    const observerOptions = {
-      root: null,
-      rootMargin: '-10% 0px -70% 0px',
-      threshold: [0, 0.1, 0.5, 1]
+      sections.forEach((section) => {
+        const element = section as HTMLElement;
+        const offsetTop = element.offsetTop;
+        const offsetHeight = element.offsetHeight;
+
+        if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
+          setActiveSection(element.id);
+        }
+      });
     };
 
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      // Sort entries by intersection ratio and position to find the most visible section
-      const visibleEntries = entries
-        .filter(entry => entry.isIntersecting)
-        .sort((a, b) => {
-          // Prioritize entries with higher intersection ratio
-          if (b.intersectionRatio !== a.intersectionRatio) {
-            return b.intersectionRatio - a.intersectionRatio;
-          }
-          // If ratios are equal, prioritize the one higher on the page
-          return a.boundingClientRect.top - b.boundingClientRect.top;
-        });
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-      if (visibleEntries.length > 0) {
-        const currentEntry = visibleEntries[0];
-        const currentId = currentEntry.target.id;
-        
-        // Check if this is a Stage title itself (e.g., "3" for Stage 01)
-        const isStageTitle = card.content.subsections?.some(s => {
-          const sectionId = s.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
-          return sectionId === currentId && s.title.startsWith('Stage');
-        });
-        
-        if (isStageTitle) {
-          // If viewing the Stage title itself, highlight it
-          setActiveSection(currentId);
-          return;
-        }
-        
-        // Check if this is a subsection of a Stage (e.g., "3-1" is a subsection of Stage "3")
-        // If so, highlight the Stage title in navigation instead of the subsection
-        const stageMatch = currentId.match(/^(\d+)-/);
-        if (stageMatch) {
-          const stageId = stageMatch[1];
-          // Check if this Stage exists in the subsections
-          const stageSubsection = card.content.subsections?.find(s => {
-            const sectionId = s.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
-            return sectionId === stageId && s.title.startsWith('Stage');
-          });
-          
-          if (stageSubsection) {
-            // Highlight the Stage title when viewing its subsections
-            setActiveSection(stageId);
-            return;
-          }
-        }
-        
-        // For other sections (like "1-1", "1-2", "overview", etc.), highlight them directly
-        setActiveSection(currentId);
-      }
-    };
+  const sections = [
+    {
+      id: 'introduction',
+      title: '1. Introduction',
+      content: `This section introduces the CI.DS (Content Item Design System) as the formal replacement of the CI.PF (Content Item Production Framework), signalling a shift from a static set of production rules to a dynamic, modular, and quality-driven content system.
 
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
+The CI.DS is designed to embed greater intentionality, traceability, and performance assurance into the way content is envisioned, created, reviewed, and delivered across all DQ platforms.
 
-    // Observe overview section
-    const overviewElement = document.getElementById('overview');
-    if (overviewElement) {
-      observer.observe(overviewElement);
+By anchoring the CI.DS within DQ's wider ecosystem - including DTMB (Books), DTMI (Insights), DTMP (Platform), TMaaS (Deliverables), and DTMA (Academy) - this introduction highlights how content is no longer a support function, but a strategic driver of thought leadership, brand credibility, and organizational learning.`
+    },
+    {
+      id: 'who-is-this-for',
+      title: '1.05 Who is this for?',
+      content: `Across DQ, content is created by many hands and for many purposes - books that define transformation thinking, insights that shape market conversations, learning material that builds capability, proposals that win trust, and deliverables that guide real-world execution.
+
+CI.DS is for all of these contributors. It is for the writer shaping an argument, the designer translating complexity into clarity, the subject-matter expert validating accuracy, the marketer preparing content for distribution, and the executive ensuring the message reflects DQ's vision.
+
+No matter the format or platform, if someone is responsible for turning ideas into content that represents DQ, CI.DS is the system that supports them.`
+    },
+    {
+      id: 'problem-solving',
+      title: '1.06 What problem does it solve?',
+      content: `Before CI.DS, content often evolved in isolation. Each unit worked with its own assumptions, formats, and review practices. Valuable ideas were expressed inconsistently, quality depended on individual effort, and teams spent time fixing structure and alignment instead of strengthening the message.
+
+CI.DS changes this experience. It provides a shared, end-to-end system that brings order to the entire content lifecycle - from intent and planning to creation, review, and publication.
+
+By introducing common standards, roles, and checkpoints, CI.DS removes ambiguity, reduces rework, and makes quality repeatable rather than accidental. As a result, teams spend less time correcting and coordinating, and more time creating content that is clear, credible, and impactful.`
+    },
+    {
+      id: 'content-mandate',
+      title: '1.1 Content Mandate (DQ Units)',
+      content: `Multiple units across DQ are tasked with producing content that delivers strategic impact - content designed to influence decisions, spark engagement, and drive targeted actions across diverse scenarios.
+
+These content-producing units include:
+
+• DTMB (Digital Transformation Management Books) – Develops long-form publications and whitepapers that articulate strategic frameworks, transformation logic, and thought leadership.
+
+• DTMI (Digital Transformation Management Insights) – Publishes analytical insights, trend overviews, and high-frequency thought leadership pieces aligned to market and sector dynamics.
+
+• DTMA (Digital Transformation Management Academy) – Produces structured learning content, training modules, and course materials to support digital capability building.
+
+• DQ Designs – Generates architecture diagrams, strategic blueprints, and design specifications for products, platforms, and organizational constructs.
+
+• DQ Deploys – Delivers implementation-focused content such as guides, manuals, technical documents, and use-case playbooks.
+
+• DQ Deals – Crafts strategic proposals, bid responses, capability decks, and customized engagement presentations.
+
+• DQ Content – Leads multimedia, editorial, and campaign-driven content across digital channels, including social posts, scripts, videos, and creative assets.`
+    },
+    {
+      id: 'relevant-ecosystem',
+      title: '1.2 Relevant Ecosystem',
+      content: `The CI.DS guidelines apply universally across the DQ content ecosystem and must be upheld to maintain consistency, quality, and brand alignment in every content output.
+
+This includes all formats, platforms, and touchpoints where DQ content is created or shared:
+
+• Within internal DQ documentation and communications
+• In DTMB Papers and formal publications
+• In DTMA Course Materials and Learning Assets
+• Across DTMI Insights and all social media channels
+• Within BD proposals, sales decks, and outreach content
+• In client-facing deliverables, reports, and strategic outputs`
+    },
+    {
+      id: 'purpose',
+      title: '1.3 CI.DS | Purpose',
+      content: `The CI.DS is defined as a strategic, end-to-end system that ensures all content items are intentionally planned, professionally produced, and strategically promoted.
+
+It provides a unified framework that brings structure, precision, and purpose to the entire content lifecycle.
+
+By applying CI.DS, DQ ensures that every output - whether a whitepaper, insight, visual asset, or course material - is clear in its message, consistent with the brand, and optimized for measurable performance.
+
+This leads to stronger engagement, greater trust from audiences, streamlined production processes, and higher content ROI across all platforms and channels.`
     }
+  ];
 
-    // Observe all subsection sections
-    card.content.subsections?.forEach((subsection) => {
-      const sectionId = subsection.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
-      const element = document.getElementById(sectionId);
-      if (element) {
-        observer.observe(element);
-      }
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [card]);
-
-  // Handle smooth scroll on navigation click
-  const handleNavClick = (e: React.MouseEvent<HTMLButtonElement>, sectionId: string) => {
-    e.preventDefault();
+  const handleSectionClick = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const offset = 100; // Account for sticky header
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    setActiveSection(sectionId);
   };
 
-  if (!card) {
-    return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header toggleSidebar={() => {}} sidebarOpen={false} />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Service Card Not Found</h1>
-            <p className="text-gray-600 mb-6">The requested CI.DS service card could not be found.</p>
-            <Link
-              to="/marketplace/design-system?tab=cids"
-              className="inline-flex items-center px-4 py-2 rounded-full bg-[var(--guidelines-primary-solid)] text-white text-sm font-semibold hover:bg-[var(--guidelines-primary-solid-hover)] transition-colors"
-            >
-              Back to CI.DS Services
-            </Link>
-          </div>
-        </div>
-        <Footer isLoggedIn={false} />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 guidelines-theme">
-      <Header toggleSidebar={() => {}} sidebarOpen={false} />
-      
-      {/* Breadcrumbs - Above Hero Section */}
-      <div className="container mx-auto px-4 pt-4 max-w-[90rem]">
-        <nav className="flex" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-2">
-            <li className="inline-flex items-center">
-              <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
-                <HomeIcon size={16} className="mr-1" />
-                <span>Home</span>
-              </Link>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <ChevronRightIcon size={16} className="text-gray-400" />
-                <Link to="/marketplace/design-system?tab=cids" className="ml-1 text-gray-500 hover:text-gray-700 md:ml-2">
-                  DQ Design System
-                </Link>
-              </div>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <ChevronRightIcon size={16} className="text-gray-400" />
-                <Link to="/marketplace/design-system?tab=cids" className="ml-1 text-gray-500 hover:text-gray-700 md:ml-2">
-                  CI.DS
-                </Link>
-              </div>
-            </li>
-            <li aria-current="page">
-              <div className="flex items-center">
-                <ChevronRightIcon size={16} className="text-gray-400" />
-                <span className="ml-1 text-gray-700 md:ml-2">{card.title}</span>
-              </div>
-            </li>
-          </ol>
-        </nav>
-      </div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Header />
       
       {/* Hero Section */}
-      <div className="relative w-full h-[500px] overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: 'url(/images/content.PNG)',
-          }}
-        />
-
-        <div className="relative z-10 h-full flex flex-col justify-center px-6 md:px-12 lg:px-24 text-white bg-[#030E31]/60">
+      <div className="bg-gradient-to-br from-blue-900 via-purple-800 to-purple-900 text-white py-16">
+        <div className="container mx-auto px-6">
           <div className="max-w-4xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight font-inter text-white">
-              {card.title}
+            <div className="inline-flex items-center px-3 py-1 bg-white/20 rounded-full text-sm font-medium mb-6">
+              FRAMEWORK
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              Content Intelligence Design System (CI.DS)
             </h1>
-
-            <div className="flex items-center gap-3 text-sm text-white/90 font-inter font-semibold">
-              <span>DQ Design</span>
+            <p className="text-lg text-white/90 mb-8 max-w-2xl">
+              CI.DS is DQ's intelligent system for turning ideas into consistent, high-impact content at scale. 
+              It provides unified guidelines, components, and tools for professional content production.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <span className="px-3 py-1 bg-white/10 rounded-lg text-sm">2-3hrs</span>
+              <span className="px-3 py-1 bg-white/10 rounded-lg text-sm">71+ Sections</span>
+              <span className="px-3 py-1 bg-white/10 rounded-lg text-sm">Intermediate</span>
+              <span className="px-3 py-1 bg-white/10 rounded-lg text-sm">Framework</span>
             </div>
           </div>
         </div>
-
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/20"></div>
       </div>
 
       {/* Main Content */}
-      <main className="flex-1">
-        <div className="container mx-auto px-4 py-12 max-w-[90rem]">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Main Content Area */}
-            <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12 min-h-0">
-              {/* Overview Section */}
-              {card.content.overview && (
-                <section id="overview" className="mb-16 scroll-mt-24">
-                  <div className="relative">
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 pl-6 font-inter tracking-tight">
-                      1. Introduction
-                    </h2>
-                  </div>
-                  <div className="pl-6 prose prose-lg max-w-none text-gray-700 leading-relaxed">
-                    <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                      <MarkdownRenderer body={card.content.overview} />
-                    </React.Suspense>
-                  </div>
-                </section>
-              )}
-
-              {/* Subsections */}
-              {card.content.subsections && card.content.subsections.length > 0 && (
-                <div>
-                  {card.content.subsections.map((subsection) => {
-                    const sectionId = subsection.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
-
-                    // Check if this is a main section (whole number) or subsection
-                    const isMainSection = /^\d+$/.test(subsection.id);
-
-                    // Decide whether to prefix with the numeric ID
-                    const shouldPrefixWithId =
-                      subsection.id !== '1.05' &&
-                      subsection.id !== '1.06' &&
-                      /^\d/.test(subsection.id);
-
-                    let displayTitle = subsection.title;
-
-                    if (shouldPrefixWithId) {
-                      // If the id is a whole number (e.g. "2", "3", "4"), add a dot after it
-                      if (/^\d+$/.test(subsection.id)) {
-                        displayTitle = `${subsection.id}. ${subsection.title}`;
-                      } else {
-                        // For decimal-style ids (e.g. "1.1", "2.7", "5.10"), prepend as-is
-                        displayTitle = `${subsection.id} ${subsection.title}`;
-                      }
-                    }
-
-                    return (
-                      <section key={subsection.id} id={sectionId} className="mb-16 scroll-mt-24">
-                        <div className="relative">
-                          {/* Only show gradient bar for main sections */}
-                          {isMainSection && (
-                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#0A1A3B] to-transparent rounded-full"></div>
-                          )}
-                          <h2 className={`${isMainSection ? 'text-3xl md:text-4xl pl-6' : 'text-2xl md:text-3xl pl-12'} font-bold text-gray-900 mb-8 font-inter tracking-tight`}>
-                            {displayTitle}
-                          </h2>
-                        </div>
-                        <div className={`${isMainSection ? 'pl-6' : 'pl-12'} prose prose-lg max-w-none text-gray-700 leading-relaxed`}>
-                          {subsection.tableData ? (
-                            <>
-                              <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                                <MarkdownRenderer body={subsection.content} />
-                              </React.Suspense>
-                              <SummaryTable
-                                title=""
-                                columns={subsection.tableData.columns}
-                                data={subsection.tableData.data}
-                                onViewFull={() => openTableModal(subsection.id)}
-                              />
-                              {subsection.contentAfterTable && (
-                                <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                                  <MarkdownRenderer body={subsection.contentAfterTable} />
-                                </React.Suspense>
-                              )}
-                              <FullTableModal
-                                isOpen={tableModalOpen[subsection.id] || false}
-                                onClose={() => closeTableModal(subsection.id)}
-                                title={`${subsection.id} ${subsection.title}`}
-                                columns={subsection.tableData.columns}
-                                data={subsection.tableData.data}
-                              />
-                            </>
-                          ) : (
-                            <React.Suspense fallback={<div className="animate-pulse text-gray-400">Loading content…</div>}>
-                              <MarkdownRenderer body={subsection.content} />
-                            </React.Suspense>
-                          )}
-                        </div>
-                      </section>
-                    );
-                  })}
-                </div>
-              )}
+      <div className="flex-1 bg-gray-50">
+        <div className="container mx-auto px-6 py-8">
+          <div className="flex gap-8">
+            {/* Table of Contents - Left Side */}
+            <div className="w-80">
+              <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-8">
+                <h3 className="font-semibold text-gray-900 mb-4">Contents</h3>
+                <nav className="space-y-2">
+                  {sections.map((section) => (
+                    <button
+                      key={section.id}
+                      onClick={() => handleSectionClick(section.id)}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                        activeSection === section.id
+                          ? 'bg-blue-50 text-blue-700 font-medium'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                      }`}
+                    >
+                      {section.title}
+                    </button>
+                  ))}
+                </nav>
+              </div>
             </div>
 
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <nav className="sticky top-24 h-[calc(100vh-6rem)] overflow-y-auto">
-                <div className="bg-gray-50 p-6">
-                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
-                    Contents
-                  </h2>
-                  <div className="space-y-2">
-                    {card.content.overview && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleNavClick(e, 'overview');
-                        }}
-                        style={{ outline: 'none', border: 'none' }}
-                        className={`block w-full text-left px-3 py-2 text-sm transition-all duration-200 outline-none ${
-                          activeSection === 'overview'
-                            ? 'bg-blue-200 text-blue-900 font-medium outline-none'
-                            : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none active:outline-none'
-                        }`}
-                      >
-                        1. Introduction
-                      </button>
-                    )}
-                    {card.content.subsections
-                      ?.filter((subsection) => {
-                        // Only show: "Who is this for?", "What problem does it solve?", and all Stage titles
-                        return (
-                          subsection.title === 'Who is this for?' ||
-                          subsection.title === 'What problem does it solve?' ||
-                          subsection.title.startsWith('Stage')
-                        );
-                      })
-                      .map((subsection) => {
-                        const sectionId = subsection.id.toLowerCase().replace(/\./g, '-').replace(/\s+/g, '-');
-                        const isActive = activeSection === sectionId;
-                        // Find the original index in the full subsections array to calculate stage number correctly
-                        const originalIndex = card.content.subsections?.findIndex(s => s.id === subsection.id) ?? -1;
-                        // Count how many Stage titles come before this one (including this one) in the original array
-                        let stageCount = 0;
-                        if (originalIndex >= 0 && card.content.subsections) {
-                          for (let i = 0; i <= originalIndex; i++) {
-                            if (card.content.subsections[i]?.title.startsWith('Stage')) {
-                              stageCount++;
-                            }
-                          }
-                        }
-                        // Add number prefix only for Stage titles: 3 for first Stage, 4 for second, etc.
-                        const displayTitle = subsection.title.startsWith('Stage') 
-                          ? `${stageCount + 2}. ${subsection.title}`
-                          : subsection.title;
-                        return (
-                          <button
-                            key={subsection.id}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleNavClick(e, sectionId);
-                            }}
-                            style={{ outline: 'none', border: 'none' }}
-                            className={`block w-full text-left px-3 py-2 text-sm transition-all duration-200 outline-none ${
-                              isActive
-                                ? 'bg-blue-200 text-blue-900 font-medium outline-none'
-                                : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:text-blue-700 focus:outline-none active:outline-none'
-                            }`}
-                          >
-                            {displayTitle}
-                          </button>
-                        );
-                      })}
-                  </div>
+            {/* Content - Right Side */}
+            <div className="flex-1">
+              <div className="bg-white rounded-lg shadow-sm border p-8">
+                <div className="space-y-12">
+                  {sections.map((section) => (
+                    <div key={section.id} id={section.id} className="scroll-mt-8">
+                      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                        {section.title}
+                      </h2>
+                      <div className="prose prose-gray max-w-none">
+                        {section.content.split('\n\n').map((paragraph, index) => (
+                          <p key={index} className="mb-4 text-gray-700 leading-relaxed">
+                            {paragraph}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </nav>
+              </div>
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       <Footer isLoggedIn={false} />
     </div>

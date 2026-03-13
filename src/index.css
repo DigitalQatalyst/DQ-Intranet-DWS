@@ -30,6 +30,55 @@ html {
   --card-foreground: 224 56% 17%;
   --border: 228 40% 93%;
   --radius: 0.75rem;
+
+  /* Learning Center course detail page tokens */
+  --hero: 226 71% 10%;
+  --hero-foreground: 210 40% 98%;
+  --hero-muted: 220 20% 65%;
+  --cta: 340 82% 55%;
+  --cta-foreground: 0 0% 100%;
+  --success: 142 71% 45%;
+  --success-foreground: 0 0% 100%;
+  --nav-dark: 226 71% 7%;
+  --nav-dark-foreground: 210 40% 98%;
+  --footer: 226 71% 7%;
+  --footer-foreground: 220 20% 75%;
+}
+
+.dark {
+  --background: 224 71% 4%;
+  --foreground: 210 40% 98%;
+  --card: 224 71% 4%;
+  --card-foreground: 210 40% 98%;
+  --popover: 224 71% 4%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 210 40% 98%;
+  --primary-foreground: 220 14% 11%;
+  --secondary: 215 27% 17%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 215 27% 17%;
+  --muted-foreground: 217 10% 64%;
+  --accent: 215 27% 17%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62% 30%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 215 27% 17%;
+  --input: 215 27% 17%;
+  --ring: 216 12% 84%;
+  --radius: 0.5rem;
+
+  /* Learning Center course detail page tokens for dark mode */
+  --hero: 226 71% 10%;
+  --hero-foreground: 210 40% 98%;
+  --hero-muted: 220 20% 65%;
+  --cta: 340 82% 55%;
+  --cta-foreground: 0 0% 100%;
+  --success: 142 71% 45%;
+  --success-foreground: 0 0% 100%;
+  --nav-dark: 226 71% 7%;
+  --nav-dark-foreground: 210 40% 98%;
+  --footer: 226 71% 7%;
+  --footer-foreground: 220 20% 75%;
 }
 
 .gradient-hero {
