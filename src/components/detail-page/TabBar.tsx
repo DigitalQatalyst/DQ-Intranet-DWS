@@ -21,13 +21,13 @@ const TabBar = ({ tabs, activeTab, onTabChange }: TabBarProps) => (
           className={cn(
             "relative whitespace-nowrap px-5 py-3 text-sm font-medium transition-colors",
             activeTab === tab.id
-              ? "text-foreground"
-              : "text-muted-foreground hover:text-foreground"
+              ? "text-[#030F35]"
+              : "text-muted-foreground hover:text-[#030F35]"
           )}
         >
           {tab.label}
           {activeTab === tab.id && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#030F35]" />
           )}
         </button>
       ))}

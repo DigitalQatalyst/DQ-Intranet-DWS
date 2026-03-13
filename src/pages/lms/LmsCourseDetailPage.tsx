@@ -408,17 +408,6 @@ export const LmsCourseDetailPage: React.FC = () => {
     ...(isTrack && course?.faq && Array.isArray(course.faq) && course.faq.length > 0 ? [{ id: 'faq' as TabType, label: 'FAQ' }] : []),
   ];
 
-  const heroMeta: string[] = [
-    course.durationMinutes !== undefined && course.durationMinutes > 0
-      ? formatDurationFromMinutes(course.durationMinutes)
-      : course.duration || '',
-    isTrack
-      ? `${curriculum.length} ${curriculum.length === 1 ? 'course' : 'courses'}`
-      : `${courseStats.totalLessons} ${courseStats.totalLessons === 1 ? 'lesson' : 'lessons'}`,
-    course.deliveryMode || '',
-    SFIA_LEVELS.find(level => level.code === course.levelCode)?.label || course.levelCode || '',
-  ].filter(Boolean);
-
   const sidebarRows = [
     {
       label: 'Duration',
@@ -449,7 +438,6 @@ export const LmsCourseDetailPage: React.FC = () => {
         title={course.title}
         badge={course.courseType}
         description={course.summary}
-        heroMeta={heroMeta}
         breadcrumbs={[
           { label: 'Home', href: '/' },
           { label: 'Courses', href: '/lms' },
@@ -471,18 +459,15 @@ export const LmsCourseDetailPage: React.FC = () => {
               {/* Learning Outcomes Tab */}
               {activeTab === 'outcomes' && (
                 <section className="space-y-6">
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-8 shadow-sm">
-                    <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                      <span className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-                        <CheckCircleIcon size={18} className="text-white" />
-                      </span>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 mb-3 pl-3 border-l-4 border-[#FB5535]">
                       What You'll Learn
                     </h3>
-                    <ul className="space-y-4">
+                    <ul className="space-y-3">
                       {outcomes.map((outcome) => (
-                        <li key={outcome} className="flex items-start gap-3 group">
-                          <div className="mt-2 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 group-hover:scale-125 transition-transform" />
-                          <p className="text-gray-700 leading-relaxed">{outcome}</p>
+                        <li key={outcome} className="flex items-start gap-3">
+                          <CheckCircleIcon size={16} className="mt-0.5 flex-shrink-0" style={{ color: '#FB5535' }} />
+                          <p className="text-sm text-gray-700 leading-relaxed">{outcome}</p>
                         </li>
                       ))}
                     </ul>
@@ -493,69 +478,19 @@ export const LmsCourseDetailPage: React.FC = () => {
               {/* Track/Course Details Tab */}
               {activeTab === 'details' && (
                 <section className="space-y-8">
-                  {/* Summary Cards */}
-                  <div className="bg-white border border-gray-200 rounded-lg p-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
-                          <Clock size={24} className="text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 uppercase font-medium">Duration</p>
-                          <p className="text-sm font-semibold text-gray-900">
-                            {course.durationMinutes !== undefined && course.durationMinutes > 0
-                              ? formatDurationFromMinutes(course.durationMinutes)
-                              : course.duration || 'N/A'}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center">
-                          <Star size={24} className="text-amber-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 uppercase font-medium">Level</p>
-                          <p className="text-sm font-semibold text-gray-900">{SFIA_LEVELS.find(level => level.code === course.levelCode)?.label || course.levelCode}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center">
-                          <PlayCircleIcon size={24} className="text-purple-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 uppercase font-medium">Delivery Mode</p>
-                          <p className="text-sm font-semibold text-gray-900">{course.deliveryMode}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center">
-                          <BookOpen size={24} className="text-green-600" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 uppercase font-medium">
-                            {isTrack ? 'Courses' : 'Lessons'}
-                          </p>
-                          <p className="text-sm font-semibold text-gray-900">
-                            {isTrack
-                              ? `${curriculum.length} courses`
-                              : `${courseStats.totalLessons} lessons`}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Course Description */}
-                  <div>
-                    <p className="text-gray-700 leading-relaxed text-base">
-                      {course.summary}
-                    </p>
-                  </div>
+                  {course.courseDetails && (
+                    <div>
+                      <p className="text-gray-700 leading-relaxed text-base">
+                        {course.courseDetails}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Course Highlights */}
                   {highlights.length > 0 && (
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">
+                      <h3 className="text-base font-bold text-gray-900 mb-3 pl-3 border-l-4 border-[#FB5535]">
                         {isTrack ? 'Track Highlights' : 'Course Highlights'}
                       </h3>
                       <div className="space-y-3">
@@ -564,8 +499,15 @@ export const LmsCourseDetailPage: React.FC = () => {
                             key={highlight}
                             className="flex items-start gap-3"
                           >
-                            <CheckCircleIcon size={20} className="text-green-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-gray-700">{highlight}</span>
+                            <CheckCircleIcon size={16} className="mt-0.5 flex-shrink-0" style={{ color: '#FB5535' }} />
+                            <span className="text-gray-700 text-sm">
+                              {highlight.includes(':') ? (
+                                <>
+                                  <span className="font-semibold">{highlight.split(':')[0]}:</span>
+                                  {highlight.slice(highlight.indexOf(':') + 1)}
+                                </>
+                              ) : highlight}
+                            </span>
                           </div>
                         ))}
                       </div>
@@ -617,6 +559,9 @@ export const LmsCourseDetailPage: React.FC = () => {
               {/* Curriculum Tab */}
               {activeTab === 'curriculum' && (
                 <section className="space-y-4">
+                  <h3 className="text-base font-bold text-gray-900 mb-3 pl-3 border-l-4 border-[#FB5535]">
+                    {isTrack ? 'Track Curriculum' : 'Course Curriculum'}
+                  </h3>
                   {curriculum && curriculum.length > 0 && (
                     <div className="flex items-center justify-start mb-2">
                       <span className="text-sm text-gray-600">
@@ -661,19 +606,19 @@ export const LmsCourseDetailPage: React.FC = () => {
                               <Link
                                 key={item.id}
                                 to={`/lms/${item.courseSlug}`}
-                                className="bg-white border border-gray-200 rounded-lg overflow-hidden block hover:border-blue-500 hover:shadow-md transition-all group"
+                                className="bg-white border border-gray-200 rounded-lg overflow-hidden block hover:border-[#FB5535] hover:shadow-md transition-all group"
                               >
                                 <div className="p-4 flex items-center justify-between">
                                   <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#030F35]/10 text-[#030F35] group-hover:bg-[#030F35] group-hover:text-white transition-colors">
                                       <Library size={20} />
                                     </div>
                                     <div>
-                                      <h3 className="font-bold text-gray-900 text-lg group-hover:text-blue-600 transition-colors">
+                                      <h3 className="font-bold text-gray-900 text-lg group-hover:text-[#030F35] transition-colors">
                                         {item.title}
                                       </h3>
                                       <div className="flex items-center gap-2 text-sm text-gray-500">
-                                        <span className="font-medium text-indigo-600">
+                                        <span className="font-medium text-[#030F35]">
                                           Course {curriculumIndex + 1}
                                         </span>
                                         {item.duration && (
@@ -693,7 +638,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                                       )}
                                     </div>
                                   </div>
-                                  <ChevronRightIcon size={20} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
+                                  <ChevronRightIcon size={20} className="text-gray-300 group-hover:text-[#FB5535] transition-colors" />
                                 </div>
                               </Link>
                             );
@@ -710,7 +655,7 @@ export const LmsCourseDetailPage: React.FC = () => {
                                 onClick={toggleExpand}
                               >
                                 <div className="flex items-center gap-4">
-                                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${isFinalAssessmentModule ? 'bg-blue-100 text-blue-600' : 'bg-blue-50 text-blue-600'}`}>
+                                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${isFinalAssessmentModule ? 'bg-[#030F35]/15 text-[#030F35]' : 'bg-[#030F35]/10 text-[#030F35]'}`}>
                                     {isFinalAssessmentModule ? <CheckCircleIcon size={20} /> : <FileText size={20} />}
                                   </div>
                                   <div>
@@ -759,10 +704,10 @@ export const LmsCourseDetailPage: React.FC = () => {
                                         onClick={() => !isLocked && navigate(`/lms/${course.slug}/lesson/${lesson.id}`)}
                                         className={`flex items-start p-4 rounded-xl border transition-all ${isLocked
                                           ? 'bg-gray-50 border-gray-100 cursor-not-allowed opacity-70'
-                                          : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-sm cursor-pointer'
+                                          : 'bg-white border-gray-200 hover:border-[#FB5535]/40 hover:shadow-sm cursor-pointer'
                                           }`}
                                       >
-                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 ${isLocked ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 text-blue-600'
+                                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 ${isLocked ? 'bg-gray-100 text-gray-400' : 'bg-[#FB5535]/10 text-[#FB5535]'
                                           }`}>
                                           {isLocked ? <Lock size={18} /> : <LessonIcon size={18} />}
                                         </div>
@@ -819,6 +764,9 @@ export const LmsCourseDetailPage: React.FC = () => {
               {/* Reviews Tab */}
               {activeTab === 'reviews' && (
                 <section className="space-y-6">
+                  <h3 className="text-base font-bold text-gray-900 mb-3 pl-3 border-l-4 border-[#FB5535]">
+                    Student Reviews
+                  </h3>
                   {/* Review Stats Summary */}
                   {reviewStats && reviewStats.totalReviews > 0 && (
                     <div className="bg-white border border-gray-200 rounded-xl p-6">

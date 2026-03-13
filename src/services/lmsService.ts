@@ -152,6 +152,7 @@ function transformCourseToLmsDetail(
     audience: parseTextToArray(course.audience) as Array<'Associate' | 'Lead'>,
     status: normalizeStatus(course.status),
     summary: course.description || course.title,
+    courseDetails: course.course_details || undefined,
     highlights: course.highlights || [],
     outcomes: course.outcomes || [],
     courseType: course.course_type || undefined,

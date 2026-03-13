@@ -116,7 +116,7 @@ module.exports = {
       },
       fontFamily: {
         display: ["Palatino", "serif"],
-        body: ["Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+        body: ["Inter", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
       },
       zIndex: {
         400: 400,

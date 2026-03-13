@@ -64,10 +64,9 @@ const HeroBanner = ({
         className="relative overflow-hidden pt-4 pb-16 px-6"
         style={{
           background: `
-            radial-gradient(ellipse 80% 60% at 20% 30%, hsl(var(--cta) / 0.25), transparent),
-            radial-gradient(ellipse 60% 80% at 80% 20%, hsl(260 70% 50% / 0.2), transparent),
-            radial-gradient(ellipse 70% 50% at 50% 80%, hsl(var(--hero) / 0.8), transparent),
-            hsl(var(--hero))
+            radial-gradient(ellipse 80% 60% at 20% 30%, rgba(255,255,255,0.06), transparent),
+            radial-gradient(ellipse 60% 80% at 80% 20%, rgba(255,255,255,0.04), transparent),
+            linear-gradient(to right, #192D6C, #051139)
           `,
         }}
       >
@@ -75,19 +74,19 @@ const HeroBanner = ({
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div
             className="absolute top-[10%] left-[15%] w-48 h-48 rounded-full opacity-20"
-            style={{ background: "radial-gradient(circle, hsl(var(--cta) / 0.6), transparent 70%)" }}
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%)" }}
           />
           <div
             className="absolute top-[30%] right-[10%] w-64 h-64 rounded-full opacity-15"
-            style={{ background: "radial-gradient(circle, hsl(260 70% 60% / 0.5), transparent 70%)" }}
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.12), transparent 70%)" }}
           />
           <div
             className="absolute bottom-[5%] left-[40%] w-56 h-56 rounded-full opacity-10"
-            style={{ background: "radial-gradient(circle, hsl(200 80% 60% / 0.5), transparent 70%)" }}
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.10), transparent 70%)" }}
           />
           <div
             className="absolute top-[5%] right-[35%] w-32 h-32 rounded-full opacity-25"
-            style={{ background: "radial-gradient(circle, hsl(var(--cta) / 0.4), transparent 70%)" }}
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.10), transparent 70%)" }}
           />
         </div>
 
