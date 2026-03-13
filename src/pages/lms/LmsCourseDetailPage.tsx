@@ -126,7 +126,7 @@ export const LmsCourseDetailPage: React.FC = () => {
   const prevSlugRef = React.useRef<string | undefined>(slug);
   const [isNavigating, setIsNavigating] = React.useState(false);
 
-  // Reset component state when slug changes (navigation to different course)
+  //Reset the component state when slug changes (navigation to different course)
   React.useEffect(() => {
     if (prevSlugRef.current !== slug && prevSlugRef.current !== undefined) {
       setIsNavigating(true);
