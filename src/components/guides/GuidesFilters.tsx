@@ -56,12 +56,6 @@ const TESTIMONIAL_UNITS: Facet[] = [
   { id: 'stories', name: 'Stories' }
 ]
 
-const TESTIMONIAL_LOCATIONS: Facet[] = [
-  { id: 'DXB', name: 'DXB' },
-  { id: 'KSA', name: 'KSA' },
-  { id: 'NBO', name: 'NBO' }
-]
-
 const GUIDELINES_GUIDE_TYPES: Facet[] = [
   { id: 'best-practice', name: 'Best Practice' },
   { id: 'policy', name: 'Policy' },
@@ -275,19 +269,19 @@ const CheckboxList: React.FC<{ idPrefix: string; name: string; options: Facet[];
 
 function getLocationOptions(isGuidelinesSelected: boolean, isFAQsSelected: boolean, isTestimonialsSelected: boolean, facetsLocation?: Facet[]): Facet[] {
   if (isGuidelinesSelected || isFAQsSelected) return GUIDELINES_LOCATIONS
-  if (isTestimonialsSelected) return TESTIMONIAL_LOCATIONS
+  if (isTestimonialsSelected) return [] // No location options for testimonials
   return facetsLocation || []
 }
 
 function getTabKeysToDelete(isStrategySelected: boolean, isTestimonialsSelected: boolean): string[] {
   if (isStrategySelected) return ['guide_type', 'sub_domain', 'domain', 'unit', 'location']
-  if (isTestimonialsSelected) return ['guide_type', 'sub_domain', 'domain']
+  if (isTestimonialsSelected) return ['guide_type', 'sub_domain', 'domain', 'location']
   return ['guide_type', 'sub_domain', 'unit', 'domain']
 }
 
 function getAllowedLocationIds(isBlueprintSelected: boolean, isTestimonialsSelected: boolean): string[] | undefined {
   if (isBlueprintSelected) return BLUEPRINT_LOCATIONS.map(opt => opt.id)
-  if (isTestimonialsSelected) return TESTIMONIAL_LOCATIONS.map(opt => opt.id)
+  if (isTestimonialsSelected) return undefined // No location filtering for testimonials
   return undefined
 }
 
@@ -593,7 +587,7 @@ export const GuidesFilters: React.FC<Props> = ({ facets, query, onChange, active
           </Section>
       </>
     )}
-      {!isGlossarySelected && !isBlueprintSelected && !isStrategySelected && (
+      {!isGlossarySelected && !isBlueprintSelected && !isStrategySelected && !isTestimonialsSelected && (
         <Section idPrefix={instanceId} title="Location" category="location" collapsed={collapsedSet.has('location')} onToggle={toggleCollapsed}>
           <CheckboxList idPrefix={instanceId} name="location" options={locationOptions} query={query} onChange={onChange} />
         </Section>

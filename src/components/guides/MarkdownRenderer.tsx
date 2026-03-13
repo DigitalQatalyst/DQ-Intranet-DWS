@@ -155,7 +155,7 @@ const MarkdownRenderer: React.FC<{ body: string }> = ({ body }) => {
         ),
         h1: ({ node, ...props }) => (
           <h1 className="text-3xl font-bold text-gray-900 mt-6 mb-4 pl-5 relative" {...(props as any)}>
-            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#1A2E6E] via-[#1A2E6E]/60 to-transparent rounded-full"></span>
+            <span className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#030E31] via-[#030E31]/60 to-transparent rounded-full"></span>
             {props.children}
           </h1>
         ),

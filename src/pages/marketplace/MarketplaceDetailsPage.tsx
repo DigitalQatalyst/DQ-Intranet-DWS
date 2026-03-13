@@ -18,6 +18,29 @@ import { TechSupportForm } from '../../components/marketplace/TechSupportForm';
 import { INITIAL_APPROVERS } from '../../utils/mockApprovers';
 import { ServiceHeroSection } from '../../components/marketplace/ServiceHeroSection';
 import { ServiceDetailsSidebar } from '../../components/marketplace/ServiceDetailsSidebar';
+import { GUIDE_CONTENT, GuideContent } from '../../constants/guideContent';
+
+// GHC service IDs that should use GUIDE_CONTENT instead of marketplace data
+const GHC_SERVICE_IDS = [
+  'ghc',
+  'dq-vision',
+  'dq-hov',
+  'dq-persona',
+  'dq-agile-tms',
+  'dq-agile-sos',
+  'dq-agile-flows',
+  'dq-agile-6xd'
+];
+
+// Helper function to detect if itemId is a GHC service
+const isGHCService = (itemId: string): boolean => {
+  return GHC_SERVICE_IDS.includes(itemId);
+};
+
+// Helper function to map GHC itemId to GUIDE_CONTENT key
+const getGHCContentKey = (itemId: string): string => {
+  return itemId;
+};
 interface MarketplaceDetailsPageProps {
   marketplaceType: 'courses' | 'financial' | 'non-financial' | 'knowledge-hub' | 'onboarding';
   bookmarkedItems?: string[];
@@ -66,6 +89,7 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     return config.route;
   };
   const [item, setItem] = useState<any | null>(null);
+  const [ghcContent, setGhcContent] = useState<GuideContent | null>(null);
   const [relatedItems, setRelatedItems] = useState<any[]>([]);
   const [_isBookmarked, _setIsBookmarked] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -153,9 +177,16 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
       });
     }
   };
-  // Check for custom tabs for this service
+  // Check for custom tabs for this service or GHC services
+  const isGHC = ghcContent !== null;
+  const ghcTabs = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'understand', label: 'Understand' },
+    { id: 'practice', label: 'Learn & Practice' },
+    { id: 'materials', label: 'Other Materials' }
+  ];
   const customTabs = item ? getCustomTabs(marketplaceType, item.id) : undefined;
-  const tabsToUse = customTabs || config.tabs;
+  const tabsToUse = isGHC ? ghcTabs : (customTabs || config.tabs);
   // Add state for active tab
   const [activeTab, setActiveTab] = useState<string>(config.tabs[0]?.id || 'about');
   
@@ -179,61 +210,82 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         setRedirectTimer(null);
       }
       try {
-        // Try to fetch item details
-        let itemData = null;
-        try {
-          itemData = await fetchMarketplaceItemDetails(marketplaceType, itemId);
-        } catch (fetchError) {
-          console.error(`Error fetching ${marketplaceType} item details:`, fetchError);
-          // We'll handle this below by using fallback data
-        }
-        // If item data is available, use it, otherwise use fallback data
-        const finalItemData = itemData || getFallbackItemDetails(marketplaceType, itemId || 'fallback-1');
-        if (finalItemData) {
-          setItem(finalItemData);
-          // setIsBookmarked(bookmarkedItems.includes(finalItemData.id));
-          // Fetch related items
-          let relatedItemsData: any[] = [];
-          try {
-            relatedItemsData = await fetchRelatedMarketplaceItems(marketplaceType, finalItemData.id, finalItemData.category || '', finalItemData.provider?.name || '');
-          } catch (relatedError) {
-            console.error('Error fetching related items:', relatedError);
-            // Use fallback related items on error
-          }
-          // Use fetched related items if available, otherwise use fallback
-          setRelatedItems(relatedItemsData && relatedItemsData.length > 0 ? relatedItemsData : getFallbackItems(marketplaceType));
-          if (shouldTakeAction) {
-            setTimeout(() => {
-              const actionSection = document.getElementById('action-section');
-              if (actionSection) {
-                actionSection.scrollIntoView({
-                  behavior: 'smooth'
-                });
-              }
-            }, 100);
-
-            // REMOVED: Auto-open Leave Application form
-            // if (finalItemData.id === '13') {
-            //   // Leave application
-            //   setIsRequestFormOpen(true);
-            // }
-
-            // REMOVED: Auto-open TechSupportForm
-            // else if (marketplaceType === 'non-financial' && ['1', '2', '3'].includes(finalItemData.id)) {
-            //   // IT Support Form, Support Charter Template, IT Support Walkthrough
-            //   setIsTechSupportFormOpen(true);
-            // }
+        // Check if this is a GHC service first
+        if (isGHCService(itemId)) {
+          const contentKey = getGHCContentKey(itemId);
+          const content = GUIDE_CONTENT[contentKey];
+          
+          if (content) {
+            setGhcContent(content);
+            // Set default tab for GHC services
+            setActiveTab('overview');
+            // Set related items for GHC services
+            setRelatedItems(getFallbackItems(marketplaceType));
+          } else {
+            console.error('GHC content not found for itemId:', itemId);
+            // Fall back to regular marketplace logic
+            const finalItemData = getFallbackItemDetails(marketplaceType, itemId || 'fallback-1');
+            setItem(finalItemData);
+            setRelatedItems(getFallbackItems(marketplaceType));
           }
         } else {
-          // Item not found - use generic fallback
-          const genericFallback = getFallbackItemDetails(marketplaceType, 'generic-fallback');
-          setItem(genericFallback);
-          setError(null); // Clear any error since we're showing fallback data
-          // Set a redirect timer with a longer delay (5 seconds)
-          const timer = setTimeout(() => {
-            navigate(config.route);
-          }, 5000);
-          setRedirectTimer(timer);
+          // Regular marketplace item logic
+          // Try to fetch item details
+          let itemData = null;
+          try {
+            itemData = await fetchMarketplaceItemDetails(marketplaceType, itemId);
+          } catch (fetchError) {
+            console.error(`Error fetching ${marketplaceType} item details:`, fetchError);
+            // We'll handle this below by using fallback data
+          }
+          // If item data is available, use it, otherwise use fallback data
+          const finalItemData = itemData || getFallbackItemDetails(marketplaceType, itemId || 'fallback-1');
+          if (finalItemData) {
+            setItem(finalItemData);
+            // setIsBookmarked(bookmarkedItems.includes(finalItemData.id));
+            // Fetch related items
+            let relatedItemsData: any[] = [];
+            try {
+              relatedItemsData = await fetchRelatedMarketplaceItems(marketplaceType, finalItemData.id, finalItemData.category || '', finalItemData.provider?.name || '');
+            } catch (relatedError) {
+              console.error('Error fetching related items:', relatedError);
+              // Use fallback related items on error
+            }
+            // Use fetched related items if available, otherwise use fallback
+            setRelatedItems(relatedItemsData && relatedItemsData.length > 0 ? relatedItemsData : getFallbackItems(marketplaceType));
+            if (shouldTakeAction) {
+              setTimeout(() => {
+                const actionSection = document.getElementById('action-section');
+                if (actionSection) {
+                  actionSection.scrollIntoView({
+                    behavior: 'smooth'
+                  });
+                }
+              }, 100);
+
+              // REMOVED: Auto-open Leave Application form
+              // if (finalItemData.id === '13') {
+              //   // Leave application
+              //   setIsRequestFormOpen(true);
+              // }
+
+              // REMOVED: Auto-open TechSupportForm
+              // else if (marketplaceType === 'non-financial' && ['1', '2', '3'].includes(finalItemData.id)) {
+              //   // IT Support Form, Support Charter Template, IT Support Walkthrough
+              //   setIsTechSupportFormOpen(true);
+              // }
+            }
+          } else {
+            // Item not found - use generic fallback
+            const genericFallback = getFallbackItemDetails(marketplaceType, 'generic-fallback');
+            setItem(genericFallback);
+            setError(null); // Clear any error since we're showing fallback data
+            // Set a redirect timer with a longer delay (5 seconds)
+            const timer = setTimeout(() => {
+              navigate(config.route);
+            }, 5000);
+            setRedirectTimer(timer);
+          }
         }
       } catch (err) {
         console.error(`Error in marketplace details page:`, err);
@@ -340,20 +392,23 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
   const isDigitalWorker = item.category === 'Digital Worker';
   const isLeaveApplication = item.id === '13';
   const isITSupportService = marketplaceType === 'non-financial' && ['1', '2', '3'].includes(item.id);
-  const primaryAction =
-    isLeaveApplication ? 'Apply For Leave'
+  const primaryAction = isGHC ? 'Explore Competency →'
+    : isLeaveApplication ? 'Apply For Leave'
     : isPromptLibrary ? 'View Prompt'
     : isDigitalWorker ? 'View Details'
     : isAITool ? 'Request Tool'
     : config.primaryCTA;
   // const secondaryAction = config.secondaryCTA;
   // Extract details for the sidebar
-  const detailItems = config.attributes.map(attr => ({
+  const detailItems = isGHC ? [
+    { label: 'Competency Type', value: 'Golden Honeycomb' }
+  ] : config.attributes.map(attr => ({
     label: attr.label,
     value: item[attr.key] || 'N/A'
   })).filter(detail => detail.value !== 'N/A');
+  
   // Extract highlights/features based on marketplace type
-  const highlights = marketplaceType === 'courses' ? item.learningOutcomes || [] : item.details || [];
+  const highlights = isGHC ? (ghcContent?.highlights || []) : (marketplaceType === 'courses' ? item.learningOutcomes || [] : item.details || []);
   // Render tab content with consistent styling
   // Code block component with copy functionality
   const CodeBlock: React.FC<{ code: string; language?: string; title?: string }> = ({ code, language, title }) => {
@@ -521,6 +576,98 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
     });
   };
   const renderTabContent = (tabId: string) => {
+    // Handle GHC services first
+    if (isGHC && ghcContent) {
+      switch (tabId) {
+        case 'overview':
+          return (
+            <div>
+              <p className="text-gray-700 leading-relaxed mb-6">
+                {ghcContent.shortOverview}
+              </p>
+
+              {ghcContent.highlights && ghcContent.highlights.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Key Highlights</h3>
+                  <div className="space-y-3">
+                    {ghcContent.highlights.map((highlight, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <CheckCircleIcon className="text-green-500 flex-shrink-0 mt-0.5" size={20} />
+                        <span className="text-gray-700">{highlight}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+
+        case 'understand':
+          return (
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Understanding This Competency</h3>
+              <p className="text-gray-700 leading-relaxed mb-6">
+                {ghcContent.storybookIntro}
+              </p>
+
+              {ghcContent.whatYouWillLearn && ghcContent.whatYouWillLearn.length > 0 && (
+                <div className="mt-8">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">What You Will Learn</h4>
+                  <div className="space-y-3">
+                    {ghcContent.whatYouWillLearn.map((item, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <CheckCircleIcon className="text-blue-500 flex-shrink-0 mt-0.5" size={20} />
+                        <span className="text-gray-700">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+
+        case 'practice':
+          return (
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Learn & Practice</h3>
+              {ghcContent.courseIntro && (
+                <p className="text-gray-700 leading-relaxed mb-6">
+                  {ghcContent.courseIntro}
+                </p>
+              )}
+
+              {ghcContent.whatYouWillPractice && ghcContent.whatYouWillPractice.length > 0 && (
+                <div className="mt-8">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">What You Will Practice</h4>
+                  <div className="space-y-3">
+                    {ghcContent.whatYouWillPractice.map((item, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <CheckCircleIcon className="text-purple-500 flex-shrink-0 mt-0.5" size={20} />
+                        <span className="text-gray-700">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+
+        case 'materials':
+          return (
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-6">Other Materials</h3>
+              <p className="text-gray-600">
+                Additional resources and materials for this competency will be available here soon.
+              </p>
+            </div>
+          );
+
+        default:
+          return null;
+      }
+    }
+
+    // Regular marketplace content logic
     const tab = tabsToUse.find(t => t.id === tabId);
     if (!tab) return null;
     
@@ -1751,7 +1898,13 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
         {/* Hero Section - full-width background */}
         <div ref={heroRef} className="w-full bg-gray-50">
           <ServiceHeroSection 
-            item={item}
+            item={isGHC ? {
+              id: itemId,
+              title: ghcContent?.title || 'GHC Service',
+              description: ghcContent?.subtitle || 'GHC Service Description',
+              category: 'GHC COMPETENCY',
+              provider: { name: 'Golden Honeycomb' }
+            } : item}
           />
         </div>
         {/* Tabs Navigation */}
@@ -1844,10 +1997,10 @@ const MarketplaceDetailsPage: React.FC<MarketplaceDetailsPageProps> = ({
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
-                Related {config.itemNamePlural}
+                {isGHC ? 'Related Competencies' : `Related ${config.itemNamePlural}`}
               </h2>
               <a href={config.route} className="text-blue-600 font-medium hover:text-blue-800 flex items-center">
-                See All {config.itemNamePlural}
+                {isGHC ? 'Browse all competencies →' : `See All ${config.itemNamePlural}`}
                 <ChevronRightIcon size={16} className="ml-1" />
               </a>
             </div>

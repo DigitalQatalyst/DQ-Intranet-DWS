@@ -316,8 +316,8 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
         const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments', 'blueprint_framework', 'blueprint_sector', 'testimonial_category'];
         keysToDelete.forEach(key => next.delete(key));
       } else if (tab === 'testimonials') {
-        // Keep 'unit' and 'location' for Testimonials; delete incompatible filters
-        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments', 'blueprint_framework', 'blueprint_sector'];
+        // Delete incompatible filters for Testimonials (including location)
+        const keysToDelete = ['guide_type', 'sub_domain', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'categorization', 'attachments', 'blueprint_framework', 'blueprint_sector', 'location'];
         keysToDelete.forEach(key => next.delete(key));
       } else {
         // For other tabs, delete all incompatible filters
@@ -369,8 +369,8 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
       // Keep 'unit' and 'location' for Products; delete incompatible filters
       keysToDelete = ['guide_type', 'sub_domain', 'domain', 'testimonial_category', 'strategy_type', 'strategy_framework', 'guidelines_category'];
     } else if (activeTab === 'testimonials') {
-      // For Testimonials, delete all incompatible filters
-      keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector'];
+      // For Testimonials, delete all incompatible filters including location
+      keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'location'];
     } else if (activeTab === 'glossary') {
       // For Glossary, delete all incompatible filters
       keysToDelete = ['guide_type', 'sub_domain', 'unit', 'domain', 'strategy_type', 'strategy_framework', 'guidelines_category', 'blueprint_framework', 'blueprint_sector', 'testimonial_category', 'faq_category', 'location'];
@@ -1050,6 +1050,66 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
               productStage: product.productStage,
               productClass: product.productClass,
             }));
+          } else if (isTestimonialsTab) {
+            // Testimonials tab: Replace database results with static testimonial service cards
+            // Create static service cards as data items that can be filtered
+            const staticTestimonialCards = [
+              {
+                id: 'client-perspective',
+                slug: 'client-perspective',
+                title: 'The Client Perspective',
+                summary: 'Client feedback on driving strategic transformation outcomes.',
+                heroImageUrl: '/images/client-testimonials.png',
+                lastUpdatedAt: new Date().toISOString(),
+                authorName: 'DQ Teams',
+                authorOrg: 'Digital Qatalyst',
+                isEditorsPick: true,
+                downloadCount: 0,
+                guideType: 'Testimonial',
+                domain: 'Testimonial',
+                functionArea: null,
+                unit: null,
+                subDomain: 'client-feedback', // This will be used for filtering
+                location: null,
+                status: 'Approved',
+                complexityLevel: null,
+                // Custom properties for testimonials
+                testimonialCategory: 'client-feedback',
+                testimonialType: 'service-card'
+              },
+              {
+                id: 'associate-perspective',
+                slug: 'associate-perspective',
+                title: 'The Associate Perspective',
+                summary: 'Associate feedback on professional growth and DQ culture.',
+                heroImageUrl: '/images/associate-testimonials.jpeg',
+                lastUpdatedAt: new Date().toISOString(),
+                authorName: 'DQ Teams',
+                authorOrg: 'Digital Qatalyst',
+                isEditorsPick: true,
+                downloadCount: 0,
+                guideType: 'Testimonial',
+                domain: 'Testimonial',
+                functionArea: null,
+                unit: null,
+                subDomain: 'associates', // This will be used for filtering
+                location: null,
+                status: 'Approved',
+                complexityLevel: null,
+                // Custom properties for testimonials
+                testimonialCategory: 'associates',
+                testimonialType: 'service-card'
+              }
+            ];
+            
+            // Add any database testimonials to the static cards
+            const dbTestimonials = mapped.filter(item => {
+              const domain = (item.domain || '').toLowerCase();
+              const guideType = (item.guideType || '').toLowerCase();
+              return domain.includes('testimonial') || guideType.includes('testimonial');
+            });
+            
+            out = [...staticTestimonialCards, ...dbTestimonials];
           } else if (isGuidelinesTab) {
             // Guidelines tab: explicitly exclude Strategy, Blueprint, and Testimonial guides
             // Must be strict - guides should NOT have Strategy/Blueprint/Testimonial in domain OR guide_type
@@ -1290,6 +1350,37 @@ type DesignSystemTab = 'cids' | 'vds' | 'cds';
                 return searchableText.includes(query);
               });
             }
+          }
+          // Testimonials-specific filter: Story Type (Client Feedback, Associates Feedback, etc.)
+          if (isTestimonialsTab && testimonialCategories.length) {
+            out = out.filter(it => {
+              // For static service cards, use the testimonialCategory property
+              if (it.testimonialType === 'service-card') {
+                return testimonialCategories.includes(it.testimonialCategory);
+              }
+              
+              // For database testimonials, use the existing keyword-based filtering
+              const subDomain = (it.subDomain || '').toLowerCase();
+              const domain = (it.domain || '').toLowerCase();
+              const guideType = (it.guideType || '').toLowerCase();
+              const title = (it.title || '').toLowerCase();
+              const slug = (it.slug || '').toLowerCase();
+              const summary = (it.summary || '').toLowerCase();
+              const allText = `${subDomain} ${domain} ${guideType} ${title} ${slug} ${summary}`.toLowerCase();
+              
+              return testimonialCategories.some(selectedCategory => {
+                const categoryKeywords: Record<string, string[]> = {
+                  'client-feedback': ['client feedback', 'client', 'clients'],
+                  'associates': ['associates feedback', 'associate', 'associates', 'employee'],
+                  'client-partner-reference': ['partner reference', 'partner', 'reference'],
+                  'team-employee-experience': ['employee experience', 'team experience', 'employee', 'team'],
+                  'milestone-achievement': ['milestone', 'achievement', 'accomplishment']
+                };
+                
+                const keywords = categoryKeywords[selectedCategory] || [selectedCategory.replace(/-/g, ' ')];
+                return keywords.some(keyword => allText.includes(keyword));
+              });
+            });
           }
           // Location filtering removed - all guides should be available for all locations (DXB, KSA, NBO)
           if (statuses.length)   out = out.filter(it => it.status && statuses.includes(it.status));

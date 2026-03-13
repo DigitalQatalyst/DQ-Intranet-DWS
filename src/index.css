@@ -25,6 +25,22 @@
   --sdp-footer-foreground: 220 20% 75%;
 }
 
+/* Colored accent bars for headers - H1 only */
+.accent-headers h1 {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important; /* 12px */
+}
+
+.accent-headers h1::before {
+  content: '';
+  height: 1.5rem; /* 24px */
+  width: 0.25rem; /* 4px */
+  border-radius: 9999px;
+  background-color: #030E31;
+  flex-shrink: 0;
+}
+
 /* Guidelines section theme */
 .guidelines-theme {
   --guidelines-primary: var(--dq-navy);

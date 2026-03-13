@@ -7,7 +7,7 @@
 // - Added accessibility attributes and improved button styling per spec
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useParams, Link } from 'react-router-dom'
+import { useLocation, useParams, Link, Navigate } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
 import { HeroSection } from '../strategy/shared/HeroSection'
@@ -27,14 +27,15 @@ const ScrumMasterGuidelinePage = React.lazy(() => import('../guidelines/scrum-ma
 const QForumGuidelinePage = React.lazy(() => import('../guidelines/qforum-guidelines/GuidelinePage'))
 const DQCompetenciesPage = React.lazy(() => import('../strategy/dq-competencies/GuidelinePage'))
 const DQVisionMissionPage = React.lazy(() => import('../strategy/dq-vision-mission/GuidelinePage'))
-const DQGHCPage = React.lazy(() => import('../strategy/dq-ghc/GuidelinePage'))
-const DQVisionPage = React.lazy(() => import('../strategy/dq-vision/GuidelinePage'))
-const DQHoVPage = React.lazy(() => import('../strategy/dq-hov/GuidelinePage'))
-const DQPersonaPage = React.lazy(() => import('../strategy/dq-persona/GuidelinePage'))
-const DQAgileTMSPage = React.lazy(() => import('../strategy/dq-agile-tms/GuidelinePage'))
-const DQAgileSoSPage = React.lazy(() => import('../strategy/dq-agile-sos/GuidelinePage'))
-const DQAgileFlowsPage = React.lazy(() => import('../strategy/dq-agile-flows/GuidelinePage'))
-const DQAgile6xDPage = React.lazy(() => import('../strategy/dq-agile-6xd/GuidelinePage'))
+// Removed old GHC strategy page imports - now redirecting to service detail pages
+// const DQGHCPage = React.lazy(() => import('../strategy/dq-ghc/GuidelinePage'))
+// const DQVisionPage = React.lazy(() => import('../strategy/dq-vision/GuidelinePage'))
+// const DQHoVPage = React.lazy(() => import('../strategy/dq-hov/GuidelinePage'))
+// const DQPersonaPage = React.lazy(() => import('../strategy/dq-persona/GuidelinePage'))
+// const DQAgileTMSPage = React.lazy(() => import('../strategy/dq-agile-tms/GuidelinePage'))
+// const DQAgileSoSPage = React.lazy(() => import('../strategy/dq-agile-sos/GuidelinePage'))
+// const DQAgileFlowsPage = React.lazy(() => import('../strategy/dq-agile-flows/GuidelinePage'))
+// const DQAgile6xDPage = React.lazy(() => import('../strategy/dq-agile-6xd/GuidelinePage'))
 const BlueprintPage = React.lazy(() => import('../blueprints/detail/BlueprintPage'))
 const WFHGuidelinePage = React.lazy(() => import('../guidelines/wfh-guidelines/GuidelinePage'))
 const AssetMaintenanceGuidelinePage = React.lazy(() => import('../guidelines/asset-maintenance-guidelines/GuidelinePage'))
@@ -1178,8 +1179,9 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
     }
 
     // Check GHC BEFORE DQ Competencies (GHC is more specific and its title contains "Competencies")
+    // Redirect GHC services to new service detail pages
     if (isDQGHC) {
-      return <SuspenseWrapper><DQGHCPage /></SuspenseWrapper>
+      return <Navigate to="/marketplace/guides/service/dq-ghc" replace />
     }
 
     if (isDQCompetencies) {
@@ -1190,34 +1192,33 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
       return <SuspenseWrapper><DQVisionMissionPage /></SuspenseWrapper>
     }
 
-    // GHC Core Elements
+    // GHC Core Elements - Redirect to new service detail pages
     if (isDQVision) {
-      return <SuspenseWrapper><DQVisionPage /></SuspenseWrapper>
+      return <Navigate to="/marketplace/guides/service/dq-vision" replace />
     }
 
-
     if (isDQHoV) {
-      return <SuspenseWrapper><DQHoVPage /></SuspenseWrapper>
+      return <Navigate to="/marketplace/guides/service/dq-hov" replace />
     }
 
     if (isDQPersona) {
-      return <SuspenseWrapper><DQPersonaPage /></SuspenseWrapper>
+      return <Navigate to="/marketplace/guides/service/dq-persona" replace />
     }
 
     if (isDQAgileTMS) {
-      return <SuspenseWrapper><DQAgileTMSPage /></SuspenseWrapper>
+      return <Navigate to="/marketplace/guides/service/dq-agile-tms" replace />
     }
 
     if (isDQAgileSoS) {
-      return <SuspenseWrapper><DQAgileSoSPage /></SuspenseWrapper>
+      return <Navigate to="/marketplace/guides/service/dq-agile-sos" replace />
     }
 
     if (isDQAgileFlows) {
-      return <SuspenseWrapper><DQAgileFlowsPage /></SuspenseWrapper>
+      return <Navigate to="/marketplace/guides/service/dq-agile-flows" replace />
     }
 
     if (isDQAgile6xD) {
-      return <SuspenseWrapper><DQAgile6xDPage /></SuspenseWrapper>
+      return <Navigate to="/marketplace/guides/service/dq-agile-6xd" replace />
     }
 
     // 12 Guiding Values
@@ -1665,7 +1666,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                         target="_blank"
                         rel="noreferrer"
                         className="inline-flex items-center px-4 py-2 rounded-md text-white bg-blue-700 hover:bg-blue-800 transition-colors"
-                        style={{ backgroundColor: '#030F35' }}
+                        style={{ backgroundColor: '#030E31' }}
                       >
                         Open Story Book
                         <ExternalLink size={16} className="ml-2" />
@@ -1684,7 +1685,7 @@ const TAB_LABELS: Record<GuideTabKey, string> = {
                       <a
                         href="/lms/ghc-course"
                         className="inline-flex items-center px-4 py-2 rounded-md text-white bg-blue-700 hover:bg-blue-800 transition-colors"
-                        style={{ backgroundColor: '#030F35' }}
+                        style={{ backgroundColor: '#030E31' }}
                       >
                         Go to Course
                         <ExternalLink size={16} className="ml-2" />

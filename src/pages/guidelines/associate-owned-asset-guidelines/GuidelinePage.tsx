@@ -7,6 +7,7 @@ import { useAuth } from '../../../components/Header/context/AuthContext'
 import { supabaseClient } from '../../../lib/supabaseClient'
 import { HeroSection } from './HeroSection'
 import { SideNav } from './SideNav'
+import { AccentHeading } from '../../../components/shared/AccentHeading'
 
 function GuidelinePage() {
   const { user } = useAuth()
@@ -193,11 +194,16 @@ function GuidelinePage() {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-12 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Left Column - Content Area */}
+            {/* Left Column - Sidebar Navigation */}
+            <div className="lg:col-span-1">
+              <SideNav />
+            </div>
+
+            {/* Right Column - Content Area */}
             <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12">
               {/* HTML Content */}
               <div 
-                className="prose prose-lg max-w-none
+                className="prose prose-lg max-w-none accent-headers
                            prose-headings:font-bold prose-headings:text-gray-900
                            prose-h1:text-4xl prose-h1:mt-12 prose-h1:mb-6 prose-h1:first:mt-0
                            prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4
@@ -214,11 +220,6 @@ function GuidelinePage() {
                            prose-tr:even:bg-gray-50"
                 dangerouslySetInnerHTML={{ __html: guideHtml }}
               />
-            </div>
-
-            {/* Right Column - Sidebar Navigation */}
-            <div className="lg:col-span-1">
-              <SideNav />
             </div>
           </div>
         </div>

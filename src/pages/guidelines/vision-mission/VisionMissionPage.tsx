@@ -157,7 +157,12 @@ function VisionMissionPage() {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-12 max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Left Column - Content Area */}
+            {/* Left Column - Sidebar Navigation */}
+            <aside className="lg:col-span-1">
+              <VisionMissionSideNav />
+            </aside>
+
+            {/* Right Column - Content Area */}
             <div className="lg:col-span-3 bg-white rounded-lg shadow-sm p-8 md:p-12">
               {/* Foundation Section */}
               <GuidelineSection id="foundation" title="Foundation">
@@ -266,11 +271,6 @@ function VisionMissionPage() {
                 </div>
               </GuidelineSection>
             </div>
-
-            {/* Right Column - Sticky Side Navigation */}
-            <aside className="lg:col-span-1">
-              <VisionMissionSideNav />
-            </aside>
           </div>
         </div>
       </main>

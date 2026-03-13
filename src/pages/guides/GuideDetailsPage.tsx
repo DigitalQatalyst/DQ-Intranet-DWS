@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { HomeIcon, ChevronRightIcon, BookOpen, Clock, User } from 'lucide-react'
+import { HomeIcon, ChevronRightIcon, BookOpen, Clock, User, Home, ChevronRight } from 'lucide-react'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
 import { supabaseClient } from '../../lib/supabaseClient'
 import MarkdownRenderer from '../../components/guides/MarkdownRenderer'
+import { AccentHeading } from '../../components/shared/AccentHeading'
 
 interface Guide {
   id: string
@@ -207,66 +208,124 @@ function GuideDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-white">
       <Header toggleSidebar={() => {}} sidebarOpen={false} />
       
-      {/* Breadcrumb */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4 max-w-7xl">
-          <nav className="flex" aria-label="Breadcrumb">
-            <ol className="inline-flex items-center space-x-1 md:space-x-2">
-              <li className="inline-flex items-center">
-                <Link to="/" className="text-gray-600 hover:text-gray-900 inline-flex items-center">
-                  <HomeIcon size={16} className="mr-1" />
-                  <span>Home</span>
-                </Link>
-              </li>
-              <li>
-                <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-gray-400" />
-                  <Link 
-                    to="/marketplace/guides?tab=strategy" 
-                    className="ml-1 px-2 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 transition-colors"
-                  >
-                    GHC
-                  </Link>
-                </div>
-              </li>
-              <li aria-current="page">
-                <div className="flex items-center">
-                  <ChevronRightIcon size={16} className="text-gray-400" />
-                  <span className="ml-1 text-gray-500 md:ml-2">{guide.title}</span>
-                </div>
-              </li>
-            </ol>
-          </nav>
-        </div>
-      </div>
+      <main className="flex-1">
+        {/* ── Hero Banner — glassmorphism, radial gradient mesh ── */}
+        <div
+          className="relative overflow-hidden pt-4 pb-20 px-6"
+          style={{
+            background: `linear-gradient(to right, #192D6C, #051139)`,
+          }}
+        >
+          {/* Floating orbs */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute top-[10%] left-[15%] w-48 h-48 rounded-full opacity-20"
+              style={{ background: 'radial-gradient(circle, hsl(var(--cta) / 0.6), transparent 70%)' }} />
+            <div className="absolute top-[30%] right-[10%] w-64 h-64 rounded-full opacity-15"
+              style={{ background: 'radial-gradient(circle, hsl(260 70% 60% / 0.5), transparent 70%)' }} />
+            <div className="absolute bottom-[5%] left-[40%] w-56 h-56 rounded-full opacity-10"
+              style={{ background: 'radial-gradient(circle, hsl(200 80% 60% / 0.5), transparent 70%)' }} />
+          </div>
 
-      {/* Hero Section */}
-      <div 
-        className="bg-cover bg-center bg-no-repeat text-white relative"
-        style={{ 
-          backgroundImage: `linear-gradient(rgba(3, 14, 49, 0.8), rgba(3, 14, 49, 0.8)), url('/images/guidelines-content.PNG')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          height: '325px'
-        }}
-      >
-        <div className="h-full flex items-center pl-20 pr-8">
-          <div className="text-left">
-            <h1 className="text-[40px] font-bold mb-4 leading-tight">{guide.title}</h1>
-            {guide.summary && (
-              <p className="text-[14px] mb-4 max-w-3xl opacity-90">{guide.summary}</p>
-            )}
+          {/* Fade-to-white gradient at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
+            style={{ background: 'linear-gradient(to top, white, transparent)' }} />
+
+          <div className="container mx-auto relative z-10 max-w-7xl">
+            {/* ── Breadcrumbs row — Lovable HeroBanner pattern ── */}
+            <nav className="flex items-center justify-between pb-6">
+              <ol className="flex items-center gap-1 text-sm">
+                <li className="flex items-center gap-1">
+                  <Home className="h-3.5 w-3.5" style={{ color: 'hsl(var(--hero-foreground) / 0.5)' }} />
+                  <Link
+                    to="/"
+                    className="transition-colors hover:opacity-80"
+                    style={{ color: 'hsl(var(--hero-foreground) / 0.5)' }}
+                  >
+                    Home
+                  </Link>
+                </li>
+                <li className="flex items-center gap-1" style={{ color: 'hsl(var(--hero-foreground) / 0.3)' }}>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                  <Link
+                    to="/marketplace/guides"
+                    className="transition-colors hover:opacity-80"
+                    style={{ color: 'hsl(var(--hero-foreground) / 0.5)' }}
+                  >
+                    Guides
+                  </Link>
+                </li>
+                <li className="flex items-center gap-1" style={{ color: 'hsl(var(--hero-foreground) / 0.3)' }}>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                  <span
+                    className="font-medium max-w-[220px] truncate"
+                    style={{ color: 'hsl(var(--hero-foreground) / 0.85)' }}
+                  >
+                    {guide.title}
+                  </span>
+                </li>
+              </ol>
+            </nav>
+
+            {/* Glassmorphism content panel */}
+            <div
+              className="rounded-2xl p-8 md:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
+              style={{
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                backgroundColor: 'rgba(210,220,255,0.07)',
+                border: '1px solid rgba(210,220,255,0.12)',
+              }}
+            >
+              <div className="space-y-4">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight"
+                  style={{ color: 'hsl(var(--hero-foreground))' }}>
+                  {guide.title}
+                </h1>
+
+                {guide.summary && (
+                  <p className="max-w-2xl text-base md:text-lg leading-relaxed"
+                    style={{ color: 'hsl(var(--hero-muted))' }}>
+                    {guide.summary}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <main className="flex-1 bg-gray-50">
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Main Content - Left Side */}
+        {/* Main Content Section */}
+        <div className="bg-white">
+          <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Table of Contents - Left Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
+                <div className="flex items-center gap-3 text-lg font-semibold text-gray-900 mb-4">
+                  <span className="h-6 w-1 bg-gradient-to-b from-[#030E31] via-[#030E31]/60 to-transparent rounded-full flex-shrink-0"></span>
+                  Table of Contents
+                </div>
+                <nav className="space-y-2">
+                  {sections.map((section) => (
+                    <button
+                      key={section.id}
+                      onClick={() => scrollToSection(section.id)}
+                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
+                        activeSection === section.id
+                          ? 'bg-blue-50 text-blue-700 font-medium'
+                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                      }`}
+                    >
+                      {section.title}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+            </div>
+
+            {/* Main Content - Right Side */}
             <div className="lg:col-span-3">
               <div className="bg-white rounded-lg shadow-sm p-8">
                 {/* Guide Content Sections */}
@@ -274,7 +333,7 @@ function GuideDetailsPage() {
                   <div className="space-y-8">
                     {sections.map((section, index) => (
                       <section key={section.id} id={section.id} className="scroll-mt-24">
-                        {/* Section Content */}
+                        {/* Section Content - MarkdownRenderer handles headers */}
                         <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
                           <MarkdownRenderer body={section.content.trim()} />
                         </div>
@@ -295,28 +354,7 @@ function GuideDetailsPage() {
                 )}
               </div>
             </div>
-
-            {/* Table of Contents - Right Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Table of Contents</h3>
-                <nav className="space-y-2">
-                  {sections.map((section) => (
-                    <button
-                      key={section.id}
-                      onClick={() => scrollToSection(section.id)}
-                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
-                        activeSection === section.id
-                          ? 'bg-blue-50 text-blue-700 font-medium'
-                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                      }`}
-                    >
-                      {section.title}
-                    </button>
-                  ))}
-                </nav>
-              </div>
-            </div>
+          </div>
           </div>
         </div>
       </main>

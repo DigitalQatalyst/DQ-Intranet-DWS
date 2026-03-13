@@ -1,11 +1,93 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { supabaseClient } from '../../lib/supabaseClient';
-import { CheckCircle2, ArrowRight, Home, ChevronRight, Bookmark } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Home, ChevronRight, Bookmark, BookOpen, PlayCircle } from 'lucide-react';
+import { GUIDE_CONTENT, GuideContent } from '../../constants/guideContent';
 
 /* ─────────────────────────────── Types ─────────────────────────────────── */
+
+// GHC service IDs that should use GUIDE_CONTENT instead of Supabase data
+const GHC_SERVICE_IDS = [
+  'ghc',
+  'dq-ghc', // Alternative URL format
+  'dq-vision',
+  'dq-hov',
+  'dq-persona',
+  'dq-agile-tms',
+  'dq-agile-sos',
+  'dq-agile-flows',
+  'dq-agile-6xd'
+];
+
+// Helper function to detect if itemId is a GHC service
+const isGHCService = (itemId: string): boolean => {
+  return GHC_SERVICE_IDS.includes(itemId);
+};
+
+// Helper function to map GHC itemId to GUIDE_CONTENT key
+const getGHCContentKey = (itemId: string): string => {
+  // Map dq-ghc to ghc for GUIDE_CONTENT lookup
+  if (itemId === 'dq-ghc') {
+    return 'ghc';
+  }
+  return itemId;
+};
+
+// Helper function to get related competencies for a GHC service
+const getRelatedCompetencies = (currentItemId: string) => {
+  const allCompetencies = [
+    {
+      id: 'ghc',
+      title: 'The GHC (Golden Honeycomb of Competencies)',
+      description: 'The Master Map that defines how work is organised at Digital Qatalyst.'
+    },
+    {
+      id: 'dq-vision',
+      title: 'The Vision (Purpose)',
+      description: 'Understand the core mission that aligns our squads and brings real value to the systems we build.'
+    },
+    {
+      id: 'dq-hov',
+      title: 'The HoV (Culture)',
+      description: 'The Culture That Powers Our Execution through shared principles and behaviors.'
+    },
+    {
+      id: 'dq-persona',
+      title: 'The Persona (Identity)',
+      description: 'Discover the mindset, traits, and specific roles that define who succeeds at Digital Qatalyst.'
+    },
+    {
+      id: 'dq-agile-tms',
+      title: 'Agile TMS (Tasks)',
+      description: 'Discover how our Task Management System turns high-level strategy into focused, structured action.'
+    },
+    {
+      id: 'dq-agile-sos',
+      title: 'Agile SoS (Governance)',
+      description: 'Discover how our four pillars of governance enable intelligent, disciplined execution.'
+    },
+    {
+      id: 'dq-agile-flows',
+      title: 'Agile Flows (Value Streams)',
+      description: 'How We Orchestrate Value through connected systems and structured streams.'
+    },
+    {
+      id: 'dq-agile-6xd',
+      title: 'Agile 6xD (Products)',
+      description: 'Six Lenses for Digital Transformation to create true cognitive capabilities.'
+    }
+  ];
+
+  // Filter out the current competency and return 3 others
+  const otherCompetencies = allCompetencies.filter(comp => 
+    comp.id !== currentItemId && comp.id !== getGHCContentKey(currentItemId)
+  );
+  
+  // Return first 3 competencies
+  return otherCompetencies.slice(0, 3);
+};
 
 interface GuideRecord {
   id: string;
@@ -31,21 +113,35 @@ interface GuideRecord {
   body?: string | null;
 }
 
-type TabId = 'overview' | 'other-materials';
+type TabId = 'overview' | 'understand' | 'learn-practice' | 'other-materials';
 
 const TABS: { id: TabId; label: string }[] = [
+  { id: 'overview',        label: 'Overview' },
+  { id: 'understand',      label: 'Understand' },
+  { id: 'learn-practice',  label: 'Learn & Practice' },
+  { id: 'other-materials', label: 'Other Materials' },
+];
+
+const NON_GHC_TABS: { id: TabId; label: string }[] = [
   { id: 'overview',        label: 'Overview' },
   { id: 'other-materials', label: 'Other Materials' },
 ];
 
 /* ─────────────────────────────── Sub-components ────────────────────────── */
 
-/** Heading block with left coloured accent bar — exact Lovable pattern */
+/** Heading block with left coloured accent bar — blue accent for service detail pages */
 const Heading = ({ text }: { text: string }) => (
   <h2 className="flex items-center gap-3 text-xl font-semibold text-gray-900">
-    <span className="h-6 w-1 rounded-full flex-shrink-0" style={{ backgroundColor: 'hsl(var(--cta))' }} />
+    <span className="h-6 w-1 rounded-full flex-shrink-0" style={{ backgroundColor: '#030E31' }} />
     {text}
   </h2>
+);
+
+/** Sub-heading without accent bar */
+const SubHeading = ({ text }: { text: string }) => (
+  <h3 className="text-xl font-semibold text-gray-900 mb-6">
+    {text}
+  </h3>
 );
 
 /** Green check-circle checklist — exact Lovable pattern */
@@ -72,8 +168,27 @@ export const ServiceDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
 
   const [guide, setGuide] = useState<GuideRecord | null>(null);
+  const [ghcContent, setGhcContent] = useState<GuideContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [forceUpdate, setForceUpdate] = useState(0);
+
+  // Check if this is a GHC service - use ghcContent state for accurate detection
+  const isGHC = !!ghcContent;
+  
+  // Memoize tab selection to ensure it updates when ghcContent changes
+  const currentTabs = useMemo(() => {
+    return isGHC ? TABS : NON_GHC_TABS;
+  }, [isGHC]);
+
+  // Force re-render when ghcContent changes to update tabs
+  useEffect(() => {
+    if (ghcContent) {
+      // Force component to re-render with correct tabs
+      setActiveTab('overview');
+      setForceUpdate(prev => prev + 1);
+    }
+  }, [ghcContent]);
 
   useEffect(() => {
     let cancelled = false;
@@ -82,38 +197,80 @@ export const ServiceDetailPage: React.FC = () => {
       setError(null);
       try {
         const key = String(itemId || '');
-        let { data: row, error: err1 } = await supabaseClient
-          .from('guides').select('*').eq('slug', key).maybeSingle();
+        
+        // Check if this is a GHC service
+        if (isGHCService(key)) {
+          // Use GUIDE_CONTENT for GHC services
+          const contentKey = getGHCContentKey(key);
+          const content = GUIDE_CONTENT[contentKey];
+          
+          if (!content) {
+            throw new Error('GHC content not found');
+          }
+          
+          if (!cancelled) {
+            setGhcContent(content);
+            // Create a mock guide record for GHC services
+            const mockGuide: GuideRecord = {
+              id: key,
+              slug: key,
+              title: content.title,
+              summary: content.subtitle,
+              heroImageUrl: null,
+              domain: 'GHC',
+              guideType: 'competency',
+              functionArea: 'All',
+              subDomain: null,
+              unit: 'All Units',
+              location: null,
+              status: 'active',
+              complexityLevel: 'intermediate',
+              skillLevel: 'all',
+              estimatedTimeMin: null,
+              lastUpdatedAt: new Date().toISOString(),
+              authorName: 'DQ Admin',
+              authorOrg: 'Digital Qatalyst',
+              downloadCount: null,
+              documentUrl: null,
+              body: content.shortOverview,
+            };
+            setGuide(mockGuide);
+          }
+        } else {
+          // Use Supabase for non-GHC services (existing logic)
+          let { data: row, error: err1 } = await supabaseClient
+            .from('guides').select('*').eq('slug', key).maybeSingle();
 
-        if (err1 || !row) {
-          const { data: row2, error: err2 } = await supabaseClient
-            .from('guides').select('*').eq('id', key).maybeSingle();
-          if (err2) throw err2;
-          row = row2 as any;
+          if (err1 || !row) {
+            const { data: row2, error: err2 } = await supabaseClient
+              .from('guides').select('*').eq('id', key).maybeSingle();
+            if (err2) throw err2;
+            row = row2 as any;
+          }
+          if (!row) throw new Error('Not found');
+
+          const mapped: GuideRecord = {
+            id: row.id, slug: row.slug, title: row.title,
+            summary: row.summary ?? undefined,
+            heroImageUrl: row.hero_image_url ?? row.heroImageUrl ?? null,
+            domain: row.domain ?? null,
+            guideType: row.guide_type ?? row.guideType ?? null,
+            functionArea: row.function_area ?? null,
+            subDomain: row.sub_domain ?? row.subDomain ?? null,
+            unit: row.unit ?? null, location: row.location ?? null,
+            status: row.status ?? null,
+            complexityLevel: row.complexity_level ?? row.complexityLevel ?? null,
+            skillLevel: row.skill_level ?? row.skillLevel ?? null,
+            estimatedTimeMin: row.estimated_time_min ?? row.estimatedTimeMin ?? null,
+            lastUpdatedAt: row.last_updated_at ?? row.lastUpdatedAt ?? null,
+            authorName: row.author_name ?? row.authorName ?? null,
+            authorOrg: row.author_org ?? row.authorOrg ?? null,
+            downloadCount: row.download_count ?? row.downloadCount ?? null,
+            documentUrl: row.document_url ?? row.documentUrl ?? null,
+            body: row.body ?? null,
+          };
+          if (!cancelled) setGuide(mapped);
         }
-        if (!row) throw new Error('Not found');
-
-        const mapped: GuideRecord = {
-          id: row.id, slug: row.slug, title: row.title,
-          summary: row.summary ?? undefined,
-          heroImageUrl: row.hero_image_url ?? row.heroImageUrl ?? null,
-          domain: row.domain ?? null,
-          guideType: row.guide_type ?? row.guideType ?? null,
-          functionArea: row.function_area ?? null,
-          subDomain: row.sub_domain ?? row.subDomain ?? null,
-          unit: row.unit ?? null, location: row.location ?? null,
-          status: row.status ?? null,
-          complexityLevel: row.complexity_level ?? row.complexityLevel ?? null,
-          skillLevel: row.skill_level ?? row.skillLevel ?? null,
-          estimatedTimeMin: row.estimated_time_min ?? row.estimatedTimeMin ?? null,
-          lastUpdatedAt: row.last_updated_at ?? row.lastUpdatedAt ?? null,
-          authorName: row.author_name ?? row.authorName ?? null,
-          authorOrg: row.author_org ?? row.authorOrg ?? null,
-          downloadCount: row.download_count ?? row.downloadCount ?? null,
-          documentUrl: row.document_url ?? row.documentUrl ?? null,
-          body: row.body ?? null,
-        };
-        if (!cancelled) setGuide(mapped);
       } catch {
         if (!cancelled) setError('Service Guideline not found');
       } finally {
@@ -147,7 +304,7 @@ export const ServiceDetailPage: React.FC = () => {
           <button
             onClick={() => navigate('/marketplace/guides')}
             className="px-5 py-2 rounded-md text-white font-medium"
-            style={{ backgroundColor: 'hsl(var(--hero))' }}
+            style={{ backgroundColor: '#030E31' }}
           >Back to Marketplace</button>
         </div>
       </div>
@@ -158,18 +315,53 @@ export const ServiceDetailPage: React.FC = () => {
   /* ── Derived content ── */
   const fullGuidePath = `/marketplace/guides/${guide.slug || guide.id}`;
 
-
-
   const formattedDate = guide.lastUpdatedAt 
     ? new Date(guide.lastUpdatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) 
     : 'Unknown';
 
   const summaryRows: { label: string; value: string }[] = [
     { label: 'Date Uploaded',    value: formattedDate },
-    { label: 'Created By',       value: guide.authorName || 'DQ Admin' },
-    { label: 'Functional Area',  value: guide.functionArea || 'General' },
+    { label: 'Uploaded By',      value: guide.authorName || 'Caleb' },
     { label: 'Unit',             value: guide.unit || 'All Units' },
   ];
+
+  // Get the appropriate title and description based on whether it's GHC or not
+  const displayTitle = isGHC && ghcContent ? ghcContent.title : guide.title;
+  const displaySubtitle = isGHC && ghcContent ? 'GHC is the operating framework that connects direction, culture, and execution at DQ.' : 'Guidelines for transitioning to an associate-owned device model at DQ';
+  const summaryTitle = isGHC && ghcContent ? `${ghcContent.title.split('(')[0].trim()} Summary` : 'Guideline summary';
+  const relatedSectionTitle = isGHC ? 'Related Competencies' : 'Related Guidelines';
+  const browseAllText = isGHC ? 'Browse all competencies' : 'Browse all guidelines';
+  const moreDetailButtonText = 'View Guidelines';
+
+  // Dynamic button configuration for GHC services based on active tab
+  const getGHCButtonConfig = () => {
+    if (!isGHC || !itemId) return null;
+    
+    switch (activeTab) {
+      case 'overview':
+        return {
+          text: 'View Details',
+          url: `/marketplace/guides/${itemId}/details` // Link to detailed guide page with body content
+        };
+      case 'understand':
+        return {
+          text: 'Read More in Playbook',
+          url: 'https://digital-qatalyst.shorthandstories.com/5e83bb73-0c29-4070-9a92-5ada3c3e6f69/index.html'
+        };
+      case 'learn-practice':
+        return {
+          text: 'View Course',
+          url: 'https://dq-intranet-pykepfa4x-digitalqatalysts-projects.vercel.app/lms/ghc-course/lesson/7191832f-d3ac-4577-9eb2-80c9a57e7e28'
+        };
+      default:
+        return {
+          text: 'View Details',
+          url: `/marketplace/guides/${itemId}/details`
+        };
+    }
+  };
+
+  const ghcButtonConfig = getGHCButtonConfig();
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -246,12 +438,12 @@ export const ServiceDetailPage: React.FC = () => {
               <div className="space-y-4">
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight"
                   style={{ color: 'hsl(var(--hero-foreground))' }}>
-                  {guide.title}
+                  {displayTitle}
                 </h1>
 
                 <p className="max-w-2xl text-base md:text-lg leading-relaxed"
                   style={{ color: 'hsl(var(--hero-muted))' }}>
-                  Guidelines for transitioning to an associate-owned device model at DQ
+                  {displaySubtitle}
                 </p>
               </div>
             </div>
@@ -262,7 +454,7 @@ export const ServiceDetailPage: React.FC = () => {
         <div className="border-b border-gray-200 bg-white">
           <div className="container mx-auto max-w-7xl px-4 md:px-6">
             <div className="flex gap-0 overflow-x-auto scrollbar-none">
-              {TABS.map((tab) => (
+              {currentTabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
@@ -291,28 +483,162 @@ export const ServiceDetailPage: React.FC = () => {
               {activeTab === 'overview' && (
                 <>
                   <Heading text="Overview" />
-                  <div className="space-y-4 text-gray-700 leading-relaxed">
-                    <p>
-                      The Associate Owned Asset Initiative is a strategic effort aimed at enhancing operational efficiency, 
-                      reducing asset management costs, and improving the accountability of devices used for company work. 
-                      As a result of this initiative, the Associate Owned Asset Guidelines have been developed to mitigate 
-                      the risk of asset theft by departing associates, while ensuring secure management and compliance 
-                      with company standards.
-                    </p>
-                    <p>
-                      The main objective of the Associate Owned Asset Guidelines is to establish clear procedures for 
-                      transitioning to an associate-owned device model at DQ. This initiative aims to:
-                    </p>
-                    <div className="pt-2">
-                      <Checklist items={[
-                        "Mitigate Asset Theft.",
-                        "Promote Accountability.",
-                        "Support Seamless Transitions.",
-                        "Optimize Operational Efficiency."
-                      ]} />
+                  {isGHC && ghcContent ? (
+                    // GHC Overview content - rich formatting from detailed guide page
+                    <div className="space-y-6">
+                      {/* Main Description */}
+                      <div className="prose prose-base max-w-none text-gray-700 leading-relaxed space-y-4">
+                        {ghcContent.shortOverview.split('\n\n').map((paragraph, index) => (
+                          <p key={index}>{paragraph}</p>
+                        ))}
+                      </div>
+
+                      {/* Course Highlights Section */}
+                      <div className="space-y-5">
+                        <SubHeading text="Five Reasons To Work With The GHC" />
+                        {ghcContent.highlights.map((highlight, index) => {
+                          const [title, ...descParts] = highlight.split(':')
+                          const description = descParts.join(':').trim()
+                          return (
+                            <div key={index} className="flex items-start gap-3">
+                              <div className="flex-shrink-0 mt-1">
+                                <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
+                                </svg>
+                              </div>
+                              <p className="text-gray-700 text-base leading-relaxed">
+                                <span className="font-semibold">{title}:</span> {description}
+                              </p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    // Non-GHC Overview content (existing)
+                    <div className="space-y-4 text-gray-700 leading-relaxed">
+                      <p>
+                        The Associate Owned Asset Initiative is a strategic effort aimed at enhancing operational efficiency, 
+                        reducing asset management costs, and improving the accountability of devices used for company work. 
+                        As a result of this initiative, the Associate Owned Asset Guidelines have been developed to mitigate 
+                        the risk of asset theft by departing associates, while ensuring secure management and compliance 
+                        with company standards.
+                      </p>
+                      <p>
+                        The main objective of the Associate Owned Asset Guidelines is to establish clear procedures for 
+                        transitioning to an associate-owned device model at DQ. This initiative aims to:
+                      </p>
+                      <div className="pt-2">
+                        <Checklist items={[
+                          "Mitigate Asset Theft.",
+                          "Promote Accountability.",
+                          "Support Seamless Transitions.",
+                          "Optimize Operational Efficiency."
+                        ]} />
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {activeTab === 'understand' && isGHC && ghcContent && (
+                <>
+                  <Heading text="Understand" />
+                  <div className="space-y-6">
+                    {/* Storybook Description */}
+                    <div className="prose prose-base max-w-none text-gray-700 leading-relaxed space-y-4">
+                      {ghcContent.storybookIntro.split('\n\n').map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
+                    </div>
+
+                    {/* What You Will Understand Section */}
+                    <div className="space-y-5">
+                      <SubHeading text="What You'll Understand" />
+                      {ghcContent.whatYouWillLearn.map((item, index) => {
+                        const [title, ...descParts] = item.split(':')
+                        const description = descParts.join(':').trim()
+                        return (
+                          <div key={index} className="flex items-start gap-3">
+                            <div className="flex-shrink-0 mt-1">
+                              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
+                              </svg>
+                            </div>
+                            <p className="text-gray-700 text-base leading-relaxed">
+                              <span className="font-semibold">{title}:</span> {description}
+                            </p>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Open Storybook Button */}
+                    <div className="pt-4">
+                      <button
+                        onClick={() => window.location.href = 'https://digital-qatalyst.shorthandstories.com/5e83bb73-0c29-4070-9a92-5ada3c3e6f69/index.html'}
+                        className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
+                        style={{ backgroundColor: '#030E31' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
+                      >
+                        <BookOpen className="h-4 w-4" />
+                        Read more in the storybook
+                      </button>
                     </div>
                   </div>
+                </>
+              )}
 
+              {activeTab === 'learn-practice' && isGHC && ghcContent && (
+                <>
+                  <Heading text="Learn & Practice" />
+                  <div className="space-y-6">
+                    {/* Course Description */}
+                    <div className="prose prose-base max-w-none text-gray-700 leading-relaxed space-y-4">
+                      {ghcContent.courseIntro?.split('\n\n').map((paragraph, index) => (
+                        <p key={index}>{paragraph}</p>
+                      ))}
+                    </div>
+
+                    {/* What You'll Practice & Understand Section */}
+                    <div className="space-y-5">
+                      <SubHeading text="What You'll Learn & Practice" />
+                      {ghcContent.whatYouWillPractice?.map((item, index) => {
+                        const [title, ...descParts] = item.split(':')
+                        const description = descParts.join(':').trim()
+                        return (
+                          <div key={index} className="flex items-start gap-3">
+                            <div className="flex-shrink-0 mt-1">
+                              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4" />
+                              </svg>
+                            </div>
+                            <p className="text-gray-700 text-base leading-relaxed">
+                              <span className="font-semibold">{title}:</span> {description}
+                            </p>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* View Course Button */}
+                    <div className="pt-4">
+                      <button
+                        onClick={() => window.location.href = 'https://dq-intranet-pykepfa4x-digitalqatalysts-projects.vercel.app/lms/ghc-course/lesson/7191832f-d3ac-4577-9eb2-80c9a57e7e28'}
+                        className="inline-flex items-center gap-2 px-6 py-3 text-white font-medium rounded-lg transition-colors"
+                        style={{ backgroundColor: '#030E31' }}
+                        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#020A28' }}
+                        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#030E31' }}
+                      >
+                        <PlayCircle className="h-4 w-4" />
+                        View Course
+                      </button>
+                    </div>
+                  </div>
                 </>
               )}
 
@@ -323,7 +649,10 @@ export const ServiceDetailPage: React.FC = () => {
                   </div>
                   <Heading text="Other Materials" />
                   <p className="mt-2 text-gray-500 max-w-sm">
-                    Supplementary resources and templates for this guideline will be coming soon.
+                    {isGHC 
+                      ? 'Additional resources and materials for this competency will be coming soon.'
+                      : 'Supplementary resources and templates for this guideline will be coming soon.'
+                    }
                   </p>
                 </div>
               )}
@@ -336,7 +665,7 @@ export const ServiceDetailPage: React.FC = () => {
                 <div className="rounded-xl border border-gray-200 shadow-sm overflow-hidden bg-white">
                   {/* card header */}
                   <div className="px-5 pt-5 pb-3 border-b border-gray-100">
-                    <h3 className="text-base font-semibold text-gray-900">Guideline summary</h3>
+                    <h3 className="text-base font-semibold text-gray-900">{summaryTitle}</h3>
                   </div>
                   {/* key-value rows */}
                   <div className="px-5 py-4 space-y-3">
@@ -349,13 +678,32 @@ export const ServiceDetailPage: React.FC = () => {
                   </div>
                   {/* CTAs */}
                   <div className="px-5 pb-5 space-y-2.5">
-                    <button
-                      onClick={() => navigate(fullGuidePath)}
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                      style={{ backgroundColor: 'hsl(var(--cta))' }}
-                    >
-                      More Detail <ArrowRight className="h-4 w-4" />
-                    </button>
+                    {isGHC && ghcButtonConfig ? (
+                      <button
+                        onClick={() => {
+                          // Check if it's an external URL
+                          if (ghcButtonConfig.url.startsWith('http')) {
+                            // External links navigate in same tab
+                            window.location.href = ghcButtonConfig.url;
+                          } else {
+                            // Internal links navigate in same tab
+                            navigate(ghcButtonConfig.url);
+                          }
+                        }}
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                        style={{ backgroundColor: '#030E31' }}
+                      >
+                        {ghcButtonConfig.text} <ArrowRight className="h-4 w-4" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => navigate(fullGuidePath)}
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                        style={{ backgroundColor: '#030E31' }}
+                      >
+                        {moreDetailButtonText} <ArrowRight className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -369,25 +717,52 @@ export const ServiceDetailPage: React.FC = () => {
         <section className="border-t border-gray-100 bg-gray-50 px-6 py-12">
           <div className="container mx-auto max-w-7xl">
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Related Services</h2>
+              <Heading text={relatedSectionTitle} />
               <Link
                 to="/marketplace/guides"
                 className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
               >
-                Browse all guides <ArrowRight className="h-4 w-4" />
+                {browseAllText} <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-            {/* Placeholder cards */}
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl border border-gray-100 bg-white h-40 shadow-sm flex items-center justify-center"
-                >
-                  <span className="text-gray-400 text-sm font-medium">Coming Soon</span>
-                </div>
-              ))}
-            </div>
+            {/* Related competencies cards */}
+            {isGHC ? (
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {getRelatedCompetencies(itemId || '').map((competency) => (
+                  <Link
+                    key={competency.id}
+                    to={`/marketplace/guides/service/${competency.id}`}
+                    className="group block rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:border-gray-200"
+                  >
+                    <div className="mb-4">
+                      <span className="inline-block px-3 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full uppercase tracking-wide">
+                        COMPETENCY
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                      {competency.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                      {competency.description}
+                    </p>
+                    <div className="flex items-center text-sm text-blue-600 font-medium group-hover:text-blue-700">
+                      Read more <ArrowRight className="ml-1 h-4 w-4" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="rounded-2xl border border-gray-100 bg-white h-40 shadow-sm flex items-center justify-center"
+                  >
+                    <span className="text-gray-400 text-sm font-medium">Coming Soon</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>
