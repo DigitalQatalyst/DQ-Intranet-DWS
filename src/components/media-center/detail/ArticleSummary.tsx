@@ -55,16 +55,24 @@ export const ArticleSummary: React.FC<ArticleSummaryProps> = ({ article, shouldU
             <span className="text-gray-900 font-medium">{getNewsTypeDisplay(article).label}</span>
           </div>
         </div>
-        <div className="px-4 pb-4">
+        <div className="px-4 pb-4 space-y-3">
           <button 
             type="button"
-            className="w-full px-4 py-3 text-white font-semibold rounded-md transition-colors shadow-md hover:opacity-90" 
-            style={{ backgroundColor: '#030F35' }}
+            className="w-full px-4 py-3 text-white font-semibold rounded-md transition-colors shadow-md hover:opacity-90 bg-[hsl(210_100%_70%)] hover:bg-[hsl(210_100%_60%)]" 
             onClick={() => {
               window.open(getFullBlogUrl(), '_blank');
             }}
           >
             View Full Blog
+          </button>
+          <button 
+            type="button"
+            className="w-full px-4 py-3 text-gray-700 font-semibold rounded-md transition-colors border border-gray-300 hover:bg-gray-50" 
+            onClick={() => {
+              // Handle secondary action
+            }}
+          >
+            Download PDF
           </button>
         </div>
       </section>
@@ -79,7 +87,7 @@ export const ArticleSummary: React.FC<ArticleSummaryProps> = ({ article, shouldU
       <div className="p-4 space-y-4">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Author</span>
-          <span className="text-gray-900 font-medium">HRA</span>
+          <span className="text-gray-900 font-medium">{displayAuthor}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Date</span>

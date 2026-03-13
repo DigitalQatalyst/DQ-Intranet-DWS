@@ -2,16 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRightIcon, Share2, BookmarkIcon } from 'lucide-react';
 import type { NewsItem } from '@/data/media/news';
-import { generateTitle, getNewsImageSrc } from '@/utils/newsUtils';
-import { formatDate } from '@/utils/newsUtils';
-
-const fallbackHero = 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1600&q=80';
-const fallbackImages = [
-  'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80'
-];
+import { generateTitle, getNewsTypeDisplay, formatDate } from '@/utils/newsUtils';
 
 interface HeroSectionProps {
   article: NewsItem;
@@ -26,7 +17,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   isBookmarked, 
   onBookmarkToggle 
 }) => {
-  const imageSrc = getNewsImageSrc(article, fallbackImages, fallbackHero);
   const announcementDate = article.date ? formatDate(article.date) : '';
   const mediaCenterUrl = (() => {
     const params = new URLSearchParams(location.search);
@@ -50,14 +40,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   return (
     <section className="relative min-h-[320px] md:min-h-[400px] flex flex-col" aria-labelledby="article-title">
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
+      {/* Gradient Background - dark colors cover most of hero, white starts at very bottom */}
+      <div
+        className="absolute inset-0"
         style={{
-          backgroundImage: `url("${imageSrc}")`,
-          filter: 'blur(2px)',
+          background: 'linear-gradient(to bottom, #192D6C 0%, #051139 55%, #051139 92%, #ffffff 100%)',
         }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/90 via-slate-800/85 to-slate-900/90" />
+      
+      {/* Mesh Pattern Overlay */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,_rgba(59_130_246_/_0.3),_transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,_rgba(34_197_94_/_0.2),_transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,_rgba(251_146_60_/_0.1),_transparent_50%)]" />
+      </div>
       
       <div className="relative z-10 w-full pt-4">
         <div className="mx-auto max-w-7xl px-6 py-4">
@@ -101,14 +97,43 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
       </div>
       
-      <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-24 w-full flex-1 flex items-center">
-        <div className="max-w-4xl w-full">
-          <div className="text-white/90 text-sm mb-4">
-            {announcementDate}
+      <div className="relative z-10 mx-auto px-6 sm:px-8 lg:px-12 py-4 md:py-6 w-full flex-1 flex items-center">
+        <div className="w-full">
+          {/* Title Section - spans full width with small margins */}
+          <div className="bg-black/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl">
+            {/* Badge */}
+            <div className="mb-6">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-500 text-white">
+                {getNewsTypeDisplay(article).label}
+              </span>
+            </div>
+
+            {/* Title */}
+            <h1 id="article-title" className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4 break-words">
+              {generateTitle(article)}
+            </h1>
+
+            {/* Description */}
+            <p className="text-lg text-white/90 leading-relaxed">
+              {article.excerpt}
+            </p>
+
+            {/* Metadata Chips */}
+            <div className="flex flex-wrap gap-3 mt-6">
+              <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-black/5 border border-white/10">
+                <span className="text-xs font-medium text-white/70">Date:</span>
+                <span className="text-xs text-white ml-1">{announcementDate}</span>
+              </div>
+              <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-black/5 border border-white/10">
+                <span className="text-xs font-medium text-white/70">Author:</span>
+                <span className="text-xs text-white ml-1">{article.author}</span>
+              </div>
+              <div className="inline-flex items-center px-3 py-1.5 rounded-lg bg-black/5 border border-white/10">
+                <span className="text-xs font-medium text-white/70">Reading:</span>
+                <span className="text-xs text-white ml-1">{article.readingTime || '5–10'} min</span>
+              </div>
+            </div>
           </div>
-          <h1 id="article-title" className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4 break-words">
-            {generateTitle(article)}
-          </h1>
         </div>
       </div>
     </section>

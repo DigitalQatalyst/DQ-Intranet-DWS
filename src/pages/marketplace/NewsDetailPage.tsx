@@ -16,14 +16,13 @@ const shouldUseNewLayout = (article: NewsItem | null): boolean => {
   if (!article) return false;
   const isBlogArticle = article.type === 'Thought Leadership' && article.format !== 'Podcast';
   return isBlogArticle || 
-    (article.format === 'Podcast' || article.tags?.some(tag => tag.toLowerCase().includes('podcast')));
+    (article.format === 'Podcast' || (article.tags?.some(tag => tag.toLowerCase().includes('podcast')) ?? false));
 };
 
 
 const NewsDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<'overview' | 'related'>('overview');
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   const { article, related, isLoading, loadError } = useArticleData(id);
@@ -52,41 +51,27 @@ const NewsDetailPage: React.FC = () => {
           onBookmarkToggle={() => setIsBookmarked(!isBookmarked)}
         />
 
-        <section className="bg-white py-6">
-          <div className="mx-auto max-w-7xl px-6">
+        <section className="bg-white pt-8 pb-8">
+          <div className="mx-auto px-6 sm:px-8 lg:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
               <div className="lg:col-span-3 space-y-6">
                 <ArticleContent
                   article={article}
                   related={related}
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
                   shouldUseNewLayout={useNewLayout}
                 />
-                            </div>
-                            
-              {useNewLayout && activeTab === 'overview' && (
-                <div className="lg:col-span-1">
-                  <div className="sticky top-8 lg:pt-[41px]">
-                    <ArticleSummary article={article} shouldUseNewLayout={true} />
-                  </div>
-                </div>
-              )}
-              {!useNewLayout && (
-                <div className="lg:col-span-1">
-                  <div className="sticky top-8 lg:pt-[41px]">
-                    <ArticleSummary article={article} shouldUseNewLayout={false} />
-                  </div>
-                </div>
-              )}
+                <EngagementMetrics
+                  views={views}
+                  likes={likes}
+                  hasLiked={hasLiked}
+                  onLike={handleLike}
+                />
+              </div>
+              
+              <div className="lg:col-span-1">
+                <ArticleSummary article={article} shouldUseNewLayout={true} />
+              </div>
             </div>
-
-            <EngagementMetrics
-              views={views}
-              likes={likes}
-              hasLiked={hasLiked}
-              onLike={handleLike}
-            />
           </div>
         </section>
       </main>
